@@ -1,0 +1,267 @@
+'use client';
+
+import type {
+  ThemeComponentDescriptor,
+  ThemeLayoutDocument,
+} from '../../layout/types';
+import {
+  DynamicThemeRenderer,
+  useDynamicThemeRendererController,
+} from '../../renderer';
+import { getComponentDisplayName } from '../displayText';
+import { themeLayoutBuilderContent } from '../ThemeLayoutBuilder.content';
+import styles from '../ThemeLayoutBuilder.module.css';
+import type { LayoutBuilderTheme } from '../types';
+import { cx } from 'base/classname';
+import {
+  type CSSProperties,
+  type DragEvent,
+  useEffect,
+  useRef,
+} from 'react';
+
+type BuilderSidebarTab = 'components' | 'templates';
+
+interface BuilderLibraryPanelProps {
+  tab: BuilderSidebarTab;
+  onTabChange: (tab: BuilderSidebarTab) => void;
+  activeTheme: LayoutBuilderTheme;
+  templates: LayoutBuilderTheme[];
+  activeTemplateId: string;
+  layoutDescriptors: ThemeComponentDescriptor[];
+  componentDescriptors: ThemeComponentDescriptor[];
+  createLibraryPreviewDocument: (
+    descriptor: ThemeComponentDescriptor,
+  ) => ThemeLayoutDocument;
+  onApplyTemplate: (themeId: string) => void;
+  onLibraryDragStart: (
+    alias: string,
+    event: DragEvent<HTMLElement>,
+  ) => void;
+  onLibraryDragEnd: () => void;
+}
+
+function LibraryCard({
+  descriptor,
+  activeTheme,
+  createLibraryPreviewDocument,
+  onLibraryDragStart,
+  onLibraryDragEnd,
+}: {
+  descriptor: ThemeComponentDescriptor;
+  activeTheme: LayoutBuilderTheme;
+  createLibraryPreviewDocument: (
+    descriptor: ThemeComponentDescriptor,
+  ) => ThemeLayoutDocument;
+  onLibraryDragStart: (
+    alias: string,
+    event: DragEvent<HTMLElement>,
+  ) => void;
+  onLibraryDragEnd: () => void;
+}) {
+  const previewRef = useRef<HTMLDivElement | null>(null);
+  const dragImageRef = useRef<HTMLDivElement | null>(null);
+  const rendererController = useDynamicThemeRendererController({
+    layoutDocument: createLibraryPreviewDocument(descriptor),
+    runtime: activeTheme.runtime,
+    screenPreset: 'mobile',
+  });
+
+  useEffect(() => () => {
+    dragImageRef.current?.remove();
+    dragImageRef.current = null;
+  }, []);
+
+  function removeDragImage() {
+    dragImageRef.current?.remove();
+    dragImageRef.current = null;
+  }
+
+  function handleDragStart(event: DragEvent<HTMLElement>) {
+    const previewElement = previewRef.current;
+    if (previewElement) {
+      removeDragImage();
+
+      const rect = previewElement.getBoundingClientRect();
+      const dragImage = previewElement.cloneNode(true) as HTMLDivElement;
+      dragImage.classList.add(styles.libraryPreviewDragImage);
+      dragImage.style.width = `${rect.width}px`;
+      dragImage.style.height = `${rect.height}px`;
+      document.body.appendChild(dragImage);
+      event.dataTransfer.setDragImage(
+        dragImage, rect.width / 2, rect.height / 2,
+      );
+      dragImageRef.current = dragImage;
+    }
+
+    onLibraryDragStart(descriptor.alias, event);
+  }
+
+  function handleDragEnd() {
+    removeDragImage();
+    onLibraryDragEnd();
+  }
+
+  return (
+    <article
+      className={styles.libraryCard}
+      draggable
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
+      <div className={styles.libraryCardHeader}>
+        <strong>
+          {getComponentDisplayName(descriptor.alias, descriptor.name)}
+        </strong>
+      </div>
+      <div
+        ref={previewRef}
+        className={styles.libraryPreview}
+        style={activeTheme.runtime.cssVars as CSSProperties}
+      >
+        <DynamicThemeRenderer controller={rendererController} />
+      </div>
+    </article>
+  );
+}
+
+function TemplateCard({
+  template,
+  isActive,
+  onApply,
+}: {
+  template: LayoutBuilderTheme;
+  isActive: boolean;
+  onApply: () => void;
+}) {
+  const rendererController = useDynamicThemeRendererController({
+    layoutDocument: template.layoutDocument,
+    runtime: template.runtime,
+    screenPreset: 'mobile',
+  });
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      className={cx(
+        styles.templateCard,
+        isActive && styles.templateCardActive,
+      )}
+      onClick={onApply}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { onApply(); } }}
+    >
+      <div className={styles.templateCardHeader}>
+        <strong>{template.name}</strong>
+        <span
+          className={styles.templateBadge}
+          style={{
+            color: template.accent,
+            backgroundColor: `${template.accent}1a`,
+          }}
+        >
+          {template.tagline}
+        </span>
+      </div>
+
+      <div className={styles.templateThumbnail}>
+        <div
+          className={styles.templateThumbnailScale}
+          style={template.runtime.cssVars as CSSProperties}
+        >
+          <DynamicThemeRenderer controller={rendererController} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function BuilderLibraryPanel({
+  tab,
+  onTabChange,
+  activeTheme,
+  templates,
+  activeTemplateId,
+  layoutDescriptors,
+  componentDescriptors,
+  createLibraryPreviewDocument,
+  onApplyTemplate,
+  onLibraryDragStart,
+  onLibraryDragEnd,
+}: BuilderLibraryPanelProps) {
+  return (
+    <aside
+      className={cx(styles.panel, styles.sidebarPanel)}
+      style={
+        { ['--sidebar-accent' as string]: activeTheme.accent } as CSSProperties
+      }
+    >
+      <div className={styles.sidebarStickyTop}>
+        <div className={styles.sidebarTabs}>
+          <button
+            type="button"
+            className={cx(
+              styles.sidebarTab,
+              tab === 'components' && styles.sidebarTabActive,
+            )}
+            onClick={() => onTabChange('components')}
+          >
+            {themeLayoutBuilderContent.sidebar.componentsTab}
+          </button>
+          <button
+            type="button"
+            className={cx(
+              styles.sidebarTab,
+              tab === 'templates' && styles.sidebarTabActive,
+            )}
+            onClick={() => onTabChange('templates')}
+          >
+            {themeLayoutBuilderContent.sidebar.templatesTab}
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.sidebarContent}>
+        {tab === 'templates' ? (
+          <div className={styles.templateList}>
+            {templates.map((template) => (
+              <TemplateCard
+                key={template.id}
+                template={template}
+                isActive={template.id === activeTemplateId}
+                onApply={() => onApplyTemplate(template.id)}
+              />
+            ))}
+          </div>
+        ) : (
+          <>
+            <div className={styles.componentTabHeader}>
+              <span
+                className={styles.sidebarActiveTag}
+                style={{ backgroundColor: activeTheme.accent }}
+              >
+                {activeTheme.tagline}
+              </span>
+            </div>
+
+            <div className={styles.libraryList}>
+              {[
+                ...layoutDescriptors,
+                ...componentDescriptors,
+              ].map((descriptor) => (
+                <LibraryCard
+                  key={descriptor.alias}
+                  descriptor={descriptor}
+                  activeTheme={activeTheme}
+                  createLibraryPreviewDocument={createLibraryPreviewDocument}
+                  onLibraryDragStart={onLibraryDragStart}
+                  onLibraryDragEnd={onLibraryDragEnd}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </aside>
+  );
+}

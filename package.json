@@ -1,0 +1,110 @@
+{
+  "name": "ai-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "dist-electron/main.cjs",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "lint:backend": "cd backend && npm run lint",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:all": "concurrently --kill-others-on-fail \"next dev\" \"cd backend && npm run dev\"",
+    "dev:electron": "concurrently --kill-others-on-fail \"next dev\" \"npm run build:electron:main && wait-on http://localhost:3000 && electron dist-electron/main.cjs\"",
+    "build:electron:main": "vite build --config vite.electron.config.ts",
+    "build:electron:renderer": "next build",
+    "build:electron": "npm run build:electron:renderer && npm run build:electron:main && electron-builder",
+    "build:electron:dir": "npm run build:electron:renderer && npm run build:electron:main && electron-builder --dir"
+  },
+  "dependencies": {
+    "next": "15",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@types/node": "^24.12.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "concurrently": "^9.0.0",
+    "electron": "^36.0.0",
+    "electron-builder": "^26.0.0",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "eslint-plugin-simple-import-sort": "^13.0.0",
+    "globals": "^17.0.0",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.58.0",
+    "vite": "^8.0.8",
+    "wait-on": "^8.0.0"
+  },
+  "build": {
+    "appId": "com.ai-app.desktop",
+    "productName": "AI App",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist-electron/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": ".next/standalone",
+        "to": "server",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": ".next/static",
+        "to": "server/.next/static",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "public",
+        "to": "server/public",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "category": "public.app-category.developer-tools"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    }
+  }
+}

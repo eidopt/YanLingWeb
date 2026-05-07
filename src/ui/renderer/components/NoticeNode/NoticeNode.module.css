@@ -1,0 +1,14 @@
+.notice {
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.8rem 0.95rem;
+  border-radius: 1rem;
+  background: var(--note-bg);
+  color: rgba(18, 32, 44, 0.8);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.notice[data-parent-alias='core.grid'] {
+  width: 100%;
+}

@@ -1,0 +1,155 @@
+import js from '@eslint/js'
+import { defineConfig, globalIgnores } from 'eslint/config'
+import reactPlugin from 'eslint-plugin-react'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+import simpleImportSort from 'eslint-plugin-simple-import-sort'
+import globals from 'globals'
+import tseslint from 'typescript-eslint'
+
+export default defineConfig([
+  // --- Ignored paths ---
+  globalIgnores([
+    '.next/**',
+    'dist',
+    'dist-electron',
+    'next-env.d.ts',
+    'output/**',
+    'release',
+    'node_modules',
+    'backend/**',
+  ]),
+
+  // --- Base TypeScript rules ---
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      js.configs.recommended,
+      tseslint.configs.recommendedTypeChecked,
+      tseslint.configs.stylisticTypeChecked,
+    ],
+    languageOptions: {
+      ecmaVersion: 2023,
+      globals: {
+        ...globals.browser,
+        ...globals.es2023,
+      },
+      parserOptions: {
+        project: ['./tsconfig.json', './tsconfig.electron.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    rules: {
+      // TypeScript
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { prefer: 'type-imports', fixStyle: 'separate-type-imports' },
+      ],
+      '@typescript-eslint/no-import-type-side-effects': 'error',
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-non-null-assertion': 'warn',
+      '@typescript-eslint/prefer-nullish-coalescing': 'error',
+      '@typescript-eslint/prefer-optional-chain': 'error',
+      '@typescript-eslint/no-unnecessary-condition': 'warn',
+      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/await-thenable': 'error',
+      '@typescript-eslint/no-misused-promises': [
+        'error',
+        { checksVoidReturn: { attributes: false } },
+      ],
+
+      // General JS quality
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
+      'no-debugger': 'error',
+      'prefer-const': 'error',
+      'no-var': 'error',
+      eqeqeq: ['error', 'always', { null: 'ignore' }],
+      'object-shorthand': 'error',
+
+      // Style
+      semi: ['error', 'always'],
+      curly: ['error', 'all'],
+      'max-len': [
+        'error',
+        {
+          code: 120,
+          ignoreUrls: true,
+          ignoreRegExpLiterals: true,
+          ignoreTemplateLiterals: false,
+          ignoreStrings: false,
+          ignoreComments: true,
+        },
+      ],
+    },
+  },
+
+  // --- React ---
+  {
+    files: ['**/*.{tsx,jsx}'],
+    plugins: {
+      react: reactPlugin,
+    },
+    settings: {
+      react: { version: 'detect' },
+    },
+    rules: {
+      ...reactPlugin.configs.recommended.rules,
+      ...reactPlugin.configs['jsx-runtime'].rules,
+      'react/prop-types': 'off',
+      'react/display-name': 'warn',
+      'react/jsx-curly-brace-presence': ['error', { props: 'never', children: 'never' }],
+      'react/self-closing-comp': 'error',
+      'react/jsx-boolean-value': ['error', 'never'],
+      'react/no-array-index-key': 'warn',
+      'react/no-danger': 'error',
+    },
+  },
+
+  // --- React Hooks ---
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [reactHooks.configs.flat.recommended],
+  },
+
+  // --- React Refresh (Vite HMR) ---
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    extends: [reactRefresh.configs.vite],
+  },
+
+  // --- Import sorting ---
+  {
+    files: ['**/*.{ts,tsx,js,jsx}'],
+    plugins: {
+      'simple-import-sort': simpleImportSort,
+    },
+    rules: {
+      'simple-import-sort/imports': [
+        'error',
+        {
+          groups: [
+            ['^\\u0000', '^'],
+          ],
+        },
+      ],
+      'simple-import-sort/exports': 'error',
+    },
+  },
+
+  // --- Electron main process ---
+  {
+    files: ['electron/**/*.{ts,js}', 'vite.electron.config.ts'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+    rules: {
+      'no-console': 'off',
+    },
+  },
+])

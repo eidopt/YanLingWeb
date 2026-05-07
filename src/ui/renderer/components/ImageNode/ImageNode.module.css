@@ -1,0 +1,5 @@
+.imagePlaceholder {
+  border-radius: var(--radius-image, 1.1rem);
+  aspect-ratio: 1 / 1;
+  background: color-mix(in srgb, var(--accent) 10%, #f3f4f6);
+}

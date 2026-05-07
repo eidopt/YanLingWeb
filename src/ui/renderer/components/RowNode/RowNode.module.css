@@ -1,0 +1,22 @@
+.row {
+  display: flex;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  border-radius: var(--radius-panel, 1.5rem);
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 0.75rem 2rem rgba(15, 23, 42, 0.06);
+}
+
+.panelAccent {
+  background: linear-gradient(180deg, var(--panel-accent) 0%, rgba(255, 255, 255, 0.95) 100%);
+  border-color: var(--panel-accent-border);
+}
+
+.panelSoft {
+  background: var(--surface-muted);
+}

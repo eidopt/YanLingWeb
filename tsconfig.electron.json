@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
+    "strict": true,
+    "skipLibCheck": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "esModuleInterop": true,
+    "ignoreDeprecations": "6.0",
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@shared/*": ["./shared/*"],
+      "ai/*": ["./src/ai/*"],
+      "base/*": ["./src/base/*"],
+      "hooks/*": ["./src/hooks/*"],
+      "lib/*": ["./src/lib/*"],
+      "services/*": ["./src/services/*"],
+      "types/*": ["./src/types/*"],
+      "ui/*": ["./src/ui/*"],
+      "views/*": ["./src/views/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "electron/**/*.ts", "vite.electron.config.ts"]
+}

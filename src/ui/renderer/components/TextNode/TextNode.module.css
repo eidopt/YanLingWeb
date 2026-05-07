@@ -1,0 +1,52 @@
+.text {
+  margin: 0;
+}
+
+.textDisplay {
+  color: #111827;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+.textHeading {
+  color: var(--text-heading-color, #111827);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.textSubheading {
+  color: var(--text-subheading-color, #374151);
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.textBody {
+  color: var(--text-body-color, #6b7280);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.textCaption {
+  color: var(--text-caption-color, #9ca3af);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.textOverline {
+  color: var(--text-overline-color, #6b7280);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.textPrice {
+  color: var(--accent);
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1.1;
+}

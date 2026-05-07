@@ -1,0 +1,134 @@
+'use client';
+
+import type {
+  ThemeLayoutNavigateAction,
+  ThemeLayoutNode,
+  ThemeLayoutTabInteraction,
+} from '../layout/types';
+import { renderCoreAlias } from './coreAliases';
+import { resolveNodeStyle } from './styleResolvers';
+import { renderComponentTemplate } from './templateInterpreter';
+import type {
+  DynamicThemeNodeShellContext,
+  DynamicThemeRendererState,
+  ThemeRuntime,
+} from './types';
+import { Fragment, type ReactNode } from 'react';
+
+function resolveNavigateHandler(
+  interaction: ThemeLayoutNavigateAction | undefined,
+  state: DynamicThemeRendererState,
+) {
+  if (!interaction) {
+    return undefined;
+  }
+
+  return () => {
+    state.navigateToPage(interaction.targetPageId);
+  };
+}
+
+function isNavigateAction(
+  interaction: ThemeLayoutTabInteraction,
+): interaction is ThemeLayoutNavigateAction {
+  return 'type' in interaction;
+}
+
+function resolveTabClickHandler(
+  interaction: ThemeLayoutTabInteraction | undefined,
+  state: DynamicThemeRendererState,
+) {
+  if (!interaction) {
+    return undefined;
+  }
+
+  return (tab: string) => {
+    const targetInteraction = isNavigateAction(interaction)
+      ? interaction
+      : interaction[tab];
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- defensive null guard
+    if (!targetInteraction) {
+      return;
+    }
+
+    state.navigateToPage(targetInteraction.targetPageId);
+  };
+}
+
+function renderNode(
+  runtime: ThemeRuntime,
+  state: DynamicThemeRendererState,
+  node: ThemeLayoutNode,
+  renderNodeShell?: (context: DynamicThemeNodeShellContext) => ReactNode,
+  parent: ThemeLayoutNode | null = null,
+  index = 0,
+): ReactNode {
+  const isRoot = parent === null;
+  const childNodes = node.children?.map(
+    (child, childIndex) =>
+      renderNode(runtime, state, child, renderNodeShell, node, childIndex),
+  ) ?? [];
+  const nodeStyle = resolveNodeStyle(node, parent?.alias);
+  const props = {
+    ...(node.props ?? {}),
+    onClick: resolveNavigateHandler(node.interactions?.onClick, state),
+    onActionClick: resolveNavigateHandler(
+      node.interactions?.onActionClick, state,
+    ),
+    onStatusClick: resolveNavigateHandler(
+      node.interactions?.onStatusClick, state,
+    ),
+    onTabClick: resolveTabClickHandler(node.interactions?.onTabClick, state),
+    __layout: node.layout,
+    __frame: node.frame,
+    __layoutMode: node.layout.mode,
+    __parentAlias: parent?.alias,
+    __slot: node.slot,
+    __slots: node.children?.map((child) => child.slot ?? 'body') ?? [],
+    __childFlowRows: node.children?.map(
+      (child, childIndex) => child.layout.flowRow ?? childIndex + 1,
+    ) ?? [],
+    __hasAbsoluteChildren: node.children?.some(
+      (child) => child.layout.mode === 'absolute',
+    ) ?? false,
+    __applyNodeLayoutStyle: !(renderNodeShell && !isRoot),
+  };
+  const resolved = node.alias.startsWith('core.')
+    ? renderCoreAlias(runtime, node.alias, props, childNodes)
+    : renderComponentTemplate(
+      node.alias, props, runtime.componentTemplates, runtime,
+    );
+
+  if (renderNodeShell && !isRoot) {
+    return renderNodeShell({
+      node,
+      parent,
+      index,
+      isRoot,
+      nodeStyle,
+      rendered: resolved,
+    });
+  }
+
+  if (!node.alias.startsWith('core.')) {
+    return (
+      <div
+        key={node.id}
+        style={nodeStyle}
+        data-parent-alias={parent?.alias ?? ''}
+      >
+        {resolved}
+      </div>
+    );
+  }
+
+  return <Fragment key={node.id}>{resolved}</Fragment>;
+}
+
+export function renderThemeNodeTree(
+  runtime: ThemeRuntime,
+  state: DynamicThemeRendererState,
+  renderNodeShell?: (context: DynamicThemeNodeShellContext) => ReactNode,
+) {
+  return renderNode(runtime, state, state.rootNode, renderNodeShell);
+}

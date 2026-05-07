@@ -1,0 +1,17 @@
+.appShell {
+  height: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.routeViewport {
+  flex: 1;
+  min-height: 0;
+}
+
+.routeViewportOverlay {
+  flex: 1;
+  min-height: 0;
+  margin-top: -60px;
+}
