@@ -26,8 +26,10 @@ const startupServerFlavor = ConfigFactory.applyStartupFlavor();
       useFactory: () => {
         const env = ConfigFactory.build();
         return {
-          type: 'better-sqlite3',
-          database: env.database.path,
+          type: 'sqljs',
+          location: env.database.path,
+          autoSave: true,
+          useLocalForage: false,
           entities: [Theme, Template, ExportRecord, User],
           synchronize: true, // auto-create tables on start (dev only)
           logging: env.database.logging,

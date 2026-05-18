@@ -21,6 +21,8 @@ const RETRY_DELAY_MS = 1000;
 const MAX_SAME_TOOL_REPEAT = 3;
 const MAX_OUTPUT_TOKENS_RECOVERY = 3;
 const MAX_CONTINUATION_RETRIES = 3;
+const MAX_TOOL_RETRIES = 3;
+const TOOL_RETRY_DELAY_MS = 500;
 
 export interface PendingToolCall {
   id: string;
@@ -62,6 +64,71 @@ export interface QueryResult {
   iterations: number;
   stopReason: 'completed' | 'max_iterations' | 'error' | 'cancelled';
   error?: string;
+}
+
+async function executeToolCallsInParallel(
+  pendingCalls: PendingToolCall[],
+  cfg: Omit<QueryLoopConfig, 'toolExecutor'> & {
+    toolExecutor: (name: string, args: Record<string, unknown>) => Promise<ToolResult>;
+  },
+): Promise<{ call: PendingToolCall; result: ToolResult }[]> {
+  const results = await Promise.all(
+    pendingCalls.map(async (call) => {
+      let args: Record<string, unknown>;
+      try {
+        args = JSON.parse(call.arguments) as Record<string, unknown>;
+      } catch {
+        return {
+          call,
+          result: { output: JSON.stringify({ error: 'Invalid JSON arguments' }) },
+        };
+      }
+
+      cfg.onToolEvent({ name: call.name, status: 'start' });
+
+      let result: ToolResult = {
+        output: JSON.stringify({ error: 'Tool execution failed after max retries' }),
+      };
+      let retries = 0;
+
+      while (retries <= MAX_TOOL_RETRIES) {
+        try {
+          result = await cfg.toolExecutor(call.name, args);
+          break;
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          const isRetryable =
+            message.includes('timeout') ||
+            message.includes('network') ||
+            message.includes('ECONNRESET') ||
+            message.includes('ETIMEDOUT') ||
+            message.includes('503') ||
+            message.includes('502');
+
+          if (isRetryable && retries < MAX_TOOL_RETRIES) {
+            retries += 1;
+            const delay = TOOL_RETRY_DELAY_MS * Math.pow(2, retries);
+            console.warn(
+              `[QueryLoop] Tool ${call.name} retry ${retries}/${MAX_TOOL_RETRIES} in ${delay}ms`,
+            );
+            await new Promise((r) => setTimeout(r, delay));
+            continue;
+          }
+
+          result = {
+            output: JSON.stringify({ error: message }),
+          };
+          break;
+        }
+      }
+
+      const isError = result.output.startsWith('{"error');
+      cfg.onToolEvent({ name: call.name, status: isError ? 'error' : 'done' });
+      return { call, result };
+    }),
+  );
+
+  return results;
 }
 
 export class QueryLoop {
@@ -116,6 +183,7 @@ export class QueryLoop {
       let apiError: string | null = null;
       let isPTL = false;
       let stopReason: 'end_turn' | 'max_tokens' = 'end_turn';
+      let reasoningContent: string | undefined;
 
       const request = this.buildRequest(current);
 
@@ -142,6 +210,7 @@ export class QueryLoop {
               break;
             case 'done':
               if (event.stopReason) { stopReason = event.stopReason; }
+              if (event.reasoningContent) { reasoningContent = event.reasoningContent; }
               break;
           }
         }
@@ -196,7 +265,11 @@ export class QueryLoop {
 
       const assistantText = textChunks.join('');
       if (assistantText.trim()) {
-        current.push({ role: 'assistant', content: assistantText });
+        current.push({
+          role: 'assistant',
+          content: assistantText,
+          ...(reasoningContent && { reasoningContent }),
+        });
       }
 
       if (
@@ -230,37 +303,10 @@ export class QueryLoop {
       continuationParts = [];
       this.maybeInjectLoopHint(current, pendingCalls);
 
-      const toolResults: { call: PendingToolCall; result: ToolResult }[] = [];
-
-      for (const call of pendingCalls) {
-        let args: Record<string, unknown>;
-        try {
-          args = JSON.parse(call.arguments) as Record<string, unknown>;
-        } catch {
-          toolResults.push({
-            call,
-            result: { output: JSON.stringify({ error: 'Invalid JSON arguments' }) },
-          });
-          continue;
-        }
-
-        this.cfg.onToolEvent({ name: call.name, status: 'start' });
-
-        let result: ToolResult;
-        try {
-          result = await this.cfg.toolExecutor(call.name, args);
-        } catch (err) {
-          result = {
-            output: JSON.stringify({
-              error: err instanceof Error ? err.message : String(err),
-            }),
-          };
-        }
-
-        const isError = result.output.startsWith('{"error');
-        this.cfg.onToolEvent({ name: call.name, status: isError ? 'error' : 'done' });
-        toolResults.push({ call, result });
-      }
+      const toolResults = await executeToolCallsInParallel(
+        pendingCalls,
+        this.cfg,
+      );
 
       if (this.cfg.isCancelled()) { break; }
 

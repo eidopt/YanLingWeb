@@ -24,12 +24,24 @@ const AppServicesContext = createContext<AppServices | null>(null);
 export function AppServicesProvider({ children }: { children: ReactNode }) {
   const services = useMemo<AppServices>(() => {
     const authService = new AuthService();
+
+    const handleAuthExpired = () => {
+      authService.clear();
+      window.location.href = '/';
+    };
+
     return {
       authService,
       userService: new UserService(),
       templateService: new TemplateService(),
-      templateAiService: new TemplateAiService(() => authService.getToken()),
-      editorAiService: new EditorAiService(() => authService.getToken()),
+      templateAiService: new TemplateAiService(
+        () => authService.getToken(),
+        handleAuthExpired,
+      ),
+      editorAiService: new EditorAiService(
+        () => authService.getToken(),
+        handleAuthExpired,
+      ),
     };
   }, []);
 

@@ -38,8 +38,20 @@ const SYSTEM_PROMPT = [
   '  width: "100%" }, props.',
   '- Use core.panel with tone for visual grouping.',
   '- Create componentTemplates for reusable patterns.',
-  '- If the UI intent plan says a capability is missing, approximate it with supported',
-  '  layout primitives and explain the limitation after saving.',
+  '',
+  'core.widget — for dynamic third-party content (charts, markdown, editors, 3D):',
+  '  Add dependencies to layoutDocument.dependencies:',
+  '    dependencies: [{ name: "echarts", url: "https://esm.sh/echarts" }]',
+  '  Use core.widget with props:',
+  '    library: "echarts" — matches the dependency name',
+  '    code: "var chart = echarts.init(container); chart.setOption(data);"',
+  '    data: { ... } — arbitrary JSON passed as "data" param to the code function',
+  '  Prefer esm.sh for ESM packages. For non-ESM, use esm.sh/*target* syntax.',
+  '  Widget code receives: function(container: HTMLDivElement, lib, data)',
+  '  Always return a cleanup function if the lib needs teardown (e.g. chart.dispose).',
+  '',
+  'If the UI intent plan says a capability is missing, try core.widget + esm.sh',
+  'before falling back to pure layout approximations.',
   '- Never use an alias unless it is a core.* alias or defined in componentTemplates.',
   '- templateId format: {category}-{theme} (e.g. "fitness-tracker").',
   '- Call generate_template exactly ONCE. After saving, describe what you created.',
@@ -47,13 +59,37 @@ const SYSTEM_PROMPT = [
 
 export class TemplateAiService {
   private provider: BackendProxyProvider;
+  /** Cached model name fetched from backend /api/ai/config */
+  private static defaultModel: string | null = null;
 
-  constructor(private readonly getToken: () => string | null) {
-    this.provider = new BackendProxyProvider(getToken);
+  constructor(
+    private readonly getToken: () => string | null,
+    private readonly onAuthExpired?: () => void,
+  ) {
+    this.provider = new BackendProxyProvider(getToken, onAuthExpired);
+  }
+
+  /** Fetch AI config from backend and cache the model name */
+  static async fetchConfig(token: string | null): Promise<string> {
+    if (TemplateAiService.defaultModel) {
+      return TemplateAiService.defaultModel;
+    }
+    try {
+      const res = await fetch('/api/proxy/ai/config', {
+        headers: token ? { authorization: `Bearer ${token}` } : {},
+      });
+      if (res.ok) {
+        const config = await res.json() as { provider: string; model: string };
+        TemplateAiService.defaultModel = config.model;
+        return config.model;
+      }
+    } catch { /* fall through to default */ }
+    return 'gpt-5.4';
   }
 
   async generate(opts: GenerateTemplateOptions): Promise<void> {
-    const { prompt, model = 'gpt-5.4', onEvent, signal } = opts;
+    const cfgModel = await TemplateAiService.fetchConfig(this.getToken());
+    const { prompt, model = cfgModel, onEvent, signal } = opts;
     const intentPlan = planUiIntent(prompt);
     const intentPlanPrompt = formatUiIntentPlanForPrompt(intentPlan);
 

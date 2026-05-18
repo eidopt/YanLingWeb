@@ -1,6 +1,7 @@
 import type { ProviderMessage } from '../providers/types';
 
-const KEEP_RECENT = 12;
+const KEEP_RECENT = 20;
+const MAX_SUMMARY_TOOL_RESULTS = 5;
 
 export function compactConversation(messages: ProviderMessage[]): ProviderMessage[] {
   if (messages.length <= KEEP_RECENT + 1) {
@@ -14,12 +15,17 @@ export function compactConversation(messages: ProviderMessage[]): ProviderMessag
   const old = nonSystem.slice(0, -KEEP_RECENT);
 
   const summary = buildSummary(old);
-  const compactionNote = '[Compaction Summary — prior context compressed]'
-    + `\n\n${summary}\n\n[Continue from here. Do not repeat completed work.]`;
+  const note = [
+    '[Compaction — prior context compressed]',
+    '',
+    summary,
+    '',
+    '[Continue from here. Do not repeat completed work. If a tool was already called, do not call it again with the same intent.]',
+  ].join('\n');
 
   return [
     ...system,
-    { role: 'user', content: compactionNote },
+    { role: 'user', content: note },
     ...recent,
   ];
 }
@@ -30,28 +36,68 @@ function buildSummary(messages: ProviderMessage[]): string {
   }
 
   const lines: string[] = [];
-  let currentGoal = '';
+  const userMessages: string[] = [];
+  const toolResults: { name: string; ok: boolean; detail: string }[] = [];
+  let lastCancelled = false;
 
   for (const msg of messages) {
     if (msg.role === 'user' && typeof msg.content === 'string') {
       const text = msg.content.trim();
-      if (text && !text.startsWith('[')) {
-        currentGoal = text.slice(0, 120);
+      // Skip system-injected messages
+      if (text && !text.startsWith('[') && !text.startsWith('[系统提示]')) {
+        userMessages.push(text.slice(0, 100));
       }
     }
-    if (msg.role === 'tool_call' && msg.toolName === 'generate_template') {
-      try {
-        const raw = msg.toolArguments ?? '{}';
-        const args = JSON.parse(raw) as { name?: string; category?: string };
-        lines.push(
-          `- Generated template: ${args.name ?? 'unnamed'} (${args.category ?? ''})`,
-        );
-      } catch { /* ignore malformed args */ }
+    if (msg.role === 'tool_call' && msg.toolName) {
+      const args = tryParseArgs(msg.toolArguments ?? '{}');
+      const detail = buildToolDetail(msg.toolName, args);
+      if (detail) {
+        lines.push(`- Tool: ${msg.toolName} — ${detail}`);
+      }
+    }
+    if (msg.role === 'tool_result' && typeof msg.content === 'string') {
+      const truncated = msg.content.slice(0, 200);
+      const isError = truncated.startsWith('{"error');
+      if (isError) {
+        try {
+          const { error } = JSON.parse(msg.content) as { error?: string };
+          if (error) {
+            lines.push(`  Error: ${error.slice(0, 80)}`);
+          }
+        } catch { /* non-JSON content */ }
+      }
     }
   }
 
-  if (currentGoal) {
-    lines.unshift(`- Goal: ${currentGoal}`);
+  if (userMessages.length > 0) {
+    // Deduplicate and show user requests
+    const unique = [...new Set(userMessages)];
+    if (unique.length > 1) {
+      lines.unshift(`- User requests (${unique.length}): ${unique.map((m) => `"${m}"`).join(' | ')}`);
+    } else {
+      lines.unshift(`- Goal: ${unique[0]}`);
+    }
   }
+
   return lines.join('\n') || 'Prior work recorded.';
+}
+
+function tryParseArgs(raw: string): Record<string, unknown> {
+  try { return JSON.parse(raw) as Record<string, unknown>; }
+  catch { return {}; }
+}
+
+function buildToolDetail(name: string, args: Record<string, unknown>): string {
+  switch (name) {
+    case 'generate_template':
+      return `${args.name ?? 'unnamed'} (${args.category ?? ''})`;
+    case 'apply_editor_edits':
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- args may be malformed at runtime
+      if (Array.isArray(args.operations)) {
+        return `${args.operations.length} operation(s) — ${args.reason ?? ''}`;
+      }
+      return '';
+    default:
+      return Object.keys(args).slice(0, 2).join(', ');
+  }
 }

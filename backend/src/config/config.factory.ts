@@ -10,6 +10,8 @@ export interface BackendOAuthProviderConfig {
 
 export interface ServerConfig {
   ai: {
+    provider: 'openai' | 'openai-compatible';
+    model: string;
     apiKey?: string;
     baseUrl?: string;
   };
@@ -55,10 +57,25 @@ export class ConfigFactory {
   ): ServerConfig {
     const serverFlavor = this.resolveServerFlavor(source, argv);
 
+    // Build provider-specific env var mapping
+    const VAR_PREFIX: Record<string, string> = {
+      openai: 'OPENAI',
+      'openai-compatible': 'DEEPSEEK',
+    };
+    const aiProvider = (this.read(source, serverFlavor, 'AI_PROVIDER') as 'openai' | 'openai-compatible') ?? 'openai';
+    const prefix = VAR_PREFIX[aiProvider];
+
+    const aiModel = this.read(source, serverFlavor, 'AI_MODEL');
+
     return {
       ai: {
-        apiKey: this.read(source, serverFlavor, 'AI_API_KEY'),
-        baseUrl: this.read(source, serverFlavor, 'AI_BASE_URL'),
+        provider: aiProvider,
+        model: aiModel ?? (aiProvider === 'openai-compatible' ? 'deepseek-chat' : 'gpt-5.4'),
+        // Try provider-specific vars (e.g. OPENAI_API_KEY), fall back to generic AI_*
+        apiKey: this.read(source, serverFlavor, `${prefix}_API_KEY`)
+          ?? this.read(source, serverFlavor, 'AI_API_KEY'),
+        baseUrl: this.read(source, serverFlavor, `${prefix}_BASE_URL`)
+          ?? this.read(source, serverFlavor, 'AI_BASE_URL'),
       },
       corsOrigins: this.readList(source, serverFlavor, 'CORS_ORIGINS'),
       database: {

@@ -17,15 +17,41 @@ const CAPABILITIES: ProviderCapabilities = {
 /**
  * Sends ProviderRequests to the backend /api/ai/stream endpoint.
  * The backend holds the API key and enforces rate limits.
+ *
+ * Maintains a conversation ID and tracks the previous response ID for
+ * providers that support prompt caching (OpenAI, Claude, etc.).
+ * The backend receives these via headers and can forward them to the LLM.
  */
 export class BackendProxyProvider implements AIProvider {
   readonly name = 'backend-proxy';
   private aborted = false;
 
-  constructor(private readonly getToken: () => string | null) {}
+  /** Stable session-wide conversation identifier */
+  private conversationId: string | null = null;
+  /** ID of the most recent LLM response, used for prompt caching on next request */
+  private previousResponseId: string | null = null;
+
+  /**
+   * @param getToken - Returns the current JWT token (or null if not logged in).
+   * @param onAuthExpired - Optional callback fired when the backend returns 401.
+   *   The caller should clear auth state and redirect to login.
+   */
+  constructor(
+    private readonly getToken: () => string | null,
+    private readonly onAuthExpired?: () => void,
+  ) {}
 
   getCapabilities(): ProviderCapabilities {
     return CAPABILITIES;
+  }
+
+  /** Assign a stable conversation ID for this provider instance */
+  setConversationId(id: string): void {
+    this.conversationId = id;
+  }
+
+  getConversationId(): string | null {
+    return this.conversationId;
   }
 
   async *stream(request: ProviderRequest): AsyncIterable<ProviderStreamEvent> {
@@ -37,16 +63,35 @@ export class BackendProxyProvider implements AIProvider {
       return;
     }
 
+    // Ensure a stable conversation ID exists for cache purposes
+    if (!this.conversationId) {
+      this.conversationId = `conv-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    }
+
+    const headers: Record<string, string> = {
+      'content-type': 'application/json',
+      authorization: `Bearer ${token}`,
+      'x-conversation-id': this.conversationId,
+    };
+
+    if (this.previousResponseId) {
+      headers['x-previous-response-id'] = this.previousResponseId;
+    }
+
     const res = await fetch('/api/ai/stream', {
       method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        authorization: `Bearer ${token}`,
-      },
+      headers,
       body: JSON.stringify(request),
     });
 
     if (!res.ok) {
+      // 401 = JWT expired or invalid → notify caller to clear auth
+      if (res.status === 401) {
+        this.onAuthExpired?.();
+        yield { type: 'error', message: '登录已过期，请重新登录。' };
+        return;
+      }
+
       const text = await res.text().catch(() => '');
       let message = `HTTP ${res.status}`;
       try {
@@ -55,6 +100,12 @@ export class BackendProxyProvider implements AIProvider {
       } catch { /* use raw text */ }
       yield { type: 'error', message };
       return;
+    }
+
+    // Extract cache metadata from response headers
+    const respIdHeader = res.headers.get('x-response-id');
+    if (respIdHeader) {
+      this.previousResponseId = respIdHeader;
     }
 
     // body is always present on a successful fetch Response
@@ -82,6 +133,14 @@ export class BackendProxyProvider implements AIProvider {
 
           try {
             const event = JSON.parse(raw) as ProviderStreamEvent;
+            if (event.type === 'done') {
+              // Track response ID from done event if present
+              // (the provider may embed it in usage metadata)
+              const doneEvent = event as unknown as Record<string, unknown>;
+              if (typeof doneEvent.response_id === 'string') {
+                this.previousResponseId = doneEvent.response_id;
+              }
+            }
             yield event;
           } catch { /* skip malformed lines */ }
         }

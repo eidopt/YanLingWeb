@@ -5,9 +5,15 @@ import { Repository } from 'typeorm';
 
 import { ConfigFactory } from '../config/config.factory';
 import { Template } from '../templates/entities/template.entity';
+import { OpenAICompatibleProvider } from './core/providers/openai-compatible.provider';
 import { OpenAIProvider } from './core/providers/openai.provider';
-import type { ProviderRequest, ProviderStreamEvent } from './core/providers/types';
+import type { AIProvider, ProviderRequest, ProviderStreamEvent } from './core/providers/types';
 import type { TemplateToolInput } from './tools/generate-template.tool';
+
+export interface AiConfigDto {
+  provider: string;
+  model: string;
+}
 
 export type StreamRequest = ProviderRequest;
 
@@ -22,8 +28,9 @@ const rateLimitMap = new Map<string, { count: number; resetAt: number; }>();
 
 @Injectable()
 export class AiService {
+  readonly aiConfig: AiConfigDto;
   private readonly logger = new Logger(AiService.name);
-  private readonly provider: OpenAIProvider;
+  private readonly provider: AIProvider;
   private readonly apiKeyConfigured: boolean;
 
   constructor(
@@ -33,12 +40,26 @@ export class AiService {
     const env = ConfigFactory.build();
     const apiKey = env.ai.apiKey ?? '';
 
+    this.aiConfig = { provider: env.ai.provider, model: env.ai.model };
+
     this.apiKeyConfigured = apiKey.length > 0;
     if (!this.apiKeyConfigured) {
       this.logger.warn('AI_API_KEY is not configured. AI stream requests will fail.');
     }
 
-    this.provider = new OpenAIProvider(apiKey, env.ai.baseUrl, 'openai-compatible');
+    this.logger.log(
+      `AI provider: ${env.ai.provider} (baseUrl: ${env.ai.baseUrl ?? 'default'})`,
+    );
+
+    if (env.ai.provider === 'openai-compatible') {
+      this.provider = new OpenAICompatibleProvider(
+        apiKey,
+        env.ai.baseUrl,
+        'openai-compatible',
+      );
+    } else {
+      this.provider = new OpenAIProvider(apiKey, env.ai.baseUrl, 'openai');
+    }
   }
 
   checkRateLimit(userId: string): void {
@@ -56,10 +77,17 @@ export class AiService {
     }
   }
 
+  getConfig(): AiConfigDto {
+    return this.aiConfig;
+  }
+
   /** Proxy a streaming OpenAI-compatible Responses API request, forwarding events as SSE */
-  stream(req: StreamRequest): Observable<StreamSseEvent> {
+  stream(
+    req: StreamRequest,
+    cacheOptions?: { conversationId?: string; previousResponseId?: string },
+  ): Observable<StreamSseEvent> {
     const subject = new Subject<StreamSseEvent>();
-    this.runStream(req, subject).catch((err) => {
+    this.runStream(req, subject, cacheOptions).catch((err) => {
       const msg = err instanceof Error ? err.message : String(err);
       this.emitStreamEvent(subject, { type: 'error', message: msg });
       subject.complete();
@@ -67,7 +95,11 @@ export class AiService {
     return subject.asObservable();
   }
 
-  private async runStream(req: StreamRequest, subject: Subject<StreamSseEvent>): Promise<void> {
+  private async runStream(
+    req: StreamRequest,
+    subject: Subject<StreamSseEvent>,
+    cacheOptions?: { conversationId?: string; previousResponseId?: string },
+  ): Promise<void> {
     if (!this.apiKeyConfigured) {
       this.emitStreamEvent(subject, {
         type: 'error',
@@ -75,6 +107,11 @@ export class AiService {
       });
       subject.complete();
       return;
+    }
+
+    // Only the OpenAI Responses API provider supports prompt caching
+    if (this.provider instanceof OpenAIProvider) {
+      this.provider.setCacheOptions(cacheOptions);
     }
 
     for await (const event of this.provider.stream(req)) {

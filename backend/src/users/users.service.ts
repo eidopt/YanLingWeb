@@ -2,13 +2,14 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { createHash, randomBytes } from 'crypto';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 import { ConfigFactory } from '../config/config.factory';
 import { LoginDto } from './dto/login.dto';
@@ -46,11 +47,37 @@ export class UsersService {
   private readonly nonces = new Map<string, NonceEntry>();
   private readonly oauthStates = new Map<string, OAuthStateEntry>();
 
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     @InjectRepository(User)
     private readonly repo: Repository<User>,
     private readonly jwtService: JwtService,
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
   ) {}
+
+  /**
+   * Force the in-memory sql.js database to be written to the file on disk.
+   * This ensures durability of user registration / login timestamp even if
+   * the process crashes before the next auto-save interval.
+   */
+  private async forceSaveDatabase(): Promise<void> {
+    try {
+      const driver = this.dataSource.driver as unknown as {
+        options: { location?: string };
+        save(location?: string): Promise<void>;
+      };
+
+      await driver.save(driver.options.location);
+      this.logger.debug(`Database saved to ${driver.options.location ?? 'default location'}`);
+    } catch (err) {
+      this.logger.error(
+        'forceSaveDatabase failed',
+        err instanceof Error ? err.message : err,
+      );
+    }
+  }
 
   // ---------------------------------------------------------------------------
   // Challenge-response
@@ -109,6 +136,7 @@ export class UsersService {
       linkedLogins: ['local'],
     });
     const saved = await this.repo.save(user);
+    await this.forceSaveDatabase();
     return this.buildAuthResponse(saved);
   }
 
@@ -138,6 +166,7 @@ export class UsersService {
     }
 
     await this.repo.update(user.id, { lastLoginAt: new Date() });
+    await this.forceSaveDatabase();
     return this.buildAuthResponse(user);
   }
 
@@ -189,6 +218,7 @@ export class UsersService {
         linkedLogins: [dto.provider],
       });
       user = await this.repo.save(user);
+      await this.forceSaveDatabase();
     } else if (!user.linkedLogins.includes(dto.provider)) {
       user.linkedLogins = [...user.linkedLogins, dto.provider];
       await this.repo.update(user.id, { linkedLogins: user.linkedLogins });

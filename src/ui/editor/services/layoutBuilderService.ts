@@ -291,10 +291,27 @@ export function removeNode(
 export function descriptorForAlias(
   document: ThemeLayoutDocument,
   alias: string,
-) {
-  return (
-    document.components.find((component) => component.alias === alias) ?? null
-  );
+): ThemeComponentDescriptor | null {
+  // 1. Look up in the component catalog
+  const catalog = document.components.find((c) => c.alias === alias);
+  if (catalog) { return catalog; }
+
+  // 2. Fall back to componentTemplates — build a synthetic descriptor
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const componentTemplates = (document as any).componentTemplates as Record<string, unknown> | undefined;
+  const template = componentTemplates?.[alias];
+  if (template && typeof template === 'object' && 'root' in template) {
+    const root = (template as { root: { alias: string } }).root;
+    return {
+      alias,
+      name: (template as { displayName?: string }).displayName ?? alias,
+      kind: root && CONTAINER_ALIASES.has(root.alias) ? 'layout' : 'component',
+      description: `Custom component defined in componentTemplates`,
+      props: [],
+    };
+  }
+
+  return null;
 }
 
 export function toFieldString(value: unknown) {
@@ -708,7 +725,7 @@ export function buildNodeFromDraft(
     layout: buildLayoutFromDraft(draft),
     frame: buildFrameFromDraft(draft),
     props: buildPropsFromDraft(descriptor, draft),
-    children: CONTAINER_ALIASES.has(descriptor.alias)
+    children: CONTAINER_ALIASES.has(descriptor.alias) || descriptor.kind === 'layout'
       ? (children ?? [])
       : undefined,
   };
@@ -1157,8 +1174,30 @@ export function updateNodeInDocument(
   return nextDocument;
 }
 
-export function canAcceptNestedDrop(node: ThemeLayoutNode) {
-  return CONTAINER_ALIASES.has(node.alias);
+export function canAcceptNestedDrop(
+  node: ThemeLayoutNode,
+  componentTemplates?: Record<string, unknown>,
+): boolean {
+  // 1. Known core containers
+  if (CONTAINER_ALIASES.has(node.alias)) { return true; }
+
+  // 2. Custom templates whose root alias is a known container
+  if (componentTemplates) {
+    const template = componentTemplates[node.alias];
+    if (template && typeof template === 'object' && 'root' in template) {
+      const rootAlias = (template as { root: { alias: string } }).root?.alias;
+      if (rootAlias && CONTAINER_ALIASES.has(rootAlias)) {
+        return true;
+      }
+    }
+  }
+
+  // 3. If the node already has children in the document, it's a container
+  if (Array.isArray(node.children) && node.children.length > 0) {
+    return true;
+  }
+
+  return false;
 }
 
 export function getNodeCapabilities(

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
   Post,
@@ -26,6 +27,12 @@ interface AuthenticatedRequest extends Request {
 export class AiController {
   constructor(private readonly aiService: AiService) {}
 
+  @Get('config')
+  @ApiOperation({ summary: 'Get AI provider configuration (provider name + model)' })
+  getConfig() {
+    return this.aiService.getConfig();
+  }
+
   @Post('stream')
   @ApiOperation({ summary: 'Proxy a streaming LLM request (rate-limited per user)' })
   @ApiBody({
@@ -48,12 +55,20 @@ export class AiController {
       );
     }
 
+    const cacheOptions = {
+      conversationId: req.headers['x-conversation-id'] as string | undefined,
+      previousResponseId: req.headers['x-previous-response-id'] as string | undefined,
+    };
+
     res.setHeader('content-type', 'text/event-stream; charset=utf-8');
     res.setHeader('cache-control', 'no-cache, no-transform');
     res.setHeader('connection', 'keep-alive');
+    if (cacheOptions.conversationId) {
+      res.setHeader('x-conversation-id', cacheOptions.conversationId);
+    }
     res.flushHeaders();
 
-    const subscription = this.aiService.stream(body).subscribe({
+    const subscription = this.aiService.stream(body, cacheOptions).subscribe({
       next: (event) => {
         res.write(`data: ${event.data}\n\n`);
       },

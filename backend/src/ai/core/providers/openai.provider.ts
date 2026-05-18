@@ -44,6 +44,8 @@ export class OpenAIProvider implements AIProvider {
   readonly name: string;
   private client: OpenAI;
   private abortController: AbortController | null = null;
+  private previousResponseId: string | undefined = undefined;
+  private conversationId: string | null = null;
 
   constructor(apiKey: string, baseURL?: string, name?: string) {
     this.name = name ?? 'openai';
@@ -52,6 +54,15 @@ export class OpenAIProvider implements AIProvider {
 
   getCapabilities(): ProviderCapabilities {
     return CAPABILITIES;
+  }
+
+  setCacheOptions(opts?: { conversationId?: string; previousResponseId?: string }): void {
+    if (opts?.conversationId) {
+      this.conversationId = opts.conversationId;
+    }
+    if (opts?.previousResponseId) {
+      this.previousResponseId = opts.previousResponseId;
+    }
   }
 
   async *stream(request: ProviderRequest): AsyncIterable<ProviderStreamEvent> {
@@ -66,9 +77,16 @@ export class OpenAIProvider implements AIProvider {
       instructions,
       input,
       stream: true,
+      // Enable server-side response storage for prompt caching
+      store: true,
       ...(tools && { tools }),
       ...(request.reasoningEffort && request.reasoningEffort !== 'medium' && {
         reasoning: { effort: request.reasoningEffort },
+      }),
+      // Pass previous_response_id to enable prompt caching (OpenAI won't
+      // re-process the unchanged prefix on subsequent requests)
+      ...(this.previousResponseId && {
+        previous_response_id: this.previousResponseId,
       }),
     };
 
@@ -104,6 +122,14 @@ export class OpenAIProvider implements AIProvider {
         if (event.type === 'response.completed') {
           const usage = event.response?.usage;
           const isMaxTokens = event.response?.incomplete_details?.reason === 'max_output_tokens';
+
+          // Track the response ID for prompt caching on subsequent requests
+          // The OpenAI Responses API returns the response object with an id field
+          const resp = event.response as Record<string, unknown> | undefined;
+          if (resp?.id && typeof resp.id === 'string') {
+            this.previousResponseId = resp.id;
+          }
+
           yield {
             type: 'done',
             usage: usage ? {
@@ -111,6 +137,8 @@ export class OpenAIProvider implements AIProvider {
               outputTokens: usage.output_tokens,
             } : undefined,
             stopReason: isMaxTokens ? 'max_tokens' : 'end_turn',
+            // Forward the response ID to the frontend for prompt caching
+            response_id: this.previousResponseId,
           };
         }
       }

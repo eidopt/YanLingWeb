@@ -17,7 +17,6 @@ interface ThemePreviewModalProps {
   onClose: () => void;
 }
 
-// eslint-disable-next-line react-refresh/only-export-components -- imperative modal API co-located with internal component
 function ThemePreviewModalContent(
   { theme, onEdit, onClose }: ThemePreviewModalProps,
 ) {

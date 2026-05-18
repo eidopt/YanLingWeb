@@ -56,8 +56,16 @@ const SYSTEM_PROMPT = [
   '- Use node ids exactly as provided in the current canvas outline.',
   '- Prefer the selected node when the user asks to edit "this", "当前", or "选中".',
   '- Do not delete or move the root screen node.',
-  '- If a requested capability is not supported by layoutDocument, apply the closest',
-  '  editable approximation and explain the limitation after the tool call.',
+  '',
+  'core.widget — for inserting dynamic third-party content:',
+  '  If the user asks for charts, markdown, maps, editors, or custom widgets,',
+  '  insert a core.widget node with props: library, code, data.',
+  '  When inserting a core.widget, also ensure the layoutDocument.dependencies',
+  '  array includes the required ESM library (e.g. { name: "echarts",',
+  '  url: "https://esm.sh/echarts" }). Use esm.sh for npm packages.',
+  '',
+  '- If a requested capability is not supported by layoutDocument, try',
+  '  core.widget + esm.sh before falling back to approximations.',
   '- Prefer one apply_editor_edits call with a small batch of operations.',
 ].join('\n');
 
@@ -173,6 +181,14 @@ function buildEditorContext(
   selectedNode: ThemeLayoutNode | null | undefined,
   selectedDescriptor: ThemeComponentDescriptor | null | undefined,
 ): string {
+  const depsSection = document.dependencies?.length
+    ? [
+        '',
+        'Loaded dependencies (available to core.widget):',
+        ...document.dependencies.map((dep) => `  - ${dep.name}: ${dep.url}`),
+      ].join('\n')
+    : '';
+
   return [
     'Current editor context:',
     `themeId: ${document.themeId}`,
@@ -181,13 +197,14 @@ function buildEditorContext(
     '',
     'Available component catalog:',
     summarizeComponents(document.components),
+    depsSection,
     '',
     'Selected node:',
     summarizeSelectedNode(selectedNode, selectedDescriptor),
     '',
     'Current canvas outline:',
     summarizeCanvas(document),
-  ].join('\n');
+  ].filter(Boolean).join('\n');
 }
 
 function parseOperations(
@@ -207,9 +224,31 @@ function parseOperations(
 
 export class EditorAiService {
   private provider: BackendProxyProvider;
+  private static defaultModel: string | null = null;
 
-  constructor(private readonly getToken: () => string | null) {
-    this.provider = new BackendProxyProvider(getToken);
+  constructor(
+    private readonly getToken: () => string | null,
+    private readonly onAuthExpired?: () => void,
+  ) {
+    this.provider = new BackendProxyProvider(getToken, onAuthExpired);
+  }
+
+  /** Fetch AI config from backend and cache the model name */
+  static async fetchConfig(token: string | null): Promise<string> {
+    if (EditorAiService.defaultModel) {
+      return EditorAiService.defaultModel;
+    }
+    try {
+      const res = await fetch('/api/proxy/ai/config', {
+        headers: token ? { authorization: `Bearer ${token}` } : {},
+      });
+      if (res.ok) {
+        const config = await res.json() as { provider: string; model: string };
+        EditorAiService.defaultModel = config.model;
+        return config.model;
+      }
+    } catch { /* fall through */ }
+    return 'gpt-5.4';
   }
 
   cancel(): void {
@@ -217,9 +256,10 @@ export class EditorAiService {
   }
 
   async editCanvas(opts: EditorAiEditCanvasOptions): Promise<void> {
+    const cfgModel = await EditorAiService.fetchConfig(this.getToken());
     const {
       prompt,
-      model = 'gpt-5.4',
+      model = cfgModel,
       document,
       selectedNode,
       selectedDescriptor,
