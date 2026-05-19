@@ -16,6 +16,8 @@ export interface ProviderMessage {
   toolCallId?: string;
   toolName?: string;
   toolArguments?: string;
+  /** DeepSeek reasoning content (thinking/chain-of-thought) — must be passed back to the API */
+  reasoningContent?: string;
 }
 
 export interface ProviderTool {
@@ -38,8 +40,19 @@ export interface StreamEventToolCall {
 
 export interface StreamEventDone {
   type: 'done';
-  usage?: { inputTokens: number; outputTokens: number; };
+  usage?: {
+    inputTokens: number;
+    outputTokens: number;
+    /** Tokens served from server-side prompt cache (DeepSeek, etc.) */
+    cacheHitTokens?: number;
+    /** Tokens that missed cache and were computed fresh */
+    cacheMissTokens?: number;
+  };
   stopReason?: 'end_turn' | 'max_tokens';
+  /** ID of the LLM response — used for prompt caching on subsequent requests */
+  response_id?: string;
+  /** DeepSeek reasoning/thinking content, accumulated from stream deltas */
+  reasoningContent?: string;
 }
 
 export interface StreamEventError {
@@ -58,6 +71,9 @@ export interface ProviderRequest {
   messages: ProviderMessage[];
   tools?: ProviderTool[];
   reasoningEffort?: 'low' | 'medium' | 'high';
+  cache?: {
+    previousResponseId?: string;
+  };
 }
 
 export interface ProviderCapabilities {

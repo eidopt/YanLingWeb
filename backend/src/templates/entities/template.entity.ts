@@ -15,6 +15,18 @@ export class Template {
   @Column({ unique: true })
   templateId: string;
 
+  /** Null means marketplace/system template. Non-null means user-owned copy. */
+  @Column({ type: 'varchar', nullable: true })
+  ownerUserId: string | null;
+
+  /** Original marketplace template id when this record is a user copy. */
+  @Column({ type: 'varchar', nullable: true })
+  sourceTemplateId: string | null;
+
+  /** Whether this template appears in the public marketplace. */
+  @Column({ type: 'boolean', default: true })
+  isPublic: boolean;
+
   @Column()
   name: string;
 
@@ -32,6 +44,10 @@ export class Template {
 
   @Column({ type: 'simple-json', default: '[]' })
   traits: string[];
+
+  /** Search keywords and business tags used for template discovery. */
+  @Column({ type: 'simple-json', default: '[]' })
+  tags: string[];
 
   @Column({ type: 'simple-json', default: '{}' })
   cssVars: Record<string, string>;

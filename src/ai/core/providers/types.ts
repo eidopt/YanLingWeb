@@ -16,6 +16,8 @@ export interface ProviderMessage {
   toolCallId?: string
   toolName?: string
   toolArguments?: string
+  /** DeepSeek reasoning/thinking content — must be passed back to the API */
+  reasoningContent?: string
 }
 
 export interface ProviderTool {
@@ -40,6 +42,10 @@ export interface StreamEventDone {
   type: 'done'
   usage?: { inputTokens: number; outputTokens: number }
   stopReason?: 'end_turn' | 'max_tokens'
+  /** ID of the LLM response — used for prompt caching on subsequent requests */
+  response_id?: string
+  /** DeepSeek reasoning/thinking content, accumulated from stream deltas */
+  reasoningContent?: string
 }
 
 export interface StreamEventError {

@@ -1,6 +1,7 @@
 'use client';
 
 import styles from './ThemeCard.module.css';
+import { cx } from 'base/classname';
 import type { ThemeSpec } from 'types/theme.types';
 import { ThemePreview } from 'ui/theme_preview';
 
@@ -8,14 +9,20 @@ interface ThemeCardProps {
   theme: ThemeSpec;
   onClick: () => void;
   hoverLabel?: string;
+  className?: string;
 }
 
-export function ThemeCard({ theme, onClick, hoverLabel }: ThemeCardProps) {
+export function ThemeCard({
+  theme,
+  onClick,
+  hoverLabel,
+  className,
+}: ThemeCardProps) {
   return (
     <div
       role="button"
       tabIndex={0}
-      className={styles.card}
+      className={cx(styles.card, className)}
       onClick={onClick}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); }

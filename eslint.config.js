@@ -2,7 +2,6 @@ import js from '@eslint/js'
 import { defineConfig, globalIgnores } from 'eslint/config'
 import reactPlugin from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
@@ -113,12 +112,6 @@ export default defineConfig([
   {
     files: ['**/*.{ts,tsx}'],
     extends: [reactHooks.configs.flat.recommended],
-  },
-
-  // --- React Refresh (Vite HMR) ---
-  {
-    files: ['src/**/*.{ts,tsx}'],
-    extends: [reactRefresh.configs.vite],
   },
 
   // --- Import sorting ---

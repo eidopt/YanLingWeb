@@ -7,10 +7,11 @@ import { ConfigFactory } from '../config/config.factory';
 import { Template } from '../templates/entities/template.entity';
 import { AiController } from './ai.controller';
 import { AiService } from './ai.service';
+import { EditorAiConversation } from './entities/editor-ai-conversation.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Template]),
+    TypeOrmModule.forFeature([Template, EditorAiConversation]),
     JwtModule.registerAsync({
       useFactory: () => ({
         secret: ConfigFactory.build().jwt.secret,

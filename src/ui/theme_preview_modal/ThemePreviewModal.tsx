@@ -15,11 +15,11 @@ interface ThemePreviewModalProps {
   theme: ThemeSpec;
   onEdit: () => void;
   onClose: () => void;
+  editLabel?: string;
 }
 
-// eslint-disable-next-line react-refresh/only-export-components -- imperative modal API co-located with internal component
 function ThemePreviewModalContent(
-  { theme, onEdit, onClose }: ThemePreviewModalProps,
+  { theme, onEdit, onClose, editLabel }: ThemePreviewModalProps,
 ) {
   const [screenPreset, setScreenPreset] =
     useState<DynamicThemeScreenPreset>('mobile');
@@ -105,7 +105,7 @@ function ThemePreviewModalContent(
             className={styles.editBtn}
             onClick={handleEdit}
           >
-            {c.editButton}
+            {editLabel ?? c.editButton}
           </button>
         </div>
       </div>
@@ -118,6 +118,7 @@ function ThemePreviewModalContent(
 export function showThemePreviewModal(
   theme: ThemeSpec,
   onEdit: () => void,
+  options: { editLabel?: string } = {},
 ): void {
   const container = document.createElement('div');
   document.body.appendChild(container);
@@ -133,6 +134,7 @@ export function showThemePreviewModal(
       theme={theme}
       onEdit={onEdit}
       onClose={close}
+      editLabel={options.editLabel}
     />,
   );
 }

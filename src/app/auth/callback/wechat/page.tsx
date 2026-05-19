@@ -1,8 +1,9 @@
 'use client';
 
+import { wechatCallbackPageContent as c } from './page.content';
 import { useAppServices } from 'hooks/useAppServices';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 
 const WECHAT_AUTH_CHANNEL = 'wechat_oauth';
 
@@ -17,6 +18,14 @@ const WECHAT_AUTH_CHANNEL = 'wechat_oauth';
  * 4. Redirects to /editor
  */
 export default function WechatCallbackPage() {
+  return (
+    <Suspense fallback={<WechatCallbackLoading />}>
+      <WechatCallbackContent />
+    </Suspense>
+  );
+}
+
+function WechatCallbackContent() {
   const params = useSearchParams();
   const router = useRouter();
   const { authService, userService } = useAppServices();
@@ -41,7 +50,7 @@ export default function WechatCallbackPage() {
         router.replace('/editor');
       } catch (err) {
         // Store error in sessionStorage so the page can read it after re-render
-        const msg = err instanceof Error ? err.message : '授权失败，请重新扫码';
+        const msg = err instanceof Error ? err.message : c.error.oauthFailed;
         sessionStorage.setItem('wechat_auth_error', msg);
         router.replace('/auth/callback/wechat?error=1');
       }
@@ -54,25 +63,31 @@ export default function WechatCallbackPage() {
     : null;
 
   if (missingParams || errorParam) {
-    const msg = storedError ?? '缺少授权参数，请重新扫码';
+    const msg = storedError ?? c.error.missingParams;
     return (
       <div style={containerStyle}>
         <div style={cardStyle}>
           <p style={{ fontSize: '2rem' }}>❌</p>
-          <h2 style={{ fontWeight: 800, color: '#0f172a', margin: '0.5rem 0' }}>登录失败</h2>
+          <h2 style={{ fontWeight: 800, color: '#0f172a', margin: '0.5rem 0' }}>{c.error.title}</h2>
           <p style={{ color: '#64748b', fontSize: '0.9rem' }}>{msg}</p>
-          <a href="/" style={linkStyle}>返回首页重试</a>
+          <a href="/" style={linkStyle}>{c.error.retry}</a>
         </div>
       </div>
     );
   }
 
   return (
+    <WechatCallbackLoading />
+  );
+}
+
+function WechatCallbackLoading() {
+  return (
     <div style={containerStyle}>
       <div style={cardStyle}>
         <div style={spinnerStyle} />
         <p style={{ color: '#64748b', marginTop: '1rem', fontSize: '0.9rem' }}>
-          正在完成微信登录...
+          {c.loading}
         </p>
       </div>
     </div>

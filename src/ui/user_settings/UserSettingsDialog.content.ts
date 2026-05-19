@@ -1,0 +1,27 @@
+export const userSettingsDialogContent = {
+  locale: 'zh-CN',
+  currencySymbol: '¥',
+  title: '用户设置',
+  close: '关闭',
+  logout: '退出登录',
+  tokenUsage: {
+    title: 'Token 使用量',
+    used: '已使用',
+    balance: '剩余额度',
+    accountBalance: '账户余额',
+  },
+  password: {
+    title: '修改密码',
+    current: '当前密码',
+    next: '新密码',
+    confirm: '确认新密码',
+    submit: '保存新密码',
+    submitting: '更新中...',
+    success: '密码已更新',
+  },
+  error: {
+    passwordTooShort: '新密码至少需要 8 位字符',
+    passwordMismatch: '两次输入的新密码不一致',
+    updateFailed: '密码更新失败',
+  },
+} as const;

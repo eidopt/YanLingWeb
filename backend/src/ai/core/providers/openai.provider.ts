@@ -26,6 +26,7 @@ interface OpenAIStreamEvent {
   delta?: string;
   item?: { type: string; call_id: string; name: string; arguments: string; };
   response?: {
+    id?: string;
     usage?: { input_tokens: number; output_tokens: number; };
     incomplete_details?: { reason: string; };
   };
@@ -66,9 +67,16 @@ export class OpenAIProvider implements AIProvider {
       instructions,
       input,
       stream: true,
+      // Enable server-side response storage for prompt caching
+      store: true,
       ...(tools && { tools }),
       ...(request.reasoningEffort && request.reasoningEffort !== 'medium' && {
         reasoning: { effort: request.reasoningEffort },
+      }),
+      // Pass previous_response_id to enable prompt caching (OpenAI won't
+      // re-process the unchanged prefix on subsequent requests)
+      ...(request.cache?.previousResponseId && {
+        previous_response_id: request.cache.previousResponseId,
       }),
     };
 
@@ -104,6 +112,8 @@ export class OpenAIProvider implements AIProvider {
         if (event.type === 'response.completed') {
           const usage = event.response?.usage;
           const isMaxTokens = event.response?.incomplete_details?.reason === 'max_output_tokens';
+          const responseId = event.response?.id;
+
           yield {
             type: 'done',
             usage: usage ? {
@@ -111,6 +121,8 @@ export class OpenAIProvider implements AIProvider {
               outputTokens: usage.output_tokens,
             } : undefined,
             stopReason: isMaxTokens ? 'max_tokens' : 'end_turn',
+            // Forward the response ID to the frontend for prompt caching
+            response_id: responseId,
           };
         }
       }

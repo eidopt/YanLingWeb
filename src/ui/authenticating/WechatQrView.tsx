@@ -1,6 +1,7 @@
 "use client";
 
 import styles from "./AuthDialog.module.css";
+import { wechatQrViewContent as c } from "./WechatQrView.content";
 import type { AuthResponseDto } from "@shared/types/user.types";
 import { useAppServices } from "hooks/useAppServices";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -39,7 +40,7 @@ export function WechatQrView({ onSuccess, onBack }: WechatQrViewProps) {
         void fetchQr();
       }, QR_TTL_MS);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "获取二维码失败");
+      setError(err instanceof Error ? err.message : c.error.qrLoadFailed);
     } finally {
       setLoading(false);
     }
@@ -96,13 +97,13 @@ export function WechatQrView({ onSuccess, onBack }: WechatQrViewProps) {
     <div className={styles.formWrap}>
       <div className={styles.qrBack}>
         <button type="button" className={styles.backBtn} onClick={onBack}>
-          ← 返回
+          ← {c.back}
         </button>
       </div>
 
       <div className={styles.formHeader}>
-        <h2>微信扫码登录</h2>
-        <p>使用微信扫描下方二维码</p>
+        <h2>{c.title}</h2>
+        <p>{c.subtitle}</p>
       </div>
 
       <div className={styles.qrBox}>
@@ -120,7 +121,7 @@ export function WechatQrView({ onSuccess, onBack }: WechatQrViewProps) {
               className={styles.qrRefreshBtn}
               onClick={() => void fetchQr()}
             >
-              重新获取
+              {c.refresh}
             </button>
           </div>
         )}
@@ -129,7 +130,7 @@ export function WechatQrView({ onSuccess, onBack }: WechatQrViewProps) {
           <>
             <img
               src={qrImageUrl}
-              alt="微信登录二维码"
+              alt={c.qrAlt}
               width={200}
               height={200}
               className={scanned ? styles.qrScanned : styles.qrImage}
@@ -137,7 +138,7 @@ export function WechatQrView({ onSuccess, onBack }: WechatQrViewProps) {
             {scanned && (
               <div className={styles.qrScannedOverlay}>
                 <span>✓</span>
-                <p>已扫码，请在微信中确认</p>
+                <p>{c.scanned}</p>
               </div>
             )}
           </>
@@ -146,13 +147,13 @@ export function WechatQrView({ onSuccess, onBack }: WechatQrViewProps) {
 
       {!loading && !error && (
         <div className={styles.qrHints}>
-          <p>打开微信 → 扫一扫 → 扫描上方二维码</p>
+          <p>{c.hint}</p>
           <button
             type="button"
             className={styles.forgotLink}
             onClick={() => void fetchQr()}
           >
-            二维码已过期？点击刷新
+            {c.expiredRefresh}
           </button>
         </div>
       )}
@@ -165,7 +166,7 @@ export function WechatQrView({ onSuccess, onBack }: WechatQrViewProps) {
           rel="noopener noreferrer"
           className={styles.qrOpenLink}
         >
-          在浏览器中打开微信授权页
+          {c.openInBrowser}
         </a>
       )}
 
@@ -201,20 +202,20 @@ function DevCallbackHelper({
       authService.save(result);
       onSuccess("/editor");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "OAuth failed");
+      alert(err instanceof Error ? err.message : c.error.oauthFailed);
     }
   };
 
   return (
     <div className={styles.devHelper}>
-      <p>🛠 Dev: simulate WeChat callback</p>
+      <p>{c.dev.title}</p>
       <div style={{ display: "flex", gap: "0.4rem" }}>
         <input
           value={code}
           onChange={(e) => {
             setCode(e.target.value);
           }}
-          placeholder="paste WeChat code"
+          placeholder={c.dev.placeholder}
           style={{
             flex: 1,
             padding: "0.3rem 0.5rem",
@@ -238,7 +239,7 @@ function DevCallbackHelper({
             cursor: "pointer",
           }}
         >
-          提交
+          {c.dev.submit}
         </button>
       </div>
     </div>

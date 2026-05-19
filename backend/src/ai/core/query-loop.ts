@@ -123,6 +123,7 @@ export class QueryLoop {
       let apiError: string | null = null;
       let isPTL = false;
       let stopReason: 'end_turn' | 'max_tokens' = 'end_turn';
+      let reasoningContent: string | undefined;
 
       const request = this.buildRequest(current);
 
@@ -149,6 +150,7 @@ export class QueryLoop {
               break;
             case 'done':
               if (event.stopReason) { stopReason = event.stopReason; }
+              if (event.reasoningContent) { reasoningContent = event.reasoningContent; }
               break;
           }
         }
@@ -203,7 +205,11 @@ export class QueryLoop {
 
       const assistantText = textChunks.join('');
       if (assistantText.trim()) {
-        current.push({ role: 'assistant', content: assistantText });
+        current.push({
+          role: 'assistant',
+          content: assistantText,
+          ...(reasoningContent && { reasoningContent }),
+        });
       }
 
       if (
@@ -278,6 +284,7 @@ export class QueryLoop {
           toolCallId: call.id,
           toolName: call.name,
           toolArguments: call.arguments,
+          ...(reasoningContent && { reasoningContent }),
         });
         current.push({
           role: 'tool_result',

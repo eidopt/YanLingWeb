@@ -27,13 +27,21 @@ async function proxy(req: NextRequest, segments: string[]): Promise<NextResponse
 
   const body = req.method === 'GET' || req.method === 'HEAD' ? undefined : req.body;
 
-  const upstream = await fetch(url, {
-    method: req.method,
-    headers,
-    body,
-    // @ts-expect-error -- Node 18+ fetch supports duplex for streaming bodies
-    duplex: 'half',
-  });
+  let upstream: Response;
+  try {
+    upstream = await fetch(url, {
+      method: req.method,
+      headers,
+      body,
+      // @ts-expect-error -- Node 18+ fetch supports duplex for streaming bodies
+      duplex: 'half',
+    });
+  } catch {
+    return NextResponse.json(
+      { message: `Backend service is unavailable at ${BACKEND_URL}` },
+      { status: 502 },
+    );
+  }
 
   const data = await upstream.arrayBuffer();
   return new NextResponse(data, {

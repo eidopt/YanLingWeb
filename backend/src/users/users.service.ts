@@ -11,6 +11,7 @@ import { createHash, randomBytes } from 'crypto';
 import { Repository } from 'typeorm';
 
 import { ConfigFactory } from '../config/config.factory';
+import { DatabaseFlushService } from '../database/database-flush.service';
 import { LoginDto } from './dto/login.dto';
 import { OAuthCallbackDto } from './dto/oauth-callback.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -50,6 +51,7 @@ export class UsersService {
     @InjectRepository(User)
     private readonly repo: Repository<User>,
     private readonly jwtService: JwtService,
+    private readonly databaseFlush: DatabaseFlushService,
   ) {}
 
   // ---------------------------------------------------------------------------
@@ -109,6 +111,7 @@ export class UsersService {
       linkedLogins: ['local'],
     });
     const saved = await this.repo.save(user);
+    await this.databaseFlush.flush('user registration');
     return this.buildAuthResponse(saved);
   }
 
@@ -138,6 +141,7 @@ export class UsersService {
     }
 
     await this.repo.update(user.id, { lastLoginAt: new Date() });
+    await this.databaseFlush.flush('user login');
     return this.buildAuthResponse(user);
   }
 
@@ -189,12 +193,15 @@ export class UsersService {
         linkedLogins: [dto.provider],
       });
       user = await this.repo.save(user);
+      await this.databaseFlush.flush('oauth user creation');
     } else if (!user.linkedLogins.includes(dto.provider)) {
       user.linkedLogins = [...user.linkedLogins, dto.provider];
       await this.repo.update(user.id, { linkedLogins: user.linkedLogins });
+      await this.databaseFlush.flush('oauth account link');
     }
 
     await this.repo.update(user.id, { lastLoginAt: new Date() });
+    await this.databaseFlush.flush('oauth login');
     return this.buildAuthResponse(user);
   }
 
@@ -338,6 +345,7 @@ export class UsersService {
     if (dto.phone !== undefined) { user.phone = dto.phone; }
 
     const saved = await this.repo.save(user);
+    await this.databaseFlush.flush('user update');
     return this.toDto(saved);
   }
 
@@ -347,6 +355,7 @@ export class UsersService {
       throw new NotFoundException(`User ${id} not found`);
     }
     await this.repo.remove(user);
+    await this.databaseFlush.flush('user removal');
   }
 
   // ---------------------------------------------------------------------------
