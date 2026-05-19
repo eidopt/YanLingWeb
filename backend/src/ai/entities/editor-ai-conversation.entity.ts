@@ -1,0 +1,35 @@
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  Unique,
+  UpdateDateColumn,
+} from 'typeorm';
+
+export interface EditorAiConversationMessageRecord {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+@Entity('editor_ai_conversations')
+@Unique(['ownerUserId', 'templateId'])
+export class EditorAiConversation {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
+  ownerUserId: string;
+
+  @Column()
+  templateId: string;
+
+  @Column({ type: 'simple-json', default: '[]' })
+  messages: EditorAiConversationMessageRecord[];
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+}

@@ -70,7 +70,9 @@ export class OpenAICompatibleProvider implements AIProvider {
       name: string;
       arguments: string;
     }>();
-    let usage: UsageAccumulator & { cacheHitTokens?: number; cacheMissTokens?: number } | undefined;
+    let usage:
+      | (UsageAccumulator & { cacheHitTokens?: number; cacheMissTokens?: number; })
+      | undefined;
     /** Accumulated reasoning_content (DeepSeek streams it character by character) */
     let reasoningBuffer = '';
 
@@ -94,7 +96,8 @@ export class OpenAICompatibleProvider implements AIProvider {
         if (!choice) { continue; }
 
         // 1. Capture reasoning_content (accumulated — DeepSeek streams it per-char)
-        const reasoningDelta = (choice.delta as Record<string, string | undefined>)?.reasoning_content;
+        const delta = choice.delta as Record<string, string | undefined>;
+        const reasoningDelta = delta.reasoning_content;
         if (reasoningDelta) {
           reasoningBuffer += reasoningDelta;
         }
@@ -206,7 +209,7 @@ function convertMessages(
         let args: Record<string, unknown>;
         try { args = JSON.parse(msg.toolArguments ?? '{}') as Record<string, unknown>; }
         catch { args = {}; }
-        result.push({
+        const assistantMsg: Record<string, unknown> = {
           role: 'assistant',
           content: null,
           tool_calls: [{
@@ -217,7 +220,11 @@ function convertMessages(
               arguments: JSON.stringify(args),
             },
           }],
-        });
+        };
+        if (msg.reasoningContent) {
+          assistantMsg.reasoning_content = msg.reasoningContent;
+        }
+        result.push(assistantMsg as unknown as OpenAI.Chat.ChatCompletionAssistantMessageParam);
         break;
       }
 
@@ -242,7 +249,7 @@ function convertTools(
     function: {
       name: tool.name,
       description: tool.description,
-      parameters: tool.parameters as Record<string, unknown>,
+      parameters: tool.parameters,
     },
   }));
 }

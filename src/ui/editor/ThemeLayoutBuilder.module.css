@@ -842,7 +842,6 @@
   border-radius: 0.86rem;
   font-size: 0.82rem;
   line-height: 1.45;
-  white-space: pre-wrap;
   word-break: break-word;
 }
 
@@ -853,10 +852,33 @@
   box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.14);
 }
 
+.editorAiStreamingMessage {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--preview-accent) 20%, #e2e8f0);
+  background:
+    linear-gradient(180deg, #ffffff, #f8fbff),
+    color-mix(in srgb, var(--preview-accent) 4%, white);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.7),
+    0 0.7rem 1.5rem rgba(15, 23, 42, 0.08);
+}
+
+.editorAiStreamingCursor {
+  width: 0.42rem;
+  height: 1em;
+  display: inline-block;
+  margin-left: 0.16rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--preview-accent) 72%, #0f172a);
+  vertical-align: -0.14em;
+  animation: editorAiCursorPulse 900ms steps(2, start) infinite;
+}
+
 .editorAiUserMessage {
   align-self: flex-end;
   background: var(--preview-accent);
   color: #fff;
+  white-space: pre-wrap;
 }
 
 .editorAiSystemMessage {
@@ -864,6 +886,161 @@
   max-width: 100%;
   background: color-mix(in srgb, var(--preview-accent) 9%, white);
   color: #475569;
+}
+
+.editorAiMarkdown {
+  display: grid;
+  gap: 0.46rem;
+}
+
+.editorAiMarkdown :where(h1, h2, h3, p, ul, ol, blockquote, pre, table) {
+  margin: 0;
+}
+
+.editorAiMarkdown :where(h1, h2, h3) {
+  color: #0f172a;
+  font-weight: 850;
+  line-height: 1.25;
+}
+
+.editorAiMarkdown h1 {
+  font-size: 0.98rem;
+}
+
+.editorAiMarkdown h2 {
+  font-size: 0.92rem;
+}
+
+.editorAiMarkdown h3 {
+  font-size: 0.86rem;
+}
+
+.editorAiMarkdown p {
+  color: inherit;
+}
+
+.editorAiMarkdown :where(ul, ol) {
+  display: grid;
+  gap: 0.24rem;
+  padding-left: 1.15rem;
+}
+
+.editorAiMarkdown li {
+  padding-left: 0.12rem;
+}
+
+.editorAiMarkdown input[type='checkbox'] {
+  width: 0.82rem;
+  height: 0.82rem;
+  margin: 0 0.28rem 0 0;
+  vertical-align: -0.12em;
+  accent-color: var(--preview-accent);
+}
+
+.editorAiMarkdown blockquote {
+  padding: 0.42rem 0.56rem;
+  border-left: 3px solid color-mix(in srgb, var(--preview-accent) 54%, #94a3b8);
+  border-radius: 0.58rem;
+  background: rgba(248, 250, 252, 0.82);
+  color: #475569;
+}
+
+.editorAiMarkdown a {
+  color: color-mix(in srgb, var(--preview-accent) 78%, #0f172a);
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 0.14em;
+}
+
+.editorAiMarkdown hr {
+  width: 100%;
+  height: 1px;
+  border: 0;
+  background: rgba(148, 163, 184, 0.28);
+}
+
+.editorAiMarkdown table {
+  width: 100%;
+  display: block;
+  overflow: auto;
+  border-collapse: collapse;
+  font-size: 0.76rem;
+}
+
+.editorAiMarkdown th,
+.editorAiMarkdown td {
+  padding: 0.38rem 0.48rem;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  text-align: left;
+  vertical-align: top;
+}
+
+.editorAiMarkdown th {
+  background: rgba(248, 250, 252, 0.9);
+  color: #0f172a;
+  font-weight: 800;
+}
+
+.editorAiInlineCode {
+  padding: 0.08rem 0.26rem;
+  border-radius: 0.32rem;
+  background: rgba(15, 23, 42, 0.06);
+  color: #0f172a;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.78em;
+}
+
+.editorAiCodeBlock {
+  position: relative;
+  overflow: auto;
+  max-width: 100%;
+  padding: 0.72rem 0.76rem;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 0.72rem;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.75rem;
+  line-height: 1.55;
+  white-space: pre;
+}
+
+.editorAiCodeBlock code {
+  display: block;
+}
+
+.editorAiBlockCode {
+  display: block;
+}
+
+.editorAiWaiting {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.editorAiWaitingDots {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.18rem;
+}
+
+.editorAiWaitingDots span {
+  width: 0.28rem;
+  height: 0.28rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--preview-accent) 72%, #475569);
+  animation: editorAiWaitingDot 1s ease-in-out infinite;
+}
+
+.editorAiWaitingDots span:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.editorAiWaitingDots span:nth-child(3) {
+  animation-delay: 240ms;
 }
 
 .editorAiForm {
@@ -918,6 +1095,32 @@
 .editorAiActions button:disabled {
   cursor: not-allowed;
   opacity: 0.58;
+}
+
+@keyframes editorAiCursorPulse {
+  0%,
+  45% {
+    opacity: 1;
+  }
+
+  46%,
+  100% {
+    opacity: 0.15;
+  }
+}
+
+@keyframes editorAiWaitingDot {
+  0%,
+  70%,
+  100% {
+    opacity: 0.38;
+    transform: translateY(0);
+  }
+
+  35% {
+    opacity: 1;
+    transform: translateY(-0.16rem);
+  }
 }
 
 .emptyState,

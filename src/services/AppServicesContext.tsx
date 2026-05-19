@@ -27,13 +27,13 @@ export function AppServicesProvider({ children }: { children: ReactNode }) {
 
     const handleAuthExpired = () => {
       authService.clear();
-      window.location.href = '/';
+      window.location.assign('/');
     };
 
     return {
       authService,
-      userService: new UserService(),
-      templateService: new TemplateService(),
+      userService: new UserService(() => authService.getToken()),
+      templateService: new TemplateService(() => authService.getToken()),
       templateAiService: new TemplateAiService(
         () => authService.getToken(),
         handleAuthExpired,

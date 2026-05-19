@@ -1,6 +1,5 @@
-import { v4 as uuidv4 } from 'uuid';
-
 export type ServerFlavors = 'development' | 'production' | 'test';
+export type BackendDatabaseDriver = 'sqljs' | 'sqlite' | 'postgres' | 'mysql';
 
 export interface BackendOAuthProviderConfig {
   appId?: string;
@@ -17,8 +16,10 @@ export interface ServerConfig {
   };
   corsOrigins: string[];
   database: {
-    path: string;
+    driver: BackendDatabaseDriver;
+    path?: string;
     logging: boolean;
+    synchronize: boolean;
   };
   jwt: {
     secret: string;
@@ -35,12 +36,15 @@ export interface ServerConfig {
 type EnvSource = NodeJS.ProcessEnv;
 type CliArgs = readonly string[];
 
-const DEFAULT_JWT_SECRET = uuidv4();
+const DEV_JWT_SECRET_FALLBACK = 'dev-insecure-stable-jwt-secret-change-me';
+const TEST_JWT_SECRET_FALLBACK = 'test-insecure-stable-jwt-secret-change-me';
 const DEFAULT_JWT_EXPIRES_IN = '7d';
 const DEFAULT_PORT = 4000;
 const SERVER_FLAVOR_ENV_NAME = 'SERVER_FLAVOR';
 
 export class ConfigFactory {
+  private static readonly warnedJwtSecretFallbacks = new Set<ServerFlavors>();
+
   static applyStartupFlavor(
     source: EnvSource = process.env,
     argv: CliArgs = process.argv.slice(2),
@@ -62,10 +66,14 @@ export class ConfigFactory {
       openai: 'OPENAI',
       'openai-compatible': 'DEEPSEEK',
     };
-    const aiProvider = (this.read(source, serverFlavor, 'AI_PROVIDER') as 'openai' | 'openai-compatible') ?? 'openai';
+    const configuredProvider = this.read(source, serverFlavor, 'AI_PROVIDER');
+    const aiProvider = configuredProvider === 'openai-compatible'
+      ? 'openai-compatible'
+      : 'openai';
     const prefix = VAR_PREFIX[aiProvider];
 
     const aiModel = this.read(source, serverFlavor, 'AI_MODEL');
+    const databaseDriver = this.readDatabaseDriver(source, serverFlavor);
 
     return {
       ai: {
@@ -79,13 +87,16 @@ export class ConfigFactory {
       },
       corsOrigins: this.readList(source, serverFlavor, 'CORS_ORIGINS'),
       database: {
+        driver: databaseDriver,
         path:
           this.read(source, serverFlavor, 'DB_PATH') ??
-          this.readRequired(source, serverFlavor, 'DEFAULT_DB_PATH'),
+          this.read(source, serverFlavor, 'DEFAULT_DB_PATH'),
         logging: serverFlavor !== 'production',
+        synchronize: this.readBoolean(source, serverFlavor, 'DB_SYNCHRONIZE')
+          ?? serverFlavor !== 'production',
       },
       jwt: {
-        secret: this.read(source, serverFlavor, 'JWT_SECRET') ?? DEFAULT_JWT_SECRET,
+        secret: this.resolveJwtSecret(source, serverFlavor),
         expiresIn:
           this.read(source, serverFlavor, 'JWT_EXPIRES_IN') ??
           DEFAULT_JWT_EXPIRES_IN,
@@ -195,16 +206,76 @@ export class ConfigFactory {
     return Number.isFinite(numberValue) ? numberValue : undefined;
   }
 
-  private static readRequired(
+  private static resolveJwtSecret(
+    source: EnvSource,
+    nodeEnv: ServerFlavors,
+  ): string {
+    const configured = this.read(source, nodeEnv, 'JWT_SECRET');
+    if (configured) {
+      return configured;
+    }
+
+    if (nodeEnv === 'production') {
+      throw new Error(
+        'Missing required JWT secret for production. Set JWT_SECRET or PROD_JWT_SECRET '
+        + 'to a stable random value before starting the backend.',
+      );
+    }
+
+    if (!this.warnedJwtSecretFallbacks.has(nodeEnv)) {
+      this.warnedJwtSecretFallbacks.add(nodeEnv);
+      console.warn(
+        `[ConfigFactory] ${this.scopePrefix(nodeEnv)}_JWT_SECRET/JWT_SECRET is not set; `
+        + 'using a fixed insecure development fallback. Configure a stable secret '
+        + 'in .env.*.local to keep sessions valid across environments.',
+      );
+    }
+
+    return nodeEnv === 'test' ? TEST_JWT_SECRET_FALLBACK : DEV_JWT_SECRET_FALLBACK;
+  }
+
+  private static readBoolean(
     source: EnvSource,
     nodeEnv: ServerFlavors,
     name: string,
-  ): string {
+  ): boolean | undefined {
     const value = this.read(source, nodeEnv, name);
     if (!value) {
-      throw new Error(`Missing required environment variable: ${name}`);
+      return undefined;
     }
-    return value;
+
+    const normalized = value.toLowerCase();
+    if (['1', 'true', 'yes', 'on'].includes(normalized)) {
+      return true;
+    }
+    if (['0', 'false', 'no', 'off'].includes(normalized)) {
+      return false;
+    }
+
+    throw new Error(`Invalid boolean environment variable ${name}: ${value}`);
+  }
+
+  private static readDatabaseDriver(
+    source: EnvSource,
+    nodeEnv: ServerFlavors,
+  ): BackendDatabaseDriver {
+    const value = this.read(source, nodeEnv, 'DATABASE_DRIVER')
+      ?? this.read(source, nodeEnv, 'DB_DRIVER');
+    if (!value) {
+      return 'sqljs';
+    }
+
+    const normalized = value.toLowerCase();
+    if (
+      normalized === 'sqljs' ||
+      normalized === 'sqlite' ||
+      normalized === 'postgres' ||
+      normalized === 'mysql'
+    ) {
+      return normalized;
+    }
+
+    throw new Error(`Unsupported database driver: ${value}`);
   }
 
   private static scopePrefix(nodeEnv: ServerFlavors): 'DEV' | 'PROD' | 'TEST' {

@@ -4,7 +4,6 @@ const DEFAULT_KEEP_RECENT = 6;
 const LARGE_RESULT_THRESHOLD = 1000;
 const TRUNCATE_HEAD = 200;
 const TRUNCATE_TAIL = 80;
-const CLEARED_MESSAGE = '[Old tool result trimmed]';
 
 function truncateContent(content: string, toolName: string): string {
   if (content.length <= TRUNCATE_HEAD + TRUNCATE_TAIL + 60) {
@@ -16,9 +15,10 @@ function truncateContent(content: string, toolName: string): string {
 
   let resultType = '';
   try {
-    const parsed = JSON.parse(content) as Record<string, unknown>;
-    if (parsed) {
-      resultType = parsed.error ? 'error' : (parsed.success ? 'success' : '');
+    const parsed = JSON.parse(content) as unknown;
+    if (parsed && typeof parsed === 'object') {
+      const result = parsed as Record<string, unknown>;
+      resultType = result.error ? 'error' : (result.success ? 'success' : '');
     }
   } catch { /* non-JSON content */ }
 

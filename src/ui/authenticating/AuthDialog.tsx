@@ -15,9 +15,14 @@ type View = Tab | 'wechat';
 interface AuthDialogProps {
   onClose: (successRedirect?: string) => void;
   initialTab?: Tab;
+  successRedirect?: string;
 }
 
-export function AuthDialog({ onClose, initialTab = 'login' }: AuthDialogProps) {
+export function AuthDialog({
+  onClose,
+  initialTab = 'login',
+  successRedirect = '/editor',
+}: AuthDialogProps) {
   const [view, setView] = useState<View>(initialTab);
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -64,6 +69,7 @@ export function AuthDialog({ onClose, initialTab = 'login' }: AuthDialogProps) {
         {view === 'login' && (
           <LoginForm
             onClose={onClose}
+            successRedirect={successRedirect}
             onSwitch={() => { setView('register'); }}
             onWechat={() => { setView('wechat'); }}
           />
@@ -71,6 +77,7 @@ export function AuthDialog({ onClose, initialTab = 'login' }: AuthDialogProps) {
         {view === 'register' && (
           <RegisterForm
             onClose={onClose}
+            successRedirect={successRedirect}
             onSwitch={() => { setView('login'); }}
             onWechat={() => { setView('wechat'); }}
           />
@@ -91,10 +98,12 @@ export function AuthDialog({ onClose, initialTab = 'login' }: AuthDialogProps) {
 /* ── Login Form ── */
 function LoginForm({
   onClose,
+  successRedirect,
   onSwitch,
   onWechat,
 }: {
   onClose: (redirect?: string) => void;
+  successRedirect: string;
   onSwitch: () => void;
   onWechat: () => void;
 }) {
@@ -115,7 +124,7 @@ function LoginForm({
       const loginHash = await hashForLogin(nonce, pwdHash);
       const result = await userService.login(identifier, loginHash, nonce);
       authService.save(result);
-      onClose('/editor');
+      onClose(successRedirect);
     } catch (err) {
       setError(err instanceof Error ? err.message : c.error.unknown);
     } finally {
@@ -189,10 +198,12 @@ function LoginForm({
 /* ── Register Form ── */
 function RegisterForm({
   onClose,
+  successRedirect,
   onSwitch,
   onWechat,
 }: {
   onClose: (redirect?: string) => void;
+  successRedirect: string;
   onSwitch: () => void;
   onWechat: () => void;
 }) {
@@ -225,7 +236,7 @@ function RegisterForm({
         email: email || undefined,
       });
       authService.save(result);
-      onClose('/editor');
+      onClose(successRedirect);
     } catch (err) {
       setError(err instanceof Error ? err.message : c.error.unknown);
     } finally {

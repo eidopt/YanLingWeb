@@ -40,18 +40,16 @@ const SYSTEM_PROMPT = [
   '- Create componentTemplates for reusable patterns.',
   '',
   'core.widget — for dynamic third-party content (charts, markdown, editors, 3D):',
-  '  Add dependencies to layoutDocument.dependencies:',
-  '    dependencies: [{ name: "echarts", url: "https://esm.sh/echarts" }]',
-  '  Use core.widget with props:',
-  '    library: "echarts" — matches the dependency name',
-  '    code: "var chart = echarts.init(container); chart.setOption(data);"',
-  '    data: { ... } — arbitrary JSON passed as "data" param to the code function',
-  '  Prefer esm.sh for ESM packages. For non-ESM, use esm.sh/*target* syntax.',
-  '  Widget code receives: function(container: HTMLDivElement, lib, data)',
+  '  Widget runtime is disabled by default and only approved HTTPS dependency',
+  '  origins are loadable. Prefer editable core.* approximations unless the user',
+  '  explicitly asks for custom code/widgets.',
+  '  If a widget is explicitly requested, dependencies must use approved ESM URLs',
+  '  such as https://esm.sh/<package>, and widget code must be minimal.',
+  '  Widget code receives: function(container: HTMLDivElement, lib, data).',
   '  Always return a cleanup function if the lib needs teardown (e.g. chart.dispose).',
   '',
-  'If the UI intent plan says a capability is missing, try core.widget + esm.sh',
-  'before falling back to pure layout approximations.',
+  'If the UI intent plan says a capability is missing, prefer pure layout',
+  'approximations before using core.widget.',
   '- Never use an alias unless it is a core.* alias or defined in componentTemplates.',
   '- templateId format: {category}-{theme} (e.g. "fitness-tracker").',
   '- Call generate_template exactly ONCE. After saving, describe what you created.',
@@ -93,6 +91,7 @@ export class TemplateAiService {
     const intentPlan = planUiIntent(prompt);
     const intentPlanPrompt = formatUiIntentPlanForPrompt(intentPlan);
 
+    this.provider.resetConversation();
     onEvent({ type: 'intent_plan', data: JSON.stringify(intentPlan) });
 
     let cancelled = false;

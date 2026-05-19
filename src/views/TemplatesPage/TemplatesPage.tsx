@@ -3,10 +3,12 @@
 import { templatesPageContent as c } from './TemplatesPage.content';
 import styles from './TemplatesPage.module.css';
 import { cx } from 'base/classname';
+import { useAppServices } from 'hooks/useAppServices';
 import { useTemplates } from 'hooks/useTemplates';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import type { ThemeSpec } from 'types/theme.types';
+import { showDialog } from 'ui/authenticating';
 import { ThemeCard } from 'ui/theme_card';
 import { showThemePreviewModal } from 'ui/theme_preview_modal';
 
@@ -26,6 +28,7 @@ function getCategories(themes: ThemeSpec[]): string[] {
 
 export function TemplatesPage() {
   const router = useRouter();
+  const { authService, templateService } = useAppServices();
   const { templates, loading, error } = useTemplates();
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>(ALL_CATEGORY);
@@ -45,14 +48,24 @@ export function TemplatesPage() {
         theme.name.toLowerCase().includes(q) ||
         theme.tagline.toLowerCase().includes(q) ||
         theme.description.toLowerCase().includes(q) ||
-        theme.traits.some((t) => t.toLowerCase().includes(q))
+        theme.traits.some((t) => t.toLowerCase().includes(q)) ||
+        theme.tags.some((t) => t.toLowerCase().includes(q))
       );
     });
   }, [templates, search, activeCategory]);
 
   function handleOpen(theme: ThemeSpec) {
     showThemePreviewModal(theme, () => {
-      void router.push(`/editor?themeId=${theme.id}`);
+      if (!authService.isLoggedIn()) {
+        showDialog((redirect) => {
+          if (redirect) { router.push(redirect); }
+        });
+        return;
+      }
+
+      void templateService.duplicate(theme.id).then((copy) => {
+        router.push(`/editor?templateId=${encodeURIComponent(copy.id)}`);
+      });
     });
   }
 

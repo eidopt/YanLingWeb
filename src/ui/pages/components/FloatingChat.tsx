@@ -1,3 +1,4 @@
+import { floatingChatContent as c } from './FloatingChat.content';
 import styles from './PageComponents.module.css';
 import { cx } from 'base/classname';
 import type { KeyboardEvent, RefObject } from 'react';
@@ -26,7 +27,7 @@ export interface FloatingChatProps {
 }
 
 export function FloatingChat({
-  closeLabel = '关闭',
+  closeLabel = c.closeLabel,
   fabLabel,
   idPrefix = 'page-floating-chat',
   input,

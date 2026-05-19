@@ -297,15 +297,16 @@ export function descriptorForAlias(
   if (catalog) { return catalog; }
 
   // 2. Fall back to componentTemplates — build a synthetic descriptor
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const componentTemplates = (document as any).componentTemplates as Record<string, unknown> | undefined;
+  const componentTemplates = (document as ThemeLayoutDocument & {
+    componentTemplates?: Record<string, unknown>;
+  }).componentTemplates;
   const template = componentTemplates?.[alias];
   if (template && typeof template === 'object' && 'root' in template) {
     const root = (template as { root: { alias: string } }).root;
     return {
       alias,
       name: (template as { displayName?: string }).displayName ?? alias,
-      kind: root && CONTAINER_ALIASES.has(root.alias) ? 'layout' : 'component',
+      kind: CONTAINER_ALIASES.has(root.alias) ? 'layout' : 'component',
       description: `Custom component defined in componentTemplates`,
       props: [],
     };
@@ -1185,7 +1186,7 @@ export function canAcceptNestedDrop(
   if (componentTemplates) {
     const template = componentTemplates[node.alias];
     if (template && typeof template === 'object' && 'root' in template) {
-      const rootAlias = (template as { root: { alias: string } }).root?.alias;
+      const rootAlias = (template as { root: { alias: string } }).root.alias;
       if (rootAlias && CONTAINER_ALIASES.has(rootAlias)) {
         return true;
       }

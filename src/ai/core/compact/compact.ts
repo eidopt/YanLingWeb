@@ -1,7 +1,6 @@
 import type { ProviderMessage } from '../providers/types';
 
 const KEEP_RECENT = 20;
-const MAX_SUMMARY_TOOL_RESULTS = 5;
 
 export function compactConversation(messages: ProviderMessage[]): ProviderMessage[] {
   if (messages.length <= KEEP_RECENT + 1) {
@@ -20,7 +19,8 @@ export function compactConversation(messages: ProviderMessage[]): ProviderMessag
     '',
     summary,
     '',
-    '[Continue from here. Do not repeat completed work. If a tool was already called, do not call it again with the same intent.]',
+    '[Continue from here. Do not repeat completed work. '
+      + 'If a tool was already called, do not call it again with the same intent.]',
   ].join('\n');
 
   return [
@@ -37,8 +37,6 @@ function buildSummary(messages: ProviderMessage[]): string {
 
   const lines: string[] = [];
   const userMessages: string[] = [];
-  const toolResults: { name: string; ok: boolean; detail: string }[] = [];
-  let lastCancelled = false;
 
   for (const msg of messages) {
     if (msg.role === 'user' && typeof msg.content === 'string') {
@@ -73,7 +71,9 @@ function buildSummary(messages: ProviderMessage[]): string {
     // Deduplicate and show user requests
     const unique = [...new Set(userMessages)];
     if (unique.length > 1) {
-      lines.unshift(`- User requests (${unique.length}): ${unique.map((m) => `"${m}"`).join(' | ')}`);
+      lines.unshift(
+        `- User requests (${unique.length}): ${unique.map((m) => `"${m}"`).join(' | ')}`,
+      );
     } else {
       lines.unshift(`- Goal: ${unique[0]}`);
     }
@@ -90,14 +90,25 @@ function tryParseArgs(raw: string): Record<string, unknown> {
 function buildToolDetail(name: string, args: Record<string, unknown>): string {
   switch (name) {
     case 'generate_template':
-      return `${args.name ?? 'unnamed'} (${args.category ?? ''})`;
+      return `${stringArg(args.name, 'unnamed')} (${stringArg(args.category)})`;
     case 'apply_editor_edits':
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- args may be malformed at runtime
       if (Array.isArray(args.operations)) {
-        return `${args.operations.length} operation(s) — ${args.reason ?? ''}`;
+        return `${args.operations.length} operation(s) — ${stringArg(args.reason)}`;
       }
       return '';
     default:
       return Object.keys(args).slice(0, 2).join(', ');
   }
+}
+
+function stringArg(value: unknown, fallback = ''): string {
+  if (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  ) {
+    return String(value);
+  }
+
+  return fallback;
 }

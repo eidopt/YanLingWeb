@@ -25,11 +25,12 @@ const CAPABILITIES: ProviderCapabilities = {
 export class BackendProxyProvider implements AIProvider {
   readonly name = 'backend-proxy';
   private aborted = false;
+  private abortController: AbortController | null = null;
 
-  /** Stable session-wide conversation identifier */
+  /** Active conversation identifier; editor chat sets this per template. */
   private conversationId: string | null = null;
-  /** ID of the most recent LLM response, used for prompt caching on next request */
-  private previousResponseId: string | null = null;
+  /** IDs of the most recent LLM responses, keyed by conversation. */
+  private previousResponseIdsByConversation = new Map<string, string>();
 
   /**
    * @param getToken - Returns the current JWT token (or null if not logged in).
@@ -45,13 +46,19 @@ export class BackendProxyProvider implements AIProvider {
     return CAPABILITIES;
   }
 
-  /** Assign a stable conversation ID for this provider instance */
+  /** Assign the active conversation ID, usually scoped to one template. */
   setConversationId(id: string): void {
     this.conversationId = id;
   }
 
   getConversationId(): string | null {
     return this.conversationId;
+  }
+
+  resetConversation(): void {
+    this.conversationId = null;
+    this.previousResponseIdsByConversation.clear();
+    this.aborted = false;
   }
 
   async *stream(request: ProviderRequest): AsyncIterable<ProviderStreamEvent> {
@@ -63,32 +70,53 @@ export class BackendProxyProvider implements AIProvider {
       return;
     }
 
+    const abortController = new AbortController();
+    this.abortController = abortController;
+    const clearAbortController = () => {
+      if (this.abortController === abortController) {
+        this.abortController = null;
+      }
+    };
+
     // Ensure a stable conversation ID exists for cache purposes
-    if (!this.conversationId) {
-      this.conversationId = `conv-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-    }
+    this.conversationId ??=
+      `conv-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    const conversationId = this.conversationId;
+    const previousResponseId =
+      this.previousResponseIdsByConversation.get(conversationId);
 
     const headers: Record<string, string> = {
       'content-type': 'application/json',
       authorization: `Bearer ${token}`,
-      'x-conversation-id': this.conversationId,
+      'x-conversation-id': conversationId,
     };
 
-    if (this.previousResponseId) {
-      headers['x-previous-response-id'] = this.previousResponseId;
+    if (previousResponseId) {
+      headers['x-previous-response-id'] = previousResponseId;
     }
 
-    const res = await fetch('/api/ai/stream', {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(request),
-    });
+    let res: Response;
+    try {
+      res = await fetch('/api/ai/stream', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(request),
+        signal: abortController.signal,
+      });
+    } catch (err) {
+      clearAbortController();
+      if (abortController.signal.aborted) {
+        return;
+      }
+      throw err;
+    }
 
     if (!res.ok) {
       // 401 = JWT expired or invalid → notify caller to clear auth
       if (res.status === 401) {
         this.onAuthExpired?.();
         yield { type: 'error', message: '登录已过期，请重新登录。' };
+        clearAbortController();
         return;
       }
 
@@ -99,13 +127,14 @@ export class BackendProxyProvider implements AIProvider {
         if (json.message) {message = json.message;}
       } catch { /* use raw text */ }
       yield { type: 'error', message };
+      clearAbortController();
       return;
     }
 
     // Extract cache metadata from response headers
     const respIdHeader = res.headers.get('x-response-id');
     if (respIdHeader) {
-      this.previousResponseId = respIdHeader;
+      this.previousResponseIdsByConversation.set(conversationId, respIdHeader);
     }
 
     // body is always present on a successful fetch Response
@@ -118,7 +147,7 @@ export class BackendProxyProvider implements AIProvider {
     try {
       // cancel() sets this.aborted from outside; TS can't see cross-method mutation
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      while (!this.aborted) {
+      while (!this.aborted && !abortController.signal.aborted) {
         const { done, value } = await reader.read();
         if (done) {break;}
 
@@ -138,19 +167,30 @@ export class BackendProxyProvider implements AIProvider {
               // (the provider may embed it in usage metadata)
               const doneEvent = event as unknown as Record<string, unknown>;
               if (typeof doneEvent.response_id === 'string') {
-                this.previousResponseId = doneEvent.response_id;
+                this.previousResponseIdsByConversation.set(
+                  conversationId,
+                  doneEvent.response_id,
+                );
               }
+              yield event;
+              return;
             }
             yield event;
           } catch { /* skip malformed lines */ }
         }
       }
     } finally {
+      if (abortController.signal.aborted) {
+        await reader.cancel().catch(() => undefined);
+      }
       reader.releaseLock();
+      clearAbortController();
     }
   }
 
   cancel(): void {
     this.aborted = true;
+    this.abortController?.abort();
+    this.abortController = null;
   }
 }

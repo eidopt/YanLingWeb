@@ -49,11 +49,14 @@ The template uses a component tree system. Core layout components:
   - library: dependency name declared in dependencies (e.g. "echarts")
   - code: JS init function body => function(container, lib, data) { ... }
   - data: arbitrary JSON data passed to the widget
+  - widget runtime is disabled by default; prefer core.* approximations unless
+    the user explicitly asks for custom code/widgets
 
 layoutDocument.dependencies — OPTIONAL array of external libraries:
   dependencies: [{ name: "echarts", url: "https://esm.sh/echarts" }]
-  Each dep is loaded at runtime via dynamic import(). Use esm.sh for
-  ESM-compatible npm packages. The loaded module is available as "lib"
+  Each dep is loaded at runtime via dynamic import() only when widget runtime
+  is enabled. Use approved HTTPS esm.sh URLs for ESM-compatible npm packages.
+  The loaded module is available as "lib"
   inside the widget code function.
 
 LayoutDocument node:

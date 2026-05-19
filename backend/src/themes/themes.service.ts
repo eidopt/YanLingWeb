@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { DatabaseFlushService } from '../database/database-flush.service';
 import { CreateThemeDto } from './dto/create-theme.dto';
 import { UpdateThemeDto } from './dto/update-theme.dto';
 import { Theme } from './entities/theme.entity';
@@ -11,11 +12,14 @@ export class ThemesService {
   constructor(
     @InjectRepository(Theme)
     private readonly repo: Repository<Theme>,
+    private readonly databaseFlush: DatabaseFlushService,
   ) {}
 
   async create(dto: CreateThemeDto): Promise<Theme> {
     const theme = this.repo.create(dto);
-    return this.repo.save(theme);
+    const saved = await this.repo.save(theme);
+    await this.databaseFlush.flush('theme creation');
+    return saved;
   }
 
   async findAll(): Promise<{ data: Theme[]; total: number; }> {
@@ -36,11 +40,14 @@ export class ThemesService {
   async update(id: string, dto: UpdateThemeDto): Promise<Theme> {
     const theme = await this.findOne(id);
     Object.assign(theme, dto);
-    return this.repo.save(theme);
+    const saved = await this.repo.save(theme);
+    await this.databaseFlush.flush('theme update');
+    return saved;
   }
 
   async remove(id: string): Promise<void> {
     const theme = await this.findOne(id);
     await this.repo.remove(theme);
+    await this.databaseFlush.flush('theme removal');
   }
 }

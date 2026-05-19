@@ -1,10 +1,13 @@
 import type { AuthResponseDto, UserDto } from '@shared/types/user.types';
 
 export type AuthUser = UserDto;
+export const AUTH_CHANGED_EVENT = 'ai-app-auth-changed';
 
 function hasLocalStorage(): boolean {
   try {
-    return typeof window !== 'undefined' && window.localStorage != null;
+    if (typeof window === 'undefined') { return false; }
+    void window.localStorage;
+    return true;
   } catch {
     return false;
   }
@@ -18,6 +21,7 @@ export class AuthService {
     if (!hasLocalStorage()) { return; }
     localStorage.setItem(this.tokenKey, response.accessToken);
     localStorage.setItem(this.userKey, JSON.stringify(response.user));
+    this.emitAuthChange(response.user);
   }
 
   getToken(): string | null {
@@ -36,13 +40,26 @@ export class AuthService {
     }
   }
 
+  updateUser(user: AuthUser): void {
+    localStorage.setItem(this.userKey, JSON.stringify(user));
+    this.emitAuthChange(user);
+  }
+
   clear(): void {
     if (!hasLocalStorage()) { return; }
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);
+    this.emitAuthChange(null);
   }
 
   isLoggedIn(): boolean {
     return Boolean(this.getToken());
+  }
+
+  private emitAuthChange(user: AuthUser | null): void {
+    if (typeof window === 'undefined') { return; }
+    window.dispatchEvent(new CustomEvent<AuthUser | null>(AUTH_CHANGED_EVENT, {
+      detail: user,
+    }));
   }
 }

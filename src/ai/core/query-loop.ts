@@ -66,68 +66,84 @@ export interface QueryResult {
   error?: string;
 }
 
-async function executeToolCallsInParallel(
+async function executeToolCall(
+  call: PendingToolCall,
+  cfg: Omit<QueryLoopConfig, 'toolExecutor'> & {
+    toolExecutor: (name: string, args: Record<string, unknown>) => Promise<ToolResult>;
+  },
+): Promise<{ call: PendingToolCall; result: ToolResult }> {
+  let args: Record<string, unknown>;
+  try {
+    args = JSON.parse(call.arguments) as Record<string, unknown>;
+  } catch {
+    return {
+      call,
+      result: { output: JSON.stringify({ error: 'Invalid JSON arguments' }) },
+    };
+  }
+
+  cfg.onToolEvent({ name: call.name, status: 'start' });
+
+  let result: ToolResult = {
+    output: JSON.stringify({ error: 'Tool execution failed after max retries' }),
+  };
+  let retries = 0;
+
+  while (retries <= MAX_TOOL_RETRIES) {
+    try {
+      result = await cfg.toolExecutor(call.name, args);
+      break;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      const isRetryable =
+        message.includes('timeout') ||
+        message.includes('network') ||
+        message.includes('ECONNRESET') ||
+        message.includes('ETIMEDOUT') ||
+        message.includes('503') ||
+        message.includes('502');
+
+      if (isRetryable && retries < MAX_TOOL_RETRIES) {
+        retries += 1;
+        const delay = TOOL_RETRY_DELAY_MS * Math.pow(2, retries);
+        console.warn(
+          `[QueryLoop] Tool ${call.name} retry ${retries}/${MAX_TOOL_RETRIES} in ${delay}ms`,
+        );
+        await new Promise((r) => setTimeout(r, delay));
+        continue;
+      }
+
+      result = {
+        output: JSON.stringify({ error: message }),
+      };
+      break;
+    }
+  }
+
+  const isError = result.output.startsWith('{"error');
+  cfg.onToolEvent({ name: call.name, status: isError ? 'error' : 'done' });
+  return { call, result };
+}
+
+async function executeToolCalls(
   pendingCalls: PendingToolCall[],
   cfg: Omit<QueryLoopConfig, 'toolExecutor'> & {
     toolExecutor: (name: string, args: Record<string, unknown>) => Promise<ToolResult>;
   },
 ): Promise<{ call: PendingToolCall; result: ToolResult }[]> {
-  const results = await Promise.all(
-    pendingCalls.map(async (call) => {
-      let args: Record<string, unknown>;
-      try {
-        args = JSON.parse(call.arguments) as Record<string, unknown>;
-      } catch {
-        return {
-          call,
-          result: { output: JSON.stringify({ error: 'Invalid JSON arguments' }) },
-        };
-      }
+  const canRunInParallel = pendingCalls.length > 1 && pendingCalls.every((call) => (
+    cfg.toolSpecs.get(call.name)?.supportsParallel === true
+  ));
 
-      cfg.onToolEvent({ name: call.name, status: 'start' });
+  if (canRunInParallel) {
+    return Promise.all(pendingCalls.map((call) => executeToolCall(call, cfg)));
+  }
 
-      let result: ToolResult = {
-        output: JSON.stringify({ error: 'Tool execution failed after max retries' }),
-      };
-      let retries = 0;
-
-      while (retries <= MAX_TOOL_RETRIES) {
-        try {
-          result = await cfg.toolExecutor(call.name, args);
-          break;
-        } catch (err) {
-          const message = err instanceof Error ? err.message : String(err);
-          const isRetryable =
-            message.includes('timeout') ||
-            message.includes('network') ||
-            message.includes('ECONNRESET') ||
-            message.includes('ETIMEDOUT') ||
-            message.includes('503') ||
-            message.includes('502');
-
-          if (isRetryable && retries < MAX_TOOL_RETRIES) {
-            retries += 1;
-            const delay = TOOL_RETRY_DELAY_MS * Math.pow(2, retries);
-            console.warn(
-              `[QueryLoop] Tool ${call.name} retry ${retries}/${MAX_TOOL_RETRIES} in ${delay}ms`,
-            );
-            await new Promise((r) => setTimeout(r, delay));
-            continue;
-          }
-
-          result = {
-            output: JSON.stringify({ error: message }),
-          };
-          break;
-        }
-      }
-
-      const isError = result.output.startsWith('{"error');
-      cfg.onToolEvent({ name: call.name, status: isError ? 'error' : 'done' });
-      return { call, result };
-    }),
-  );
-
+  const results: { call: PendingToolCall; result: ToolResult }[] = [];
+  for (const call of pendingCalls) {
+    if (cfg.isCancelled()) { break; }
+    results.push(await executeToolCall(call, cfg));
+  }
   return results;
 }
 
@@ -303,7 +319,7 @@ export class QueryLoop {
       continuationParts = [];
       this.maybeInjectLoopHint(current, pendingCalls);
 
-      const toolResults = await executeToolCallsInParallel(
+      const toolResults = await executeToolCalls(
         pendingCalls,
         this.cfg,
       );
@@ -317,6 +333,7 @@ export class QueryLoop {
           toolCallId: call.id,
           toolName: call.name,
           toolArguments: call.arguments,
+          ...(reasoningContent && { reasoningContent }),
         });
         current.push({
           role: 'tool_result',

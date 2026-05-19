@@ -1,4 +1,10 @@
+packages:
+  - backend
+  - shared
+
 allowBuilds:
+  '@nestjs/core': true
+  '@scarf/scarf': true
   electron: true
   electron-winstaller: true
   sharp: true

@@ -1,14 +1,24 @@
 import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ConfigFactory } from '../config/config.factory';
 import { Template } from './entities/template.entity';
 import { TemplatesController } from './templates.controller';
 import { TemplatesService } from './templates.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Template])],
+  imports: [
+    TypeOrmModule.forFeature([Template]),
+    JwtModule.registerAsync({
+      useFactory: () => ({
+        secret: ConfigFactory.build().jwt.secret,
+      }),
+    }),
+  ],
   controllers: [TemplatesController],
-  providers: [TemplatesService],
+  providers: [TemplatesService, JwtAuthGuard],
   exports: [TemplatesService],
 })
 export class TemplatesModule {}

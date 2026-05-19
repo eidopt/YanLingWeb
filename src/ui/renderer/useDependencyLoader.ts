@@ -4,17 +4,40 @@ import type { ThemeLibraryDependency } from '../layout/types';
 import { useEffect, useState } from 'react';
 
 const libraryCache = new Map<string, unknown>();
+const ALLOWED_LIBRARY_ORIGINS = new Set(['https://esm.sh']);
+const WIDGET_RUNTIME_ENABLED = process.env.NEXT_PUBLIC_ENABLE_AI_WIDGETS === 'true';
 
 function hasDefaultExport(value: unknown): value is { default: unknown } {
   return typeof value === 'object' && value !== null && 'default' in value;
 }
 
+function isAllowedDependencyUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' && ALLOWED_LIBRARY_ORIGINS.has(parsed.origin);
+  } catch {
+    return false;
+  }
+}
+
 export async function loadLibrary(dep: ThemeLibraryDependency): Promise<void> {
+  if (!WIDGET_RUNTIME_ENABLED) {
+    return;
+  }
+
   if (libraryCache.has(dep.name)) {
     return;
   }
 
-  const mod: unknown = await import(/* @vite-ignore */ dep.url);
+  if (!isAllowedDependencyUrl(dep.url)) {
+    throw new Error(`Blocked theme dependency URL: ${dep.url}`);
+  }
+
+  const mod: unknown = await import(
+    /* webpackIgnore: true */
+    /* @vite-ignore */
+    dep.url
+  );
   libraryCache.set(dep.name, hasDefaultExport(mod) ? mod.default : mod);
 }
 
@@ -24,12 +47,12 @@ export function getLibrary(name: string): unknown {
 
 export function useDependencyLoader(deps: ThemeLibraryDependency[] | undefined): boolean {
   const [ready, setReady] = useState(() => {
-    if (!deps?.length) {return true;}
+    if (!WIDGET_RUNTIME_ENABLED || !deps?.length) {return true;}
     return deps.every((dep) => libraryCache.has(dep.name));
   });
 
   useEffect(() => {
-    if (!deps?.length) {
+    if (!WIDGET_RUNTIME_ENABLED || !deps?.length) {
       setReady(true);
       return;
     }

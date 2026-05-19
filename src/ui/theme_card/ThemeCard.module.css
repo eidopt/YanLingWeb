@@ -1,27 +1,32 @@
 .card {
   display: flex;
   flex-direction: column;
-  border-radius: 16px;
+  border-radius: var(--theme-card-radius, 24px);
   overflow: hidden;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background: #fff;
+  border: 1px solid var(--theme-card-border, transparent);
+  background: var(--theme-card-bg, transparent);
   cursor: pointer;
   text-align: left;
   padding: 0;
-  transition: box-shadow 0.18s, transform 0.18s;
+  transition:
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    transform 0.22s ease;
 }
 
 .card:hover {
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
-  transform: translateY(-2px);
+  border-color: var(--theme-card-hover-border, rgba(99, 102, 241, 0.24));
+  box-shadow: var(--theme-card-hover-shadow, 0 16px 48px rgba(15, 23, 42, 0.08));
+  transform: translateY(-4px);
 }
 
 .cardThumb {
   position: relative;
   width: 100%;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 22 / 42;
   overflow: hidden;
-  background: #f5f5f7;
+  border-radius: inherit;
+  background: transparent;
   container-type: inline-size;
 }
 
@@ -66,8 +71,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 12px;
-  border-top: 1px solid rgba(15, 23, 42, 0.06);
+  margin-top: 0.65rem;
+  padding: 0 0.2rem 0.15rem;
 }
 
 .cardAccent {
@@ -87,7 +92,7 @@
 .cardName {
   font-size: 0.88rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--theme-card-name, #111827);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -95,7 +100,7 @@
 
 .cardTagline {
   font-size: 0.75rem;
-  color: rgba(17, 24, 39, 0.56);
+  color: var(--theme-card-tagline, rgba(17, 24, 39, 0.56));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

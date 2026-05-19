@@ -18,11 +18,13 @@ import {
 import {
   useCanvasEditorController,
 } from './controllers/useCanvasEditorController';
+import { flattenNodes } from './services/layoutBuilderService';
 import {
   themeLayoutBuilderContent,
 } from './ThemeLayoutBuilder.content';
 import styles from './ThemeLayoutBuilder.module.css';
 import type { LayoutBuilderTheme } from './types';
+import type { BuilderCanvas } from './types';
 import { cx } from 'base/classname';
 import { useEffect, useRef, useState } from 'react';
 import { Tooltip } from 'ui';
@@ -31,6 +33,11 @@ import { ExportDialog } from 'ui/export_dialog/ExportDialog';
 interface ThemeLayoutBuilderProps {
   themes: LayoutBuilderTheme[];
   initialThemeId?: string;
+  onCanvasesChange?: (
+    canvases: BuilderCanvas[],
+    activeCanvasId: string,
+    activeTheme: LayoutBuilderTheme,
+  ) => void;
 }
 
 const PHONE_CANVAS_WIDTH = 352;
@@ -59,8 +66,25 @@ function canvasSizeForPreset(screenPreset: DynamicThemeScreenPreset) {
     : { width: PHONE_CANVAS_WIDTH, height: PHONE_CANVAS_HEIGHT };
 }
 
+function getCanvasPageStats(canvas: BuilderCanvas) {
+  const nodes = flattenNodes(canvas.document.layout);
+  const bodyNodeCount = nodes.filter(
+    ({ depth, node }) => depth > 0 && node.slot !== 'footer',
+  ).length;
+  const footerNodeCount = nodes.filter(
+    ({ node }) => node.slot === 'footer',
+  ).length;
+
+  return {
+    nodeCount: nodes.length,
+    bodyNodeCount,
+    footerNodeCount,
+    isBlank: bodyNodeCount === 0,
+  };
+}
+
 export function ThemeLayoutBuilder(
-  { themes, initialThemeId }: ThemeLayoutBuilderProps,
+  { themes, initialThemeId, onCanvasesChange }: ThemeLayoutBuilderProps,
 ) {
   const [sidebarTab, setSidebarTab] = useState<
     'components' | 'templates'
@@ -189,6 +213,10 @@ export function ThemeLayoutBuilder(
 
     return () => resizeObserver.disconnect();
   }, [canvasHeight, canvasWidth]);
+
+  useEffect(() => {
+    onCanvasesChange?.(canvases, activeCanvasId, activeTheme);
+  }, [activeCanvasId, activeTheme, canvases, onCanvasesChange]);
 
   function handleApplyTemplate(themeId: string) {
     closeDialog();
@@ -426,7 +454,15 @@ export function ThemeLayoutBuilder(
 
           <div className={styles.editorAiDock}>
             <EditorAiPanel
+              templateId={activeTheme.id}
               currentDocument={currentDocument}
+              pages={canvases.map((canvas) => ({
+                pageId: canvas.document.defaultPageId,
+                name: canvas.document.pageName ?? canvas.name,
+                rootNodeId: canvas.document.layout.id,
+                isActive: canvas.id === activeCanvasId,
+                ...getCanvasPageStats(canvas),
+              }))}
               selectedNode={isPreviewMode ? null : selectedNode}
               selectedDescriptor={isPreviewMode ? null : selectedDescriptor}
               disabled={isPreviewMode}

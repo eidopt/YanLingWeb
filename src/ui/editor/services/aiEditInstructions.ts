@@ -4,6 +4,8 @@ import type {
   ThemeComponentDescriptor,
   ThemeLayoutDocument,
   ThemeLayoutNode,
+  ThemeLayoutNodeInteractions,
+  ThemeLayoutTabInteraction,
 } from "../../layout/types";
 import {
   buildNodeFromDraft,
@@ -26,40 +28,73 @@ import {
   updateNodeInDocument,
   upsertNode,
 } from "./layoutBuilderService";
+import {
+  resolveSemanticTargetNodeId,
+} from "./semanticTargets";
+
+interface EditorAiInstructionTarget {
+  pageId?: string;
+  semanticTarget?: string;
+  target?: string;
+}
 
 export type EditorAiEditInstruction =
-  | {
+  | ({
+      type: "create_page";
+      pageId: string;
+      name?: string;
+      rootNodeId?: string;
+      props?: Record<string, unknown>;
+      layout?: Partial<LayoutNodeLayout>;
+      select?: boolean;
+      activate?: boolean;
+    } & EditorAiInstructionTarget)
+  | ({
+      type: "delete_page";
+      name?: string;
+      select?: boolean;
+      activate?: boolean;
+    } & EditorAiInstructionTarget)
+  | ({
+      type: "sync_page_navigation";
+      select?: boolean;
+    } & EditorAiInstructionTarget)
+  | ({
+      type: "sync_footer_tabs";
+      select?: boolean;
+    } & EditorAiInstructionTarget)
+  | ({
       type: "insert_node";
       alias: string;
       nodeId?: string;
       parentId?: string;
       targetId?: string;
-      position?: "before" | "after";
+      position?: "before" | "after" | "inside_end";
       axis?: DropIndicatorAxis;
       props?: Record<string, unknown>;
       layout?: Partial<LayoutNodeLayout>;
       frame?: Partial<LayoutNodeFrame>;
       select?: boolean;
-    }
-  | {
+    } & EditorAiInstructionTarget)
+  | ({
       type: "update_props";
       nodeId: string;
       props: Record<string, unknown>;
       select?: boolean;
-    }
-  | {
+    } & EditorAiInstructionTarget)
+  | ({
       type: "set_layout";
       nodeId: string;
       layout: Partial<LayoutNodeLayout>;
       select?: boolean;
-    }
-  | {
+    } & EditorAiInstructionTarget)
+  | ({
       type: "set_frame";
       nodeId: string;
       frame: Partial<LayoutNodeFrame>;
       select?: boolean;
-    }
-  | {
+    } & EditorAiInstructionTarget)
+  | ({
       type: "move_node";
       nodeId: string;
       parentId?: string;
@@ -67,16 +102,28 @@ export type EditorAiEditInstruction =
       position?: "before" | "after" | "inside_end";
       axis?: DropIndicatorAxis;
       select?: boolean;
-    }
-  | {
+    } & EditorAiInstructionTarget)
+  | ({
       type: "delete_node";
       nodeId: string;
-    };
+    } & EditorAiInstructionTarget)
+  | ({
+      type: "update_interactions";
+      nodeId: string;
+      interactions: Partial<ThemeLayoutNodeInteractions>;
+      select?: boolean;
+    } & EditorAiInstructionTarget);
 
 export interface ApplyEditorAiEditInstructionsResult {
   applied: string[];
   document: ThemeLayoutDocument;
   errors: string[];
+  selectedNodeId?: string | null;
+}
+
+export interface ApplyEditorAiEditInstructionsOptions {
+  userPrompt?: string;
+  reason?: string;
   selectedNodeId?: string | null;
 }
 
@@ -86,6 +133,8 @@ interface ApplyOneResult {
   message?: string;
   selectedNodeId?: string | null;
 }
+
+type NodeIdAliases = Map<string, string>;
 
 const SIZE_LAYOUT_KEYS = [
   "width",
@@ -113,6 +162,10 @@ function stringifyPropValue(value: unknown) {
   }
 
   return "";
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
 function isSizeValue(value: unknown): value is number | string {
@@ -266,6 +319,25 @@ function coercePropValue(
     return { error: `属性 "${name}" 需要字符串数组` };
   }
 
+  if (prop.type === "object") {
+    if (isPlainObject(value)) {
+      return { value };
+    }
+
+    if (typeof value === "string" && value.trim()) {
+      try {
+        const parsed = JSON.parse(value) as unknown;
+        if (isPlainObject(parsed)) {
+          return { value: parsed };
+        }
+      } catch {
+        return { error: `属性 "${name}" 需要对象` };
+      }
+    }
+
+    return { error: `属性 "${name}" 需要对象` };
+  }
+
   const stringValue = stringifyPropValue(value);
   if (prop.enum?.length && !prop.enum.includes(stringValue)) {
     return {
@@ -291,6 +363,98 @@ function coerceProps(
     nextProps[name] = result.value;
   });
   return { errors, props: nextProps };
+}
+
+function sanitizeNavigateAction(value: unknown) {
+  if (typeof value === "string" && value.trim()) {
+    return { type: "navigate" as const, targetPageId: value.trim() };
+  }
+
+  if (!isPlainObject(value)) {
+    return null;
+  }
+
+  return (
+    (value.type === "navigate" || !value.type) &&
+    typeof value.targetPageId === "string"
+  )
+    ? { type: "navigate" as const, targetPageId: value.targetPageId }
+    : null;
+}
+
+function sanitizeTabInteraction(
+  value: unknown,
+): ThemeLayoutTabInteraction | null {
+  const directAction = sanitizeNavigateAction(value);
+  if (directAction) {
+    return directAction;
+  }
+
+  if (!isPlainObject(value)) {
+    return null;
+  }
+
+  const entries = Object.entries(value)
+    .map(([label, action]) => [label, sanitizeNavigateAction(action)] as const)
+    .filter((entry): entry is readonly [
+      string,
+      { type: "navigate"; targetPageId: string },
+    ] => Boolean(entry[1]));
+
+  return entries.length ? Object.fromEntries(entries) : null;
+}
+
+function sanitizeInteractionsPatch(
+  interactions: Partial<ThemeLayoutNodeInteractions> | undefined,
+) {
+  const next: Partial<ThemeLayoutNodeInteractions> = {};
+  if (!interactions) {
+    return next;
+  }
+
+  const onClick = sanitizeNavigateAction(interactions.onClick);
+  if (onClick) {
+    next.onClick = onClick;
+  }
+
+  const onActionClick = sanitizeNavigateAction(interactions.onActionClick);
+  if (onActionClick) {
+    next.onActionClick = onActionClick;
+  }
+
+  const onStatusClick = sanitizeNavigateAction(interactions.onStatusClick);
+  if (onStatusClick) {
+    next.onStatusClick = onStatusClick;
+  }
+
+  const onTabClick = sanitizeTabInteraction(interactions.onTabClick);
+  if (onTabClick) {
+    next.onTabClick = onTabClick;
+  }
+
+  if (Object.keys(next).length === 0) {
+    const implicitTabClick = sanitizeTabInteraction(interactions);
+    if (implicitTabClick) {
+      next.onTabClick = implicitTabClick;
+    }
+  }
+
+  return next;
+}
+
+function findFooterTabsNode(node: ThemeLayoutNode): ThemeLayoutNode | null {
+  if (node.alias === "core.tabs" && node.slot === "footer") {
+    return node;
+  }
+
+  for (const child of node.children ?? []) {
+    const found = findFooterTabsNode(child);
+    if (found) {
+      return found;
+    }
+  }
+
+  return null;
 }
 
 function normalizeParentAfterChange(
@@ -320,6 +484,201 @@ function canInsertIntoParent(document: ThemeLayoutDocument, parentId: string) {
   return Boolean(parent && CONTAINER_ALIASES.has(parent.alias));
 }
 
+function resolveAliasId(nodeId: string | undefined, aliases: NodeIdAliases) {
+  if (!nodeId) {
+    return nodeId;
+  }
+
+  return aliases.get(nodeId) ?? nodeId;
+}
+
+function resolveInstructionIds(
+  instruction: EditorAiEditInstruction,
+  aliases: NodeIdAliases,
+): EditorAiEditInstruction {
+  switch (instruction.type) {
+    case "create_page":
+    case "delete_page":
+    case "sync_page_navigation":
+    case "sync_footer_tabs":
+      return instruction;
+    case "insert_node":
+      return {
+        ...instruction,
+        parentId: resolveAliasId(instruction.parentId, aliases),
+        targetId: resolveAliasId(instruction.targetId, aliases),
+      };
+    case "update_props":
+    case "set_layout":
+    case "set_frame":
+    case "delete_node":
+      return {
+        ...instruction,
+        nodeId: resolveAliasId(instruction.nodeId, aliases) ?? instruction.nodeId,
+      };
+    case "move_node":
+      return {
+        ...instruction,
+        nodeId: resolveAliasId(instruction.nodeId, aliases) ?? instruction.nodeId,
+        parentId: resolveAliasId(instruction.parentId, aliases),
+        targetId: resolveAliasId(instruction.targetId, aliases),
+      };
+    case "update_interactions":
+      return {
+        ...instruction,
+        nodeId: resolveAliasId(instruction.nodeId, aliases) ?? instruction.nodeId,
+      };
+  }
+}
+
+function getInstructionSemanticTarget(instruction: EditorAiEditInstruction) {
+  return (
+    typeof instruction.semanticTarget === "string" && instruction.semanticTarget.trim()
+      ? instruction.semanticTarget
+      : typeof instruction.target === "string" && instruction.target.trim()
+        ? instruction.target
+        : undefined
+  );
+}
+
+function stringifyInstructionForSemanticTarget(
+  instruction: EditorAiEditInstruction,
+) {
+  try {
+    return JSON.stringify(instruction);
+  } catch {
+    return instruction.type;
+  }
+}
+
+function resolveSemanticNodeId(
+  document: ThemeLayoutDocument,
+  currentNodeId: string | undefined,
+  instruction: EditorAiEditInstruction,
+  options: ApplyEditorAiEditInstructionsOptions | undefined,
+  fieldName: string,
+) {
+  if (currentNodeId && findNode(document.layout, currentNodeId)) {
+    return currentNodeId;
+  }
+
+  const semanticTarget = getInstructionSemanticTarget(instruction);
+  const text = [
+    options?.userPrompt,
+    options?.reason,
+    semanticTarget,
+    currentNodeId,
+    fieldName,
+    stringifyInstructionForSemanticTarget(instruction),
+  ].filter(Boolean).join("\n");
+  return resolveSemanticTargetNodeId(document, {
+    target: semanticTarget,
+    text,
+    selectedNodeId: options?.selectedNodeId,
+  })?.nodeId ?? currentNodeId;
+}
+
+function resolveInstructionSemanticTargets(
+  document: ThemeLayoutDocument,
+  instruction: EditorAiEditInstruction,
+  options?: ApplyEditorAiEditInstructionsOptions,
+): EditorAiEditInstruction {
+  switch (instruction.type) {
+    case "create_page":
+    case "delete_page":
+    case "sync_page_navigation":
+    case "sync_footer_tabs":
+      return instruction;
+    case "insert_node":
+      return {
+        ...instruction,
+        parentId: resolveSemanticNodeId(
+          document,
+          instruction.parentId,
+          instruction,
+          options,
+          "parentId",
+        ),
+        targetId: resolveSemanticNodeId(
+          document,
+          instruction.targetId,
+          instruction,
+          options,
+          "targetId",
+        ),
+      };
+    case "update_props":
+    case "set_layout":
+    case "set_frame":
+    case "delete_node":
+    case "update_interactions":
+      return {
+        ...instruction,
+        nodeId:
+          resolveSemanticNodeId(
+            document,
+            instruction.nodeId,
+            instruction,
+            options,
+            "nodeId",
+          ) ?? instruction.nodeId,
+      };
+    case "move_node":
+      return {
+        ...instruction,
+        nodeId:
+          resolveSemanticNodeId(
+            document,
+            instruction.nodeId,
+            instruction,
+            options,
+            "nodeId",
+          ) ?? instruction.nodeId,
+        parentId: resolveSemanticNodeId(
+          document,
+          instruction.parentId,
+          instruction,
+          options,
+          "parentId",
+        ),
+        targetId: resolveSemanticNodeId(
+          document,
+          instruction.targetId,
+          instruction,
+          options,
+          "targetId",
+        ),
+      };
+  }
+}
+
+function resolveInsertionParentId(
+  document: ThemeLayoutDocument,
+  instruction: Extract<EditorAiEditInstruction, { type: "insert_node" }>,
+) {
+  if (
+    instruction.position === "inside_end" &&
+    instruction.targetId &&
+    canInsertIntoParent(document, instruction.targetId)
+  ) {
+    return instruction.targetId;
+  }
+
+  const requestedParentId = instruction.parentId ?? document.layout.id;
+  if (canInsertIntoParent(document, requestedParentId)) {
+    return requestedParentId;
+  }
+
+  if (instruction.targetId) {
+    const targetParentId = findParentId(document.layout, instruction.targetId);
+    if (targetParentId && canInsertIntoParent(document, targetParentId)) {
+      return targetParentId;
+    }
+  }
+
+  return requestedParentId;
+}
+
 function buildInsertedNode(
   document: ThemeLayoutDocument,
   instruction: Extract<EditorAiEditInstruction, { type: "insert_node" }>,
@@ -333,7 +692,7 @@ function buildInsertedNode(
     return { error: `节点 id 已存在：${instruction.nodeId}` };
   }
 
-  const parentId = instruction.parentId ?? document.layout.id;
+  const parentId = resolveInsertionParentId(document, instruction);
   if (!canInsertIntoParent(document, parentId)) {
     return { error: `节点 ${parentId} 不能接收子节点` };
   }
@@ -382,10 +741,58 @@ function buildInsertedNode(
   return { node: nextNode, parentId };
 }
 
+function applyRootScreenInsert(
+  document: ThemeLayoutDocument,
+  instruction: Extract<EditorAiEditInstruction, { type: "insert_node" }>,
+): ApplyOneResult {
+  const descriptor = descriptorForAlias(document, "core.screen");
+  if (!descriptor) {
+    return { document, error: "未找到组件描述：core.screen" };
+  }
+
+  const coerced = coerceProps(descriptor, instruction.props);
+  if (coerced.errors.length) {
+    return { document, error: coerced.errors.join("；") };
+  }
+
+  const nextDocument = cloneDocument(document);
+  nextDocument.layout.props = {
+    ...(nextDocument.layout.props ?? {}),
+    ...coerced.props,
+  };
+  nextDocument.layout.layout = {
+    ...nextDocument.layout.layout,
+    ...sanitizeLayoutPatch(instruction.layout),
+  };
+
+  const framePatch = sanitizeFramePatch(instruction.frame);
+  if (Object.keys(framePatch).length > 0) {
+    nextDocument.layout.layout.mode = "absolute";
+    nextDocument.layout.frame = {
+      position: "absolute",
+      ...nextDocument.layout.frame,
+      ...framePatch,
+    };
+  }
+
+  nextDocument.layout.children = [];
+  normalizeRootRows(nextDocument.layout);
+
+  return {
+    document: nextDocument,
+    message: "用新页面结构更新当前画布",
+    selectedNodeId: instruction.select === false ? undefined : nextDocument.layout.id,
+  };
+}
+
 function applyInsertNode(
   document: ThemeLayoutDocument,
   instruction: Extract<EditorAiEditInstruction, { type: "insert_node" }>,
 ): ApplyOneResult {
+  if (instruction.alias === "core.screen") {
+    return applyRootScreenInsert(document, instruction);
+  }
+
   const built = buildInsertedNode(document, instruction);
   if ("error" in built) {
     return { document, error: built.error };
@@ -393,7 +800,7 @@ function applyInsertNode(
 
   const { node, parentId } = built;
   const nextDocument =
-    instruction.targetId && instruction.position
+    instruction.targetId && instruction.position && instruction.position !== "inside_end"
       ? insertNodeRelativeToTargetInDocument(
           document,
           parentId,
@@ -605,11 +1012,62 @@ function applyDeleteNode(
   };
 }
 
+function applyUpdateInteractions(
+  document: ThemeLayoutDocument,
+  instruction: Extract<
+    EditorAiEditInstruction,
+    { type: "update_interactions" }
+  >,
+): ApplyOneResult {
+  const node = findNode(document.layout, instruction.nodeId);
+  if (!node) {
+    return { document, error: `未找到节点：${instruction.nodeId}` };
+  }
+
+  const patch = sanitizeInteractionsPatch(instruction.interactions);
+  if (Object.keys(patch).length === 0) {
+    return { document, error: `无法更新交互：${instruction.nodeId}` };
+  }
+
+  const targetNode =
+    node.alias === "core.screen" && patch.onTabClick
+      ? (findFooterTabsNode(node) ?? node)
+      : node;
+
+  const nextDocument = updateNodeInDocument(
+    document,
+    targetNode.id,
+    (draft) => {
+      draft.interactions = {
+        ...(draft.interactions ?? {}),
+        ...patch,
+      };
+    },
+  );
+  if (!nextDocument) {
+    return { document, error: `无法更新交互：${instruction.nodeId}` };
+  }
+
+  return {
+    document: nextDocument,
+    message: `更新 ${targetNode.id} 的交互`,
+    selectedNodeId:
+      instruction.select === false ? undefined : targetNode.id,
+  };
+}
+
 function applyOneInstruction(
   document: ThemeLayoutDocument,
   instruction: EditorAiEditInstruction,
 ): ApplyOneResult {
   switch (instruction.type) {
+    case "create_page":
+      return { document, error: "创建页面需要编辑器页面上下文" };
+    case "delete_page":
+      return { document, error: "删除页面需要编辑器页面上下文" };
+    case "sync_page_navigation":
+    case "sync_footer_tabs":
+      return { document, error: "同步页面导航需要编辑器页面上下文" };
     case "insert_node":
       return applyInsertNode(document, instruction);
     case "update_props":
@@ -622,6 +1080,8 @@ function applyOneInstruction(
       return applyMoveNode(document, instruction);
     case "delete_node":
       return applyDeleteNode(document, instruction);
+    case "update_interactions":
+      return applyUpdateInteractions(document, instruction);
     default:
       return { document, error: "未知编辑指令" };
   }
@@ -630,14 +1090,36 @@ function applyOneInstruction(
 export function applyEditorAiEditInstructions(
   document: ThemeLayoutDocument,
   instructions: readonly EditorAiEditInstruction[],
+  options?: ApplyEditorAiEditInstructionsOptions,
 ): ApplyEditorAiEditInstructionsResult {
   let currentDocument = cloneDocument(document);
+  const nodeIdAliases: NodeIdAliases = new Map();
   const applied: string[] = [];
   const errors: string[] = [];
   let selectedNodeId: string | null | undefined;
 
   instructions.forEach((instruction, index) => {
-    const result = applyOneInstruction(currentDocument, instruction);
+    if (
+      instruction.type === "insert_node" &&
+      instruction.alias === "core.screen" &&
+      instruction.nodeId
+    ) {
+      nodeIdAliases.set(instruction.nodeId, currentDocument.layout.id);
+    }
+
+    const resolvedInstruction = resolveInstructionIds(
+      instruction,
+      nodeIdAliases,
+    );
+    const semanticResolvedInstruction = resolveInstructionSemanticTargets(
+      currentDocument,
+      resolvedInstruction,
+      options,
+    );
+    const result = applyOneInstruction(
+      currentDocument,
+      semanticResolvedInstruction,
+    );
     currentDocument = result.document;
     if (result.error) {
       errors.push(`第 ${index + 1} 条：${result.error}`);

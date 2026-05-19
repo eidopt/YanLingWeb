@@ -71,6 +71,9 @@ export interface ProviderRequest {
   messages: ProviderMessage[];
   tools?: ProviderTool[];
   reasoningEffort?: 'low' | 'medium' | 'high';
+  cache?: {
+    previousResponseId?: string;
+  };
 }
 
 export interface ProviderCapabilities {

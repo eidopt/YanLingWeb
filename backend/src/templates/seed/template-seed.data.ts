@@ -1,11 +1,15 @@
 export interface TemplateSeedException {
   templateId: string;
+  ownerUserId?: string | null;
+  sourceTemplateId?: string | null;
+  isPublic?: boolean;
   name: string;
   tagline: string;
   description: string;
   accent: string;
   category: string;
   traits: string[];
+  tags?: string[];
   cssVars: Record<string, string>;
   cssAnimations?: Record<string, string>;
   componentTemplates: Record<string, unknown>;
@@ -538,6 +542,17 @@ export const TEMPLATE_SEED_DATA: TemplateSeedException[] = [
     accent: "#fa9d3b",
     category: "电商购物",
     traits: ["生鲜电商", "多页跳转", "暖橙色调", "促销信息"],
+    tags: [
+      "电商",
+      "购物",
+      "商城",
+      "生鲜",
+      "商品",
+      "购物车",
+      "促销",
+      "订单",
+      "会员",
+    ],
     cssVars: {
       "--accent": "#fa9d3b",
       "--surface": "linear-gradient(180deg, #fff4e7 0%, #fffaf3 100%)",
@@ -1436,6 +1451,16 @@ export const TEMPLATE_SEED_DATA: TemplateSeedException[] = [
     accent: "#07c160",
     category: "生活服务",
     traits: ["服务入口", "订单追踪", "绿色基调", "功能分区"],
+    tags: [
+      "生活服务",
+      "预约",
+      "订单",
+      "家政",
+      "维修",
+      "会员",
+      "服务中心",
+      "缴费",
+    ],
     cssVars: {
       "--accent": "#07c160",
       "--surface": "linear-gradient(180deg, #eefaf2 0%, #f7fbf8 100%)",

@@ -17,11 +17,21 @@ process.env.NODE_ENV = serverFlavor;
 
 loadEnvFiles(envFilePaths(serverFlavor));
 
+const databaseDriver = readDatabaseDriver(serverFlavor);
+if (!isKnownDriver(databaseDriver)) {
+  console.error(`[db:init] Unsupported database driver: ${databaseDriver}`);
+  process.exit(1);
+}
+if (!isFileBackedDriver(databaseDriver)) {
+  console.log(`[db:init] Skipping local database file init for ${databaseDriver}`);
+  process.exit(0);
+}
+
 const dbPath = readEnv(serverFlavor, 'DB_PATH')
   ?? readEnv(serverFlavor, 'DEFAULT_DB_PATH');
 
 if (!dbPath) {
-  console.error('[db:init] Missing required environment variable: DEFAULT_DB_PATH');
+  console.error(`[db:init] ${databaseDriver} requires DB_PATH or DEFAULT_DB_PATH`);
   process.exit(1);
 }
 
@@ -36,7 +46,7 @@ if (!fs.existsSync(dbDir)) {
 }
 
 if (!fs.existsSync(resolvedDbPath)) {
-  // Touch the file so better-sqlite3 gets a clean slate
+  // Touch the file so file-backed local drivers get a clean slate.
   fs.writeFileSync(resolvedDbPath, '');
   console.log(`[db:init] Created SQLite database file: ${resolvedDbPath}`);
 } else {
@@ -118,6 +128,22 @@ function loadEnvFiles(filePaths) {
 function readEnv(flavor, name) {
   return clean(process.env[`${scopePrefix(flavor)}_${name}`])
     ?? clean(process.env[name]);
+}
+
+function readDatabaseDriver(flavor) {
+  return clean(process.env[`${scopePrefix(flavor)}_DATABASE_DRIVER`])
+    ?? clean(process.env[`${scopePrefix(flavor)}_DB_DRIVER`])
+    ?? clean(process.env.DATABASE_DRIVER)
+    ?? clean(process.env.DB_DRIVER)
+    ?? 'sqljs';
+}
+
+function isFileBackedDriver(driver) {
+  return driver === 'sqljs' || driver === 'sqlite';
+}
+
+function isKnownDriver(driver) {
+  return ['sqljs', 'sqlite', 'postgres', 'mysql'].includes(driver);
 }
 
 function scopePrefix(flavor) {

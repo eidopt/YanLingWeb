@@ -5,12 +5,16 @@ import { asString } from '../../valueResolvers';
 import type { CoreNodeProps } from '../types';
 import { useEffect, useRef } from 'react';
 
+const WIDGET_RUNTIME_ENABLED = process.env.NEXT_PUBLIC_ENABLE_AI_WIDGETS === 'true';
+
 export function WidgetNode({ props, nodeLayoutStyle }: CoreNodeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const library = asString(props.library);
   const code = asString(props.code);
 
   useEffect(() => {
+    if (!WIDGET_RUNTIME_ENABLED) { return; }
+
     const container = containerRef.current;
     if (!container || !library || !code) {return;}
     const lib = getLibrary(library);
@@ -37,6 +41,7 @@ export function WidgetNode({ props, nodeLayoutStyle }: CoreNodeProps) {
       ref={containerRef}
       style={nodeLayoutStyle}
       data-widget-library={library || undefined}
+      data-widget-runtime={WIDGET_RUNTIME_ENABLED ? 'enabled' : 'disabled'}
     />
   );
 }

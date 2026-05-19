@@ -1,12 +1,16 @@
 'use client';
 
+import { globalNavContent as c } from './GlobalNav.content';
 import styles from './GlobalNav.module.css';
 import { cx } from 'base/classname';
+import { useAppServices } from 'hooks/useAppServices';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useCallback, useState } from 'react';
-import { useAppServices } from 'hooks/useAppServices';
+import { useEffect, useState } from 'react';
+import type { AuthUser } from 'services/AuthService';
+import { AUTH_CHANGED_EVENT } from 'services/AuthService';
 import { showDialog } from 'ui/authenticating';
+import { UserSettingsDialog } from 'ui/user_settings';
 
 export interface NavItem {
   label: string;
@@ -23,31 +27,36 @@ export function GlobalNav({ nav, variant = 'default' }: GlobalNavProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { authService } = useAppServices();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
-  const user = authService.getUser();
-  const loggedIn = authService.isLoggedIn();
+  useEffect(() => {
+    const syncUser = () => {
+      setUser(authService.getUser());
+    };
+    syncUser();
+
+    window.addEventListener(AUTH_CHANGED_EVENT, syncUser);
+    window.addEventListener('storage', syncUser);
+    return () => {
+      window.removeEventListener(AUTH_CHANGED_EVENT, syncUser);
+      window.removeEventListener('storage', syncUser);
+    };
+  }, [authService]);
 
   const openAuth = (tab: 'login' | 'register') => {
-    setMenuOpen(false);
     showDialog((redirect) => {
       if (redirect) {router.push(redirect);}
     }, { initialTab: tab });
   };
-
-  const handleLogout = useCallback(() => {
-    authService.clear();
-    setMenuOpen(false);
-    router.push('/');
-  }, [authService, router]);
 
   return (
     <header className={variant === 'overlay' ? styles.topbarOverlay : styles.topbar}>
       <Link href="/" className={styles.brand}>
         <span className={styles.brandMark}>✦</span>
         <div className={styles.brandText}>
-          <strong>AppGen AI</strong>
-          <span>AI 驱动的全平台应用设计工具</span>
+          <strong>{c.brand.name}</strong>
+          <span>{c.brand.tagline}</span>
         </div>
       </Link>
 
@@ -69,27 +78,19 @@ export function GlobalNav({ nav, variant = 'default' }: GlobalNavProps) {
       </nav>
 
       <div className={styles.authRow}>
-        {loggedIn && user ? (
-          <div className={styles.userMenu}>
-            <button
-              type="button"
-              className={styles.authLogin}
-              onClick={() => { setMenuOpen(!menuOpen); }}
-            >
-              {user.username || '用户'}
-            </button>
-            {menuOpen && (
-              <div className={styles.dropdown}>
-                <button
-                  type="button"
-                  className={styles.dropdownItem}
-                  onClick={handleLogout}
-                >
-                  退出登录
-                </button>
-              </div>
-            )}
-          </div>
+        {user ? (
+          <button
+            type="button"
+            className={styles.userButton}
+            onClick={() => { setSettingsOpen(true); }}
+            aria-label={c.auth.openUserSettings}
+            title={user.username}
+          >
+            <span className={styles.userAvatar}>
+              {user.username.slice(0, 1).toUpperCase()}
+            </span>
+            <span className={styles.userName}>{user.username}</span>
+          </button>
         ) : (
           <>
             <button
@@ -97,18 +98,24 @@ export function GlobalNav({ nav, variant = 'default' }: GlobalNavProps) {
               className={styles.authLogin}
               onClick={() => openAuth('login')}
             >
-              登录
+              {c.auth.login}
             </button>
             <button
               type="button"
               className={styles.authRegister}
               onClick={() => openAuth('register')}
             >
-              免费注册
+              {c.auth.register}
             </button>
           </>
         )}
       </div>
+      {user && settingsOpen && (
+        <UserSettingsDialog
+          user={user}
+          onClose={() => { setSettingsOpen(false); }}
+        />
+      )}
     </header>
   );
 }

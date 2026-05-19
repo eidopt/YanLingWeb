@@ -11,7 +11,7 @@ export type { } from './AuthDialog';
  * @param onClose  Called when the dialog is dismissed.
  *                 Receives `successRedirect` when the user has authenticated;
  *                 receives `undefined` when the dialog was manually closed.
- * @param options  Optional: which tab to open first ('login' | 'register').
+ * @param options  Optional auth behavior.
  *
  * @example
  * import { showDialog } from 'ui/authenticating'
@@ -22,7 +22,7 @@ export type { } from './AuthDialog';
  */
 export function showDialog(
   onClose: (successRedirect?: string) => void,
-  options?: { initialTab?: 'login' | 'register' },
+  options?: { initialTab?: 'login' | 'register'; successRedirect?: string },
 ): void {
   const container = document.createElement('div');
   document.body.appendChild(container);
@@ -43,6 +43,7 @@ export function showDialog(
       createElement(AuthDialog, {
         onClose: handleClose,
         initialTab: options?.initialTab,
+        successRedirect: options?.successRedirect,
       }),
     ),
   );
