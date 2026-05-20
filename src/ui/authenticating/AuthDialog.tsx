@@ -3,11 +3,21 @@
 import { authDialogContent as c } from './AuthDialog.content';
 import styles from './AuthDialog.module.css';
 import { WechatQrView } from './WechatQrView';
-import { cx } from 'base/classname';
 import { useAppServices } from 'hooks/useAppServices';
 import { hashForLogin, hashPassword } from 'lib/hash-password';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
+import {
+  Box,
+  Button,
+  Divider,
+  Heading,
+  Inline,
+  Input,
+  Label,
+  Stack,
+  Text,
+} from 'ui/system';
 
 type Tab = 'login' | 'register';
 type View = Tab | 'wechat';
@@ -30,40 +40,47 @@ export function AuthDialog({
   };
 
   return createPortal(
-    <div className={styles.backdrop} onClick={handleBackdropClick}>
-      <div className={styles.dialog} role="dialog" aria-modal="true">
+    <Box className={styles.backdrop} onClick={handleBackdropClick}>
+      <Box className={styles.dialog} role="dialog" aria-modal="true">
 
-        <button
-          type="button"
-          className={styles.closeBtn}
-          onClick={() => onClose()}
-          aria-label={c.close}
-        >
-          ✕
-        </button>
+        <Box className={styles.closeBtn}>
+          <Button
+            type="button"
+            onClick={() => onClose()}
+            aria-label={c.close}
+            size="icon-sm"
+            variant="icon"
+          >
+            ✕
+          </Button>
+        </Box>
 
-        <div className={styles.brand}>
-          <div className={styles.brandLogo}>✦</div>
-          <span>AppGen AI</span>
-        </div>
+        <Inline className={styles.brand}>
+          <Box className={styles.brandLogo}>✦</Box>
+          <Text as="span" weight="heavy">AppGen AI</Text>
+        </Inline>
 
         {view !== 'wechat' && (
-          <div className={styles.tabs}>
-            <button
+          <Inline className={styles.tabs} wrap={false}>
+            <Button
               type="button"
-              className={cx(styles.tab, view === 'login' && styles.tabActive)}
               onClick={() => { setView('login'); }}
+              fullWidth
+              size="sm"
+              variant={view === 'login' ? 'tab-active' : 'tab'}
             >
               {c.tabs.login}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
-              className={cx(styles.tab, view === 'register' && styles.tabActive)}
               onClick={() => { setView('register'); }}
+              fullWidth
+              size="sm"
+              variant={view === 'register' ? 'tab-active' : 'tab'}
             >
               {c.tabs.register}
-            </button>
-          </div>
+            </Button>
+          </Inline>
         )}
 
         {view === 'login' && (
@@ -89,8 +106,8 @@ export function AuthDialog({
           />
         )}
 
-      </div>
-    </div>,
+      </Box>
+    </Box>,
     document.body,
   );
 }
@@ -133,65 +150,88 @@ function LoginForm({
   };
 
   return (
-    <div className={styles.formWrap}>
-      <div className={styles.formHeader}>
-        <h2>{c.login.title}</h2>
-        <p>{c.login.sub}</p>
-      </div>
+    <Stack className={styles.formWrap}>
+      <Stack className={styles.formHeader} gap="xs">
+        <Heading size="md" variant="primary" weight="heavy">{c.login.title}</Heading>
+        <Text size="sm" variant="muted">{c.login.sub}</Text>
+      </Stack>
 
-      <div className={styles.socialRow}>
-        <button type="button" className={styles.socialBtn} onClick={onWechat}>
-          <span className={styles.socialIcon}>💬</span>
+      <Box className={styles.socialRow}>
+        <Button
+          type="button"
+          onClick={onWechat}
+          fullWidth
+          leadingIcon={<Text as="span" size="lg">💬</Text>}
+          size="sm"
+          variant="secondary"
+        >
           {c.social.wechat}
-        </button>
-        <button type="button" className={styles.socialBtn}>
-          <span className={styles.socialIcon}>📱</span>
+        </Button>
+        <Button
+          type="button"
+          fullWidth
+          leadingIcon={<Text as="span" size="lg">📱</Text>}
+          size="sm"
+          variant="secondary"
+        >
           {c.social.phone}
-        </button>
-      </div>
+        </Button>
+      </Box>
 
-      <div className={styles.divider}><span>{c.divider}</span></div>
+      <Divider label={c.divider} spacing="sm" variant="soft" />
 
-      {error && <p className={styles.errorMsg}>{error}</p>}
+      {error && (
+        <Box className={styles.errorMsg}>
+          <Text align="center" size="sm" variant="danger" weight="medium">{error}</Text>
+        </Box>
+      )}
 
-      <form className={styles.form} onSubmit={(e) => { void handleSubmit(e); }}>
-        <label className={styles.field}>
-          <span>{c.login.identifierLabel}</span>
-          <input
+      <Stack as="form" className={styles.form} onSubmit={(e) => { void handleSubmit(e); }}>
+        <Label className={styles.field}>
+          <Text as="span" size="sm" variant="secondary" weight="medium">
+            {c.login.identifierLabel}
+          </Text>
+          <Input
             type="text"
             placeholder={c.login.identifierPlaceholder}
             value={identifier}
             onChange={(e) => { setIdentifier(e.target.value); }}
             required
+            variant="filled"
           />
-        </label>
-        <label className={styles.field}>
-          <span>{c.login.passwordLabel}</span>
-          <div className={styles.passwordRow}>
-            <input
+        </Label>
+        <Label className={styles.field}>
+          <Text as="span" size="sm" variant="secondary" weight="medium">
+            {c.login.passwordLabel}
+          </Text>
+          <Stack className={styles.passwordRow} gap="xs">
+            <Input
               type="password"
               placeholder={c.login.passwordPlaceholder}
               value={password}
               onChange={(e) => { setPassword(e.target.value); }}
               required
+              variant="filled"
             />
-            <button type="button" className={styles.forgotLink}>
-              {c.login.forgotPassword}
-            </button>
-          </div>
-        </label>
-        <button type="submit" className={styles.submitBtn} disabled={submitting}>
+            <Inline justify="flex-end">
+              <Button type="button" size="xs" variant="link">
+                {c.login.forgotPassword}
+              </Button>
+            </Inline>
+          </Stack>
+        </Label>
+        <Button type="submit" disabled={submitting} fullWidth size="lg">
           {submitting ? c.login.submittingBtn : c.login.submitBtn}
-        </button>
-      </form>
+        </Button>
+      </Stack>
 
-      <p className={styles.switchRow}>
-        {c.login.switchHint}
-        <button type="button" className={styles.switchLink} onClick={onSwitch}>
+      <Inline className={styles.switchRow} justify="center">
+        <Text as="span" size="sm" variant="muted">{c.login.switchHint}</Text>
+        <Button type="button" size="xs" variant="link" onClick={onSwitch}>
           {c.login.switchLink}
-        </button>
-      </p>
-    </div>
+        </Button>
+      </Inline>
+    </Stack>
   );
 }
 
@@ -245,86 +285,113 @@ function RegisterForm({
   };
 
   return (
-    <div className={styles.formWrap}>
-      <div className={styles.formHeader}>
-        <h2>{c.register.title}</h2>
-        <p>{c.register.sub}</p>
-      </div>
+    <Stack className={styles.formWrap}>
+      <Stack className={styles.formHeader} gap="xs">
+        <Heading size="md" variant="primary" weight="heavy">{c.register.title}</Heading>
+        <Text size="sm" variant="muted">{c.register.sub}</Text>
+      </Stack>
 
-      <div className={styles.socialRow}>
-        <button type="button" className={styles.socialBtn} onClick={onWechat}>
-          <span className={styles.socialIcon}>💬</span>
+      <Box className={styles.socialRow}>
+        <Button
+          type="button"
+          onClick={onWechat}
+          fullWidth
+          leadingIcon={<Text as="span" size="lg">💬</Text>}
+          size="sm"
+          variant="secondary"
+        >
           {c.social.wechat}
-        </button>
-        <button type="button" className={styles.socialBtn}>
-          <span className={styles.socialIcon}>📱</span>
+        </Button>
+        <Button
+          type="button"
+          fullWidth
+          leadingIcon={<Text as="span" size="lg">📱</Text>}
+          size="sm"
+          variant="secondary"
+        >
           {c.social.phone}
-        </button>
-      </div>
+        </Button>
+      </Box>
 
-      <div className={styles.divider}><span>{c.divider}</span></div>
+      <Divider label={c.divider} spacing="sm" variant="soft" />
 
-      {error && <p className={styles.errorMsg}>{error}</p>}
+      {error && (
+        <Box className={styles.errorMsg}>
+          <Text align="center" size="sm" variant="danger" weight="medium">{error}</Text>
+        </Box>
+      )}
 
-      <form className={styles.form} onSubmit={(e) => { void handleSubmit(e); }}>
-        <label className={styles.field}>
-          <span>{c.register.nameLabel}</span>
-          <input
+      <Stack as="form" className={styles.form} onSubmit={(e) => { void handleSubmit(e); }}>
+        <Label className={styles.field}>
+          <Text as="span" size="sm" variant="secondary" weight="medium">
+            {c.register.nameLabel}
+          </Text>
+          <Input
             type="text"
             placeholder={c.register.namePlaceholder}
             value={username}
             onChange={(e) => { setUsername(e.target.value); }}
             required
+            variant="filled"
           />
-        </label>
-        <label className={styles.field}>
-          <span>{c.register.emailLabel}</span>
-          <input
+        </Label>
+        <Label className={styles.field}>
+          <Text as="span" size="sm" variant="secondary" weight="medium">
+            {c.register.emailLabel}
+          </Text>
+          <Input
             type="email"
             placeholder={c.register.emailPlaceholder}
             value={email}
             onChange={(e) => { setEmail(e.target.value); }}
+            variant="filled"
           />
-        </label>
-        <div className={styles.fieldRow}>
-          <label className={styles.field}>
-            <span>{c.register.passwordLabel}</span>
-            <input
+        </Label>
+        <Box className={styles.fieldRow}>
+          <Label className={styles.field}>
+            <Text as="span" size="sm" variant="secondary" weight="medium">
+              {c.register.passwordLabel}
+            </Text>
+            <Input
               type="password"
               placeholder={c.register.passwordPlaceholder}
               value={password}
               onChange={(e) => { setPassword(e.target.value); }}
               required
+              variant="filled"
             />
-          </label>
-          <label className={styles.field}>
-            <span>{c.register.confirmLabel}</span>
-            <input
+          </Label>
+          <Label className={styles.field}>
+            <Text as="span" size="sm" variant="secondary" weight="medium">
+              {c.register.confirmLabel}
+            </Text>
+            <Input
               type="password"
               placeholder={c.register.confirmPlaceholder}
               value={confirm}
               onChange={(e) => { setConfirm(e.target.value); }}
               required
+              variant="filled"
             />
-          </label>
-        </div>
-        <button type="submit" className={styles.submitBtn} disabled={submitting}>
+          </Label>
+        </Box>
+        <Button type="submit" disabled={submitting} fullWidth size="lg">
           {submitting ? c.register.submittingBtn : c.register.submitBtn}
-        </button>
-        <p className={styles.terms}>
+        </Button>
+        <Text align="center" size="xs" variant="faint">
           {c.register.terms}{' '}
-          <button type="button" className={styles.termsLink}>{c.register.termsLink}</button>
+          <Button type="button" size="xs" variant="link">{c.register.termsLink}</Button>
           {' '}{c.register.and}{' '}
-          <button type="button" className={styles.termsLink}>{c.register.privacyLink}</button>
-        </p>
-      </form>
+          <Button type="button" size="xs" variant="link">{c.register.privacyLink}</Button>
+        </Text>
+      </Stack>
 
-      <p className={styles.switchRow}>
-        {c.register.switchHint}
-        <button type="button" className={styles.switchLink} onClick={onSwitch}>
+      <Inline className={styles.switchRow} justify="center">
+        <Text as="span" size="sm" variant="muted">{c.register.switchHint}</Text>
+        <Button type="button" size="xs" variant="link" onClick={onSwitch}>
           {c.register.switchLink}
-        </button>
-      </p>
-    </div>
+        </Button>
+      </Inline>
+    </Stack>
   );
 }

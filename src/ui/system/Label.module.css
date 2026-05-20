@@ -1,0 +1,32 @@
+.label {
+  display: inline-grid;
+  min-width: 0;
+  gap: var(--app-unit-0-5);
+  color: var(--app-text-secondary);
+  font-size: var(--app-font-size-sm);
+  font-weight: var(--app-font-weight-bold);
+  line-height: 1.35;
+}
+
+.label[data-size='xs'] {
+  font-size: var(--app-font-size-xs);
+}
+
+.label[data-size='md'] {
+  font-size: var(--app-font-size-md);
+}
+
+.label[data-tone='danger'] {
+  color: var(--app-color-danger);
+}
+
+.required {
+  color: var(--app-color-danger);
+}
+
+.hint {
+  color: var(--app-text-muted);
+  font-size: var(--app-font-size-xs);
+  font-weight: 400;
+  line-height: 1.45;
+}

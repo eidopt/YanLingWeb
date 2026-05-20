@@ -1,68 +1,68 @@
 .screen {
   /* ── Seed tokens (defined by template) ───────────────────────────── */
-  --accent: #0f8f5f;
-  --surface: linear-gradient(180deg, #edf8f1 0%, #f8fcf8 100%);
-  --surface-muted: rgba(255, 255, 255, 0.8);
-  --panel-bg: rgba(255, 255, 255, 0.96);
-  --panel-border: rgba(15, 23, 42, 0.08);
-  --panel-accent: rgba(15, 143, 95, 0.12);
-  --panel-accent-border: rgba(15, 143, 95, 0.22);
-  --search-bg: rgba(255, 255, 255, 0.88);
-  --note-bg: rgba(15, 143, 95, 0.12);
-  --text-base: #12202c;
-  --radius-base: 1rem;
+  --accent: var(--app-color-accent);
+  --surface: linear-gradient(180deg, var(--app-color-success-bg) 0%, var(--app-color-success-bg) 100%);
+  --surface-muted: var(--app-white-alpha-08);
+  --panel-bg: var(--app-white-alpha-10);
+  --panel-border: var(--app-ink-alpha-08);
+  --panel-accent: var(--app-accent-alpha-02);
+  --panel-accent-border: var(--app-accent-alpha-02);
+  --search-bg: var(--app-white-alpha-08);
+  --note-bg: var(--app-accent-alpha-02);
+  --text-base: var(--app-neutral-850);
+  --radius-base: var(--app-unit-2);
 
   /* ── Derived: typography ─────────────────────────────────────────── */
-  --text-heading-color:    color-mix(in srgb, var(--text-base) 95%, #fff);
-  --text-subheading-color: color-mix(in srgb, var(--text-base) 78%, #fff);
-  --text-body-color:       color-mix(in srgb, var(--text-base) 52%, #fff);
-  --text-caption-color:    color-mix(in srgb, var(--text-base) 38%, #fff);
-  --text-overline-color:   color-mix(in srgb, var(--text-base) 48%, #fff);
+  --text-heading-color:    color-mix(in srgb, var(--text-base) 95%, var(--app-neutral-0));
+  --text-subheading-color: color-mix(in srgb, var(--text-base) 78%, var(--app-neutral-0));
+  --text-body-color:       color-mix(in srgb, var(--text-base) 52%, var(--app-neutral-0));
+  --text-caption-color:    color-mix(in srgb, var(--text-base) 38%, var(--app-neutral-0));
+  --text-overline-color:   color-mix(in srgb, var(--text-base) 48%, var(--app-neutral-0));
 
   /* ── Derived: shape ──────────────────────────────────────────────── */
   --radius-screen: calc(var(--radius-base) * 1.8);
   --radius-panel:  calc(var(--radius-base) * 1.5);
   --radius-image:  calc(var(--radius-base) * 1.1);
-  --radius-btn: 999px;
-  --radius-tag: 999px;
+  --radius-btn: var(--app-radius-pill);
+  --radius-tag: var(--app-radius-pill);
 
   /* ── Fixed: screen dimensions ────────────────────────────────────── */
-  --screen-height: 42rem;
-  --screen-height-desktop: 56rem;
+  --screen-height: var(--app-unit-80);
+  --screen-height-desktop: var(--app-unit-112);
 
   /* ── Derived: accent-tinted components ───────────────────────────── */
-  --btn-pill-bg:    color-mix(in srgb, var(--accent) 10%, #fff);
-  --btn-pill-color: color-mix(in srgb, var(--accent) 75%, #000);
-  --tag-hot-bg:     color-mix(in srgb, var(--accent) 15%, #fff);
-  --tag-hot-color:  color-mix(in srgb, var(--accent) 70%, #000);
-  --tag-new-bg:     color-mix(in srgb, var(--accent) 10%, #fff);
-  --tag-new-color:  color-mix(in srgb, var(--accent) 65%, #000);
-  --tag-member-bg:  color-mix(in srgb, var(--accent)  8%, #fff);
-  --tag-member-color: color-mix(in srgb, var(--accent) 55%, #000);
+  --btn-pill-bg:    color-mix(in srgb, var(--accent) 10%, var(--app-neutral-0));
+  --btn-pill-color: color-mix(in srgb, var(--accent) 75%, var(--app-color-black));
+  --tag-hot-bg:     color-mix(in srgb, var(--accent) 15%, var(--app-neutral-0));
+  --tag-hot-color:  color-mix(in srgb, var(--accent) 70%, var(--app-color-black));
+  --tag-new-bg:     color-mix(in srgb, var(--accent) 10%, var(--app-neutral-0));
+  --tag-new-color:  color-mix(in srgb, var(--accent) 65%, var(--app-color-black));
+  --tag-member-bg:  color-mix(in srgb, var(--accent)  8%, var(--app-neutral-0));
+  --tag-member-color: color-mix(in srgb, var(--accent) 55%, var(--app-color-black));
 
   /* ── Fixed: semantic tag colors (meaning shouldn't change) ──────── */
-  --tag-neutral-bg:  #f3f4f6;
-  --tag-neutral-color: #6b7280;
-  --tag-success-bg:  #eafaf0;
-  --tag-success-color: #07c160;
-  --tag-warning-bg:  #fff7ea;
-  --tag-warning-color: #fa8c16;
-  --tag-info-bg:     #ecf8ff;
-  --tag-info-color:  #1890ff;
-  --tag-deal-bg:     #fff0f0;
-  --tag-deal-color:  #ff4d4f;
+  --tag-neutral-bg:  var(--app-neutral-100);
+  --tag-neutral-color: var(--app-neutral-500);
+  --tag-success-bg:  var(--app-color-success-bg);
+  --tag-success-color: var(--app-color-wechat);
+  --tag-warning-bg:  var(--app-color-warning-bg);
+  --tag-warning-color: var(--app-color-orange);
+  --tag-info-bg:     var(--app-color-info-bg);
+  --tag-info-color:  var(--app-color-sky);
+  --tag-deal-bg:     var(--app-text-primary);
+  --tag-deal-color:  var(--app-color-danger);
 
-  width: min(100%, 22rem);
-  min-height: 42rem;
+  width: min(100%, var(--app-unit-45));
+  min-height: var(--app-unit-80);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-radius: 1.8rem;
+  border-radius: var(--app-unit-3-5);
   background: var(--surface);
   box-shadow:
-    0 1.25rem 3.75rem rgba(15, 23, 42, 0.16),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.78);
-  color: #12202c;
+    0 var(--app-unit-2-5) var(--app-unit-7) var(--app-ink-alpha-02),
+    inset 0 0 0 var(--app-unit-0-125) var(--app-white-alpha-08);
+  color: var(--app-neutral-850);
   position: relative;
   isolation: isolate;
 }
@@ -71,44 +71,44 @@
 }
 
 .screenMobile {
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  border-radius: 2.05rem;
+  border: var(--app-unit-0-125) solid var(--app-white-alpha-08);
+  border-radius: var(--app-unit-4);
   background:
-    radial-gradient(circle at top, rgba(255, 255, 255, 0.92), transparent 36%),
-    linear-gradient(180deg, #f5faf7 0%, #edf5f1 100%);
+    radial-gradient(circle at top, var(--app-white-alpha-10), transparent 36%),
+    linear-gradient(180deg, var(--app-color-success-bg) 0%, var(--app-color-success-bg) 100%);
   box-shadow:
-    0 1.4rem 3.6rem rgba(15, 23, 42, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    inset 0 0 0 1px rgba(148, 163, 184, 0.14);
+    0 var(--app-unit-3) var(--app-unit-7) var(--app-ink-alpha-02),
+    inset 0 var(--app-unit-0-125) 0 var(--app-white-alpha-08),
+    inset 0 0 0 var(--app-unit-0-125) var(--app-neutral-alpha-02);
 }
 
 .screenMobile::before {
   content: '';
   position: absolute;
-  top: 0.55rem;
+  top: var(--app-unit-1);
   left: 50%;
   z-index: 0;
-  width: 6.2rem;
-  height: 1.2rem;
+  width: var(--app-unit-12);
+  height: var(--app-unit-2-5);
   transform: translateX(-50%);
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.08);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42);
+  border-radius: var(--app-radius-pill);
+  background: var(--app-ink-alpha-08);
+  box-shadow: inset 0 var(--app-unit-0-125) 0 var(--app-white-alpha-04);
 }
 
 .statusBar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.15rem 0.5rem;
-  font-size: 0.78rem;
+  padding: var(--app-unit-2) var(--app-unit-2-25) var(--app-unit-1);
+  font-size: var(--app-unit-1-5);
   font-weight: 700;
   position: relative;
   z-index: 1;
 }
 
 .statusBarMobile {
-  padding: 1.05rem 1.25rem 0.35rem;
+  padding: var(--app-unit-2) var(--app-unit-2-5) var(--app-unit-0-75);
 }
 
 .statusTime {
@@ -118,36 +118,36 @@
 .statusIcons {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: var(--app-unit-0-5);
 }
 
 .signalIcon {
   display: inline-flex;
   align-items: flex-end;
-  gap: 0.1rem;
-  height: 0.72rem;
+  gap: var(--app-unit-0-25);
+  height: var(--app-unit-1-5);
 }
 
 .signalIcon span {
-  width: 0.12rem;
-  border-radius: 999px;
-  background: rgba(18, 32, 44, 0.72);
+  width: var(--app-unit-0-25);
+  border-radius: var(--app-radius-pill);
+  background: var(--app-ink-alpha-08);
 }
 
-.signalIcon span:nth-child(1) { height: 0.22rem; opacity: 0.5; }
-.signalIcon span:nth-child(2) { height: 0.36rem; opacity: 0.66; }
-.signalIcon span:nth-child(3) { height: 0.5rem;  opacity: 0.82; }
-.signalIcon span:nth-child(4) { height: 0.66rem; }
+.signalIcon span:nth-child(1) { height: var(--app-unit-0-5); opacity: 0.5; }
+.signalIcon span:nth-child(2) { height: var(--app-unit-0-75); opacity: 0.66; }
+.signalIcon span:nth-child(3) { height: var(--app-unit-1);  opacity: 0.82; }
+.signalIcon span:nth-child(4) { height: var(--app-unit-1-25); }
 
 .batteryIcon {
   position: relative;
   display: inline-flex;
   align-items: center;
-  width: 1.35rem;
-  height: 0.72rem;
-  padding: 0.08rem;
-  border: 1.4px solid rgba(18, 32, 44, 0.72);
-  border-radius: 0.24rem;
+  width: var(--app-unit-2-5);
+  height: var(--app-unit-1-5);
+  padding: var(--app-unit-0-125);
+  border: var(--app-unit-0-125) solid var(--app-ink-alpha-08);
+  border-radius: var(--app-unit-0-5);
   box-sizing: border-box;
 }
 
@@ -155,51 +155,51 @@
   content: '';
   position: absolute;
   top: 50%;
-  right: -0.16rem;
-  width: 0.1rem;
-  height: 0.28rem;
+  right: calc(var(--app-unit-0-375) * -1);
+  width: var(--app-unit-0-25);
+  height: var(--app-unit-0-5);
   transform: translateY(-50%);
-  border-radius: 0 999px 999px 0;
-  background: rgba(18, 32, 44, 0.72);
+  border-radius: 0 var(--app-radius-pill) var(--app-radius-pill) 0;
+  background: var(--app-ink-alpha-08);
 }
 
 .batteryLevel {
   display: block;
   width: 72%;
   height: 100%;
-  border-radius: 0.12rem;
-  background: rgba(18, 32, 44, 0.72);
+  border-radius: var(--app-unit-0-25);
+  background: var(--app-ink-alpha-08);
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.3rem 1rem 0.95rem;
+  gap: var(--app-unit-1-5);
+  padding: var(--app-unit-0-5) var(--app-unit-2) var(--app-unit-2);
   position: relative;
   z-index: 1;
 }
 
 .headerMobile {
-  padding: 0.45rem 1rem 0.95rem;
+  padding: var(--app-unit-1) var(--app-unit-2) var(--app-unit-2);
 }
 
 .headerTitle {
   flex: 1;
   text-align: center;
-  font-size: 1rem;
+  font-size: var(--app-unit-2);
   font-weight: 700;
 }
 
 .headerGhost {
-  width: 2rem;
-  height: 2rem;
+  width: var(--app-unit-4);
+  height: var(--app-unit-4);
   flex: 0 0 auto;
   border: 0;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: inset 0 0 0 1px rgba(18, 32, 44, 0.08);
+  border-radius: var(--app-radius-pill);
+  background: var(--app-white-alpha-08);
+  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--app-ink-alpha-08);
 }
 
 .miniProgramCapsule,
@@ -207,49 +207,49 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
-  min-height: 2rem;
-  padding: 0 0.8rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
+  gap: var(--app-unit-0-75);
+  min-height: var(--app-unit-4);
+  padding: 0 var(--app-unit-1-5);
+  border-radius: var(--app-radius-pill);
+  background: var(--app-white-alpha-10);
   box-shadow:
-    inset 0 0 0 1px rgba(18, 32, 44, 0.08),
-    0 0.35rem 0.9rem rgba(15, 23, 42, 0.08);
+    inset 0 0 0 var(--app-unit-0-125) var(--app-ink-alpha-08),
+    0 var(--app-unit-0-75) var(--app-unit-1-75) var(--app-ink-alpha-08);
 }
 
 .miniProgramCapsule {
-  min-width: 3.3rem;
+  min-width: var(--app-unit-7);
 }
 
 .miniProgramCapsule span {
-  width: 0.32rem;
-  height: 0.32rem;
-  border-radius: 999px;
-  background: rgba(18, 32, 44, 0.62);
+  width: var(--app-unit-0-75);
+  height: var(--app-unit-0-75);
+  border-radius: var(--app-radius-pill);
+  background: var(--app-ink-alpha-05);
 }
 
 .miniProgramCapsuleLabel {
   flex: 0 0 auto;
   border: 0;
-  color: #12202c;
-  font-size: 0.76rem;
+  color: var(--app-neutral-850);
+  font-size: var(--app-unit-1-5);
   font-weight: 700;
 }
 
 .headerGhostPlaceholder {
-  width: 2rem;
-  height: 2rem;
+  width: var(--app-unit-4);
+  height: var(--app-unit-4);
   flex: 0 0 auto;
 }
 
 .headerAction {
   flex: 0 0 auto;
-  padding: 0.45rem 0.8rem;
+  padding: var(--app-unit-1) var(--app-unit-1-5);
   border: 0;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: inset 0 0 0 1px rgba(18, 32, 44, 0.08);
-  font-size: 0.8rem;
+  border-radius: var(--app-radius-pill);
+  background: var(--app-white-alpha-10);
+  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--app-ink-alpha-08);
+  font-size: var(--app-unit-1-5);
   font-weight: 700;
 }
 
@@ -258,8 +258,8 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  padding: 0 1rem 1rem;
+  gap: var(--app-unit-1-5);
+  padding: 0 var(--app-unit-2) var(--app-unit-2);
   overflow-y: auto;
 }
 
@@ -268,10 +268,10 @@
   flex-wrap: wrap;
   align-items: flex-start;
   align-content: flex-start;
-  gap: 0.75rem;
+  gap: var(--app-unit-1-5);
   min-width: 0;
 }
 
 .footer {
-  padding: 0 0.9rem 0.9rem;
+  padding: 0 var(--app-unit-1-75) var(--app-unit-1-75);
 }

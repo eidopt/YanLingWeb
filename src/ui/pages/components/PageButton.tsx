@@ -1,8 +1,10 @@
-import styles from './PageComponents.module.css';
-import { cx } from 'base/classname';
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import {
+  Button,
+  type ButtonProps,
+} from 'ui/system';
 
-export interface PageButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface PageButtonProps extends Omit<ButtonProps, 'size' | 'trailingIcon' | 'variant'> {
   children: ReactNode;
   showArrow?: boolean;
   variant?: 'primary' | 'ghost' | 'ghostLight' | 'outline';
@@ -10,27 +12,27 @@ export interface PageButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>
 
 export function PageButton({
   children,
-  className,
   showArrow = false,
   type = 'button',
   variant = 'primary',
   ...props
 }: PageButtonProps) {
+  const systemVariant = {
+    ghost: 'inverse-ghost',
+    ghostLight: 'inverse-ghost',
+    outline: 'outline',
+    primary: 'primary',
+  } as const;
+
   return (
-    <button
+    <Button
       {...props}
+      size="lg"
       type={type}
-      className={cx(
-        styles.button,
-        variant === 'primary' && styles.buttonPrimary,
-        variant === 'ghost' && styles.buttonGhost,
-        variant === 'ghostLight' && styles.buttonGhostLight,
-        variant === 'outline' && styles.buttonOutline,
-        className,
-      )}
+      trailingIcon={showArrow ? '→' : undefined}
+      variant={systemVariant[variant]}
     >
       {children}
-      {showArrow && <span className={styles.buttonArrow}>→</span>}
-    </button>
+    </Button>
   );
 }

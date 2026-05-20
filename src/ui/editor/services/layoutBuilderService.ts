@@ -116,7 +116,7 @@ const SAMPLE_PROP_OVERRIDES: Record<
       title: '家电清洗',
       subtitle: '最快 30 分钟上门',
       caption: '新人立减 20 元',
-      iconColor: '#07c160',
+      iconColor: 'var(--app-color-wechat)',
     },
     'svc-info-card': {
       overline: '限时推荐',
@@ -385,7 +385,7 @@ function buildDefaultPropValue(
     case 'statusLabel':
       return themeLayoutBuilderContent.defaultProps.statusLabel;
     case 'iconColor':
-      return '#07c160';
+      return 'var(--app-color-wechat)';
     default:
       return descriptor.name;
   }
@@ -1353,7 +1353,7 @@ export function createLibraryPreviewDocument(
               : toFieldString(child.props?.[prop.name]),
             /* eslint-enable @typescript-eslint/no-unnecessary-condition */
           ]),
-        ) as Record<string, string | boolean>,
+        ),
       );
     });
 

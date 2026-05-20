@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import type { AuthUser } from 'services/AuthService';
 import { AUTH_CHANGED_EVENT } from 'services/AuthService';
 import { showDialog } from 'ui/authenticating';
+import { Box } from 'ui/system';
 
 export function HomePage() {
   const router = useRouter();
@@ -35,7 +36,7 @@ export function HomePage() {
   };
 
   if (user === undefined) {
-    return <div className={styles.authGate} aria-hidden="true" />;
+    return <Box className={styles.authGate} aria-hidden="true" />;
   }
 
   if (user) {

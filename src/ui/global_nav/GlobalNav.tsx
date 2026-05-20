@@ -10,6 +10,13 @@ import { useEffect, useState } from 'react';
 import type { AuthUser } from 'services/AuthService';
 import { AUTH_CHANGED_EVENT } from 'services/AuthService';
 import { showDialog } from 'ui/authenticating';
+import {
+  Box,
+  Button,
+  Inline,
+  Stack,
+  Text,
+} from 'ui/system';
 import { UserSettingsDialog } from 'ui/user_settings';
 
 export interface NavItem {
@@ -51,16 +58,21 @@ export function GlobalNav({ nav, variant = 'default' }: GlobalNavProps) {
   };
 
   return (
-    <header className={variant === 'overlay' ? styles.topbarOverlay : styles.topbar}>
+    <Inline
+      as="header"
+      className={variant === 'overlay' ? styles.topbarOverlay : styles.topbar}
+      gap="lg"
+      justify="space-between"
+    >
       <Link href="/" className={styles.brand}>
-        <span className={styles.brandMark}>✦</span>
-        <div className={styles.brandText}>
-          <strong>{c.brand.name}</strong>
-          <span>{c.brand.tagline}</span>
-        </div>
+        <Box as="span" className={styles.brandMark}>✦</Box>
+        <Stack className={styles.brandText} gap="0">
+          <Text as="strong" size="md" variant="inverse" weight="medium">{c.brand.name}</Text>
+          <Text as="span" size="xs" variant="inverse-faint">{c.brand.tagline}</Text>
+        </Stack>
       </Link>
 
-      <nav className={styles.nav}>
+      <Inline as="nav" className={styles.nav} gap="u0-25">
         {nav.map(item => {
           const isActive = item.end
             ? pathname === item.to
@@ -75,47 +87,54 @@ export function GlobalNav({ nav, variant = 'default' }: GlobalNavProps) {
             </Link>
           );
         })}
-      </nav>
+      </Inline>
 
-      <div className={styles.authRow}>
+      <Inline className={styles.authRow} gap="sm">
         {user ? (
-          <button
+          <Button
             type="button"
-            className={styles.userButton}
             onClick={() => { setSettingsOpen(true); }}
             aria-label={c.auth.openUserSettings}
+            size="sm"
             title={user.username}
+            variant="user"
           >
-            <span className={styles.userAvatar}>
+            <Box as="span" className={styles.userAvatar}>
               {user.username.slice(0, 1).toUpperCase()}
-            </span>
-            <span className={styles.userName}>{user.username}</span>
-          </button>
+            </Box>
+            <Box as="span" className={styles.userName}>
+              <Text as="span" size="sm" truncate variant="inverse" weight="bold">
+                {user.username}
+              </Text>
+            </Box>
+          </Button>
         ) : (
           <>
-            <button
+            <Button
               type="button"
-              className={styles.authLogin}
               onClick={() => openAuth('login')}
+              size="xs"
+              variant="inverse-ghost"
             >
               {c.auth.login}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
-              className={styles.authRegister}
               onClick={() => openAuth('register')}
+              size="xs"
+              variant="inverse-primary"
             >
               {c.auth.register}
-            </button>
+            </Button>
           </>
         )}
-      </div>
+      </Inline>
       {user && settingsOpen && (
         <UserSettingsDialog
           user={user}
           onClose={() => { setSettingsOpen(false); }}
         />
       )}
-    </header>
+    </Inline>
   );
 }

@@ -2,12 +2,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.5rem;
+  min-height: var(--app-unit-5);
   border: none;
-  border-radius: var(--radius-btn, 999px);
-  padding: 0 1rem;
+  border-radius: var(--radius-btn, var(--app-radius-pill));
+  padding: 0 var(--app-unit-2);
   font-weight: 700;
-  font-size: 0.88rem;
+  font-size: var(--app-unit-1-75);
   font-family: inherit;
   cursor: pointer;
   text-decoration: none;
@@ -15,7 +15,7 @@
 }
 
 .btn:hover {
-  transform: translateY(-1px);
+  transform: translateY(calc(var(--app-unit-0-125) * -1));
 }
 
 .btnDisabled,
@@ -27,14 +27,14 @@
 
 .btnPrimary {
   background: var(--accent);
-  color: #fff;
-  box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 30%, transparent);
+  color: var(--app-neutral-0);
+  box-shadow: 0 var(--app-unit-0-75) var(--app-unit-2-25) color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
 .btnSecondary {
-  background: #fff;
+  background: var(--app-neutral-0);
   color: var(--accent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent);
+  box-shadow: inset 0 0 0 var(--app-unit-0-125) color-mix(in srgb, var(--accent) 22%, transparent);
 }
 
 .btnLink {
@@ -47,14 +47,14 @@
 }
 
 .btnPill {
-  background: var(--btn-pill-bg, #f3f4f6);
-  color: var(--btn-pill-color, #6b7280);
-  font-size: 0.82rem;
-  padding: 0.55rem 0.75rem;
+  background: var(--btn-pill-bg, var(--app-neutral-100));
+  color: var(--btn-pill-color, var(--app-neutral-500));
+  font-size: var(--app-unit-1-75);
+  padding: var(--app-unit-1) var(--app-unit-1-5);
   min-height: auto;
 }
 
 .btnPillActive {
-  background: color-mix(in srgb, var(--accent) 14%, #fff);
+  background: color-mix(in srgb, var(--accent) 14%, var(--app-neutral-0));
   color: var(--accent);
 }

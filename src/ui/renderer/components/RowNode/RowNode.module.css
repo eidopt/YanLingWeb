@@ -5,15 +5,15 @@
 .panel {
   display: flex;
   flex-direction: column;
-  padding: 1rem;
-  border-radius: var(--radius-panel, 1.5rem);
+  padding: var(--app-unit-2);
+  border-radius: var(--radius-panel, var(--app-unit-3));
   background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  box-shadow: 0 0.75rem 2rem rgba(15, 23, 42, 0.06);
+  border: var(--app-unit-0-125) solid var(--panel-border);
+  box-shadow: 0 var(--app-unit-1-5) var(--app-unit-4) var(--app-ink-alpha-05);
 }
 
 .panelAccent {
-  background: linear-gradient(180deg, var(--panel-accent) 0%, rgba(255, 255, 255, 0.95) 100%);
+  background: linear-gradient(180deg, var(--panel-accent) 0%, var(--app-white-alpha-10) 100%);
   border-color: var(--panel-accent-border);
 }
 

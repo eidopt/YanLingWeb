@@ -1,7 +1,7 @@
 'use client';
 
 import type { ThemeLibraryDependency } from '../layout/types';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 const libraryCache = new Map<string, unknown>();
 const ALLOWED_LIBRARY_ORIGINS = new Set(['https://esm.sh']);
@@ -46,27 +46,25 @@ export function getLibrary(name: string): unknown {
 }
 
 export function useDependencyLoader(deps: ThemeLibraryDependency[] | undefined): boolean {
-  const [ready, setReady] = useState(() => {
-    if (!WIDGET_RUNTIME_ENABLED || !deps?.length) {return true;}
-    return deps.every((dep) => libraryCache.has(dep.name));
-  });
+  const depsKey = useMemo(
+    () => deps?.map((dep) => `${dep.name}:${dep.url}`).join('|') ?? '',
+    [deps],
+  );
+  const [loadedDepsKey, setLoadedDepsKey] = useState<string | null>(null);
+  const readyWithoutLoading =
+    !WIDGET_RUNTIME_ENABLED
+    || !deps?.length
+    || deps.every((dep) => libraryCache.has(dep.name));
 
   useEffect(() => {
-    if (!WIDGET_RUNTIME_ENABLED || !deps?.length) {
-      setReady(true);
-      return;
-    }
+    if (!WIDGET_RUNTIME_ENABLED || !deps?.length) {return;}
     const missing = deps.filter((dep) => !libraryCache.has(dep.name));
-    if (!missing.length) {
-      setReady(true);
-      return;
-    }
+    if (!missing.length) {return;}
     let cancelled = false;
-    setReady(false);
     void Promise.all(missing.map(loadLibrary))
       .then(() => {
         if (!cancelled) {
-          setReady(true);
+          setLoadedDepsKey(depsKey);
         }
       })
       .catch((error: unknown) => {
@@ -76,7 +74,7 @@ export function useDependencyLoader(deps: ThemeLibraryDependency[] | undefined):
       });
     return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps -- deps identity changes on every render; compare by serialized names
-  }, [deps?.map((d) => d.name).join(',')]);
+  }, [depsKey]);
 
-  return ready;
+  return readyWithoutLoading || loadedDepsKey === depsKey;
 }

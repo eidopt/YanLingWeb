@@ -1,0 +1,4 @@
+interface:
+  display_name: "Indie Web Backend Builder"
+  short_description: "Build secure APIs and web backends"
+  default_prompt: "Use $indie-web-backend-builder to implement this API, database, or backend feature."

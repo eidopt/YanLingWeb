@@ -2,18 +2,18 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 1.75rem;
-  padding: 0 0.625rem;
-  border-radius: var(--radius-tag, 999px);
-  font-size: 0.78rem;
+  min-height: var(--app-unit-3-5);
+  padding: 0 var(--app-unit-1-25);
+  border-radius: var(--radius-tag, var(--app-radius-pill));
+  font-size: var(--app-unit-1-5);
   font-weight: 700;
 }
 
-.tagNeutral  { background: var(--tag-neutral-bg,  #f3f4f6); color: var(--tag-neutral-color,  #6b7280); }
-.tagSuccess  { background: var(--tag-success-bg,  #eafaf0); color: var(--tag-success-color,  #07c160); }
-.tagWarning  { background: var(--tag-warning-bg,  #fff7ea); color: var(--tag-warning-color,  #fa8c16); }
-.tagInfo     { background: var(--tag-info-bg,     #ecf8ff); color: var(--tag-info-color,     #1890ff); }
-.tagHot      { background: var(--tag-hot-bg,      #fff1de); color: var(--tag-hot-color,      #fa8c16); }
-.tagNew      { background: var(--tag-new-bg,      #ecfff3); color: var(--tag-new-color,      #07c160); }
-.tagDeal     { background: var(--tag-deal-bg,     #fff0f0); color: var(--tag-deal-color,     #ff4d4f); }
-.tagMember   { background: var(--tag-member-bg,   #f3f4f6); color: var(--tag-member-color,   #4b5563); }
+.tagNeutral  { background: var(--tag-neutral-bg,  var(--app-neutral-100)); color: var(--tag-neutral-color,  var(--app-neutral-500)); }
+.tagSuccess  { background: var(--tag-success-bg,  var(--app-color-success-bg)); color: var(--tag-success-color,  var(--app-color-wechat)); }
+.tagWarning  { background: var(--tag-warning-bg,  var(--app-color-warning-bg)); color: var(--tag-warning-color,  var(--app-color-orange)); }
+.tagInfo     { background: var(--tag-info-bg,     var(--app-color-info-bg)); color: var(--tag-info-color,     var(--app-color-sky)); }
+.tagHot      { background: var(--tag-hot-bg,      var(--app-color-warning-bg)); color: var(--tag-hot-color,      var(--app-color-orange)); }
+.tagNew      { background: var(--tag-new-bg,      var(--app-color-success-bg)); color: var(--tag-new-color,      var(--app-color-wechat)); }
+.tagDeal     { background: var(--tag-deal-bg,     var(--app-text-primary)); color: var(--tag-deal-color,     var(--app-color-danger)); }
+.tagMember   { background: var(--tag-member-bg,   var(--app-neutral-100)); color: var(--tag-member-color,   var(--app-neutral-600)); }

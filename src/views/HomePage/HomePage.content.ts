@@ -1,12 +1,12 @@
 export const homePageContent = {
   hero: {
-    eyebrow: 'AI App & Website Builder',
-    titleWords: ['用 AI 创建你的', '网站、小程序和 APP', '从排版到发布'],
-    sub: '输入想法即可生成可编辑页面，也可以从模板广场选择成熟版式。'
-      + 'AI 不够贴合时，随时切换到手动编辑并保存，一键代发布网页和微信小程序。',
-    ctaPrimary: '开始创建应用',
-    ctaSecondary: '浏览模板广场',
-    hint: '无需信用卡 · 基础版永久免费',
+    eyebrow: 'AI Production Workspace',
+    titleWords: ['把一个想法', '生产成可编辑应用', '再发布到各平台'],
+    sub: '从需求拆解、页面生成、模板匹配、可视化编辑到发布准备，'
+      + '把 AI 起稿和人工精修放进同一个生产工作台。',
+    ctaPrimary: '打开 AI 工作台',
+    ctaSecondary: '查看生产模板',
+    hint: '生成后可继续编辑 · 保存为自己的项目资产',
   },
 
   stats: [
@@ -27,8 +27,8 @@ export const homePageContent = {
     sidebarTitle: '组件库',
     sidebarItems: ['Hero', '卡片', '表单', '价格'],
     inspectorItems: [
-      { label: '主题色', value: '#0f8f5f' },
-      { label: '圆角', value: '16px' },
+      { label: '主题色', value: 'accent token' },
+      { label: '圆角', value: '2x baseUnit' },
       { label: '间距', value: '舒适' },
     ],
     statusItems: [
@@ -45,21 +45,21 @@ export const homePageContent = {
     items: [
       {
         icon: '🏛️',
-        color: '#6366f1',
+        color: 'var(--app-color-primary)',
         title: '模板广场起步',
         desc: '从餐饮、电商、预约、作品集、SaaS 等场景中挑选成熟排版，替换内容即可上线。',
         meta: '最快路径',
       },
       {
         icon: '✨',
-        color: '#f43f5e',
+        color: 'var(--app-color-rose)',
         title: '自由描述生成',
         desc: '用自然语言描述目标用户、业务场景和页面结构，AI 自动生成首版网页或 APP 界面。',
         meta: '从 0 到 1',
       },
       {
         icon: '🧩',
-        color: '#10b981',
+        color: 'var(--app-color-success)',
         title: '可视化手动编辑',
         desc: 'AI 结果不满意时，直接拖拽区块、调整样式、替换文案和图片，细节完全可控。',
         meta: '精修细节',
@@ -113,7 +113,7 @@ export const homePageContent = {
         icon: '🌐',
         title: '网页 / H5',
         badge: '即时访问',
-        color: '#6366f1',
+        color: 'var(--app-color-primary)',
         desc: '生成标准 HTML/CSS/JS，支持响应式布局，一键部署上线，无需安装，随改随发。',
         tags: ['响应式', 'SEO 友好', '跨浏览器'],
       },
@@ -121,7 +121,7 @@ export const homePageContent = {
         icon: '💬',
         title: '微信小程序',
         badge: '10 亿用户',
-        color: '#07c160',
+        color: 'var(--app-color-wechat)',
         desc: '输出符合微信规范的代码，代理完成审核提交，无需开发者账号操作经验即可上线。',
         tags: ['代理发布', '微信生态', '一键审核'],
       },
@@ -129,7 +129,7 @@ export const homePageContent = {
         icon: '📱',
         title: 'iOS & Android',
         badge: '原生体验',
-        color: '#f43f5e',
+        color: 'var(--app-color-rose)',
         desc: '一键打包为原生 App 安装包，代理完成 App Store / Google Play 上架申请全流程。',
         tags: ['一键打包', '双端覆盖', '代理上架'],
       },
@@ -137,7 +137,7 @@ export const homePageContent = {
         icon: '🖥️',
         title: '桌面端软件',
         badge: 'Electron',
-        color: '#f59e0b',
+        color: 'var(--app-color-amber)',
         desc: '打包为 .exe / .dmg 安装程序，一键生成可分发安装包，离线可用，随版本迭代更新。',
         tags: ['Win / macOS', '离线可用', '版本管理'],
       },
@@ -173,14 +173,6 @@ export const homePageContent = {
     useBtn: '使用此模板',
     editBtn: '在编辑器中打开',
     moreBtn: '查看全部模板 →',
-  },
-
-  cta: {
-    eyebrow: '立即开始',
-    title: '你的下一个应用，从这里出发',
-    sub: '设计、打包、发布、运营，全部在一个平台完成。加入数千名创业者与设计师，用 AI 重新定义应用开发方式。',
-    primary: '免费注册账号',
-    secondary: '查看模板',
   },
 
   aiFeaturesCta: '立即体验',

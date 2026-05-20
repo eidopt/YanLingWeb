@@ -1,0 +1,101 @@
+.publishFlowSection {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--app-color-section-dark-1) 0%, var(--app-color-section-dark-2) 52%, var(--app-color-section-dark-3) 100%);
+}
+
+.publishFlowSection::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--app-white-alpha-04) var(--app-unit-0-125), transparent var(--app-unit-0-125)),
+    linear-gradient(90deg, var(--app-white-alpha-04) var(--app-unit-0-125), transparent var(--app-unit-0-125));
+  background-size: var(--app-unit-6) var(--app-unit-6);
+  mask-image: linear-gradient(180deg, transparent, var(--app-color-black) 18%, var(--app-color-black) 82%, transparent);
+  pointer-events: none;
+}
+
+.publishTimeline {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--app-unit-2);
+}
+
+.publishTimeline::before {
+  content: '';
+  position: absolute;
+  top: var(--app-unit-4);
+  left: 5%;
+  right: 5%;
+  height: var(--app-unit-0-25);
+  background: linear-gradient(90deg, var(--app-color-primary), var(--app-color-accent), var(--app-color-warning));
+  opacity: 0.42;
+}
+
+.publishStep {
+  position: relative;
+  min-height: var(--app-unit-3);
+  padding: var(--app-unit-3);
+  border: var(--app-unit-0-125) solid var(--app-white-alpha-02);
+  border-radius: var(--app-radius-2xl);
+  background: var(--app-white-alpha-08);
+  backdrop-filter: blur(var(--app-unit-1-75));
+  transition:
+    transform var(--app-motion-base) var(--app-motion-smooth),
+    background var(--app-motion-base) var(--app-motion-smooth),
+    border-color var(--app-motion-base) var(--app-motion-smooth);
+}
+
+.publishStep:hover {
+  border-color: color-mix(in srgb, var(--app-color-primary) 36%, transparent);
+  background: var(--app-white-alpha-00);
+  transform: translateY(calc(var(--app-unit-0-5) * -1));
+}
+
+.publishStepIndex {
+  display: inline-flex;
+  width: var(--app-unit-6);
+  height: var(--app-unit-6);
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--app-radius-xl);
+  background: var(--app-primary-alpha-02);
+  color: var(--app-text-inverse);
+  font-size: var(--app-unit-1-75);
+  font-weight: 900;
+  box-shadow:
+    0 0 0 var(--app-unit-0-75) var(--app-primary-alpha-00),
+    0 var(--app-unit-1-5) var(--app-unit-3-5) var(--app-primary-alpha-02);
+}
+
+.publishStep h3 {
+  margin: var(--app-unit-2-5) 0 var(--app-unit-1-25);
+}
+
+@media (--app-viewport-desktop) {
+  .publishTimeline {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (--app-viewport-laptop) {
+  .publishTimeline::before {
+    display: none;
+  }
+}
+
+@media (--app-viewport-tablet) {
+  .publishTimeline {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .publishStep {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}

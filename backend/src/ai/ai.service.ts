@@ -1,15 +1,20 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Observable, Subject } from 'rxjs';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 
 import { ConfigFactory } from '../config/config.factory';
 import { DatabaseFlushService } from '../database/database-flush.service';
 import { Template } from '../templates/entities/template.entity';
+import { User } from '../users/entities/user.entity';
 import { OpenAIProvider } from './core/providers/openai.provider';
 import { OpenAICompatibleProvider } from './core/providers/openai-compatible.provider';
 import type { AIProvider, ProviderRequest, ProviderStreamEvent } from './core/providers/types';
 import { QueryLoop } from './core/query-loop';
+import {
+  type AiTokenUsageEndpoint,
+  AiTokenUsageEvent,
+} from './entities/ai-token-usage.entity';
 import {
   EditorAiConversation,
   type EditorAiConversationMessageRecord,
@@ -46,6 +51,13 @@ export interface StreamSseEvent {
 interface EditorToolInput {
   operations?: unknown;
   reason?: unknown;
+}
+
+interface TokenUsagePayload {
+  inputTokens: number;
+  outputTokens: number;
+  cacheHitTokens?: number;
+  cacheMissTokens?: number;
 }
 
 // Simple in-memory rate limiter: max N requests per window per user
@@ -102,6 +114,10 @@ export class AiService {
     private readonly templateRepo: Repository<Template>,
     @InjectRepository(EditorAiConversation)
     private readonly editorConversationRepo: Repository<EditorAiConversation>,
+    @InjectRepository(AiTokenUsageEvent)
+    private readonly tokenUsageRepo: Repository<AiTokenUsageEvent>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
     private readonly databaseFlush: DatabaseFlushService,
   ) {
     const env = ConfigFactory.build();
@@ -204,11 +220,12 @@ export class AiService {
 
   /** Proxy a streaming OpenAI-compatible Responses API request, forwarding events as SSE */
   stream(
+    ownerUserId: string,
     req: StreamRequest,
     cacheOptions?: { conversationId?: string; previousResponseId?: string; },
   ): Observable<StreamSseEvent> {
     const subject = new Subject<StreamSseEvent>();
-    this.runStream(req, subject, cacheOptions).catch((err) => {
+    this.runStream(ownerUserId, req, subject, cacheOptions).catch((err) => {
       const msg = err instanceof Error ? err.message : String(err);
       this.emitStreamEvent(subject, { type: 'error', message: msg });
       subject.complete();
@@ -217,9 +234,9 @@ export class AiService {
   }
 
   /** Run the editor copilot loop on the backend and stream UI-safe events. */
-  streamEditor(req: StreamRequest): Observable<StreamSseEvent> {
+  streamEditor(ownerUserId: string, req: StreamRequest): Observable<StreamSseEvent> {
     const subject = new Subject<StreamSseEvent>();
-    this.runEditorStream(req, subject).catch((err) => {
+    this.runEditorStream(ownerUserId, req, subject).catch((err) => {
       const msg = err instanceof Error ? err.message : String(err);
       this.emitEditorEvent(subject, { type: 'error', data: msg });
       subject.complete();
@@ -228,6 +245,7 @@ export class AiService {
   }
 
   private async runStream(
+    ownerUserId: string,
     req: StreamRequest,
     subject: Subject<StreamSseEvent>,
     cacheOptions?: { conversationId?: string; previousResponseId?: string; },
@@ -244,6 +262,9 @@ export class AiService {
     const request = this.withRequestScopedCache(req, cacheOptions);
 
     for await (const event of this.provider.stream(request)) {
+      if (event.type === 'done' && event.usage) {
+        await this.recordTokenUsage(ownerUserId, req.model, event.usage, 'stream');
+      }
       this.emitStreamEvent(subject, event);
     }
 
@@ -273,7 +294,7 @@ export class AiService {
     const template = await this.templateRepo.findOne({
       where: [
         { templateId, ownerUserId },
-        { templateId, isPublic: true },
+        { templateId, ownerUserId: IsNull(), isPublic: true },
       ],
     });
     if (!template) {
@@ -289,6 +310,7 @@ export class AiService {
   }
 
   private async runEditorStream(
+    ownerUserId: string,
     req: StreamRequest,
     subject: Subject<StreamSseEvent>,
   ): Promise<void> {
@@ -325,6 +347,12 @@ export class AiService {
       onError: (msg) => {
         this.emitEditorEvent(subject, { type: 'error', data: msg });
       },
+      onUsage: (usage) => this.recordTokenUsage(
+        ownerUserId,
+        req.model,
+        usage,
+        'editor',
+      ),
       toolExecutor: (name, args) => {
         if (name !== APPLY_EDITOR_EDITS_TOOL.name) {
           return Promise.resolve({
@@ -381,44 +409,154 @@ export class AiService {
     }
   }
 
+  private async recordTokenUsage(
+    ownerUserId: string,
+    model: string,
+    usage: TokenUsagePayload,
+    endpoint: AiTokenUsageEndpoint,
+  ): Promise<void> {
+    const inputTokens = sanitizeTokenCount(usage.inputTokens);
+    const outputTokens = sanitizeTokenCount(usage.outputTokens);
+    const totalTokens = inputTokens + outputTokens;
+
+    if (totalTokens <= 0) {
+      return;
+    }
+
+    try {
+      await this.tokenUsageRepo.save(this.tokenUsageRepo.create({
+        ownerUserId,
+        endpoint,
+        provider: this.aiConfig.provider,
+        model,
+        inputTokens,
+        outputTokens,
+        totalTokens,
+        cacheHitTokens: sanitizeOptionalTokenCount(usage.cacheHitTokens),
+        cacheMissTokens: sanitizeOptionalTokenCount(usage.cacheMissTokens),
+      }));
+
+      const user = await this.userRepo.findOne({ where: { id: ownerUserId } });
+      if (user) {
+        const currentUsed = BigInt(user.tokensUsed);
+        user.tokensUsed = (currentUsed + BigInt(totalTokens)).toString();
+        user.tokensBalance = Math.max(0, user.tokensBalance - totalTokens);
+        await this.userRepo.save(user);
+      }
+
+      await this.databaseFlush.flush('AI token usage record');
+    } catch (err) {
+      this.logger.error(
+        'Failed to record AI token usage',
+        err instanceof Error ? err.message : err,
+      );
+    }
+  }
+
   async saveTemplate(
+    ownerUserId: string,
     input: TemplateToolInput,
   ): Promise<{ templateId: string; action: 'created' | 'updated'; }> {
     const existing = await this.templateRepo.findOne({ where: { templateId: input.templateId } });
 
-    if (existing) {
-      existing.name = input.name;
-      existing.tagline = input.tagline;
-      existing.description = input.description;
-      existing.category = input.category;
-      existing.accent = input.accent;
-      existing.traits = input.traits;
-      existing.cssVars = input.cssVars;
-      existing.cssAnimations = input.cssAnimations ?? null;
-      existing.componentTemplates = input.componentTemplates;
-      existing.layoutDocument = input.layoutDocument;
+    if (existing?.ownerUserId === ownerUserId) {
+      this.applyGeneratedTemplateInput(existing, input);
+      existing.ownerUserId = ownerUserId;
+      existing.sourceTemplateId = null;
+      existing.isPublic = false;
       await this.templateRepo.save(existing);
       await this.databaseFlush.flush('AI template update');
-      this.logger.log(`Template updated: ${input.templateId}`);
-      return { templateId: input.templateId, action: 'updated' };
+      this.logger.log(`Template updated: ${existing.templateId}`);
+      return { templateId: existing.templateId, action: 'updated' };
     }
 
     const template = this.templateRepo.create({
-      templateId: input.templateId,
-      name: input.name,
-      tagline: input.tagline,
-      description: input.description,
-      category: input.category,
-      accent: input.accent,
-      traits: input.traits,
-      cssVars: input.cssVars,
-      cssAnimations: input.cssAnimations ?? null,
-      componentTemplates: input.componentTemplates,
-      layoutDocument: input.layoutDocument,
+      templateId: existing
+        ? await this.createAvailableUserTemplateId(input.templateId, ownerUserId)
+        : input.templateId,
+      ownerUserId,
+      sourceTemplateId: null,
+      isPublic: false,
     });
+    this.applyGeneratedTemplateInput(template, input);
     await this.templateRepo.save(template);
     await this.databaseFlush.flush('AI template creation');
-    this.logger.log(`Template created: ${input.templateId}`);
-    return { templateId: input.templateId, action: 'created' };
+    this.logger.log(`Template created: ${template.templateId}`);
+    return { templateId: template.templateId, action: 'created' };
   }
+
+  private applyGeneratedTemplateInput(
+    template: Template,
+    input: TemplateToolInput,
+  ): void {
+    template.name = input.name;
+    template.tagline = input.tagline;
+    template.description = input.description;
+    template.category = input.category;
+    template.accent = input.accent;
+    template.traits = input.traits;
+    template.tags = this.deriveTags({
+      ...input,
+      templateId: template.templateId,
+    });
+    template.cssVars = input.cssVars;
+    template.cssAnimations = input.cssAnimations ?? null;
+    template.componentTemplates = input.componentTemplates;
+    template.layoutDocument = input.layoutDocument;
+  }
+
+  private deriveTags(template: Pick<
+    TemplateToolInput,
+    'templateId' | 'name' | 'tagline' | 'description' | 'category' | 'traits'
+  >): string[] {
+    const values = [
+      template.templateId,
+      template.name,
+      template.tagline,
+      template.description,
+      template.category,
+      ...template.traits,
+    ];
+
+    return [...new Set(
+      values
+        .flatMap((value) => String(value).split(/[\s,，、/|]+/))
+        .map((value) => value.trim())
+        .filter(Boolean),
+    )];
+  }
+
+  private async createAvailableUserTemplateId(
+    baseTemplateId: string,
+    ownerUserId: string,
+  ): Promise<string> {
+    const ownerPrefix = ownerUserId.replace(/-/g, '').slice(0, 8);
+    const base = baseTemplateId.trim() || 'ai-template';
+
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const candidate = `${base}-ai-${ownerPrefix}-${Date.now().toString(36)}${
+        attempt ? `-${attempt}` : ''
+      }`;
+      const exists = await this.templateRepo.exists({ where: { templateId: candidate } });
+      if (!exists) {
+        return candidate;
+      }
+    }
+
+    return `${base}-ai-${ownerPrefix}-${Date.now().toString(36)}-${Math.random()
+      .toString(36)
+      .slice(2, 8)}`;
+  }
+}
+
+function sanitizeTokenCount(value: number | undefined): number {
+  if (!Number.isFinite(value) || value === undefined || value <= 0) {
+    return 0;
+  }
+  return Math.floor(Math.min(value, Number.MAX_SAFE_INTEGER));
+}
+
+function sanitizeOptionalTokenCount(value: number | undefined): number | null {
+  const sanitized = sanitizeTokenCount(value);
+  return sanitized > 0 ? sanitized : null;
 }

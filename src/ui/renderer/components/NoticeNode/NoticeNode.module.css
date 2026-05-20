@@ -1,11 +1,11 @@
 .notice {
   width: fit-content;
   max-width: 100%;
-  padding: 0.8rem 0.95rem;
-  border-radius: 1rem;
+  padding: var(--app-unit-1-5) var(--app-unit-2);
+  border-radius: var(--app-unit-2);
   background: var(--note-bg);
-  color: rgba(18, 32, 44, 0.8);
-  font-size: 0.8rem;
+  color: var(--app-ink-alpha-08);
+  font-size: var(--app-unit-1-5);
   line-height: 1.45;
 }
 

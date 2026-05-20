@@ -1,0 +1,30 @@
+.spacer {
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  pointer-events: none;
+}
+
+.spacer[data-axis='block'] {
+  display: block;
+  inline-size: 100%;
+  block-size: var(--ui-spacer-size, var(--app-space-4));
+  min-block-size: var(--ui-spacer-size, var(--app-space-4));
+  flex-basis: var(--ui-spacer-size, var(--app-space-4));
+}
+
+.spacer[data-axis='inline'] {
+  display: inline-block;
+  inline-size: var(--ui-spacer-size, var(--app-space-4));
+  min-inline-size: var(--ui-spacer-size, var(--app-space-4));
+  block-size: var(--app-unit-0-125);
+  flex-basis: var(--ui-spacer-size, var(--app-space-4));
+  vertical-align: middle;
+}
+
+.spacer[data-grow='true'] {
+  flex-grow: 1;
+}
+
+.spacer[data-shrink='true'] {
+  flex-shrink: 1;
+}

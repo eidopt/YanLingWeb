@@ -2,14 +2,19 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('export_records')
+@Index(['ownerUserId', 'createdAt'])
 export class ExportRecord {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  ownerUserId: string | null;
 
   @Column()
   projectName: string;

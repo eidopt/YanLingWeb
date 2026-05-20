@@ -1,7 +1,7 @@
 'use client';
 
 import { homePageContent as c } from './HomePage.content';
-import styles from './HomePage.module.css';
+import styles from './TemplatesSection.module.css';
 import { useTemplates } from 'hooks/useTemplates';
 import {
   CardGrid,
@@ -9,6 +9,10 @@ import {
   PageSection,
   SectionHeader,
 } from 'ui/pages';
+import {
+  Box,
+  Text,
+} from 'ui/system';
 import { ThemeCard } from 'ui/theme_card';
 
 interface TemplatesSectionProps {
@@ -31,24 +35,26 @@ export function TemplatesSection({
       />
       <CardGrid auto className={styles.templateGrid}>
         {templates.map(theme => (
-          <div key={theme.id} className={styles.templateCardMotion}>
+          <Box key={theme.id} className={styles.templateCardMotion}>
             <ThemeCard
               theme={theme}
               onClick={onTemplateSelect}
             />
-          </div>
+          </Box>
         ))}
       </CardGrid>
       {templates.length === 0 && (
-        <div className={styles.templateEmpty}>
-          模板正在加载，稍后会自动显示。
-        </div>
+        <Box className={styles.templateEmpty}>
+          <Text align="center" size="sm" variant="muted">
+            模板正在加载，稍后会自动显示。
+          </Text>
+        </Box>
       )}
-      <div className={styles.moreRow}>
+      <Box className={styles.moreRow}>
         <PageButton variant="outline" onClick={onBrowseTemplates}>
           {c.templates.moreBtn}
         </PageButton>
-      </div>
+      </Box>
     </PageSection>
   );
 }

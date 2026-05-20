@@ -2,7 +2,6 @@
 
 import { exportDialogContent as content } from './ExportDialog.content';
 import styles from './ExportDialog.module.css';
-import { cx } from 'base/classname';
 import { useState } from 'react';
 import {
   buildExportPayload,
@@ -12,6 +11,16 @@ import {
 import type { ExportState } from 'types/export.types';
 import type { BuilderCanvas } from 'ui/editor/types';
 import type { LayoutBuilderTheme } from 'ui/editor/types';
+import {
+  Box,
+  Button,
+  Heading,
+  Inline,
+  Input,
+  Label,
+  Stack,
+  Text,
+} from 'ui/system';
 
 interface ExportDialogProps {
   canvases: BuilderCanvas[];
@@ -123,145 +132,164 @@ export function ExportDialog({
   // ── Render ────────────────────────────────────────────────────────────
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
-      <div
+    <Inline
+      className={styles.overlay}
+      justify="center"
+      onClick={onClose}
+      wrap={false}
+    >
+      <Stack
         className={styles.dialog}
+        gap="u2-5"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="export-dialog-title"
         onClick={(e) => e.stopPropagation()}
       >
 
         {/* Header */}
-        <div className={styles.header}>
-          <h2 className={styles.title}>{content.title}</h2>
-          <button
+        <Inline className={styles.header} justify="space-between">
+          <Heading
+            id="export-dialog-title"
+            size="xs"
+            variant="primary"
+            weight="medium"
+          >
+            {content.title}
+          </Heading>
+          <Button
             type="button"
-            className={styles.closeButton}
             onClick={onClose}
             aria-label={content.close}
+            size="icon-sm"
+            variant="icon"
           >
             ✕
-          </button>
-        </div>
+          </Button>
+        </Inline>
 
         {/* Project name */}
-        <div className={styles.fieldRow}>
-          <label
+        <Stack className={styles.fieldRow} gap="u0-75">
+          <Label
             className={styles.fieldLabel}
             htmlFor="export-project-name"
           >
             {content.projectNameLabel}
-          </label>
-          <input
+          </Label>
+          <Input
             id="export-project-name"
             type="text"
-            className={styles.fieldInput}
+            size="sm"
+            variant="filled"
             value={projectName}
             placeholder={content.projectNamePlaceholder}
             onChange={(e) => setProjectName(e.target.value)}
           />
-        </div>
+        </Stack>
 
         {/* Option: Save JSON */}
-        <div className={styles.optionCard}>
-          <div className={styles.optionHeader}>
-            <h3 className={styles.optionTitle}>
+        <Stack className={styles.optionCard} gap="u1-5">
+          <Inline className={styles.optionHeader} gap="sm">
+            <Heading as="h3" size="xs" variant="primary" weight="medium">
               {content.saveJson.title}
-            </h3>
-          </div>
-          <p className={styles.optionDescription}>
+            </Heading>
+          </Inline>
+          <Text size="xs" variant="muted">
             {content.saveJson.description}
-          </p>
-          <div className={styles.optionFooter}>
-            <button
+          </Text>
+          <Inline className={styles.optionFooter} gap="u1-5">
+            <Button
               type="button"
-              className={styles.actionButton}
               disabled={jsonState.status === 'saving'}
               onClick={handleSaveJson}
+              size="sm"
+              variant="primary"
             >
               {isElectron
                 ? content.saveJson.buttonElectron
                 : content.saveJson.button}
-            </button>
+            </Button>
             {jsonState.status === 'done' && (
-              <span
-                className={cx(styles.statusMessage, styles.success)}
-              >
-                {content.saveJson.successMessage}
-                {jsonState.outputPath
-                  ? ` → ${jsonState.outputPath}`
-                  : ''}
-              </span>
+              <Box as="span" className={styles.statusMessage}>
+                <Text as="span" size="xs" variant="success">
+                  {content.saveJson.successMessage}
+                  {jsonState.outputPath
+                    ? ` → ${jsonState.outputPath}`
+                    : ''}
+                </Text>
+              </Box>
             )}
             {jsonState.status === 'error' && (
-              <span
-                className={cx(styles.statusMessage, styles.error)}
-              >
-                {jsonState.error}
-              </span>
+              <Box as="span" className={styles.statusMessage}>
+                <Text as="span" size="xs" variant="danger">{jsonState.error}</Text>
+              </Box>
             )}
-          </div>
-        </div>
+          </Inline>
+        </Stack>
 
         {/* Option: Build project */}
-        <div className={styles.optionCard}>
-          <div className={styles.optionHeader}>
-            <h3 className={styles.optionTitle}>
+        <Stack className={styles.optionCard} gap="u1-5">
+          <Inline className={styles.optionHeader} gap="sm">
+            <Heading as="h3" size="xs" variant="primary" weight="medium">
               {content.buildProject.title}
-            </h3>
-            <span className={styles.badge}>
-              {content.buildProject.badge}
-            </span>
-          </div>
-          <p className={styles.optionDescription}>
+            </Heading>
+            <Box as="span" className={styles.badge}>
+              <Text as="span" size="xs" variant="accent" weight="bold">
+                {content.buildProject.badge}
+              </Text>
+            </Box>
+          </Inline>
+          <Text size="xs" variant="muted">
             {content.buildProject.description}
-          </p>
-          <div className={styles.optionFooter}>
+          </Text>
+          <Inline className={styles.optionFooter} gap="u1-5">
             {isElectron ? (
               <>
-                <button
+                <Button
                   type="button"
-                  className={styles.actionButton}
                   disabled={buildState.status === 'building'}
                   onClick={handleBuildProject}
+                  size="sm"
+                  variant="primary"
                 >
                   {buildState.status === 'building'
                     ? content.buildProject.building
                     : content.buildProject.button}
-                </button>
+                </Button>
                 {buildState.status === 'done' && (
                   <>
-                    <span
-                      className={cx(styles.statusMessage, styles.success)}
-                    >
-                      {content.buildProject.successMessage(
-                        buildState.outputPath ?? '',
-                      )}
-                    </span>
-                    <button
+                    <Box as="span" className={styles.statusMessage}>
+                      <Text as="span" size="xs" variant="success">
+                        {content.buildProject.successMessage(
+                          buildState.outputPath ?? '',
+                        )}
+                      </Text>
+                    </Box>
+                    <Button
                       type="button"
-                      className={styles.secondaryButton}
                       onClick={handleOpenFolder}
+                      size="sm"
+                      variant="outline"
                     >
                       {content.buildProject.openFolder}
-                    </button>
+                    </Button>
                   </>
                 )}
                 {buildState.status === 'error' && (
-                  <span
-                    className={cx(styles.statusMessage, styles.error)}
-                  >
-                    {buildState.error}
-                  </span>
+                  <Box as="span" className={styles.statusMessage}>
+                    <Text as="span" size="xs" variant="danger">{buildState.error}</Text>
+                  </Box>
                 )}
               </>
             ) : (
-              <p className={styles.unsupportedNote}>
+              <Text as="em" size="xs" variant="faint">
                 {content.buildProject.webUnsupported}
-              </p>
+              </Text>
             )}
-          </div>
-        </div>
+          </Inline>
+        </Stack>
 
-      </div>
-    </div>
+      </Stack>
+    </Inline>
   );
 }

@@ -1,0 +1,101 @@
+.divider {
+  --ui-divider-color: color-mix(in srgb, var(--app-text-primary) 10%, transparent);
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  border: 0;
+  padding: 0;
+}
+
+.divider[data-variant='soft'] {
+  --ui-divider-color: color-mix(in srgb, var(--app-text-primary) 16%, transparent);
+}
+
+.divider[data-variant='strong'] {
+  --ui-divider-color: color-mix(in srgb, var(--app-text-primary) 28%, transparent);
+}
+
+.divider[data-variant='inverse'] {
+  --ui-divider-color: var(--app-white-alpha-02);
+}
+
+.divider[data-variant='accent'] {
+  --ui-divider-color: color-mix(in srgb, var(--app-color-primary) 44%, transparent);
+}
+
+.divider[data-orientation='horizontal'] {
+  inline-size: 100%;
+  block-size: var(--ui-divider-thickness, var(--app-unit-0-125));
+  margin-block: var(--ui-divider-spacing, var(--app-space-4));
+  margin-inline: var(--ui-divider-inset, 0);
+  background: linear-gradient(
+    90deg,
+    transparent 0,
+    var(--ui-divider-color) 12%,
+    var(--ui-divider-color) 88%,
+    transparent 100%
+  );
+}
+
+.divider[data-orientation='vertical'] {
+  align-self: stretch;
+  inline-size: var(--ui-divider-thickness, var(--app-unit-0-125));
+  min-block-size: var(--app-space-4);
+  margin-block: var(--ui-divider-inset, 0);
+  margin-inline: var(--ui-divider-spacing, var(--app-space-4));
+  background: linear-gradient(
+    180deg,
+    transparent 0,
+    var(--ui-divider-color) 12%,
+    var(--ui-divider-color) 88%,
+    transparent 100%
+  );
+}
+
+.divider[data-has-label='true'] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--app-space-3);
+  block-size: auto;
+  background: none;
+}
+
+.divider[data-has-label='true']::before,
+.divider[data-has-label='true']::after {
+  content: '';
+  block-size: var(--ui-divider-thickness, var(--app-unit-0-125));
+  border-radius: var(--app-radius-pill);
+  background: var(--ui-divider-color);
+}
+
+.divider[data-label-position='start'] {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.divider[data-label-position='start']::before {
+  display: none;
+}
+
+.divider[data-label-position='end'] {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.divider[data-label-position='end']::after {
+  display: none;
+}
+
+.label {
+  color: var(--app-text-faint);
+  font-size: var(--app-font-size-xs);
+  font-weight: var(--app-font-weight-medium);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.divider[data-variant='inverse'] .label {
+  color: var(--app-text-inverse-faint);
+}
+
+.divider[data-variant='accent'] .label {
+  color: var(--app-color-primary);
+}

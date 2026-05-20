@@ -1,0 +1,4 @@
+interface:
+  display_name: "Indie Web Quality Auditor"
+  short_description: "Audit web quality with evidence"
+  default_prompt: "Use $indie-web-quality-auditor to audit this web flow with evidence and a release decision."

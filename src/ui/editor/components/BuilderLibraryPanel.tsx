@@ -19,6 +19,11 @@ import {
   useEffect,
   useRef,
 } from 'react';
+import {
+  Box,
+  Button,
+  Text,
+} from 'ui/system';
 
 type BuilderSidebarTab = 'components' | 'templates';
 
@@ -103,25 +108,26 @@ function LibraryCard({
   }
 
   return (
-    <article
+    <Box
+      as="article"
       className={styles.libraryCard}
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className={styles.libraryCardHeader}>
-        <strong>
+      <Box className={styles.libraryCardHeader}>
+        <Text as="strong" size="sm" weight="bold">
           {getComponentDisplayName(descriptor.alias, descriptor.name)}
-        </strong>
-      </div>
-      <div
+        </Text>
+      </Box>
+      <Box
         ref={previewRef}
         className={styles.libraryPreview}
-        style={activeTheme.runtime.cssVars as CSSProperties}
+        style={activeTheme.runtime.cssVars}
       >
         <DynamicThemeRenderer controller={rendererController} />
-      </div>
-    </article>
+      </Box>
+    </Box>
   );
 }
 
@@ -141,7 +147,7 @@ function TemplateCard({
   });
 
   return (
-    <div
+    <Box
       role="button"
       tabIndex={0}
       className={cx(
@@ -151,9 +157,10 @@ function TemplateCard({
       onClick={onApply}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { onApply(); } }}
     >
-      <div className={styles.templateCardHeader}>
-        <strong>{template.name}</strong>
-        <span
+      <Box className={styles.templateCardHeader}>
+        <Text as="strong" size="sm" weight="bold">{template.name}</Text>
+        <Box
+          as="span"
           className={styles.templateBadge}
           style={{
             color: template.accent,
@@ -161,18 +168,18 @@ function TemplateCard({
           }}
         >
           {template.tagline}
-        </span>
-      </div>
+        </Box>
+      </Box>
 
-      <div className={styles.templateThumbnail}>
-        <div
+      <Box className={styles.templateThumbnail}>
+        <Box
           className={styles.templateThumbnailScale}
-          style={template.runtime.cssVars as CSSProperties}
+          style={template.runtime.cssVars}
         >
           <DynamicThemeRenderer controller={rendererController} />
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Box>
   );
 }
 
@@ -189,41 +196,42 @@ export function BuilderLibraryPanel({
   onLibraryDragStart,
   onLibraryDragEnd,
 }: BuilderLibraryPanelProps) {
+  const sidebarStyle: CSSProperties & { '--sidebar-accent': string } = {
+    '--sidebar-accent': activeTheme.accent,
+  };
+
   return (
-    <aside
+    <Box
+      as="aside"
       className={cx(styles.panel, styles.sidebarPanel)}
-      style={
-        { ['--sidebar-accent' as string]: activeTheme.accent } as CSSProperties
-      }
+      style={sidebarStyle}
     >
-      <div className={styles.sidebarStickyTop}>
-        <div className={styles.sidebarTabs}>
-          <button
+      <Box className={styles.sidebarStickyTop}>
+        <Box className={styles.sidebarTabs}>
+          <Button
             type="button"
-            className={cx(
-              styles.sidebarTab,
-              tab === 'components' && styles.sidebarTabActive,
-            )}
             onClick={() => onTabChange('components')}
+            fullWidth
+            size="sm"
+            variant={tab === 'components' ? 'tab-active' : 'tab'}
           >
             {themeLayoutBuilderContent.sidebar.componentsTab}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className={cx(
-              styles.sidebarTab,
-              tab === 'templates' && styles.sidebarTabActive,
-            )}
             onClick={() => onTabChange('templates')}
+            fullWidth
+            size="sm"
+            variant={tab === 'templates' ? 'tab-active' : 'tab'}
           >
             {themeLayoutBuilderContent.sidebar.templatesTab}
-          </button>
-        </div>
-      </div>
+          </Button>
+        </Box>
+      </Box>
 
-      <div className={styles.sidebarContent}>
+      <Box className={styles.sidebarContent}>
         {tab === 'templates' ? (
-          <div className={styles.templateList}>
+          <Box className={styles.templateList}>
             {templates.map((template) => (
               <TemplateCard
                 key={template.id}
@@ -232,19 +240,20 @@ export function BuilderLibraryPanel({
                 onApply={() => onApplyTemplate(template.id)}
               />
             ))}
-          </div>
+          </Box>
         ) : (
           <>
-            <div className={styles.componentTabHeader}>
-              <span
+            <Box className={styles.componentTabHeader}>
+              <Box
+                as="span"
                 className={styles.sidebarActiveTag}
                 style={{ backgroundColor: activeTheme.accent }}
               >
                 {activeTheme.tagline}
-              </span>
-            </div>
+              </Box>
+            </Box>
 
-            <div className={styles.libraryList}>
+            <Box className={styles.libraryList}>
               {[
                 ...layoutDescriptors,
                 ...componentDescriptors,
@@ -258,10 +267,10 @@ export function BuilderLibraryPanel({
                   onLibraryDragEnd={onLibraryDragEnd}
                 />
               ))}
-            </div>
+            </Box>
           </>
         )}
-      </div>
-    </aside>
+      </Box>
+    </Box>
   );
 }

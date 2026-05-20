@@ -1,0 +1,285 @@
+.button {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  gap: var(--app-space-2);
+  border: var(--app-unit-0-125) solid transparent;
+  border-radius: var(--app-radius-md);
+  font: inherit;
+  font-size: var(--app-font-size-md);
+  font-weight: var(--app-font-weight-bold);
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  appearance: none;
+  touch-action: manipulation;
+  transition:
+    transform var(--app-motion-fast) var(--app-motion-smooth),
+    box-shadow var(--app-motion-fast) var(--app-motion-smooth),
+    border-color var(--app-motion-fast) var(--app-motion-smooth),
+    background var(--app-motion-fast) var(--app-motion-smooth),
+    color var(--app-motion-fast) var(--app-motion-smooth),
+    opacity var(--app-motion-fast) var(--app-motion-smooth);
+}
+
+.button:focus-visible {
+  outline: var(--app-unit-0-375) solid color-mix(in srgb, var(--app-focus-ring) 36%, transparent);
+  outline-offset: var(--app-unit-0-25);
+}
+
+.button:hover:not(:disabled) {
+  transform: translateY(calc(var(--app-unit-0-125) * -1));
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+  transform: none;
+}
+
+.button[data-size='xs'] {
+  min-height: var(--app-unit-4);
+  padding: var(--app-unit-0-75) var(--app-unit-1-5);
+  font-size: var(--app-font-size-sm);
+}
+
+.button[data-size='sm'] {
+  min-height: var(--app-unit-4);
+  padding: var(--app-unit-1) var(--app-unit-1-75);
+  font-size: var(--app-font-size-sm);
+}
+
+.button[data-size='md'] {
+  min-height: var(--app-unit-5);
+  padding: var(--app-unit-1-25) var(--app-unit-2);
+}
+
+.button[data-size='lg'] {
+  min-height: var(--app-unit-6);
+  padding: var(--app-unit-1-75) var(--app-unit-2-5);
+  font-size: var(--app-font-size-base);
+}
+
+.button[data-size='icon-sm'] {
+  width: var(--app-unit-4);
+  min-width: var(--app-unit-4);
+  min-height: var(--app-unit-4);
+  padding: 0;
+}
+
+.button[data-size='icon-md'] {
+  width: var(--app-unit-5);
+  min-width: var(--app-unit-5);
+  min-height: var(--app-unit-5);
+  padding: 0;
+}
+
+.button[data-size='fab'] {
+  width: var(--app-unit-7);
+  min-width: var(--app-unit-7);
+  min-height: var(--app-unit-7);
+  padding: 0;
+}
+
+.button[data-full-width='true'] {
+  width: 100%;
+}
+
+.button[data-variant='primary'] {
+  background: var(--app-brand-gradient);
+  box-shadow: var(--app-shadow-brand-md);
+  color: var(--app-text-inverse);
+}
+
+.button[data-variant='primary']:hover:not(:disabled) {
+  box-shadow: var(--app-shadow-brand-lg);
+}
+
+.button[data-variant='secondary'] {
+  background: var(--app-neutral-0);
+  border-color: var(--app-border);
+  box-shadow: var(--app-shadow-xs);
+  color: var(--app-text-primary);
+}
+
+.button[data-variant='secondary']:hover:not(:disabled) {
+  background: var(--app-neutral-0);
+  border-color: var(--app-border-strong);
+  box-shadow: var(--app-shadow-sm);
+}
+
+.button[data-variant='outline'] {
+  background: var(--app-neutral-0);
+  border-color: var(--app-border);
+  box-shadow: var(--app-shadow-xs);
+  color: var(--app-text-secondary);
+}
+
+.button[data-variant='outline']:hover:not(:disabled) {
+  background: var(--app-neutral-0);
+  border-color: var(--app-color-primary);
+  color: var(--app-color-primary);
+  box-shadow: var(--app-shadow-brand-sm);
+}
+
+.button[data-variant='ghost'] {
+  background: color-mix(in srgb, var(--app-color-primary) 8%, transparent);
+  color: var(--app-color-primary);
+}
+
+.button[data-variant='ghost']:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--app-color-primary) 12%, transparent);
+}
+
+.button[data-variant='danger'] {
+  background: var(--app-color-danger);
+  box-shadow: 0 var(--app-unit-1) var(--app-unit-2-5) var(--app-danger-alpha-02);
+  color: var(--app-text-inverse);
+}
+
+.button[data-variant='danger-soft'] {
+  background: var(--app-color-danger-bg);
+  border-color: var(--app-color-danger-border);
+  color: var(--app-color-danger-strong);
+}
+
+.button[data-variant='danger-soft']:hover:not(:disabled) {
+  background: var(--app-color-danger-bg);
+}
+
+.button[data-variant='inverse-ghost'] {
+  background: var(--app-white-alpha-05);
+  border-color: var(--app-white-alpha-02);
+  color: var(--app-text-inverse-muted);
+}
+
+.button[data-variant='inverse-ghost']:hover:not(:disabled) {
+  background: var(--app-white-alpha-00);
+  border-color: var(--app-white-alpha-02);
+  color: var(--app-text-inverse);
+}
+
+.button[data-variant='inverse-primary'] {
+  background: color-mix(in srgb, var(--app-color-primary) 68%, transparent);
+  border-color: color-mix(in srgb, var(--app-color-primary) 48%, transparent);
+  color: var(--app-text-inverse);
+}
+
+.button[data-variant='inverse-primary']:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--app-color-primary) 82%, transparent);
+}
+
+.button[data-variant='neutral'] {
+  background: var(--app-neutral-0);
+  border-color: color-mix(in srgb, var(--app-color-primary) 22%, var(--app-border));
+  box-shadow: var(--app-shadow-xs);
+  color: var(--app-color-primary);
+}
+
+.button[data-variant='neutral']:hover:not(:disabled) {
+  background: var(--app-neutral-0);
+  box-shadow: var(--app-shadow-brand-sm);
+}
+
+.button[data-variant='tab'],
+.button[data-variant='tab-active'] {
+  border-radius: var(--app-radius-pill);
+  box-shadow: none;
+}
+
+.button[data-variant='tab'] {
+  background: transparent;
+  border-color: var(--app-border);
+  color: var(--app-text-muted);
+}
+
+.button[data-variant='tab']:hover:not(:disabled) {
+  background: var(--color-hover);
+  color: var(--app-text-secondary);
+}
+
+.button[data-variant='tab-active'] {
+  background: var(--app-neutral-0);
+  border-color: color-mix(in srgb, var(--app-color-primary) 28%, var(--app-border));
+  color: var(--app-color-primary);
+  box-shadow: var(--app-shadow-brand-sm);
+}
+
+.button[data-variant='tab-active']:hover:not(:disabled) {
+  background: var(--app-neutral-0);
+}
+
+.button[data-variant='icon'] {
+  border-radius: var(--app-radius-pill);
+  background: var(--app-neutral-0);
+  border-color: var(--app-border);
+  color: var(--app-text-muted);
+}
+
+.button[data-variant='icon']:hover:not(:disabled) {
+  background: var(--app-neutral-0);
+  border-color: var(--app-border-strong);
+  color: var(--app-text-primary);
+}
+
+.button[data-variant='icon-inverse'] {
+  border-radius: var(--app-radius-pill);
+  background: var(--app-surface-inverse-strong);
+  border-color: color-mix(in srgb, var(--app-text-inverse) 20%, transparent);
+  color: var(--app-text-inverse);
+}
+
+.button[data-variant='icon-inverse']:hover:not(:disabled) {
+  background: var(--app-white-alpha-02);
+}
+
+.button[data-variant='floating'] {
+  border-radius: var(--app-radius-pill);
+  background: var(--app-brand-gradient);
+  box-shadow: var(--app-shadow-brand-lg);
+  color: var(--app-text-inverse);
+}
+
+.button[data-variant='floating']:hover:not(:disabled) {
+  transform: scale(1.06);
+}
+
+.button[data-variant='link'] {
+  min-height: auto;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--app-color-primary);
+  font-size: inherit;
+  font-weight: var(--app-font-weight-bold);
+}
+
+.button[data-variant='link']:hover:not(:disabled) {
+  text-decoration: underline;
+  transform: none;
+}
+
+.button[data-variant='user'] {
+  min-height: var(--app-unit-4);
+  border-radius: var(--app-radius-pill);
+  padding: var(--app-unit-0-375) var(--app-unit-1-5) var(--app-unit-0-375) var(--app-unit-0-375);
+  background: var(--app-white-alpha-08);
+  border-color: var(--app-white-alpha-02);
+  color: var(--app-text-inverse);
+}
+
+.button[data-variant='user']:hover:not(:disabled) {
+  background: var(--app-white-alpha-02);
+  border-color: var(--app-white-alpha-02);
+}
+
+.buttonIcon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+}

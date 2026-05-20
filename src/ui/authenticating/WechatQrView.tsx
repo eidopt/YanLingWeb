@@ -5,6 +5,15 @@ import { wechatQrViewContent as c } from "./WechatQrView.content";
 import type { AuthResponseDto } from "@shared/types/user.types";
 import { useAppServices } from "hooks/useAppServices";
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Box,
+  Button,
+  Heading,
+  Inline,
+  Input,
+  Stack,
+  Text,
+} from "ui/system";
 
 const WECHAT_AUTH_CHANNEL = "wechat_oauth";
 const QR_TTL_MS = 4.5 * 60 * 1000; // refresh before 5-min WeChat expiry
@@ -21,6 +30,7 @@ export function WechatQrView({ onSuccess, onBack }: WechatQrViewProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [scanned, setScanned] = useState(false);
+  const [refreshRevision, setRefreshRevision] = useState(0);
   const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchQr = useCallback(async () => {
@@ -37,7 +47,7 @@ export function WechatQrView({ onSuccess, onBack }: WechatQrViewProps) {
         clearTimeout(refreshTimer.current);
       }
       refreshTimer.current = setTimeout(() => {
-        void fetchQr();
+        setRefreshRevision((current) => current + 1);
       }, QR_TTL_MS);
     } catch (err) {
       setError(err instanceof Error ? err.message : c.error.qrLoadFailed);
@@ -80,13 +90,14 @@ export function WechatQrView({ onSuccess, onBack }: WechatQrViewProps) {
   }, [authService, onSuccess]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- initial and scheduled QR refresh intentionally updates view state
     void fetchQr();
     return () => {
       if (refreshTimer.current) {
         clearTimeout(refreshTimer.current);
       }
     };
-  }, [fetchQr]);
+  }, [fetchQr, refreshRevision]);
 
   // Build QR image URL using a free public service
   const qrImageUrl = qrUrl
@@ -94,36 +105,37 @@ export function WechatQrView({ onSuccess, onBack }: WechatQrViewProps) {
     : null;
 
   return (
-    <div className={styles.formWrap}>
-      <div className={styles.qrBack}>
-        <button type="button" className={styles.backBtn} onClick={onBack}>
+    <Stack className={styles.formWrap}>
+      <Box className={styles.qrBack}>
+        <Button type="button" size="xs" variant="link" onClick={onBack}>
           ← {c.back}
-        </button>
-      </div>
+        </Button>
+      </Box>
 
-      <div className={styles.formHeader}>
-        <h2>{c.title}</h2>
-        <p>{c.subtitle}</p>
-      </div>
+      <Stack className={styles.formHeader} gap="xs">
+        <Heading size="md" variant="primary" weight="heavy">{c.title}</Heading>
+        <Text size="sm" variant="muted">{c.subtitle}</Text>
+      </Stack>
 
-      <div className={styles.qrBox}>
+      <Box className={styles.qrBox}>
         {loading && (
-          <div className={styles.qrPlaceholder}>
-            <div className={styles.qrSpinner} />
-          </div>
+          <Box className={styles.qrPlaceholder}>
+            <Box className={styles.qrSpinner} />
+          </Box>
         )}
 
         {!loading && error && (
-          <div className={styles.qrError}>
-            <p>{error}</p>
-            <button
+          <Stack className={styles.qrError}>
+            <Text align="center" size="sm" variant="danger">{error}</Text>
+            <Button
               type="button"
-              className={styles.qrRefreshBtn}
               onClick={() => void fetchQr()}
+              size="sm"
+              variant="outline"
             >
               {c.refresh}
-            </button>
-          </div>
+            </Button>
+          </Stack>
         )}
 
         {!loading && !error && qrImageUrl && (
@@ -136,26 +148,27 @@ export function WechatQrView({ onSuccess, onBack }: WechatQrViewProps) {
               className={scanned ? styles.qrScanned : styles.qrImage}
             />
             {scanned && (
-              <div className={styles.qrScannedOverlay}>
-                <span>✓</span>
-                <p>{c.scanned}</p>
-              </div>
+              <Stack className={styles.qrScannedOverlay} gap="sm">
+                <Text as="span" size="3xl" variant="success">✓</Text>
+                <Text size="sm" variant="success" weight="bold">{c.scanned}</Text>
+              </Stack>
             )}
           </>
         )}
-      </div>
+      </Box>
 
       {!loading && !error && (
-        <div className={styles.qrHints}>
-          <p>{c.hint}</p>
-          <button
+        <Stack className={styles.qrHints} gap="sm">
+          <Text align="center" size="sm" variant="muted">{c.hint}</Text>
+          <Button
             type="button"
-            className={styles.forgotLink}
             onClick={() => void fetchQr()}
+            size="xs"
+            variant="link"
           >
             {c.expiredRefresh}
-          </button>
-        </div>
+          </Button>
+        </Stack>
       )}
 
       {/* Fallback: open in browser */}
@@ -174,7 +187,7 @@ export function WechatQrView({ onSuccess, onBack }: WechatQrViewProps) {
       {process.env.NODE_ENV === "development" && state && (
         <DevCallbackHelper state={state} onSuccess={onSuccess} />
       )}
-    </div>
+    </Stack>
   );
 }
 
@@ -207,41 +220,27 @@ function DevCallbackHelper({
   };
 
   return (
-    <div className={styles.devHelper}>
-      <p>{c.dev.title}</p>
-      <div style={{ display: "flex", gap: "0.4rem" }}>
-        <input
+    <Stack className={styles.devHelper} gap="sm">
+      <Text size="xs" variant="warning" weight="bold">{c.dev.title}</Text>
+      <Inline gap="u0-8" wrap={false}>
+        <Input
           value={code}
           onChange={(e) => {
             setCode(e.target.value);
           }}
           placeholder={c.dev.placeholder}
-          style={{
-            flex: 1,
-            padding: "0.3rem 0.5rem",
-            fontSize: "0.78rem",
-            borderRadius: "0.4rem",
-            border: "1px solid #e2e8f0",
-          }}
+          size="sm"
         />
-        <button
+        <Button
           type="button"
           onClick={() => {
             void handleSimulate();
           }}
-          style={{
-            padding: "0.3rem 0.6rem",
-            fontSize: "0.78rem",
-            borderRadius: "0.4rem",
-            background: "#6366f1",
-            color: "#fff",
-            border: "none",
-            cursor: "pointer",
-          }}
+          size="sm"
         >
           {c.dev.submit}
-        </button>
-      </div>
-    </div>
+        </Button>
+      </Inline>
+    </Stack>
   );
 }

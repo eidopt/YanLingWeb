@@ -1,12 +1,16 @@
 'use client';
 
 import { homePageContent as c } from './HomePage.content';
-import styles from './HomePage.module.css';
+import styles from './ProductStudioSection.module.css';
 import {
   PageButton,
   PageSection,
   SectionHeader,
 } from 'ui/pages';
+import {
+  Box,
+  Text,
+} from 'ui/system';
 
 interface ProductStudioSectionProps {
   onCtaClick: () => void;
@@ -17,8 +21,8 @@ export function ProductStudioSection({
 }: ProductStudioSectionProps) {
   return (
     <PageSection className={styles.productStudioSection}>
-      <div className={styles.productStudioLayout}>
-        <div className={styles.productStudioCopy}>
+      <Box className={styles.productStudioLayout}>
+        <Box className={styles.productStudioCopy}>
           <SectionHeader
             align="start"
             eyebrow={c.studio.eyebrow}
@@ -26,74 +30,74 @@ export function ProductStudioSection({
             subtitle={c.studio.sub}
             className={styles.productStudioHeader}
           />
-          <div className={styles.studioChecklist}>
+          <Box className={styles.studioChecklist}>
             {c.studio.bullets.map(item => (
-              <div key={item} className={styles.studioCheckItem}>
-                <span className={styles.studioCheckIcon}>✓</span>
-                <span>{item}</span>
-              </div>
+              <Box key={item} className={styles.studioCheckItem}>
+                <Box as="span" className={styles.studioCheckIcon}>✓</Box>
+                <Text as="span" size="sm" variant="secondary">{item}</Text>
+              </Box>
             ))}
-          </div>
+          </Box>
           <PageButton onClick={onCtaClick} showArrow>
             {c.studio.cta}
           </PageButton>
-        </div>
+        </Box>
 
-        <div className={styles.studioVisual} aria-hidden="true">
-          <div className={styles.studioWindow}>
-            <div className={styles.studioWindowBar}>
-              <span />
-              <span />
-              <span />
-            </div>
-            <div className={styles.studioWorkspace}>
-              <div className={styles.promptComposer}>
-                <div className={styles.panelLabel}>{c.heroStudio.promptTitle}</div>
-                <p>{c.heroStudio.prompt}</p>
-                <div className={styles.promptChipRow}>
+        <Box className={styles.studioVisual} aria-hidden="true">
+          <Box className={styles.studioWindow}>
+            <Box className={styles.studioWindowBar}>
+              <Box as="span" />
+              <Box as="span" />
+              <Box as="span" />
+            </Box>
+            <Box className={styles.studioWorkspace}>
+              <Box className={styles.promptComposer}>
+                <Box className={styles.panelLabel}>{c.heroStudio.promptTitle}</Box>
+                <Text>{c.heroStudio.prompt}</Text>
+                <Box className={styles.promptChipRow}>
                   {c.heroStudio.chips.map(chip => (
-                    <span key={chip}>{chip}</span>
+                    <Box key={chip} as="span">{chip}</Box>
                   ))}
-                </div>
-              </div>
+                </Box>
+              </Box>
 
-              <div className={styles.liveCanvas}>
-                <div className={styles.canvasToolbar}>
-                  <strong>{c.heroStudio.canvasTitle}</strong>
-                  <div>
+              <Box className={styles.liveCanvas}>
+                <Box className={styles.canvasToolbar}>
+                  <Text as="strong" size="sm" weight="bold">{c.heroStudio.canvasTitle}</Text>
+                  <Box>
                     {c.heroStudio.canvasPages.map(page => (
-                      <span key={page}>{page}</span>
+                      <Box key={page} as="span">{page}</Box>
                     ))}
-                  </div>
-                </div>
-                <div className={styles.canvasPreview}>
-                  <div className={styles.canvasHeroBlock} />
-                  <div className={styles.canvasCardRow}>
-                    <span />
-                    <span />
-                    <span />
-                  </div>
-                  <div className={styles.canvasTextLines}>
-                    <span />
-                    <span />
-                    <span />
-                  </div>
-                </div>
-              </div>
+                  </Box>
+                </Box>
+                <Box className={styles.canvasPreview}>
+                  <Box className={styles.canvasHeroBlock} />
+                  <Box className={styles.canvasCardRow}>
+                    <Box as="span" />
+                    <Box as="span" />
+                    <Box as="span" />
+                  </Box>
+                  <Box className={styles.canvasTextLines}>
+                    <Box as="span" />
+                    <Box as="span" />
+                    <Box as="span" />
+                  </Box>
+                </Box>
+              </Box>
 
-              <div className={styles.editorRail}>
-                <div className={styles.panelLabel}>{c.heroStudio.editorTitle}</div>
+              <Box className={styles.editorRail}>
+                <Box className={styles.panelLabel}>{c.heroStudio.editorTitle}</Box>
                 {c.heroStudio.layers.map(layer => (
-                  <div key={layer} className={styles.layerRow}>
-                    <span />
+                  <Box key={layer} className={styles.layerRow}>
+                    <Box as="span" />
                     {layer}
-                  </div>
+                  </Box>
                 ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
     </PageSection>
   );
 }

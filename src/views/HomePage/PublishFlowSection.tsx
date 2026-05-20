@@ -1,9 +1,14 @@
 import { homePageContent as c } from './HomePage.content';
-import styles from './HomePage.module.css';
+import styles from './PublishFlowSection.module.css';
 import {
   PageSection,
   SectionHeader,
 } from 'ui/pages';
+import {
+  Box,
+  Heading,
+  Text,
+} from 'ui/system';
 
 export function PublishFlowSection() {
   return (
@@ -14,17 +19,19 @@ export function PublishFlowSection() {
         subtitle={c.publishFlow.sub}
         inverted
       />
-      <div className={styles.publishTimeline}>
+      <Box className={styles.publishTimeline}>
         {c.publishFlow.items.map((item, index) => (
-          <article key={item.title} className={styles.publishStep}>
-            <div className={styles.publishStepIndex}>
+          <Box as="article" key={item.title} className={styles.publishStep}>
+            <Box className={styles.publishStepIndex}>
               {String(index + 1).padStart(2, '0')}
-            </div>
-            <h3>{item.title}</h3>
-            <p>{item.desc}</p>
-          </article>
+            </Box>
+            <Heading as="h3" size="xs" variant="inverse" weight="bold">
+              {item.title}
+            </Heading>
+            <Text size="sm" variant="inverse-muted">{item.desc}</Text>
+          </Box>
         ))}
-      </div>
+      </Box>
     </PageSection>
   );
 }

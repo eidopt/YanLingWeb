@@ -25,7 +25,8 @@
     "build:electron:main": "vite build --config vite.electron.config.ts",
     "build:electron:renderer": "next build",
     "build:electron": "npm run build:electron:renderer && npm run build:electron:main && electron-builder",
-    "build:electron:dir": "npm run build:electron:renderer && npm run build:electron:main && electron-builder --dir"
+    "build:electron:dir": "npm run build:electron:renderer && npm run build:electron:main && electron-builder --dir",
+    "test:integration": "node scripts/integration-test.js"
   },
   "dependencies": {
     "next": "15",

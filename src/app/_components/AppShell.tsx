@@ -8,6 +8,7 @@ import { AppServicesProvider } from 'services/AppServicesContext';
 import type { AuthUser } from 'services/AuthService';
 import { AUTH_CHANGED_EVENT } from 'services/AuthService';
 import { FakeGlobalNav } from 'ui/global_nav';
+import { Box } from 'ui/system';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -41,11 +42,11 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
   }, [authService]);
 
   return (
-    <div className={styles.appShell}>
+    <Box className={styles.appShell}>
       {showGlobalNav && <FakeGlobalNav variant={isHome ? 'overlay' : 'default'} />}
-      <div className={useOverlayViewport ? styles.routeViewportOverlay : styles.routeViewport}>
+      <Box className={useOverlayViewport ? styles.routeViewportOverlay : styles.routeViewport}>
         {children}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }

@@ -56,13 +56,13 @@ export function ScreenNode({ runtime, props, children, nodeLayoutStyle }: Screen
         width: isMobileScreen ? undefined : '100%',
         maxWidth: isMobileScreen ? undefined : '100%',
         height: isMobileScreen
-          ? 'var(--screen-height, 42rem)'
-          : 'var(--screen-height-desktop, 56rem)',
+          ? 'var(--screen-height, var(--app-unit-80))'
+          : 'var(--screen-height-desktop, var(--app-unit-112))',
         maxHeight: isMobileScreen
-          ? 'var(--screen-height, 42rem)'
-          : 'var(--screen-height-desktop, 56rem)',
-        minHeight: isMobileScreen ? undefined : 'var(--screen-height-desktop, 56rem)',
-        borderRadius: isMobileScreen ? undefined : 'var(--radius-screen, 1.5rem)',
+          ? 'var(--screen-height, var(--app-unit-80))'
+          : 'var(--screen-height-desktop, var(--app-unit-112))',
+        minHeight: isMobileScreen ? undefined : 'var(--screen-height-desktop, var(--app-unit-112))',
+        borderRadius: isMobileScreen ? undefined : 'var(--radius-screen, var(--app-radius-3xl))',
       }}
     >
       <div className={cx(styles.statusBar, isMobileScreen && styles.statusBarMobile)}>

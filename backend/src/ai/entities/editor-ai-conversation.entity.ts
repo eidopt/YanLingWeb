@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
   Unique,
   UpdateDateColumn,
@@ -14,6 +15,7 @@ export interface EditorAiConversationMessageRecord {
 
 @Entity('editor_ai_conversations')
 @Unique(['ownerUserId', 'templateId'])
+@Index(['ownerUserId', 'updatedAt'])
 export class EditorAiConversation {
   @PrimaryGeneratedColumn('uuid')
   id: string;

@@ -59,24 +59,24 @@ export function createPageThemeVars(theme: PageTheme): CSSProperties {
 
 export const appgenPageTheme: PageTheme = {
   colors: {
-    ink: '#07090f',
-    accent: '#6366f1',
-    accentAlt: '#8b5cf6',
-    hot: '#f43f5e',
-    warning: '#f59e0b',
-    success: '#10b981',
-    muted: '#64748b',
-    surface: '#ffffff',
+    ink: 'var(--app-color-ink)',
+    accent: 'var(--app-color-primary)',
+    accentAlt: 'var(--app-color-accent)',
+    hot: 'var(--c-pink)',
+    warning: 'var(--app-color-warning)',
+    success: 'var(--app-color-success)',
+    muted: 'var(--app-text-muted)',
+    surface: 'var(--app-surface-1)',
   },
   radius: {
-    card: '1.25rem',
+    card: 'var(--app-radius-xl)',
   },
   motion: {
-    quick: '160ms',
-    base: '220ms',
-    reveal: '420ms',
+    quick: 'var(--app-motion-fast)',
+    base: 'var(--app-motion-base)',
+    reveal: 'var(--app-motion-slow)',
     spring: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
-    smooth: 'cubic-bezier(0.22, 1, 0.36, 1)',
+    smooth: 'var(--app-motion-smooth)',
   },
 };
 

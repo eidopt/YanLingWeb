@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 
 import { DatabaseFlushService } from '../database/database-flush.service';
+import { User } from '../users/entities/user.entity';
 import { Template } from './entities/template.entity';
 import { TEMPLATE_SEED_DATA } from './seed/template-seed.data';
 
@@ -29,6 +30,8 @@ export class TemplatesService implements OnModuleInit {
   constructor(
     @InjectRepository(Template)
     private readonly repo: Repository<Template>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
     private readonly databaseFlush: DatabaseFlushService,
   ) {}
 
@@ -45,6 +48,7 @@ export class TemplatesService implements OnModuleInit {
       ) as never,
       { conflictPaths: ['templateId'], skipUpdateIfNoValuesChanged: true },
     );
+    await this.repairLegacyOwnedCopies();
     await this.databaseFlush.flush('template seed sync');
   }
 
@@ -52,7 +56,7 @@ export class TemplatesService implements OnModuleInit {
     options: TemplateListOptions = {},
   ): Promise<{ data: Template[]; total: number; }> {
     const records = await this.repo.find({
-      where: { isPublic: true },
+      where: { ownerUserId: IsNull(), isPublic: true },
       order: { createdAt: 'ASC' },
     });
     const data = this.filterTemplates(records, options);
@@ -84,7 +88,7 @@ export class TemplatesService implements OnModuleInit {
 
   async findByTemplateId(templateId: string): Promise<Template> {
     const template = await this.repo.findOne({
-      where: { templateId, isPublic: true },
+      where: { templateId, ownerUserId: IsNull(), isPublic: true },
     });
     if (!template) {
       throw new NotFoundException(`Template "${templateId}" not found`);
@@ -234,5 +238,61 @@ export class TemplatesService implements OnModuleInit {
   private createUserTemplateId(sourceTemplateId: string, ownerUserId: string) {
     const ownerPrefix = ownerUserId.replace(/-/g, '').slice(0, 8);
     return `${sourceTemplateId}-copy-${ownerPrefix}-${Date.now().toString(36)}`;
+  }
+
+  private async repairLegacyOwnedCopies(): Promise<void> {
+    const users = await this.userRepo.find();
+    if (!users.length) {
+      return;
+    }
+
+    const ownerPrefixToUserId = new Map<string, string | null>();
+    for (const user of users) {
+      const prefix = user.id.replace(/-/g, '').slice(0, 8);
+      ownerPrefixToUserId.set(
+        prefix,
+        ownerPrefixToUserId.has(prefix) ? null : user.id,
+      );
+    }
+
+    const publicSourceIds = new Set(
+      (await this.repo.find({
+        where: { ownerUserId: IsNull(), isPublic: true },
+        select: { templateId: true },
+      })).map((template) => template.templateId),
+    );
+
+    const legacyCopies = await this.repo.find({
+      where: { ownerUserId: IsNull() },
+    });
+    let repaired = false;
+
+    for (const template of legacyCopies) {
+      const match = /^(?<source>.+)-copy-(?<ownerPrefix>[a-f0-9]{8})-[a-z0-9]+$/i
+        .exec(template.templateId);
+      const sourceTemplateId = match?.groups?.source;
+      const ownerPrefix = match?.groups?.ownerPrefix;
+      if (!sourceTemplateId || !ownerPrefix) {
+        continue;
+      }
+
+      const ownerUserId = ownerPrefixToUserId.get(ownerPrefix.toLowerCase());
+      if (!ownerUserId || !publicSourceIds.has(sourceTemplateId)) {
+        continue;
+      }
+
+      template.ownerUserId = ownerUserId;
+      template.sourceTemplateId = sourceTemplateId;
+      template.isPublic = false;
+      if (!template.tags.length) {
+        template.tags = this.deriveTags(template);
+      }
+      await this.repo.save(template);
+      repaired = true;
+    }
+
+    if (repaired) {
+      await this.databaseFlush.flush('legacy owned template repair');
+    }
   }
 }

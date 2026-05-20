@@ -1,0 +1,4 @@
+interface:
+  display_name: "Indie Web Project Orchestrator"
+  short_description: "Coordinate complete web builds with subagents"
+  default_prompt: "Use $indie-web-project-orchestrator to coordinate this web project across subagents from analysis through testing."

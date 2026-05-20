@@ -14,6 +14,20 @@ import { ALIGN_OPTIONS } from '../services/layoutBuilderService';
 import { themeLayoutBuilderContent } from '../ThemeLayoutBuilder.content';
 import styles from '../ThemeLayoutBuilder.module.css';
 import { cx } from 'base/classname';
+import type { ReactNode } from 'react';
+import {
+  Box,
+  Button,
+  Checkbox,
+  Dropdown,
+  type DropdownOption,
+  Heading,
+  Input,
+  Label,
+  Stack,
+  Text,
+  TextArea,
+} from 'ui/system';
 
 interface NodeEditDialogProps {
   dialogState: DialogState | null;
@@ -27,6 +41,134 @@ interface NodeEditDialogProps {
   ) => void;
   onUpdateDraftProp: (name: string, value: string | boolean) => void;
   onSave: () => void;
+}
+
+interface FieldProps {
+  children: ReactNode;
+  label: ReactNode;
+  required?: boolean;
+  wide?: boolean;
+}
+
+function RequiredMark() {
+  return <Box as="span" className={styles.required}>*</Box>;
+}
+
+function Field({
+  children,
+  label,
+  required = false,
+  wide = false,
+}: FieldProps) {
+  return (
+    <Label className={cx(styles.field, wide && styles.fieldWide)}>
+      <Text as="span" size="xs" variant="secondary" weight="bold">
+        {label}{required ? <> <RequiredMark /></> : null}
+      </Text>
+      {children}
+    </Label>
+  );
+}
+
+interface TextInputFieldProps {
+  disabled?: boolean;
+  label: ReactNode;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  required?: boolean;
+  type?: 'number' | 'text';
+  value: string | number;
+  wide?: boolean;
+}
+
+function TextInputField({
+  disabled,
+  label,
+  onChange,
+  placeholder,
+  required,
+  type = 'text',
+  value,
+  wide,
+}: TextInputFieldProps) {
+  return (
+    <Field label={label} required={required} wide={wide}>
+      <Input
+        type={type}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        disabled={disabled}
+        placeholder={placeholder}
+        size="sm"
+        variant="filled"
+      />
+    </Field>
+  );
+}
+
+interface TextAreaFieldProps {
+  label: ReactNode;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  required?: boolean;
+  value: string;
+  wide?: boolean;
+}
+
+function TextAreaField({
+  label,
+  onChange,
+  placeholder,
+  required,
+  value,
+  wide,
+}: TextAreaFieldProps) {
+  return (
+    <Field label={label} required={required} wide={wide}>
+      <TextArea
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        size="sm"
+        variant="filled"
+      />
+    </Field>
+  );
+}
+
+interface SelectFieldProps {
+  disabled?: boolean;
+  label: ReactNode;
+  onChange: (value: string) => void;
+  options: DropdownOption[];
+  required?: boolean;
+  value: string;
+}
+
+function SelectField({
+  disabled,
+  label,
+  onChange,
+  options,
+  required,
+  value,
+}: SelectFieldProps) {
+  return (
+    <Field label={label} required={required}>
+      <Dropdown
+        value={value}
+        onValueChange={onChange}
+        disabled={disabled}
+        options={options}
+        size="sm"
+        variant="filled"
+      />
+    </Field>
+  );
+}
+
+function toPropFieldValue(value: unknown) {
+  return typeof value === 'string' ? value : '';
 }
 
 export function NodeEditDialog({
@@ -43,508 +185,305 @@ export function NodeEditDialog({
     return null;
   }
 
+  const defaultOption = themeLayoutBuilderContent.dialog.defaultOption;
+  const disabledAbsoluteFields =
+    dialogState.draft.layoutMode !== 'absolute';
+  const alignOptions = [
+    { label: defaultOption, value: '' },
+    ...ALIGN_OPTIONS.map((option) => ({ label: option, value: option })),
+  ];
+
   return (
-    <div className={styles.overlay}>
-      <div className={styles.dialog}>
-        <div className={styles.dialogHeader}>
-          <div>
-            <h3>{themeLayoutBuilderContent.dialog.title}</h3>
-          </div>
-          <button
+    <Box className={styles.overlay}>
+      <Stack className={styles.dialog}>
+        <Box className={styles.dialogHeader}>
+          <Heading as="h3" size="xs" variant="primary" weight="bold">
+            {themeLayoutBuilderContent.dialog.title}
+          </Heading>
+          <Button
             type="button"
-            className={styles.ghostButton}
             onClick={onClose}
+            size="sm"
+            variant="secondary"
           >
             {themeLayoutBuilderContent.dialog.close}
-          </button>
-        </div>
+          </Button>
+        </Box>
 
-        <div className={styles.dialogGrid}>
-          <section className={styles.dialogSection}>
-            <h4>
+        <Box className={styles.dialogGrid}>
+          <Box as="section" className={styles.dialogSection}>
+            <Heading as="h4" size="xs" variant="primary" weight="bold">
               {themeLayoutBuilderContent.dialog.layoutSectionTitle}
-            </h4>
-            <div className={styles.formGrid}>
-              <label className={styles.field}>
-                {themeLayoutBuilderContent.dialog.parentLabel}{' '}
-                <span className={styles.required}>*</span>
-                <select
-                  value={dialogState.draft.parentId}
-                  onChange={(event) =>
-                    onUpdateDraft('parentId', event.target.value)
-                  }
-                >
-                  {containerNodes.map(({ node, depth }) => (
-                    <option key={node.id} value={node.id}>
-                      {`${'— '.repeat(depth)}${node.id}`}
-                    </option>
-                  ))}
-                </select>
-              </label>
+            </Heading>
+            <Box className={styles.formGrid}>
+              <SelectField
+                label={themeLayoutBuilderContent.dialog.parentLabel}
+                required
+                value={dialogState.draft.parentId}
+                onChange={(value) => onUpdateDraft('parentId', value)}
+                options={containerNodes.map(({ node, depth }) => ({
+                  label: `${'— '.repeat(depth)}${node.id}`,
+                  value: node.id,
+                }))}
+              />
 
-              <label className={styles.field}>
-                {themeLayoutBuilderContent.dialog.slotLabel}
-                <select
-                  value={dialogState.draft.slot}
-                  onChange={(event) =>
-                    onUpdateDraft(
-                      'slot',
-                      event.target.value as NodeDraft['slot'],
-                    )
-                  }
-                  disabled={dialogState.draft.parentId !== rootId}
-                >
-                  <option value="body">body</option>
-                  <option value="footer">footer</option>
-                </select>
-              </label>
+              <SelectField
+                label={themeLayoutBuilderContent.dialog.slotLabel}
+                value={dialogState.draft.slot}
+                onChange={(value) =>
+                  onUpdateDraft('slot', value as NodeDraft['slot'])
+                }
+                disabled={dialogState.draft.parentId !== rootId}
+                options={[
+                  { label: 'body', value: 'body' },
+                  { label: 'footer', value: 'footer' },
+                ]}
+              />
 
-              <label className={styles.field}>
-                layout.mode <span className={styles.required}>*</span>
-                <select
-                  value={dialogState.draft.layoutMode}
-                  onChange={(event) =>
-                    onUpdateDraft(
-                      'layoutMode',
-                      event.target.value as DraftLayoutMode,
-                    )
-                  }
-                >
-                  <option value="flow">flow</option>
-                  <option value="grid">grid</option>
-                  <option value="absolute">absolute</option>
-                </select>
-              </label>
+              <SelectField
+                label="layout.mode"
+                required
+                value={dialogState.draft.layoutMode}
+                onChange={(value) =>
+                  onUpdateDraft('layoutMode', value as DraftLayoutMode)
+                }
+                options={[
+                  { label: 'flow', value: 'flow' },
+                  { label: 'grid', value: 'grid' },
+                  { label: 'absolute', value: 'absolute' },
+                ]}
+              />
 
-              <label className={styles.field}>
-                order
-                <input
-                  value={dialogState.draft.order}
-                  onChange={(event) =>
-                    onUpdateDraft('order', event.target.value)
-                  }
-                  placeholder={
-                    themeLayoutBuilderContent.dialog.orderPlaceholder
-                  }
-                />
-              </label>
+              <TextInputField
+                label="order"
+                value={dialogState.draft.order}
+                onChange={(value) => onUpdateDraft('order', value)}
+                placeholder={themeLayoutBuilderContent.dialog.orderPlaceholder}
+              />
 
               {dialogState.draft.layoutMode !== 'absolute' ? (
                 <>
-                  <label className={styles.field}>
-                    width
-                    <input
-                      value={dialogState.draft.width}
-                      onChange={(event) =>
-                        onUpdateDraft('width', event.target.value)
-                      }
-                      placeholder="100% / 240"
-                    />
-                  </label>
-
-                  <label className={styles.field}>
-                    height
-                    <input
-                      value={dialogState.draft.height}
-                      onChange={(event) =>
-                        onUpdateDraft('height', event.target.value)
-                      }
-                      placeholder={
-                        themeLayoutBuilderContent.dialog
-                          .sizeOptionalPlaceholder
-                      }
-                    />
-                  </label>
-
-                  <label className={styles.field}>
-                    minWidth
-                    <input
-                      value={dialogState.draft.minWidth}
-                      onChange={(event) =>
-                        onUpdateDraft('minWidth', event.target.value)
-                      }
-                    />
-                  </label>
-
-                  <label className={styles.field}>
-                    minHeight
-                    <input
-                      value={dialogState.draft.minHeight}
-                      onChange={(event) =>
-                        onUpdateDraft('minHeight', event.target.value)
-                      }
-                    />
-                  </label>
-
-                  <label className={styles.field}>
-                    maxWidth
-                    <input
-                      value={dialogState.draft.maxWidth}
-                      onChange={(event) =>
-                        onUpdateDraft('maxWidth', event.target.value)
-                      }
-                    />
-                  </label>
-
-                  <label className={styles.field}>
-                    maxHeight
-                    <input
-                      value={dialogState.draft.maxHeight}
-                      onChange={(event) =>
-                        onUpdateDraft('maxHeight', event.target.value)
-                      }
-                    />
-                  </label>
-
-                  <label className={styles.field}>
-                    alignSelf
-                    <select
-                      value={dialogState.draft.alignSelf}
-                      onChange={(event) =>
-                        onUpdateDraft('alignSelf', event.target.value)
-                      }
-                    >
-                      <option value="">
-                        {themeLayoutBuilderContent.dialog.defaultOption}
-                      </option>
-                      {ALIGN_OPTIONS.map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-
-                  <label className={styles.field}>
-                    justifySelf
-                    <select
-                      value={dialogState.draft.justifySelf}
-                      onChange={(event) =>
-                        onUpdateDraft('justifySelf', event.target.value)
-                      }
-                    >
-                      <option value="">
-                        {themeLayoutBuilderContent.dialog.defaultOption}
-                      </option>
-                      {ALIGN_OPTIONS.map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                  <TextInputField
+                    label="width"
+                    value={dialogState.draft.width}
+                    onChange={(value) => onUpdateDraft('width', value)}
+                    placeholder="100% / 240"
+                  />
+                  <TextInputField
+                    label="height"
+                    value={dialogState.draft.height}
+                    onChange={(value) => onUpdateDraft('height', value)}
+                    placeholder={
+                      themeLayoutBuilderContent.dialog.sizeOptionalPlaceholder
+                    }
+                  />
+                  <TextInputField
+                    label="minWidth"
+                    value={dialogState.draft.minWidth}
+                    onChange={(value) => onUpdateDraft('minWidth', value)}
+                  />
+                  <TextInputField
+                    label="minHeight"
+                    value={dialogState.draft.minHeight}
+                    onChange={(value) => onUpdateDraft('minHeight', value)}
+                  />
+                  <TextInputField
+                    label="maxWidth"
+                    value={dialogState.draft.maxWidth}
+                    onChange={(value) => onUpdateDraft('maxWidth', value)}
+                  />
+                  <TextInputField
+                    label="maxHeight"
+                    value={dialogState.draft.maxHeight}
+                    onChange={(value) => onUpdateDraft('maxHeight', value)}
+                  />
+                  <SelectField
+                    label="alignSelf"
+                    value={dialogState.draft.alignSelf}
+                    onChange={(value) => onUpdateDraft('alignSelf', value)}
+                    options={alignOptions}
+                  />
+                  <SelectField
+                    label="justifySelf"
+                    value={dialogState.draft.justifySelf}
+                    onChange={(value) => onUpdateDraft('justifySelf', value)}
+                    options={alignOptions}
+                  />
                 </>
               ) : null}
 
               {dialogState.draft.layoutMode === 'grid' ? (
                 <>
-                  <label className={styles.field}>
-                    gridColumn
-                    <input
-                      value={dialogState.draft.gridColumn}
-                      onChange={(event) =>
-                        onUpdateDraft('gridColumn', event.target.value)
-                      }
-                      placeholder={
-                        themeLayoutBuilderContent.dialog
-                          .gridColumnPlaceholder
-                      }
-                    />
-                  </label>
-
-                  <label className={styles.field}>
-                    gridRow
-                    <input
-                      value={dialogState.draft.gridRow}
-                      onChange={(event) =>
-                        onUpdateDraft('gridRow', event.target.value)
-                      }
-                      placeholder={
-                        themeLayoutBuilderContent.dialog.gridRowPlaceholder
-                      }
-                    />
-                  </label>
+                  <TextInputField
+                    label="gridColumn"
+                    value={dialogState.draft.gridColumn}
+                    onChange={(value) => onUpdateDraft('gridColumn', value)}
+                    placeholder={
+                      themeLayoutBuilderContent.dialog.gridColumnPlaceholder
+                    }
+                  />
+                  <TextInputField
+                    label="gridRow"
+                    value={dialogState.draft.gridRow}
+                    onChange={(value) => onUpdateDraft('gridRow', value)}
+                    placeholder={
+                      themeLayoutBuilderContent.dialog.gridRowPlaceholder
+                    }
+                  />
                 </>
               ) : null}
-            </div>
-          </section>
+            </Box>
+          </Box>
 
-          <section className={styles.dialogSection}>
-            <h4>
+          <Box as="section" className={styles.dialogSection}>
+            <Heading as="h4" size="xs" variant="primary" weight="bold">
               {themeLayoutBuilderContent.dialog.absoluteSectionTitle}
-            </h4>
-            <div className={styles.formGrid}>
-              <label className={styles.field}>
-                frame.unit
-                <select
-                  value={dialogState.draft.frameUnit}
-                  onChange={(event) =>
-                    onUpdateDraft(
-                      'frameUnit',
-                      event.target.value as NodeDraft['frameUnit'],
-                    )
+            </Heading>
+            <Box className={styles.formGrid}>
+              <SelectField
+                label="frame.unit"
+                value={dialogState.draft.frameUnit}
+                onChange={(value) =>
+                  onUpdateDraft('frameUnit', value as NodeDraft['frameUnit'])
+                }
+                disabled={disabledAbsoluteFields}
+                options={[
+                  { label: 'px', value: 'px' },
+                  { label: '%', value: '%' },
+                ]}
+              />
+              {[
+                ['zIndex', 'frameZIndex'],
+                ['x', 'frameX'],
+                ['y', 'frameY'],
+                ['left', 'frameLeft'],
+                ['top', 'frameTop'],
+                ['right', 'frameRight'],
+                ['bottom', 'frameBottom'],
+                ['frame.width', 'frameWidth'],
+                ['frame.height', 'frameHeight'],
+              ].map(([label, key]) => (
+                <TextInputField
+                  key={key}
+                  label={label}
+                  value={dialogState.draft[key as keyof NodeDraft] as string}
+                  onChange={(value) =>
+                    onUpdateDraft(key as keyof NodeDraft, value)
                   }
-                  disabled={dialogState.draft.layoutMode !== 'absolute'}
-                >
-                  <option value="px">px</option>
-                  <option value="%">%</option>
-                </select>
-              </label>
-
-              <label className={styles.field}>
-                zIndex
-                <input
-                  value={dialogState.draft.frameZIndex}
-                  onChange={(event) =>
-                    onUpdateDraft('frameZIndex', event.target.value)
-                  }
-                  disabled={
-                    dialogState.draft.layoutMode !== 'absolute'
-                  }
+                  disabled={disabledAbsoluteFields}
                 />
-              </label>
+              ))}
+            </Box>
+          </Box>
+        </Box>
 
-              <label className={styles.field}>
-                x
-                <input
-                  value={dialogState.draft.frameX}
-                  onChange={(event) =>
-                    onUpdateDraft('frameX', event.target.value)
-                  }
-                  disabled={
-                    dialogState.draft.layoutMode !== 'absolute'
-                  }
-                />
-              </label>
-
-              <label className={styles.field}>
-                y
-                <input
-                  value={dialogState.draft.frameY}
-                  onChange={(event) =>
-                    onUpdateDraft('frameY', event.target.value)
-                  }
-                  disabled={
-                    dialogState.draft.layoutMode !== 'absolute'
-                  }
-                />
-              </label>
-
-              <label className={styles.field}>
-                left
-                <input
-                  value={dialogState.draft.frameLeft}
-                  onChange={(event) =>
-                    onUpdateDraft('frameLeft', event.target.value)
-                  }
-                  disabled={
-                    dialogState.draft.layoutMode !== 'absolute'
-                  }
-                />
-              </label>
-
-              <label className={styles.field}>
-                top
-                <input
-                  value={dialogState.draft.frameTop}
-                  onChange={(event) =>
-                    onUpdateDraft('frameTop', event.target.value)
-                  }
-                  disabled={
-                    dialogState.draft.layoutMode !== 'absolute'
-                  }
-                />
-              </label>
-
-              <label className={styles.field}>
-                right
-                <input
-                  value={dialogState.draft.frameRight}
-                  onChange={(event) =>
-                    onUpdateDraft('frameRight', event.target.value)
-                  }
-                  disabled={
-                    dialogState.draft.layoutMode !== 'absolute'
-                  }
-                />
-              </label>
-
-              <label className={styles.field}>
-                bottom
-                <input
-                  value={dialogState.draft.frameBottom}
-                  onChange={(event) =>
-                    onUpdateDraft('frameBottom', event.target.value)
-                  }
-                  disabled={
-                    dialogState.draft.layoutMode !== 'absolute'
-                  }
-                />
-              </label>
-
-              <label className={styles.field}>
-                frame.width
-                <input
-                  value={dialogState.draft.frameWidth}
-                  onChange={(event) =>
-                    onUpdateDraft('frameWidth', event.target.value)
-                  }
-                  disabled={
-                    dialogState.draft.layoutMode !== 'absolute'
-                  }
-                />
-              </label>
-
-              <label className={styles.field}>
-                frame.height
-                <input
-                  value={dialogState.draft.frameHeight}
-                  onChange={(event) =>
-                    onUpdateDraft('frameHeight', event.target.value)
-                  }
-                  disabled={
-                    dialogState.draft.layoutMode !== 'absolute'
-                  }
-                />
-              </label>
-            </div>
-          </section>
-        </div>
-
-        <section className={styles.dialogSection}>
-          <h4>
+        <Box as="section" className={styles.dialogSection}>
+          <Heading as="h4" size="xs" variant="primary" weight="bold">
             {themeLayoutBuilderContent.dialog.componentSectionTitle}
-          </h4>
-          <div className={styles.formGrid}>
+          </Heading>
+          <Box className={styles.formGrid}>
             {dialogState.descriptor.props.map((prop) => {
               const isWide = prop.type === 'string[]';
               const value = dialogState.draft.props[prop.name];
+              const label = getPropDisplayName(prop);
 
               if (prop.type === 'boolean') {
                 return (
-                  <label
+                  <Checkbox
                     key={prop.name}
-                    className={cx(
-                      styles.checkboxField,
-                      isWide && styles.fieldWide,
+                    checked={Boolean(value)}
+                    label={(
+                      <>
+                        {label}{prop.required ? <> <RequiredMark /></> : null}
+                      </>
                     )}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={Boolean(value)}
-                      onChange={(event) =>
-                        onUpdateDraftProp(
-                          prop.name,
-                          event.target.checked,
-                        )
-                      }
-                    />
-                    <span>
-                      {getPropDisplayName(prop)}{' '}
-                      {prop.required
-                        ? (
-                          <span className={styles.required}>*</span>
-                        )
-                        : null}
-                    </span>
-                  </label>
+                    onCheckedChange={(checked) =>
+                      onUpdateDraftProp(prop.name, checked)
+                    }
+                  />
                 );
               }
 
               if (prop.enum?.length) {
                 return (
-                  <label key={prop.name} className={styles.field}>
-                    {getPropDisplayName(prop)}{' '}
-                    {prop.required
-                      ? <span className={styles.required}>*</span>
-                      : null}
-                    <select
-                      value={typeof value === 'string' ? value : ''}
-                      onChange={(event) =>
-                        onUpdateDraftProp(
-                          prop.name,
-                          event.target.value,
-                        )
-                      }
-                    >
-                      <option value="">
-                        {themeLayoutBuilderContent.dialog.emptyOption}
-                      </option>
-                      {prop.enum.map((option) => (
-                        <option key={option} value={option}>
-                          {getOptionDisplayName(option)}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                  <SelectField
+                    key={prop.name}
+                    label={label}
+                    required={prop.required}
+                    value={toPropFieldValue(value)}
+                    onChange={(nextValue) =>
+                      onUpdateDraftProp(prop.name, nextValue)
+                    }
+                    options={[
+                      {
+                        label: themeLayoutBuilderContent.dialog.emptyOption,
+                        value: '',
+                      },
+                      ...prop.enum.map((option) => ({
+                        label: getOptionDisplayName(option),
+                        value: option,
+                      })),
+                    ]}
+                  />
                 );
               }
 
-              return (
-                <label
+              return prop.type === 'string[]' ? (
+                <TextAreaField
                   key={prop.name}
-                  className={cx(
-                    styles.field,
-                    isWide && styles.fieldWide,
-                  )}
-                >
-                  {getPropDisplayName(prop)}{' '}
-                  {prop.required
-                    ? <span className={styles.required}>*</span>
-                    : null}
-                  {prop.type === 'string[]' ? (
-                    <textarea
-                      value={typeof value === 'string' ? value : ''}
-                      onChange={(event) =>
-                        onUpdateDraftProp(
-                          prop.name,
-                          event.target.value,
-                        )
-                      }
-                      placeholder={
-                        prop.description ??
-                        themeLayoutBuilderContent.dialog.arrayPlaceholder
-                      }
-                    />
-                  ) : (
-                    <input
-                      value={typeof value === 'string' ? value : ''}
-                      onChange={(event) =>
-                        onUpdateDraftProp(
-                          prop.name,
-                          event.target.value,
-                        )
-                      }
-                      placeholder={prop.description ?? prop.type}
-                    />
-                  )}
-                </label>
+                  label={label}
+                  required={prop.required}
+                  wide={isWide}
+                  value={toPropFieldValue(value)}
+                  onChange={(nextValue) =>
+                    onUpdateDraftProp(prop.name, nextValue)
+                  }
+                  placeholder={
+                    prop.description ??
+                    themeLayoutBuilderContent.dialog.arrayPlaceholder
+                  }
+                />
+              ) : (
+                <TextInputField
+                  key={prop.name}
+                  label={label}
+                  required={prop.required}
+                  value={toPropFieldValue(value)}
+                  onChange={(nextValue) =>
+                    onUpdateDraftProp(prop.name, nextValue)
+                  }
+                  placeholder={prop.description ?? prop.type}
+                />
               );
             })}
-          </div>
-        </section>
+          </Box>
+        </Box>
 
-        {dialogError
-          ? <div className={styles.error}>{dialogError}</div>
-          : null}
+        {dialogError ? (
+          <Box className={styles.error}>
+            <Text size="sm" variant="danger" weight="bold">{dialogError}</Text>
+          </Box>
+        ) : null}
 
-        <div className={styles.dialogActions}>
-          <button
+        <Box className={styles.dialogActions}>
+          <Button
             type="button"
-            className={styles.ghostButton}
             onClick={onClose}
+            size="sm"
+            variant="secondary"
           >
             {themeLayoutBuilderContent.dialog.cancel}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className={styles.button}
             onClick={onSave}
+            size="sm"
+            variant="primary"
           >
             {themeLayoutBuilderContent.dialog.save}
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </Box>
+      </Stack>
+    </Box>
   );
 }

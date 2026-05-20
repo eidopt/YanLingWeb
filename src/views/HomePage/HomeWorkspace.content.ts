@@ -8,8 +8,11 @@ export const homeWorkspaceContent = {
     ],
   },
   search: {
-    title: '今天想创建什么应用？',
-    placeholder: '搜索模板、行业、场景、标签或自己的项目',
+    eyebrow: 'AI Production Console',
+    title: '今天要生产什么应用？',
+    subtitle: '描述目标用户、业务场景或要上线的平台，系统会帮你匹配模板、拆页面结构并进入可编辑生产流。',
+    placeholder: '例如：给本地咖啡店生成一个可预约、可领券、能发布到微信的小程序首页',
+    chips: ['需求拆解', '模板匹配', '页面生成', '发布准备'],
   },
   actions: {
     market: '模板市场',

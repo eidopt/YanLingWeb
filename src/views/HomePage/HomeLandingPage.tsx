@@ -2,7 +2,6 @@
 
 import { AIFeaturesSection } from './AIFeaturesSection';
 import { CreationModesSection } from './CreationModesSection';
-import { CtaBanner } from './CtaBanner';
 import { HeroSection } from './HeroSection';
 import styles from './HomePage.module.css';
 import { PlatformsSection } from './PlatformsSection';
@@ -39,10 +38,6 @@ export function HomeLandingPage({
       <TemplatesSection
         onBrowseTemplates={onBrowseTemplates}
         onTemplateSelect={onTemplateSelect}
-      />
-      <CtaBanner
-        onPrimaryClick={() => onAuthIntent('register')}
-        onSecondaryClick={onBrowseTemplates}
       />
     </PageRoot>
   );

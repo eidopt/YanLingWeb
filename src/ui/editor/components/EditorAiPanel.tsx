@@ -27,6 +27,14 @@ import {
 import type { Components } from 'react-markdown';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import {
+  Box,
+  Button,
+  Heading,
+  Stack,
+  Text,
+  TextArea,
+} from 'ui/system';
 
 interface EditorAiPanelProps {
   templateId?: string;
@@ -145,27 +153,27 @@ const markdownComponents: Components = {
 
 function MarkdownMessage({ text }: { text: string }) {
   return (
-    <div className={styles.editorAiMarkdown}>
+    <Box className={styles.editorAiMarkdown}>
       <ReactMarkdown
         components={markdownComponents}
         remarkPlugins={[remarkGfm]}
       >
         {text}
       </ReactMarkdown>
-    </div>
+    </Box>
   );
 }
 
 function StreamingPending() {
   return (
-    <span className={styles.editorAiWaiting}>
-      <span>{c.streamingPending}</span>
-      <span className={styles.editorAiWaitingDots} aria-hidden="true">
-        <span />
-        <span />
-        <span />
-      </span>
-    </span>
+    <Box as="span" className={styles.editorAiWaiting}>
+      <Text as="span" size="sm" variant="muted">{c.streamingPending}</Text>
+      <Box as="span" className={styles.editorAiWaitingDots} aria-hidden="true">
+        <Box as="span" />
+        <Box as="span" />
+        <Box as="span" />
+      </Box>
+    </Box>
   );
 }
 
@@ -608,26 +616,28 @@ export function EditorAiPanel({
     : [];
 
   return (
-    <section className={styles.editorAiPanel} aria-label={c.ariaLabel}>
-      <div className={styles.editorAiHeader}>
-        <div>
-          <span className={styles.sidebarEyebrow}>{c.eyebrow}</span>
-          <h3>{c.title}</h3>
-        </div>
-        <span className={styles.editorAiStatus}>{status}</span>
-      </div>
+    <Box as="section" className={styles.editorAiPanel} aria-label={c.ariaLabel}>
+      <Box className={styles.editorAiHeader}>
+        <Stack gap="xs">
+          <Text as="span" size="xs" transform="uppercase" variant="muted" weight="bold">
+            {c.eyebrow}
+          </Text>
+          <Heading as="h3" size="xs" variant="primary" weight="bold">{c.title}</Heading>
+        </Stack>
+        <Text as="span" size="xs" variant="muted" weight="bold">{status}</Text>
+      </Box>
 
       {capabilityBadges.length > 0 ? (
-        <div className={styles.editorAiBadges}>
+        <Box className={styles.editorAiBadges}>
           {capabilityBadges.map((badge) => (
-            <span key={badge}>{badge}</span>
+            <Box key={badge} as="span">{badge}</Box>
           ))}
-        </div>
+        </Box>
       ) : null}
 
-      <div className={styles.editorAiMessages} aria-live="polite">
+      <Box className={styles.editorAiMessages} aria-live="polite">
         {messages.map((message) => (
-          <div
+          <Box
             key={message.id}
             className={
               message.role === 'user'
@@ -647,39 +657,43 @@ export function EditorAiPanel({
               <StreamingPending />
             ) : ''}
             {message.streaming && message.role === 'assistant' ? (
-              <span className={styles.editorAiStreamingCursor} aria-hidden="true" />
+              <Box as="span" className={styles.editorAiStreamingCursor} aria-hidden="true" />
             ) : null}
-          </div>
+          </Box>
         ))}
-        <div ref={messagesEndRef} />
-      </div>
+        <Box ref={messagesEndRef} />
+      </Box>
 
-      <form className={styles.editorAiForm} onSubmit={handleSubmit}>
-        <textarea
+      <Stack as="form" className={styles.editorAiForm} onSubmit={handleSubmit}>
+        <TextArea
           value={prompt}
           onChange={(event) => setPrompt(event.target.value)}
           placeholder={c.promptPlaceholder}
           disabled={disabled || isRunning}
+          size="sm"
+          variant="filled"
         />
-        <div className={styles.editorAiActions}>
+        <Box className={styles.editorAiActions}>
           {isRunning ? (
-            <button
+            <Button
               type="button"
-              className={styles.ghostButton}
               onClick={handleCancel}
+              size="sm"
+              variant="secondary"
             >
               {c.cancel}
-            </button>
+            </Button>
           ) : null}
-          <button
+          <Button
             type="submit"
-            className={styles.button}
             disabled={disabled || isRunning || !prompt.trim()}
+            size="sm"
+            variant="primary"
           >
             {c.execute}
-          </button>
-        </div>
-      </form>
-    </section>
+          </Button>
+        </Box>
+      </Stack>
+    </Box>
   );
 }

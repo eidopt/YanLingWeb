@@ -3,6 +3,10 @@
 import styles from './ThemeCard.module.css';
 import { cx } from 'base/classname';
 import type { ThemeSpec } from 'types/theme.types';
+import {
+  Box,
+  Text,
+} from 'ui/system';
 import { ThemePreview } from 'ui/theme_preview';
 
 interface ThemeCardProps {
@@ -19,38 +23,49 @@ export function ThemeCard({
   className,
 }: ThemeCardProps) {
   return (
-    <div
+    <Box
       role="button"
       tabIndex={0}
+      aria-label={theme.name}
       className={cx(styles.card, className)}
       onClick={onClick}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); }
       }}
     >
-      <div
-        className={styles.cardThumb}
-        style={theme.runtime.cssVars as React.CSSProperties}
-      >
-        <div className={styles.cardThumbInner}>
-          <ThemePreview theme={theme} screenPreset="mobile" />
-        </div>
-        {hoverLabel && (
-          <div className={styles.cardOverlay}>
-            <span className={styles.cardHoverLabel}>{hoverLabel}</span>
-          </div>
-        )}
-      </div>
-      <div className={styles.cardMeta}>
-        <div
+      <Box className={styles.cardPreview}>
+        <Box
+          className={styles.cardThumb}
+          style={theme.runtime.cssVars}
+        >
+          <Box className={styles.cardThumbInner}>
+            <ThemePreview theme={theme} screenPreset="mobile" />
+          </Box>
+          {hoverLabel && (
+            <Box className={styles.cardOverlay}>
+              <Box as="span" className={styles.cardHoverLabel}>{hoverLabel}</Box>
+            </Box>
+          )}
+        </Box>
+      </Box>
+      <Box className={styles.cardMeta}>
+        <Box
           className={styles.cardAccent}
           style={{ backgroundColor: theme.accent }}
         />
-        <div className={styles.cardText}>
-          <span className={styles.cardName}>{theme.name}</span>
-          <span className={styles.cardTagline}>{theme.tagline}</span>
-        </div>
-      </div>
-    </div>
+        <Box className={styles.cardText}>
+          <Box className={styles.cardName}>
+            <Text as="span" size="sm" truncate weight="bold">
+              {theme.name}
+            </Text>
+          </Box>
+          <Box className={styles.cardTagline}>
+            <Text as="span" size="xs" truncate>
+              {theme.tagline}
+            </Text>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
   );
 }

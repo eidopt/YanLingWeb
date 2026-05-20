@@ -19,6 +19,35 @@ export interface UserDto {
   lastLoginAt: string | null;
 }
 
+export interface UserTokenUsageEventDto {
+  id: string;
+  endpoint: string;
+  provider: string;
+  model: string;
+  inputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
+  cacheHitTokens: number | null;
+  cacheMissTokens: number | null;
+  createdAt: string;
+}
+
+export interface UserTokenUsageSummaryDto {
+  ownerUserId: string;
+  /** Cumulative value stored on the user account. */
+  tokensUsed: number;
+  tokensBalance: number;
+  balanceCents: number;
+  /** Sum of recorded AI request input tokens. */
+  inputTokens: number;
+  /** Sum of recorded AI request output tokens. */
+  outputTokens: number;
+  /** Sum of detailed usage rows; may be lower than tokensUsed for legacy usage. */
+  recordedTokens: number;
+  requestCount: number;
+  recent: UserTokenUsageEventDto[];
+}
+
 export interface RegisterDto {
   username: string;
   password: string;

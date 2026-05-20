@@ -4,6 +4,7 @@ import { EditIcon, PreviewIcon } from '../icons/DeviceIcons';
 import styles from '../ThemeLayoutBuilder.module.css';
 import { interactionModeToggleContent } from './InteractionModeToggle.content';
 import { cx } from 'base/classname';
+import { Box } from 'ui/system';
 
 interface InteractionModeToggleProps {
   mode: 'edit' | 'preview';
@@ -15,7 +16,7 @@ export function InteractionModeToggle({
   onChange,
 }: InteractionModeToggleProps) {
   return (
-    <div
+    <Box
       className={cx(
         styles.segmentedSwitch,
         mode === 'preview' && styles.segmentedSwitchSecondActive,
@@ -23,7 +24,7 @@ export function InteractionModeToggle({
       role="tablist"
       aria-label={interactionModeToggleContent.tablistAriaLabel}
     >
-      <span className={styles.segmentedSwitchThumb} aria-hidden="true" />
+      <Box as="span" className={styles.segmentedSwitchThumb} aria-hidden="true" />
       <button
         type="button"
         role="tab"
@@ -35,9 +36,9 @@ export function InteractionModeToggle({
         aria-selected={mode === 'edit'}
         aria-label={interactionModeToggleContent.editAriaLabel}
       >
-        <span className={styles.switchIcon}>
+        <Box as="span" className={styles.switchIcon}>
           <EditIcon />
-        </span>
+        </Box>
       </button>
       <button
         type="button"
@@ -50,10 +51,10 @@ export function InteractionModeToggle({
         aria-selected={mode === 'preview'}
         aria-label={interactionModeToggleContent.previewAriaLabel}
       >
-        <span className={styles.switchIcon}>
+        <Box as="span" className={styles.switchIcon}>
           <PreviewIcon />
-        </span>
+        </Box>
       </button>
-    </div>
+    </Box>
   );
 }

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Indie Web Product Planner"
+  short_description: "Plan MVP scope and buildable web backlogs"
+  default_prompt: "Use $indie-web-product-planner to turn this web product idea into a scoped MVP plan."

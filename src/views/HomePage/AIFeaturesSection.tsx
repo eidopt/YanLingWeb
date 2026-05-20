@@ -1,7 +1,7 @@
 'use client';
 
+import styles from './AIFeaturesSection.module.css';
 import { homePageContent as c } from './HomePage.content';
-import styles from './HomePage.module.css';
 import {
   CardGrid,
   PageButton,
@@ -9,6 +9,7 @@ import {
   SectionHeader,
   SurfaceCard,
 } from 'ui/pages';
+import { Box } from 'ui/system';
 
 interface AIFeaturesSectionProps {
   onCtaClick: () => void;
@@ -17,8 +18,8 @@ interface AIFeaturesSectionProps {
 export function AIFeaturesSection({ onCtaClick }: AIFeaturesSectionProps) {
   return (
     <PageSection>
-      <div className={styles.aiLayout}>
-        <div className={styles.aiLeft}>
+      <Box className={styles.aiLayout}>
+        <Box className={styles.aiLeft}>
           <SectionHeader
             align="start"
             eyebrow={c.aiFeatures.eyebrow}
@@ -29,7 +30,7 @@ export function AIFeaturesSection({ onCtaClick }: AIFeaturesSectionProps) {
           <PageButton onClick={onCtaClick} showArrow>
             {c.aiFeaturesCta}
           </PageButton>
-        </div>
+        </Box>
         <CardGrid className={styles.aiRight} columns={2}>
           {c.aiFeatures.items.map(f => (
             <SurfaceCard
@@ -42,7 +43,7 @@ export function AIFeaturesSection({ onCtaClick }: AIFeaturesSectionProps) {
             />
           ))}
         </CardGrid>
-      </div>
+      </Box>
     </PageSection>
   );
 }

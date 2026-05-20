@@ -13,7 +13,18 @@ import styles from '../ThemeLayoutBuilder.module.css';
 import {
   selectedNodeInspectorContent,
 } from './SelectedNodeInspector.content';
-import { cx } from 'base/classname';
+import {
+  Box,
+  Button,
+  Checkbox,
+  Dropdown,
+  Heading,
+  Input,
+  Label,
+  Stack,
+  Text,
+  TextArea,
+} from 'ui/system';
 
 interface SelectedNodeInspectorProps {
   selectedNode: ThemeLayoutNode;
@@ -49,99 +60,97 @@ export function SelectedNodeInspector({
   canDelete,
 }: SelectedNodeInspectorProps) {
   return (
-    <div className={styles.panel}>
-      <div className={styles.panelHeader}>
-        <div>
-          <h3>
+    <Stack className={styles.panel}>
+      <Box className={styles.panelHeader}>
+        <Stack gap="xs">
+          <Heading as="h3" size="xs" variant="primary" weight="bold">
             {getComponentDisplayName(
               selectedNode.alias,
               selectedDescriptor?.name,
             )}
-          </h3>
-          <p>{selectedNodeInspectorContent.description}</p>
-        </div>
-      </div>
+          </Heading>
+          <Text size="sm" variant="muted">{selectedNodeInspectorContent.description}</Text>
+        </Stack>
+      </Box>
 
-      <article className={styles.inspectorCard}>
+      <Box as="article" className={styles.inspectorCard}>
         {selectedDescriptor ? (
-          <section className={styles.dialogSection}>
-            <div className={styles.formGrid}>
+          <Box as="section" className={styles.dialogSection}>
+            <Box className={styles.formGrid}>
               {selectedDescriptor.props.map((prop) => {
                 const isWide = prop.type === 'string[]';
                 const value = selectedNode.props?.[prop.name];
 
                 if (prop.type === 'boolean') {
                   return (
-                    <label
+                    <Checkbox
                       key={prop.name}
-                      className={cx(
-                        styles.checkboxField,
-                        isWide && styles.fieldWide,
-                      )}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={Boolean(value)}
-                        onChange={(event) =>
-                          onPropChange(prop.name, event.target.checked)
-                        }
-                      />
-                      <span>
+                      checked={Boolean(value)}
+                      label={(
+                        <>
                         {getPropDisplayName(prop)}{' '}
                         {prop.required
                           ? (
-                            <span className={styles.required}>*</span>
+                            <Box as="span" className={styles.required}>*</Box>
                           )
                           : null}
-                      </span>
-                    </label>
+                        </>
+                      )}
+                      onCheckedChange={(checked) =>
+                        onPropChange(prop.name, checked)
+                      }
+                    />
                   );
                 }
 
                 if (prop.enum?.length) {
                   return (
-                    <label key={prop.name} className={styles.field}>
-                      {getPropDisplayName(prop)}{' '}
+                    <Label key={prop.name} className={styles.field}>
+                      <Text as="span" size="xs" variant="secondary" weight="bold">
+                        {getPropDisplayName(prop)}{' '}
                       {prop.required
-                        ? (
-                          <span className={styles.required}>*</span>
+                          ? (
+                          <Box as="span" className={styles.required}>*</Box>
                         )
                         : null}
-                      <select
+                      </Text>
+                      <Dropdown
                         value={toFieldValue(value)}
-                        onChange={(event) =>
-                          onPropChange(prop.name, event.target.value)
+                        onValueChange={(nextValue) =>
+                          onPropChange(prop.name, nextValue)
                         }
-                      >
-                        <option value="">
-                          {selectedNodeInspectorContent.emptyOption}
-                        </option>
-                        {prop.enum.map((option) => (
-                          <option key={option} value={option}>
-                            {getOptionDisplayName(option)}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                        options={[
+                          {
+                            label: selectedNodeInspectorContent.emptyOption,
+                            value: '',
+                          },
+                          ...prop.enum.map((option) => ({
+                            label: getOptionDisplayName(option),
+                            value: option,
+                          })),
+                        ]}
+                        size="sm"
+                        variant="filled"
+                      />
+                    </Label>
                   );
                 }
 
                 return (
-                  <label
+                  <Label
                     key={prop.name}
-                    className={cx(
-                      styles.field,
-                      isWide && styles.fieldWide,
-                    )}
+                    className={`${styles.field} ${isWide ? styles.fieldWide : ''}`}
                   >
-                    {getPropDisplayName(prop)}{' '}
+                    <Text as="span" size="xs" variant="secondary" weight="bold">
+                      {getPropDisplayName(prop)}{' '}
                     {prop.required
                       ? (
-                        <span className={styles.required}>*</span>
+                        <Box as="span" className={styles.required}>*</Box>
                       )
                       : null}
+                    </Text>
                     {prop.type === 'string[]' ? (
-                      <textarea
+                      <TextArea
                         value={toFieldValue(value)}
                         onChange={(event) =>
                           onPropChange(prop.name, event.target.value)
@@ -150,9 +159,11 @@ export function SelectedNodeInspector({
                           prop.description ??
                           selectedNodeInspectorContent.arrayPlaceholder
                         }
+                        size="sm"
+                        variant="filled"
                       />
                     ) : (
-                      <input
+                      <Input
                         type={
                           prop.type === 'number' ? 'number' : 'text'
                         }
@@ -161,34 +172,38 @@ export function SelectedNodeInspector({
                           onPropChange(prop.name, event.target.value)
                         }
                         placeholder={prop.description ?? prop.type}
+                        size="sm"
+                        variant="filled"
                       />
                     )}
-                  </label>
+                  </Label>
                 );
               })}
-            </div>
-          </section>
+            </Box>
+          </Box>
         ) : null}
 
-        <div className={styles.treeActions}>
-          <button
+        <Box className={styles.treeActions}>
+          <Button
             type="button"
-            className={styles.miniButton}
             onClick={onEdit}
+            size="sm"
+            variant="secondary"
           >
             {selectedNodeInspectorContent.editButton}
-          </button>
+          </Button>
           {canDelete ? (
-            <button
+            <Button
               type="button"
-              className={styles.dangerButton}
               onClick={onDelete}
+              size="sm"
+              variant="danger-soft"
             >
               {selectedNodeInspectorContent.deleteButton}
-            </button>
+            </Button>
           ) : null}
-        </div>
-      </article>
-    </div>
+        </Box>
+      </Box>
+    </Stack>
   );
 }

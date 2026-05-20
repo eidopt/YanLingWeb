@@ -1,6 +1,7 @@
 import styles from './PageComponents.module.css';
 import { cx } from 'base/classname';
 import type { CSSProperties, ReactNode } from 'react';
+import { Box, Container, Heading, Stack, Text } from 'ui/system';
 
 export interface PageRootProps {
   children: ReactNode;
@@ -10,9 +11,9 @@ export interface PageRootProps {
 
 export function PageRoot({ children, className, style }: PageRootProps) {
   return (
-    <div className={cx(styles.root, className)} style={style}>
+    <Box className={cx(styles.root, className)} style={style}>
       {children}
-    </div>
+    </Box>
   );
 }
 
@@ -30,7 +31,8 @@ export function PageSection({
   tone = 'default',
 }: PageSectionProps) {
   return (
-    <section
+    <Box
+      as="section"
       className={cx(
         styles.section,
         tone === 'muted' && styles.sectionMuted,
@@ -38,8 +40,14 @@ export function PageSection({
         className,
       )}
     >
-      <div className={cx(styles.inner, innerClassName)}>{children}</div>
-    </section>
+      <Container
+        className={cx(styles.inner, innerClassName)}
+        gutters={false}
+        max="lg"
+      >
+        {children}
+      </Container>
+    </Box>
   );
 }
 
@@ -61,24 +69,39 @@ export function SectionHeader({
   className,
 }: SectionHeaderProps) {
   return (
-    <div
+    <Stack
       className={cx(
         styles.sectionHeader,
         align === 'start' && styles.sectionHeaderAlignStart,
         className,
       )}
+      gap="sm"
     >
-      <div className={cx(styles.eyebrow, inverted && styles.eyebrowInverted)}>
+      <Text
+        as="span"
+        size="xs"
+        tracking="wider"
+        transform="uppercase"
+        variant={inverted ? 'inverse-faint' : 'accent'}
+        weight="bold"
+      >
         {eyebrow}
-      </div>
-      <h2 className={cx(styles.title, inverted && styles.titleInverted)}>
+      </Text>
+      <Heading
+        size="hero"
+        variant={inverted ? 'inverse' : 'primary'}
+        weight="heavy"
+      >
         {title}
-      </h2>
+      </Heading>
       {subtitle && (
-        <p className={cx(styles.subtitle, inverted && styles.subtitleInverted)}>
+        <Text
+          size="base"
+          variant={inverted ? 'inverse-muted' : 'muted'}
+        >
           {subtitle}
-        </p>
+        </Text>
       )}
-    </div>
+    </Stack>
   );
 }

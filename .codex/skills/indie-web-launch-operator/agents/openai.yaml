@@ -1,0 +1,4 @@
+interface:
+  display_name: "Indie Web Launch Operator"
+  short_description: "Ship web projects with CI and rollback"
+  default_prompt: "Use $indie-web-launch-operator to prepare deployment, rollback, monitoring, and launch steps."

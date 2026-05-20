@@ -1,0 +1,4 @@
+interface:
+  display_name: "Indie Web CMS Builder"
+  short_description: "Build WordPress, Drupal, and CMS sites"
+  default_prompt: "Use $indie-web-cms-builder to implement this CMS theme, plugin, block, or content model."

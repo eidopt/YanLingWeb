@@ -1,23 +1,38 @@
 .card {
-  display: flex;
-  flex-direction: column;
-  border-radius: var(--theme-card-radius, 24px);
+  display: grid;
+  grid-template-rows: auto minmax(var(--app-unit-9), auto);
+  min-width: 0;
+  border-radius: var(--theme-card-radius, var(--app-radius-2xl));
   overflow: hidden;
-  border: 1px solid var(--theme-card-border, transparent);
-  background: var(--theme-card-bg, transparent);
+  border: var(--app-unit-0-125) solid var(--theme-card-border, var(--app-border-subtle));
+  background: var(--theme-card-bg, var(--app-surface-1));
+  box-shadow: var(--theme-card-shadow, var(--app-shadow-xs));
   cursor: pointer;
   text-align: left;
   padding: 0;
   transition:
-    border-color 0.22s ease,
-    box-shadow 0.22s ease,
-    transform 0.22s ease;
+    border-color var(--app-motion-fast) var(--app-motion-smooth),
+    box-shadow var(--app-motion-fast) var(--app-motion-smooth),
+    transform var(--app-motion-fast) var(--app-motion-smooth);
 }
 
 .card:hover {
-  border-color: var(--theme-card-hover-border, rgba(99, 102, 241, 0.24));
-  box-shadow: var(--theme-card-hover-shadow, 0 16px 48px rgba(15, 23, 42, 0.08));
-  transform: translateY(-4px);
+  border-color: var(--theme-card-hover-border, var(--app-primary-alpha-04));
+  box-shadow: var(--theme-card-hover-shadow, var(--app-shadow-brand-md));
+  transform: translateY(calc(var(--app-unit-0-5) * -1));
+}
+
+.card:focus-visible {
+  outline: var(--app-unit-0-375) solid color-mix(in srgb, var(--app-focus-ring) 32%, transparent);
+  outline-offset: var(--app-unit-0-25);
+}
+
+.cardPreview {
+  padding: var(--app-unit-1-75);
+  background:
+    radial-gradient(circle at 50% 0, color-mix(in srgb, var(--app-color-primary) 8%, transparent), transparent 56%),
+    linear-gradient(180deg, var(--theme-card-preview-bg, var(--app-surface-2)), var(--theme-card-preview-bg-strong, var(--app-surface-1)));
+  border-bottom: var(--app-unit-0-125) solid var(--theme-card-divider, var(--app-border-subtle));
 }
 
 .cardThumb {
@@ -25,8 +40,11 @@
   width: 100%;
   aspect-ratio: 22 / 42;
   overflow: hidden;
-  border-radius: inherit;
-  background: transparent;
+  border-radius: var(--app-radius-xl);
+  background: var(--app-surface-2);
+  box-shadow:
+    0 0 0 var(--app-unit-0-125) var(--app-border-subtle),
+    0 var(--app-unit-1-5) var(--app-unit-4) var(--app-ink-alpha-04);
   container-type: inline-size;
 }
 
@@ -34,74 +52,76 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 360px;
-  height: 640px;
+  width: var(--app-unit-45);
+  height: var(--app-unit-80);
   transform-origin: top left;
-  transform: scale(calc(100cqw / 360px));
+  transform: scale(calc(100cqw / var(--app-unit-45)));
   pointer-events: none;
 }
 
 .cardOverlay {
   position: absolute;
   inset: 0;
-  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: opacity 0.18s, background 0.18s;
+  background: transparent;
+  transition:
+    opacity var(--app-motion-fast) var(--app-motion-smooth),
+    background var(--app-motion-fast) var(--app-motion-smooth);
 }
 
 .card:hover .cardOverlay {
   opacity: 1;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--app-black-alpha-02);
 }
 
 .cardHoverLabel {
-  padding: 8px 20px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  color: #111827;
-  font-size: 0.88rem;
-  font-weight: 600;
-  backdrop-filter: blur(4px);
+  padding: var(--app-unit-1) var(--app-unit-2-5);
+  border-radius: var(--app-radius-pill);
+  background: var(--app-white-alpha-10);
+  color: var(--app-neutral-850);
+  font-size: var(--app-font-size-sm);
+  font-weight: var(--app-font-weight-bold);
+  backdrop-filter: blur(var(--app-unit-0-5));
 }
 
 .cardMeta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 0.65rem;
-  padding: 0 0.2rem 0.15rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--app-unit-1-25);
+  min-width: 0;
+  min-height: var(--app-unit-9);
+  padding: var(--app-unit-1-75) var(--app-unit-2);
+  background: var(--theme-card-meta-bg, var(--app-surface-1));
 }
 
 .cardAccent {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
+  width: var(--app-unit-1);
+  height: var(--app-unit-4);
+  margin-top: var(--app-unit-0-375);
+  border-radius: var(--app-radius-pill);
   flex-shrink: 0;
+  box-shadow: 0 0 0 var(--app-unit-0-125) var(--app-white-alpha-08);
 }
 
 .cardText {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
+  display: grid;
+  gap: var(--app-unit-0-25);
+  min-width: 0;
+}
+
+.cardName,
+.cardTagline {
   min-width: 0;
 }
 
 .cardName {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--theme-card-name, #111827);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  color: var(--theme-card-name, var(--app-text-primary));
 }
 
 .cardTagline {
-  font-size: 0.75rem;
-  color: var(--theme-card-tagline, rgba(17, 24, 39, 0.56));
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  color: var(--theme-card-tagline, var(--app-text-muted));
 }

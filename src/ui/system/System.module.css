@@ -1,0 +1,28 @@
+.box {
+  box-sizing: border-box;
+}
+
+.container {
+  width: min(100%, var(--ui-container-max, var(--app-unit-150)));
+  margin-inline: auto;
+  padding-inline: var(--ui-container-gutter, var(--app-space-6));
+}
+
+.containerNoGutters {
+  --ui-container-gutter: 0;
+}
+
+.layout {
+  display: flex;
+  flex-direction: var(--ui-layout-direction, column);
+  flex-wrap: var(--ui-layout-wrap, nowrap);
+  align-items: var(--ui-layout-align, stretch);
+  justify-content: var(--ui-layout-justify, flex-start);
+  gap: var(--ui-gap, var(--app-space-4));
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: var(--ui-grid-template, repeat(var(--ui-grid-columns, 1), minmax(0, 1fr)));
+  gap: var(--ui-gap, var(--app-space-4));
+}

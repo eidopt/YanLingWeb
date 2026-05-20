@@ -29,6 +29,11 @@ import { cx } from 'base/classname';
 import { useEffect, useRef, useState } from 'react';
 import { Tooltip } from 'ui';
 import { ExportDialog } from 'ui/export_dialog/ExportDialog';
+import {
+  Box,
+  Button,
+  Input,
+} from 'ui/system';
 
 interface ThemeLayoutBuilderProps {
   themes: LayoutBuilderTheme[];
@@ -255,8 +260,8 @@ export function ThemeLayoutBuilder(
   }
 
   return (
-    <main className={styles.page}>
-      <section className={styles.workspace}>
+    <Box as="main" className={styles.page}>
+      <Box as="section" className={styles.workspace}>
         <BuilderLibraryPanel
           tab={sidebarTab}
           onTabChange={setSidebarTab}
@@ -271,15 +276,15 @@ export function ThemeLayoutBuilder(
           onLibraryDragEnd={handleLibraryDragEnd}
         />
 
-        <section
+        <Box
+          as="section"
           className={styles.previewPanel}
           style={{ ['--preview-accent' as string]: activeTheme.accent }}
         >
-          <div className={styles.canvasToolbar}>
-            <div className={styles.canvasToolbarLeft}>
-              <button
+          <Box className={styles.canvasToolbar}>
+            <Box className={styles.canvasToolbarLeft}>
+              <Button
                 type="button"
-                className={styles.canvasClearButton}
                 onClick={handleClearCanvas}
                 aria-label={
                   themeLayoutBuilderContent.preview.clearCanvasAriaLabel
@@ -288,31 +293,33 @@ export function ThemeLayoutBuilder(
                   themeLayoutBuilderContent.preview.clearCanvasAriaLabel
                 }
                 disabled={isPreviewMode}
+                size="sm"
+                variant="secondary"
               >
                 {themeLayoutBuilderContent.preview.clearCanvas}
-              </button>
+              </Button>
 
               <Tooltip
                 as="div"
                 content={themeLayoutBuilderContent.preview.exportTooltip}
               >
-                <button
+                <Button
                   type="button"
-                  className={styles.canvasExportButton}
                   onClick={() => setIsExportDialogOpen(true)}
                   aria-label={
                     themeLayoutBuilderContent.preview.exportAriaLabel
                   }
+                  size="sm"
+                  variant="primary"
                 >
                   {themeLayoutBuilderContent.preview.export}
-                </button>
+                </Button>
               </Tooltip>
-            </div>
+            </Box>
 
-            <label className={styles.pageNameField}>
-              <input
+            <Box className={styles.pageNameField}>
+              <Input
                 type="text"
-                className={styles.pageNameInput}
                 value={currentPageName}
                 aria-label={
                   themeLayoutBuilderContent.preview.pageNameAriaLabel
@@ -322,10 +329,12 @@ export function ThemeLayoutBuilder(
                 }
                 onBlur={handlePageNameBlur}
                 readOnly={isPreviewMode}
+                size="sm"
+                variant="quiet"
               />
-            </label>
+            </Box>
 
-            <div className={styles.canvasToolbarRight}>
+            <Box className={styles.canvasToolbarRight}>
               <Tooltip
                 as="div"
                 content={
@@ -348,11 +357,11 @@ export function ThemeLayoutBuilder(
                   onChange={handleChangeInteractionMode}
                 />
               </Tooltip>
-            </div>
-          </div>
+            </Box>
+          </Box>
 
-          <div ref={previewStageRef} className={styles.previewStage}>
-            <div
+          <Box ref={previewStageRef} className={styles.previewStage}>
+            <Box
               ref={canvasDropRef}
               className={cx(
                 styles.canvasDrop,
@@ -369,14 +378,14 @@ export function ThemeLayoutBuilder(
               }
               onDrop={isPreviewMode ? undefined : handleCanvasDrop}
             >
-              <div
+              <Box
                 className={styles.canvasViewport}
                 style={{
                   width: `${canvasWidth * canvasScale}px`,
                   height: `${canvasHeight * canvasScale}px`,
                 }}
               >
-                <div
+                <Box
                   className={styles.canvasScaleShell}
                   style={{
                     width: `${canvasWidth}px`,
@@ -385,18 +394,19 @@ export function ThemeLayoutBuilder(
                   }}
                 >
                   <DynamicThemeRenderer controller={rendererController} />
-                </div>
-              </div>
-            </div>
-          </div>
+                </Box>
+              </Box>
+            </Box>
+          </Box>
 
-          <div className={styles.canvasPager}>
-            <span
+          <Box className={styles.canvasPager}>
+            <Box
+              as="span"
               className={styles.canvasPagerLead}
               aria-hidden="true"
             />
             {canvases.length > 1 ? (
-              <div className={styles.canvasDots}>
+              <Box className={styles.canvasDots}>
                 {canvases.map((canvas, index) => (
                   <button
                     key={canvas.id}
@@ -411,9 +421,9 @@ export function ThemeLayoutBuilder(
                     onClick={() => handleSelectCanvas(canvas.id)}
                   />
                 ))}
-              </div>
+              </Box>
             ) : (
-              <span className={styles.canvasPagerSpacer} />
+              <Box as="span" className={styles.canvasPagerSpacer} />
             )}
 
             <Tooltip
@@ -423,22 +433,23 @@ export function ThemeLayoutBuilder(
                 themeLayoutBuilderContent.preview.addCanvasTooltip
               }
             >
-              <button
+              <Button
                 type="button"
-                className={styles.canvasAddButton}
                 onClick={handleCreateCanvas}
                 aria-label={
                   themeLayoutBuilderContent.preview.addCanvas
                 }
                 disabled={isPreviewMode}
+                size="icon-md"
+                variant="primary"
               >
                 +
-              </button>
+              </Button>
             </Tooltip>
-          </div>
-        </section>
+          </Box>
+        </Box>
 
-        <aside className={styles.treePanel}>
+        <Box as="aside" className={styles.treePanel}>
           {!isPreviewMode && selectedNode ? (
             <SelectedNodeInspector
               selectedNode={selectedNode}
@@ -452,7 +463,7 @@ export function ThemeLayoutBuilder(
             />
           ) : null}
 
-          <div className={styles.editorAiDock}>
+          <Box className={styles.editorAiDock}>
             <EditorAiPanel
               templateId={activeTheme.id}
               currentDocument={currentDocument}
@@ -468,9 +479,9 @@ export function ThemeLayoutBuilder(
               disabled={isPreviewMode}
               onApplyInstructions={applyAiEditInstructions}
             />
-          </div>
-        </aside>
-      </section>
+          </Box>
+        </Box>
+      </Box>
 
       <NodeEditDialog
         dialogState={dialogState}
@@ -491,6 +502,6 @@ export function ThemeLayoutBuilder(
           onClose={() => setIsExportDialogOpen(false)}
         />
       )}
-    </main>
+    </Box>
   );
 }

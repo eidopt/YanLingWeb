@@ -1,0 +1,4 @@
+interface:
+  display_name: "Indie Web Content SEO"
+  short_description: "Write conversion copy and SEO plans"
+  default_prompt: "Use $indie-web-content-seo to improve this site's copy, SEO, and conversion path."

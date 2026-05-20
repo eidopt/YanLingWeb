@@ -2,11 +2,15 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('templates')
+@Index(['ownerUserId', 'updatedAt'])
+@Index(['ownerUserId', 'isPublic'])
+@Index(['sourceTemplateId'])
 export class Template {
   @PrimaryGeneratedColumn('uuid')
   id: string;

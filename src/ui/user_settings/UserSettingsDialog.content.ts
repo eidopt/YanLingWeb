@@ -8,6 +8,9 @@ export const userSettingsDialogContent = {
     title: 'Token 使用量',
     used: '已使用',
     balance: '剩余额度',
+    input: '输入 Token',
+    output: '输出 Token',
+    requests: 'AI 请求数',
     accountBalance: '账户余额',
   },
   password: {

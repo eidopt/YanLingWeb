@@ -1,0 +1,515 @@
+.controlReset {
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  outline: 0;
+}
+
+.inputRoot,
+.selectRoot,
+.textareaRoot,
+.multiRoot {
+  min-width: 0;
+  color: var(--app-text-primary);
+  font-size: var(--app-font-size-md);
+}
+
+.inputRoot[data-full-width='true'],
+.selectRoot[data-full-width='true'],
+.textareaRoot[data-full-width='true'],
+.multiRoot[data-full-width='true'] {
+  width: 100%;
+}
+
+.inputFrame,
+.selectControl,
+.textareaControl,
+.multiTrigger {
+  width: 100%;
+  min-width: 0;
+  border: var(--app-unit-0-125) solid var(--app-border);
+  border-radius: var(--app-radius-md);
+  background: var(--app-surface-1);
+  color: var(--app-text-primary);
+  box-shadow: var(--app-shadow-xs);
+  transition:
+    border-color var(--app-motion-fast) var(--app-motion-smooth),
+    box-shadow var(--app-motion-fast) var(--app-motion-smooth),
+    background var(--app-motion-fast) var(--app-motion-smooth),
+    opacity var(--app-motion-fast) var(--app-motion-smooth);
+}
+
+.inputFrame {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--app-space-2);
+}
+
+.inputControl {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  outline: 0;
+}
+
+.inputControl::placeholder,
+.textareaControl::placeholder {
+  color: var(--app-text-faint);
+}
+
+.inputRoot[data-size='sm'],
+.selectRoot[data-size='sm'],
+.textareaRoot[data-size='sm'],
+.multiRoot[data-size='sm'] {
+  font-size: var(--app-font-size-sm);
+}
+
+.inputRoot[data-size='lg'],
+.selectRoot[data-size='lg'],
+.textareaRoot[data-size='lg'],
+.multiRoot[data-size='lg'] {
+  font-size: var(--app-font-size-base);
+}
+
+.inputRoot[data-size='sm'] .inputFrame,
+.selectRoot[data-size='sm'] .selectControl,
+.multiRoot[data-size='sm'] .multiTrigger {
+  min-height: var(--app-unit-4);
+  padding: var(--app-unit-1) var(--app-unit-1-25);
+}
+
+.inputRoot[data-size='md'] .inputFrame,
+.selectRoot[data-size='md'] .selectControl,
+.multiRoot[data-size='md'] .multiTrigger {
+  min-height: var(--app-unit-5);
+  padding: var(--app-unit-1-25) var(--app-unit-1-75);
+}
+
+.inputRoot[data-size='lg'] .inputFrame,
+.selectRoot[data-size='lg'] .selectControl,
+.multiRoot[data-size='lg'] .multiTrigger {
+  min-height: var(--app-unit-6);
+  padding: var(--app-unit-1-5) var(--app-unit-2);
+}
+
+.textareaRoot[data-size='sm'] .textareaControl {
+  min-height: var(--app-unit-1);
+  padding: var(--app-unit-1-25) var(--app-unit-1-5);
+}
+
+.textareaRoot[data-size='md'] .textareaControl {
+  min-height: var(--app-unit-12);
+  padding: var(--app-unit-1-5) var(--app-unit-1-75);
+}
+
+.textareaRoot[data-size='lg'] .textareaControl {
+  min-height: var(--app-unit-16);
+  padding: var(--app-unit-1-75) var(--app-unit-2);
+}
+
+.inputRoot[data-variant='filled'] .inputFrame,
+.selectRoot[data-variant='filled'] .selectControl,
+.textareaRoot[data-variant='filled'] .textareaControl,
+.multiRoot[data-variant='filled'] .multiTrigger {
+  background: var(--app-surface-2);
+}
+
+.inputRoot[data-variant='quiet'] .inputFrame,
+.selectRoot[data-variant='quiet'] .selectControl,
+.textareaRoot[data-variant='quiet'] .textareaControl,
+.multiRoot[data-variant='quiet'] .multiTrigger {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.inputRoot[data-tone='success'] .inputFrame,
+.selectRoot[data-tone='success'] .selectControl,
+.textareaRoot[data-tone='success'] .textareaControl,
+.multiRoot[data-tone='success'] .multiTrigger {
+  border-color: color-mix(in srgb, var(--app-color-success) 42%, var(--app-border));
+}
+
+.inputRoot[data-tone='warning'] .inputFrame,
+.selectRoot[data-tone='warning'] .selectControl,
+.textareaRoot[data-tone='warning'] .textareaControl,
+.multiRoot[data-tone='warning'] .multiTrigger {
+  border-color: color-mix(in srgb, var(--app-color-warning) 46%, var(--app-border));
+}
+
+.inputRoot[data-tone='danger'] .inputFrame,
+.selectRoot[data-tone='danger'] .selectControl,
+.textareaRoot[data-tone='danger'] .textareaControl,
+.multiRoot[data-tone='danger'] .multiTrigger {
+  border-color: color-mix(in srgb, var(--app-color-danger) 52%, var(--app-border));
+}
+
+.inputRoot:focus-within .inputFrame,
+.selectControl:focus,
+.textareaControl:focus,
+.multiTrigger:focus-visible {
+  border-color: var(--app-color-primary);
+  box-shadow: var(--app-shadow-focus);
+}
+
+.inputRoot[data-tone='danger']:focus-within .inputFrame,
+.textareaRoot[data-tone='danger'] .textareaControl:focus,
+.selectRoot[data-tone='danger'] .selectControl:focus,
+.multiRoot[data-tone='danger'] .multiTrigger:focus-visible {
+  border-color: var(--app-color-danger);
+  box-shadow: 0 0 0 var(--app-unit-0-375) color-mix(in srgb, var(--app-color-danger) 18%, transparent);
+}
+
+.inputRoot[data-disabled='true'] .inputFrame,
+.selectRoot[data-disabled='true'] .selectControl,
+.textareaRoot[data-disabled='true'] .textareaControl,
+.multiRoot[data-disabled='true'] .multiTrigger {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.adornment {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  color: var(--app-text-muted);
+}
+
+.selectRoot {
+  position: relative;
+  display: inline-flex;
+}
+
+.selectControl {
+  appearance: none;
+  padding-right: var(--app-unit-5);
+  font: inherit;
+  outline: 0;
+}
+
+.selectChevron,
+.multiChevron {
+  width: var(--app-unit-1);
+  height: var(--app-unit-1);
+  border-right: var(--app-unit-0-25) solid currentColor;
+  border-bottom: var(--app-unit-0-25) solid currentColor;
+  color: var(--app-text-muted);
+  pointer-events: none;
+  transform: rotate(45deg);
+}
+
+.selectChevron {
+  position: absolute;
+  top: calc(50% - var(--app-unit-0-75));
+  right: var(--app-unit-2);
+}
+
+.textareaControl {
+  display: block;
+  resize: vertical;
+  font: inherit;
+  outline: 0;
+}
+
+.choiceRoot {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--app-unit-1-25);
+  align-items: start;
+  max-width: 100%;
+  color: var(--app-text-primary);
+  cursor: pointer;
+}
+
+.choiceRoot[data-size='sm'] {
+  font-size: var(--app-font-size-sm);
+}
+
+.choiceRoot[data-size='md'] {
+  font-size: var(--app-font-size-md);
+}
+
+.choiceRoot[data-size='lg'] {
+  font-size: var(--app-font-size-base);
+}
+
+.choiceRoot[data-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.choiceInput {
+  position: absolute;
+  width: var(--app-unit-0-125);
+  height: var(--app-unit-0-125);
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.choiceMark {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: var(--app-unit-2-25);
+  height: var(--app-unit-2-25);
+  margin-top: var(--app-unit-0-375);
+  border: var(--app-unit-0-125) solid var(--app-border-strong);
+  background: var(--app-surface-1);
+  box-shadow: var(--app-shadow-xs);
+  transition:
+    border-color var(--app-motion-fast) var(--app-motion-smooth),
+    background var(--app-motion-fast) var(--app-motion-smooth),
+    box-shadow var(--app-motion-fast) var(--app-motion-smooth);
+}
+
+.checkboxMark {
+  border-radius: var(--app-radius-xs);
+}
+
+.radioMark {
+  border-radius: var(--app-radius-pill);
+}
+
+.choiceInput:focus-visible + .choiceMark {
+  outline: var(--app-unit-0-375) solid color-mix(in srgb, var(--app-focus-ring) 32%, transparent);
+  outline-offset: var(--app-unit-0-25);
+}
+
+.choiceInput:checked + .choiceMark {
+  border-color: var(--app-color-primary);
+  background: var(--app-color-primary);
+}
+
+.choiceInput:checked + .checkboxMark::after {
+  content: '';
+  width: var(--app-unit-0-5);
+  height: var(--app-unit-1);
+  border-right: var(--app-unit-0-25) solid var(--app-text-inverse);
+  border-bottom: var(--app-unit-0-25) solid var(--app-text-inverse);
+  transform: rotate(42deg) translateY(calc(var(--app-unit-0-125) * -1));
+}
+
+.choiceInput:checked + .radioMark::after {
+  content: '';
+  width: var(--app-unit-0-75);
+  height: var(--app-unit-0-75);
+  border-radius: var(--app-radius-pill);
+  background: var(--app-text-inverse);
+}
+
+.choiceRoot[data-tone='danger'] .choiceMark {
+  border-color: color-mix(in srgb, var(--app-color-danger) 56%, var(--app-border));
+}
+
+.choiceText {
+  display: grid;
+  min-width: 0;
+  gap: var(--app-unit-0-25);
+}
+
+.choiceLabel {
+  min-width: 0;
+  color: var(--app-text-primary);
+  font-weight: var(--app-font-weight-medium);
+  line-height: 1.35;
+}
+
+.choiceDescription {
+  color: var(--app-text-muted);
+  font-size: var(--app-font-size-xs);
+  line-height: 1.45;
+}
+
+.radioGroup {
+  display: grid;
+  gap: var(--app-unit-1-5);
+  min-width: 0;
+  border: 0;
+  padding: 0;
+}
+
+.radioGroup[data-orientation='horizontal'] {
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+  justify-content: start;
+  overflow-x: auto;
+}
+
+.radioLegend {
+  margin-bottom: var(--app-unit-0-75);
+  color: var(--app-text-secondary);
+  font-size: var(--app-font-size-sm);
+  font-weight: var(--app-font-weight-bold);
+}
+
+.multiRoot {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--app-unit-0-75);
+}
+
+.multiTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-space-2);
+  border-style: solid;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.multiTrigger:disabled {
+  cursor: not-allowed;
+}
+
+.multiRoot[data-open='true'] .multiChevron {
+  transform: translateY(var(--app-unit-0-375)) rotate(225deg);
+}
+
+.multiValue {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: var(--app-unit-0-75);
+  align-items: center;
+  min-width: 0;
+}
+
+.multiPlaceholder {
+  color: var(--app-text-faint);
+}
+
+.multiTag {
+  max-width: 100%;
+  min-width: 0;
+  border-radius: var(--app-radius-pill);
+  padding: var(--app-unit-0-25) var(--app-unit-1);
+  background: color-mix(in srgb, var(--app-color-primary) 11%, transparent);
+  color: var(--app-color-primary);
+  font-size: var(--app-font-size-xs);
+  font-weight: var(--app-font-weight-bold);
+  line-height: 1.45;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.multiCount {
+  color: var(--app-text-muted);
+  font-size: var(--app-font-size-xs);
+  font-weight: var(--app-font-weight-medium);
+  white-space: nowrap;
+}
+
+.multiPopover {
+  position: absolute;
+  z-index: 1500;
+  top: calc(100% + var(--app-unit-0-75));
+  right: 0;
+  left: 0;
+  min-width: min(var(--app-unit-36), calc(100vw - var(--app-unit-4)));
+  max-height: var(--app-unit-36);
+  overflow: auto;
+  border: var(--app-unit-0-125) solid var(--app-border);
+  border-radius: var(--app-radius-md);
+  background: var(--app-surface-1);
+  box-shadow: var(--app-shadow-md);
+  padding: var(--app-unit-0-75);
+}
+
+.multiOption {
+  display: grid;
+  width: 100%;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--app-unit-1-25);
+  align-items: start;
+  border: 0;
+  border-radius: var(--app-radius-sm);
+  padding: var(--app-unit-1) var(--app-unit-1-25);
+  background: transparent;
+  color: var(--app-text-primary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.multiOption:hover:not(:disabled),
+.multiOption:focus-visible {
+  background: var(--color-hover);
+  outline: 0;
+}
+
+.multiOption:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.multiOptionCheck {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--app-unit-2);
+  height: var(--app-unit-2);
+  margin-top: var(--app-unit-0-375);
+  border: var(--app-unit-0-125) solid var(--app-border-strong);
+  border-radius: var(--app-radius-xs);
+  color: var(--app-text-inverse);
+}
+
+.multiOption[aria-selected='true'] .multiOptionCheck {
+  border-color: var(--app-color-primary);
+  background: var(--app-color-primary);
+}
+
+.multiOption[aria-selected='true'] .multiOptionCheck::after {
+  content: '';
+  width: var(--app-unit-0-5);
+  height: var(--app-unit-1);
+  border-right: var(--app-unit-0-25) solid currentColor;
+  border-bottom: var(--app-unit-0-25) solid currentColor;
+  transform: rotate(42deg) translateY(calc(var(--app-unit-0-125) * -1));
+}
+
+.multiOptionText {
+  display: grid;
+  gap: var(--app-unit-0-25);
+  min-width: 0;
+}
+
+.multiOptionLabel {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: var(--app-font-weight-medium);
+  line-height: 1.35;
+}
+
+.multiOptionDescription {
+  color: var(--app-text-muted);
+  font-size: var(--app-font-size-xs);
+  line-height: 1.42;
+}
+
+.multiEmpty {
+  padding: var(--app-unit-1-25) var(--app-unit-1-5);
+  color: var(--app-text-muted);
+  font-size: var(--app-font-size-sm);
+}
+
+.legacyInput,
+.legacyTextarea {
+  min-width: 0;
+  font: inherit;
+  appearance: none;
+}

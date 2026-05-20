@@ -1,0 +1,38 @@
+.templateGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--app-unit-32), 1fr));
+  gap: var(--app-unit-2-5);
+}
+
+.templateCardMotion {
+  transition:
+    transform var(--app-motion-base) var(--app-motion-smooth),
+    filter var(--app-motion-base) var(--app-motion-smooth);
+}
+
+.templateCardMotion:hover {
+  filter: saturate(1.05);
+  transform: translateY(calc(var(--app-unit-0-5) * -1));
+}
+
+.templateEmpty {
+  margin-top: calc(var(--app-unit-2) * -1);
+  padding: var(--app-unit-2);
+  border: var(--app-unit-0-125) dashed var(--app-neutral-300);
+  border-radius: var(--app-radius-xl);
+  color: var(--app-text-muted);
+  font-size: var(--app-unit-1-75);
+  text-align: center;
+}
+
+.moreRow {
+  margin-top: var(--app-unit-6);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .templateCardMotion {
+    transition: none !important;
+    transform: none !important;
+  }
+}

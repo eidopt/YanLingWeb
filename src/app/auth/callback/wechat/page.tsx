@@ -4,6 +4,11 @@ import { wechatCallbackPageContent as c } from './page.content';
 import { useAppServices } from 'hooks/useAppServices';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect } from 'react';
+import {
+  Box,
+  Heading,
+  Text,
+} from 'ui/system';
 
 const WECHAT_AUTH_CHANNEL = 'wechat_oauth';
 
@@ -65,14 +70,16 @@ function WechatCallbackContent() {
   if (missingParams || errorParam) {
     const msg = storedError ?? c.error.missingParams;
     return (
-      <div style={containerStyle}>
-        <div style={cardStyle}>
-          <p style={{ fontSize: '2rem' }}>❌</p>
-          <h2 style={{ fontWeight: 800, color: '#0f172a', margin: '0.5rem 0' }}>{c.error.title}</h2>
-          <p style={{ color: '#64748b', fontSize: '0.9rem' }}>{msg}</p>
+      <Box style={containerStyle}>
+        <Box style={cardStyle}>
+          <Text as="span" size="3xl">❌</Text>
+          <Heading as="h2" size="md" variant="primary" weight="heavy">
+            {c.error.title}
+          </Heading>
+          <Text align="center" size="sm" variant="muted">{msg}</Text>
           <a href="/" style={linkStyle}>{c.error.retry}</a>
-        </div>
-      </div>
+        </Box>
+      </Box>
     );
   }
 
@@ -83,14 +90,14 @@ function WechatCallbackContent() {
 
 function WechatCallbackLoading() {
   return (
-    <div style={containerStyle}>
-      <div style={cardStyle}>
-        <div style={spinnerStyle} />
-        <p style={{ color: '#64748b', marginTop: '1rem', fontSize: '0.9rem' }}>
+    <Box style={containerStyle}>
+      <Box style={cardStyle}>
+        <Box style={spinnerStyle} />
+        <Text size="sm" variant="muted">
           {c.loading}
-        </p>
-      </div>
-    </div>
+        </Text>
+      </Box>
+    </Box>
   );
 }
 
@@ -99,32 +106,32 @@ const containerStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  background: 'linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%)',
+  background: 'var(--app-bg)',
 };
 const cardStyle: React.CSSProperties = {
-  background: '#fff',
-  borderRadius: '1.5rem',
-  padding: '2.5rem 2rem',
-  boxShadow: '0 20px 60px rgba(7,9,20,0.12)',
+  background: 'var(--app-surface-1)',
+  borderRadius: 'var(--app-radius-3xl)',
+  padding: 'var(--app-unit-5) var(--app-unit-4)',
+  boxShadow: 'var(--app-shadow-md)',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  gap: '0.5rem',
-  minWidth: '280px',
+  gap: 'var(--app-space-2)',
+  minWidth: 'var(--app-unit-36)',
   textAlign: 'center',
 };
 const spinnerStyle: React.CSSProperties = {
-  width: '2.5rem',
-  height: '2.5rem',
+  width: 'var(--app-unit-5)',
+  height: 'var(--app-unit-5)',
   borderRadius: '50%',
-  border: '3px solid #e8edf3',
-  borderTopColor: '#6366f1',
+  border: 'var(--app-line-focus) solid var(--app-neutral-200)',
+  borderTopColor: 'var(--app-color-primary)',
   animation: 'spin 0.8s linear infinite',
 };
 const linkStyle: React.CSSProperties = {
-  marginTop: '0.75rem',
-  color: '#6366f1',
-  fontSize: '0.88rem',
+  marginTop: 'var(--app-unit-1-5)',
+  color: 'var(--app-color-primary)',
+  fontSize: 'var(--app-unit-1-75)',
   fontWeight: 600,
   textDecoration: 'underline',
 };

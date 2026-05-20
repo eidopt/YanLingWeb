@@ -1,6 +1,13 @@
 import styles from './PageComponents.module.css';
 import { cx } from 'base/classname';
 import type { CSSProperties, ReactNode } from 'react';
+import {
+  Box,
+  Heading,
+  Inline,
+  Stack,
+  Text,
+} from 'ui/system';
 
 interface WithClassName {
   className?: string;
@@ -16,17 +23,32 @@ export function MetricStrip({
   className,
 }: { items: readonly MetricItem[] } & WithClassName) {
   return (
-    <div className={cx(styles.metricStrip, className)}>
+    <Inline
+      as="section"
+      className={cx(styles.metricStrip, className)}
+      gap="0"
+      justify="center"
+    >
       {items.map((item, index) => (
-        <div key={item.label} className={styles.metricItem}>
-          {index > 0 && <div className={styles.metricDivider} />}
-          <div>
-            <strong className={styles.metricValue}>{item.value}</strong>
-            <span className={styles.metricLabel}>{item.label}</span>
-          </div>
-        </div>
+        <Inline key={item.label} className={styles.metricItem} gap="0">
+          {index > 0 && <Box className={styles.metricDivider} />}
+          <Stack gap="xs">
+            <Text
+              as="strong"
+              size="2xl"
+              tracking="normal"
+              variant="brand-gradient"
+              weight="heavy"
+            >
+              {item.value}
+            </Text>
+            <Text as="span" size="xs" variant="faint" weight="medium">
+              {item.label}
+            </Text>
+          </Stack>
+        </Inline>
       ))}
-    </div>
+    </Inline>
   );
 }
 
@@ -42,10 +64,10 @@ export function CardGrid({
   children,
   className,
   columns = 4,
-  minWidth = '260px',
+  minWidth = 'var(--app-unit-32)',
 }: CardGridProps) {
   return (
-    <div
+    <Box
       className={cx(styles.cardGrid, auto && styles.autoGrid, className)}
       style={{
         '--page-grid-columns': columns,
@@ -53,7 +75,7 @@ export function CardGrid({
       } as CSSProperties}
     >
       {children}
-    </div>
+    </Box>
   );
 }
 
@@ -82,7 +104,7 @@ export function SurfaceCard({
   tone = 'light',
 }: SurfaceCardProps) {
   return (
-    <div
+    <Stack
       className={cx(
         styles.surfaceCard,
         tone === 'light' && styles.surfaceCardLight,
@@ -93,28 +115,55 @@ export function SurfaceCard({
       style={{ '--card-color': color } as CSSProperties}
     >
       {(icon ?? badge) && (
-        <div className={styles.cardTop}>
-          {icon && <div className={styles.cardIcon}>{icon}</div>}
-          {badge && <span className={styles.cardTag}>{badge}</span>}
-        </div>
+        <Inline className={styles.cardTop} justify="space-between">
+          {icon && <Box className={styles.cardIcon}>{icon}</Box>}
+          {badge && (
+            <Box as="span" className={styles.cardTag}>
+              <Text
+                as="span"
+                size="xs"
+                variant={inverted ? 'inverse' : 'accent'}
+                weight="bold"
+              >
+                {badge}
+              </Text>
+            </Box>
+          )}
+        </Inline>
       )}
-      <h3 className={cx(styles.cardTitle, inverted && styles.cardTitleInverted)}>
+      <Heading
+        as="h3"
+        size="xs"
+        variant={inverted ? 'inverse' : 'primary'}
+        weight="bold"
+      >
         {title}
-      </h3>
+      </Heading>
       {description && (
-        <p className={cx(styles.cardDescription, inverted && styles.cardDescriptionInverted)}>
+        <Text
+          size="sm"
+          variant={inverted ? 'inverse-muted' : 'muted'}
+        >
           {description}
-        </p>
+        </Text>
       )}
       {tags && tags.length > 0 && (
-        <div className={styles.tagList}>
+        <Inline className={styles.tagList} gap="u0-7">
           {tags.map((tag) => (
-            <span key={tag} className={styles.pill}>{tag}</span>
+            <Box key={tag} as="span" className={styles.pill}>
+              <Text
+                as="span"
+                size="xs"
+                variant={inverted ? 'inverse-faint' : 'muted'}
+              >
+                {tag}
+              </Text>
+            </Box>
           ))}
-        </div>
+        </Inline>
       )}
       {children}
-    </div>
+    </Stack>
   );
 }
 
@@ -135,7 +184,7 @@ export function ProcessStepCard({
   title,
 }: ProcessStepCardProps) {
   return (
-    <div
+    <Stack
       className={cx(
         styles.surfaceCard,
         styles.surfaceCardLight,
@@ -143,13 +192,13 @@ export function ProcessStepCard({
         className,
       )}
     >
-      <div className={styles.processNumber}>{number}</div>
+      <Text as="span" size="3xl" variant="accent-faint" weight="heavy">{number}</Text>
       {showArrow && (
-        <div className={styles.processArrow} aria-hidden="true">›</div>
+        <Box className={styles.processArrow} aria-hidden="true">›</Box>
       )}
-      <div className={styles.cardIcon}>{icon}</div>
-      <h3 className={styles.cardTitle}>{title}</h3>
-      <p className={styles.cardDescription}>{description}</p>
-    </div>
+      <Box className={styles.cardIcon}>{icon}</Box>
+      <Heading as="h3" size="xs" variant="primary" weight="bold">{title}</Heading>
+      <Text size="sm" variant="muted">{description}</Text>
+    </Stack>
   );
 }

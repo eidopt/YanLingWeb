@@ -17,8 +17,9 @@ export class ExportsService {
     private readonly databaseFlush: DatabaseFlushService,
   ) {}
 
-  async create(dto: CreateExportDto): Promise<ExportRecord> {
+  async create(ownerUserId: string, dto: CreateExportDto): Promise<ExportRecord> {
     const record = this.repo.create({
+      ownerUserId,
       projectName: dto.projectName,
       themeId: dto.themeId,
       layoutJson: dto.layoutJson ?? {},
@@ -63,23 +64,24 @@ export class ExportsService {
     }
   }
 
-  async findAll(): Promise<{ data: ExportRecord[]; total: number; }> {
+  async findAll(ownerUserId: string): Promise<{ data: ExportRecord[]; total: number; }> {
     const [data, total] = await this.repo.findAndCount({
+      where: { ownerUserId },
       order: { createdAt: 'DESC' },
     });
     return { data, total };
   }
 
-  async findOne(id: string): Promise<ExportRecord> {
-    const record = await this.repo.findOne({ where: { id } });
+  async findOne(ownerUserId: string, id: string): Promise<ExportRecord> {
+    const record = await this.repo.findOne({ where: { id, ownerUserId } });
     if (!record) {
       throw new NotFoundException(`Export ${id} not found`);
     }
     return record;
   }
 
-  async remove(id: string): Promise<void> {
-    const record = await this.findOne(id);
+  async remove(ownerUserId: string, id: string): Promise<void> {
+    const record = await this.findOne(ownerUserId, id);
     await this.repo.remove(record);
   }
 }

@@ -3,6 +3,7 @@ import type {
   OAuthCallbackDto,
   UpdateUserDto,
   UserDto,
+  UserTokenUsageSummaryDto,
 } from '@shared/types/user.types';
 
 export class UserService {
@@ -10,8 +11,17 @@ export class UserService {
 
   constructor(private readonly getToken?: () => string | null) {}
 
-  private async get<T>(path: string): Promise<T> {
-    const res = await fetch(`${this.base}${path}`);
+  private authHeaders(requireAuth: boolean): HeadersInit {
+    const token = this.getToken?.();
+    return requireAuth && token
+      ? { authorization: `Bearer ${token}` }
+      : {};
+  }
+
+  private async get<T>(path: string, auth = false): Promise<T> {
+    const res = await fetch(`${this.base}${path}`, {
+      headers: this.authHeaders(auth),
+    });
     const data = await res.json() as T & { message?: string };
     if (!res.ok) {
       throw new Error(
@@ -82,7 +92,15 @@ export class UserService {
   }
 
   getUser(id: string): Promise<UserDto> {
-    return this.get<UserDto>(`/${id}`);
+    return this.get<UserDto>(`/${id}`, true);
+  }
+
+  getCurrentUser(): Promise<UserDto> {
+    return this.get<UserDto>('/me', true);
+  }
+
+  getTokenUsage(id: string): Promise<UserTokenUsageSummaryDto> {
+    return this.get<UserTokenUsageSummaryDto>(`/${id}/token-usage`, true);
   }
 
   updateUser(id: string, dto: UpdateUserDto): Promise<UserDto> {

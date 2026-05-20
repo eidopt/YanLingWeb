@@ -2,6 +2,16 @@ import { floatingChatContent as c } from './FloatingChat.content';
 import styles from './PageComponents.module.css';
 import { cx } from 'base/classname';
 import type { KeyboardEvent, RefObject } from 'react';
+import {
+  Box,
+  Button,
+  Inline,
+  Input,
+  Label,
+  Stack,
+  Text,
+  VisuallyHidden,
+} from 'ui/system';
 
 export interface FloatingChatMessage {
   id?: string;
@@ -53,82 +63,96 @@ export function FloatingChat({
   };
 
   return (
-    <div className={styles.floatingChat}>
+    <Stack className={styles.floatingChat}>
       {open && (
-        <div
+        <Stack
           id={chatPanelId}
           className={styles.chatPanel}
           role="dialog"
           aria-label={panelTitle}
         >
-          <div className={styles.chatHeader}>
-            <div className={styles.chatMeta}>
-              <div className={styles.chatAvatar}>✦</div>
-              <div>
-                <div className={styles.chatName}>{panelTitle}</div>
-                <div className={styles.chatStatus}>
-                  <span className={styles.chatDot} />{statusLabel}
-                </div>
-              </div>
-            </div>
-            <button
+          <Inline className={styles.chatHeader} justify="space-between">
+            <Inline className={styles.chatMeta} gap="u1-4">
+              <Box className={styles.chatAvatar}>✦</Box>
+              <Stack gap="xs">
+                <Text as="span" size="sm" variant="inverse" weight="bold">{panelTitle}</Text>
+                <Inline className={styles.chatStatus} gap="u0-7">
+                  <Box as="span" className={styles.chatDot} />
+                  <Text as="span" size="xs" variant="inverse-muted">{statusLabel}</Text>
+                </Inline>
+              </Stack>
+            </Inline>
+            <Button
               type="button"
-              className={styles.chatClose}
               onClick={onToggle}
               aria-label={closeLabel}
+              size="icon-md"
+              variant="icon-inverse"
             >
               ✕
-            </button>
-          </div>
-          <div className={styles.chatMessages} aria-live="polite">
+            </Button>
+          </Inline>
+          <Stack className={styles.chatMessages} gap="u1-3" aria-live="polite">
             {messages.map((message) => (
-              <div
+              <Box
                 key={message.id ?? `${message.role}:${message.text}`}
+                as="span"
                 className={cx(
                   styles.message,
                   message.role === 'user' ? styles.messageUser : styles.messageAssistant,
                 )}
               >
-                {message.text}
-              </div>
+                <Text
+                  as="span"
+                  size="sm"
+                  variant={message.role === 'user' ? 'inverse' : 'secondary'}
+                >
+                  {message.text}
+                </Text>
+              </Box>
             ))}
-            <div ref={messagesEndRef} />
-          </div>
-          <div className={styles.chatInputRow}>
-            <label className={styles.srOnly} htmlFor={chatInputId}>
+            <Box ref={messagesEndRef} />
+          </Stack>
+          <Inline className={styles.chatInputRow} gap="u0-9" wrap={false}>
+            <Label className={styles.srOnly} htmlFor={chatInputId}>
+              <VisuallyHidden>
               {inputLabel}
-            </label>
-            <input
+              </VisuallyHidden>
+            </Label>
+            <Input
               id={chatInputId}
               type="text"
-              className={styles.chatInput}
+              size="md"
+              variant="filled"
               placeholder={inputLabel}
               value={input}
               onChange={(event) => onInputChange(event.target.value)}
               onKeyDown={handleKeyDown}
             />
-            <button
+            <Button
               type="button"
-              className={styles.chatSend}
               onClick={onSend}
               disabled={!canSend}
+              size="sm"
+              variant="primary"
             >
               {sendLabel}
-            </button>
-          </div>
-        </div>
+            </Button>
+          </Inline>
+        </Stack>
       )}
-      <button
+      <Button
         type="button"
-        className={styles.chatButton}
         onClick={onToggle}
         title={fabLabel}
         aria-label={fabLabel}
         aria-expanded={open}
         aria-controls={open ? chatPanelId : undefined}
+        size="fab"
+        variant="floating"
       >
-        <span className={styles.chatButtonIcon}>{open ? '✕' : '✦'}</span>
-      </button>
-    </div>
+        {open ? '✕' : '✦'}
+      </Button>
+    </Stack>
   );
 }

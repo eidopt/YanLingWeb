@@ -5,6 +5,7 @@ import { DesktopIcon, MobileIcon } from '../icons/DeviceIcons';
 import styles from '../ThemeLayoutBuilder.module.css';
 import { previewModeSwitchContent } from './PreviewModeSwitch.content';
 import { cx } from 'base/classname';
+import { Box } from 'ui/system';
 
 interface PreviewModeSwitchProps {
   screenPreset: DynamicThemeScreenPreset;
@@ -15,7 +16,7 @@ export function PreviewModeSwitch(
   { screenPreset, onChange }: PreviewModeSwitchProps,
 ) {
   return (
-    <div
+    <Box
       className={cx(
         styles.segmentedSwitch,
         screenPreset === 'mobile' && styles.segmentedSwitchSecondActive,
@@ -23,7 +24,7 @@ export function PreviewModeSwitch(
       role="tablist"
       aria-label={previewModeSwitchContent.tablistAriaLabel}
     >
-      <span className={styles.segmentedSwitchThumb} aria-hidden="true" />
+      <Box as="span" className={styles.segmentedSwitchThumb} aria-hidden="true" />
       <button
         type="button"
         role="tab"
@@ -35,9 +36,9 @@ export function PreviewModeSwitch(
         aria-selected={screenPreset === 'desktop'}
         aria-label={previewModeSwitchContent.desktopAriaLabel}
       >
-        <span className={styles.switchIcon}>
+        <Box as="span" className={styles.switchIcon}>
           <DesktopIcon />
-        </span>
+        </Box>
       </button>
       <button
         type="button"
@@ -50,10 +51,10 @@ export function PreviewModeSwitch(
         aria-selected={screenPreset === 'mobile'}
         aria-label={previewModeSwitchContent.mobileAriaLabel}
       >
-        <span className={styles.switchIcon}>
+        <Box as="span" className={styles.switchIcon}>
           <MobileIcon />
-        </span>
+        </Box>
       </button>
-    </div>
+    </Box>
   );
 }

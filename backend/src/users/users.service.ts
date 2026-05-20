@@ -10,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { createHash, randomBytes } from 'crypto';
 import { Repository } from 'typeorm';
 
+import { AiTokenUsageEvent } from '../ai/entities/ai-token-usage.entity';
 import { ConfigFactory } from '../config/config.factory';
 import { DatabaseFlushService } from '../database/database-flush.service';
 import { LoginDto } from './dto/login.dto';
@@ -25,6 +26,29 @@ interface UserDto {
   balanceCents: number; isActive: boolean; createdAt: string; lastLoginAt: string | null;
 }
 interface AuthResponseDto { accessToken: string; user: UserDto; }
+interface UserTokenUsageEventDto {
+  id: string;
+  endpoint: string;
+  provider: string;
+  model: string;
+  inputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
+  cacheHitTokens: number | null;
+  cacheMissTokens: number | null;
+  createdAt: string;
+}
+interface UserTokenUsageSummaryDto {
+  ownerUserId: string;
+  tokensUsed: number;
+  tokensBalance: number;
+  balanceCents: number;
+  inputTokens: number;
+  outputTokens: number;
+  recordedTokens: number;
+  requestCount: number;
+  recent: UserTokenUsageEventDto[];
+}
 
 const NONCE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const OAUTH_STATE_TTL_MS = 5 * 60 * 1000; // 5 minutes
@@ -50,6 +74,8 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly repo: Repository<User>,
+    @InjectRepository(AiTokenUsageEvent)
+    private readonly tokenUsageRepo: Repository<AiTokenUsageEvent>,
     private readonly jwtService: JwtService,
     private readonly databaseFlush: DatabaseFlushService,
   ) {}
@@ -311,18 +337,47 @@ export class UsersService {
   // ---------------------------------------------------------------------------
 
   async findById(id: string): Promise<UserDto> {
-    const user = await this.repo.findOne({ where: { id } });
-    if (!user) {
-      throw new NotFoundException(`User ${id} not found`);
-    }
+    const user = await this.findEntityById(id);
     return this.toDto(user);
   }
 
+  async getTokenUsageSummary(id: string): Promise<UserTokenUsageSummaryDto> {
+    const user = await this.findEntityById(id);
+    const events = await this.tokenUsageRepo.find({
+      where: { ownerUserId: id },
+      order: { createdAt: 'DESC' },
+    });
+
+    const inputTokens = events.reduce((sum, event) => sum + event.inputTokens, 0);
+    const outputTokens = events.reduce((sum, event) => sum + event.outputTokens, 0);
+    const recordedTokens = events.reduce((sum, event) => sum + event.totalTokens, 0);
+
+    return {
+      ownerUserId: id,
+      tokensUsed: Number(user.tokensUsed),
+      tokensBalance: user.tokensBalance,
+      balanceCents: user.balanceCents,
+      inputTokens,
+      outputTokens,
+      recordedTokens,
+      requestCount: events.length,
+      recent: events.slice(0, 10).map((event) => ({
+        id: event.id,
+        endpoint: event.endpoint,
+        provider: event.provider,
+        model: event.model,
+        inputTokens: event.inputTokens,
+        outputTokens: event.outputTokens,
+        totalTokens: event.totalTokens,
+        cacheHitTokens: event.cacheHitTokens,
+        cacheMissTokens: event.cacheMissTokens,
+        createdAt: event.createdAt.toISOString(),
+      })),
+    };
+  }
+
   async update(id: string, dto: UpdateUserDto): Promise<UserDto> {
-    const user = await this.repo.findOne({ where: { id } });
-    if (!user) {
-      throw new NotFoundException(`User ${id} not found`);
-    }
+    const user = await this.findEntityById(id);
 
     if (dto.password) {
       if (!dto.currentPassword) {
@@ -350,10 +405,7 @@ export class UsersService {
   }
 
   async remove(id: string): Promise<void> {
-    const user = await this.repo.findOne({ where: { id } });
-    if (!user) {
-      throw new NotFoundException(`User ${id} not found`);
-    }
+    const user = await this.findEntityById(id);
     await this.repo.remove(user);
     await this.databaseFlush.flush('user removal');
   }
@@ -368,6 +420,14 @@ export class UsersService {
       accessToken: this.jwtService.sign(payload),
       user: this.toDto(user),
     };
+  }
+
+  private async findEntityById(id: string): Promise<User> {
+    const user = await this.repo.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException(`User ${id} not found`);
+    }
+    return user;
   }
 
   private toDto(user: User): UserDto {

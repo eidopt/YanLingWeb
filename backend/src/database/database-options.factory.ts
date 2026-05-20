@@ -1,5 +1,6 @@
 import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
+import { AiTokenUsageEvent } from '../ai/entities/ai-token-usage.entity';
 import { EditorAiConversation } from '../ai/entities/editor-ai-conversation.entity';
 import type { ServerConfig } from '../config/config.factory';
 import { ExportRecord } from '../exports/entities/export-record.entity';
@@ -13,6 +14,7 @@ const DATABASE_ENTITIES = [
   ExportRecord,
   User,
   EditorAiConversation,
+  AiTokenUsageEvent,
 ];
 
 export function createDatabaseOptions(env: ServerConfig): TypeOrmModuleOptions {

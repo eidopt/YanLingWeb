@@ -1,0 +1,47 @@
+.aiLayout {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: var(--app-unit-10);
+  align-items: center;
+}
+
+.aiLeft {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-unit-2);
+}
+
+.aiHeader {
+  margin: 0;
+}
+
+.aiLeft .aiHeader {
+  text-align: left;
+}
+
+.aiRight {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--app-unit-2);
+}
+
+@media (--app-viewport-desktop) {
+  .aiLayout {
+    grid-template-columns: 1fr;
+    gap: var(--app-unit-6);
+  }
+
+  .aiLeft {
+    align-items: center;
+  }
+
+  .aiLeft .aiHeader {
+    text-align: center;
+  }
+}
+
+@media (--app-viewport-tablet) {
+  .aiRight {
+    grid-template-columns: 1fr;
+  }
+}

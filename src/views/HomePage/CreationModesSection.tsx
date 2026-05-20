@@ -1,5 +1,5 @@
+import styles from './CreationModesSection.module.css';
 import { homePageContent as c } from './HomePage.content';
-import styles from './HomePage.module.css';
 import {
   CardGrid,
   PageSection,

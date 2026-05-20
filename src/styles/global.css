@@ -1,3 +1,5 @@
+@import './theme-library.css';
+
 *,
 *::before,
 *::after {
@@ -16,18 +18,11 @@ html {
 
 body {
   height: 100%;
-  min-width: 320px;
-  font-family:
-    'PingFang SC',
-    'Hiragino Sans GB',
-    'Microsoft YaHei',
-    'Segoe UI',
-    sans-serif;
-  line-height: 1.5;
-  color: #111827;
-  background:
-    radial-gradient(circle at top, rgba(7, 193, 96, 0.08), transparent 28%),
-    linear-gradient(180deg, #f5f6f8 0%, #eef1f4 100%);
+  min-width: var(--app-unit-40);
+  font-family: var(--app-font-sans);
+  line-height: var(--app-line-body);
+  color: var(--app-text-primary);
+  background: var(--app-bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -64,6 +59,11 @@ ol {
 }
 
 :focus-visible {
-  outline: 2px solid #07c160;
-  outline-offset: 3px;
+  outline: var(--app-unit-0-25) solid var(--app-focus-ring);
+  outline-offset: var(--app-unit-0-375);
+}
+
+::selection {
+  background: var(--app-primary-alpha-02);
+  color: var(--app-text-primary);
 }

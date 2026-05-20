@@ -1,0 +1,4 @@
+interface:
+  display_name: "Indie Web UX UI Designer"
+  short_description: "Design usable web UI and component specs"
+  default_prompt: "Use $indie-web-ux-ui-designer to create UX/UI specs for this website or web app."

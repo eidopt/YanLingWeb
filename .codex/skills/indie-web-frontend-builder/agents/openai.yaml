@@ -1,0 +1,4 @@
+interface:
+  display_name: "Indie Web Frontend Builder"
+  short_description: "Build responsive accessible web frontends"
+  default_prompt: "Use $indie-web-frontend-builder to implement this responsive, accessible frontend change."

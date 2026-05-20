@@ -22,6 +22,13 @@ import {
   WebIcon,
 } from 'ui/icons';
 import { PageRoot } from 'ui/pages';
+import {
+  Box,
+  Heading,
+  Label,
+  Text,
+  TextArea,
+} from 'ui/system';
 import { ThemeCard } from 'ui/theme_card';
 import { showThemePreviewModal } from 'ui/theme_preview_modal';
 import { UserSettingsDialog } from 'ui/user_settings';
@@ -265,9 +272,9 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
 
   return (
     <PageRoot className={styles.page} style={homePageThemeVars}>
-      <main className={styles.shell}>
-        <aside className={styles.sidebar}>
-          <nav className={styles.nav} aria-label={c.sidebar.workspace}>
+      <Box as="main" className={styles.shell}>
+        <Box as="aside" className={styles.sidebar}>
+          <Box as="nav" className={styles.nav} aria-label={c.sidebar.workspace}>
             {c.sidebar.items.map((item) => {
               const Icon = getSidebarIcon(item.id);
               const active = item.id === 'mine'
@@ -280,15 +287,15 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
                   className={`${styles.navItem} ${active ? styles.navItemActive : ''}`}
                   onClick={() => handleSidebarAction(item.id)}
                 >
-                  <span className={styles.navIcon}>
+                  <Box as="span" className={styles.navIcon}>
                     <Icon />
-                  </span>
-                  <span className={styles.navLabel}>{item.label}</span>
+                  </Box>
+                  <Box as="span" className={styles.navLabel}>{item.label}</Box>
                 </button>
               );
             })}
-          </nav>
-          <div className={styles.sidebarFooter}>
+          </Box>
+          <Box className={styles.sidebarFooter}>
             <button
               type="button"
               className={styles.userButton}
@@ -296,28 +303,64 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
               title={c.sidebar.userSettings}
               onClick={() => setSettingsOpen(true)}
             >
-              <span className={styles.userAvatar}>{getInitials(user.username)}</span>
+              <Box as="span" className={styles.userAvatar}>{getInitials(user.username)}</Box>
             </button>
-          </div>
-        </aside>
+          </Box>
+        </Box>
 
-        <section className={styles.main}>
-          <header ref={topRef} className={styles.searchBand}>
-            <div className={styles.searchCopy}>
-              <h1 className={styles.title}>{c.search.title}</h1>
-            </div>
-            <label className={styles.searchBox}>
-              <span className={styles.searchIcon} aria-hidden="true" />
-              <textarea
+        <Box as="section" className={styles.main}>
+          <Box as="header" ref={topRef} className={styles.searchBand}>
+            <Box className={styles.searchGrid}>
+              <Box className={styles.searchCopy}>
+                <Text
+                  as="span"
+                  size="xs"
+                  transform="uppercase"
+                  variant="accent"
+                  weight="bold"
+                >
+                  {c.search.eyebrow}
+                </Text>
+                <Heading
+                  as="h1"
+                  size="display"
+                  variant="primary"
+                  weight="heavy"
+                >
+                  {c.search.title}
+                </Heading>
+                <Text size="base" variant="muted">{c.search.subtitle}</Text>
+              </Box>
+              <Box className={styles.productionPanel} aria-hidden="true">
+                <Box className={styles.panelHeader}>
+                  <Text as="span" size="xs" transform="uppercase" variant="muted" weight="bold">
+                    AI Pipeline
+                  </Text>
+                  <Text as="strong" size="sm" variant="success" weight="bold">Ready</Text>
+                </Box>
+                <Box className={styles.pipelineList}>
+                  {c.search.chips.map((chip, index) => (
+                    <Box key={chip} className={styles.pipelineItem}>
+                      <Box as="span">{String(index + 1).padStart(2, '0')}</Box>
+                      <Text as="strong" size="sm" variant="primary" weight="bold">{chip}</Text>
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            </Box>
+            <Label className={styles.searchBox}>
+              <Box as="span" className={styles.searchIcon} aria-hidden="true" />
+              <TextArea
                 className={styles.searchInput}
                 rows={2}
                 value={searchDraft}
                 onChange={(event) => setSearchDraft(event.target.value)}
                 onKeyDown={handleSearchKeyDown}
                 placeholder={c.search.placeholder}
+                variant="quiet"
               />
-            </label>
-            <div className={styles.quickStartRow}>
+            </Label>
+            <Box className={styles.quickStartRow}>
               {quickActions.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -328,25 +371,38 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
                     data-tone={item.tone}
                     onClick={() => handleQuickAction(item.id, item.label)}
                   >
-                    <span className={styles.quickIcon}>
+                    <Box as="span" className={styles.quickIcon}>
                       <Icon />
-                    </span>
-                    <span className={styles.quickLabel}>{item.label}</span>
+                    </Box>
+                    <Box as="span" className={styles.quickLabel}>{item.label}</Box>
                   </button>
                 );
               })}
-            </div>
-          </header>
+            </Box>
+          </Box>
 
-          {loading ? <p className={styles.status}>{c.loading}</p> : null}
+          {loading ? (
+            <Box className={styles.status}>
+              <Text size="md" variant="muted">{c.loading}</Text>
+            </Box>
+          ) : null}
           {error ? (
-            <p className={styles.status}>{c.errorPrefix}{error}</p>
+            <Box className={styles.status}>
+              <Text size="md" variant="danger">{c.errorPrefix}{error}</Text>
+            </Box>
           ) : null}
 
           {templateView === 'marketplace' ? (
-            <section className={styles.section}>
-              <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>{c.mineOverview.title}</h2>
+            <Box as="section" className={styles.section}>
+              <Box className={styles.sectionHeader}>
+                <Heading
+                  as="h2"
+                  size="xl"
+                  variant="primary"
+                  weight="heavy"
+                >
+                  {c.mineOverview.title}
+                </Heading>
                 <button
                   type="button"
                   className={styles.viewAllButton}
@@ -354,11 +410,11 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
                 >
                   {c.mineOverview.viewAll}
                 </button>
-              </div>
+              </Box>
               {!loading && recentMineTemplates.length === 0 ? (
-                <p className={styles.empty}>{c.mineOverview.empty}</p>
+                <Text size="base" variant="muted">{c.mineOverview.empty}</Text>
               ) : null}
-              <div className={styles.templateGrid}>
+              <Box className={styles.templateGrid}>
                 {recentMineTemplates.map((theme) => (
                   <ThemeCard
                     key={theme.id}
@@ -367,21 +423,35 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
                     onClick={() => openOwned(theme)}
                   />
                 ))}
-              </div>
-            </section>
+              </Box>
+            </Box>
           ) : null}
 
-          <section ref={templateRef} className={styles.section}>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>{templateSectionTitle}</h2>
-            </div>
+          <Box as="section" ref={templateRef} className={styles.section}>
+            <Box className={styles.sectionHeader}>
+              <Heading
+                as="h2"
+                size="xl"
+                variant="primary"
+                weight="heavy"
+              >
+                {templateSectionTitle}
+              </Heading>
+            </Box>
             {!loading && templateSectionThemes.length === 0 ? (
-              <p className={styles.empty}>{templateSectionEmpty}</p>
+              <Text size="base" variant="muted">{templateSectionEmpty}</Text>
             ) : null}
             {templateGroups.map(([category, themes]) => (
-              <div key={category} className={styles.categoryGroup}>
-                <h3 className={styles.categoryTitle}>{category}</h3>
-                <div className={styles.templateGrid}>
+              <Box key={category} className={styles.categoryGroup}>
+                <Heading
+                  as="h3"
+                  size="label"
+                  variant="secondary"
+                  weight="heavy"
+                >
+                  {category}
+                </Heading>
+                <Box className={styles.templateGrid}>
                   {themes.map((theme) => (
                     <ThemeCard
                       key={theme.id}
@@ -396,18 +466,18 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
                       }}
                     />
                   ))}
-                </div>
-              </div>
+                </Box>
+              </Box>
             ))}
-          </section>
+          </Box>
           {settingsOpen ? (
             <UserSettingsDialog
               user={user}
               onClose={() => setSettingsOpen(false)}
             />
           ) : null}
-        </section>
-      </main>
+        </Box>
+      </Box>
     </PageRoot>
   );
 }

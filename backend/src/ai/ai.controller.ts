@@ -98,7 +98,7 @@ export class AiController {
     }
     res.flushHeaders();
 
-    const subscription = this.aiService.stream(body, cacheOptions).subscribe({
+    const subscription = this.aiService.stream(req.user.sub, body, cacheOptions).subscribe({
       next: (event) => {
         res.write(`data: ${event.data}\n\n`);
         this.flushResponse(res);
@@ -147,7 +147,7 @@ export class AiController {
     res.setHeader('x-accel-buffering', 'no');
     res.flushHeaders();
 
-    const subscription = this.aiService.streamEditor(body).subscribe({
+    const subscription = this.aiService.streamEditor(req.user.sub, body).subscribe({
       next: (event) => {
         res.write(`data: ${event.data}\n\n`);
         this.flushResponse(res);
@@ -170,8 +170,11 @@ export class AiController {
 
   @Post('templates')
   @ApiOperation({ summary: 'Save a generated template to the database' })
-  async saveTemplate(@Body() body: TemplateToolInput) {
-    return this.aiService.saveTemplate(body);
+  async saveTemplate(
+    @Body() body: TemplateToolInput,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.aiService.saveTemplate(req.user.sub, body);
   }
 
   private flushResponse(res: Response): void {

@@ -113,6 +113,7 @@ export function useCanvasNodeShellRenderer({
     ) {
       // Intentional reset after layout effect fires (cascading render is
       // acceptable here as it only triggers on drag start/end transitions).
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDragVisualOffset((current) => (
         current.x === 0 && current.y === 0 ? current : { x: 0, y: 0 }
       ));

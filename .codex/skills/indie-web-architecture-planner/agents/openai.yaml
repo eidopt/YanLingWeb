@@ -1,0 +1,4 @@
+interface:
+  display_name: "Indie Web Architecture Planner"
+  short_description: "Plan web app architecture, APIs, and data"
+  default_prompt: "Use $indie-web-architecture-planner to design the architecture, API, data, and risk plan."

@@ -18,6 +18,7 @@ import type {
   ProviderRequest,
   ProviderStreamEvent,
   ProviderTool,
+  StreamEventDone,
 } from './providers/types';
 import { tokenCountWithEstimation } from './utils/tokens';
 
@@ -59,6 +60,10 @@ export interface QueryLoopConfig {
   }) => void;
   onContextCompacted?: () => void;
   onError?: (msg: string) => void;
+  onUsage?: (
+    usage: NonNullable<StreamEventDone['usage']>,
+    request: ProviderRequest,
+  ) => void | Promise<void>;
   maxIterations?: number;
   isCancelled: () => boolean;
 }
@@ -151,6 +156,9 @@ export class QueryLoop {
             case 'done':
               if (event.stopReason) { stopReason = event.stopReason; }
               if (event.reasoningContent) { reasoningContent = event.reasoningContent; }
+              if (event.usage) {
+                await this.cfg.onUsage?.(event.usage, request);
+              }
               break;
           }
         }

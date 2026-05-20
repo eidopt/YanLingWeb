@@ -1,0 +1,4 @@
+interface:
+  display_name: "Indie Web Codebase Analyst"
+  short_description: "Map existing web apps before changing them"
+  default_prompt: "Use $indie-web-codebase-analyst to map this web codebase and identify the safest change surface."
