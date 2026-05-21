@@ -17,13 +17,15 @@
   max-width: min(var(--app-unit-36), calc(100vw - var(--app-unit-4)));
   padding: var(--app-unit-1) var(--app-unit-1-5);
   border-radius: var(--app-unit-1-25);
-  background: var(--app-ink-alpha-10);
-  color: var(--app-neutral-50);
-  box-shadow: 0 var(--app-unit-1-5) var(--app-unit-4) var(--app-ink-alpha-02);
+  border: var(--app-unit-0-125) solid var(--app-border);
+  background: color-mix(in srgb, var(--app-color-ink) 88%, transparent);
+  color: var(--app-text-primary);
+  box-shadow: var(--app-shadow-md), var(--app-shadow-glow-violet);
   font-size: var(--app-unit-1-5);
   line-height: 1.4;
   text-align: center;
   pointer-events: none;
+  backdrop-filter: blur(var(--app-unit-2-5)) saturate(160%);
 }
 
 .content::after {

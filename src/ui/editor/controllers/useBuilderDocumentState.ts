@@ -526,6 +526,17 @@ export function applyAiEditInstructionsToCanvases({
     finalCanvases.find((canvas) => canvas.id === activeWorkingCanvasId)
     ?? finalCanvases[0];
 
+  if (errors.length > 0) {
+    return {
+      applied: [],
+      canvases,
+      activeCanvasId,
+      document: activeCanvas.document,
+      errors,
+      selectedNodeId: undefined,
+    };
+  }
+
   return {
     applied,
     canvases: finalCanvases,

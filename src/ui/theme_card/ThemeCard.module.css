@@ -1,4 +1,5 @@
 .card {
+  position: relative;
   display: grid;
   grid-template-rows: auto minmax(var(--app-unit-9), auto);
   min-width: 0;
@@ -6,7 +7,7 @@
   overflow: hidden;
   border: var(--app-unit-0-125) solid var(--theme-card-border, var(--app-border-subtle));
   background: var(--theme-card-bg, var(--app-surface-1));
-  box-shadow: var(--theme-card-shadow, var(--app-shadow-xs));
+  box-shadow: var(--theme-card-shadow, var(--app-shadow-sm));
   cursor: pointer;
   text-align: left;
   padding: 0;
@@ -16,10 +17,24 @@
     transform var(--app-motion-fast) var(--app-motion-smooth);
 }
 
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--app-gradient-card-glow);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--app-motion-base) var(--app-motion-smooth);
+}
+
 .card:hover {
   border-color: var(--theme-card-hover-border, var(--app-primary-alpha-04));
   box-shadow: var(--theme-card-hover-shadow, var(--app-shadow-brand-md));
-  transform: translateY(calc(var(--app-unit-0-5) * -1));
+  transform: translateY(calc(var(--app-unit-0-375) * -1));
+}
+
+.card:hover::before {
+  opacity: 1;
 }
 
 .card:focus-visible {
@@ -28,9 +43,11 @@
 }
 
 .cardPreview {
+  position: relative;
   padding: var(--app-unit-1-75);
   background:
-    radial-gradient(circle at 50% 0, color-mix(in srgb, var(--app-color-primary) 8%, transparent), transparent 56%),
+    radial-gradient(circle at 50% 0, color-mix(in srgb, var(--app-color-primary) 18%, transparent), transparent 56%),
+    radial-gradient(circle at 88% 18%, color-mix(in srgb, var(--app-color-accent) 12%, transparent), transparent 44%),
     linear-gradient(180deg, var(--theme-card-preview-bg, var(--app-surface-2)), var(--theme-card-preview-bg-strong, var(--app-surface-1)));
   border-bottom: var(--app-unit-0-125) solid var(--theme-card-divider, var(--app-border-subtle));
 }
@@ -41,10 +58,10 @@
   aspect-ratio: 22 / 42;
   overflow: hidden;
   border-radius: var(--app-radius-xl);
-  background: var(--app-surface-2);
+  background: rgba(9, 13, 20, 0.74);
   box-shadow:
     0 0 0 var(--app-unit-0-125) var(--app-border-subtle),
-    0 var(--app-unit-1-5) var(--app-unit-4) var(--app-ink-alpha-04);
+    0 var(--app-unit-1-5) var(--app-unit-4) rgba(0, 0, 0, 0.34);
   container-type: inline-size;
 }
 
@@ -74,20 +91,23 @@
 
 .card:hover .cardOverlay {
   opacity: 1;
-  background: var(--app-black-alpha-02);
+  background: rgba(9, 13, 20, 0.38);
 }
 
 .cardHoverLabel {
   padding: var(--app-unit-1) var(--app-unit-2-5);
   border-radius: var(--app-radius-pill);
-  background: var(--app-white-alpha-10);
-  color: var(--app-neutral-850);
+  border: var(--app-unit-0-125) solid var(--app-border);
+  background: color-mix(in srgb, var(--app-color-ink) 76%, transparent);
+  color: var(--app-text-primary);
   font-size: var(--app-font-size-sm);
   font-weight: var(--app-font-weight-bold);
   backdrop-filter: blur(var(--app-unit-0-5));
+  box-shadow: var(--app-shadow-sm);
 }
 
 .cardMeta {
+  position: relative;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: start;

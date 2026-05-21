@@ -17,6 +17,7 @@ import type { Request, Response } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import {
   AiService,
+  type EditorAgentStreamRequest,
   type SaveEditorAiConversationInput,
   type StreamRequest,
 } from './ai.service';
@@ -37,6 +38,12 @@ export class AiController {
   @ApiOperation({ summary: 'Get AI provider configuration (provider name + model)' })
   getConfig() {
     return this.aiService.getConfig();
+  }
+
+  @Get('cache-stats')
+  @ApiOperation({ summary: 'Get recent AI cache hit statistics' })
+  getCacheStats(@Req() req: AuthenticatedRequest) {
+    return this.aiService.getCacheStats(req.user.sub);
   }
 
   @Get('editor-conversations/:templateId')
@@ -128,7 +135,7 @@ export class AiController {
     },
   })
   editorStream(
-    @Body() body: StreamRequest,
+    @Body() body: StreamRequest | EditorAgentStreamRequest,
     @Req() req: AuthenticatedRequest,
     @Res() res: Response,
   ): void {
@@ -145,9 +152,16 @@ export class AiController {
     res.setHeader('cache-control', 'no-cache, no-transform');
     res.setHeader('connection', 'keep-alive');
     res.setHeader('x-accel-buffering', 'no');
+    const cacheOptions = {
+      conversationId: req.headers['x-conversation-id'] as string | undefined,
+      previousResponseId: req.headers['x-previous-response-id'] as string | undefined,
+    };
+    if (cacheOptions.conversationId) {
+      res.setHeader('x-conversation-id', cacheOptions.conversationId);
+    }
     res.flushHeaders();
 
-    const subscription = this.aiService.streamEditor(req.user.sub, body).subscribe({
+    const subscription = this.aiService.streamEditor(req.user.sub, body, cacheOptions).subscribe({
       next: (event) => {
         res.write(`data: ${event.data}\n\n`);
         this.flushResponse(res);

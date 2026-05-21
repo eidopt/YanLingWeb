@@ -4,6 +4,8 @@ import { AiTokenUsageEvent } from '../ai/entities/ai-token-usage.entity';
 import { EditorAiConversation } from '../ai/entities/editor-ai-conversation.entity';
 import type { ServerConfig } from '../config/config.factory';
 import { ExportRecord } from '../exports/entities/export-record.entity';
+import { PublishedSiteRevision } from '../sites/entities/published-site-revision.entity';
+import { PublishedSite } from '../sites/entities/published-site.entity';
 import { Template } from '../templates/entities/template.entity';
 import { Theme } from '../themes/entities/theme.entity';
 import { User } from '../users/entities/user.entity';
@@ -11,6 +13,8 @@ import { User } from '../users/entities/user.entity';
 const DATABASE_ENTITIES = [
   Theme,
   Template,
+  PublishedSite,
+  PublishedSiteRevision,
   ExportRecord,
   User,
   EditorAiConversation,

@@ -23,9 +23,10 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
   const { authService } = useAppServices();
   const [user, setUser] = useState<AuthUser | null | undefined>(undefined);
   const isHome = pathname === '/' || pathname === '/builder';
+  const isPublicSite = pathname.startsWith('/sites/');
   const isAuthCheckingHome = pathname === '/' && user === undefined;
   const isLoggedInHome = pathname === '/' && Boolean(user);
-  const showGlobalNav = !isLoggedInHome && !isAuthCheckingHome;
+  const showGlobalNav = !isPublicSite && !isLoggedInHome && !isAuthCheckingHome;
   const useOverlayViewport = isHome && !isLoggedInHome && !isAuthCheckingHome;
 
   useEffect(() => {

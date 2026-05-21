@@ -1,0 +1,3565 @@
+[
+  {
+    "id": "component-add-001",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "搜索入口这里感觉少了点东西，按当前页面语境补一个合适的小入口",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_exists",
+          "nodeId": "home-extra-search"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "insert_node",
+          "parentId": "home-screen",
+          "nodeId": "home-extra-search",
+          "alias": "core.search",
+          "props": {
+            "placeholder": "搜索商品和服务"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-add-002",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "提示区域这里感觉少了点东西，按当前页面语境补一个合适的小入口",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_exists",
+          "nodeId": "home-extra-notice"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "insert_node",
+          "parentId": "home-screen",
+          "nodeId": "home-extra-notice",
+          "alias": "core.notice",
+          "props": {
+            "text": "新人专享优惠",
+            "tone": "info"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-add-003",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "商品筛选那块这里感觉少了点东西，按当前页面语境补一个合适的小入口",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_exists",
+          "nodeId": "home-extra-filter-tag"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "insert_node",
+          "parentId": "home-screen",
+          "nodeId": "home-extra-filter-tag",
+          "alias": "core.tag",
+          "props": {
+            "label": "新品",
+            "tone": "new"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-add-004",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "这块内容这里感觉少了点东西，按当前页面语境补一个合适的小入口",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_exists",
+          "nodeId": "home-extra-cta"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "insert_node",
+          "parentId": "home-screen",
+          "nodeId": "home-extra-cta",
+          "alias": "core.button",
+          "props": {
+            "label": "领取优惠",
+            "variant": "primary"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-add-005",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "商品面板这里感觉少了点东西，按当前页面语境补一个合适的小入口",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_exists",
+          "nodeId": "home-panel-extra-text"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "insert_node",
+          "parentId": "home-product-panel",
+          "nodeId": "home-panel-extra-text",
+          "alias": "core.text",
+          "props": {
+            "text": "今日下单最快 30 分钟送达",
+            "variant": "body"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-add-006",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "服务卡片这里感觉少了点东西，按当前页面语境补一个合适的小入口",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_exists",
+          "nodeId": "home-second-service"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "insert_node",
+          "parentId": "home-service-card",
+          "nodeId": "home-second-service",
+          "alias": "core.button",
+          "props": {
+            "label": "联系客服",
+            "variant": "secondary"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-add-007",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "商品面板这里感觉少了点东西，按当前页面语境补一个合适的小入口",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_exists",
+          "nodeId": "home-stat-panel"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "insert_node",
+          "parentId": "home-screen",
+          "nodeId": "home-stat-panel",
+          "alias": "core.panel",
+          "props": {
+            "tone": "highlight",
+            "gap": "12"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-add-008",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "会员信息这里感觉少了点东西，按当前页面语境补一个合适的小入口",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_exists",
+          "nodeId": "profile-member-tag"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "insert_node",
+          "pageId": "profile",
+          "parentId": "profile-member-card",
+          "nodeId": "profile-member-tag",
+          "alias": "core.tag",
+          "props": {
+            "label": "金卡会员",
+            "tone": "member"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-add-009",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "空状态这里感觉少了点东西，按当前页面语境补一个合适的小入口",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_exists",
+          "nodeId": "orders-empty-text"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "insert_node",
+          "pageId": "orders",
+          "parentId": "orders-screen",
+          "nodeId": "orders-empty-text",
+          "alias": "core.text",
+          "props": {
+            "text": "暂无更多订单",
+            "variant": "body"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-add-010",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "联系入口这里感觉少了点东西，按当前页面语境补一个合适的小入口",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_exists",
+          "nodeId": "home-contact-button"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "insert_node",
+          "parentId": "home-service-card",
+          "nodeId": "home-contact-button",
+          "alias": "core.button",
+          "props": {
+            "label": "联系商家",
+            "variant": "secondary"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-delete-001",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "提示区域看着有点多余，帮我精简掉一处就好",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_not_exists",
+          "nodeId": "home-notice"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "delete_node",
+          "nodeId": "home-notice"
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-delete-002",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "搜索入口看着有点多余，帮我精简掉一处就好",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_not_exists",
+          "nodeId": "home-search"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "delete_node",
+          "nodeId": "home-search"
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-delete-003",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "副标题看着有点多余，帮我精简掉一处就好",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_not_exists",
+          "nodeId": "home-card-subtitle"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "delete_node",
+          "nodeId": "home-card-subtitle"
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-delete-004",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "按钮看着有点多余，帮我精简掉一处就好",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_not_exists",
+          "nodeId": "home-duplicate-button"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "delete_node",
+          "nodeId": "home-duplicate-button"
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-delete-005",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "服务卡片看着有点多余，帮我精简掉一处就好",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_not_exists",
+          "nodeId": "home-service-button"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "delete_node",
+          "nodeId": "home-service-button"
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-delete-006",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "商品筛选那块看着有点多余，帮我精简掉一处就好",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_not_exists",
+          "nodeId": "home-filter-tag"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "delete_node",
+          "nodeId": "home-filter-tag"
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-delete-007",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "提示区域看着有点多余，帮我精简掉一处就好",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_not_exists",
+          "nodeId": "home-notice"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "delete_node",
+          "nodeId": "home-notice"
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-delete-008",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "副标题看着有点多余，帮我精简掉一处就好",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_not_exists",
+          "nodeId": "home-card-subtitle"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "delete_node",
+          "nodeId": "home-card-subtitle"
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-delete-009",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "按钮看着有点多余，帮我精简掉一处就好",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_not_exists",
+          "nodeId": "orders-detail-button"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "delete_node",
+          "pageId": "orders",
+          "nodeId": "orders-detail-button"
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-delete-010",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "服务卡片看着有点多余，帮我精简掉一处就好",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_not_exists",
+          "nodeId": "home-service-card"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "delete_node",
+          "nodeId": "home-service-card"
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-update-001",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "主按钮现在不太贴切，帮我换成更合适的表达",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-primary-button",
+          "prop": "label",
+          "value": "立即预约"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-primary-button",
+          "props": {
+            "label": "立即预约"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-update-002",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "标题现在不太贴切，帮我换成更合适的表达",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-title",
+          "prop": "text",
+          "value": "限时精选"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-title",
+          "props": {
+            "text": "限时精选"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-update-003",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "搜索入口现在不太贴切，帮我换成更合适的表达",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-search",
+          "prop": "placeholder",
+          "value": "搜索今日好物"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-search",
+          "props": {
+            "placeholder": "搜索今日好物"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-update-004",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "标题现在不太贴切，帮我换成更合适的表达",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-card-title",
+          "prop": "text",
+          "value": "云南草莓 500g"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-card-title",
+          "props": {
+            "text": "云南草莓 500g"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-update-005",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "提示区域现在不太贴切，帮我换成更合适的表达",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-notice",
+          "prop": "text",
+          "value": "今晚八点会员加赠"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-notice",
+          "props": {
+            "text": "今晚八点会员加赠"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-update-006",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "商品筛选那块现在不太贴切，帮我换成更合适的表达",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-filter-tag",
+          "prop": "label",
+          "value": "爆款"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-filter-tag",
+          "props": {
+            "label": "爆款"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-update-007",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "底部切换现在不太贴切，帮我换成更合适的表达",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-footer-tabs",
+          "prop": "activeTab",
+          "value": "订单"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-footer-tabs",
+          "props": {
+            "activeTab": "订单"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-update-008",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "标题现在不太贴切，帮我换成更合适的表达",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-card-title",
+          "prop": "text",
+          "value": "精选商品图"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-card-title",
+          "props": {
+            "text": "精选商品图"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-update-009",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "主按钮现在不太贴切，帮我换成更合适的表达",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-primary-button",
+          "prop": "label",
+          "value": "去订单页"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-primary-button",
+          "props": {
+            "label": "去订单页"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-update-010",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "商品面板现在不太贴切，帮我换成更合适的表达",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-product-panel",
+          "prop": "tone",
+          "value": "highlight"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-product-panel",
+          "props": {
+            "tone": "highlight"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-locate-001",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "主按钮现在不太贴切，帮我换成更合适的表达",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-primary-button",
+          "prop": "label",
+          "value": "马上预约"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-primary-button",
+          "props": {
+            "label": "马上预约"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-locate-002",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "底部切换好像有点乱，帮我顺一下",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-footer-tabs",
+          "prop": "activeTab",
+          "value": "首页"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "sync_page_navigation"
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-locate-003",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "搜索入口现在不太贴切，帮我换成更合适的表达",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-search",
+          "prop": "placeholder",
+          "value": "搜索服务"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-search",
+          "props": {
+            "placeholder": "搜索服务"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-locate-004",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "主按钮现在不太贴切，帮我换成更合适的表达",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-primary-button",
+          "prop": "label",
+          "value": "已选中"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-primary-button",
+          "props": {
+            "label": "已选中"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-locate-005",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "标题现在不太贴切，帮我换成更合适的表达",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-title",
+          "prop": "text",
+          "value": "新人专区"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-title",
+          "props": {
+            "text": "新人专区"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-locate-006",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "服务卡片现在不太贴切，帮我换成更合适的表达",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-service-title",
+          "prop": "text",
+          "value": "专属客服"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-service-title",
+          "props": {
+            "text": "专属客服"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-locate-007",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "按钮看着有点多余，帮我精简掉一处就好",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_not_exists",
+          "nodeId": "home-duplicate-button"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "delete_node",
+          "nodeId": "home-duplicate-button"
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-locate-008",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "底部切换点起来应该去相关位置，帮我接顺",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_exists",
+          "nodeId": "home-footer-tabs"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_interactions",
+          "nodeId": "home-footer-tabs",
+          "interactions": {
+            "onClick": {
+              "type": "navigate",
+              "targetPageId": "orders"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-locate-009",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "这块内容这里感觉少了点东西，按当前页面语境补一个合适的小入口",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_exists",
+          "nodeId": "home-main-extra"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "insert_node",
+          "parentId": "home-screen",
+          "nodeId": "home-main-extra",
+          "alias": "core.text",
+          "props": {
+            "text": "配送范围覆盖全城",
+            "variant": "body"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "component-locate-010",
+    "group": "component-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "提示区域现在不太贴切，帮我换成更合适的表达",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-notice",
+          "prop": "text",
+          "value": "仅更新公告区"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-notice",
+          "props": {
+            "text": "仅更新公告区"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-add-001",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "这个流程里好像还缺一个偏客服相关的页面，先补个简单可用的",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "page_exists",
+          "pageId": "support"
+        },
+        {
+          "type": "new_page_has_min_nodes",
+          "minNodes": 2
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "create_page",
+          "pageId": "support",
+          "name": "客服中心",
+          "rootNodeId": "support-screen",
+          "props": {
+            "title": "客服中心"
+          }
+        },
+        {
+          "type": "insert_node",
+          "pageId": "support",
+          "parentId": "support-screen",
+          "nodeId": "support-intro",
+          "alias": "core.text",
+          "props": {
+            "text": "客服中心内容",
+            "variant": "body"
+          }
+        },
+        {
+          "type": "sync_page_navigation"
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-add-002",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "这个流程里好像还缺一个偏订单详情的页面，先补个简单可用的",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "page_exists",
+          "pageId": "order-detail"
+        },
+        {
+          "type": "new_page_has_min_nodes",
+          "minNodes": 2
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "create_page",
+          "pageId": "order-detail",
+          "name": "订单详情",
+          "rootNodeId": "order-detail-screen",
+          "props": {
+            "title": "订单详情"
+          }
+        },
+        {
+          "type": "insert_node",
+          "pageId": "order-detail",
+          "parentId": "order-detail-screen",
+          "nodeId": "order-detail-intro",
+          "alias": "core.text",
+          "props": {
+            "text": "订单详情内容",
+            "variant": "body"
+          }
+        },
+        {
+          "type": "sync_page_navigation"
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-add-003",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "这个流程里好像还缺一个偏设置相关的页面，先补个简单可用的",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "page_exists",
+          "pageId": "settings"
+        },
+        {
+          "type": "new_page_has_min_nodes",
+          "minNodes": 2
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "create_page",
+          "pageId": "settings",
+          "name": "设置",
+          "rootNodeId": "settings-screen",
+          "props": {
+            "title": "设置"
+          }
+        },
+        {
+          "type": "insert_node",
+          "pageId": "settings",
+          "parentId": "settings-screen",
+          "nodeId": "settings-intro",
+          "alias": "core.text",
+          "props": {
+            "text": "设置内容",
+            "variant": "body"
+          }
+        },
+        {
+          "type": "sync_page_navigation"
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-add-004",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "这个流程里好像还缺一个偏相关页面的页面，先补个简单可用的",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "page_exists",
+          "pageId": "messages"
+        },
+        {
+          "type": "new_page_has_min_nodes",
+          "minNodes": 2
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "create_page",
+          "pageId": "messages",
+          "name": "消息通知",
+          "rootNodeId": "messages-screen",
+          "props": {
+            "title": "消息通知"
+          }
+        },
+        {
+          "type": "insert_node",
+          "pageId": "messages",
+          "parentId": "messages-screen",
+          "nodeId": "messages-intro",
+          "alias": "core.text",
+          "props": {
+            "text": "消息通知内容",
+            "variant": "body"
+          }
+        },
+        {
+          "type": "sync_page_navigation"
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-add-005",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "这个流程里好像还缺一个偏相关页面的页面，先补个简单可用的",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "page_exists",
+          "pageId": "member-benefits"
+        },
+        {
+          "type": "new_page_has_min_nodes",
+          "minNodes": 2
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "create_page",
+          "pageId": "member-benefits",
+          "name": "会员权益",
+          "rootNodeId": "member-benefits-screen",
+          "props": {
+            "title": "会员权益"
+          }
+        },
+        {
+          "type": "insert_node",
+          "pageId": "member-benefits",
+          "parentId": "member-benefits-screen",
+          "nodeId": "member-benefits-intro",
+          "alias": "core.text",
+          "props": {
+            "text": "会员权益内容",
+            "variant": "body"
+          }
+        },
+        {
+          "type": "sync_page_navigation"
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-add-006",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "这个流程里好像还缺一个偏数据运营的页面，先补个简单可用的",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "page_exists",
+          "pageId": "analytics"
+        },
+        {
+          "type": "new_page_has_min_nodes",
+          "minNodes": 2
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "create_page",
+          "pageId": "analytics",
+          "name": "数据分析",
+          "rootNodeId": "analytics-screen",
+          "props": {
+            "title": "数据分析"
+          }
+        },
+        {
+          "type": "insert_node",
+          "pageId": "analytics",
+          "parentId": "analytics-screen",
+          "nodeId": "analytics-intro",
+          "alias": "core.text",
+          "props": {
+            "text": "数据分析内容",
+            "variant": "body"
+          }
+        },
+        {
+          "type": "sync_page_navigation"
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-add-007",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "这个流程里好像还缺一个偏相关页面的页面，先补个简单可用的",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "page_exists",
+          "pageId": "help-feedback"
+        },
+        {
+          "type": "new_page_has_min_nodes",
+          "minNodes": 2
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "create_page",
+          "pageId": "help-feedback",
+          "name": "帮助与反馈",
+          "rootNodeId": "help-feedback-screen",
+          "props": {
+            "title": "帮助与反馈"
+          }
+        },
+        {
+          "type": "insert_node",
+          "pageId": "help-feedback",
+          "parentId": "help-feedback-screen",
+          "nodeId": "help-feedback-intro",
+          "alias": "core.text",
+          "props": {
+            "text": "帮助与反馈内容",
+            "variant": "body"
+          }
+        },
+        {
+          "type": "sync_page_navigation"
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-add-008",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "这个流程里好像还缺一个偏商品详情的页面，先补个简单可用的",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "page_exists",
+          "pageId": "product-detail"
+        },
+        {
+          "type": "new_page_has_min_nodes",
+          "minNodes": 2
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "create_page",
+          "pageId": "product-detail",
+          "name": "商品详情",
+          "rootNodeId": "product-detail-screen",
+          "props": {
+            "title": "商品详情"
+          }
+        },
+        {
+          "type": "insert_node",
+          "pageId": "product-detail",
+          "parentId": "product-detail-screen",
+          "nodeId": "product-detail-intro",
+          "alias": "core.text",
+          "props": {
+            "text": "商品详情内容",
+            "variant": "body"
+          }
+        },
+        {
+          "type": "sync_page_navigation"
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-delete-001",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "订单相关那块这版先不用，帮我整理干净",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "page_not_exists",
+          "pageId": "orders"
+        },
+        {
+          "type": "page_exists",
+          "pageId": "home"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "delete_page",
+          "pageId": "orders"
+        },
+        {
+          "type": "sync_page_navigation"
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-delete-002",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "个人中心那块这版先不用，帮我整理干净",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "page_not_exists",
+          "pageId": "profile"
+        },
+        {
+          "type": "page_exists",
+          "pageId": "home"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "delete_page",
+          "pageId": "profile"
+        },
+        {
+          "type": "sync_page_navigation"
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-delete-003",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "订单相关那块这版先不用，帮我整理干净",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "page_not_exists",
+          "pageId": "orders"
+        },
+        {
+          "type": "page_exists",
+          "pageId": "home"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "delete_page",
+          "pageId": "orders"
+        },
+        {
+          "type": "sync_page_navigation"
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-delete-004",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "个人中心那块这版先不用，帮我整理干净",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "page_not_exists",
+          "pageId": "profile"
+        },
+        {
+          "type": "page_exists",
+          "pageId": "home"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "delete_page",
+          "pageId": "profile"
+        },
+        {
+          "type": "sync_page_navigation"
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-delete-005",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "订单相关那块这版先不用，帮我整理干净",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "page_not_exists",
+          "pageId": "orders"
+        },
+        {
+          "type": "page_exists",
+          "pageId": "home"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "delete_page",
+          "pageId": "orders"
+        },
+        {
+          "type": "sync_page_navigation"
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-delete-006",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "个人中心那块这版先不用，帮我整理干净",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "page_not_exists",
+          "pageId": "profile"
+        },
+        {
+          "type": "page_exists",
+          "pageId": "home"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "delete_page",
+          "pageId": "profile"
+        },
+        {
+          "type": "sync_page_navigation"
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-update-001",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "相关页面的叫法和顶部表达有点普通，帮我顺成新版感觉",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-title",
+          "prop": "text",
+          "value": "首页新名称"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-title",
+          "props": {
+            "text": "首页新名称"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-update-002",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "相关页面的叫法和顶部表达有点普通，帮我顺成新版感觉",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-screen",
+          "prop": "title",
+          "value": "精选首页"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-screen",
+          "props": {
+            "title": "精选首页"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-update-003",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "相关页面的叫法和顶部表达有点普通，帮我顺成新版感觉",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-title",
+          "prop": "text",
+          "value": "新版首页描述"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-title",
+          "props": {
+            "text": "新版首页描述"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-update-004",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "订单相关的叫法和顶部表达有点普通，帮我顺成新版感觉",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "orders-status-title",
+          "prop": "text",
+          "value": "默认订单页"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "pageId": "orders",
+          "nodeId": "orders-status-title",
+          "props": {
+            "text": "默认订单页"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-update-005",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "相关页面的叫法和顶部表达有点普通，帮我顺成新版感觉",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-footer-tabs",
+          "prop": "activeTab",
+          "value": "精选"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-footer-tabs",
+          "props": {
+            "activeTab": "精选"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-update-006",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "相关页面的叫法和顶部表达有点普通，帮我顺成新版感觉",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-screen",
+          "prop": "title",
+          "value": "商城首页"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-screen",
+          "props": {
+            "title": "商城首页"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-nav-001",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "几个页面之间的底部切换不太稳，帮我统一整理一下",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "navigation_targets_include",
+          "targetPageIds": [
+            "home",
+            "orders",
+            "profile"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "sync_page_navigation"
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-nav-002",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "几个页面之间的底部切换不太稳，帮我统一整理一下",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "navigation_targets_exact",
+          "targetPageIds": [
+            "home",
+            "orders",
+            "profile"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "sync_page_navigation"
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-nav-003",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "这个流程里好像还缺一个偏客服相关的页面，先补个简单可用的",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "document_contains_text",
+          "value": "常见问题 FAQ"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "create_page",
+          "pageId": "support",
+          "name": "客服中心"
+        },
+        {
+          "type": "insert_node",
+          "pageId": "support",
+          "parentId": "support-screen",
+          "nodeId": "support-faq",
+          "alias": "core.text",
+          "props": {
+            "text": "常见问题 FAQ",
+            "variant": "body"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-nav-004",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "订单相关里有个信息块不太需要了，帮我拿掉",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_not_exists",
+          "nodeId": "orders-status-card"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "delete_node",
+          "pageId": "orders",
+          "nodeId": "orders-status-card"
+        }
+      ]
+    }
+  },
+  {
+    "id": "page-nav-005",
+    "group": "page-crud",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "个人中心里感觉少个基础动作，补一个就行",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_exists",
+          "nodeId": "settings-logout-button"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "insert_node",
+          "pageId": "profile",
+          "parentId": "profile-screen",
+          "nodeId": "settings-logout-button",
+          "alias": "core.button",
+          "props": {
+            "label": "退出登录",
+            "variant": "secondary"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "unrelated-001",
+    "group": "unrelated-diff",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "只把主按钮那处表达顺一下，其他同类内容别跟着改",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-primary-button",
+          "prop": "label",
+          "value": "立即下单"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-primary-button",
+          "props": {
+            "label": "立即下单"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "unrelated-002",
+    "group": "unrelated-diff",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "只把标题那处表达顺一下，其他同类内容别跟着改",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-title",
+          "prop": "text",
+          "value": "标题已更新"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-title",
+          "props": {
+            "text": "标题已更新"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "unrelated-003",
+    "group": "unrelated-diff",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "商品筛选那块里多余的那处拿掉就行，周围内容保持住",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_not_exists",
+          "nodeId": "home-filter-tag"
+        },
+        {
+          "type": "node_exists",
+          "nodeId": "home-product-panel"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "delete_node",
+          "nodeId": "home-filter-tag"
+        }
+      ]
+    }
+  },
+  {
+    "id": "unrelated-004",
+    "group": "unrelated-diff",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "搜索入口可以补一点，但其他区域不要顺手调整",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_exists",
+          "nodeId": "home-limited-search"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "insert_node",
+          "parentId": "home-screen",
+          "nodeId": "home-limited-search",
+          "alias": "core.search",
+          "props": {
+            "placeholder": "只新增搜索"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "unrelated-005",
+    "group": "unrelated-diff",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "只把底部切换关系顺一下，页面主体别动",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "navigation_targets_include",
+          "targetPageIds": [
+            "home",
+            "orders",
+            "profile"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "sync_page_navigation"
+        }
+      ]
+    }
+  },
+  {
+    "id": "unrelated-006",
+    "group": "unrelated-diff",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "只把搜索入口那处表达顺一下，其他同类内容别跟着改",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-search",
+          "prop": "placeholder",
+          "value": "只搜商品"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-search",
+          "props": {
+            "placeholder": "只搜商品"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "unrelated-007",
+    "group": "unrelated-diff",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "只把主按钮那处表达顺一下，其他同类内容别跟着改",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-primary-button",
+          "prop": "label",
+          "value": "选中按钮"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-primary-button",
+          "props": {
+            "label": "选中按钮"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "unrelated-008",
+    "group": "unrelated-diff",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "按钮里多余的那处拿掉就行，周围内容保持住",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_not_exists",
+          "nodeId": "home-duplicate-button"
+        },
+        {
+          "type": "node_exists",
+          "nodeId": "home-primary-button"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "delete_node",
+          "nodeId": "home-duplicate-button"
+        }
+      ]
+    }
+  },
+  {
+    "id": "unrelated-009",
+    "group": "unrelated-diff",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "补一个偏相关页面的页面就好，现有首页布局保持原样",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "page_exists",
+          "pageId": "coupon"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "create_page",
+          "pageId": "coupon",
+          "name": "优惠券"
+        }
+      ]
+    }
+  },
+  {
+    "id": "unrelated-010",
+    "group": "unrelated-diff",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "订单相关那页先去掉，关键页面别误删",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "page_not_exists",
+          "pageId": "orders"
+        },
+        {
+          "type": "page_exists",
+          "pageId": "home"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "delete_page",
+          "pageId": "orders"
+        }
+      ]
+    }
+  },
+  {
+    "id": "unrelated-011",
+    "group": "unrelated-diff",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "只把底部切换那处表达顺一下，其他同类内容别跟着改",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-footer-tabs",
+          "prop": "activeTab",
+          "value": "精选"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-footer-tabs",
+          "props": {
+            "activeTab": "精选"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "unrelated-012",
+    "group": "unrelated-diff",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "只把这块内容那处表达顺一下，其他同类内容别跟着改",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-screen",
+          "prop": "title",
+          "value": "新首页"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-screen",
+          "props": {
+            "title": "新首页"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "unrelated-013",
+    "group": "unrelated-diff",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "只把商品面板那处表达顺一下，其他同类内容别跟着改",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_prop_equals",
+          "nodeId": "home-product-panel",
+          "prop": "tone",
+          "value": "accent"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_props",
+          "nodeId": "home-product-panel",
+          "props": {
+            "tone": "accent"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "unrelated-014",
+    "group": "unrelated-diff",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "提示区域位置稍微挪一下就好，文字和样式别改",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "node_exists",
+          "nodeId": "home-notice"
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "move_node",
+          "nodeId": "home-notice",
+          "parentId": "home-screen"
+        }
+      ]
+    }
+  },
+  {
+    "id": "unrelated-015",
+    "group": "unrelated-diff",
+    "mode": "editor_edit",
+    "startDocument": "commerce-market",
+    "selectedNodeId": null,
+    "prompt": "主按钮只接一下跳转，别新增别的东西",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "navigation_targets_include",
+          "targetPageIds": [
+            "orders"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 0.1
+    },
+    "mock": {
+      "operations": [
+        {
+          "type": "update_interactions",
+          "nodeId": "home-primary-button",
+          "interactions": {
+            "onClick": {
+              "type": "navigate",
+              "targetPageId": "orders"
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "template-generation-001",
+    "group": "template-generation",
+    "mode": "template_generation",
+    "prompt": "想做一个偏健身私教的小应用，先搭个能点的雏形，页面和细节你看着安排",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "generated_app_has_min_pages",
+          "minPages": 3
+        },
+        {
+          "type": "all_pages_have_screen_root"
+        },
+        {
+          "type": "generated_app_has_required_sections",
+          "sections": [
+            "预约健身私教",
+            "立即开始"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 1
+    },
+    "mock": {
+      "templateDomain": "预约健身私教"
+    }
+  },
+  {
+    "id": "template-generation-002",
+    "group": "template-generation",
+    "mode": "template_generation",
+    "prompt": "想做一个偏本地咖啡店的小应用，先搭个能点的雏形，页面和细节你看着安排",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "generated_app_has_min_pages",
+          "minPages": 3
+        },
+        {
+          "type": "all_pages_have_screen_root"
+        },
+        {
+          "type": "generated_app_has_required_sections",
+          "sections": [
+            "本地咖啡店点单",
+            "立即开始"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 1
+    },
+    "mock": {
+      "templateDomain": "本地咖啡店点单"
+    }
+  },
+  {
+    "id": "template-generation-003",
+    "group": "template-generation",
+    "mode": "template_generation",
+    "prompt": "想做一个偏宠物医院预约的小应用，先搭个能点的雏形，页面和细节你看着安排",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "generated_app_has_min_pages",
+          "minPages": 3
+        },
+        {
+          "type": "all_pages_have_screen_root"
+        },
+        {
+          "type": "generated_app_has_required_sections",
+          "sections": [
+            "宠物医院服务预约",
+            "立即开始"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 1
+    },
+    "mock": {
+      "templateDomain": "宠物医院服务预约"
+    }
+  },
+  {
+    "id": "template-generation-004",
+    "group": "template-generation",
+    "mode": "template_generation",
+    "prompt": "想做一个偏校园二手书的小应用，先搭个能点的雏形，页面和细节你看着安排",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "generated_app_has_min_pages",
+          "minPages": 3
+        },
+        {
+          "type": "all_pages_have_screen_root"
+        },
+        {
+          "type": "generated_app_has_required_sections",
+          "sections": [
+            "二手书交易小程序",
+            "立即开始"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 1
+    },
+    "mock": {
+      "templateDomain": "二手书交易小程序"
+    }
+  },
+  {
+    "id": "template-generation-005",
+    "group": "template-generation",
+    "mode": "template_generation",
+    "prompt": "想做一个偏企业内部工单的小应用，先搭个能点的雏形，页面和细节你看着安排",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "generated_app_has_min_pages",
+          "minPages": 3
+        },
+        {
+          "type": "all_pages_have_screen_root"
+        },
+        {
+          "type": "generated_app_has_required_sections",
+          "sections": [
+            "企业工单管理",
+            "立即开始"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 1
+    },
+    "mock": {
+      "templateDomain": "企业工单管理"
+    }
+  },
+  {
+    "id": "template-generation-006",
+    "group": "template-generation",
+    "mode": "template_generation",
+    "prompt": "想做一个偏在线课程学习的小应用，先搭个能点的雏形，页面和细节你看着安排",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "generated_app_has_min_pages",
+          "minPages": 3
+        },
+        {
+          "type": "all_pages_have_screen_root"
+        },
+        {
+          "type": "generated_app_has_required_sections",
+          "sections": [
+            "在线课程学习",
+            "立即开始"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 1
+    },
+    "mock": {
+      "templateDomain": "在线课程学习"
+    }
+  },
+  {
+    "id": "template-generation-007",
+    "group": "template-generation",
+    "mode": "template_generation",
+    "prompt": "想做一个偏社区活动报名的小应用，先搭个能点的雏形，页面和细节你看着安排",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "generated_app_has_min_pages",
+          "minPages": 3
+        },
+        {
+          "type": "all_pages_have_screen_root"
+        },
+        {
+          "type": "generated_app_has_required_sections",
+          "sections": [
+            "社区活动报名",
+            "立即开始"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 1
+    },
+    "mock": {
+      "templateDomain": "社区活动报名"
+    }
+  },
+  {
+    "id": "template-generation-008",
+    "group": "template-generation",
+    "mode": "template_generation",
+    "prompt": "想做一个偏家政上门预约的小应用，先搭个能点的雏形，页面和细节你看着安排",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "generated_app_has_min_pages",
+          "minPages": 3
+        },
+        {
+          "type": "all_pages_have_screen_root"
+        },
+        {
+          "type": "generated_app_has_required_sections",
+          "sections": [
+            "家政服务预约",
+            "立即开始"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 1
+    },
+    "mock": {
+      "templateDomain": "家政服务预约"
+    }
+  },
+  {
+    "id": "template-generation-009",
+    "group": "template-generation",
+    "mode": "template_generation",
+    "prompt": "想做一个偏SaaS 数据看板的小应用，先搭个能点的雏形，页面和细节你看着安排",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "generated_app_has_min_pages",
+          "minPages": 3
+        },
+        {
+          "type": "all_pages_have_screen_root"
+        },
+        {
+          "type": "generated_app_has_required_sections",
+          "sections": [
+            "SaaS 数据看板",
+            "立即开始"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 1
+    },
+    "mock": {
+      "templateDomain": "SaaS 数据看板"
+    }
+  },
+  {
+    "id": "template-generation-010",
+    "group": "template-generation",
+    "mode": "template_generation",
+    "prompt": "想做一个偏餐厅排队取号的小应用，先搭个能点的雏形，页面和细节你看着安排",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "generated_app_has_min_pages",
+          "minPages": 3
+        },
+        {
+          "type": "all_pages_have_screen_root"
+        },
+        {
+          "type": "generated_app_has_required_sections",
+          "sections": [
+            "餐厅排队取号",
+            "立即开始"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 1
+    },
+    "mock": {
+      "templateDomain": "餐厅排队取号"
+    }
+  },
+  {
+    "id": "template-generation-011",
+    "group": "template-generation",
+    "mode": "template_generation",
+    "prompt": "想做一个偏美甲门店预约的小应用，先搭个能点的雏形，页面和细节你看着安排",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "generated_app_has_min_pages",
+          "minPages": 3
+        },
+        {
+          "type": "all_pages_have_screen_root"
+        },
+        {
+          "type": "generated_app_has_required_sections",
+          "sections": [
+            "美甲门店预约",
+            "立即开始"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 1
+    },
+    "mock": {
+      "templateDomain": "美甲门店预约"
+    }
+  },
+  {
+    "id": "template-generation-012",
+    "group": "template-generation",
+    "mode": "template_generation",
+    "prompt": "想做一个偏房源浏览的小应用，先搭个能点的雏形，页面和细节你看着安排",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "generated_app_has_min_pages",
+          "minPages": 3
+        },
+        {
+          "type": "all_pages_have_screen_root"
+        },
+        {
+          "type": "generated_app_has_required_sections",
+          "sections": [
+            "房源浏览",
+            "立即开始"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 1
+    },
+    "mock": {
+      "templateDomain": "房源浏览"
+    }
+  },
+  {
+    "id": "template-generation-013",
+    "group": "template-generation",
+    "mode": "template_generation",
+    "prompt": "想做一个偏电商会员中心的小应用，先搭个能点的雏形，页面和细节你看着安排",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "generated_app_has_min_pages",
+          "minPages": 3
+        },
+        {
+          "type": "all_pages_have_screen_root"
+        },
+        {
+          "type": "generated_app_has_required_sections",
+          "sections": [
+            "电商会员中心",
+            "立即开始"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 1
+    },
+    "mock": {
+      "templateDomain": "电商会员中心"
+    }
+  },
+  {
+    "id": "template-generation-014",
+    "group": "template-generation",
+    "mode": "template_generation",
+    "prompt": "想做一个偏心理咨询预约的小应用，先搭个能点的雏形，页面和细节你看着安排",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "generated_app_has_min_pages",
+          "minPages": 3
+        },
+        {
+          "type": "all_pages_have_screen_root"
+        },
+        {
+          "type": "generated_app_has_required_sections",
+          "sections": [
+            "心理咨询预约",
+            "立即开始"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 1
+    },
+    "mock": {
+      "templateDomain": "心理咨询预约"
+    }
+  },
+  {
+    "id": "template-generation-015",
+    "group": "template-generation",
+    "mode": "template_generation",
+    "prompt": "想做一个偏旅行行程规划的小应用，先搭个能点的雏形，页面和细节你看着安排",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "generated_app_has_min_pages",
+          "minPages": 3
+        },
+        {
+          "type": "all_pages_have_screen_root"
+        },
+        {
+          "type": "generated_app_has_required_sections",
+          "sections": [
+            "旅游行程规划",
+            "立即开始"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 1
+    },
+    "mock": {
+      "templateDomain": "旅游行程规划"
+    }
+  },
+  {
+    "id": "template-generation-016",
+    "group": "template-generation",
+    "mode": "template_generation",
+    "prompt": "想做一个偏社区生鲜团购的小应用，先搭个能点的雏形，页面和细节你看着安排",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "generated_app_has_min_pages",
+          "minPages": 3
+        },
+        {
+          "type": "all_pages_have_screen_root"
+        },
+        {
+          "type": "generated_app_has_required_sections",
+          "sections": [
+            "生鲜团购",
+            "立即开始"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 1
+    },
+    "mock": {
+      "templateDomain": "生鲜团购"
+    }
+  },
+  {
+    "id": "template-generation-017",
+    "group": "template-generation",
+    "mode": "template_generation",
+    "prompt": "想做一个偏招聘职位管理的小应用，先搭个能点的雏形，页面和细节你看着安排",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "generated_app_has_min_pages",
+          "minPages": 3
+        },
+        {
+          "type": "all_pages_have_screen_root"
+        },
+        {
+          "type": "generated_app_has_required_sections",
+          "sections": [
+            "招聘职位管理",
+            "立即开始"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 1
+    },
+    "mock": {
+      "templateDomain": "招聘职位管理"
+    }
+  },
+  {
+    "id": "template-generation-018",
+    "group": "template-generation",
+    "mode": "template_generation",
+    "prompt": "想做一个偏物业报修的小应用，先搭个能点的雏形，页面和细节你看着安排",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "generated_app_has_min_pages",
+          "minPages": 3
+        },
+        {
+          "type": "all_pages_have_screen_root"
+        },
+        {
+          "type": "generated_app_has_required_sections",
+          "sections": [
+            "物业报修",
+            "立即开始"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 1
+    },
+    "mock": {
+      "templateDomain": "物业报修"
+    }
+  },
+  {
+    "id": "template-generation-019",
+    "group": "template-generation",
+    "mode": "template_generation",
+    "prompt": "想做一个偏个人记账的小应用，先搭个能点的雏形，页面和细节你看着安排",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "generated_app_has_min_pages",
+          "minPages": 3
+        },
+        {
+          "type": "all_pages_have_screen_root"
+        },
+        {
+          "type": "generated_app_has_required_sections",
+          "sections": [
+            "个人财务记录",
+            "立即开始"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 1
+    },
+    "mock": {
+      "templateDomain": "个人财务记录"
+    }
+  },
+  {
+    "id": "template-generation-020",
+    "group": "template-generation",
+    "mode": "template_generation",
+    "prompt": "想做一个偏设计作品集的小应用，先搭个能点的雏形，页面和细节你看着安排",
+    "expected": {
+      "mustHave": [
+        {
+          "type": "generated_app_has_min_pages",
+          "minPages": 3
+        },
+        {
+          "type": "all_pages_have_screen_root"
+        },
+        {
+          "type": "generated_app_has_required_sections",
+          "sections": [
+            "设计作品集展示",
+            "立即开始"
+          ]
+        }
+      ],
+      "allowedChanges": [
+        {
+          "path": "*"
+        }
+      ],
+      "maxUnrelatedChangeScore": 1
+    },
+    "mock": {
+      "templateDomain": "设计作品集展示"
+    }
+  }
+]

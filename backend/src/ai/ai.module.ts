@@ -3,11 +3,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { ConfigFactory } from '../config/config.factory';
+import { ConfigService } from '../config/config.service';
 import { Template } from '../templates/entities/template.entity';
 import { User } from '../users/entities/user.entity';
 import { AiController } from './ai.controller';
 import { AiService } from './ai.service';
+import { AgentEvalController } from './agent-eval.controller';
+import { AgentRunnerService } from './agent-runner.service';
 import { AiTokenUsageEvent } from './entities/ai-token-usage.entity';
 import { EditorAiConversation } from './entities/editor-ai-conversation.entity';
 
@@ -15,13 +17,14 @@ import { EditorAiConversation } from './entities/editor-ai-conversation.entity';
   imports: [
     TypeOrmModule.forFeature([Template, EditorAiConversation, AiTokenUsageEvent, User]),
     JwtModule.registerAsync({
-      useFactory: () => ({
-        secret: ConfigFactory.build().jwt.secret,
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret: config.jwt.secret,
       }),
     }),
   ],
-  controllers: [AiController],
-  providers: [AiService, JwtAuthGuard],
-  exports: [AiService],
+  controllers: [AiController, AgentEvalController],
+  providers: [AiService, AgentRunnerService, JwtAuthGuard],
+  exports: [AiService, AgentRunnerService],
 })
 export class AiModule {}

@@ -1,17 +1,24 @@
 import type { ProviderMessage } from '../providers/types';
+import { tokenCountWithEstimation } from '../utils/tokens';
 
-const KEEP_RECENT = 20;
+const MAX_CONTEXT_TOKENS = 500_000;
+const RECENT_CONTEXT_TARGET_TOKENS = 450_000;
 
 export function compactConversation(messages: ProviderMessage[]): ProviderMessage[] {
-  if (messages.length <= KEEP_RECENT + 1) {
-    return messages;
-  }
+  if (tokenCountWithEstimation(messages) <= MAX_CONTEXT_TOKENS) { return messages; }
 
   const system = messages.filter((m) => m.role === 'system');
   const nonSystem = messages.filter((m) => m.role !== 'system');
 
-  const recent = nonSystem.slice(-KEEP_RECENT);
-  const old = nonSystem.slice(0, -KEEP_RECENT);
+  const recent: ProviderMessage[] = [];
+  for (let index = nonSystem.length - 1; index >= 0; index -= 1) {
+    const next = [nonSystem[index], ...recent];
+    if (tokenCountWithEstimation([...system, ...next]) > RECENT_CONTEXT_TARGET_TOKENS) {
+      break;
+    }
+    recent.unshift(nonSystem[index]);
+  }
+  const old = nonSystem.slice(0, Math.max(0, nonSystem.length - recent.length));
 
   const summary = buildSummary(old);
   const note = [

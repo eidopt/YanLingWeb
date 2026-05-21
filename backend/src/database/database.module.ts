@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { ConfigFactory } from '../config/config.factory';
+import { ConfigService } from '../config/config.service';
 import { DatabaseFlushService } from './database-flush.service';
 import { createDatabaseOptions } from './database-options.factory';
 
@@ -9,7 +9,8 @@ import { createDatabaseOptions } from './database-options.factory';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
-      useFactory: () => createDatabaseOptions(ConfigFactory.build()),
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => createDatabaseOptions(config.raw),
     }),
   ],
   providers: [DatabaseFlushService],

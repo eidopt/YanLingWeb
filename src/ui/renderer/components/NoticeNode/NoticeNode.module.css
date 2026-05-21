@@ -4,9 +4,11 @@
   padding: var(--app-unit-1-5) var(--app-unit-2);
   border-radius: var(--app-unit-2);
   background: var(--note-bg);
-  color: var(--app-ink-alpha-08);
+  color: var(--text-subheading-color, var(--app-neutral-800));
   font-size: var(--app-unit-1-5);
+  font-weight: 700;
   line-height: 1.45;
+  box-shadow: inset 0 0 0 var(--app-unit-0-125) color-mix(in srgb, var(--accent) 24%, transparent);
 }
 
 .notice[data-parent-alias='core.grid'] {

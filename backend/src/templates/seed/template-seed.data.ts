@@ -97,6 +97,7 @@ const CORE_COMPONENT_DESCRIPTORS = [
           "promo",
           "warm",
           "soft",
+          "subtle",
           "member",
           "highlight",
         ],

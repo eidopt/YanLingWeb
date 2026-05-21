@@ -46,7 +46,10 @@ const MODEL_CONTEXT_WINDOWS: Record<string, number> = {
   'claude-opus-4-5': 200_000,
   'gpt-5': 400_000,
   'gpt-5.4': 400_000,
-  'deepseek-chat': 128_000,
+  'deepseek-v4-flash': 1_000_000,
+  'deepseek-v4-pro': 1_000_000,
+  'deepseek-chat': 1_000_000,
+  'deepseek-reasoner': 1_000_000,
   'kimi-k2': 128_000,
   'glm-4.6': 128_000,
 };

@@ -1,4 +1,10 @@
-export type ExportStatus = 'idle' | 'saving' | 'building' | 'done' | 'error';
+export type ExportStatus =
+  | 'idle'
+  | 'saving'
+  | 'publishing'
+  | 'building'
+  | 'done'
+  | 'error';
 
 export interface ExportState {
   status: ExportStatus;
@@ -22,4 +28,6 @@ export interface ExportBuildPayload {
   layoutJson: string;
   /** The active theme id, used to pick the correct runtime import */
   themeId: string;
+  /** CSS custom properties for the active runtime theme */
+  runtimeCssVars?: Record<string, string>;
 }

@@ -2,25 +2,32 @@ import { spawn } from 'child_process';
 import fs from 'fs/promises';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import os from 'os';
 import path from 'path';
 import { generateScaffoldFiles } from 'services/ExportService';
 import type { ExportBuildPayload } from 'types/export.types';
 
-const OUTPUT_DIR = path.join(os.homedir(), 'Documents', 'ai-app-exports');
-const SRC_DIR = path.join(process.cwd(), 'src');
+const OUTPUT_DIR = path.join(process.cwd(), 'output', 'react-source-exports');
 
 export async function POST(req: NextRequest) {
   const payload = await req.json() as ExportBuildPayload;
-  const { projectName, layoutJson, themeId } = payload;
+  const {
+    projectName,
+    layoutJson,
+    themeId,
+    runtimeCssVars,
+  } = payload;
   const projectDir = path.join(OUTPUT_DIR, projectName);
 
-  const files = generateScaffoldFiles(layoutJson, themeId, projectName);
+  const files = generateScaffoldFiles(
+    layoutJson,
+    themeId,
+    projectName,
+    runtimeCssVars,
+  );
   for (const file of files) {
     const filePath = path.join(projectDir, file.relativePath);
     await fs.mkdir(path.dirname(filePath), { recursive: true });
-    const fileContent = file.content.replace(/__SRC_DIR__/g, SRC_DIR.replace(/\\/g, '/'));
-    await fs.writeFile(filePath, fileContent, 'utf-8');
+    await fs.writeFile(filePath, file.content, 'utf-8');
   }
 
   const distDir = await runViteBuild(projectDir);

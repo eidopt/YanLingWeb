@@ -26,6 +26,7 @@ export interface ServerConfig {
     expiresIn: string;
   };
   serverFlavor: ServerFlavors;
+  enableAgentEvalEndpoint: boolean;
   oauth: {
     qq: BackendOAuthProviderConfig;
     wechat: BackendOAuthProviderConfig;
@@ -102,6 +103,9 @@ export class ConfigFactory {
           DEFAULT_JWT_EXPIRES_IN,
       },
       serverFlavor,
+      enableAgentEvalEndpoint:
+        serverFlavor !== 'production'
+        || this.read(source, serverFlavor, 'ENABLE_AGENT_EVAL_ENDPOINT') === 'true',
       oauth: {
         qq: {
           appId: this.read(source, serverFlavor, 'QQ_APP_ID'),

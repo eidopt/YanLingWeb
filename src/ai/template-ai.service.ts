@@ -1,8 +1,7 @@
+import { BrowserTemplateStore } from './adapters/browserTemplateStore';
+import { TemplateGenerationAgent } from './agents/templateGenerationAgent';
 import { BackendProxyProvider } from './core/providers/backend-proxy.provider';
-import type { ProviderMessage, ProviderTool } from './core/providers/types';
-import { QueryLoop } from './core/query-loop';
-import { formatUiIntentPlanForPrompt, planUiIntent } from './planning/ui-intent-router';
-import { GENERATE_TEMPLATE_TOOL, type TemplateToolInput } from './tools/generate-template.tool';
+import type { AgentEvent } from '@shared/agent/types';
 
 export interface AiGenerateEvent {
   type:
@@ -23,41 +22,58 @@ export interface GenerateTemplateOptions {
   signal?: AbortSignal;
 }
 
-const SYSTEM_PROMPT = [
-  'You are an expert UI template designer for an AI app and website builder.',
-  '',
-  'Your task: given a user description, design a complete editable UI template',
-  'for an app, website, mini program, or web experience, then call generate_template',
-  'once to save it.',
-  '',
-  'Guidelines:',
-  '- Use Chinese text for all UI labels, titles, and content.',
-  '- Set cssVars with at least: --color-accent, --color-bg, --color-surface, --color-text.',
-  '- Build a layoutDocument with 1-4 pages. Each page has a core.screen root.',
-  '- All layout nodes need: id (kebab-case), alias, layout: { mode: "flow", order: N,',
-  '  width: "100%" }, props.',
-  '- Use core.panel with tone for visual grouping.',
-  '- Create componentTemplates for reusable patterns.',
-  '',
-  'core.widget — for dynamic third-party content (charts, markdown, editors, 3D):',
-  '  Widget runtime is disabled by default and only approved HTTPS dependency',
-  '  origins are loadable. Prefer editable core.* approximations unless the user',
-  '  explicitly asks for custom code/widgets.',
-  '  If a widget is explicitly requested, dependencies must use approved ESM URLs',
-  '  such as https://esm.sh/<package>, and widget code must be minimal.',
-  '  Widget code receives: function(container: HTMLDivElement, lib, data).',
-  '  Always return a cleanup function if the lib needs teardown (e.g. chart.dispose).',
-  '',
-  'If the UI intent plan says a capability is missing, prefer pure layout',
-  'approximations before using core.widget.',
-  '- Never use an alias unless it is a core.* alias or defined in componentTemplates.',
-  '- templateId format: {category}-{theme} (e.g. "fitness-tracker").',
-  '- Call generate_template exactly ONCE. After saving, describe what you created.',
-].join('\n');
+function eventDataToString(data: unknown): string {
+  if (typeof data === 'string') {
+    return data;
+  }
+  if (data == null) {
+    return '';
+  }
+  return JSON.stringify(data);
+}
+
+function getToolEventName(data: unknown): string {
+  if (data && typeof data === 'object' && 'name' in data) {
+    const name = (data as { name?: unknown }).name;
+    return typeof name === 'string' ? name : eventDataToString(data);
+  }
+  return eventDataToString(data);
+}
+
+function forwardGenerateAgentEvent(
+  event: AgentEvent,
+  onEvent: (event: AiGenerateEvent) => void,
+): void {
+  switch (event.type) {
+    case 'intent_plan':
+      onEvent({ type: 'intent_plan', data: eventDataToString(event.data) });
+      break;
+    case 'text':
+      onEvent({ type: 'text', data: eventDataToString(event.data) });
+      break;
+    case 'tool_start':
+      onEvent({ type: 'tool_start', data: getToolEventName(event.data) });
+      break;
+    case 'tool_done':
+      onEvent({ type: 'tool_done', data: getToolEventName(event.data) });
+      break;
+    case 'template_saved':
+      onEvent({ type: 'template_saved', data: eventDataToString(event.data) });
+      break;
+    case 'tool_error':
+    case 'error':
+      onEvent({ type: 'error', data: eventDataToString(event.data) });
+      break;
+    case 'done':
+      onEvent({ type: 'done', data: '' });
+      break;
+    case 'edit_applied':
+      break;
+  }
+}
 
 export class TemplateAiService {
   private provider: BackendProxyProvider;
-  /** Cached model name fetched from backend /api/ai/config */
   private static defaultModel: string | null = null;
 
   constructor(
@@ -67,7 +83,6 @@ export class TemplateAiService {
     this.provider = new BackendProxyProvider(getToken, onAuthExpired);
   }
 
-  /** Fetch AI config from backend and cache the model name */
   static async fetchConfig(token: string | null): Promise<string> {
     if (TemplateAiService.defaultModel) {
       return TemplateAiService.defaultModel;
@@ -81,99 +96,41 @@ export class TemplateAiService {
         TemplateAiService.defaultModel = config.model;
         return config.model;
       }
-    } catch { /* fall through to default */ }
+    } catch {
+      // Fall through to the browser-safe default.
+    }
     return 'gpt-5.4';
   }
 
   async generate(opts: GenerateTemplateOptions): Promise<void> {
     const cfgModel = await TemplateAiService.fetchConfig(this.getToken());
     const { prompt, model = cfgModel, onEvent, signal } = opts;
-    const intentPlan = planUiIntent(prompt);
-    const intentPlanPrompt = formatUiIntentPlanForPrompt(intentPlan);
+    let cancelled = false;
 
     this.provider.resetConversation();
-    onEvent({ type: 'intent_plan', data: JSON.stringify(intentPlan) });
-
-    let cancelled = false;
-    signal?.addEventListener('abort', () => {
+    const cancelOnAbort = () => {
       cancelled = true;
       this.provider.cancel();
-    });
+    };
+    signal?.addEventListener('abort', cancelOnAbort, { once: true });
 
-    const tools: ProviderTool[] = [GENERATE_TEMPLATE_TOOL];
-    const messages: ProviderMessage[] = [
-      { role: 'system', content: SYSTEM_PROMPT },
-      { role: 'system', content: intentPlanPrompt },
-      { role: 'user', content: prompt },
-    ];
-
-    const loop = new QueryLoop({
-      provider: this.provider,
-      model,
-      tools,
-      toolSpecs: new Map([[
-        GENERATE_TEMPLATE_TOOL.name,
-        { name: GENERATE_TEMPLATE_TOOL.name },
-      ]]),
-      maxIterations: 10,
-      isCancelled: () => cancelled,
-
-      onTextDelta: (text) => { onEvent({ type: 'text', data: text }); },
-
-      onToolEvent: (event) => {
-        if (event.status === 'start') {
-          onEvent({ type: 'tool_start', data: event.name });
-        } else if (event.status === 'done') {
-          onEvent({ type: 'tool_done', data: event.name });
-        }
-      },
-
-      onError: (msg) => { onEvent({ type: 'error', data: msg }); },
-
-      toolExecutor: async (name, args) => {
-        if (name === 'generate_template') {
-          return this.saveTemplate(args as unknown as TemplateToolInput, onEvent);
-        }
-        return { output: JSON.stringify({ error: `Unknown tool: ${name}` }) };
-      },
-    });
-
-    const result = await loop.run(messages);
-
-    if (result.stopReason === 'error') {
-      onEvent({ type: 'error', data: result.error ?? 'Unknown error' });
+    try {
+      const agent = new TemplateGenerationAgent({
+        provider: this.provider,
+        model,
+        templateStore: new BrowserTemplateStore(this.getToken),
+        persist: true,
+        isCancelled: () => cancelled,
+        onEvent: (event) => {
+          forwardGenerateAgentEvent(event, onEvent);
+        },
+      });
+      const result = await agent.run({ prompt });
+      if (result.status === 'errored' && result.error) {
+        onEvent({ type: 'error', data: result.error });
+      }
+    } finally {
+      signal?.removeEventListener('abort', cancelOnAbort);
     }
-    onEvent({ type: 'done', data: '' });
-  }
-
-  private async saveTemplate(
-    input: TemplateToolInput,
-    onEvent: (e: AiGenerateEvent) => void,
-  ): Promise<{ output: string }> {
-    const token = this.getToken();
-    const res = await fetch('/api/proxy/ai/templates', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        ...(token ? { authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify(input),
-    });
-
-    if (!res.ok) {
-      const text = await res.text().catch(() => '');
-      let message = `Failed to save template (${res.status})`;
-      try {
-        message = (JSON.parse(text) as { message?: string }).message ?? message;
-      } catch { /* use raw status */ }
-      return { output: JSON.stringify({ error: message }) };
-    }
-
-    const saved = await res.json() as { templateId: string; action: string };
-    onEvent({
-      type: 'template_saved',
-      data: JSON.stringify({ ...saved, name: input.name }),
-    });
-    return { output: JSON.stringify({ success: true, ...saved }) };
   }
 }

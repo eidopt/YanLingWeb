@@ -1,23 +1,23 @@
 .screen {
   /* ── Seed tokens (defined by template) ───────────────────────────── */
   --accent: var(--app-color-accent);
-  --surface: linear-gradient(180deg, var(--app-color-success-bg) 0%, var(--app-color-success-bg) 100%);
-  --surface-muted: var(--app-white-alpha-08);
-  --panel-bg: var(--app-white-alpha-10);
-  --panel-border: var(--app-ink-alpha-08);
-  --panel-accent: var(--app-accent-alpha-02);
-  --panel-accent-border: var(--app-accent-alpha-02);
-  --search-bg: var(--app-white-alpha-08);
-  --note-bg: var(--app-accent-alpha-02);
-  --text-base: var(--app-neutral-850);
+  --surface: linear-gradient(180deg, var(--app-neutral-50) 0%, var(--app-surface-2) 100%);
+  --surface-muted: var(--app-surface-1);
+  --panel-bg: var(--app-surface-1);
+  --panel-border: var(--app-border);
+  --panel-accent: color-mix(in srgb, var(--accent) 12%, var(--app-surface-1));
+  --panel-accent-border: color-mix(in srgb, var(--accent) 26%, var(--app-border));
+  --search-bg: var(--app-surface-1);
+  --note-bg: color-mix(in srgb, var(--accent) 14%, var(--app-surface-1));
+  --text-base: var(--app-neutral-900);
   --radius-base: var(--app-unit-2);
 
   /* ── Derived: typography ─────────────────────────────────────────── */
-  --text-heading-color:    color-mix(in srgb, var(--text-base) 95%, var(--app-neutral-0));
-  --text-subheading-color: color-mix(in srgb, var(--text-base) 78%, var(--app-neutral-0));
-  --text-body-color:       color-mix(in srgb, var(--text-base) 52%, var(--app-neutral-0));
-  --text-caption-color:    color-mix(in srgb, var(--text-base) 38%, var(--app-neutral-0));
-  --text-overline-color:   color-mix(in srgb, var(--text-base) 48%, var(--app-neutral-0));
+  --text-heading-color:    color-mix(in srgb, var(--text-base) 96%, var(--app-neutral-0));
+  --text-subheading-color: color-mix(in srgb, var(--text-base) 84%, var(--app-neutral-0));
+  --text-body-color:       color-mix(in srgb, var(--text-base) 68%, var(--app-neutral-0));
+  --text-caption-color:    color-mix(in srgb, var(--text-base) 56%, var(--app-neutral-0));
+  --text-overline-color:   color-mix(in srgb, var(--text-base) 72%, var(--app-neutral-0));
 
   /* ── Derived: shape ──────────────────────────────────────────────── */
   --radius-screen: calc(var(--radius-base) * 1.8);
@@ -61,7 +61,7 @@
   background: var(--surface);
   box-shadow:
     0 var(--app-unit-2-5) var(--app-unit-7) var(--app-ink-alpha-02),
-    inset 0 0 0 var(--app-unit-0-125) var(--app-white-alpha-08);
+    inset 0 0 0 var(--app-unit-0-125) var(--app-border-subtle);
   color: var(--app-neutral-850);
   position: relative;
   isolation: isolate;
@@ -71,15 +71,15 @@
 }
 
 .screenMobile {
-  border: var(--app-unit-0-125) solid var(--app-white-alpha-08);
+  border: var(--app-unit-0-125) solid var(--app-border);
   border-radius: var(--app-unit-4);
   background:
-    radial-gradient(circle at top, var(--app-white-alpha-10), transparent 36%),
-    linear-gradient(180deg, var(--app-color-success-bg) 0%, var(--app-color-success-bg) 100%);
+    radial-gradient(circle at top, color-mix(in srgb, var(--accent) 10%, transparent), transparent 36%),
+    var(--surface);
   box-shadow:
     0 var(--app-unit-3) var(--app-unit-7) var(--app-ink-alpha-02),
-    inset 0 var(--app-unit-0-125) 0 var(--app-white-alpha-08),
-    inset 0 0 0 var(--app-unit-0-125) var(--app-neutral-alpha-02);
+    inset 0 var(--app-unit-0-125) 0 var(--app-white-alpha-80),
+    inset 0 0 0 var(--app-unit-0-125) var(--app-border-subtle);
 }
 
 .screenMobile::before {
@@ -92,7 +92,7 @@
   height: var(--app-unit-2-5);
   transform: translateX(-50%);
   border-radius: var(--app-radius-pill);
-  background: var(--app-ink-alpha-08);
+  background: color-mix(in srgb, var(--text-base) 16%, transparent);
   box-shadow: inset 0 var(--app-unit-0-125) 0 var(--app-white-alpha-04);
 }
 
@@ -131,7 +131,7 @@
 .signalIcon span {
   width: var(--app-unit-0-25);
   border-radius: var(--app-radius-pill);
-  background: var(--app-ink-alpha-08);
+  background: color-mix(in srgb, var(--text-base) 48%, transparent);
 }
 
 .signalIcon span:nth-child(1) { height: var(--app-unit-0-5); opacity: 0.5; }
@@ -146,7 +146,7 @@
   width: var(--app-unit-2-5);
   height: var(--app-unit-1-5);
   padding: var(--app-unit-0-125);
-  border: var(--app-unit-0-125) solid var(--app-ink-alpha-08);
+  border: var(--app-unit-0-125) solid color-mix(in srgb, var(--text-base) 48%, transparent);
   border-radius: var(--app-unit-0-5);
   box-sizing: border-box;
 }
@@ -160,7 +160,7 @@
   height: var(--app-unit-0-5);
   transform: translateY(-50%);
   border-radius: 0 var(--app-radius-pill) var(--app-radius-pill) 0;
-  background: var(--app-ink-alpha-08);
+  background: color-mix(in srgb, var(--text-base) 48%, transparent);
 }
 
 .batteryLevel {
@@ -168,7 +168,7 @@
   width: 72%;
   height: 100%;
   border-radius: var(--app-unit-0-25);
-  background: var(--app-ink-alpha-08);
+  background: color-mix(in srgb, var(--text-base) 48%, transparent);
 }
 
 .header {
@@ -198,8 +198,8 @@
   flex: 0 0 auto;
   border: 0;
   border-radius: var(--app-radius-pill);
-  background: var(--app-white-alpha-08);
-  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--app-ink-alpha-08);
+  background: var(--app-surface-1);
+  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--app-border);
 }
 
 .miniProgramCapsule,
@@ -211,9 +211,9 @@
   min-height: var(--app-unit-4);
   padding: 0 var(--app-unit-1-5);
   border-radius: var(--app-radius-pill);
-  background: var(--app-white-alpha-10);
+  background: var(--app-surface-1);
   box-shadow:
-    inset 0 0 0 var(--app-unit-0-125) var(--app-ink-alpha-08),
+    inset 0 0 0 var(--app-unit-0-125) var(--app-border),
     0 var(--app-unit-0-75) var(--app-unit-1-75) var(--app-ink-alpha-08);
 }
 
@@ -225,7 +225,7 @@
   width: var(--app-unit-0-75);
   height: var(--app-unit-0-75);
   border-radius: var(--app-radius-pill);
-  background: var(--app-ink-alpha-05);
+  background: color-mix(in srgb, var(--text-base) 44%, transparent);
 }
 
 .miniProgramCapsuleLabel {
@@ -247,8 +247,8 @@
   padding: var(--app-unit-1) var(--app-unit-1-5);
   border: 0;
   border-radius: var(--app-radius-pill);
-  background: var(--app-white-alpha-10);
-  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--app-ink-alpha-08);
+  background: var(--app-surface-1);
+  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--app-border);
   font-size: var(--app-unit-1-5);
   font-weight: 700;
 }

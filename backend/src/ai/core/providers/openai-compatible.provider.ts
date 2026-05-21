@@ -75,6 +75,7 @@ export class OpenAICompatibleProvider implements AIProvider {
       | undefined;
     /** Accumulated reasoning_content (DeepSeek streams it character by character) */
     let reasoningBuffer = '';
+    let responseId: string | undefined;
 
     try {
       for await (const chunk of streamIter) {
@@ -84,12 +85,21 @@ export class OpenAICompatibleProvider implements AIProvider {
         // DeepSeek returns prompt_cache_hit_tokens / prompt_cache_miss_tokens in usage
         if (chunk.usage) {
           const rawUsage = chunk.usage as unknown as Record<string, number>;
+          const cacheHitTokens = rawUsage.prompt_cache_hit_tokens ?? undefined;
+          const cacheMissTokens = rawUsage.prompt_cache_miss_tokens
+            ?? (cacheHitTokens === undefined
+              ? undefined
+              : Math.max(0, chunk.usage.prompt_tokens - cacheHitTokens));
           usage = {
             inputTokens: chunk.usage.prompt_tokens,
             outputTokens: chunk.usage.completion_tokens,
-            cacheHitTokens: rawUsage.prompt_cache_hit_tokens ?? undefined,
-            cacheMissTokens: rawUsage.prompt_cache_miss_tokens ?? undefined,
+            cacheHitTokens,
+            cacheMissTokens,
           };
+        }
+
+        if (typeof chunk.id === 'string') {
+          responseId = chunk.id;
         }
 
         const choice = chunk.choices?.[0];
@@ -146,6 +156,7 @@ export class OpenAICompatibleProvider implements AIProvider {
             type: 'done',
             usage,
             stopReason: isMaxTokens ? 'max_tokens' : 'end_turn',
+            ...(responseId && { response_id: responseId }),
             ...(reasoningBuffer && { reasoningContent: reasoningBuffer }),
           };
         }

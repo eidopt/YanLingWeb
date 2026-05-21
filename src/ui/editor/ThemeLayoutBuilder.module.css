@@ -5,6 +5,7 @@
   display: block;
   padding: var(--page-padding);
   overflow: hidden;
+  background: transparent;
 }
 
 .eyebrow,
@@ -41,10 +42,12 @@
   min-width: 0;
   min-height: 0;
   padding: var(--app-unit-2);
-  border: var(--app-unit-0-125) solid var(--app-border);
+  border: var(--app-unit-0-125) solid var(--app-editor-border);
   border-radius: var(--app-radius-2xl);
-  background: var(--app-surface-3);
-  box-shadow: var(--app-shadow-sm);
+  background: var(--app-editor-panel);
+  box-shadow:
+    0 var(--app-unit-2) var(--app-unit-5) rgba(0, 0, 0, 0.34),
+    inset 0 var(--app-unit-0-125) 0 rgba(255, 255, 255, 0.04);
 }
 
 .panelHeader {
@@ -86,7 +89,7 @@
   top: 0;
   z-index: 4;
   padding-bottom: var(--app-unit-0-25);
-  background: linear-gradient(180deg, var(--app-surface-3), color-mix(in srgb, var(--app-surface-3) 82%, transparent));
+  background: linear-gradient(180deg, var(--app-editor-panel), color-mix(in srgb, var(--app-editor-panel) 82%, transparent));
   backdrop-filter: blur(var(--app-unit-1-75));
 }
 
@@ -96,8 +99,8 @@
   gap: var(--app-unit-1);
   padding: var(--app-unit-0-75);
   border-radius: var(--app-radius-xl);
-  background: var(--app-surface-2);
-  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--app-border-subtle);
+  background: var(--app-editor-panel-raised);
+  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--app-editor-border);
 }
 
 .sidebarContent {
@@ -134,9 +137,9 @@
   width: 100%;
   min-height: 0;
   padding: var(--app-unit-1-5);
-  border: var(--app-unit-0-125) solid var(--app-border);
+  border: var(--app-unit-0-125) solid var(--app-editor-border);
   border-radius: var(--app-unit-2-5);
-  background: var(--app-surface-2);
+  background: var(--app-editor-panel-soft);
   box-shadow: var(--app-shadow-xs);
   text-align: left;
   cursor: pointer;
@@ -149,10 +152,10 @@
 
 .templateCard:hover,
 .templateCardActive {
-  border-color: color-mix(in srgb, var(--sidebar-accent) 48%, var(--app-surface-1));
-  background: var(--app-neutral-0);
+  border-color: var(--app-editor-border-strong);
+  background: var(--app-editor-panel-raised);
   transform: translateY(calc(var(--app-unit-0-125) * -1));
-  box-shadow: var(--app-shadow-sm);
+  box-shadow: var(--app-shadow-brand-sm);
 }
 
 .templateCardHeader {
@@ -161,7 +164,7 @@
 }
 
 .templateCardHeader strong {
-  color: var(--app-neutral-900);
+  color: var(--app-text-primary);
   font-size: var(--app-unit-1-75);
   line-height: 1.35;
 }
@@ -183,7 +186,7 @@
   overflow: hidden;
   border-radius: var(--app-unit-2);
   background:
-    linear-gradient(180deg, var(--app-surface-3), var(--app-surface-2)),
+    linear-gradient(180deg, var(--app-editor-panel-raised), var(--app-editor-panel-soft)),
     radial-gradient(circle at top right, color-mix(in srgb, var(--sidebar-accent) 12%, transparent), transparent 32%);
   box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--app-border-subtle);
 }
@@ -213,9 +216,9 @@
   display: grid;
   gap: var(--app-unit-1-5);
   padding: var(--app-unit-1-5);
-  border: var(--app-unit-0-125) solid var(--app-border);
+  border: var(--app-unit-0-125) solid var(--app-editor-border);
   border-radius: var(--app-unit-2-25);
-  background: var(--app-surface-2);
+  background: var(--app-editor-panel-soft);
   box-shadow: var(--app-shadow-xs);
   cursor: grab;
   overflow: hidden;
@@ -227,13 +230,13 @@
 
 .libraryCard strong {
   display: block;
-  color: var(--app-neutral-900);
+  color: var(--app-text-primary);
   font-size: var(--app-unit-1-75);
   line-height: 1.4;
 }
 
 .libraryCard p {
-  color: var(--app-neutral-500);
+  color: var(--app-text-muted);
   font-size: var(--app-unit-1-75);
 }
 
@@ -242,7 +245,7 @@
   padding: var(--app-unit-1-75);
   border-radius: var(--app-unit-2);
   background:
-    linear-gradient(180deg, var(--app-surface-3), var(--app-surface-2)),
+    linear-gradient(180deg, var(--app-editor-panel-raised), var(--app-editor-panel-soft)),
     radial-gradient(circle at top right, color-mix(in srgb, var(--sidebar-accent) 10%, transparent), transparent 34%);
   box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--app-border-subtle);
 }
@@ -281,10 +284,12 @@
   gap: var(--app-unit-1-5);
   min-height: var(--app-unit-6);
   padding: var(--app-unit-1) var(--app-unit-1-5);
-  border: var(--app-unit-0-125) solid var(--app-border-subtle);
+  border: var(--app-unit-0-125) solid var(--app-editor-border);
   border-radius: var(--app-unit-2-5);
-  background: var(--app-surface-3);
-  box-shadow: 0 var(--app-unit-1-75) var(--app-unit-4) var(--app-ink-alpha-08);
+  background: var(--app-editor-panel);
+  box-shadow:
+    0 var(--app-unit-1-75) var(--app-unit-4) rgba(0, 0, 0, 0.28),
+    inset 0 var(--app-unit-0-125) 0 rgba(255, 255, 255, 0.04);
 }
 
 .canvasToolbarLeft {
@@ -313,8 +318,8 @@
   padding: var(--app-unit-0-375);
   border-radius: var(--app-radius-pill);
   justify-self: end;
-  background: var(--app-surface-2);
-  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--app-border-subtle);
+  background: var(--app-editor-panel-raised);
+  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--app-editor-border);
   overflow: hidden;
 }
 
@@ -347,13 +352,13 @@
   border: 0;
   border-radius: var(--app-radius-pill);
   background: transparent;
-  color: var(--app-neutral-600);
+  color: var(--app-text-muted);
   cursor: pointer;
   transition: color 120ms ease;
 }
 
 .segmentedSwitchButton:hover {
-  color: var(--app-neutral-900);
+  color: var(--app-text-primary);
 }
 
 .segmentedSwitchButtonActive {
@@ -380,6 +385,10 @@
   min-height: 0;
   display: flex;
   overflow: visible;
+  border-radius: var(--app-radius-2xl);
+  background:
+    radial-gradient(ellipse 40% 36% at 50% 0%, rgba(139, 92, 246, 0.05), transparent 70%),
+    rgba(0, 0, 0, 0.12);
 }
 
 .canvasDrop {
@@ -420,10 +429,12 @@
   gap: var(--app-unit-1-25);
   min-height: var(--app-unit-6);
   padding: var(--app-unit-0-75) var(--app-unit-1-5);
-  border: var(--app-unit-0-125) solid var(--app-border-subtle);
+  border: var(--app-unit-0-125) solid var(--app-editor-border);
   border-radius: var(--app-unit-2-5);
-  background: var(--app-surface-3);
-  box-shadow: 0 var(--app-unit-1-75) var(--app-unit-4) var(--app-ink-alpha-08);
+  background: var(--app-editor-panel);
+  box-shadow:
+    0 var(--app-unit-1-75) var(--app-unit-4) rgba(0, 0, 0, 0.28),
+    inset 0 var(--app-unit-0-125) 0 rgba(255, 255, 255, 0.04);
   position: relative;
   z-index: 2;
   flex: 0 0 auto;
@@ -445,7 +456,7 @@
   height: var(--app-unit-1);
   border: 0;
   border-radius: var(--app-radius-pill);
-  background: var(--app-neutral-alpha-08);
+  background: var(--app-neutral-400);
   cursor: pointer;
   transition: transform 120ms ease, background-color 120ms ease;
 }
@@ -532,7 +543,7 @@
   height: var(--app-unit-3);
   border: 0;
   border-radius: var(--app-radius-pill);
-  background: var(--app-neutral-0);
+  background: color-mix(in srgb, var(--app-color-ink) 82%, transparent);
   box-shadow:
     0 var(--app-unit-1) var(--app-unit-2) var(--app-ink-alpha-02),
     0 0 0 var(--app-unit-0-125) var(--app-danger-alpha-02);
@@ -642,8 +653,8 @@
   gap: var(--app-unit-1-75);
   padding: var(--app-unit-2);
   border-radius: var(--app-unit-2);
-  border: var(--app-unit-0-125) solid var(--app-neutral-alpha-02);
-  background: var(--app-surface-2);
+  border: var(--app-unit-0-125) solid var(--app-editor-border);
+  background: var(--app-editor-panel-soft);
 }
 
 .treeActions {
@@ -663,12 +674,14 @@
   grid-template-rows: auto auto minmax(0, 1fr) auto;
   gap: var(--app-unit-1-75);
   padding: var(--app-unit-2);
-  border: var(--app-unit-0-125) solid var(--app-border);
+  border: var(--app-unit-0-125) solid var(--app-editor-border);
   border-radius: var(--app-unit-2-25);
   background:
-    radial-gradient(circle at top right, color-mix(in srgb, var(--preview-accent) 11%, transparent), transparent 34%),
-    var(--app-surface-3);
-  box-shadow: 0 var(--app-unit-2) var(--app-unit-5) var(--app-ink-alpha-08);
+    radial-gradient(circle at top right, color-mix(in srgb, var(--preview-accent) 9%, transparent), transparent 34%),
+    var(--app-editor-panel);
+  box-shadow:
+    0 var(--app-unit-2) var(--app-unit-5) rgba(0, 0, 0, 0.34),
+    inset 0 var(--app-unit-0-125) 0 rgba(255, 255, 255, 0.04);
 }
 
 .editorAiHeader {
@@ -679,7 +692,7 @@
 }
 
 .editorAiHeader h3 {
-  color: var(--app-neutral-900);
+  color: var(--app-text-primary);
   font-size: var(--app-unit-2);
 }
 
@@ -688,8 +701,8 @@
   max-width: var(--app-unit-14);
   padding: var(--app-unit-0-5) var(--app-unit-1-25);
   border-radius: var(--app-radius-pill);
-  background: color-mix(in srgb, var(--preview-accent) 12%, white);
-  color: color-mix(in srgb, var(--preview-accent) 72%, var(--app-neutral-900));
+  background: color-mix(in srgb, var(--preview-accent) 14%, transparent);
+  color: color-mix(in srgb, var(--preview-accent) 72%, var(--app-text-primary));
   font-size: var(--app-unit-1-5);
   font-weight: 800;
   line-height: 1.3;
@@ -706,8 +719,8 @@
   max-width: 100%;
   padding: var(--app-unit-0-5) var(--app-unit-1);
   border-radius: var(--app-unit-1-5);
-  background: var(--app-surface-2);
-  color: var(--app-neutral-600);
+  background: var(--app-editor-panel-raised);
+  color: var(--app-text-muted);
   font-size: var(--app-unit-1-5);
   font-weight: 700;
   line-height: 1.25;
@@ -736,20 +749,20 @@
 
 .editorAiAssistantMessage {
   align-self: flex-start;
-  background: var(--app-neutral-0);
-  color: var(--app-neutral-700);
-  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--app-neutral-alpha-02);
+  background: var(--app-editor-panel-raised);
+  color: var(--app-text-secondary);
+  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--app-editor-border);
 }
 
 .editorAiStreamingMessage {
   position: relative;
-  border: var(--app-unit-0-125) solid color-mix(in srgb, var(--preview-accent) 20%, var(--app-neutral-200));
+  border: var(--app-unit-0-125) solid color-mix(in srgb, var(--preview-accent) 28%, var(--app-editor-border));
   background:
-    linear-gradient(180deg, var(--app-neutral-0), var(--app-color-primary-bg)),
-    color-mix(in srgb, var(--preview-accent) 4%, white);
+    linear-gradient(180deg, var(--app-editor-panel-raised), var(--app-color-primary-bg)),
+    color-mix(in srgb, var(--preview-accent) 8%, transparent);
   box-shadow:
     inset 0 0 0 var(--app-unit-0-125) var(--app-white-alpha-08),
-    0 var(--app-unit-1-5) var(--app-unit-3) var(--app-ink-alpha-08);
+    var(--app-shadow-brand-sm);
 }
 
 .editorAiStreamingCursor {
@@ -758,7 +771,7 @@
   display: inline-block;
   margin-left: var(--app-unit-0-375);
   border-radius: var(--app-radius-pill);
-  background: color-mix(in srgb, var(--preview-accent) 72%, var(--app-neutral-900));
+  background: color-mix(in srgb, var(--preview-accent) 72%, var(--app-text-primary));
   vertical-align: -0.14em;
   animation: editorAiCursorPulse 900ms steps(2, start) infinite;
 }
@@ -773,8 +786,8 @@
 .editorAiSystemMessage {
   align-self: stretch;
   max-width: 100%;
-  background: var(--app-surface-2);
-  color: var(--app-neutral-600);
+  background: var(--app-editor-panel-soft);
+  color: var(--app-text-muted);
 }
 
 .editorAiMarkdown {
@@ -787,7 +800,7 @@
 }
 
 .editorAiMarkdown :where(h1, h2, h3) {
-  color: var(--app-neutral-900);
+  color: var(--app-text-primary);
   font-weight: 850;
   line-height: 1.25;
 }
@@ -830,12 +843,12 @@
   padding: var(--app-unit-0-75) var(--app-unit-1);
   border-left: var(--app-unit-0-375) solid color-mix(in srgb, var(--preview-accent) 54%, var(--app-neutral-400));
   border-radius: var(--app-unit-1-25);
-  background: var(--app-surface-2);
-  color: var(--app-neutral-600);
+  background: var(--app-editor-panel-soft);
+  color: var(--app-text-secondary);
 }
 
 .editorAiMarkdown a {
-  color: color-mix(in srgb, var(--preview-accent) 78%, var(--app-neutral-900));
+  color: color-mix(in srgb, var(--preview-accent) 78%, var(--app-text-primary));
   font-weight: 750;
   text-decoration: underline;
   text-underline-offset: 0.14em;
@@ -865,16 +878,16 @@
 }
 
 .editorAiMarkdown th {
-  background: var(--app-surface-2);
-  color: var(--app-neutral-900);
+  background: var(--app-editor-panel-raised);
+  color: var(--app-text-primary);
   font-weight: 800;
 }
 
 .editorAiInlineCode {
   padding: var(--app-unit-0-125) var(--app-unit-0-5);
   border-radius: var(--app-unit-0-75);
-  background: var(--app-ink-alpha-05);
-  color: var(--app-neutral-900);
+  background: var(--app-editor-panel-raised);
+  color: var(--app-color-accent);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.78em;
 }
@@ -886,7 +899,7 @@
   padding: var(--app-unit-1-5) var(--app-unit-1-5);
   border: var(--app-unit-0-125) solid var(--app-neutral-alpha-02);
   border-radius: var(--app-unit-1-5);
-  background: var(--app-neutral-900);
+  background: var(--app-color-ink);
   color: var(--app-neutral-200);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: var(--app-unit-1-5);
@@ -973,8 +986,8 @@
 .jsonPreview {
   padding: var(--app-unit-2);
   border-radius: var(--app-unit-2);
-  background: var(--app-surface-2);
-  color: var(--app-neutral-600);
+  background: var(--app-editor-panel-soft);
+  color: var(--app-text-muted);
 }
 
 .jsonPreview {
@@ -993,8 +1006,9 @@
   justify-content: center;
   align-items: center;
   padding: var(--app-unit-3);
-  background: var(--app-ink-alpha-05);
-  backdrop-filter: blur(var(--app-unit-0-75));
+  background: var(--app-modal-backdrop);
+  backdrop-filter: blur(var(--app-unit-1-5)) saturate(130%);
+  -webkit-backdrop-filter: blur(var(--app-unit-1-5)) saturate(130%);
 }
 
 .dialog {
@@ -1003,8 +1017,10 @@
   overflow: auto;
   padding: var(--app-unit-2-5);
   border-radius: var(--app-unit-3);
-  background: var(--app-neutral-0);
-  box-shadow: 0 var(--app-unit-3) var(--app-unit-8) var(--app-ink-alpha-02);
+  border: var(--app-unit-0-125) solid var(--app-modal-border);
+  background: var(--app-modal-surface);
+  box-shadow: var(--app-shadow-lg), var(--app-shadow-glow-violet);
+  backdrop-filter: blur(var(--app-unit-2-5)) saturate(160%);
 }
 
 .dialogHeader {
@@ -1015,7 +1031,7 @@
 }
 
 .dialogHeader p {
-  color: var(--app-neutral-500);
+  color: var(--app-text-muted);
 }
 
 .dialogGrid {
@@ -1030,7 +1046,8 @@
   gap: var(--app-unit-1-75);
   padding: var(--app-unit-2);
   border-radius: var(--app-unit-2-5);
-  background: var(--app-neutral-50);
+  border: var(--app-unit-0-125) solid var(--app-border-subtle);
+  background: var(--app-modal-surface-muted);
 }
 
 .dialogSection h4 {
@@ -1051,7 +1068,7 @@
   display: grid;
   min-width: 0;
   gap: var(--app-unit-0-75);
-  color: var(--app-neutral-700);
+  color: var(--app-text-secondary);
   font-size: var(--app-unit-1-75);
 }
 

@@ -38,9 +38,9 @@
   position: relative;
   min-height: var(--app-unit-3);
   padding: var(--app-unit-3);
-  border: var(--app-unit-0-125) solid var(--app-white-alpha-02);
+  border: var(--app-unit-0-125) solid rgba(255, 255, 255, 0.18);
   border-radius: var(--app-radius-2xl);
-  background: var(--app-white-alpha-08);
+  background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(var(--app-unit-1-75));
   transition:
     transform var(--app-motion-base) var(--app-motion-smooth),
@@ -50,7 +50,7 @@
 
 .publishStep:hover {
   border-color: color-mix(in srgb, var(--app-color-primary) 36%, transparent);
-  background: var(--app-white-alpha-00);
+  background: rgba(255, 255, 255, 0.18);
   transform: translateY(calc(var(--app-unit-0-5) * -1));
 }
 
@@ -61,7 +61,7 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--app-radius-xl);
-  background: var(--app-primary-alpha-02);
+  background: color-mix(in srgb, var(--app-color-primary) 72%, var(--app-color-section-dark-2));
   color: var(--app-text-inverse);
   font-size: var(--app-unit-1-75);
   font-weight: 900;

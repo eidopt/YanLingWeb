@@ -1,27 +1,27 @@
 .root {
   min-height: 100%;
-  background: var(--page-surface, var(--app-surface-1));
+  background: var(--app-bg);
   isolation: isolate;
 }
 
 .section {
   padding: var(--app-unit-12) 8%;
-  background: var(--page-surface, var(--app-surface-1));
+  background: transparent;
 }
 
 .sectionMuted {
-  background: var(--app-surface-2);
+  background: color-mix(in srgb, var(--app-surface-2) 72%, transparent);
 }
 
 .sectionDark {
   background:
     linear-gradient(135deg, var(--app-color-section-dark-1) 0%, var(--app-color-section-dark-2) 52%, var(--app-color-section-dark-3) 100%);
   color: var(--app-text-inverse);
-  --app-dark-section-text: var(--app-white-alpha-10);
-  --app-dark-section-muted: var(--app-white-alpha-08);
-  --app-dark-section-subtle: var(--app-white-alpha-08);
-  --app-dark-section-card: var(--app-white-alpha-10);
-  --app-dark-section-card-border: var(--app-white-alpha-02);
+  --app-dark-section-text: var(--app-text-inverse);
+  --app-dark-section-muted: var(--app-text-inverse-muted);
+  --app-dark-section-subtle: var(--app-text-inverse-faint);
+  --app-dark-section-card: rgba(255, 255, 255, 0.12);
+  --app-dark-section-card-border: rgba(255, 255, 255, 0.18);
 }
 
 .inner {
@@ -47,7 +47,7 @@
   justify-content: center;
   gap: 0;
   padding: var(--app-unit-8) 8%;
-  background: var(--app-surface-2);
+  background: color-mix(in srgb, var(--app-surface-2) 72%, transparent);
   border-bottom: var(--app-unit-0-125) solid var(--app-border-subtle);
 }
 
@@ -108,19 +108,23 @@
 }
 
 .surfaceCardLight {
-  background: var(--app-surface-1);
-  border: var(--app-unit-0-125) solid var(--app-border-subtle);
-  box-shadow: var(--app-shadow-xs);
+  background:
+    var(--app-gradient-card-glow),
+    var(--app-surface-1);
+  border: var(--app-unit-0-125) solid var(--app-border);
+  box-shadow: none;
+  backdrop-filter: blur(var(--app-unit-2-5)) saturate(150%);
 }
 
 .surfaceCardLight:hover {
   border-color: color-mix(in srgb, var(--card-color, var(--page-accent)) 25%, transparent);
-  box-shadow: var(--app-shadow-md);
+  box-shadow: var(--app-shadow-md), var(--app-shadow-brand-sm);
 }
 
 .surfaceCardSoft {
-  background: var(--app-surface-2);
-  border: var(--app-unit-0-125) solid var(--app-border-subtle);
+  background:
+    linear-gradient(180deg, var(--app-surface-1), var(--app-surface-2));
+  border: var(--app-unit-0-125) solid var(--app-border);
 }
 
 .surfaceCardSoft:hover {
@@ -131,6 +135,7 @@
 .surfaceCardDark {
   background: var(--app-dark-section-card, var(--app-surface-inverse-soft));
   border: var(--app-unit-0-125) solid var(--app-dark-section-card-border, var(--app-border-inverse-subtle));
+  box-shadow: 0 var(--app-unit-1-5) var(--app-unit-4) rgba(0, 0, 0, 0.16);
 }
 
 .surfaceCardDark:hover {
@@ -197,7 +202,7 @@
 }
 
 .sectionDark .surfaceCardDark .pill {
-  background: var(--app-white-alpha-00);
+  background: rgba(255, 255, 255, 0.1);
   border-color: var(--app-dark-section-card-border);
 }
 
@@ -217,7 +222,7 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--app-radius-pill);
-  background: color-mix(in srgb, var(--page-accent) 8%, var(--app-surface-1));
+  background: color-mix(in srgb, var(--page-accent) 14%, var(--app-surface-1));
   border: var(--app-unit-0-125) solid color-mix(in srgb, var(--page-accent) 18%, var(--app-border));
   box-shadow: var(--app-shadow-brand-sm);
   color: var(--page-accent);
@@ -231,7 +236,7 @@
 }
 
 .processCard:hover .processArrow {
-  background: color-mix(in srgb, var(--page-accent) 14%, var(--app-surface-1));
+  background: color-mix(in srgb, var(--page-accent) 22%, var(--app-surface-1));
   box-shadow: var(--app-shadow-brand-md);
   transform: translateX(var(--app-unit-0-375)) scale(1.05);
 }
@@ -254,10 +259,12 @@
   flex-direction: column;
   overflow: hidden;
   border-radius: var(--app-radius-2xl);
-  background: var(--app-surface-1);
+  background: color-mix(in srgb, var(--app-color-ink) 86%, transparent);
   box-shadow:
     0 0 0 var(--app-unit-0-125) color-mix(in srgb, var(--page-accent) 12%, transparent),
-    var(--app-shadow-lg);
+    var(--app-shadow-lg),
+    var(--app-shadow-glow-violet);
+  backdrop-filter: blur(var(--app-unit-2-5)) saturate(160%);
   animation: chatPop var(--page-motion-base, 220ms) var(--page-motion-spring, ease);
 }
 
@@ -322,13 +329,15 @@
 
 .messageAssistant {
   align-self: flex-start;
-  background: var(--app-surface-3);
+  background: var(--app-surface-2);
+  color: var(--app-text-secondary);
   border-bottom-left-radius: var(--app-unit-0-5);
 }
 
 .messageUser {
   align-self: flex-end;
   background: var(--app-brand-gradient);
+  color: var(--app-text-inverse);
   border-bottom-right-radius: var(--app-unit-0-5);
 }
 

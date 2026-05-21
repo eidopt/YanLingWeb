@@ -7,7 +7,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import type { Request } from 'express';
 
-import { ConfigFactory } from '../config/config.factory';
+import { ConfigService } from '../config/config.service';
 
 interface AuthenticatedRequest extends Request {
   user: { sub: string; username: string; };
@@ -15,7 +15,10 @@ interface AuthenticatedRequest extends Request {
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly config: ConfigService,
+  ) {}
 
   canActivate(ctx: ExecutionContext): boolean {
     const req = ctx.switchToHttp().getRequest<AuthenticatedRequest>();
@@ -24,7 +27,7 @@ export class JwtAuthGuard implements CanActivate {
 
     try {
       const payload = this.jwtService.verify<{ sub: string; username: string; }>(token, {
-        secret: ConfigFactory.build().jwt.secret,
+        secret: this.config.jwt.secret,
       });
       req.user = payload;
       return true;

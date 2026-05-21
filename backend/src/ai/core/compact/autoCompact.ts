@@ -1,8 +1,7 @@
 import type { ProviderMessage } from '../providers/types';
 import { getContextWindow, tokenCountWithEstimation } from '../utils/tokens';
 
-const BUFFER_TOKENS = 13_000;
-const COMPACT_OUTPUT_RESERVE = 20_000;
+const COMPACT_CONTEXT_TOKEN_LIMIT = 500_000;
 const MAX_FAILURES = 3;
 
 export interface AutoCompactState {
@@ -16,7 +15,7 @@ export function createAutoCompactState(): AutoCompactState {
 }
 
 export function getAutoCompactThreshold(model: string): number {
-  return getContextWindow(model) - COMPACT_OUTPUT_RESERVE - BUFFER_TOKENS;
+  return Math.min(getContextWindow(model), COMPACT_CONTEXT_TOKEN_LIMIT);
 }
 
 export function autoCompactIfNeeded(

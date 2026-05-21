@@ -3,14 +3,17 @@
 import type { LayoutNodeFrame, LayoutNodeLayout } from '../layout/types';
 import {
   ButtonNode,
+  DividerNode,
   GridNode,
   HtmlNode,
   ImageNode,
+  InputNode,
   NoticeNode,
   PanelNode,
   RowNode,
   ScreenNode,
   SearchNode,
+  SpacerNode,
   StackNode,
   TabsNode,
   TagNode,
@@ -65,6 +68,12 @@ export function renderCoreAlias(
       return <TagNode {...nodeProps} />;
     case 'core.image':
       return <ImageNode {...nodeProps} />;
+    case 'core.divider':
+      return <DividerNode {...nodeProps} />;
+    case 'core.spacer':
+      return <SpacerNode {...nodeProps} />;
+    case 'core.input':
+      return <InputNode {...nodeProps} />;
     case 'core.tabs':
       return <TabsNode {...nodeProps} />;
     case 'core.html':

@@ -17,6 +17,7 @@ export const editorAiPanelContent = {
     ready: '就绪',
     analyzing: '正在分析',
     intentRecognized: '已识别需求',
+    awaitingChoice: '等待选择',
     editingCanvas: '正在编辑画布',
     editApplied: '编辑已应用',
     failed: '执行失败',

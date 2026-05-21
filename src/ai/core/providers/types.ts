@@ -40,7 +40,12 @@ export interface StreamEventToolCall {
 
 export interface StreamEventDone {
   type: 'done'
-  usage?: { inputTokens: number; outputTokens: number }
+  usage?: {
+    inputTokens: number
+    outputTokens: number
+    cacheHitTokens?: number
+    cacheMissTokens?: number
+  }
   stopReason?: 'end_turn' | 'max_tokens'
   /** ID of the LLM response — used for prompt caching on subsequent requests */
   response_id?: string
@@ -64,6 +69,9 @@ export interface ProviderRequest {
   messages: ProviderMessage[]
   tools?: ProviderTool[]
   reasoningEffort?: 'low' | 'medium' | 'high'
+  cache?: {
+    previousResponseId?: string
+  }
 }
 
 export interface ProviderCapabilities {

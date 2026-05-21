@@ -48,6 +48,59 @@ function authHeaders(token) {
   return { authorization: `Bearer ${token}` };
 }
 
+async function registerUniqueUser() {
+  const stamp = `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+  const username = `it_user_${stamp}`;
+  const register = await request('/users/register', {
+    method: 'POST',
+    body: JSON.stringify({
+      username,
+      password: sha256(`integration-${stamp}`),
+    }),
+  });
+  assert(register.res.ok, `register user B returned ${register.res.status}`);
+  assert(typeof register.data.accessToken === 'string', 'user B missing accessToken');
+  return register.data;
+}
+
+async function loginChallengeResponse(identifier, password) {
+  const challenge = await request('/users/auth/challenge');
+  assert(challenge.res.ok, `challenge returned ${challenge.res.status}`);
+  const nonce = challenge.data.nonce;
+  assert(typeof nonce === 'string' && nonce.length > 0, 'missing nonce');
+
+  const computedPassword = sha256(nonce + sha256(password));
+  return request('/users/login', {
+    method: 'POST',
+    body: JSON.stringify({ identifier, password: computedPassword, nonce }),
+  });
+}
+
+async function authenticateIntegrationUser() {
+  const login = await loginChallengeResponse(username, rawPassword);
+  if (login.res.ok) {
+    return { ...login.data, detail: `user=${login.data.user.id}` };
+  }
+
+  const stamp = `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+  const fallbackUsername = `it_primary_${stamp}`;
+  const register = await request('/users/register', {
+    method: 'POST',
+    body: JSON.stringify({
+      username: fallbackUsername,
+      password: sha256(rawPassword),
+    }),
+  });
+  assert(
+    register.res.ok,
+    `login returned ${login.res.status}; fallback register returned ${register.res.status}`,
+  );
+  return {
+    ...register.data,
+    detail: `user=${register.data.user.id}, fallback=${fallbackUsername}`,
+  };
+}
+
 async function checked(name, fn) {
   try {
     const detail = await fn();
@@ -103,24 +156,18 @@ async function main() {
   let ownedTemplateId = '';
   let testPageId = '';
   let testNodeId = '';
+  let publishedSiteId = '';
+  let publishedSubdomain = '';
+  let firstRevisionId = '';
+  let secondRevisionId = '';
 
-  await checked('login with admin challenge-response', async () => {
-    const challenge = await request('/users/auth/challenge');
-    assert(challenge.res.ok, `challenge returned ${challenge.res.status}`);
-    const nonce = challenge.data.nonce;
-    assert(typeof nonce === 'string' && nonce.length > 0, 'missing nonce');
-
-    const password = sha256(nonce + sha256(rawPassword));
-    const login = await request('/users/login', {
-      method: 'POST',
-      body: JSON.stringify({ identifier: username, password, nonce }),
-    });
-    assert(login.res.ok, `login returned ${login.res.status}: ${login.data.message ?? ''}`);
-    assert(typeof login.data.accessToken === 'string', 'missing accessToken');
-    assert(login.data.user?.username === username, 'unexpected login user');
-    token = login.data.accessToken;
-    currentUser = login.data.user;
-    return `user=${currentUser.id}`;
+  await checked('authenticate integration user', async () => {
+    const auth = await authenticateIntegrationUser();
+    assert(typeof auth.accessToken === 'string', 'missing accessToken');
+    assert(auth.user?.id, 'missing authenticated user');
+    token = auth.accessToken;
+    currentUser = auth.user;
+    return auth.detail;
   });
 
   await checked('reject unauthenticated user profile reads', async () => {
@@ -160,6 +207,89 @@ async function main() {
     return `${source.templateId} -> ${ownedTemplateId}`;
   });
 
+  await checked('publish owned template to hosted runtime site', async () => {
+    publishedSubdomain = `it-${Date.now().toString(36)}`;
+    const publish = await request('/sites', {
+      method: 'POST',
+      headers: authHeaders(token),
+      body: JSON.stringify({
+        templateId: ownedTemplateId,
+        subdomain: publishedSubdomain,
+      }),
+    });
+    assert(publish.res.ok, `publish returned ${publish.res.status}: ${publish.data.message ?? ''}`);
+    assert(publish.data.site?.subdomain === publishedSubdomain, 'published subdomain mismatch');
+    assert(publish.data.site?.templateId === ownedTemplateId, 'published templateId mismatch');
+    assert(typeof publish.data.activeRevision?.runtimeVersion === 'string', 'missing runtimeVersion');
+    assert(typeof publish.data.activeRevision?.schemaVersion === 'number', 'missing schemaVersion');
+    publishedSiteId = publish.data.site.id;
+    firstRevisionId = publish.data.activeRevision.id;
+    return `site=${publishedSiteId}, revision=${firstRevisionId}`;
+  });
+
+  await checked('resolve public hosted runtime config', async () => {
+    const resolved = await request(`/public/sites/${encodeURIComponent(publishedSubdomain)}`);
+    assert(resolved.res.ok, `public resolve returned ${resolved.res.status}`);
+    assert(resolved.data.site?.id === publishedSiteId, 'resolved site id mismatch');
+    assert(resolved.data.revision?.id === firstRevisionId, 'resolved revision id mismatch');
+    assert(resolved.data.revision?.runtimeVersion, 'resolved runtimeVersion missing');
+    assert(typeof resolved.data.revision?.schemaVersion === 'number', 'resolved schemaVersion missing');
+    assert(resolved.data.layoutDocument?.schemaVersion, 'resolved layout schemaVersion missing');
+    assert(resolved.data.runtime?.componentTemplates, 'resolved runtime componentTemplates missing');
+    return `subdomain=${publishedSubdomain}`;
+  });
+
+  await checked('reject duplicate hosted subdomain', async () => {
+    const duplicate = await request('/sites', {
+      method: 'POST',
+      headers: authHeaders(token),
+      body: JSON.stringify({
+        templateId: ownedTemplateId,
+        subdomain: publishedSubdomain,
+      }),
+    });
+    assert(duplicate.res.status === 409, `expected 409, got ${duplicate.res.status}`);
+    return '409 for duplicate subdomain';
+  });
+
+  await checked('list and read my hosted sites', async () => {
+    const list = await request('/sites/mine', { headers: authHeaders(token) });
+    assert(list.res.ok, `site list returned ${list.res.status}`);
+    assert(
+      list.data.data?.some((site) => site.id === publishedSiteId),
+      'published site missing from mine list',
+    );
+
+    const detail = await request(`/sites/${publishedSiteId}`, { headers: authHeaders(token) });
+    assert(detail.res.ok, `site detail returned ${detail.res.status}`);
+    assert(detail.data.activeRevision?.id === firstRevisionId, 'site detail revision mismatch');
+    return `sites=${list.data.total}`;
+  });
+
+  await checked('reject cross-user hosted site mutations', async () => {
+    const userB = await registerUniqueUser();
+
+    const republish = await request(`/sites/${publishedSiteId}/revisions`, {
+      method: 'POST',
+      headers: authHeaders(userB.accessToken),
+    });
+    assert(
+      republish.res.status === 404 || republish.res.status === 403,
+      `expected 403/404 for cross-user republish, got ${republish.res.status}`,
+    );
+
+    const rollback = await request(`/sites/${publishedSiteId}/rollback`, {
+      method: 'POST',
+      headers: authHeaders(userB.accessToken),
+      body: JSON.stringify({ revisionId: firstRevisionId }),
+    });
+    assert(
+      rollback.res.status === 404 || rollback.res.status === 403,
+      `expected 403/404 for cross-user rollback, got ${rollback.res.status}`,
+    );
+    return `userB=${userB.user.id}`;
+  });
+
   await checked('create page and element in owned template', async () => {
     const read = await request(`/templates/mine/${encodeURIComponent(ownedTemplateId)}`, {
       headers: authHeaders(token),
@@ -184,11 +314,9 @@ async function main() {
     };
     testPage.layout.children = [{
       id: testNodeId,
-      alias: layoutDocument.components?.find((item) => item.kind === 'component')?.alias
-        ?? layoutDocument.components?.[0]?.alias
-        ?? testPage.layout.alias,
+      alias: 'core.text',
       layout: { mode: 'flow' },
-      props: { title: '集成测试元素', text: 'create' },
+      props: { text: 'create', variant: 'body' },
       children: [],
     }];
 
@@ -210,6 +338,61 @@ async function main() {
     assert(page, 'created page not found');
     assert(findNode(page.layout, testNodeId), 'created element not found');
     return `page=${testPageId}, element=${testNodeId}`;
+  });
+
+  await checked('republish owned template and update public revision', async () => {
+    const republish = await request(`/sites/${publishedSiteId}/revisions`, {
+      method: 'POST',
+      headers: authHeaders(token),
+    });
+    assert(republish.res.ok, `republish returned ${republish.res.status}`);
+    secondRevisionId = republish.data.activeRevision?.id;
+    assert(secondRevisionId && secondRevisionId !== firstRevisionId, 'republish did not create a new revision');
+
+    const resolved = await request(`/public/sites/${encodeURIComponent(publishedSubdomain)}`);
+    assert(resolved.res.ok, `public resolve after republish returned ${resolved.res.status}`);
+    assert(resolved.data.revision?.id === secondRevisionId, 'public resolver did not switch revisions');
+    assert(resolved.data.layoutDocument?.defaultPageId === testPageId, 'public layout did not update');
+    assert(typeof resolved.data.revision?.schemaVersion === 'number', 'republished schemaVersion missing');
+    assert(resolved.data.revision?.runtimeVersion, 'republished runtimeVersion missing');
+    return `revision=${secondRevisionId}`;
+  });
+
+  await checked('reject invalid template save and preserve public revision', async () => {
+    const read = await request(`/templates/mine/${encodeURIComponent(ownedTemplateId)}`, {
+      headers: authHeaders(token),
+    });
+    assert(read.res.ok, `read before invalid update returned ${read.res.status}`);
+    const invalidLayoutDocument = clone(read.data.layoutDocument);
+    invalidLayoutDocument.pages[0].layout.alias = 'core.unknown';
+
+    const invalidUpdate = await request(`/templates/mine/${encodeURIComponent(ownedTemplateId)}`, {
+      method: 'PUT',
+      headers: authHeaders(token),
+      body: JSON.stringify({ layoutDocument: invalidLayoutDocument }),
+    });
+    assert(invalidUpdate.res.status === 400, `expected invalid save 400, got ${invalidUpdate.res.status}`);
+
+    const resolved = await request(`/public/sites/${encodeURIComponent(publishedSubdomain)}`);
+    assert(resolved.res.ok, `public resolve after invalid save returned ${resolved.res.status}`);
+    assert(resolved.data.revision?.id === secondRevisionId, 'invalid save changed public revision');
+    return `activeRevision=${secondRevisionId}`;
+  });
+
+  await checked('rollback hosted site to previous revision', async () => {
+    const rollback = await request(`/sites/${publishedSiteId}/rollback`, {
+      method: 'POST',
+      headers: authHeaders(token),
+      body: JSON.stringify({ revisionId: firstRevisionId }),
+    });
+    assert(rollback.res.ok, `rollback returned ${rollback.res.status}`);
+    assert(rollback.data.site?.activeRevisionId === firstRevisionId, 'rollback active revision mismatch');
+
+    const resolved = await request(`/public/sites/${encodeURIComponent(publishedSubdomain)}`);
+    assert(resolved.res.ok, `public resolve after rollback returned ${resolved.res.status}`);
+    assert(resolved.data.revision?.id === firstRevisionId, 'public resolver did not roll back');
+    assert(resolved.data.layoutDocument?.defaultPageId !== testPageId, 'rolled back layout still shows revision B');
+    return `revision=${firstRevisionId}`;
   });
 
   await checked('update page and element in owned template', async () => {

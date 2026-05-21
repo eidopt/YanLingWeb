@@ -11,7 +11,7 @@ import { createHash, randomBytes } from 'crypto';
 import { Repository } from 'typeorm';
 
 import { AiTokenUsageEvent } from '../ai/entities/ai-token-usage.entity';
-import { ConfigFactory } from '../config/config.factory';
+import { ConfigService } from '../config/config.service';
 import { DatabaseFlushService } from '../database/database-flush.service';
 import { LoginDto } from './dto/login.dto';
 import { OAuthCallbackDto } from './dto/oauth-callback.dto';
@@ -78,6 +78,7 @@ export class UsersService {
     private readonly tokenUsageRepo: Repository<AiTokenUsageEvent>,
     private readonly jwtService: JwtService,
     private readonly databaseFlush: DatabaseFlushService,
+    private readonly config: ConfigService,
   ) {}
 
   // ---------------------------------------------------------------------------
@@ -320,7 +321,7 @@ export class UsersService {
     appSecret: string;
     redirectUri: string;
   } {
-    const oauthConfig = ConfigFactory.build().oauth[provider];
+    const oauthConfig = this.config.oauth[provider];
     if (!oauthConfig.appId || !oauthConfig.appSecret || !oauthConfig.redirectUri) {
       throw new BadRequestException(`${provider} OAuth is not configured`);
     }

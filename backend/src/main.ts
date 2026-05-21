@@ -3,11 +3,11 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
-import { ConfigFactory } from './config/config.factory';
+import { ConfigService } from './config/config.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const env = ConfigFactory.build();
+  const env = app.get(ConfigService);
 
   // Global prefix
   app.setGlobalPrefix('api');
@@ -35,6 +35,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .addTag('themes')
     .addTag('templates')
+    .addTag('sites')
     .addTag('exports')
     .build();
 
@@ -45,9 +46,16 @@ async function bootstrap() {
   const fs = await import('fs');
   const path = await import('path');
   const outputPath = path.resolve(process.cwd(), '..', 'shared', 'openapi.json');
-  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-  fs.writeFileSync(outputPath, JSON.stringify(document, null, 2));
-  console.log('OpenAPI spec written to shared/openapi.json');
+  try {
+    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+    fs.writeFileSync(outputPath, JSON.stringify(document, null, 2));
+    console.log('OpenAPI spec written to shared/openapi.json');
+  } catch (err) {
+    console.warn(
+      'OpenAPI spec could not be written:',
+      err instanceof Error ? err.message : String(err),
+    );
+  }
 
   await app.listen(env.port);
   console.log(`Backend running on port ${env.port} (${env.serverFlavor})`);

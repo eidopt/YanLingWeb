@@ -3,6 +3,9 @@
   grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
   gap: var(--app-unit-1);
   padding: var(--app-unit-1-75) var(--app-unit-1-25) var(--app-unit-0-75);
+  border-radius: var(--app-unit-2-5);
+  background: var(--app-surface-1);
+  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--app-border-subtle);
 }
 
 .tabItem {
@@ -10,7 +13,7 @@
   border: none;
   border-radius: var(--app-unit-2);
   background: transparent;
-  color: var(--app-neutral-400);
+  color: var(--app-neutral-600);
   font-size: var(--app-unit-1-5);
   font-weight: 600;
   font-family: inherit;
@@ -24,5 +27,5 @@
 
 .tabItemActive {
   background: color-mix(in srgb, var(--accent) 14%, var(--app-neutral-0));
-  color: var(--accent);
+  color: color-mix(in srgb, var(--accent) 78%, var(--app-color-black));
 }

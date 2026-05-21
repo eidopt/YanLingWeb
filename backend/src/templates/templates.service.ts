@@ -6,6 +6,8 @@ import { DatabaseFlushService } from '../database/database-flush.service';
 import { User } from '../users/entities/user.entity';
 import { Template } from './entities/template.entity';
 import { TEMPLATE_SEED_DATA } from './seed/template-seed.data';
+import { prepareTemplateLayoutForPersistence } from './template-layout-validation';
+import { withThemeLayoutStyleManifest } from '@shared/theme-layout/styleManifest';
 
 interface TemplateListOptions {
   category?: string;
@@ -44,6 +46,10 @@ export class TemplatesService implements OnModuleInit {
           isPublic: true,
           tags: this.deriveTags(data),
           ...data,
+          layoutDocument: withThemeLayoutStyleManifest(
+            data.layoutDocument,
+            data.cssVars,
+          ),
         }),
       ) as never,
       { conflictPaths: ['templateId'], skipUpdateIfNoValuesChanged: true },
@@ -144,6 +150,17 @@ export class TemplatesService implements OnModuleInit {
     input: UpdateOwnedTemplateInput,
   ): Promise<Template> {
     const template = await this.findOwnedByTemplateId(ownerUserId, templateId);
+    const shouldPrepareLayout =
+      input.layoutDocument !== undefined ||
+      input.componentTemplates !== undefined ||
+      input.cssVars !== undefined;
+    const preparedLayoutDocument = shouldPrepareLayout
+      ? prepareTemplateLayoutForPersistence({
+        layoutDocument: input.layoutDocument ?? template.layoutDocument,
+        componentTemplates: input.componentTemplates ?? template.componentTemplates,
+        cssVars: input.cssVars ?? template.cssVars,
+      })
+      : null;
 
     if (input.name !== undefined) { template.name = input.name; }
     if (input.tagline !== undefined) { template.tagline = input.tagline; }
@@ -160,8 +177,8 @@ export class TemplatesService implements OnModuleInit {
     if (input.componentTemplates !== undefined) {
       template.componentTemplates = input.componentTemplates;
     }
-    if (input.layoutDocument !== undefined) {
-      template.layoutDocument = input.layoutDocument;
+    if (preparedLayoutDocument) {
+      template.layoutDocument = preparedLayoutDocument as unknown as Record<string, unknown>;
     }
 
     if (!template.tags.length) {

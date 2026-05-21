@@ -3,7 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { ConfigFactory } from '../config/config.factory';
+import { ConfigService } from '../config/config.service';
 import { User } from '../users/entities/user.entity';
 import { Template } from './entities/template.entity';
 import { TemplatesController } from './templates.controller';
@@ -13,8 +13,9 @@ import { TemplatesService } from './templates.service';
   imports: [
     TypeOrmModule.forFeature([Template, User]),
     JwtModule.registerAsync({
-      useFactory: () => ({
-        secret: ConfigFactory.build().jwt.secret,
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret: config.jwt.secret,
       }),
     }),
   ],

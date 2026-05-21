@@ -1,5 +1,6 @@
 .page {
   width: min(var(--app-unit-160), 100%);
+  min-height: calc(100vh - var(--app-unit-7));
   margin: 0 auto;
   padding: var(--app-unit-5) var(--app-unit-3) var(--app-unit-9);
   display: flex;
@@ -11,10 +12,29 @@
 /* ── header ── */
 
 .header {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--app-unit-1-75);
   margin-bottom: var(--app-unit-4);
+  padding: var(--app-unit-4);
+  border: var(--app-unit-0-125) solid var(--app-border);
+  border-radius: var(--app-radius-2xl);
+  background:
+    linear-gradient(135deg, var(--app-primary-alpha-08), transparent 48%),
+    var(--app-surface-1);
+  box-shadow: none;
+  overflow: hidden;
+  backdrop-filter: blur(var(--app-unit-2-5)) saturate(150%);
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--app-gradient-card-glow);
+  opacity: 0.72;
+  pointer-events: none;
 }
 
 .subtitle {
@@ -45,7 +65,10 @@
 }
 
 .empty {
-  padding: var(--app-unit-5) 0;
+  padding: var(--app-unit-5) var(--app-unit-2);
+  border: var(--app-unit-0-125) solid var(--app-border-subtle);
+  border-radius: var(--app-radius-xl);
+  background: var(--app-surface-1);
 }
 
 
@@ -53,6 +76,10 @@
   .page {
     padding-inline: var(--app-unit-1-5);
     padding-top: var(--app-unit-3);
+  }
+
+  .header {
+    padding: var(--app-unit-2);
   }
 
   .grid {

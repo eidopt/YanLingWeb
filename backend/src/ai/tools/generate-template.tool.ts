@@ -43,6 +43,10 @@ The template uses a component tree system. Core layout components:
 
 LayoutDocument node:
 { id, alias, layout: { mode: "flow", order, width, minHeight }, props, children }
+Optional layoutDocument.style:
+{ cssVars: { "--accent": "#FF6B35", "--surface": "..." } }
+The service mirrors top-level cssVars into layoutDocument.style.cssVars before
+saving, so exported projects can compile CSS from the template JSON.
 
 ComponentTemplate: { displayName, root: TemplateNode }
 TemplateNode: { alias, props (with optional $bind bindings), children }

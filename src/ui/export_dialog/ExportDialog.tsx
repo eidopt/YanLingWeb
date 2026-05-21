@@ -2,15 +2,18 @@
 
 import { exportDialogContent as content } from './ExportDialog.content';
 import styles from './ExportDialog.module.css';
-import { useState } from 'react';
+import { useAppServices } from 'hooks/useAppServices';
+import { useMemo, useState } from 'react';
 import {
   buildExportPayload,
   downloadFile,
   serializeCanvases,
 } from 'services/ExportService';
 import type { ExportState } from 'types/export.types';
-import type { BuilderCanvas } from 'ui/editor/types';
-import type { LayoutBuilderTheme } from 'ui/editor/types';
+import type {
+  BuilderCanvas,
+  LayoutBuilderTheme,
+} from 'ui/editor/types';
 import {
   Box,
   Button,
@@ -29,10 +32,27 @@ interface ExportDialogProps {
   onClose: () => void;
 }
 
+interface PublishResponse {
+  site?: {
+    subdomain?: string;
+  };
+}
+
 const isElectron = (
   typeof window !== 'undefined' &&
   window.electronBridge?.platform === 'electron'
 );
+
+function toSubdomain(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .replace(/-{2,}/g, '-')
+    .slice(0, 63)
+    .replace(/-+$/g, '') || `site-${Date.now().toString(36)}`;
+}
 
 export function ExportDialog({
   canvases,
@@ -40,8 +60,14 @@ export function ExportDialog({
   defaultProjectName,
   onClose,
 }: ExportDialogProps) {
-  const [projectName, setProjectName] = useState(
-    defaultProjectName.trim() || 'my-design',
+  const { authService } = useAppServices();
+  const initialProjectName = defaultProjectName.trim() || 'my-design';
+  const [projectName, setProjectName] = useState(initialProjectName);
+  const [subdomain, setSubdomain] = useState(() =>
+    toSubdomain(initialProjectName),
+  );
+  const [publishState, setPublishState] = useState<ExportState>(
+    { status: 'idle' },
   );
   const [jsonState, setJsonState] = useState<ExportState>(
     { status: 'idle' },
@@ -49,8 +75,53 @@ export function ExportDialog({
   const [buildState, setBuildState] = useState<ExportState>(
     { status: 'idle' },
   );
+  const publicPath = useMemo(
+    () => publishState.outputPath ?? '',
+    [publishState.outputPath],
+  );
 
-  // ── Save layout JSON ──────────────────────────────────────────────────
+  async function handlePublishOnline() {
+    const token = authService.getToken();
+    if (!token) {
+      setPublishState({
+        status: 'error',
+        error: content.errors.missingToken,
+      });
+      return;
+    }
+
+    setPublishState({ status: 'publishing' });
+    try {
+      const response = await fetch('/api/proxy/sites', {
+        method: 'POST',
+        headers: {
+          authorization: `Bearer ${token}`,
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          templateId: activeTheme.id,
+          subdomain: toSubdomain(subdomain),
+        }),
+      });
+      const data = await response.json().catch(() => ({})) as
+        PublishResponse & { message?: string };
+      if (!response.ok) {
+        throw new Error(data.message ?? `HTTP ${response.status}`);
+      }
+      const publishedSubdomain = data.site?.subdomain ?? toSubdomain(subdomain);
+      setPublishState({
+        status: 'done',
+        outputPath: `/sites/${publishedSubdomain}`,
+      });
+    } catch (err) {
+      setPublishState({
+        status: 'error',
+        error: content.errors.publishFailed(
+          err instanceof Error ? err.message : String(err),
+        ),
+      });
+    }
+  }
 
   async function handleSaveJson() {
     if (!canvases.length) {
@@ -64,7 +135,11 @@ export function ExportDialog({
     setJsonState({ status: 'saving' });
 
     try {
-      const layoutJson = serializeCanvases(canvases, projectName);
+      const layoutJson = serializeCanvases(
+        canvases,
+        projectName,
+        activeTheme.runtime.cssVars,
+      );
       const filename = `${projectName}-layout.json`;
 
       if (isElectron && window.electronBridge?.exportSaveJson) {
@@ -82,8 +157,6 @@ export function ExportDialog({
     }
   }
 
-  // ── Build & export project (Electron only) ────────────────────────────
-
   async function handleBuildProject() {
     if (!canvases.length) {
       setBuildState({
@@ -97,27 +170,39 @@ export function ExportDialog({
       canvases,
       activeTheme.id,
       projectName,
+      activeTheme.runtime.cssVars,
     );
-    if (!payload) {
-      setBuildState({
-        status: 'error',
-        error: content.errors.unknownTheme,
-      });
-      return;
-    }
 
     setBuildState({ status: 'building' });
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- only reachable in Electron context where bridge is guaranteed
-      const outputPath = await window.electronBridge!.exportBuildProject(
-        payload,
-      );
-      setBuildState({ status: 'done', outputPath });
+      if (isElectron && window.electronBridge?.exportBuildProject) {
+        const outputPath = await window.electronBridge.exportBuildProject(
+          payload,
+        );
+        setBuildState({ status: 'done', outputPath });
+        return;
+      }
+
+      const response = await fetch('/api/export/build-project', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json().catch(() => ({})) as {
+        distDir?: string;
+        message?: string;
+      };
+      if (!response.ok) {
+        throw new Error(data.message ?? `HTTP ${response.status}`);
+      }
+      setBuildState({ status: 'done', outputPath: data.distDir });
     } catch (err) {
       setBuildState({
         status: 'error',
-        error: content.errors.buildFailed(String(err)),
+        error: content.errors.buildFailed(
+          err instanceof Error ? err.message : String(err),
+        ),
       });
     }
   }
@@ -128,8 +213,6 @@ export function ExportDialog({
       await window.electronBridge?.exportOpenFolder(path);
     }
   }
-
-  // ── Render ────────────────────────────────────────────────────────────
 
   return (
     <Inline
@@ -146,8 +229,6 @@ export function ExportDialog({
         aria-labelledby="export-dialog-title"
         onClick={(e) => e.stopPropagation()}
       >
-
-        {/* Header */}
         <Inline className={styles.header} justify="space-between">
           <Heading
             id="export-dialog-title"
@@ -164,16 +245,12 @@ export function ExportDialog({
             size="icon-sm"
             variant="icon"
           >
-            ✕
+            x
           </Button>
         </Inline>
 
-        {/* Project name */}
         <Stack className={styles.fieldRow} gap="u0-75">
-          <Label
-            className={styles.fieldLabel}
-            htmlFor="export-project-name"
-          >
+          <Label className={styles.fieldLabel} htmlFor="export-project-name">
             {content.projectNameLabel}
           </Label>
           <Input
@@ -187,13 +264,118 @@ export function ExportDialog({
           />
         </Stack>
 
-        {/* Option: Save JSON */}
+        <Stack className={styles.fieldRow} gap="u0-75">
+          <Label className={styles.fieldLabel} htmlFor="export-subdomain">
+            {content.subdomainLabel}
+          </Label>
+          <Input
+            id="export-subdomain"
+            type="text"
+            size="sm"
+            variant="filled"
+            value={subdomain}
+            placeholder={content.subdomainPlaceholder}
+            onChange={(e) => setSubdomain(e.target.value)}
+          />
+        </Stack>
+
+        <Stack className={styles.optionCard} gap="u1-5">
+          <Heading as="h3" size="xs" variant="primary" weight="medium">
+            {content.publishOnline.title}
+          </Heading>
+          <Text size="xs" variant="muted">
+            {content.publishOnline.description}
+          </Text>
+          <Inline className={styles.optionFooter} gap="u1-5">
+            <Button
+              type="button"
+              disabled={publishState.status === 'publishing'}
+              onClick={handlePublishOnline}
+              size="sm"
+              variant="primary"
+            >
+              {publishState.status === 'publishing'
+                ? content.publishOnline.publishing
+                : content.publishOnline.button}
+            </Button>
+            {publishState.status === 'done' && publicPath && (
+              <Box as="span" className={styles.statusMessage}>
+                <Text as="span" size="xs" variant="success">
+                  {content.publishOnline.successMessage(publicPath)}
+                </Text>
+              </Box>
+            )}
+            {publishState.status === 'error' && (
+              <Box as="span" className={styles.statusMessage}>
+                <Text as="span" size="xs" variant="danger">
+                  {publishState.error}
+                </Text>
+              </Box>
+            )}
+          </Inline>
+        </Stack>
+
         <Stack className={styles.optionCard} gap="u1-5">
           <Inline className={styles.optionHeader} gap="sm">
             <Heading as="h3" size="xs" variant="primary" weight="medium">
-              {content.saveJson.title}
+              {content.sourceExport.title}
             </Heading>
+            <Box as="span" className={styles.badge}>
+              <Text as="span" size="xs" variant="accent" weight="bold">
+                {content.sourceExport.badge}
+              </Text>
+            </Box>
           </Inline>
+          <Text size="xs" variant="muted">
+            {content.sourceExport.description}
+          </Text>
+          <Inline className={styles.optionFooter} gap="u1-5">
+            <Button
+              type="button"
+              disabled={buildState.status === 'building'}
+              onClick={handleBuildProject}
+              size="sm"
+              variant="primary"
+            >
+              {buildState.status === 'building'
+                ? content.sourceExport.building
+                : content.sourceExport.button}
+            </Button>
+            {buildState.status === 'done' && (
+              <>
+                <Box as="span" className={styles.statusMessage}>
+                  <Text as="span" size="xs" variant="success">
+                    {content.sourceExport.successMessage(
+                      buildState.outputPath ?? '',
+                    )}
+                  </Text>
+                </Box>
+                {isElectron && (
+                  <Button
+                    type="button"
+                    onClick={handleOpenFolder}
+                    size="sm"
+                    variant="outline"
+                  >
+                    {content.sourceExport.openFolder}
+                  </Button>
+                )}
+              </>
+            )}
+            {buildState.status === 'error' && (
+              <Box as="span" className={styles.statusMessage}>
+                <Text as="span" size="xs" variant="danger">
+                  {buildState.error}
+                </Text>
+              </Box>
+            )}
+          </Inline>
+        </Stack>
+
+        <Stack className={styles.optionCard} gap="u1-5">
+          <Heading as="h3" size="xs" variant="primary" weight="medium">
+            {content.saveJson.title}
+          </Heading>
           <Text size="xs" variant="muted">
             {content.saveJson.description}
           </Text>
@@ -203,7 +385,7 @@ export function ExportDialog({
               disabled={jsonState.status === 'saving'}
               onClick={handleSaveJson}
               size="sm"
-              variant="primary"
+              variant="outline"
             >
               {isElectron
                 ? content.saveJson.buttonElectron
@@ -213,82 +395,19 @@ export function ExportDialog({
               <Box as="span" className={styles.statusMessage}>
                 <Text as="span" size="xs" variant="success">
                   {content.saveJson.successMessage}
-                  {jsonState.outputPath
-                    ? ` → ${jsonState.outputPath}`
-                    : ''}
+                  {jsonState.outputPath ? ` -> ${jsonState.outputPath}` : ''}
                 </Text>
               </Box>
             )}
             {jsonState.status === 'error' && (
               <Box as="span" className={styles.statusMessage}>
-                <Text as="span" size="xs" variant="danger">{jsonState.error}</Text>
+                <Text as="span" size="xs" variant="danger">
+                  {jsonState.error}
+                </Text>
               </Box>
             )}
           </Inline>
         </Stack>
-
-        {/* Option: Build project */}
-        <Stack className={styles.optionCard} gap="u1-5">
-          <Inline className={styles.optionHeader} gap="sm">
-            <Heading as="h3" size="xs" variant="primary" weight="medium">
-              {content.buildProject.title}
-            </Heading>
-            <Box as="span" className={styles.badge}>
-              <Text as="span" size="xs" variant="accent" weight="bold">
-                {content.buildProject.badge}
-              </Text>
-            </Box>
-          </Inline>
-          <Text size="xs" variant="muted">
-            {content.buildProject.description}
-          </Text>
-          <Inline className={styles.optionFooter} gap="u1-5">
-            {isElectron ? (
-              <>
-                <Button
-                  type="button"
-                  disabled={buildState.status === 'building'}
-                  onClick={handleBuildProject}
-                  size="sm"
-                  variant="primary"
-                >
-                  {buildState.status === 'building'
-                    ? content.buildProject.building
-                    : content.buildProject.button}
-                </Button>
-                {buildState.status === 'done' && (
-                  <>
-                    <Box as="span" className={styles.statusMessage}>
-                      <Text as="span" size="xs" variant="success">
-                        {content.buildProject.successMessage(
-                          buildState.outputPath ?? '',
-                        )}
-                      </Text>
-                    </Box>
-                    <Button
-                      type="button"
-                      onClick={handleOpenFolder}
-                      size="sm"
-                      variant="outline"
-                    >
-                      {content.buildProject.openFolder}
-                    </Button>
-                  </>
-                )}
-                {buildState.status === 'error' && (
-                  <Box as="span" className={styles.statusMessage}>
-                    <Text as="span" size="xs" variant="danger">{buildState.error}</Text>
-                  </Box>
-                )}
-              </>
-            ) : (
-              <Text as="em" size="xs" variant="faint">
-                {content.buildProject.webUnsupported}
-              </Text>
-            )}
-          </Inline>
-        </Stack>
-
       </Stack>
     </Inline>
   );

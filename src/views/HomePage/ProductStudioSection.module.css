@@ -2,7 +2,8 @@
   position: relative;
   overflow: hidden;
   background:
-    linear-gradient(180deg, var(--app-surface-1) 0%, var(--app-color-primary-bg) 100%);
+    radial-gradient(ellipse 48% 44% at 88% 24%, rgba(34, 211, 238, 0.04), transparent 62%),
+    transparent;
 }
 
 .productStudioLayout {
@@ -58,10 +59,11 @@
 
 .studioWindow {
   position: relative;
-  border: var(--app-unit-0-125) solid var(--app-border-subtle);
+  border: var(--app-unit-0-125) solid var(--app-border);
   border-radius: var(--app-unit-3);
   background: var(--app-surface-1);
-  box-shadow: 0 var(--app-unit-3-5) var(--app-unit-10) var(--app-primary-alpha-02);
+  box-shadow: var(--app-shadow-lg), var(--app-shadow-glow-violet);
+  backdrop-filter: blur(var(--app-unit-2-5)) saturate(150%);
   overflow: hidden;
   animation: windowFloat 6.4s ease-in-out infinite;
 }
@@ -77,8 +79,12 @@
   width: var(--app-unit-1-25);
   height: var(--app-unit-1-25);
   border-radius: 50%;
-  background: var(--app-neutral-300);
+  background: var(--app-border-strong);
 }
+
+.studioWindowBar span:nth-child(1) { background: var(--app-color-danger); }
+.studioWindowBar span:nth-child(2) { background: var(--app-color-warning); }
+.studioWindowBar span:nth-child(3) { background: var(--app-color-success); }
 
 .studioWorkspace {
   display: grid;
@@ -133,7 +139,7 @@
 .liveCanvas {
   grid-row: span 2;
   padding: var(--app-unit-2);
-  background: var(--app-white-alpha-10);
+  background: var(--app-surface-3);
 }
 
 .canvasToolbar {
@@ -173,7 +179,7 @@
   min-height: var(--app-unit-16);
   border-radius: var(--app-unit-1-75);
   background:
-    linear-gradient(135deg, color-mix(in srgb, var(--app-color-primary) 86%, var(--app-neutral-0)), color-mix(in srgb, var(--app-color-accent) 58%, var(--app-neutral-0))),
+    linear-gradient(135deg, var(--app-color-primary), var(--app-color-accent)),
     var(--app-color-primary);
   animation: previewPulse 3.8s ease-in-out infinite;
 }

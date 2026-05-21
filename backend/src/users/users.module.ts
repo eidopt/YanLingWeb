@@ -3,7 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AiTokenUsageEvent } from '../ai/entities/ai-token-usage.entity';
-import { ConfigFactory } from '../config/config.factory';
+import { ConfigService } from '../config/config.service';
 import { User } from './entities/user.entity';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
@@ -12,13 +12,11 @@ import { UsersService } from './users.service';
   imports: [
     TypeOrmModule.forFeature([User, AiTokenUsageEvent]),
     JwtModule.registerAsync({
-      useFactory: () => {
-        const env = ConfigFactory.build();
-        return {
-          secret: env.jwt.secret,
-          signOptions: { expiresIn: env.jwt.expiresIn },
-        };
-      },
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret: config.jwt.secret,
+        signOptions: { expiresIn: config.jwt.expiresIn },
+      }),
     }),
   ],
   controllers: [UsersController],

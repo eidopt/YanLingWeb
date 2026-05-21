@@ -7,6 +7,8 @@ const BACKEND_URL = process.env.BACKEND_URL ?? 'http://localhost:4000';
 
 export async function POST(req: NextRequest) {
   const authorization = req.headers.get('authorization');
+  const conversationId = req.headers.get('x-conversation-id');
+  const previousResponseId = req.headers.get('x-previous-response-id');
   const body = await req.text();
 
   const upstream = await fetch(`${BACKEND_URL}/api/ai/editor`, {
@@ -14,6 +16,10 @@ export async function POST(req: NextRequest) {
     headers: {
       'content-type': 'application/json',
       ...(authorization ? { authorization } : {}),
+      ...(conversationId ? { 'x-conversation-id': conversationId } : {}),
+      ...(previousResponseId
+        ? { 'x-previous-response-id': previousResponseId }
+        : {}),
     },
     body,
     // @ts-expect-error -- Node 18+ supports duplex for streaming
@@ -47,12 +53,17 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  const upstreamConversationId = upstream.headers.get('x-conversation-id');
+
   return new Response(stream, {
     headers: {
       'content-type': 'text/event-stream; charset=utf-8',
       'cache-control': 'no-cache, no-transform',
       connection: 'keep-alive',
       'x-accel-buffering': 'no',
+      ...(upstreamConversationId
+        ? { 'x-conversation-id': upstreamConversationId }
+        : {}),
     },
   });
 }

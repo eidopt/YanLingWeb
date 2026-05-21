@@ -2,8 +2,9 @@
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: var(--app-black-alpha-05);
-  backdrop-filter: blur(var(--app-unit-0-75));
+  background: var(--app-modal-backdrop);
+  backdrop-filter: blur(var(--app-unit-1-5)) saturate(130%);
+  -webkit-backdrop-filter: blur(var(--app-unit-1-5)) saturate(130%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -23,8 +24,11 @@
   max-height: calc(100vh - var(--app-unit-5));
   border-radius: var(--app-radius-2xl);
   overflow: hidden;
-  background: var(--app-surface-1);
-  box-shadow: var(--app-shadow-lg);
+  border: var(--app-unit-0-125) solid var(--app-modal-border);
+  background: var(--app-modal-surface);
+  box-shadow: var(--app-shadow-lg), var(--app-shadow-glow-violet);
+  backdrop-filter: blur(var(--app-unit-2-5)) saturate(160%);
+  -webkit-backdrop-filter: blur(var(--app-unit-2-5)) saturate(160%);
   animation: slideUp 0.18s ease;
 }
 
@@ -38,7 +42,7 @@
 .previewSide {
   display: flex;
   flex-direction: column;
-  background: var(--app-surface-2);
+  background: var(--app-modal-surface-muted);
   min-height: 0;
   overflow: hidden;
 }

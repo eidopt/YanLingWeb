@@ -87,8 +87,13 @@ export interface ThemeLibraryDependency {
   url: string;
 }
 
+export interface ThemeLayoutStyleManifest {
+  cssVars?: Record<string, string>;
+}
+
 export interface ThemeLayoutDocument {
   version: number;
+  schemaVersion?: number;
   themeId: string;
   themeName: string;
   pageName?: string;
@@ -98,10 +103,13 @@ export interface ThemeLayoutDocument {
   pages: ThemeLayoutPage[];
   layout: ThemeLayoutNode;
   dependencies?: ThemeLibraryDependency[];
+  cssVars?: Record<string, string>;
+  style?: ThemeLayoutStyleManifest;
 }
 
 export interface ThemeLayoutDocumentSource {
   version: number;
+  schemaVersion?: number;
   themeId: string;
   themeName: string;
   pageName?: string;
@@ -111,6 +119,8 @@ export interface ThemeLayoutDocumentSource {
   pages?: ThemeLayoutPage[];
   layout?: ThemeLayoutNode;
   dependencies?: ThemeLibraryDependency[];
+  cssVars?: Record<string, string>;
+  style?: ThemeLayoutStyleManifest;
 }
 
 function resolvePageName(layout: ThemeLayoutNode, fallback: string) {
@@ -183,6 +193,7 @@ export function normalizeThemeLayoutDocument(
 
   return {
     version: document.version,
+    schemaVersion: document.schemaVersion,
     themeId: document.themeId,
     themeName: document.themeName,
     // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- empty string should fall through
@@ -193,5 +204,14 @@ export function normalizeThemeLayoutDocument(
     pages,
     layout: activePage.layout,
     dependencies: document.dependencies ? [...document.dependencies] : undefined,
+    cssVars: document.cssVars ? { ...document.cssVars } : undefined,
+    style: document.style
+      ? {
+          ...document.style,
+          cssVars: document.style.cssVars
+            ? { ...document.style.cssVars }
+            : undefined,
+        }
+      : undefined,
   };
 }

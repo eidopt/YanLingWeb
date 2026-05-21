@@ -7,6 +7,7 @@ import {
   Unique,
   UpdateDateColumn,
 } from 'typeorm';
+import type { ProviderMessage } from '../core/providers/types';
 
 export interface EditorAiConversationMessageRecord {
   role: 'user' | 'assistant';
@@ -28,6 +29,9 @@ export class EditorAiConversation {
 
   @Column({ type: 'simple-json', default: '[]' })
   messages: EditorAiConversationMessageRecord[];
+
+  @Column({ type: 'simple-json', default: '[]' })
+  providerMessages: ProviderMessage[];
 
   @CreateDateColumn()
   createdAt: Date;

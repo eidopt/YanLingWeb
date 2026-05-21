@@ -9,11 +9,11 @@
   font-weight: 700;
 }
 
-.tagNeutral  { background: var(--tag-neutral-bg,  var(--app-neutral-100)); color: var(--tag-neutral-color,  var(--app-neutral-500)); }
+.tagNeutral  { background: var(--tag-neutral-bg,  var(--app-neutral-100)); color: var(--tag-neutral-color,  var(--app-neutral-700)); }
 .tagSuccess  { background: var(--tag-success-bg,  var(--app-color-success-bg)); color: var(--tag-success-color,  var(--app-color-wechat)); }
 .tagWarning  { background: var(--tag-warning-bg,  var(--app-color-warning-bg)); color: var(--tag-warning-color,  var(--app-color-orange)); }
 .tagInfo     { background: var(--tag-info-bg,     var(--app-color-info-bg)); color: var(--tag-info-color,     var(--app-color-sky)); }
 .tagHot      { background: var(--tag-hot-bg,      var(--app-color-warning-bg)); color: var(--tag-hot-color,      var(--app-color-orange)); }
 .tagNew      { background: var(--tag-new-bg,      var(--app-color-success-bg)); color: var(--tag-new-color,      var(--app-color-wechat)); }
-.tagDeal     { background: var(--tag-deal-bg,     var(--app-text-primary)); color: var(--tag-deal-color,     var(--app-color-danger)); }
+.tagDeal     { background: var(--tag-deal-bg,     var(--app-text-primary)); color: var(--app-text-inverse); }
 .tagMember   { background: var(--tag-member-bg,   var(--app-neutral-100)); color: var(--tag-member-color,   var(--app-neutral-600)); }

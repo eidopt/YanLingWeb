@@ -52,6 +52,11 @@ The template uses a component tree system. Core layout components:
   - widget runtime is disabled by default; prefer core.* approximations unless
     the user explicitly asks for custom code/widgets
 
+layoutDocument.style — OPTIONAL style manifest:
+  style: { cssVars: { "--accent": "#FF6B35", "--surface": "..." } }
+  The service also mirrors the top-level cssVars into layoutDocument.style.cssVars
+  before saving, so exported projects can compile CSS from the template JSON.
+
 layoutDocument.dependencies — OPTIONAL array of external libraries:
   dependencies: [{ name: "echarts", url: "https://esm.sh/echarts" }]
   Each dep is loaded at runtime via dynamic import() only when widget runtime

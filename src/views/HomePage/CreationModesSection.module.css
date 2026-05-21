@@ -2,8 +2,8 @@
   position: relative;
   overflow: hidden;
   background:
-    linear-gradient(135deg, var(--app-primary-alpha-08), transparent 44%),
-    var(--app-surface-2);
+    linear-gradient(135deg, var(--app-primary-alpha-12), transparent 44%),
+    var(--app-surface-3);
 }
 
 .creationModeCard {

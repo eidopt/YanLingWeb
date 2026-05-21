@@ -1,25 +1,13 @@
+import {
+  renderSmokeThemeLayoutDocument,
+  validateThemeLayoutDocument,
+} from '@shared/agent/validation/themeLayoutValidator';
+import { migrateThemeLayoutDocument } from '@shared/theme-layout/migrations';
+import { withThemeLayoutStyleManifest } from '@shared/theme-layout/styleManifest';
+import { compileDocumentToReactProject } from 'exporters/react-source';
 import type { ExportBuildPayload } from 'types/export.types';
 import type { BuilderCanvas } from 'ui/editor/types';
 import type { ThemeLayoutDocumentSource } from 'ui/layout/types';
-
-// ── Theme runtime registry ────────────────────────────────────────────
-// Maps each themeId to the import path and exported variable name of
-// its runtime. When a new theme pack is added, register it here.
-const THEME_RUNTIME_REGISTRY: Record<
-  string,
-  { importPath: string; importVar: string }
-> = {
-  'service-center': {
-    importPath: '@/theme-packs/service/runtime',
-    importVar: 'serviceThemeRuntime',
-  },
-  'commerce-market': {
-    importPath: '@/theme-packs/commerce/runtime',
-    importVar: 'commerceThemeRuntime',
-  },
-};
-
-// ── Serialization ─────────────────────────────────────────────────────
 
 /**
  * Merges all canvases (pages) of the current editor session into a
@@ -28,6 +16,7 @@ const THEME_RUNTIME_REGISTRY: Record<
 export function serializeCanvases(
   canvases: BuilderCanvas[],
   projectName: string,
+  runtimeCssVars?: Record<string, string>,
 ): string {
   const first = canvases[0];
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- defensive guard; array may be empty at runtime
@@ -45,38 +34,30 @@ export function serializeCanvases(
     layout: canvas.document.layout,
   }));
 
-  const merged: ThemeLayoutDocumentSource = {
+  const merged: ThemeLayoutDocumentSource = withThemeLayoutStyleManifest({
     ...first.document,
     pageName: projectName,
     pages,
     defaultPageId: pages[0].id,
     layout: pages[0].layout,
-  };
+  }, runtimeCssVars);
 
   return JSON.stringify(merged, null, 2);
 }
 
-/**
- * Builds the IPC payload for the Electron "build project" handler.
- * Returns null when the themeId is not registered (should not happen
- * in practice).
- */
 export function buildExportPayload(
   canvases: BuilderCanvas[],
   themeId: string,
   projectName: string,
-): ExportBuildPayload | null {
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- themeId may not be registered at runtime
-  if (!THEME_RUNTIME_REGISTRY[themeId]) {return null;}
-
+  runtimeCssVars?: Record<string, string>,
+): ExportBuildPayload {
   return {
     projectName: slugify(projectName),
-    layoutJson: serializeCanvases(canvases, projectName),
+    layoutJson: serializeCanvases(canvases, projectName, runtimeCssVars),
     themeId,
+    runtimeCssVars,
   };
 }
-
-// ── Web fallback: browser download ───────────────────────────────────
 
 /** Triggers a file download in the browser (web build, no Electron). */
 export function downloadFile(
@@ -95,163 +76,42 @@ export function downloadFile(
   URL.revokeObjectURL(url);
 }
 
-// ── Scaffold template generation (used by Electron main process) ─────
-//
-// The generated project reuses the main project's src/ via the @/ path
-// alias, so it can be built by running `vite build` inside
-// output/<name>/ without duplicating any source files.
+function prepareSourceExportDocument(layoutJson: string): ThemeLayoutDocumentSource {
+  const migrated = migrateThemeLayoutDocument(JSON.parse(layoutJson));
+  const validation = validateThemeLayoutDocument(migrated, {
+    componentTemplates: migrated.componentTemplates,
+    failOnUnknownProps: true,
+  });
+  if (!validation.valid) {
+    throw new Error(
+      `Layout validation failed before source export: ${validation.errors
+        .map((error) => `${error.path}: ${error.message}`)
+        .join('; ')}`,
+    );
+  }
+
+  const smoke = renderSmokeThemeLayoutDocument(migrated);
+  if (!smoke.passed) {
+    throw new Error(
+      `Render smoke failed before source export: ${smoke.errors.join('; ')}`,
+    );
+  }
+
+  return migrated;
+}
 
 export function generateScaffoldFiles(
   layoutJson: string,
-  themeId: string,
+  _themeId: string,
   projectName: string,
+  runtimeCssVars?: Record<string, string>,
 ): { relativePath: string; content: string }[] {
-  const registry = THEME_RUNTIME_REGISTRY[themeId];
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- themeId may not be registered at runtime
-  if (!registry) {throw new Error(`Unknown themeId: ${themeId}`);}
-
-  const { importPath, importVar } = registry;
-
-  return [
-    {
-      relativePath: 'layout.json',
-      content: layoutJson,
-    },
-    {
-      relativePath: 'index.html',
-      content: generateIndexHtml(projectName),
-    },
-    {
-      relativePath: 'src/main.tsx',
-      content: generateMainTsx(),
-    },
-    {
-      relativePath: 'src/App.tsx',
-      content: generateAppTsx(importPath, importVar),
-    },
-    {
-      relativePath: 'vite.config.ts',
-      // __SRC_DIR__ is replaced by the Electron main process with the
-      // absolute path to the main project's src/ directory.
-      content: generateViteConfig(),
-    },
-    {
-      relativePath: 'tsconfig.json',
-      content: generateTsConfig(),
-    },
-  ];
-}
-
-// ── Template strings ──────────────────────────────────────────────────
-
-function generateIndexHtml(title: string): string {
-  return `<!doctype html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>${title}</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="./src/main.tsx"></script>
-  </body>
-</html>
-`;
-}
-
-function generateMainTsx(): string {
-  return `import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import '@/styles/global.css';
-import { App } from './App';
-
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
-`;
-}
-
-function generateAppTsx(importPath: string, importVar: string): string {
-  return `import {
-  DynamicThemeRenderer,
-  useDynamicThemeRendererController,
-} from 'ui/renderer';
-import {
-  normalizeThemeLayoutDocument,
-  type ThemeLayoutDocumentSource,
-} from 'ui/layout/types';
-import { ${importVar} } from '${importPath}';
-import layoutSource from '../layout.json';
-
-const layoutDocument = normalizeThemeLayoutDocument(
-  layoutSource as ThemeLayoutDocumentSource,
-);
-
-export function App() {
-  const controller = useDynamicThemeRendererController({
-    layoutDocument,
-    runtime: ${importVar},
+  const document = prepareSourceExportDocument(layoutJson);
+  return compileDocumentToReactProject(document, {
+    projectName,
+    runtimeCssVars,
   });
-
-  return <DynamicThemeRenderer controller={controller} />;
 }
-`;
-}
-
-function generateViteConfig(): string {
-  // __SRC_DIR__ placeholder — replaced by Electron main process at
-  // write time
-  return `import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-
-// __SRC_DIR__ is substituted by the exporter with the absolute path to
-// the AI App project's src/ directory so @/ imports resolve correctly.
-const SRC_DIR = '__SRC_DIR__';
-
-export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: { '@': SRC_DIR },
-  },
-  build: {
-    outDir: 'dist',
-    emptyOutDir: true,
-  },
-});
-`;
-}
-
-function generateTsConfig(): string {
-  return JSON.stringify(
-    {
-      compilerOptions: {
-        target: 'es2023',
-        lib: ['ES2023', 'DOM', 'DOM.Iterable'],
-        module: 'esnext',
-        moduleResolution: 'bundler',
-        resolveJsonModule: true,
-        allowImportingTsExtensions: true,
-        verbatimModuleSyntax: true,
-        jsx: 'react-jsx',
-        strict: true,
-        skipLibCheck: true,
-        noEmit: true,
-        baseUrl: '.',
-        // @/ maps to the main project src/ (set by vite.config.ts at
-        // build time)
-        paths: { '@/*': ['../../src/*'] },
-      },
-      include: ['src'],
-    },
-    null,
-    2,
-  );
-}
-
-// ── Utilities ─────────────────────────────────────────────────────────
 
 function slugify(name: string): string {
   return (

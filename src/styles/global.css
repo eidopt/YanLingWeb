@@ -29,6 +29,31 @@ body {
   overflow-y: auto;
 }
 
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+body::before {
+  z-index: -2;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(139, 92, 246, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 82% 42%, rgba(34, 211, 238, 0.04) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 18% 72%, rgba(251, 113, 133, 0.03) 0%, transparent 52%);
+}
+
+body::after {
+  z-index: -1;
+  opacity: 0.025;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.5) var(--app-unit-0-125), transparent var(--app-unit-0-125)),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.5) var(--app-unit-0-125), transparent var(--app-unit-0-125));
+  background-size: var(--app-unit-8) var(--app-unit-8);
+}
+
 button,
 input,
 textarea,
@@ -64,6 +89,6 @@ ol {
 }
 
 ::selection {
-  background: var(--app-primary-alpha-02);
+  background: var(--app-primary-alpha-30);
   color: var(--app-text-primary);
 }

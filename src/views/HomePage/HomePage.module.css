@@ -1,14 +1,15 @@
 .page {
   min-height: 100%;
   background:
-    linear-gradient(135deg, var(--app-primary-alpha-08), transparent 42%),
-    linear-gradient(180deg, var(--app-color-primary-bg) 0%, var(--app-color-primary-bg-strong) 42%, var(--app-surface-1) 100%);
+    radial-gradient(ellipse 60% 48% at 72% 12%, rgba(34, 211, 238, 0.05), transparent 62%),
+    var(--app-gradient-hero),
+    var(--app-bg);
   isolation: isolate;
 }
 
 .authGate {
   min-height: 100vh;
   background:
-    linear-gradient(135deg, var(--app-primary-alpha-08), transparent 42%),
-    linear-gradient(180deg, var(--app-color-primary-bg) 0%, var(--app-color-primary-bg-strong) 100%);
+    var(--app-gradient-hero),
+    var(--app-bg);
 }

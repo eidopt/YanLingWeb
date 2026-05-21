@@ -64,6 +64,7 @@ export interface QueryLoopConfig {
     usage: NonNullable<StreamEventDone['usage']>,
     request: ProviderRequest,
   ) => void | Promise<void>;
+  requestCache?: ProviderRequest['cache'];
   maxIterations?: number;
   isCancelled: () => boolean;
 }
@@ -317,7 +318,12 @@ export class QueryLoop {
   }
 
   private buildRequest(messages: ProviderMessage[]): ProviderRequest {
-    return { model: this.cfg.model, messages, tools: this.cfg.tools };
+    return {
+      model: this.cfg.model,
+      messages,
+      tools: this.cfg.tools,
+      ...(this.cfg.requestCache ? { cache: this.cfg.requestCache } : {}),
+    };
   }
 
   private maybeInjectLoopHint(

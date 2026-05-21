@@ -10,8 +10,11 @@ import type {
   ApplyEditorAiEditInstructionsResult,
   EditorAiEditInstruction,
 } from '../services/aiEditInstructions';
-import styles from '../ThemeLayoutBuilder.module.css';
 import { editorAiPanelContent as c } from './EditorAiPanel.content';
+import type {
+  AgentClarification,
+  AgentClarificationOption,
+} from '@shared/agent/types';
 import type {
   EditorAiConversationMessage,
   EditorAiPageContext,
@@ -24,17 +27,10 @@ import {
   useRef,
   useState,
 } from 'react';
-import type { Components } from 'react-markdown';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import {
-  Box,
-  Button,
-  Heading,
-  Stack,
-  Text,
-  TextArea,
-} from 'ui/system';
+  type ChatMessage,
+  ChatPanel,
+} from 'ui/chat/ChatPanel';
 
 interface EditorAiPanelProps {
   templateId?: string;
@@ -49,11 +45,8 @@ interface EditorAiPanelProps {
   ) => ApplyEditorAiEditInstructionsResult;
 }
 
-interface EditorAiMessage {
-  id: string;
-  role: 'user' | 'assistant' | 'system';
-  text: string;
-  streaming?: boolean;
+interface EditorAiMessage extends ChatMessage {
+  clarificationPrompt?: string;
 }
 
 type CompletedEditorAiMessage = EditorAiMessage & {
@@ -67,8 +60,8 @@ interface EditAppliedEventPayload {
 }
 
 const MAX_STORED_MESSAGES = 40;
-const MAX_CONVERSATION_CONTEXT_MESSAGES = 12;
-const MAX_CONVERSATION_MESSAGE_CHARS = 4000;
+const MAX_CONVERSATION_CONTEXT_CHARS = 500_000;
+const MAX_CONVERSATION_MESSAGE_CHARS = 40_000;
 const CONVERSATION_STORAGE_VERSION = 1;
 const CONVERSATION_STORAGE_PREFIX = 'editor-ai:conversation:';
 
@@ -115,66 +108,15 @@ function parseEditAppliedPayload(data: string): EditAppliedEventPayload {
   }
 }
 
-const markdownComponents: Components = {
-  a({ children, href, ...props }) {
-    return (
-      <a
-        {...props}
-        href={href}
-        target="_blank"
-        rel="noreferrer"
-      >
-        {children}
-      </a>
-    );
-  },
-  code({ children, className, ...props }) {
-    const codeClassName = className
-      ? `${className} ${styles.editorAiBlockCode}`
-      : styles.editorAiInlineCode;
-
-    return (
-      <code
-        {...props}
-        className={codeClassName}
-      >
-        {children}
-      </code>
-    );
-  },
-  pre({ children, ...props }) {
-    return (
-      <pre {...props} className={styles.editorAiCodeBlock}>
-        {children}
-      </pre>
-    );
-  },
-};
-
-function MarkdownMessage({ text }: { text: string }) {
-  return (
-    <Box className={styles.editorAiMarkdown}>
-      <ReactMarkdown
-        components={markdownComponents}
-        remarkPlugins={[remarkGfm]}
-      >
-        {text}
-      </ReactMarkdown>
-    </Box>
-  );
-}
-
-function StreamingPending() {
-  return (
-    <Box as="span" className={styles.editorAiWaiting}>
-      <Text as="span" size="sm" variant="muted">{c.streamingPending}</Text>
-      <Box as="span" className={styles.editorAiWaitingDots} aria-hidden="true">
-        <Box as="span" />
-        <Box as="span" />
-        <Box as="span" />
-      </Box>
-    </Box>
-  );
+function parseClarification(data: string): AgentClarification | null {
+  try {
+    const parsed = JSON.parse(data) as AgentClarification;
+    return Array.isArray(parsed.options) && parsed.options.length > 0
+      ? parsed
+      : null;
+  } catch {
+    return null;
+  }
 }
 
 function describeAppliedEdits(payload: EditAppliedEventPayload) {
@@ -285,13 +227,24 @@ function saveStoredMessages(
 function buildConversationContext(
   messages: readonly EditorAiMessage[],
 ): EditorAiConversationMessage[] {
-  return messages
+  const normalized = messages
     .filter(isCompletedConversationMessage)
-    .slice(-MAX_CONVERSATION_CONTEXT_MESSAGES)
     .map((message) => ({
       role: message.role,
       content: trimConversationText(message.text),
     }));
+  const output: EditorAiConversationMessage[] = [];
+  let totalChars = 0;
+  for (let index = normalized.length - 1; index >= 0; index -= 1) {
+    const message = normalized[index];
+    const nextTotal = totalChars + message.content.length;
+    if (nextTotal > MAX_CONVERSATION_CONTEXT_CHARS) {
+      break;
+    }
+    output.unshift(message);
+    totalChars = nextTotal;
+  }
+  return output;
 }
 
 function buildPersistedConversation(
@@ -358,6 +311,32 @@ export function EditorAiPanel({
       current.map((message) =>
         message.id === messageId
           ? { ...message, text: `${message.text}${text}`, streaming: true }
+          : message,
+      ),
+    );
+  }
+
+  function setAssistantClarification(
+    messageId: string,
+    clarification: AgentClarification,
+    sourcePrompt: string,
+  ) {
+    setMessages((current) =>
+      current.map((message) =>
+        message.id === messageId
+          ? {
+              ...message,
+              text: clarification.question,
+              streaming: false,
+              clarification: {
+                question: clarification.question,
+                options: clarification.options,
+                allowCustom: clarification.allowCustom,
+                customLabel: clarification.customLabel,
+                customPlaceholder: clarification.customPlaceholder,
+              },
+              clarificationPrompt: sourcePrompt,
+            }
           : message,
       ),
     );
@@ -488,10 +467,18 @@ export function EditorAiPanel({
     messagesEndRef.current?.scrollIntoView({ block: 'end' });
   }, [messages, status]);
 
-  async function runAssistant(trimmedPrompt: string) {
+  async function runAssistant(
+    trimmedPrompt: string,
+    clarificationChoice?: AgentClarificationOption | null,
+    displayText = trimmedPrompt,
+  ) {
     const assistantMessageId = createMessageId('assistant');
     const abortController = new AbortController();
     const conversation = buildConversationContext(messages);
+    let finished = false;
+    let receivedClarification = false;
+    let finalStatus: string = c.status.ready;
+
     abortRef.current = abortController;
     setIsRunning(true);
     setStatus(c.status.analyzing);
@@ -500,7 +487,7 @@ export function EditorAiPanel({
     appendMessage({
       id: createMessageId('user'),
       role: 'user',
-      text: trimmedPrompt,
+      text: displayText,
     });
     appendMessage({
       id: assistantMessageId,
@@ -510,6 +497,10 @@ export function EditorAiPanel({
     });
 
     const finishActiveRun = (nextStatus: string) => {
+      if (finished) {
+        return;
+      }
+      finished = true;
       markAssistantComplete(assistantMessageId);
       if (abortRef.current !== abortController) {
         return;
@@ -528,6 +519,7 @@ export function EditorAiPanel({
         conversationId: providerConversationId,
         selectedNode,
         selectedDescriptor,
+        clarificationChoice,
         applyInstructions: onApplyInstructions,
         signal: abortController.signal,
         onEvent: (event) => {
@@ -535,6 +527,20 @@ export function EditorAiPanel({
             case 'intent_plan': {
               setIntentPlan(parseIntentPlan(event.data));
               setStatus(c.status.intentRecognized);
+              break;
+            }
+            case 'clarification': {
+              const clarification = parseClarification(event.data);
+              if (clarification) {
+                receivedClarification = true;
+                finalStatus = c.status.awaitingChoice;
+                setStatus(c.status.awaitingChoice);
+                setAssistantClarification(
+                  assistantMessageId,
+                  clarification,
+                  trimmedPrompt,
+                );
+              }
               break;
             }
             case 'text':
@@ -567,7 +573,7 @@ export function EditorAiPanel({
               }
               break;
             case 'done':
-              finishActiveRun(c.status.ready);
+              finishActiveRun(receivedClarification ? c.status.awaitingChoice : c.status.ready);
               break;
           }
         },
@@ -583,7 +589,7 @@ export function EditorAiPanel({
         finishActiveRun(c.status.failed);
       }
     } finally {
-      finishActiveRun(c.status.ready);
+      finishActiveRun(finalStatus);
     }
   }
 
@@ -595,6 +601,38 @@ export function EditorAiPanel({
     }
 
     void runAssistant(trimmedPrompt);
+  }
+
+  function handleClarificationSelect(
+    option: AgentClarificationOption,
+    message: ChatMessage,
+  ) {
+    if (isRunning || disabled) {
+      return;
+    }
+    const sourceMessage = message as EditorAiMessage;
+    const sourcePrompt = sourceMessage.clarificationPrompt ?? option.value;
+    void runAssistant(sourcePrompt, option, `选择：${option.label}`);
+  }
+
+  function handleClarificationCustomSubmit(
+    value: string,
+    message: ChatMessage,
+  ) {
+    const trimmedValue = value.trim();
+    if (!trimmedValue || isRunning || disabled) {
+      return;
+    }
+
+    const sourceMessage = message as EditorAiMessage;
+    const sourcePrompt = sourceMessage.clarificationPrompt ?? trimmedValue;
+    const option: AgentClarificationOption = {
+      id: createMessageId('custom-clarification'),
+      label: '其他：自定义说明',
+      description: trimmedValue,
+      value: `User provided custom clarification: ${trimmedValue}`,
+    };
+    void runAssistant(sourcePrompt, option, `补充说明：${trimmedValue}`);
   }
 
   function handleCancel() {
@@ -616,84 +654,26 @@ export function EditorAiPanel({
     : [];
 
   return (
-    <Box as="section" className={styles.editorAiPanel} aria-label={c.ariaLabel}>
-      <Box className={styles.editorAiHeader}>
-        <Stack gap="xs">
-          <Text as="span" size="xs" transform="uppercase" variant="muted" weight="bold">
-            {c.eyebrow}
-          </Text>
-          <Heading as="h3" size="xs" variant="primary" weight="bold">{c.title}</Heading>
-        </Stack>
-        <Text as="span" size="xs" variant="muted" weight="bold">{status}</Text>
-      </Box>
-
-      {capabilityBadges.length > 0 ? (
-        <Box className={styles.editorAiBadges}>
-          {capabilityBadges.map((badge) => (
-            <Box key={badge} as="span">{badge}</Box>
-          ))}
-        </Box>
-      ) : null}
-
-      <Box className={styles.editorAiMessages} aria-live="polite">
-        {messages.map((message) => (
-          <Box
-            key={message.id}
-            className={
-              message.role === 'user'
-                ? styles.editorAiUserMessage
-                : message.role === 'system'
-                  ? styles.editorAiSystemMessage
-                  : message.streaming
-                    ? `${styles.editorAiAssistantMessage} ${styles.editorAiStreamingMessage}`
-                    : styles.editorAiAssistantMessage
-            }
-          >
-            {message.text ? (
-              message.role === 'user'
-                ? message.text
-                : <MarkdownMessage text={message.text} />
-            ) : message.role === 'assistant' ? (
-              <StreamingPending />
-            ) : ''}
-            {message.streaming && message.role === 'assistant' ? (
-              <Box as="span" className={styles.editorAiStreamingCursor} aria-hidden="true" />
-            ) : null}
-          </Box>
-        ))}
-        <Box ref={messagesEndRef} />
-      </Box>
-
-      <Stack as="form" className={styles.editorAiForm} onSubmit={handleSubmit}>
-        <TextArea
-          value={prompt}
-          onChange={(event) => setPrompt(event.target.value)}
-          placeholder={c.promptPlaceholder}
-          disabled={disabled || isRunning}
-          size="sm"
-          variant="filled"
-        />
-        <Box className={styles.editorAiActions}>
-          {isRunning ? (
-            <Button
-              type="button"
-              onClick={handleCancel}
-              size="sm"
-              variant="secondary"
-            >
-              {c.cancel}
-            </Button>
-          ) : null}
-          <Button
-            type="submit"
-            disabled={disabled || isRunning || !prompt.trim()}
-            size="sm"
-            variant="primary"
-          >
-            {c.execute}
-          </Button>
-        </Box>
-      </Stack>
-    </Box>
+    <ChatPanel
+      ariaLabel={c.ariaLabel}
+      eyebrow={c.eyebrow}
+      title={c.title}
+      status={status}
+      messages={messages}
+      inputValue={prompt}
+      inputPlaceholder={c.promptPlaceholder}
+      submitLabel={c.execute}
+      cancelLabel={c.cancel}
+      disabled={disabled}
+      isRunning={isRunning}
+      badges={capabilityBadges}
+      streamingLabel={c.streamingPending}
+      onInputChange={setPrompt}
+      onSubmit={handleSubmit}
+      onCancel={handleCancel}
+      onClarificationSelect={handleClarificationSelect}
+      onClarificationCustomSubmit={handleClarificationCustomSubmit}
+      messagesEndRef={messagesEndRef}
+    />
   );
 }
