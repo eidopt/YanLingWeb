@@ -8,7 +8,7 @@
   gap: var(--app-unit-3);
   padding: 0 var(--app-unit-3);
   height: var(--app-unit-7);
-  background: rgba(9, 13, 20, 0.86);
+  background: var(--app-bg-elevated);
   backdrop-filter: blur(var(--app-unit-2-5)) saturate(180%);
   -webkit-backdrop-filter: blur(var(--app-unit-2-5)) saturate(180%);
   border-bottom: var(--app-unit-0-125) solid var(--app-border-subtle);
@@ -26,7 +26,7 @@
   gap: var(--app-unit-3);
   padding: 0 var(--app-unit-3);
   height: var(--app-unit-7);
-  background: linear-gradient(180deg, rgba(9, 13, 20, 0.76), rgba(9, 13, 20, 0));
+  background: linear-gradient(180deg, var(--app-bg-elevated), transparent);
   border-bottom: var(--app-unit-0-125) solid transparent;
 }
 
@@ -118,6 +118,58 @@
   align-items: center;
   gap: var(--app-unit-1);
   flex-shrink: 0;
+}
+
+/* ── Theme toggle ── */
+.themeToggle {
+  width: var(--app-unit-3-5);
+  height: var(--app-unit-3-5);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--app-radius-pill);
+  background: transparent;
+  border: var(--app-unit-0-125) solid var(--app-border-subtle);
+  color: var(--app-text-muted);
+  cursor: pointer;
+  font-size: var(--app-unit-1-75);
+  line-height: 1;
+  transition:
+    background var(--app-motion-fast) var(--app-motion-smooth),
+    border-color var(--app-motion-fast) var(--app-motion-smooth),
+    box-shadow var(--app-motion-fast) var(--app-motion-smooth),
+    color var(--app-motion-fast) var(--app-motion-smooth),
+    transform var(--app-motion-fast) var(--app-motion-smooth);
+  flex-shrink: 0;
+}
+
+.themeToggle:hover {
+  background: var(--app-surface-2);
+  border-color: var(--app-border);
+  color: var(--app-text-primary);
+  transform: scale(1.08);
+}
+
+.themeToggle:focus-visible {
+  outline: var(--app-unit-0-25) solid var(--app-focus-ring);
+  outline-offset: var(--app-unit-0-25);
+}
+
+.themeToggle[data-variant='sidebar'] {
+  width: var(--app-unit-6);
+  height: var(--app-unit-6);
+  border-color: var(--app-border-subtle);
+  background: var(--app-surface-1);
+  color: var(--app-color-primary);
+  box-shadow: var(--app-shadow-xs);
+}
+
+.themeToggle[data-variant='sidebar']:hover {
+  border-color: color-mix(in srgb, var(--app-color-primary) 24%, transparent);
+  background: var(--app-surface-1);
+  color: var(--app-color-primary);
+  box-shadow: var(--app-shadow-brand-sm);
+  transform: translateY(calc(var(--app-unit-0-125) * -1));
 }
 
 .userAvatar {

@@ -112,7 +112,10 @@
 .sidebarFooter {
   margin-top: auto;
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
+  gap: var(--app-unit-1);
 }
 
 .userButton {
@@ -199,6 +202,8 @@
 }
 
 .searchBox {
+  --search-icon-color: color-mix(in srgb, var(--app-color-primary) 72%, var(--app-text-primary));
+
   width: min(var(--app-unit-112), 82%);
   min-height: var(--app-unit-14);
   display: flex;
@@ -220,7 +225,7 @@
   height: var(--app-unit-2-25);
   flex: 0 0 auto;
   margin-top: var(--app-unit-0-5);
-  border: var(--app-unit-0-25) solid var(--app-white-alpha-08);
+  border: var(--app-unit-0-25) solid var(--search-icon-color);
   border-radius: var(--app-radius-pill);
   position: relative;
 }
@@ -233,7 +238,7 @@
   right: calc(var(--app-unit-1) * -1);
   bottom: calc(var(--app-unit-0-5) * -1);
   border-radius: var(--app-radius-pill);
-  background: var(--app-color-primary);
+  background: var(--search-icon-color);
   transform: rotate(45deg);
 }
 
@@ -253,6 +258,12 @@
   font-size: var(--app-unit-2);
   line-height: 1.55;
   resize: vertical;
+}
+
+.searchInput textarea:focus {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
 }
 
 .searchInput textarea::placeholder {
@@ -445,6 +456,7 @@
 
   .sidebarFooter {
     margin-top: 0;
+    flex-direction: row;
     flex: 0 0 auto;
   }
 
@@ -575,7 +587,7 @@
   min-height: auto;
   align-content: start;
   gap: var(--app-unit-2);
-  padding: var(--app-unit-7) var(--app-unit-5) var(--app-unit-4);
+  padding: var(--app-unit-4) var(--app-unit-5) var(--app-unit-4);
   background: transparent;
 }
 
@@ -683,11 +695,11 @@
 }
 
 .searchIcon {
-  border-color: var(--app-color-primary);
+  border-color: var(--search-icon-color);
 }
 
 .searchIcon::after {
-  background: var(--app-color-primary);
+  background: var(--search-icon-color);
 }
 
 .searchInput textarea {

@@ -45,7 +45,7 @@ export function withThemeLayoutStyleManifest<
     cssVars,
   );
   if (!Object.keys(resolvedCssVars).length) {
-    return document as T & ThemeLayoutStyleDocument;
+    return document;
   }
 
   const style = (

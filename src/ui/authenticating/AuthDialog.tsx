@@ -7,6 +7,7 @@ import { useAppServices } from 'hooks/useAppServices';
 import { hashForLogin, hashPassword } from 'lib/hash-password';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
+import { ApiError } from 'services/UserService';
 import {
   Box,
   Button,
@@ -22,6 +23,16 @@ import {
 type Tab = 'login' | 'register';
 type View = Tab | 'wechat';
 
+function resolveAuthError(err: unknown): string {
+  if (err instanceof ApiError && err.errorCode) {
+    return c.error.byCode[err.errorCode] ?? err.message;
+  }
+  if (err instanceof Error) {
+    return err.message;
+  }
+  return c.error.unknown;
+}
+
 interface AuthDialogProps {
   onClose: (successRedirect?: string) => void;
   initialTab?: Tab;
@@ -31,7 +42,7 @@ interface AuthDialogProps {
 export function AuthDialog({
   onClose,
   initialTab = 'login',
-  successRedirect = '/editor',
+  successRedirect = '/',
 }: AuthDialogProps) {
   const [view, setView] = useState<View>(initialTab);
 
@@ -143,7 +154,7 @@ function LoginForm({
       authService.save(result);
       onClose(successRedirect);
     } catch (err) {
-      setError(err instanceof Error ? err.message : c.error.unknown);
+      setError(resolveAuthError(err));
     } finally {
       setSubmitting(false);
     }
@@ -278,7 +289,7 @@ function RegisterForm({
       authService.save(result);
       onClose(successRedirect);
     } catch (err) {
-      setError(err instanceof Error ? err.message : c.error.unknown);
+      setError(resolveAuthError(err));
     } finally {
       setSubmitting(false);
     }

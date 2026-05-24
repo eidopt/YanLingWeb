@@ -19,6 +19,9 @@ export type TextVariant =
   | 'accent'
   | 'accent-faint'
   | 'brand-gradient'
+  | 'gradient-warm'
+  | 'gradient-cool'
+  | 'glow'
   | 'success'
   | 'warning'
   | 'danger';

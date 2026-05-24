@@ -15,7 +15,7 @@ interface WithClassName {
 
 export interface MetricItem {
   label: string;
-  value: string;
+  value: ReactNode;
 }
 
 export function MetricStrip({

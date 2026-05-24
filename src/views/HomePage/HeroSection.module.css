@@ -390,6 +390,9 @@
 .heroGeneratedCta span,
 .heroGeneratedCta strong {
   height: var(--app-unit-3-5);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: var(--app-radius-pill);
 }
 

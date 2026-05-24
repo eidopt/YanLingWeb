@@ -20,7 +20,9 @@ export type ButtonVariant =
   | 'icon-inverse'
   | 'floating'
   | 'link'
-  | 'user';
+  | 'user'
+  | 'ghost-light'
+  | 'gradient-border';
 
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'icon-sm' | 'icon-md' | 'fab';
 
@@ -31,6 +33,7 @@ export type ButtonProps = Omit<
   children?: ReactNode;
   fullWidth?: boolean;
   leadingIcon?: ReactNode;
+  loading?: boolean;
   size?: ButtonSize;
   trailingIcon?: ReactNode;
   variant?: ButtonVariant;
@@ -40,6 +43,7 @@ export function Button({
   children,
   fullWidth = false,
   leadingIcon,
+  loading = false,
   size = 'md',
   trailingIcon,
   type = 'button',
@@ -51,9 +55,11 @@ export function Button({
       {...props}
       type={type}
       data-full-width={fullWidth ? true : undefined}
+      data-loading={loading ? true : undefined}
       data-size={size}
       data-variant={variant}
       className={styles.button}
+      disabled={props.disabled ?? loading}
     >
       {leadingIcon && <span className={styles.buttonIcon}>{leadingIcon}</span>}
       {children}

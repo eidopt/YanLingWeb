@@ -42,7 +42,14 @@ const CORE_ALIASES = new Set([
   'core.input',
 ]);
 
-const CONTAINER_ALIASES = new Set(['core.screen', 'core.panel', 'core.stack', 'core.row', 'core.grid']);
+const CONTAINER_ALIASES = new Set([
+  'core.screen',
+  'core.panel',
+  'core.stack',
+  'core.row',
+  'core.grid',
+  'core.html',
+]);
 const LAYOUT_MODES = new Set(['flow', 'grid', 'absolute']);
 
 function issue(

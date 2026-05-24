@@ -5,8 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ConfigService } from '../config/config.service';
 import { Template } from '../templates/entities/template.entity';
-import { PublishedSiteRevision } from './entities/published-site-revision.entity';
 import { PublishedSite } from './entities/published-site.entity';
+import { PublishedSiteRevision } from './entities/published-site-revision.entity';
 import { SitesController } from './sites.controller';
 import { SitesService } from './sites.service';
 

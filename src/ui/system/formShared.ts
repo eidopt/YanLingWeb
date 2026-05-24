@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 export type FieldSize = 'sm' | 'md' | 'lg';
 export type FieldTone = 'neutral' | 'success' | 'warning' | 'danger';
-export type FieldVariant = 'default' | 'filled' | 'quiet';
+export type FieldVariant = 'default' | 'filled' | 'quiet' | 'glass';
 
 export interface ChoiceOption {
   description?: ReactNode;

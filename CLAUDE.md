@@ -24,12 +24,12 @@ YanLingWeb/
 │   │   ├── layout.tsx            # 根布局
 │   │   ├── editor/page.tsx       # 可视化编辑器页面
 │   │   ├── templates/page.tsx    # 模板广场页面
-│   │   ├── sites/[subdomain]/    # 已发布站点渲染
+│   │   ├── sites/[subdomain]/    # 已发布站点渲染（静态导出 + 后端 fallback）
 │   │   ├── api/ai/stream/        # AI 流式代理 (SSE)
 │   │   ├── api/ai/editor/        # AI 编辑器流式代理
 │   │   ├── api/proxy/[...path]/  # 通用后端代理
 │   │   └── api/export/           # 导出 API (JSON, 构建, 打开目录)
-│   │   └── _components/AppShell.tsx  # 应用外壳
+│   │   └── _components/          # AppShell, ThemeBody（主题切换）
 │   ├── ai/                 # AI 代理系统 (前端侧)
 │   │   ├── agents/              # Agent 实现 (模板生成, 编辑器)
 │   │   ├── core/                # 核心引擎 (QueryLoop, Providers, Compact)
@@ -46,7 +46,7 @@ YanLingWeb/
 │   │   └── components/              # 17 个核心组件节点
 │   ├── components/          # 共享 UI 组件
 │   ├── views/               # 页面视图
-│   ├── hooks/               # 自定义 Hooks
+│   ├── hooks/               # 自定义 Hooks（含 useTheme 暗色/亮色主题切换）
 │   ├── lib/                 # 工具库
 │   ├── services/            # 业务服务
 │   ├── stores/              # 状态管理
@@ -187,6 +187,14 @@ YanLingWeb/
 ```
 
 前端永远看不到 API 密钥 — 它们只存在于后端。
+
+### 暗色/亮色主题
+
+`useTheme` hook（`src/hooks/useTheme.tsx`）通过 React Context + localStorage 提供暗色/亮色切换。`<head>` 内联脚本在页面渲染前读取 localStorage 并设置 `data-app-theme` 属性，避免主题闪烁。`ThemeBody` 组件包裹整个应用子树。
+
+### 已发布站点静态导出
+
+`/sites/[subdomain]` 页面使用 `dynamic = 'force-static'`，`generateStaticParams()` 返回 `_placeholder`。当后端不可用时（如静态构建），渲染前端内置的预览占位页面，确保构建不因 API 不可用而失败。正常运行时从后端 `/api/public/sites/:subdomain` 拉取数据。
 
 ## 开发命令
 

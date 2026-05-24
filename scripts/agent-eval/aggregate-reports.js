@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 
+import { writeReports } from './report-writer.js';
 import fs from 'node:fs';
 import path from 'node:path';
-
-import { writeReports } from './report-writer.js';
 
 function parseArgs(argv) {
   const args = {

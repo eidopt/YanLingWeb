@@ -75,6 +75,7 @@ export interface QueryResult {
   iterations: number;
   stopReason: 'completed' | 'max_iterations' | 'error' | 'cancelled';
   error?: string;
+  responseId?: string;
 }
 
 export class QueryLoop {
@@ -94,6 +95,7 @@ export class QueryLoop {
     let current = [...messages];
     const maxIter = this.cfg.maxIterations ?? MAX_ITERATIONS;
     let continuationParts: string[] = [];
+    let lastResponseId: string | undefined;
 
     while (!this.cfg.isCancelled()) {
       this.iterations += 1;
@@ -106,6 +108,7 @@ export class QueryLoop {
           iterations: this.iterations,
           stopReason: 'max_iterations',
           error: err,
+          ...(lastResponseId && { responseId: lastResponseId }),
         };
       }
 
@@ -156,6 +159,7 @@ export class QueryLoop {
               break;
             case 'done':
               if (event.stopReason) { stopReason = event.stopReason; }
+              if (event.response_id) { lastResponseId = event.response_id; }
               if (event.reasoningContent) { reasoningContent = event.reasoningContent; }
               if (event.usage) {
                 await this.cfg.onUsage?.(event.usage, request);
@@ -205,6 +209,7 @@ export class QueryLoop {
             iterations: this.iterations,
             stopReason: 'error',
             error: err,
+            ...(lastResponseId && { responseId: lastResponseId }),
           };
         }
       } else {
@@ -245,6 +250,7 @@ export class QueryLoop {
           finalText,
           iterations: this.iterations,
           stopReason: 'completed',
+          ...(lastResponseId && { responseId: lastResponseId }),
         };
       }
 
@@ -314,6 +320,7 @@ export class QueryLoop {
       finalText: '',
       iterations: this.iterations,
       stopReason: 'cancelled',
+      ...(lastResponseId && { responseId: lastResponseId }),
     };
   }
 

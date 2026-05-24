@@ -56,7 +56,7 @@ function appendNodeSummary(node: ThemeLayoutNode, lines: string[], depth = 0): v
 
 function collectNodes(
   node: ThemeLayoutNode,
-  output: Array<{ node: ThemeLayoutNode; depth: number; parentId?: string }>,
+  output: { node: ThemeLayoutNode; depth: number; parentId?: string }[],
   depth = 0,
   parentId?: string,
 ): void {
@@ -235,7 +235,7 @@ export function buildEditorTrimmedVolatileContext(
   selectedDescriptor: ThemeComponentDescriptor | null | undefined,
   prompt: string,
 ): string {
-  const nodes: Array<{ node: ThemeLayoutNode; depth: number; parentId?: string }> = [];
+  const nodes: { node: ThemeLayoutNode; depth: number; parentId?: string }[] = [];
   collectNodes(document.layout, nodes);
   const promptTokens = normalizedSearchTokens(prompt);
   const selectedNodeId = selectedNode?.id;

@@ -2,6 +2,7 @@
 
 import styles from './HeroSection.module.css';
 import { homePageContent as c } from './HomePage.content';
+import { useCallback } from 'react';
 import { PageButton } from 'ui/pages';
 import {
   Box,
@@ -18,9 +19,22 @@ export function HeroSection({
   onCtaPrimary,
   onCtaSecondary,
 }: HeroSectionProps) {
+  const scrollToNext = useCallback(() => {
+    const next = document.querySelector('[data-section="stats"]');
+    if (next) {
+      next.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, []);
+
   return (
     <Box as="section" className={styles.hero}>
       <Box className={styles.heroMesh} />
+      {/* Floating glow particles */}
+      <Box className="hero-glow-container" aria-hidden="true">
+        <Box className="hero-glow-orb" />
+        <Box className="hero-glow-orb" />
+        <Box className="hero-glow-orb" />
+      </Box>
 
       <Box className={styles.heroInner}>
         <Box className={styles.heroEyebrow}>
@@ -175,6 +189,18 @@ export function HeroSection({
             </Box>
           ))}
         </Box>
+      </Box>
+
+      {/* Scroll indicator */}
+      <Box
+        aria-hidden="true"
+        className="scroll-indicator"
+        onClick={scrollToNext}
+        role="button"
+        tabIndex={-1}
+      >
+        <Box className="scroll-indicator-line" />
+        <Box className="scroll-indicator-dot" />
       </Box>
     </Box>
   );

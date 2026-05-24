@@ -1,5 +1,6 @@
 import './globals.css';
 import { AppShell } from './_components/AppShell';
+import { ThemeBody } from './_components/ThemeBody';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -15,6 +16,16 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <head>
+        <script
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: [
+            `try{var t=localStorage.getItem('app-theme');`,
+            `if(t==='light')document.body.setAttribute('data-app-theme','light')`,
+            `}catch(e){}`,
+          ].join(''),
+          }}
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
@@ -22,8 +33,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body data-app-theme="studio" suppressHydrationWarning>
-        <AppShell>{children}</AppShell>
+      <body suppressHydrationWarning>
+        <ThemeBody>
+          <AppShell>{children}</AppShell>
+        </ThemeBody>
       </body>
     </html>
   );

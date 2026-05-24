@@ -79,7 +79,12 @@ function ThemePreviewModalContent(
               className={styles.previewViewport}
               data-preset={screenPreset}
             >
-              <ThemePreview theme={theme} screenPreset={screenPreset} />
+              <Box
+                className={styles.previewScaleShell}
+                data-preset={screenPreset}
+              >
+                <ThemePreview theme={theme} screenPreset={screenPreset} />
+              </Box>
             </Box>
           </Inline>
         </Stack>

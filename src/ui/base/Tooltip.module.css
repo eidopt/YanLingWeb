@@ -17,15 +17,27 @@
   max-width: min(var(--app-unit-36), calc(100vw - var(--app-unit-4)));
   padding: var(--app-unit-1) var(--app-unit-1-5);
   border-radius: var(--app-unit-1-25);
-  border: var(--app-unit-0-125) solid var(--app-border);
-  background: color-mix(in srgb, var(--app-color-ink) 88%, transparent);
+  border: var(--app-unit-0-125) solid rgba(139, 92, 246, 0.16);
+  background: rgba(15, 23, 42, 0.92);
   color: var(--app-text-primary);
-  box-shadow: var(--app-shadow-md), var(--app-shadow-glow-violet);
-  font-size: var(--app-unit-1-5);
-  line-height: 1.4;
+  box-shadow: var(--app-shadow-lg), var(--app-shadow-glow-violet);
+  font-size: var(--app-font-size-sm);
+  line-height: 1.45;
   text-align: center;
   pointer-events: none;
-  backdrop-filter: blur(var(--app-unit-2-5)) saturate(160%);
+  backdrop-filter: blur(var(--app-unit-3)) saturate(180%);
+  animation: tooltipIn var(--app-motion-base) var(--app-motion-smooth);
+}
+
+@keyframes tooltipIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .content::after {

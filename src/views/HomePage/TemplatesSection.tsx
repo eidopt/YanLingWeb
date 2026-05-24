@@ -7,6 +7,7 @@ import {
   CardGrid,
   PageButton,
   PageSection,
+  ScrollReveal,
   SectionHeader,
 } from 'ui/pages';
 import {
@@ -28,33 +29,46 @@ export function TemplatesSection({
 
   return (
     <PageSection tone="muted">
-      <SectionHeader
-        eyebrow={c.templates.eyebrow}
-        title={c.templates.title}
-        subtitle={c.templates.sub}
-      />
+      <ScrollReveal variant="fadeUp">
+        <SectionHeader
+          eyebrow={c.templates.eyebrow}
+          title={c.templates.title}
+          subtitle={c.templates.sub}
+        />
+      </ScrollReveal>
       <CardGrid auto className={styles.templateGrid}>
-        {templates.map(theme => (
-          <Box key={theme.id} className={styles.templateCardMotion}>
-            <ThemeCard
-              theme={theme}
-              onClick={onTemplateSelect}
-            />
-          </Box>
+        {templates.map((theme, i) => (
+          <ScrollReveal
+            key={theme.id}
+            variant="fadeUp"
+            delay={i * 100}
+            duration="slow"
+          >
+            <Box className={styles.templateCardMotion}>
+              <ThemeCard
+                theme={theme}
+                onClick={onTemplateSelect}
+              />
+            </Box>
+          </ScrollReveal>
         ))}
       </CardGrid>
       {templates.length === 0 && (
-        <Box className={styles.templateEmpty}>
-          <Text align="center" size="sm" variant="muted">
-            模板正在加载，稍后会自动显示。
-          </Text>
-        </Box>
+        <ScrollReveal variant="fadeIn" delay={200}>
+          <Box className={styles.templateEmpty}>
+            <Text align="center" size="sm" variant="muted">
+              模板正在加载，稍后会自动显示。
+            </Text>
+          </Box>
+        </ScrollReveal>
       )}
-      <Box className={styles.moreRow}>
-        <PageButton variant="outline" onClick={onBrowseTemplates}>
-          {c.templates.moreBtn}
-        </PageButton>
-      </Box>
+      <ScrollReveal variant="fadeUp" delay={300}>
+        <Box className={styles.moreRow}>
+          <PageButton variant="outline" onClick={onBrowseTemplates}>
+            {c.templates.moreBtn}
+          </PageButton>
+        </Box>
+      </ScrollReveal>
     </PageSection>
   );
 }

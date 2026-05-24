@@ -50,6 +50,14 @@ export const authDialogContent = {
     unknown: '操作失败，请稍后重试',
     passwordMismatch: '两次输入的密码不一致',
     passwordTooShort: '密码至少需要 8 位字符',
+
+    // Backend errorCode → user-friendly Chinese messages
+    byCode: {
+      INVALID_CREDENTIALS: '账号或密码错误',
+      INVALID_NONCE: '登录会话已过期，请重新登录',
+      ALREADY_EXISTS: '用户名、邮箱或手机号已被使用',
+      VALIDATION_ERROR: '输入格式不正确',
+    } as Record<string, string>,
   },
 
   close: '关闭',

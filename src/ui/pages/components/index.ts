@@ -24,3 +24,6 @@ export {
   PageSection,
   SectionHeader,
 } from './PageShell';
+export type { ScrollRevealProps, StaggerChildrenProps } from './ScrollReveal';
+export type { AnimationVariant } from './ScrollReveal';
+export { ScrollReveal, StaggerChildren } from './ScrollReveal';

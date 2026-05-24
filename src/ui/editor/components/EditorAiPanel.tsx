@@ -10,6 +10,7 @@ import type {
   ApplyEditorAiEditInstructionsResult,
   EditorAiEditInstruction,
 } from '../services/aiEditInstructions';
+import { CONTAINER_ALIASES } from '../services/layoutBuilderService';
 import { editorAiPanelContent as c } from './EditorAiPanel.content';
 import type {
   AgentClarification,
@@ -57,6 +58,16 @@ interface EditAppliedEventPayload {
   applied?: string[];
   errors?: string[];
   reason?: string;
+}
+
+interface TraversedNode {
+  node: ThemeLayoutNode;
+  depth: number;
+}
+
+interface MissingNodeReference {
+  field: 'nodeId' | 'parentId' | 'targetId';
+  requestedId: string;
 }
 
 const MAX_STORED_MESSAGES = 40;
@@ -135,6 +146,204 @@ function describeAppliedEdits(payload: EditAppliedEventPayload) {
     : '';
 
   return [payload.reason, appliedText, errorText].filter(Boolean).join('\n');
+}
+
+function flattenDocumentNodes(
+  node: ThemeLayoutNode,
+  output: TraversedNode[] = [],
+  depth = 0,
+): TraversedNode[] {
+  output.push({ node, depth });
+  node.children?.forEach((child) => flattenDocumentNodes(child, output, depth + 1));
+  return output;
+}
+
+function getNodeStringProp(node: ThemeLayoutNode, propName: string) {
+  const value = node.props?.[propName];
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function truncateLabel(value: string, maxLength = 18) {
+  const trimmed = value.trim();
+  return trimmed.length > maxLength
+    ? `${trimmed.slice(0, maxLength - 1)}...`
+    : trimmed;
+}
+
+function aliasDisplayName(alias: string) {
+  const normalized = alias.replace(/^core\./, '');
+  const names: Record<string, string> = {
+    button: '按钮',
+    grid: '网格',
+    html: 'HTML 区块',
+    image: '图片',
+    input: '输入框',
+    notice: '提示',
+    panel: '卡片容器',
+    row: '横向布局',
+    screen: '页面',
+    search: '搜索框',
+    stack: '纵向布局',
+    tabs: '底部导航',
+    tag: '标签',
+    text: '文本',
+  };
+  return names[normalized] ?? normalized;
+}
+
+function getNodeDisplayText(node: ThemeLayoutNode) {
+  return (
+    getNodeStringProp(node, 'title')
+    || getNodeStringProp(node, 'label')
+    || getNodeStringProp(node, 'text')
+    || getNodeStringProp(node, 'placeholder')
+    || getNodeStringProp(node, 'activeTab')
+    || getNodeStringProp(node, 'actionLabel')
+    || ''
+  );
+}
+
+function describeNodeOption(item: TraversedNode) {
+  const text = getNodeDisplayText(item.node);
+  const typeLabel = aliasDisplayName(item.node.alias);
+  const prefix = item.depth === 0 ? '页面' : `${typeLabel}`;
+  return text
+    ? `${prefix}：${truncateLabel(text)}`
+    : `${prefix} ${item.depth + 1}`;
+}
+
+function describeNodeDetails(item: TraversedNode) {
+  const text = getNodeDisplayText(item.node);
+  return [
+    `${aliasDisplayName(item.node.alias)}组件`,
+    text ? `内容：${truncateLabel(text, 36)}` : '',
+    `层级：${item.depth + 1}`,
+    `节点ID：${item.node.id}`,
+  ].filter(Boolean).join('；');
+}
+
+function normalizeNodeId(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]+/g, '');
+}
+
+function scoreNodeIdSimilarity(requestedId: string, nodeId: string) {
+  const requested = normalizeNodeId(requestedId);
+  const existing = normalizeNodeId(nodeId);
+  if (!requested || !existing) {
+    return 0;
+  }
+  if (requested === existing) {
+    return 1;
+  }
+  if (
+    requested.length >= 4 &&
+    existing.length >= 4 &&
+    (requested.includes(existing) || existing.includes(requested))
+  ) {
+    return 0.9;
+  }
+
+  const requestedParts = requestedId.toLowerCase().split(/[^a-z0-9\u4e00-\u9fff]+/).filter(Boolean);
+  const existingParts = nodeId.toLowerCase().split(/[^a-z0-9\u4e00-\u9fff]+/).filter(Boolean);
+  if (!requestedParts.length || !existingParts.length) {
+    return 0;
+  }
+  const existingSet = new Set(existingParts);
+  const overlap = requestedParts.filter((part) => existingSet.has(part)).length;
+  return overlap / Math.max(requestedParts.length, existingParts.length);
+}
+
+function parseMissingNodeReference(
+  errors: readonly string[],
+): MissingNodeReference | null {
+  for (const error of errors) {
+    const explicit = /(nodeId|parentId|targetId)[：:]\s*([A-Za-z0-9_.:-]+)/
+      .exec(error);
+    if (explicit) {
+      return {
+        field: explicit[1] as MissingNodeReference['field'],
+        requestedId: explicit[2],
+      };
+    }
+
+    const notFound = /Node not found:\s*([A-Za-z0-9_.:-]+)/.exec(error);
+    if (notFound) {
+      return { field: 'nodeId', requestedId: notFound[1] };
+    }
+  }
+  return null;
+}
+
+function buildApplyFailureClarification(
+  payload: EditAppliedEventPayload,
+  document: ThemeLayoutDocument,
+): AgentClarification | null {
+  const missing = parseMissingNodeReference(payload.errors ?? []);
+  if (!missing) {
+    return null;
+  }
+
+  const nodes = flattenDocumentNodes(document.layout);
+  const targetNodes = missing.field === 'parentId'
+    ? nodes.filter(({ node }) => CONTAINER_ALIASES.has(node.alias))
+    : nodes;
+  const ranked = targetNodes
+    .map((item) => ({
+      item,
+      score: scoreNodeIdSimilarity(missing.requestedId, item.node.id),
+    }))
+    .sort((left, right) => {
+      if (right.score !== left.score) {
+        return right.score - left.score;
+      }
+      return left.item.depth - right.item.depth;
+    })
+    .slice(0, 6);
+
+  if (!ranked.length) {
+    return null;
+  }
+
+  return {
+    reason: `AI referenced missing ${missing.field}: ${missing.requestedId}`,
+    question: [
+      `AI 引用了不存在的 ${missing.field}：${missing.requestedId}。`,
+      '请选择要作为目标的现有节点，或补充更具体的位置。',
+    ].join('\n'),
+    options: ranked.map(({ item }) => ({
+      id: `${missing.field}-${item.node.id}`,
+      label: describeNodeOption(item),
+      description: describeNodeDetails(item),
+      value: [
+        `Use existing node id "${item.node.id}" as the confirmed`,
+        `replacement for missing ${missing.field} "${missing.requestedId}".`,
+      ].join(' '),
+      target: {
+        nodeId: item.node.id,
+        alias: item.node.alias,
+      },
+    })),
+    allowCustom: true,
+    customLabel: '其他位置',
+    customPlaceholder: '说明要修改哪个页面、区域或节点',
+  };
+}
+
+function hasEditStatusText(paragraph: string): boolean {
+  return (
+    paragraph.includes(c.appliedPrefix)
+    || paragraph.includes(c.incompletePrefix)
+    || paragraph.includes(c.noExecutableEdits)
+  );
+}
+
+function replaceLatestEditStatus(text: string, statusText: string): string {
+  const stableParagraphs = text
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter((paragraph) => paragraph.length > 0 && !hasEditStatusText(paragraph));
+
+  return [...stableParagraphs, statusText.trim()].filter(Boolean).join('\n\n');
 }
 
 function trimConversationText(text: string): string {
@@ -256,6 +465,10 @@ function buildPersistedConversation(
   }));
 }
 
+function hasStreamingMessages(messages: readonly EditorAiMessage[]): boolean {
+  return messages.some((message) => message.streaming);
+}
+
 function buildMessagesFromConversation(
   conversation: readonly EditorAiConversationMessage[],
 ): EditorAiMessage[] {
@@ -311,6 +524,20 @@ export function EditorAiPanel({
       current.map((message) =>
         message.id === messageId
           ? { ...message, text: `${message.text}${text}`, streaming: true }
+          : message,
+      ),
+    );
+  }
+
+  function replaceAssistantEditStatus(messageId: string, text: string) {
+    setMessages((current) =>
+      current.map((message) =>
+        message.id === messageId
+          ? {
+              ...message,
+              text: replaceLatestEditStatus(message.text, text),
+              streaming: true,
+            }
           : message,
       ),
     );
@@ -389,6 +616,9 @@ export function EditorAiPanel({
       skipNextConversationSaveRef.current = false;
       return;
     }
+    if (isRunning || hasStreamingMessages(messages)) {
+      return;
+    }
 
     saveStoredMessages(templateConversationKey, messages);
     if (remoteConversationTemplateRef.current !== conversationTemplateId) {
@@ -406,20 +636,20 @@ export function EditorAiPanel({
 
     if (saveConversationTimerRef.current) {
       clearTimeout(saveConversationTimerRef.current);
+      saveConversationTimerRef.current = null;
     }
-    saveConversationTimerRef.current = setTimeout(() => {
-      void editorAiService.saveConversation(
-        conversationTemplateId,
-        conversation,
-      )
-        .then(() => {
-          lastRemoteConversationRef.current = serialized;
-        })
-        .catch(() => undefined);
-    }, 600);
+    void editorAiService.saveConversation(
+      conversationTemplateId,
+      conversation,
+    )
+      .then(() => {
+        lastRemoteConversationRef.current = serialized;
+      })
+      .catch(() => undefined);
   }, [
     conversationTemplateId,
     editorAiService,
+    isRunning,
     messages,
     templateConversationKey,
   ]);
@@ -442,9 +672,16 @@ export function EditorAiPanel({
           return;
         }
 
-        const nextMessages = [...INITIAL_MESSAGES, ...remoteMessages];
-        setMessages(nextMessages);
-        saveStoredMessages(templateConversationKey, nextMessages);
+        setMessages((current) => {
+          const currentConversation = buildPersistedConversation(current);
+          if (currentConversation.length > remoteMessages.length) {
+            return current;
+          }
+
+          const nextMessages = [...INITIAL_MESSAGES, ...remoteMessages];
+          saveStoredMessages(templateConversationKey, nextMessages);
+          return nextMessages;
+        });
       })
       .catch(() => {
         if (!cancelled) {
@@ -471,6 +708,7 @@ export function EditorAiPanel({
     trimmedPrompt: string,
     clarificationChoice?: AgentClarificationOption | null,
     displayText = trimmedPrompt,
+    autoChoiceDepth = 0,
   ) {
     const assistantMessageId = createMessageId('assistant');
     const abortController = new AbortController();
@@ -510,6 +748,42 @@ export function EditorAiPanel({
       setIsRunning(false);
     };
 
+    const pauseForClarification = (clarification: AgentClarification) => {
+      if (clarification.options.length === 1 && autoChoiceDepth === 0) {
+        const [option] = clarification.options;
+        receivedClarification = true;
+        finalStatus = c.status.ready;
+        replaceAssistantEditStatus(
+          assistantMessageId,
+          `自动选择：${option.label}`,
+        );
+        abortController.abort();
+        editorAiService.cancel();
+        finishActiveRun(c.status.ready);
+        window.setTimeout(() => {
+          void runAssistant(
+            trimmedPrompt,
+            option,
+            `自动选择：${option.label}`,
+            autoChoiceDepth + 1,
+          );
+        }, 0);
+        return;
+      }
+
+      receivedClarification = true;
+      finalStatus = c.status.awaitingChoice;
+      setStatus(c.status.awaitingChoice);
+      setAssistantClarification(
+        assistantMessageId,
+        clarification,
+        trimmedPrompt,
+      );
+      abortController.abort();
+      editorAiService.cancel();
+      finishActiveRun(c.status.awaitingChoice);
+    };
+
     try {
       await editorAiService.editCanvas({
         prompt: trimmedPrompt,
@@ -523,6 +797,10 @@ export function EditorAiPanel({
         applyInstructions: onApplyInstructions,
         signal: abortController.signal,
         onEvent: (event) => {
+          if (finished || (receivedClarification && event.type !== 'done')) {
+            return;
+          }
+
           switch (event.type) {
             case 'intent_plan': {
               setIntentPlan(parseIntentPlan(event.data));
@@ -532,14 +810,7 @@ export function EditorAiPanel({
             case 'clarification': {
               const clarification = parseClarification(event.data);
               if (clarification) {
-                receivedClarification = true;
-                finalStatus = c.status.awaitingChoice;
-                setStatus(c.status.awaitingChoice);
-                setAssistantClarification(
-                  assistantMessageId,
-                  clarification,
-                  trimmedPrompt,
-                );
+                pauseForClarification(clarification);
               }
               break;
             }
@@ -550,10 +821,21 @@ export function EditorAiPanel({
               setStatus(c.status.editingCanvas);
               break;
             case 'edit_applied':
-              appendAssistantDelta(
-                assistantMessageId,
-                `\n\n${describeAppliedEdits(parseEditAppliedPayload(event.data))}`,
-              );
+              {
+                const payload = parseEditAppliedPayload(event.data);
+                const clarification = buildApplyFailureClarification(
+                  payload,
+                  currentDocument,
+                );
+                if (clarification) {
+                  pauseForClarification(clarification);
+                  break;
+                }
+                replaceAssistantEditStatus(
+                  assistantMessageId,
+                  describeAppliedEdits(payload),
+                );
+              }
               break;
             case 'tool_done':
               setStatus(c.status.editApplied);

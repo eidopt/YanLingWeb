@@ -3,6 +3,8 @@
 import { homeWorkspaceContent as c } from './HomeWorkspace.content';
 import styles from './HomeWorkspace.module.css';
 import { homePageThemeVars } from './theme';
+import { WelcomeBanner } from './WelcomeBanner';
+import { WorkspaceSkeleton } from './WorkspaceSkeleton';
 import { useAppServices } from 'hooks/useAppServices';
 import { useRouter } from 'next/navigation';
 import type { ComponentType, KeyboardEvent, RefObject } from 'react';
@@ -10,10 +12,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { AuthUser } from 'services/AuthService';
 import type { TemplateService } from 'services/TemplateService';
 import type { ThemeSpec } from 'types/theme.types';
+import { ThemeToggleButton } from 'ui/global_nav';
 import {
   CalendarIcon,
   CartIcon,
   DashboardIcon,
+  EditorIcon,
   type IconProps,
   MarketplaceIcon,
   MineIcon,
@@ -21,7 +25,7 @@ import {
   TagIcon,
   WebIcon,
 } from 'ui/icons';
-import { PageRoot } from 'ui/pages';
+import { PageRoot, ScrollReveal } from 'ui/pages';
 import {
   Box,
   Heading,
@@ -80,7 +84,13 @@ function getCategoryIcon(category: string): QuickActionIcon {
 }
 
 function getSidebarIcon(id: string): QuickActionIcon {
-  return id === 'mine' ? MineIcon : MarketplaceIcon;
+  if (id === 'mine') {
+    return MineIcon;
+  }
+  if (id === 'editor') {
+    return EditorIcon;
+  }
+  return MarketplaceIcon;
 }
 
 function getInitials(username: string) {
@@ -227,6 +237,10 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
       showTemplateView('mine');
       return;
     }
+    if (id === 'editor') {
+      router.push('/editor');
+      return;
+    }
 
     showTemplateView('marketplace');
   }
@@ -270,20 +284,26 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
     }
   }
 
+  const sidebarItems = [
+    ...c.sidebar.items,
+    { id: 'editor', label: '编辑器' },
+  ];
+
   return (
     <PageRoot className={styles.page} style={homePageThemeVars}>
       <Box as="main" className={styles.shell}>
         <Box as="aside" className={styles.sidebar}>
           <Box as="nav" className={styles.nav} aria-label={c.sidebar.workspace}>
-            {c.sidebar.items.map((item) => {
+            {sidebarItems.map((item) => {
               const Icon = getSidebarIcon(item.id);
               const active = item.id === 'mine'
                 ? templateView === 'mine'
-                : templateView === 'marketplace';
+                : item.id === 'marketplace' && templateView === 'marketplace';
               return (
                 <button
                   key={item.id}
                   type="button"
+                  aria-current={active ? 'page' : undefined}
                   className={`${styles.navItem} ${active ? styles.navItemActive : ''}`}
                   onClick={() => handleSidebarAction(item.id)}
                 >
@@ -296,6 +316,7 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
             })}
           </Box>
           <Box className={styles.sidebarFooter}>
+            <ThemeToggleButton variant="sidebar" />
             <button
               type="button"
               className={styles.userButton}
@@ -309,6 +330,13 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
         </Box>
 
         <Box as="section" className={styles.main}>
+          <WelcomeBanner
+            userName={user.username}
+            totalTemplates={marketTemplates.length + myTemplates.length}
+            myTemplatesCount={myTemplates.length}
+            marketTemplatesCount={marketTemplates.length}
+          />
+
           <Box as="header" ref={topRef} className={styles.searchBand}>
             <Box className={styles.searchGrid}>
               <Box className={styles.searchCopy}>
@@ -382,9 +410,7 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
           </Box>
 
           {loading ? (
-            <Box className={styles.status}>
-              <Text size="md" variant="muted">{c.loading}</Text>
-            </Box>
+            <WorkspaceSkeleton />
           ) : null}
           {error ? (
             <Box className={styles.status}>
@@ -393,7 +419,8 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
           ) : null}
 
           {templateView === 'marketplace' ? (
-            <Box as="section" className={styles.section}>
+            <ScrollReveal variant="fadeUp" duration="base">
+              <Box as="section" className={styles.section}>
               <Box className={styles.sectionHeader}>
                 <Heading
                   as="h2"
@@ -425,9 +452,11 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
                 ))}
               </Box>
             </Box>
+            </ScrollReveal>
           ) : null}
 
-          <Box as="section" ref={templateRef} className={styles.section}>
+          <ScrollReveal variant="fadeUp" duration="base">
+            <Box as="section" ref={templateRef} className={styles.section}>
             <Box className={styles.sectionHeader}>
               <Heading
                 as="h2"
@@ -470,6 +499,7 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
               </Box>
             ))}
           </Box>
+          </ScrollReveal>
           {settingsOpen ? (
             <UserSettingsDialog
               user={user}

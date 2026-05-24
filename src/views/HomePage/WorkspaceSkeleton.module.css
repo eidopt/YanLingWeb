@@ -1,0 +1,86 @@
+.skeletonGrid {
+  width: min(var(--app-unit-150), calc(100% - var(--app-unit-1)));
+  margin: var(--app-unit-3) auto 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--app-unit-32), 1fr));
+  gap: var(--app-unit-2-5);
+}
+
+.card {
+  display: grid;
+  gap: var(--app-unit-1-75);
+  padding: var(--app-unit-2);
+  border: var(--app-unit-0-125) solid var(--app-border-subtle);
+  border-radius: var(--app-radius-xl);
+  background: var(--app-surface-1);
+  box-shadow: var(--app-shadow-xs);
+  overflow: hidden;
+}
+
+.cardPreview {
+  height: var(--app-unit-20);
+  border-radius: var(--app-radius-md);
+  background: var(--app-surface-3);
+  overflow: hidden;
+  position: relative;
+}
+
+.cardPreview::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--app-white-alpha-04),
+    transparent
+  );
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+.cardBody {
+  display: grid;
+  gap: var(--app-unit-1);
+}
+
+.cardLine {
+  height: var(--app-unit-1-5);
+  border-radius: var(--app-radius-pill);
+  background: var(--app-surface-3);
+  position: relative;
+  overflow: hidden;
+}
+
+.cardLine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--app-white-alpha-04),
+    transparent
+  );
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+.cardLine:nth-child(2)::after { animation-delay: 0.2s; }
+.cardLine:nth-child(3)::after { animation-delay: 0.4s; }
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@media (--app-viewport-phone) {
+  .skeletonGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cardPreview::after,
+  .cardLine::after {
+    animation: none !important;
+  }
+}

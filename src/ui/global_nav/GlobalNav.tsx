@@ -4,6 +4,7 @@ import { globalNavContent as c } from './GlobalNav.content';
 import styles from './GlobalNav.module.css';
 import { cx } from 'base/classname';
 import { useAppServices } from 'hooks/useAppServices';
+import { useTheme } from 'hooks/useTheme';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -28,6 +29,27 @@ export interface NavItem {
 interface GlobalNavProps {
   nav: NavItem[];
   variant?: 'default' | 'overlay';
+}
+
+interface ThemeToggleButtonProps {
+  variant?: 'nav' | 'sidebar';
+}
+
+export function ThemeToggleButton({ variant = 'nav' }: ThemeToggleButtonProps) {
+  const { theme, toggleTheme } = useTheme();
+
+  return (
+    <button
+      type="button"
+      className={styles.themeToggle}
+      data-variant={variant}
+      onClick={toggleTheme}
+      aria-label={theme === 'dark' ? '切换到浅色模式' : '切换到深色模式'}
+      title={theme === 'dark' ? '浅色模式' : '深色模式'}
+    >
+      {theme === 'dark' ? '☀️' : '🌙'}
+    </button>
+  );
 }
 
 export function GlobalNav({ nav, variant = 'default' }: GlobalNavProps) {
@@ -67,8 +89,8 @@ export function GlobalNav({ nav, variant = 'default' }: GlobalNavProps) {
       <Link href="/" className={styles.brand}>
         <Box as="span" className={styles.brandMark}>✦</Box>
         <Stack className={styles.brandText} gap="0">
-          <Text as="strong" size="md" variant="inverse" weight="medium">{c.brand.name}</Text>
-          <Text as="span" size="xs" variant="inverse-faint">{c.brand.tagline}</Text>
+          <Text as="strong" size="md" variant="primary" weight="medium">{c.brand.name}</Text>
+          <Text as="span" size="xs" variant="muted">{c.brand.tagline}</Text>
         </Stack>
       </Link>
 
@@ -90,6 +112,7 @@ export function GlobalNav({ nav, variant = 'default' }: GlobalNavProps) {
       </Inline>
 
       <Inline className={styles.authRow} gap="sm">
+        <ThemeToggleButton />
         {user ? (
           <Button
             type="button"
@@ -103,7 +126,7 @@ export function GlobalNav({ nav, variant = 'default' }: GlobalNavProps) {
               {user.username.slice(0, 1).toUpperCase()}
             </Box>
             <Box as="span" className={styles.userName}>
-              <Text as="span" size="sm" truncate variant="inverse" weight="bold">
+              <Text as="span" size="sm" truncate variant="primary" weight="bold">
                 {user.username}
               </Text>
             </Box>

@@ -192,7 +192,7 @@ export class EditorAiService {
       return;
     }
 
-    await fetch(
+    const res = await fetch(
       `/api/proxy/ai/editor-conversations/${encodeURIComponent(templateId)}`,
       {
         method: 'PUT',
@@ -203,6 +203,10 @@ export class EditorAiService {
         body: JSON.stringify({ messages: conversation }),
       },
     );
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(text || `Failed to save conversation (${res.status})`);
+    }
   }
 
   async editCanvas(opts: EditorAiEditCanvasOptions): Promise<void> {

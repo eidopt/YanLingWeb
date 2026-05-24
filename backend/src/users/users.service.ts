@@ -96,11 +96,17 @@ export class UsersService {
   private consumeNonce(nonce: string): void {
     const entry = this.nonces.get(nonce);
     if (!entry) {
-      throw new UnauthorizedException('Invalid or expired nonce — request a new challenge');
+      throw new UnauthorizedException({
+        errorCode: 'INVALID_NONCE',
+        message: '登录会话已过期，请重新登录',
+      });
     }
     this.nonces.delete(nonce); // single-use: remove immediately
     if (Date.now() > entry.expiresAt) {
-      throw new UnauthorizedException('Nonce has expired — request a new challenge');
+      throw new UnauthorizedException({
+        errorCode: 'INVALID_NONCE',
+        message: '登录会话已过期，请重新登录',
+      });
     }
   }
 
@@ -126,7 +132,10 @@ export class UsersService {
       ],
     });
     if (exists) {
-      throw new ConflictException('Username, email, or phone already in use');
+      throw new ConflictException({
+        errorCode: 'ALREADY_EXISTS',
+        message: '用户名、邮箱或手机号已被使用',
+      });
     }
 
     // dto.password is SHA-256(rawPassword) produced by the frontend
@@ -155,7 +164,10 @@ export class UsersService {
     });
 
     if (!user?.passwordHash) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException({
+        errorCode: 'INVALID_CREDENTIALS',
+        message: '账号或密码错误',
+      });
     }
 
     // Recompute expected value: SHA256(nonce + storedPasswordHash)
@@ -164,7 +176,10 @@ export class UsersService {
       .digest('hex');
 
     if (expected !== dto.password) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException({
+        errorCode: 'INVALID_CREDENTIALS',
+        message: '账号或密码错误',
+      });
     }
 
     await this.repo.update(user.id, { lastLoginAt: new Date() });

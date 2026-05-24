@@ -4,6 +4,7 @@ import styles from './ChatPanel.module.css';
 import type { AgentClarificationOption } from '@shared/agent/types';
 import {
   type FormEvent,
+  type KeyboardEvent,
   type RefObject,
   useState,
 } from 'react';
@@ -167,6 +168,22 @@ export function ChatPanel({
     setCustomValues((current) => ({ ...current, [message.id]: '' }));
   }
 
+  function handleInputKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+    if (
+      event.key !== 'Enter' ||
+      event.shiftKey ||
+      event.nativeEvent.isComposing
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    if (disabled || isRunning || !inputValue.trim()) {
+      return;
+    }
+    event.currentTarget.form?.requestSubmit();
+  }
+
   return (
     <Box as="section" className={styles.panel} aria-label={ariaLabel}>
       <Box className={styles.header}>
@@ -213,13 +230,21 @@ export function ChatPanel({
                       size="sm"
                       variant="secondary"
                     >
-                      {option.label}
+                      <span className={styles.optionContent}>
+                        <span className={styles.optionLabel}>{option.label}</span>
+                        {option.description ? (
+                          <span className={styles.optionDescription}>
+                            {option.description}
+                          </span>
+                        ) : null}
+                      </span>
                     </Button>
                   ))}
                 </Box>
                 {message.clarification.allowCustom ? (
                   <Box className={styles.customChoice}>
                     <TextArea
+                      className={styles.inputArea}
                       aria-label={message.clarification.customLabel ?? '其他补充说明'}
                       value={customValues[message.id] ?? ''}
                       onChange={(event) => updateCustomValue(message.id, event.target.value)}
@@ -257,10 +282,12 @@ export function ChatPanel({
         <Box ref={messagesEndRef} />
       </Box>
 
-      <Stack as="form" className={styles.form} onSubmit={onSubmit}>
+      <Box as="form" className={styles.form} onSubmit={onSubmit}>
         <TextArea
+          className={styles.inputArea}
           value={inputValue}
           onChange={(event) => onInputChange(event.target.value)}
+          onKeyDown={handleInputKeyDown}
           placeholder={inputPlaceholder}
           disabled={disabled || isRunning}
           size="sm"
@@ -286,7 +313,7 @@ export function ChatPanel({
             {submitLabel}
           </Button>
         </Box>
-      </Stack>
+      </Box>
     </Box>
   );
 }

@@ -8,6 +8,7 @@ import { Box } from 'ui/system';
 export function EditorPageView({
   loading,
   templates,
+  libraryTemplates,
   initialThemeId,
   handleCanvasesChange,
 }: EditorPageController) {
@@ -19,6 +20,7 @@ export function EditorPageView({
     <Box className={styles.viewport}>
       <ThemeLayoutBuilder
         themes={templates}
+        libraryThemes={libraryTemplates}
         initialThemeId={initialThemeId}
         onCanvasesChange={handleCanvasesChange}
       />

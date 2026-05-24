@@ -18,6 +18,7 @@ import {
 import {
   useCanvasEditorController,
 } from './controllers/useCanvasEditorController';
+import { useEditorKeyboardShortcuts } from './controllers/useEditorKeyboardShortcuts';
 import { flattenNodes } from './services/layoutBuilderService';
 import {
   themeLayoutBuilderContent,
@@ -26,7 +27,7 @@ import styles from './ThemeLayoutBuilder.module.css';
 import type { LayoutBuilderTheme } from './types';
 import type { BuilderCanvas } from './types';
 import { cx } from 'base/classname';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Tooltip } from 'ui';
 import { ExportDialog } from 'ui/export_dialog/ExportDialog';
 import {
@@ -37,6 +38,7 @@ import {
 
 interface ThemeLayoutBuilderProps {
   themes: LayoutBuilderTheme[];
+  libraryThemes?: LayoutBuilderTheme[];
   initialThemeId?: string;
   onCanvasesChange?: (
     canvases: BuilderCanvas[],
@@ -89,7 +91,12 @@ function getCanvasPageStats(canvas: BuilderCanvas) {
 }
 
 export function ThemeLayoutBuilder(
-  { themes, initialThemeId, onCanvasesChange }: ThemeLayoutBuilderProps,
+  {
+    themes,
+    libraryThemes,
+    initialThemeId,
+    onCanvasesChange,
+  }: ThemeLayoutBuilderProps,
 ) {
   const [sidebarTab, setSidebarTab] = useState<
     'components' | 'templates'
@@ -259,6 +266,22 @@ export function ThemeLayoutBuilder(
     setInteractionMode(mode);
   }
 
+  // ── Keyboard shortcuts ──
+  useEditorKeyboardShortcuts({
+    enabled: !isPreviewMode,
+    onDelete: useCallback(() => {
+      if (selectedNode && selectedNode.id !== currentDocument.layout.id) {
+        handleDeleteNode(selectedNode.id);
+      }
+    }, [selectedNode, currentDocument.layout.id, handleDeleteNode]),
+    onDeselect: useCallback(() => {
+      setSelectedNodeId(null);
+    }, [setSelectedNodeId]),
+    onCloseDialog: useCallback(() => {
+      closeDialog();
+    }, [closeDialog]),
+  });
+
   return (
     <Box as="main" className={styles.page}>
       <Box as="section" className={styles.workspace}>
@@ -266,7 +289,7 @@ export function ThemeLayoutBuilder(
           tab={sidebarTab}
           onTabChange={setSidebarTab}
           activeTheme={activeTheme}
-          templates={themes}
+          templates={libraryThemes ?? themes}
           activeTemplateId={activeTheme.id}
           layoutDescriptors={layoutDescriptors}
           componentDescriptors={componentDescriptors}
@@ -449,18 +472,26 @@ export function ThemeLayoutBuilder(
           </Box>
         </Box>
 
-        <Box as="aside" className={styles.treePanel}>
+        <Box
+          as="aside"
+          className={cx(
+            styles.treePanel,
+            selectedNode && !isPreviewMode && styles.treePanelWithInspector,
+          )}
+        >
           {!isPreviewMode && selectedNode ? (
-            <SelectedNodeInspector
-              selectedNode={selectedNode}
-              selectedDescriptor={selectedDescriptor}
-              onPropChange={updateSelectedNodeProp}
-              onEdit={() => openEditDialog(selectedNode.id)}
-              onDelete={() => handleDeleteNode(selectedNode.id)}
-              canDelete={
-                selectedNode.id !== currentDocument.layout.id
-              }
-            />
+            <Box className={styles.inspectorDock}>
+              <SelectedNodeInspector
+                selectedNode={selectedNode}
+                selectedDescriptor={selectedDescriptor}
+                onPropChange={updateSelectedNodeProp}
+                onEdit={() => openEditDialog(selectedNode.id)}
+                onDelete={() => handleDeleteNode(selectedNode.id)}
+                canDelete={
+                  selectedNode.id !== currentDocument.layout.id
+                }
+              />
+            </Box>
           ) : null}
 
           <Box className={styles.editorAiDock}>

@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+/* eslint-disable max-len, @typescript-eslint/require-await */
 import { createHash } from 'node:crypto';
-import { createMockToolCallForScenario } from '@shared/agent/testing/mockProvider';
+
+import { Injectable } from '@nestjs/common';
 import {
   buildConversationContextMessages,
   buildEditorMinimalVolatileContext,
@@ -12,13 +13,8 @@ import {
 } from '@shared/agent/editor/applyEditorInstructions';
 import { CORE_COMPONENTS } from '@shared/agent/fixtures/blankDocument';
 import { getSeedDocument } from '@shared/agent/fixtures/seedDocuments';
-import { evaluateSemanticAssertions } from '@shared/agent/validation/semanticAssertions';
-import {
-  renderSmokeThemeLayoutDocument,
-  validateThemeLayoutDocument,
-} from '@shared/agent/validation/themeLayoutValidator';
-import { evaluateUnrelatedDiff } from '@shared/agent/validation/templateDiff';
-import { withThemeLayoutStyleManifest } from '@shared/theme-layout/styleManifest';
+import { EDITOR_COPILOT_SYSTEM_PROMPT } from '@shared/agent/prompts/editorCopilotPrompt';
+import { createMockToolCallForScenario } from '@shared/agent/testing/mockProvider';
 import type {
   AgentClarificationOption,
   AgentConversationMessage,
@@ -29,19 +25,24 @@ import type {
   ThemeLayoutDocument,
   ThemeLayoutNode,
 } from '@shared/agent/types';
-import { EDITOR_COPILOT_SYSTEM_PROMPT } from '@shared/agent/prompts/editorCopilotPrompt';
+import { evaluateSemanticAssertions } from '@shared/agent/validation/semanticAssertions';
+import { evaluateUnrelatedDiff } from '@shared/agent/validation/templateDiff';
+import {
+  renderSmokeThemeLayoutDocument,
+  validateThemeLayoutDocument,
+} from '@shared/agent/validation/themeLayoutValidator';
+import { withThemeLayoutStyleManifest } from '@shared/theme-layout/styleManifest';
 
-import { QueryLoop } from './core/query-loop';
 import { AiService } from './ai.service';
+import type { ProviderMessage } from './core/providers/types';
+import { QueryLoop } from './core/query-loop';
+import { tokenCountWithEstimation } from './core/utils/tokens';
 import { buildEditorClarification } from './editor-clarification';
 import {
   EDITOR_EDIT_TOOL_NAMES,
-  EDITOR_EDIT_TOOLS,
   editorToolCallToOperations,
   selectEditorEditTools,
 } from './tools/editor-edit.tool';
-import type { ProviderMessage } from './core/providers/types';
-import { tokenCountWithEstimation } from './core/utils/tokens';
 import { GENERATE_TEMPLATE_TOOL, type TemplateToolInput } from './tools/generate-template.tool';
 
 interface LiveTokenUsage {
@@ -116,13 +117,13 @@ function normalizeNode(value: unknown, fallbackId: string, order = 1): ThemeLayo
     layout: normalizeLayout(input.layout, order),
     props: normalizeNodeProps(input.props),
     interactions: isRecord(input.interactions)
-      ? input.interactions as ThemeLayoutNode['interactions']
+      ? input.interactions
       : undefined,
     ...(children?.length ? { children } : {}),
   };
 }
 
-function normalizeGeneratedDocument(
+function _normalizeGeneratedDocument(
   rawDocument: unknown,
   input: TemplateToolInput,
   scenario: AgentEvalScenario,
@@ -197,7 +198,7 @@ function normalizeGeneratedDocument(
       ? raw.dependencies as ThemeLayoutDocument['dependencies']
       : undefined,
     componentTemplates: isRecord(input.componentTemplates) ? input.componentTemplates : undefined,
-    cssVars: isRecord(input.cssVars) ? input.cssVars as Record<string, string> : undefined,
+    cssVars: isRecord(input.cssVars) ? input.cssVars : undefined,
   };
 }
 
@@ -335,11 +336,11 @@ export class AgentRunnerService {
     let finalDocument: ThemeLayoutDocument | undefined;
 
     if (scenario.mode === 'template_generation') {
-      const args = tool.arguments as { layoutDocument: ThemeLayoutDocument };
+      const args = tool.arguments as { layoutDocument: ThemeLayoutDocument; };
       finalDocument = args.layoutDocument;
       toolCall.result = { success: true, dryRun: true };
     } else if (initialDocument) {
-      const args = tool.arguments as { operations?: unknown[]; reason?: string };
+      const args = tool.arguments as { operations?: unknown[]; reason?: string; };
       const result = applyEditorAiEditInstructions(
         initialDocument,
         (args.operations ?? []) as Parameters<typeof applyEditorAiEditInstructions>[1],
@@ -462,11 +463,11 @@ export class AgentRunnerService {
               ...(isRecord(input.componentTemplates)
                 ? { componentTemplates: input.componentTemplates }
                 : {}),
-            } as unknown as Record<string, unknown>,
+            },
             isRecord(input.cssVars)
-              ? input.cssVars as Record<string, string>
+              ? input.cssVars
               : undefined,
-          ) as unknown as ThemeLayoutDocument;
+          );
           const validation = validateThemeLayoutDocument(candidateDocument, {
             componentTemplates: isRecord(input.componentTemplates)
               ? input.componentTemplates
@@ -553,7 +554,7 @@ export class AgentRunnerService {
         cacheDiagnostics: buildCacheDiagnostics(
           prefixMessages,
           [GENERATE_TEMPLATE_TOOL],
-          fallbackConversation as ProviderMessage[],
+          fallbackConversation,
         ),
       };
     }

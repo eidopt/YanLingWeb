@@ -20,7 +20,8 @@
 .panel {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(var(--app-unit-32), var(--app-unit-40));
-  width: min(var(--app-unit-120), 100%);
+  width: min(var(--app-unit-150), 100%);
+  height: min(var(--app-unit-90), calc(100vh - var(--app-unit-5)));
   max-height: calc(100vh - var(--app-unit-5));
   border-radius: var(--app-radius-2xl);
   overflow: hidden;
@@ -60,7 +61,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--app-unit-2-5) var(--app-unit-2);
-  overflow: auto;
+  overflow: hidden;
   min-height: 0;
 }
 
@@ -68,18 +69,36 @@
   border-radius: var(--app-radius-xl);
   overflow: hidden;
   box-shadow: var(--app-shadow-md);
-  transition: width 0.2s, height 0.2s;
+  transition: none;
+  flex: 0 0 auto;
+  position: relative;
 }
 
 .previewViewport[data-preset='mobile'] {
   width: var(--app-unit-45);
   height: var(--app-unit-80);
-  flex-shrink: 0;
 }
 
 .previewViewport[data-preset='desktop'] {
-  width: 100%;
-  height: var(--app-unit-60);
+  width: calc(var(--app-base-unit) * 89.6);
+  height: calc(var(--app-base-unit) * 71.68);
+  border-radius: var(--app-radius-lg);
+}
+
+.previewScaleShell {
+  transform-origin: top left;
+  transition: none;
+}
+
+.previewScaleShell[data-preset='mobile'] {
+  width: var(--app-unit-45);
+  height: var(--app-unit-80);
+}
+
+.previewScaleShell[data-preset='desktop'] {
+  width: calc(var(--app-base-unit) * 140);
+  height: calc(var(--app-base-unit) * 112);
+  transform: scale(0.64);
 }
 
 /* ── right info side ── */
@@ -128,14 +147,10 @@
   .panel {
     grid-template-columns: 1fr;
     grid-template-rows: 1fr auto;
+    height: 100vh;
     max-height: 100vh;
     border-radius: var(--app-unit-2-5) var(--app-unit-2-5) 0 0;
     align-self: flex-end;
     width: 100%;
-  }
-
-  .previewViewport[data-preset='mobile'] {
-    width: 100%;
-    height: var(--app-unit-45);
   }
 }

@@ -492,6 +492,117 @@ function resolveAliasId(nodeId: string | undefined, aliases: NodeIdAliases) {
   return aliases.get(nodeId) ?? nodeId;
 }
 
+const GENERIC_NODE_ID_TOKENS = new Set([
+  "body",
+  "canvas",
+  "component",
+  "container",
+  "content",
+  "core",
+  "group",
+  "item",
+  "layout",
+  "main",
+  "node",
+  "page",
+  "root",
+  "screen",
+  "section",
+  "wrapper",
+]);
+const MIN_NODE_ID_MATCH_SCORE = 0.6;
+const MIN_NODE_ID_MATCH_GAP = 0.15;
+
+function collectNodeIds(node: ThemeLayoutNode, output: string[] = []) {
+  output.push(node.id);
+  node.children?.forEach((child) => collectNodeIds(child, output));
+  return output;
+}
+
+function normalizeNodeId(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]+/g, "");
+}
+
+function nodeIdTokens(value: string) {
+  return value
+    .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+    .toLowerCase()
+    .split(/[^a-z0-9\u4e00-\u9fff]+/)
+    .map((token) => token.trim())
+    .filter((token) => token.length >= 2 && !GENERIC_NODE_ID_TOKENS.has(token));
+}
+
+function commonPrefixRatio(left: string, right: string) {
+  const max = Math.min(left.length, right.length);
+  let index = 0;
+  while (index < max && left[index] === right[index]) {
+    index += 1;
+  }
+  return max > 0 ? index / max : 0;
+}
+
+function scoreNodeIdMatch(requestedId: string, existingId: string) {
+  const requested = normalizeNodeId(requestedId);
+  const existing = normalizeNodeId(existingId);
+  if (!requested || !existing) {
+    return 0;
+  }
+  if (requested === existing) {
+    return 1;
+  }
+  if (
+    requested.length >= 4 &&
+    existing.length >= 4 &&
+    (requested.includes(existing) || existing.includes(requested))
+  ) {
+    return 0.92;
+  }
+
+  const requestedTokens = nodeIdTokens(requestedId);
+  const existingTokens = nodeIdTokens(existingId);
+  if (!requestedTokens.length || !existingTokens.length) {
+    return commonPrefixRatio(requested, existing) >= 0.7 ? 0.65 : 0;
+  }
+
+  const existingTokenSet = new Set(existingTokens);
+  const overlap = requestedTokens.filter((token) => (
+    existingTokenSet.has(token)
+  )).length;
+  if (overlap === 0) {
+    return commonPrefixRatio(requested, existing) >= 0.7 ? 0.65 : 0;
+  }
+
+  const union = new Set([...requestedTokens, ...existingTokens]).size;
+  const containment = overlap / requestedTokens.length;
+  const jaccard = overlap / union;
+  return Math.max(jaccard, containment * 0.9);
+}
+
+function resolveNodeIdFromExistingIds(
+  document: ThemeLayoutDocument,
+  requestedId: string,
+) {
+  const candidates = collectNodeIds(document.layout)
+    .map((nodeId) => ({
+      nodeId,
+      score: scoreNodeIdMatch(requestedId, nodeId),
+    }))
+    .filter((candidate) => candidate.score >= MIN_NODE_ID_MATCH_SCORE)
+    .sort((left, right) => right.score - left.score);
+
+  if (candidates.length === 0) {
+    return null;
+  }
+  const [best, second] = candidates;
+  if (
+    candidates.length > 1 &&
+    best.score - second.score < MIN_NODE_ID_MATCH_GAP
+  ) {
+    return null;
+  }
+  return best.nodeId;
+}
+
 function resolveInstructionIds(
   instruction: EditorAiEditInstruction,
   aliases: NodeIdAliases,
@@ -558,11 +669,17 @@ function resolveSemanticNodeId(
   options: ApplyEditorAiEditInstructionsOptions | undefined,
   fieldName: string,
 ) {
-  if (currentNodeId && findNode(document.layout, currentNodeId)) {
-    return currentNodeId;
+  if (currentNodeId) {
+    return findNode(document.layout, currentNodeId)
+      ? currentNodeId
+      : resolveNodeIdFromExistingIds(document, currentNodeId) ?? currentNodeId;
   }
 
   const semanticTarget = getInstructionSemanticTarget(instruction);
+  if (!semanticTarget) {
+    return currentNodeId;
+  }
+
   const text = [
     options?.userPrompt,
     options?.reason,
@@ -664,16 +781,24 @@ function resolveInsertionParentId(
     return instruction.targetId;
   }
 
-  const requestedParentId = instruction.parentId ?? document.layout.id;
-  if (canInsertIntoParent(document, requestedParentId)) {
-    return requestedParentId;
+  if (instruction.parentId) {
+    return instruction.parentId;
   }
 
-  if (instruction.targetId) {
+  if (
+    instruction.targetId &&
+    instruction.position &&
+    instruction.position !== "inside_end"
+  ) {
     const targetParentId = findParentId(document.layout, instruction.targetId);
     if (targetParentId && canInsertIntoParent(document, targetParentId)) {
       return targetParentId;
     }
+  }
+
+  const requestedParentId = instruction.parentId ?? document.layout.id;
+  if (canInsertIntoParent(document, requestedParentId)) {
+    return requestedParentId;
   }
 
   return requestedParentId;
@@ -690,6 +815,18 @@ function buildInsertedNode(
 
   if (instruction.nodeId && findNode(document.layout, instruction.nodeId)) {
     return { error: `节点 id 已存在：${instruction.nodeId}` };
+  }
+
+  if (instruction.parentId && !findNode(document.layout, instruction.parentId)) {
+    return {
+      error: `AI 引用了不存在的 parentId：${instruction.parentId}`,
+    };
+  }
+
+  if (instruction.targetId && !findNode(document.layout, instruction.targetId)) {
+    return {
+      error: `AI 引用了不存在的 targetId：${instruction.targetId}`,
+    };
   }
 
   const parentId = resolveInsertionParentId(document, instruction);
@@ -1097,8 +1234,13 @@ export function applyEditorAiEditInstructions(
   const applied: string[] = [];
   const errors: string[] = [];
   let selectedNodeId: string | null | undefined;
+  let aborted = false;
 
   instructions.forEach((instruction, index) => {
+    if (aborted) {
+      return;
+    }
+
     if (
       instruction.type === "insert_node" &&
       instruction.alias === "core.screen" &&
@@ -1122,7 +1264,8 @@ export function applyEditorAiEditInstructions(
     );
     currentDocument = result.document;
     if (result.error) {
-      errors.push(`第 ${index + 1} 条：${result.error}`);
+      errors.push(`第 ${index + 1} 条：${result.error}。请先确认目标节点后再执行。`);
+      aborted = true;
       return;
     }
 

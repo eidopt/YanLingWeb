@@ -51,6 +51,21 @@
   color: transparent;
 }
 
+.heading[data-variant='gradient-duo'] {
+  background: linear-gradient(135deg, var(--app-color-primary) 0%, var(--app-color-accent) 50%, var(--app-color-primary) 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: headingGradientShift 4s ease-in-out infinite;
+}
+
+@keyframes headingGradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
 .heading[data-size='label'] {
   font-size: var(--app-unit-2);
 }
@@ -88,6 +103,28 @@
 .heading[data-size='showcase'] {
   font-size: clamp(var(--app-unit-6), 5.5vw, var(--app-unit-9));
   line-height: 1.1;
+}
+
+.heading[data-size='banner'] {
+  font-size: clamp(var(--app-unit-4), 6vw, var(--app-unit-12));
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.heading[data-decoration='underline'] {
+  position: relative;
+  padding-bottom: var(--app-unit-1-5);
+}
+
+.heading[data-decoration='underline']::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: var(--app-unit-6);
+  height: var(--app-unit-0-375);
+  border-radius: var(--app-radius-pill);
+  background: var(--app-brand-gradient);
 }
 
 .heading[data-line-height='inherit'] {

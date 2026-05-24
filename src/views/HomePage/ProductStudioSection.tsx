@@ -5,6 +5,7 @@ import styles from './ProductStudioSection.module.css';
 import {
   PageButton,
   PageSection,
+  ScrollReveal,
   SectionHeader,
 } from 'ui/pages';
 import {
@@ -23,27 +24,34 @@ export function ProductStudioSection({
     <PageSection className={styles.productStudioSection}>
       <Box className={styles.productStudioLayout}>
         <Box className={styles.productStudioCopy}>
-          <SectionHeader
-            align="start"
-            eyebrow={c.studio.eyebrow}
-            title={c.studio.title}
-            subtitle={c.studio.sub}
-            className={styles.productStudioHeader}
-          />
-          <Box className={styles.studioChecklist}>
-            {c.studio.bullets.map(item => (
-              <Box key={item} className={styles.studioCheckItem}>
-                <Box as="span" className={styles.studioCheckIcon}>✓</Box>
-                <Text as="span" size="sm" variant="secondary">{item}</Text>
-              </Box>
-            ))}
-          </Box>
-          <PageButton onClick={onCtaClick} showArrow>
-            {c.studio.cta}
-          </PageButton>
+          <ScrollReveal variant="fadeRight" duration="slow">
+            <SectionHeader
+              align="start"
+              eyebrow={c.studio.eyebrow}
+              title={c.studio.title}
+              subtitle={c.studio.sub}
+              className={styles.productStudioHeader}
+            />
+          </ScrollReveal>
+          <ScrollReveal variant="fadeRight" delay={120} duration="slow">
+            <Box className={styles.studioChecklist}>
+              {c.studio.bullets.map((item) => (
+                <Box key={item} className={styles.studioCheckItem}>
+                  <Box as="span" className={styles.studioCheckIcon}>✓</Box>
+                  <Text as="span" size="sm" variant="secondary">{item}</Text>
+                </Box>
+              ))}
+            </Box>
+          </ScrollReveal>
+          <ScrollReveal variant="fadeRight" delay={240} duration="slow">
+            <PageButton onClick={onCtaClick} showArrow>
+              {c.studio.cta}
+            </PageButton>
+          </ScrollReveal>
         </Box>
 
-        <Box className={styles.studioVisual} aria-hidden="true">
+        <ScrollReveal variant="fadeLeft" delay={100} duration="slow">
+          <Box className={styles.studioVisual} aria-hidden="true">
           <Box className={styles.studioWindow}>
             <Box className={styles.studioWindowBar}>
               <Box as="span" />
@@ -96,7 +104,8 @@ export function ProductStudioSection({
               </Box>
             </Box>
           </Box>
-        </Box>
+          </Box>
+        </ScrollReveal>
       </Box>
     </PageSection>
   );

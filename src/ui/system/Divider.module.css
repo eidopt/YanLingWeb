@@ -22,6 +22,39 @@
   --ui-divider-color: color-mix(in srgb, var(--app-color-primary) 44%, transparent);
 }
 
+.divider[data-variant='gradient'] {
+  --ui-divider-color: transparent;
+}
+
+.divider[data-variant='gradient'][data-orientation='horizontal'] {
+  background: var(--app-gradient-divider);
+}
+
+.divider[data-variant='gradient'][data-orientation='vertical'] {
+  background: linear-gradient(180deg, transparent 0%, var(--app-color-primary) 20%, var(--app-color-accent) 50%, var(--app-color-primary) 80%, transparent 100%);
+}
+
+.divider[data-variant='gradient'][data-has-label='true'] {
+  background: none;
+}
+
+.divider[data-variant='gradient'][data-has-label='true']::before,
+.divider[data-variant='gradient'][data-has-label='true']::after {
+  background: var(--app-gradient-divider);
+}
+
+.divider[data-variant='dot'] {
+  --ui-divider-color: transparent;
+}
+
+.divider[data-variant='dot'][data-orientation='horizontal'] {
+  block-size: var(--app-unit-0-25);
+  background: none;
+  background-image: radial-gradient(circle, color-mix(in srgb, var(--app-color-primary) 36%, transparent) var(--app-unit-0-125), transparent var(--app-unit-0-125));
+  background-size: var(--app-unit-1-5) var(--app-unit-0-25);
+  background-repeat: repeat-x;
+}
+
 .divider[data-orientation='horizontal'] {
   inline-size: 100%;
   block-size: var(--ui-divider-thickness, var(--app-unit-0-125));

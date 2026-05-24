@@ -21,7 +21,7 @@ export type DividerLabelPosition = 'start' | 'center' | 'end';
 export type DividerOrientation = 'horizontal' | 'vertical';
 export type DividerSpacing = SystemGap;
 export type DividerThickness = 'thin' | 'medium' | 'thick';
-export type DividerVariant = 'subtle' | 'soft' | 'strong' | 'inverse' | 'accent';
+export type DividerVariant = 'subtle' | 'soft' | 'strong' | 'inverse' | 'accent' | 'gradient' | 'dot';
 
 const THICKNESS_TOKENS: Record<DividerThickness, string> = {
   thin: 'var(--app-line-hair)',

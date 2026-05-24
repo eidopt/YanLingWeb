@@ -1,0 +1,342 @@
+/* ============================================================
+   Scroll-triggered Animation System
+   Uses Intersection Observer via useScrollAnimation hook.
+   Classes are applied dynamically when elements enter viewport.
+   ============================================================ */
+
+/* Base state: hidden, ready to animate */
+.sa-fade-up,
+.sa-fade-down,
+.sa-fade-left,
+.sa-fade-right,
+.sa-fade-in,
+.sa-scale-in,
+.sa-scale-up {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* Visible state: animate in */
+.sa-fade-up.sa-visible {
+  animation: saFadeUp var(--sa-duration, 0.7s) var(--app-motion-smooth) var(--sa-delay, 0ms) forwards;
+}
+
+.sa-fade-down.sa-visible {
+  animation: saFadeDown var(--sa-duration, 0.7s) var(--app-motion-smooth) var(--sa-delay, 0ms) forwards;
+}
+
+.sa-fade-left.sa-visible {
+  animation: saFadeLeft var(--sa-duration, 0.7s) var(--app-motion-smooth) var(--sa-delay, 0ms) forwards;
+}
+
+.sa-fade-right.sa-visible {
+  animation: saFadeRight var(--sa-duration, 0.7s) var(--app-motion-smooth) var(--sa-delay, 0ms) forwards;
+}
+
+.sa-fade-in.sa-visible {
+  animation: saFadeIn var(--sa-duration, 0.7s) var(--app-motion-smooth) var(--sa-delay, 0ms) forwards;
+}
+
+.sa-scale-in.sa-visible {
+  animation: saScaleIn var(--sa-duration, 0.7s) var(--app-motion-smooth) var(--sa-delay, 0ms) forwards;
+}
+
+.sa-scale-up.sa-visible {
+  animation: saScaleUp var(--sa-duration, 0.7s) var(--app-motion-smooth) var(--sa-delay, 0ms) forwards;
+}
+
+/* Duration variants */
+.sa-duration-fast.sa-visible {
+  animation-duration: 0.4s;
+}
+
+.sa-duration-base.sa-visible {
+  animation-duration: 0.7s;
+}
+
+.sa-duration-slow.sa-visible {
+  animation-duration: 1s;
+}
+
+/* ============================================================
+   Keyframe Animations
+   ============================================================ */
+
+@keyframes saFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes saFadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes saFadeLeft {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes saFadeRight {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes saFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes saScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes saScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ============================================================
+   Hero Glow Particles
+   ============================================================ */
+
+.hero-glow-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0;
+  animation: heroGlowFloat 12s ease-in-out infinite;
+}
+
+.hero-glow-orb:nth-child(1) {
+  width: 400px;
+  height: 400px;
+  top: 15%;
+  left: 60%;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.22), transparent 70%);
+  animation-delay: 0s;
+}
+
+.hero-glow-orb:nth-child(2) {
+  width: 320px;
+  height: 320px;
+  top: 55%;
+  left: 25%;
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.18), transparent 70%);
+  animation-delay: -4s;
+  animation-duration: 14s;
+}
+
+.hero-glow-orb:nth-child(3) {
+  width: 280px;
+  height: 280px;
+  top: 30%;
+  left: 72%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.16), transparent 70%);
+  animation-delay: -8s;
+  animation-duration: 16s;
+}
+
+@keyframes heroGlowFloat {
+  0%, 100% {
+    opacity: 0.4;
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    opacity: 0.7;
+    transform: translate(40px, -30px) scale(1.15);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+  75% {
+    opacity: 0.65;
+    transform: translate(30px, 10px) scale(1.08);
+  }
+}
+
+/* ============================================================
+   Scroll indicator (bottom of hero)
+   ============================================================ */
+
+.scroll-indicator {
+  position: absolute;
+  bottom: var(--app-unit-4);
+  left: 50%;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--app-unit-1);
+  transform: translateX(-50%);
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity var(--app-motion-fast) var(--app-motion-smooth);
+}
+
+.scroll-indicator:hover {
+  opacity: 1;
+}
+
+.scroll-indicator-line {
+  width: var(--app-unit-0-25);
+  height: var(--app-unit-4);
+  border-radius: var(--app-radius-pill);
+  background: linear-gradient(180deg, var(--app-color-primary), var(--app-color-accent));
+  animation: scrollIndicatorPulse 2s ease-in-out infinite;
+}
+
+.scroll-indicator-dot {
+  width: var(--app-unit-0-75);
+  height: var(--app-unit-0-75);
+  border-radius: 50%;
+  background: var(--app-color-accent);
+  box-shadow: 0 0 0 var(--app-unit-0-5) color-mix(in srgb, var(--app-color-accent) 16%, transparent);
+  animation: scrollIndicatorDot 2s ease-in-out infinite;
+}
+
+@keyframes scrollIndicatorPulse {
+  0%, 100% { transform: scaleY(1); opacity: 0.6; }
+  50% { transform: scaleY(1.4); opacity: 1; }
+}
+
+@keyframes scrollIndicatorDot {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50% { transform: translateY(6px); opacity: 1; }
+}
+
+/* ============================================================
+   Section transition helpers
+   ============================================================ */
+
+.section-divider-gradient {
+  height: var(--app-unit-10);
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--app-color-primary) 4%, transparent) 50%,
+    transparent
+  );
+  pointer-events: none;
+}
+
+/* ============================================================
+   Card hover glow
+   ============================================================ */
+
+.hover-glow {
+  position: relative;
+  transition:
+    transform var(--app-motion-base) var(--app-motion-smooth),
+    box-shadow var(--app-motion-base) var(--app-motion-smooth);
+}
+
+.hover-glow::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    var(--app-color-primary),
+    var(--app-color-accent)
+  );
+  opacity: 0;
+  z-index: -1;
+  transition: opacity var(--app-motion-base) var(--app-motion-smooth);
+}
+
+.hover-glow:hover {
+  transform: translateY(-4px);
+}
+
+.hover-glow:hover::before {
+  opacity: 0.12;
+}
+
+/* ============================================================
+   Count-up animation support
+   ============================================================ */
+
+.count-up-value {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   Reduced motion overrides
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .sa-fade-up,
+  .sa-fade-down,
+  .sa-fade-left,
+  .sa-fade-right,
+  .sa-fade-in,
+  .sa-scale-in,
+  .sa-scale-up {
+    opacity: 1;
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .hero-glow-orb {
+    animation: none !important;
+    opacity: 0.25;
+  }
+
+  .scroll-indicator-line,
+  .scroll-indicator-dot {
+    animation: none !important;
+  }
+}

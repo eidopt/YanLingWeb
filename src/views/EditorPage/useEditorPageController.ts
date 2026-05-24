@@ -16,6 +16,7 @@ import type { ThemeLayoutDocument } from 'ui/layout/types';
 export interface EditorPageController {
   loading: boolean;
   templates: ThemeSpec[];
+  libraryTemplates: ThemeSpec[];
   initialThemeId: string | undefined;
   handleCanvasesChange: (
     canvases: BuilderCanvas[],
@@ -117,6 +118,7 @@ export function useEditorPageController(): EditorPageController {
   return {
     loading,
     templates,
+    libraryTemplates: marketTemplates,
     initialThemeId: ownedTemplateId ?? themeId,
     handleCanvasesChange,
   };

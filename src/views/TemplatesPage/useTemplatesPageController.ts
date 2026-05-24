@@ -4,22 +4,37 @@ import { templatesPageContent as c } from './TemplatesPage.content';
 import { useAppServices } from 'hooks/useAppServices';
 import { useTemplates } from 'hooks/useTemplates';
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ThemeSpec } from 'types/theme.types';
 import { showDialog } from 'ui/authenticating';
 import { showThemePreviewModal } from 'ui/theme_preview_modal';
 
 const ALL_CATEGORY = c.allCategory;
+const SEARCH_DEBOUNCE_MS = 300;
+
+export type SortKey = 'default' | 'name-asc' | 'newest';
+
+export interface CategoryMeta {
+  label: string;
+  count: number;
+}
 
 export interface TemplatesPageController {
   search: string;
+  debouncedSearch: string;
   activeCategory: string;
+  sortKey: SortKey;
   categories: string[];
+  categoriesWithCounts: CategoryMeta[];
   filteredTemplates: ThemeSpec[];
+  totalTemplateCount: number;
+  matchedCount: number;
   loading: boolean;
   error: string | null;
   setSearch: (value: string) => void;
+  clearSearch: () => void;
   setActiveCategory: (value: string) => void;
+  setSortKey: (value: SortKey) => void;
   openTemplate: (theme: ThemeSpec) => void;
 }
 
@@ -28,12 +43,36 @@ export function useTemplatesPageController(): TemplatesPageController {
   const { authService, templateService } = useAppServices();
   const { templates, loading, error } = useTemplates();
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>(ALL_CATEGORY);
+  const [sortKey, setSortKey] = useState<SortKey>('default');
+
+  // Debounce search input
+  useEffect(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    debounceRef.current = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, SEARCH_DEBOUNCE_MS);
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [search]);
+
+  const clearSearch = useCallback(() => {
+    setSearch('');
+    setDebouncedSearch('');
+  }, []);
+
   const categories = useMemo(() => getCategories(templates), [templates]);
 
   const filteredTemplates = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return templates.filter((theme) => {
+    const q = debouncedSearch.trim().toLowerCase();
+    let results = templates.filter((theme) => {
       if (
         activeCategory !== ALL_CATEGORY
         && theme.category !== activeCategory
@@ -51,7 +90,35 @@ export function useTemplatesPageController(): TemplatesPageController {
         theme.tags.some((tag) => tag.toLowerCase().includes(q))
       );
     });
-  }, [templates, search, activeCategory]);
+
+    // Apply sorting
+    if (sortKey === 'name-asc') {
+      results = [...results].sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+    } else if (sortKey === 'newest') {
+      results = [...results].sort((a, b) => {
+        const aTime = a.createdAt ?? '';
+        const bTime = b.createdAt ?? '';
+        // Descending by date string (ISO 8601 works lexicographically)
+        if (aTime > bTime) {return -1;}
+        if (aTime < bTime) {return 1;}
+        return 0;
+      });
+    }
+
+    return results;
+  }, [templates, debouncedSearch, activeCategory, sortKey]);
+
+  const categoriesWithCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const theme of templates) {
+      const cat = theme.category || ALL_CATEGORY;
+      counts.set(cat, (counts.get(cat) ?? 0) + 1);
+    }
+    return categories.map((cat) => ({
+      label: cat,
+      count: counts.get(cat) ?? 0,
+    }));
+  }, [templates, categories]);
 
   const openTemplate = (theme: ThemeSpec) => {
     showThemePreviewModal(theme, () => {
@@ -72,13 +139,20 @@ export function useTemplatesPageController(): TemplatesPageController {
 
   return {
     search,
+    debouncedSearch,
     activeCategory,
+    sortKey,
     categories,
+    categoriesWithCounts,
     filteredTemplates,
+    totalTemplateCount: templates.length,
+    matchedCount: filteredTemplates.length,
     loading,
     error,
     setSearch,
+    clearSearch,
     setActiveCategory,
+    setSortKey,
     openTemplate,
   };
 }

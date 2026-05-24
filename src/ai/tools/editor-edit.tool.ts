@@ -40,7 +40,12 @@ function tool(
 
 export const EDITOR_CREATE_PAGE_TOOL = tool(
   'editor_create_page',
-  'Create a page.',
+  [
+    'Create a new page/canvas. Use this before adding a new bottom navigation',
+    'destination such as My/Profile/account/user info. After creating the page,',
+    'insert content into rootNodeId or another container on that new page, then',
+    'call editor_sync_navigation.',
+  ].join(' '),
   ['pageId', 'name'],
   {
     pageId: { type: 'string', description: 'New page id.' },
@@ -62,14 +67,25 @@ export const EDITOR_DELETE_PAGE_TOOL = tool(
 
 export const EDITOR_INSERT_NODE_TOOL = tool(
   'editor_insert_node',
-  'Insert one component into a container.',
+  [
+    'Insert one component into a container. parentId must be a container:',
+    'core.screen, core.panel, core.stack, core.row, core.grid, or core.html.',
+    'Never use leaf nodes such as core.text/core.button/core.image/core.tag/',
+    'core.tabs/core.notice/core.search/core.input/core.divider/core.spacer/',
+    'core.widget as parentId. If the target is a new bottom-nav page, call',
+    'editor_create_page first and use that new rootNodeId as parentId.',
+    'parentId and targetId must be exact node ids from the current context or',
+    'from a page/root created earlier in this turn. If correcting a bad id,',
+    'choose only a clearly related existing id. If unsure, ask the user to',
+    'confirm the target before editing.',
+  ].join(' '),
   ['parentId', 'alias'],
   {
     pageId: commonTargetProperties.pageId,
-    parentId: { type: 'string', description: 'Container node id.' },
+    parentId: { type: 'string', description: 'Exact existing container node id.' },
     alias: { type: 'string', description: 'Component alias.' },
     nodeId: { type: 'string', description: 'Inserted node id.' },
-    targetId: { type: 'string', description: 'Sibling node id.' },
+    targetId: { type: 'string', description: 'Exact existing sibling node id.' },
     position: { type: 'string', enum: ['before', 'after', 'inside_end'] },
     props: { type: 'object', description: 'Component props.' },
     layout: { type: 'object', description: 'Layout values.' },
@@ -79,7 +95,10 @@ export const EDITOR_INSERT_NODE_TOOL = tool(
 
 export const EDITOR_UPDATE_PROPS_TOOL = tool(
   'editor_update_props',
-  'Patch node props.',
+  [
+    'Patch node props. nodeId must be an exact existing node id from context',
+    'or a clearly related existing id match; do not invent ids.',
+  ].join(' '),
   ['nodeId', 'props'],
   {
     pageId: commonTargetProperties.pageId,
@@ -96,7 +115,10 @@ export const EDITOR_UPDATE_PROPS_TOOL = tool(
 
 export const EDITOR_DELETE_NODE_TOOL = tool(
   'editor_delete_node',
-  'Delete one node.',
+  [
+    'Delete one node. nodeId must be an exact existing node id from context',
+    'or a clearly related existing id match; do not invent ids.',
+  ].join(' '),
   ['nodeId'],
   {
     pageId: commonTargetProperties.pageId,
@@ -106,7 +128,10 @@ export const EDITOR_DELETE_NODE_TOOL = tool(
 
 export const EDITOR_SET_LAYOUT_TOOL = tool(
   'editor_set_layout',
-  'Patch node layout.',
+  [
+    'Patch node layout. nodeId must be an exact existing node id from context',
+    'or a clearly related existing id match; do not invent ids.',
+  ].join(' '),
   ['nodeId', 'layout'],
   {
     pageId: commonTargetProperties.pageId,
@@ -117,7 +142,10 @@ export const EDITOR_SET_LAYOUT_TOOL = tool(
 
 export const EDITOR_SET_FRAME_TOOL = tool(
   'editor_set_frame',
-  'Patch node frame.',
+  [
+    'Patch node frame. nodeId must be an exact existing node id from context',
+    'or a clearly related existing id match; do not invent ids.',
+  ].join(' '),
   ['nodeId', 'frame'],
   {
     pageId: commonTargetProperties.pageId,
@@ -128,7 +156,11 @@ export const EDITOR_SET_FRAME_TOOL = tool(
 
 export const EDITOR_MOVE_NODE_TOOL = tool(
   'editor_move_node',
-  'Move one node.',
+  [
+    'Move one node. nodeId, parentId, and targetId must be exact existing',
+    'node ids from context or clearly related existing id matches; do not',
+    'invent ids.',
+  ].join(' '),
   ['nodeId', 'parentId'],
   {
     pageId: commonTargetProperties.pageId,

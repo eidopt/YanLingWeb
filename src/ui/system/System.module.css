@@ -8,6 +8,10 @@
   padding-inline: var(--ui-container-gutter, var(--app-space-6));
 }
 
+.containerWide {
+  --ui-container-max: var(--app-unit-180);
+}
+
 .containerNoGutters {
   --ui-container-gutter: 0;
 }
@@ -21,8 +25,18 @@
   gap: var(--ui-gap, var(--app-space-4));
 }
 
+.layoutCentered {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
 .grid {
   display: grid;
   grid-template-columns: var(--ui-grid-template, repeat(var(--ui-grid-columns, 1), minmax(0, 1fr)));
   gap: var(--ui-gap, var(--app-space-4));
+}
+
+.gridResponsive {
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--app-unit-32), 100%), 1fr));
 }

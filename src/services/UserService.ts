@@ -6,6 +6,52 @@ import type {
   UserTokenUsageSummaryDto,
 } from '@shared/types/user.types';
 
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public readonly statusCode: number,
+    public readonly errorCode?: string,
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
+interface ErrorResponseBody {
+  message?: string | { errorCode?: string; message?: string } | null;
+  errorCode?: string;
+  statusCode?: number;
+  error?: string;
+}
+
+function extractError(res: Response, data: ErrorResponseBody): ApiError {
+  // NestJS may nest our object under `message` (when using UnauthorizedException)
+  // or spread it at top level (when using HttpException directly). Handle both.
+  let errorCode: string | undefined;
+  let message: string;
+
+  if (typeof data.message === 'object' && data.message !== null) {
+    errorCode = data.message.errorCode;
+    message = data.message.message ?? `请求失败 (${res.status})`;
+  } else if (typeof data.message === 'string' && data.message.length > 0) {
+    message = data.message;
+  } else {
+    message = `请求失败 (${res.status})`;
+  }
+
+  // Top-level errorCode takes precedence (HttpException direct-object format)
+  if (!errorCode && typeof data.errorCode === 'string') {
+    errorCode = data.errorCode;
+  }
+
+  // If the nested object had no message, check top-level
+  if (message === `请求失败 (${res.status})` && typeof data.message === 'string' && data.message.length > 0) {
+    message = data.message;
+  }
+
+  return new ApiError(message, res.status, errorCode);
+}
+
 export class UserService {
   private readonly base = '/api/proxy/users';
 
@@ -22,11 +68,9 @@ export class UserService {
     const res = await fetch(`${this.base}${path}`, {
       headers: this.authHeaders(auth),
     });
-    const data = await res.json() as T & { message?: string };
+    const data = await res.json() as T & ErrorResponseBody;
     if (!res.ok) {
-      throw new Error(
-        (data as { message?: string }).message ?? `Request failed (${res.status})`,
-      );
+      throw extractError(res, data);
     }
     return data;
   }
@@ -37,11 +81,9 @@ export class UserService {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(body),
     });
-    const data = await res.json() as T & { message?: string };
+    const data = await res.json() as T & ErrorResponseBody;
     if (!res.ok) {
-      throw new Error(
-        (data as { message?: string }).message ?? `Request failed (${res.status})`,
-      );
+      throw extractError(res, data);
     }
     return data;
   }
@@ -58,11 +100,9 @@ export class UserService {
       headers,
       body: JSON.stringify(body),
     });
-    const data = await res.json() as T & { message?: string };
+    const data = await res.json() as T & ErrorResponseBody;
     if (!res.ok) {
-      throw new Error(
-        (data as { message?: string }).message ?? `Request failed (${res.status})`,
-      );
+      throw extractError(res, data);
     }
     return data;
   }

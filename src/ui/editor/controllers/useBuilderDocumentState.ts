@@ -399,6 +399,7 @@ export function applyAiEditInstructionsToCanvases({
   const errors: string[] = [];
   let activeWorkingCanvasId = activeCanvas.id;
   let selectedNodeIdFromAi: string | null | undefined;
+  let aborted = false;
 
   function findCanvasIndexById(canvasId: string) {
     return nextCanvases.findIndex((canvas) => canvas.id === canvasId);
@@ -441,6 +442,10 @@ export function applyAiEditInstructionsToCanvases({
   }
 
   instructions.forEach((instruction, index) => {
+    if (aborted) {
+      return;
+    }
+
     if (isPageCreationInstruction(instruction)) {
       const nextCanvas = createCanvasFromAiPageInstruction(
         activeTheme,
@@ -463,6 +468,7 @@ export function applyAiEditInstructionsToCanvases({
     if (isPageDeletionInstruction(instruction)) {
       if (nextCanvases.length <= 1) {
         errors.push(`第 ${index + 1} 条：至少需要保留一个页面`);
+        aborted = true;
         return;
       }
 
@@ -471,6 +477,7 @@ export function applyAiEditInstructionsToCanvases({
         errors.push(
           `第 ${index + 1} 条：未找到页面：${describePageDeletionTarget(instruction)}`,
         );
+        aborted = true;
         return;
       }
 
@@ -497,6 +504,7 @@ export function applyAiEditInstructionsToCanvases({
       : findCanvasIndexById(activeWorkingCanvasId);
     if (targetCanvasIndex < 0) {
       errors.push(`第 ${index + 1} 条：未找到页面：${targetPageId}`);
+      aborted = true;
       return;
     }
 
@@ -516,6 +524,9 @@ export function applyAiEditInstructionsToCanvases({
         error.replace(/^第 1 条：/, `第 ${index + 1} 条：`),
       ),
     );
+    if (result.errors.length > 0) {
+      aborted = true;
+    }
     if (result.selectedNodeId !== undefined) {
       selectedNodeIdFromAi = result.selectedNodeId;
     }
@@ -528,12 +539,12 @@ export function applyAiEditInstructionsToCanvases({
 
   if (errors.length > 0) {
     return {
-      applied: [],
-      canvases,
-      activeCanvasId,
-      document: activeCanvas.document,
+      applied,
+      canvases: finalCanvases,
+      activeCanvasId: nextActiveCanvas.id,
+      document: nextActiveCanvas.document,
       errors,
-      selectedNodeId: undefined,
+      selectedNodeId: selectedNodeIdFromAi,
     };
   }
 

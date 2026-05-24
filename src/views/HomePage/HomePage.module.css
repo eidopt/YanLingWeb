@@ -5,6 +5,40 @@
     var(--app-gradient-hero),
     var(--app-bg);
   isolation: isolate;
+  scroll-behavior: smooth;
+}
+
+/* Parallax background decoration */
+.page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 50% 36% at 18% 72%, rgba(139, 92, 246, 0.06), transparent 68%),
+    radial-gradient(ellipse 44% 40% at 82% 48%, rgba(34, 211, 238, 0.04), transparent 62%),
+    radial-gradient(ellipse 38% 44% at 50% 28%, rgba(99, 102, 241, 0.05), transparent 64%);
+  animation: pageGlowShift 18s ease-in-out infinite;
+}
+
+@keyframes pageGlowShift {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  33% {
+    opacity: 1;
+  }
+  66% {
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page::before {
+    animation: none !important;
+    opacity: 0.7;
+  }
 }
 
 .authGate {

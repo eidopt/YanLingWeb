@@ -23,8 +23,10 @@ export type HeadingSize =
   | 'xl'
   | 'hero'
   | 'display'
-  | 'showcase';
+  | 'showcase'
+  | 'banner';
 export type HeadingSpacing = 'none' | 'hero' | 'cta';
+export type HeadingDecoration = 'none' | 'underline';
 export type HeadingVariant =
   | 'inherit'
   | 'primary'
@@ -34,12 +36,14 @@ export type HeadingVariant =
   | 'inverse-soft'
   | 'inverse-muted'
   | 'inverse-gradient'
-  | 'accent';
+  | 'accent'
+  | 'gradient-duo';
 export type HeadingWeight = 'medium' | 'bold' | 'heavy';
 
 export type HeadingProps<TElement extends HeadingElement = 'h2'> =
   Omit<SystemElementProps<TElement>, 'className' | 'style'> & {
     align?: SystemTextAlign;
+    decoration?: HeadingDecoration;
     flow?: HeadingFlow;
     lineHeight?: HeadingLineHeight;
     size?: HeadingSize;
@@ -53,6 +57,7 @@ export function Heading<TElement extends HeadingElement = 'h2'>({
   align,
   as,
   children,
+  decoration,
   flow,
   lineHeight,
   size,
@@ -68,6 +73,7 @@ export function Heading<TElement extends HeadingElement = 'h2'>({
       ...props,
       className: styles.heading,
       'data-align': align,
+      'data-decoration': decoration,
       'data-flow': flow,
       'data-line-height': lineHeight,
       'data-size': size,

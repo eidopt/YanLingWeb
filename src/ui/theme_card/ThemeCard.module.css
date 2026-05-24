@@ -55,7 +55,7 @@
 .cardThumb {
   position: relative;
   width: 100%;
-  aspect-ratio: 22 / 42;
+  aspect-ratio: 22 / 39;
   overflow: hidden;
   border-radius: var(--app-radius-xl);
   background: rgba(9, 13, 20, 0.74);

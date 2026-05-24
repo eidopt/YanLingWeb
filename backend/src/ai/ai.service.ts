@@ -1,5 +1,20 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import {
+  buildConversationContextMessages,
+  buildEditorMinimalVolatileContext,
+  buildEditorStablePrefixContext,
+  buildEditorTrimmedVolatileContext,
+} from '@shared/agent/context/editorContext';
+import { EDITOR_COPILOT_SYSTEM_PROMPT } from '@shared/agent/prompts/editorCopilotPrompt';
+import type {
+  AgentConversationMessage,
+  AgentPageContext,
+  ThemeComponentDescriptor,
+  ThemeLayoutDocument,
+  ThemeLayoutNode,
+} from '@shared/agent/types';
+import { withThemeLayoutStyleManifest } from '@shared/theme-layout/styleManifest';
 import { Observable, Subject } from 'rxjs';
 import { IsNull, Not, Repository } from 'typeorm';
 
@@ -19,21 +34,6 @@ import type {
 } from './core/providers/types';
 import { QueryLoop, type ToolResult } from './core/query-loop';
 import { tokenCountWithEstimation } from './core/utils/tokens';
-import type {
-  AgentConversationMessage,
-  AgentPageContext,
-  ThemeComponentDescriptor,
-  ThemeLayoutDocument,
-  ThemeLayoutNode,
-} from '@shared/agent/types';
-import { withThemeLayoutStyleManifest } from '@shared/theme-layout/styleManifest';
-import {
-  buildConversationContextMessages,
-  buildEditorMinimalVolatileContext,
-  buildEditorStablePrefixContext,
-  buildEditorTrimmedVolatileContext,
-} from '@shared/agent/context/editorContext';
-import { EDITOR_COPILOT_SYSTEM_PROMPT } from '@shared/agent/prompts/editorCopilotPrompt';
 import { buildEditorClarification } from './editor-clarification';
 import {
   type AiTokenUsageEndpoint,
@@ -42,6 +42,7 @@ import {
 import {
   EditorAiConversation,
   type EditorAiConversationMessageRecord,
+  type EditorAiProviderSessionRecord,
 } from './entities/editor-ai-conversation.entity';
 import {
   AI_SEMANTIC_TARGETS,
@@ -72,21 +73,21 @@ export interface AiCacheStatsDto {
   totalCacheHitTokens: number;
   totalCacheMissTokens: number;
   overallCacheHitRate: string;
-  byEndpoint: Array<{
+  byEndpoint: {
     endpoint: AiTokenUsageEndpoint | 'unknown';
     count: number;
     cacheHitTokens: number;
     cacheMissTokens: number;
     hitRate: string;
-  }>;
-  recentRequests: Array<{
+  }[];
+  recentRequests: {
     timestamp: string;
     endpoint: AiTokenUsageEndpoint;
     model: string;
     cacheHitTokens: number | null;
     cacheMissTokens: number | null;
     hitRate: string;
-  }>;
+  }[];
 }
 
 export interface SaveEditorAiConversationInput {
@@ -126,12 +127,17 @@ interface TokenUsagePayload {
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 10;
 const rateLimitMap = new Map<string, { count: number; resetAt: number; }>();
+const EDITOR_AGENT_MAX_ITERATIONS = 32;
+const EDITOR_PROVIDER_SESSION_TTL_MS = 30 * 60_000;
+const EDITOR_PROVIDER_SESSION_EXPIRY_SAFETY_MS = 60_000;
 const MAX_EDITOR_CONVERSATION_CONTEXT_CHARS = 500_000;
 const MAX_EDITOR_CONVERSATION_MESSAGE_CHARS = 40_000;
 const MAX_PROVIDER_LOG_TOKENS = 500_000;
 const PROVIDER_LOG_FOLD_TAIL_TOKENS = 180_000;
-const PROVIDER_LOG_FOLD_MARKER =
-  '[Editor provider history summary - earlier provider messages folded for cache and context efficiency]';
+const PROVIDER_LOG_FOLD_MARKER = [
+  '[Editor provider history summary - earlier provider messages folded',
+  'for cache and context efficiency]',
+].join(' ');
 
 function normalizeEditorConversationMessages(
   messages: unknown,
@@ -277,6 +283,34 @@ function templateIdFromConversationId(conversationId: string | undefined): strin
   }
 }
 
+function isProviderSessionFresh(
+  session: EditorAiProviderSessionRecord | null | undefined,
+): session is EditorAiProviderSessionRecord {
+  if (!session?.expiresAt) {
+    return false;
+  }
+  const expiresAt = Date.parse(session.expiresAt);
+  return Number.isFinite(expiresAt)
+    && expiresAt - EDITOR_PROVIDER_SESSION_EXPIRY_SAFETY_MS > Date.now();
+}
+
+function buildProviderSessionRecord(
+  provider: string,
+  model: string,
+  conversationId: string,
+  previousResponseId?: string,
+): EditorAiProviderSessionRecord {
+  const now = new Date();
+  return {
+    provider,
+    model,
+    conversationId,
+    ...(previousResponseId && { previousResponseId }),
+    expiresAt: new Date(now.getTime() + EDITOR_PROVIDER_SESSION_TTL_MS).toISOString(),
+    updatedAt: now.toISOString(),
+  };
+}
+
 @Injectable()
 export class AiService {
   readonly aiConfig: AiConfigDto;
@@ -392,6 +426,7 @@ export class AiService {
     });
     conversation.messages = messages;
     conversation.providerMessages ??= [];
+    conversation.providerSession ??= null;
     const saved = await this.editorConversationRepo.save(conversation);
     await this.databaseFlush.flush('editor AI conversation save');
 
@@ -417,6 +452,61 @@ export class AiService {
     return this.foldEditorProviderMessagesByTokenBudget(conversation?.providerMessages ?? []);
   }
 
+  private async loadEditorProviderSession(
+    ownerUserId: string,
+    conversationId: string | undefined,
+    model: string,
+  ): Promise<EditorAiProviderSessionRecord | null> {
+    const templateId = templateIdFromConversationId(conversationId);
+    if (!templateId || !conversationId) {
+      return null;
+    }
+    await this.ensureTemplateAccessible(ownerUserId, templateId);
+    const conversation = await this.editorConversationRepo.findOne({
+      where: { ownerUserId, templateId },
+    });
+    const session = conversation?.providerSession;
+    if (
+      !isProviderSessionFresh(session)
+      || session.provider !== this.provider.name
+      || session.model !== model
+      || session.conversationId !== conversationId
+    ) {
+      return null;
+    }
+    return session;
+  }
+
+  private async saveEditorProviderSession(
+    ownerUserId: string,
+    conversationId: string | undefined,
+    model: string,
+    previousResponseId?: string,
+  ): Promise<void> {
+    const templateId = templateIdFromConversationId(conversationId);
+    if (!templateId || !conversationId) {
+      return;
+    }
+    await this.ensureTemplateAccessible(ownerUserId, templateId);
+    const existing = await this.editorConversationRepo.findOne({
+      where: { ownerUserId, templateId },
+    });
+    const conversation = existing ?? this.editorConversationRepo.create({
+      ownerUserId,
+      templateId,
+      messages: [],
+      providerMessages: [],
+    });
+    conversation.providerSession = buildProviderSessionRecord(
+      this.provider.name,
+      model,
+      conversationId,
+      previousResponseId,
+    );
+    await this.editorConversationRepo.save(conversation);
+    await this.databaseFlush.flush('editor AI provider session save');
+  }
+
   private async saveEditorProviderLog(
     ownerUserId: string,
     conversationId: string | undefined,
@@ -436,6 +526,7 @@ export class AiService {
       messages: [],
     });
     conversation.providerMessages = await this.foldEditorProviderMessagesByTokenBudget(messages);
+    conversation.providerSession ??= null;
     await this.editorConversationRepo.save(conversation);
     await this.databaseFlush.flush('editor AI provider conversation save');
   }
@@ -453,7 +544,10 @@ export class AiService {
     const boundary = providerLogFoldBoundary(normalized);
     if (boundary <= 0) {
       this.logger.warn(
-        `[ProviderLog] log is over budget (~${tokens} tokens) but no safe user-turn fold boundary was found; keeping full log.`,
+        [
+          `[ProviderLog] log is over budget (~${tokens} tokens) but no safe`,
+          'user-turn fold boundary was found; keeping full log.',
+        ].join(' '),
       );
       return normalized;
     }
@@ -463,7 +557,10 @@ export class AiService {
     const summary = await this.summarizeProviderLog(head);
     if (!summary?.content) {
       this.logger.warn(
-        `[ProviderLog] summary fold failed for over-budget log (~${tokens} tokens); keeping full log.`,
+        [
+          `[ProviderLog] summary fold failed for over-budget log (~${tokens}`,
+          'tokens); keeping full log.',
+        ].join(' '),
       );
       return normalized;
     }
@@ -489,7 +586,7 @@ export class AiService {
 
   private async summarizeProviderLog(
     messages: readonly ProviderMessage[],
-  ): Promise<{ content: string; reasoningContent?: string } | null> {
+  ): Promise<{ content: string; reasoningContent?: string; } | null> {
     if (!this.apiKeyConfigured || messages.length === 0) {
       return null;
     }
@@ -505,14 +602,21 @@ export class AiService {
           content: [
             'You compact provider conversation history for an editor AI agent.',
             'Return a concise but self-contained prose summary.',
-            'Preserve user goals, clarification decisions, target pages/nodes, tool calls, edit results, unresolved issues, and constraints needed for future turns.',
+            [
+              'Preserve user goals, clarification decisions, target pages/nodes,',
+              'tool calls, edit results, unresolved issues, and constraints needed',
+              'for future turns.',
+            ].join(' '),
             'Do not invent facts. Do not include markdown headings. Do not call tools.',
           ].join('\n'),
         },
         {
           role: 'user',
           content: [
-            'Summarize the provider messages below. This summary will replace them in the next request history.',
+            [
+              'Summarize the provider messages below. This summary will replace',
+              'them in the next request history.',
+            ].join(' '),
             '',
             serialized,
           ].join('\n'),
@@ -601,13 +705,25 @@ export class AiService {
     req: StreamRequest,
     cacheOptions?: { conversationId?: string; previousResponseId?: string; },
   ): Observable<StreamSseEvent> {
-    const subject = new Subject<StreamSseEvent>();
-    this.runStream(ownerUserId, req, subject, cacheOptions).catch((err) => {
-      const msg = err instanceof Error ? err.message : String(err);
-      this.emitStreamEvent(subject, { type: 'error', message: msg });
-      subject.complete();
+    return new Observable<StreamSseEvent>((subscriber) => {
+      const subject = new Subject<StreamSseEvent>();
+      const relay = subject.subscribe({
+        next: (event) => subscriber.next(event),
+        error: (err) => subscriber.error(err),
+        complete: () => subscriber.complete(),
+      });
+
+      void this.runStream(ownerUserId, req, subject, cacheOptions).catch((err) => {
+        const msg = err instanceof Error ? err.message : String(err);
+        this.emitStreamEvent(subject, { type: 'error', message: msg });
+        subject.complete();
+      });
+
+      return () => {
+        relay.unsubscribe();
+        subject.complete();
+      };
     });
-    return subject.asObservable();
   }
 
   /** Run the editor copilot loop on the backend and stream UI-safe events. */
@@ -616,16 +732,28 @@ export class AiService {
     req: StreamRequest | EditorAgentStreamRequest,
     cacheOptions?: { conversationId?: string; previousResponseId?: string; },
   ): Observable<StreamSseEvent> {
-    const subject = new Subject<StreamSseEvent>();
-    const runner = isEditorAgentStreamRequest(req)
-      ? this.runStructuredEditorStream(ownerUserId, req, subject, cacheOptions)
-      : this.runEditorStream(ownerUserId, req, subject, cacheOptions);
-    runner.catch((err) => {
-      const msg = err instanceof Error ? err.message : String(err);
-      this.emitEditorEvent(subject, { type: 'error', data: msg });
-      subject.complete();
+    return new Observable<StreamSseEvent>((subscriber) => {
+      const subject = new Subject<StreamSseEvent>();
+      const relay = subject.subscribe({
+        next: (event) => subscriber.next(event),
+        error: (err) => subscriber.error(err),
+        complete: () => subscriber.complete(),
+      });
+
+      const runner = isEditorAgentStreamRequest(req)
+        ? this.runStructuredEditorStream(ownerUserId, req, subject, cacheOptions)
+        : this.runEditorStream(ownerUserId, req, subject, cacheOptions);
+      runner.catch((err) => {
+        const msg = err instanceof Error ? err.message : String(err);
+        this.emitEditorEvent(subject, { type: 'error', data: msg });
+        subject.complete();
+      });
+
+      return () => {
+        relay.unsubscribe();
+        subject.complete();
+      };
     });
-    return subject.asObservable();
   }
 
   private async runStream(
@@ -711,12 +839,25 @@ export class AiService {
     }
 
     const editorTools = [...EDITOR_EDIT_TOOLS];
+    const persistedSession = await this.loadEditorProviderSession(
+      ownerUserId,
+      cacheOptions?.conversationId,
+      req.model,
+    );
+    const previousResponseId = cacheOptions?.previousResponseId
+      ?? persistedSession?.previousResponseId;
+    await this.saveEditorProviderSession(
+      ownerUserId,
+      cacheOptions?.conversationId,
+      req.model,
+      previousResponseId,
+    );
     const loop = new QueryLoop({
       provider: this.provider,
       model: req.model,
       tools: editorTools,
       toolSpecs: this.editorToolSpecs(editorTools),
-      maxIterations: 8,
+      maxIterations: EDITOR_AGENT_MAX_ITERATIONS,
       isCancelled: () => subject.closed,
       onTextDelta: (text) => {
         this.emitEditorEvent(subject, { type: 'text', data: text });
@@ -739,13 +880,19 @@ export class AiService {
       ).then(() => {
         this.logCacheUsage(ownerUserId, req.model, usage, 'editor');
       }),
-      requestCache: cacheOptions?.previousResponseId
-        ? { previousResponseId: cacheOptions.previousResponseId }
+      requestCache: previousResponseId
+        ? { previousResponseId }
         : undefined,
       toolExecutor: (name, args) => this.executeEditorTool(subject, name, args),
     });
 
     const result = await loop.run(req.messages);
+    await this.saveEditorProviderSession(
+      ownerUserId,
+      cacheOptions?.conversationId,
+      req.model,
+      result.responseId ?? previousResponseId,
+    );
     if (result.stopReason === 'error') {
       this.emitEditorEvent(subject, { type: 'error', data: result.error ?? 'Unknown error' });
     }
@@ -789,13 +936,26 @@ export class AiService {
     const selectedChoiceText = req.clarificationChoice
       && typeof req.clarificationChoice === 'object'
       && 'value' in req.clarificationChoice
-      && typeof (req.clarificationChoice as { value?: unknown }).value === 'string'
-      ? (req.clarificationChoice as { value: string }).value
+      && typeof (req.clarificationChoice as { value?: unknown; }).value === 'string'
+      ? (req.clarificationChoice as { value: string; }).value
       : '';
 
     const providerLog = await this.loadEditorProviderLog(
       ownerUserId,
       cacheOptions?.conversationId,
+    );
+    const persistedSession = await this.loadEditorProviderSession(
+      ownerUserId,
+      cacheOptions?.conversationId,
+      model,
+    );
+    const previousResponseId = cacheOptions?.previousResponseId
+      ?? persistedSession?.previousResponseId;
+    await this.saveEditorProviderSession(
+      ownerUserId,
+      cacheOptions?.conversationId,
+      model,
+      previousResponseId,
     );
     const fallbackConversation = providerLog.length > 0
       ? []
@@ -843,7 +1003,7 @@ export class AiService {
       model,
       tools: editorTools,
       toolSpecs: this.editorToolSpecs(editorTools),
-      maxIterations: 8,
+      maxIterations: EDITOR_AGENT_MAX_ITERATIONS,
       isCancelled: () => subject.closed,
       onTextDelta: (text) => {
         this.emitEditorEvent(subject, { type: 'text', data: text });
@@ -868,8 +1028,8 @@ export class AiService {
       ).then(() => {
         this.logCacheUsage(ownerUserId, model, usage, 'editor');
       }),
-      requestCache: cacheOptions?.previousResponseId
-        ? { previousResponseId: cacheOptions.previousResponseId }
+      requestCache: previousResponseId
+        ? { previousResponseId }
         : undefined,
       toolExecutor: (name, args) => this.executeEditorTool(subject, name, args),
     });
@@ -879,6 +1039,12 @@ export class AiService {
       ownerUserId,
       cacheOptions?.conversationId,
       result.messages.slice(prefixMessages.length),
+    );
+    await this.saveEditorProviderSession(
+      ownerUserId,
+      cacheOptions?.conversationId,
+      model,
+      result.responseId ?? previousResponseId,
     );
     if (result.stopReason === 'error') {
       this.emitEditorEvent(subject, { type: 'error', data: result.error ?? 'Unknown error' });
@@ -1135,7 +1301,7 @@ function isEditorAgentStreamRequest(value: unknown): value is EditorAgentStreamR
   if (!value || typeof value !== 'object') {
     return false;
   }
-  const input = value as Partial<EditorAgentStreamRequest> & { messages?: unknown };
+  const input = value as Partial<EditorAgentStreamRequest> & { messages?: unknown; };
   return typeof input.prompt === 'string'
     && Boolean(input.document)
     && typeof input.document === 'object'

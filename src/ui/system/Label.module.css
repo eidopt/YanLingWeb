@@ -30,3 +30,17 @@
   font-weight: 400;
   line-height: 1.45;
 }
+
+.label[data-variant='overlay'] {
+  position: absolute;
+  top: 0;
+  left: var(--app-unit-1-25);
+  padding: 0 var(--app-unit-0-75);
+  background: var(--app-surface-1);
+  color: var(--app-text-muted);
+  font-size: var(--app-font-size-xs);
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 1;
+  border-radius: var(--app-radius-xs);
+}

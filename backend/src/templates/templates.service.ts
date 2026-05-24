@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { withThemeLayoutStyleManifest } from '@shared/theme-layout/styleManifest';
 import { IsNull, Repository } from 'typeorm';
 
 import { DatabaseFlushService } from '../database/database-flush.service';
@@ -7,7 +8,6 @@ import { User } from '../users/entities/user.entity';
 import { Template } from './entities/template.entity';
 import { TEMPLATE_SEED_DATA } from './seed/template-seed.data';
 import { prepareTemplateLayoutForPersistence } from './template-layout-validation';
-import { withThemeLayoutStyleManifest } from '@shared/theme-layout/styleManifest';
 
 interface TemplateListOptions {
   category?: string;
