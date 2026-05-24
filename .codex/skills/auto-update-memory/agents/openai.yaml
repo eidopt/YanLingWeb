@@ -1,0 +1,7 @@
+interface:
+  display_name: "Auto Update Memory"
+  short_description: "Review code changes and update project memory"
+  default_prompt: "Use $auto-update-memory to decide whether this conversation changed the code framework and update the project memory if needed."
+
+policy:
+  allow_implicit_invocation: true

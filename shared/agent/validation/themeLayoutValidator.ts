@@ -5,9 +5,17 @@ import type {
   ThemeLayoutNavigateAction,
   ThemeLayoutNode,
   ThemeLayoutTabInteraction,
+  ThemeLibraryDependency,
   ValidationIssue,
   ValidationResult,
 } from '../types';
+import {
+  DISALLOWED_WIDGET_PROP_NAMES,
+  formatAllowedWidgetLibraries,
+  isAllowedWidgetDependency,
+  resolveSafeWidgetRenderer,
+  SUPPORTED_WIDGET_RENDERERS,
+} from './widgetSafety';
 
 export interface ThemeLayoutValidatorOptions {
   failOnUnknownProps?: boolean;
@@ -137,12 +145,170 @@ function validateTabInteraction(
   });
 }
 
+function validateDependencies(
+  dependencies: ThemeLibraryDependency[] | undefined,
+  errors: ValidationIssue[],
+): Set<string> {
+  const dependencyNames = new Set<string>();
+  if (dependencies === undefined) {
+    return dependencyNames;
+  }
+
+  if (!Array.isArray(dependencies)) {
+    errors.push(issue('error', 'dependencies', 'invalid_dependencies', 'dependencies must be an array'));
+    return dependencyNames;
+  }
+
+  dependencies.forEach((dependency, index) => {
+    const path = `dependencies[${index}]`;
+    if (!isPlainObject(dependency)) {
+      errors.push(issue('error', path, 'invalid_dependency', 'Dependency must be an object'));
+      return;
+    }
+    if (!isNonEmptyString(dependency.name)) {
+      errors.push(issue('error', `${path}.name`, 'missing_dependency_name', 'Dependency name is required'));
+    } else if (dependencyNames.has(dependency.name)) {
+      errors.push(issue(
+        'error',
+        `${path}.name`,
+        'duplicate_dependency_name',
+        `Duplicate dependency: ${dependency.name}`,
+      ));
+    } else {
+      dependencyNames.add(dependency.name);
+    }
+    if (
+      !isNonEmptyString(dependency.name)
+      || !isNonEmptyString(dependency.url)
+      || !isAllowedWidgetDependency(dependency.name, dependency.url)
+    ) {
+      errors.push(issue(
+        'error',
+        `${path}.url`,
+        'blocked_dependency_url',
+        `Widget dependencies must use approved esm.sh packages: ${formatAllowedWidgetLibraries()}`,
+      ));
+    }
+  });
+
+  return dependencyNames;
+}
+
+function validateWidgetProps(
+  alias: string,
+  propsValue: unknown,
+  path: string,
+  dependencyNames: Set<string>,
+  errors: ValidationIssue[],
+): void {
+  if (alias !== 'core.widget') {
+    return;
+  }
+
+  const props = isPlainObject(propsValue) ? propsValue : {};
+  Object.keys(props).forEach((propName) => {
+    if (DISALLOWED_WIDGET_PROP_NAMES.has(propName)) {
+      errors.push(issue(
+        'error',
+        `${path}.props.${propName}`,
+        'custom_widget_script_blocked',
+        `core.widget does not allow custom script prop "${propName}"`,
+      ));
+    }
+  });
+
+  if (!isNonEmptyString(props.library)) {
+    errors.push(issue(
+      'error',
+      `${path}.props.library`,
+      'missing_widget_library',
+      'core.widget requires a library name',
+    ));
+    return;
+  }
+
+  if (!dependencyNames.has(props.library)) {
+    errors.push(issue(
+      'error',
+      `${path}.props.library`,
+      'missing_widget_dependency',
+      `core.widget library "${props.library}" must be declared in layoutDocument.dependencies`,
+    ));
+  }
+
+  const renderer = typeof props.renderer === 'string' ? props.renderer : undefined;
+  if (!resolveSafeWidgetRenderer(props.library, renderer)) {
+    errors.push(issue(
+      'error',
+      `${path}.props.renderer`,
+      'unsupported_widget_renderer',
+      `core.widget renderer must be one of: ${[...SUPPORTED_WIDGET_RENDERERS].join(', ')}`,
+    ));
+  }
+}
+
+function validateWidgetNode(
+  node: ThemeLayoutNode,
+  path: string,
+  dependencyNames: Set<string>,
+  errors: ValidationIssue[],
+): void {
+  validateWidgetProps(node.alias, node.props, path, dependencyNames, errors);
+}
+
+function validateTemplateNodeWidgets(
+  value: unknown,
+  path: string,
+  dependencyNames: Set<string>,
+  errors: ValidationIssue[],
+): void {
+  if (!isPlainObject(value)) {
+    return;
+  }
+
+  const alias = typeof value.alias === 'string' ? value.alias : '';
+  validateWidgetProps(alias, value.props, path, dependencyNames, errors);
+
+  const children = Array.isArray(value.children) ? value.children : [];
+  children.forEach((child, index) => {
+    validateTemplateNodeWidgets(
+      child,
+      `${path}.children[${index}]`,
+      dependencyNames,
+      errors,
+    );
+  });
+}
+
+function validateComponentTemplateWidgets(
+  componentTemplates: Record<string, unknown> | undefined,
+  dependencyNames: Set<string>,
+  errors: ValidationIssue[],
+): void {
+  if (!componentTemplates) {
+    return;
+  }
+
+  Object.entries(componentTemplates).forEach(([alias, template]) => {
+    if (!isPlainObject(template)) {
+      return;
+    }
+    validateTemplateNodeWidgets(
+      template.root,
+      `componentTemplates.${alias}.root`,
+      dependencyNames,
+      errors,
+    );
+  });
+}
+
 function validateNode(
   document: ThemeLayoutDocument,
   node: ThemeLayoutNode,
   path: string,
   aliases: Set<string>,
   pageIds: Set<string>,
+  dependencyNames: Set<string>,
   seenIds: Set<string>,
   errors: ValidationIssue[],
   warnings: ValidationIssue[],
@@ -190,6 +356,7 @@ function validateNode(
     });
   }
 
+  validateWidgetNode(node, path, dependencyNames, errors);
   validateNavigateAction(node.interactions?.onClick, pageIds, `${path}.interactions.onClick`, errors);
   validateNavigateAction(node.interactions?.onActionClick, pageIds, `${path}.interactions.onActionClick`, errors);
   validateNavigateAction(node.interactions?.onStatusClick, pageIds, `${path}.interactions.onStatusClick`, errors);
@@ -202,6 +369,7 @@ function validateNode(
       `${path}.children[${index}]`,
       aliases,
       pageIds,
+      dependencyNames,
       seenIds,
       errors,
       warnings,
@@ -266,12 +434,18 @@ export function validateThemeLayoutDocument(
   }
 
   const aliases = collectAliases(document, options.componentTemplates);
+  const dependencyNames = validateDependencies(document.dependencies, errors);
+  validateComponentTemplateWidgets(
+    options.componentTemplates ?? document.componentTemplates,
+    dependencyNames,
+    errors,
+  );
   const seenIds = new Set<string>();
   pages.forEach((page, pageIndex) => {
     if (!isNonEmptyString(page.id)) {
       errors.push(issue('error', `pages[${pageIndex}].id`, 'missing_page_id', 'Page id is required'));
     }
-    if (!page.layout || page.layout.alias !== 'core.screen') {
+    if (page.layout?.alias !== 'core.screen') {
       errors.push(issue(
         'error',
         `pages[${pageIndex}].layout.alias`,
@@ -286,6 +460,7 @@ export function validateThemeLayoutDocument(
         `pages[${pageIndex}].layout`,
         aliases,
         pageIds,
+        dependencyNames,
         seenIds,
         errors,
         warnings,

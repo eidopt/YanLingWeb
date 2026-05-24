@@ -1,23 +1,14 @@
 'use client';
 
 import type { ThemeLibraryDependency } from '../layout/types';
+import { isAllowedWidgetDependency } from '@shared/agent/validation/widgetSafety';
 import { useEffect, useMemo, useState } from 'react';
 
 const libraryCache = new Map<string, unknown>();
-const ALLOWED_LIBRARY_ORIGINS = new Set(['https://esm.sh']);
-const WIDGET_RUNTIME_ENABLED = process.env.NEXT_PUBLIC_ENABLE_AI_WIDGETS === 'true';
+const WIDGET_RUNTIME_ENABLED = process.env.NEXT_PUBLIC_ENABLE_AI_WIDGETS !== 'false';
 
 function hasDefaultExport(value: unknown): value is { default: unknown } {
   return typeof value === 'object' && value !== null && 'default' in value;
-}
-
-function isAllowedDependencyUrl(url: string): boolean {
-  try {
-    const parsed = new URL(url);
-    return parsed.protocol === 'https:' && ALLOWED_LIBRARY_ORIGINS.has(parsed.origin);
-  } catch {
-    return false;
-  }
 }
 
 export async function loadLibrary(dep: ThemeLibraryDependency): Promise<void> {
@@ -29,7 +20,7 @@ export async function loadLibrary(dep: ThemeLibraryDependency): Promise<void> {
     return;
   }
 
-  if (!isAllowedDependencyUrl(dep.url)) {
+  if (!isAllowedWidgetDependency(dep.name, dep.url)) {
     throw new Error(`Blocked theme dependency URL: ${dep.url}`);
   }
 

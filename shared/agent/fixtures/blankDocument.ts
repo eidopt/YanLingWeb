@@ -157,10 +157,10 @@ export const CORE_COMPONENTS: ThemeComponentDescriptor[] = [
     alias: 'core.widget',
     name: 'Widget',
     kind: 'component',
-    description: 'Dynamic widget',
+    description: 'Safe third-party ESM widget',
     props: [
       { name: 'library', type: 'string' },
-      { name: 'code', type: 'string' },
+      { name: 'renderer', type: 'string', enum: ['echarts', 'chartjs', 'lottie', 'mermaid'] },
       { name: 'data', type: 'object' },
     ],
   },

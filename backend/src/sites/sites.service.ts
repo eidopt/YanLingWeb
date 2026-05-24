@@ -4,16 +4,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import type { ThemeLayoutDocument } from '@shared/agent/types';
 import { CURRENT_THEME_LAYOUT_SCHEMA_VERSION } from '@shared/theme-layout/migrations';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { DatabaseFlushService } from '../database/database-flush.service';
 import { Template } from '../templates/entities/template.entity';
 import { prepareTemplateLayoutForPersistence } from '../templates/template-layout-validation';
-import { PublishedSiteRevision } from './entities/published-site-revision.entity';
 import { PublishedSite } from './entities/published-site.entity';
+import { PublishedSiteRevision } from './entities/published-site-revision.entity';
 
 const HOSTED_RUNTIME_VERSION = 'hosted-runtime@1';
 const SUBDOMAIN_PATTERN = /^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?$/;
@@ -195,14 +195,6 @@ export class SitesService {
       componentTemplates: template.componentTemplates,
       cssVars: template.cssVars,
     });
-    if (this.containsDisabledWidget(layoutDocument) ||
-      this.containsDisabledWidget(template.componentTemplates)
-    ) {
-      throw new BadRequestException({
-        message: 'core.widget is disabled for hosted runtime publishing',
-        code: 'hosted_runtime_widget_disabled',
-      });
-    }
 
     const schemaVersion =
       layoutDocument.schemaVersion ??
@@ -234,20 +226,6 @@ export class SitesService {
       dataJson: {},
       manifestJson,
     };
-  }
-
-  private containsDisabledWidget(value: unknown): boolean {
-    if (Array.isArray(value)) {
-      return value.some((item) => this.containsDisabledWidget(item));
-    }
-    if (!value || typeof value !== 'object') {
-      return false;
-    }
-    const record = value as Record<string, unknown>;
-    if (record.alias === 'core.widget') {
-      return true;
-    }
-    return Object.values(record).some((item) => this.containsDisabledWidget(item));
   }
 
   private resolveSubdomain(

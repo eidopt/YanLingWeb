@@ -44,13 +44,22 @@ The template uses a component tree system. Core layout components:
 - core.notice: notification banner (props: text, tone)
 - core.html: raw HTML wrapper (props: tag, style). Use only for markup that
   can't be expressed with other core.* aliases.
-- core.widget: dynamic third-party library widget
-  (props: library, code, data)
-  - library: dependency name declared in dependencies (e.g. "echarts")
-  - code: JS init function body => function(container, lib, data) { ... }
-  - data: arbitrary JSON data passed to the widget
-  - widget runtime is disabled by default; prefer core.* approximations unless
-    the user explicitly asks for custom code/widgets
+- core.widget: safe third-party ESM widget
+  (props: library, renderer, data)
+  - Use only when the user request is better solved by a package available
+    through esm.sh and a supported renderer.
+  - library: dependency name declared in dependencies.
+  - allowed libraries/renderers:
+    - echarts + renderer "echarts": data is an ECharts option object
+      or { option: {...} }
+    - chart.js or chartjs + renderer "chartjs": data is a Chart.js config
+      object or { config: {...} }; use dependency URL https://esm.sh/chart.js/auto
+    - lottie-web or lottie + renderer "lottie": data must include
+      { animationData: {...}, loop?, autoplay? }
+    - mermaid + renderer "mermaid": data must include
+      { definition: "graph TD; ..." } or { diagram: "..." }
+  - Never generate custom JavaScript, code strings, script URLs, inline
+    scripts, or arbitrary module bodies.
 
 layoutDocument.style — OPTIONAL style manifest:
   style: { cssVars: { "--accent": "#FF6B35", "--surface": "..." } }
@@ -59,10 +68,10 @@ layoutDocument.style — OPTIONAL style manifest:
 
 layoutDocument.dependencies — OPTIONAL array of external libraries:
   dependencies: [{ name: "echarts", url: "https://esm.sh/echarts" }]
-  Each dep is loaded at runtime via dynamic import() only when widget runtime
-  is enabled. Use approved HTTPS esm.sh URLs for ESM-compatible npm packages.
-  The loaded module is available as "lib"
-  inside the widget code function.
+  Each dep is loaded at runtime via dynamic import(). Use approved HTTPS
+  esm.sh URLs from the allowlist only: echarts, chart.js, lottie-web,
+  mermaid. Non-esm.sh URLs, non-whitelisted packages, and custom scripts
+  are rejected.
 
 LayoutDocument node:
 { id, alias, layout: { mode: "flow", order, width, minHeight }, props, children }

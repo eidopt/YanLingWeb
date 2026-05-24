@@ -74,7 +74,7 @@ const components = [
   ['core.notice', 'component', ['text', 'tone']],
   ['core.image', 'component', ['alt', 'title']],
   ['core.html', 'component', ['tag', 'style']],
-  ['core.widget', 'component', ['library', 'code', 'data']],
+  ['core.widget', 'component', ['library', 'renderer', 'data']],
   ['core.divider', 'component', []],
   ['core.spacer', 'component', ['size']],
   ['core.input', 'component', ['placeholder', 'label']],
@@ -83,7 +83,16 @@ const components = [
   kind,
   name: alias,
   description: alias,
-  props: props.map((name) => ({ name, type: name === 'tabs' ? 'string[]' : name === 'disabled' ? 'boolean' : 'string' })),
+  props: props.map((name) => ({
+    name,
+    type: name === 'tabs'
+      ? 'string[]'
+      : name === 'disabled'
+        ? 'boolean'
+        : name === 'data'
+          ? 'object'
+          : 'string',
+  })),
 }));
 
 function footerTabs(id, activeTab) {

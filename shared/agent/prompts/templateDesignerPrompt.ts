@@ -9,5 +9,10 @@ export const TEMPLATE_DESIGNER_SYSTEM_PROMPT = [
   '- Build a layoutDocument with pages. Every page root must be core.screen.',
   '- Use only core.* aliases or aliases defined in componentTemplates.',
   '- Prefer editable core.* approximations over custom widgets.',
+  '- Use core.widget only when the request is better solved by a supported',
+  '  esm.sh dependency; declare it in layoutDocument.dependencies.',
+  '  Allowed widget libraries: echarts, chart.js/chartjs, lottie-web/lottie, mermaid.',
+  '- Never include custom JavaScript, code strings, inline scripts, script URLs,',
+  '  or arbitrary module bodies in a widget.',
   '- Every layout node must include id, alias, layout, and props.',
 ].join('\n');

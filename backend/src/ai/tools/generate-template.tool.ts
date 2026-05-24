@@ -40,6 +40,21 @@ The template uses a component tree system. Core layout components:
 - core.spacer: blank space (props: size)
 - core.input: text field (props: placeholder, label)
 - core.tabs: tab bar (props: activeTab)
+- core.widget: safe third-party ESM widget
+  (props: library, renderer, data)
+  - Use only when the user request is better solved by a package available
+    through esm.sh and a supported renderer.
+  - allowed libraries/renderers:
+    - echarts + renderer "echarts": data is an ECharts option object
+      or { option: {...} }
+    - chart.js or chartjs + renderer "chartjs": data is a Chart.js config
+      object or { config: {...} }; use dependency URL https://esm.sh/chart.js/auto
+    - lottie-web or lottie + renderer "lottie": data must include
+      { animationData: {...}, loop?, autoplay? }
+    - mermaid + renderer "mermaid": data must include
+      { definition: "graph TD; ..." } or { diagram: "..." }
+  - Never generate custom JavaScript, code strings, script URLs, inline
+    scripts, or arbitrary module bodies.
 
 LayoutDocument node:
 { id, alias, layout: { mode: "flow", order, width, minHeight }, props, children }
@@ -47,6 +62,10 @@ Optional layoutDocument.style:
 { cssVars: { "--accent": "#FF6B35", "--surface": "..." } }
 The service mirrors top-level cssVars into layoutDocument.style.cssVars before
 saving, so exported projects can compile CSS from the template JSON.
+Optional layoutDocument.dependencies:
+  dependencies: [{ name: "echarts", url: "https://esm.sh/echarts" }]
+Use approved HTTPS esm.sh URLs from the allowlist only: echarts, chart.js,
+lottie-web, mermaid. Non-whitelisted packages and custom scripts are rejected.
 
 ComponentTemplate: { displayName, root: TemplateNode }
 TemplateNode: { alias, props (with optional $bind bindings), children }
