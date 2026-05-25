@@ -12,6 +12,8 @@ export interface ThemeSpec {
   description: string;
   accent: string;
   category: string;
+  platformCategories?: string[];
+  functionalCategories?: string[];
   traits: string[];
   tags: string[];
   createdAt?: string;

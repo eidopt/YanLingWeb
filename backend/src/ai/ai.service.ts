@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   buildConversationContextMessages,
@@ -19,7 +19,7 @@ import { Observable, Subject } from 'rxjs';
 import { IsNull, Not, Repository } from 'typeorm';
 
 import { ConfigService } from '../config/config.service';
-import { DatabaseFlushService } from '../database/database-flush.service';
+import { deriveTags } from '../shared/derive-tags';
 import { Template } from '../templates/entities/template.entity';
 import { assertValidTemplateLayout } from '../templates/template-layout-validation';
 import { User } from '../users/entities/user.entity';
@@ -48,6 +48,9 @@ import {
   AI_SEMANTIC_TARGETS,
   type AiSemanticTargetConfig,
 } from './semantic-targets.config';
+import { EditorConversationService, type EditorAiConversationDto, type SaveEditorAiConversationInput } from './services/editor-conversation.service';
+import { ProviderLogCompactionService } from './services/provider-log-compaction.service';
+import { TokenUsageService, type AiCacheStatsDto } from './services/token-usage.service';
 import {
   EDITOR_EDIT_TOOL_NAMES,
   EDITOR_EDIT_TOOLS,
@@ -59,40 +62,16 @@ import type { TemplateToolInput } from './tools/generate-template.tool';
 export interface AiConfigDto {
   provider: string;
   model: string;
+  models: {
+    pro: string;
+    lite?: string;
+  };
   semanticTargets: AiSemanticTargetConfig[];
 }
 
-export interface EditorAiConversationDto {
-  templateId: string;
-  messages: EditorAiConversationMessageRecord[];
-  updatedAt: string | null;
-}
-
-export interface AiCacheStatsDto {
-  totalRequests: number;
-  totalCacheHitTokens: number;
-  totalCacheMissTokens: number;
-  overallCacheHitRate: string;
-  byEndpoint: {
-    endpoint: AiTokenUsageEndpoint | 'unknown';
-    count: number;
-    cacheHitTokens: number;
-    cacheMissTokens: number;
-    hitRate: string;
-  }[];
-  recentRequests: {
-    timestamp: string;
-    endpoint: AiTokenUsageEndpoint;
-    model: string;
-    cacheHitTokens: number | null;
-    cacheMissTokens: number | null;
-    hitRate: string;
-  }[];
-}
-
-export interface SaveEditorAiConversationInput {
-  messages?: unknown;
-}
+// Re-export types from sub-services for backward compatibility
+export type { EditorAiConversationDto, SaveEditorAiConversationInput } from './services/editor-conversation.service';
+export type { AiCacheStatsDto } from './services/token-usage.service';
 
 export type StreamRequest = ProviderRequest;
 
@@ -327,7 +306,6 @@ export class AiService {
     private readonly tokenUsageRepo: Repository<AiTokenUsageEvent>,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
-    private readonly databaseFlush: DatabaseFlushService,
     private readonly config: ConfigService,
   ) {
     const apiKey = this.config.ai.apiKey ?? '';
@@ -335,6 +313,7 @@ export class AiService {
     this.aiConfig = {
       provider: this.config.ai.provider,
       model: this.config.ai.model,
+      models: this.config.ai.models,
       semanticTargets: AI_SEMANTIC_TARGETS,
     };
 
@@ -381,6 +360,14 @@ export class AiService {
     return this.provider;
   }
 
+  private resolveConfiguredModel(requestedModel?: string): string {
+    const { pro, lite } = this.aiConfig.models;
+    if (requestedModel && lite && requestedModel === lite) {
+      return lite;
+    }
+    return pro;
+  }
+
   hasConfiguredApiKey(): boolean {
     return this.apiKeyConfigured;
   }
@@ -415,7 +402,6 @@ export class AiService {
     if (!messages.length) {
       if (existing) {
         await this.editorConversationRepo.remove(existing);
-        await this.databaseFlush.flush('editor AI conversation removal');
       }
       return { templateId, messages: [], updatedAt: null };
     }
@@ -428,7 +414,6 @@ export class AiService {
     conversation.providerMessages ??= [];
     conversation.providerSession ??= null;
     const saved = await this.editorConversationRepo.save(conversation);
-    await this.databaseFlush.flush('editor AI conversation save');
 
     return {
       templateId,
@@ -504,7 +489,6 @@ export class AiService {
       previousResponseId,
     );
     await this.editorConversationRepo.save(conversation);
-    await this.databaseFlush.flush('editor AI provider session save');
   }
 
   private async saveEditorProviderLog(
@@ -528,7 +512,6 @@ export class AiService {
     conversation.providerMessages = await this.foldEditorProviderMessagesByTokenBudget(messages);
     conversation.providerSession ??= null;
     await this.editorConversationRepo.save(conversation);
-    await this.databaseFlush.flush('editor AI provider conversation save');
   }
 
   async foldEditorProviderMessagesByTokenBudget(
@@ -594,8 +577,9 @@ export class AiService {
     const serialized = messages
       .map((message, index) => serializeProviderMessageForSummary(message, index))
       .join('\n\n---\n\n');
+    const summaryModel = this.aiConfig.models.lite ?? this.aiConfig.models.pro;
     const request: StreamRequest = {
-      model: this.aiConfig.model,
+      model: summaryModel,
       messages: [
         {
           role: 'system',
@@ -771,12 +755,13 @@ export class AiService {
       return;
     }
 
-    const request = this.withRequestScopedCache(req, cacheOptions);
+    const model = this.resolveConfiguredModel(req.model);
+    const request = this.withRequestScopedCache({ ...req, model }, cacheOptions);
 
     for await (const event of this.provider.stream(request)) {
       if (event.type === 'done' && event.usage) {
-        this.logCacheUsage(ownerUserId, req.model, event.usage, 'stream');
-        await this.recordTokenUsage(ownerUserId, req.model, event.usage, 'stream');
+        this.logCacheUsage(ownerUserId, model, event.usage, 'stream');
+        await this.recordTokenUsage(ownerUserId, model, event.usage, 'stream');
       }
       this.emitStreamEvent(subject, event);
     }
@@ -838,23 +823,24 @@ export class AiService {
       return;
     }
 
+    const model = this.resolveConfiguredModel(req.model);
     const editorTools = [...EDITOR_EDIT_TOOLS];
     const persistedSession = await this.loadEditorProviderSession(
       ownerUserId,
       cacheOptions?.conversationId,
-      req.model,
+      model,
     );
     const previousResponseId = cacheOptions?.previousResponseId
       ?? persistedSession?.previousResponseId;
     await this.saveEditorProviderSession(
       ownerUserId,
       cacheOptions?.conversationId,
-      req.model,
+      model,
       previousResponseId,
     );
     const loop = new QueryLoop({
       provider: this.provider,
-      model: req.model,
+      model,
       tools: editorTools,
       toolSpecs: this.editorToolSpecs(editorTools),
       maxIterations: EDITOR_AGENT_MAX_ITERATIONS,
@@ -874,11 +860,11 @@ export class AiService {
       },
       onUsage: (usage) => this.recordTokenUsage(
         ownerUserId,
-        req.model,
+        model,
         usage,
         'editor',
       ).then(() => {
-        this.logCacheUsage(ownerUserId, req.model, usage, 'editor');
+        this.logCacheUsage(ownerUserId, model, usage, 'editor');
       }),
       requestCache: previousResponseId
         ? { previousResponseId }
@@ -890,7 +876,7 @@ export class AiService {
     await this.saveEditorProviderSession(
       ownerUserId,
       cacheOptions?.conversationId,
-      req.model,
+      model,
       result.responseId ?? previousResponseId,
     );
     if (result.stopReason === 'error') {
@@ -932,7 +918,7 @@ export class AiService {
       return;
     }
 
-    const model = req.model ?? this.aiConfig.model;
+    const model = this.resolveConfiguredModel(req.model);
     const selectedChoiceText = req.clarificationChoice
       && typeof req.clarificationChoice === 'object'
       && 'value' in req.clarificationChoice
@@ -1144,7 +1130,6 @@ export class AiService {
         await this.userRepo.save(user);
       }
 
-      await this.databaseFlush.flush('AI token usage record');
     } catch (err) {
       this.logger.error(
         'Failed to record AI token usage',
@@ -1198,7 +1183,6 @@ export class AiService {
       existing.sourceTemplateId = null;
       existing.isPublic = false;
       await this.templateRepo.save(existing);
-      await this.databaseFlush.flush('AI template update');
       this.logger.log(`Template updated: ${existing.templateId}`);
       return { templateId: existing.templateId, action: 'updated' };
     }
@@ -1213,7 +1197,6 @@ export class AiService {
     });
     this.applyGeneratedTemplateInput(template, input);
     await this.templateRepo.save(template);
-    await this.databaseFlush.flush('AI template creation');
     this.logger.log(`Template created: ${template.templateId}`);
     return { templateId: template.templateId, action: 'created' };
   }
@@ -1228,7 +1211,7 @@ export class AiService {
     template.category = input.category;
     template.accent = input.accent;
     template.traits = input.traits;
-    template.tags = this.deriveTags({
+    template.tags = deriveTags({
       ...input,
       templateId: template.templateId,
     });
@@ -1239,27 +1222,6 @@ export class AiService {
       input.layoutDocument,
       input.cssVars,
     );
-  }
-
-  private deriveTags(template: Pick<
-    TemplateToolInput,
-    'templateId' | 'name' | 'tagline' | 'description' | 'category' | 'traits'
-  >): string[] {
-    const values = [
-      template.templateId,
-      template.name,
-      template.tagline,
-      template.description,
-      template.category,
-      ...template.traits,
-    ];
-
-    return [...new Set(
-      values
-        .flatMap((value) => String(value).split(/[\s,，、/|]+/))
-        .map((value) => value.trim())
-        .filter(Boolean),
-    )];
   }
 
   private async createAvailableUserTemplateId(

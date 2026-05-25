@@ -11,8 +11,19 @@ export interface ServerConfig {
   ai: {
     provider: 'openai' | 'openai-compatible';
     model: string;
+    models: {
+      pro: string;
+      lite?: string;
+    };
     apiKey?: string;
     baseUrl?: string;
+  };
+  templates: {
+    jsonImport: {
+      enabled: boolean;
+      directory?: string;
+      deleteAfterImport: boolean;
+    };
   };
   corsOrigins: string[];
   database: {
@@ -73,18 +84,34 @@ export class ConfigFactory {
       : 'openai';
     const prefix = VAR_PREFIX[aiProvider];
 
-    const aiModel = this.read(source, serverFlavor, 'AI_MODEL');
+    const defaultModel = aiProvider === 'openai-compatible' ? 'deepseek-chat' : 'gpt-5.4';
+    const aiProModel = this.read(source, serverFlavor, 'AI_PRO_MODEL')
+      ?? this.read(source, serverFlavor, 'AI_MODEL')
+      ?? defaultModel;
+    const aiLiteModel = this.read(source, serverFlavor, 'AI_LITE_MODEL');
     const databaseDriver = this.readDatabaseDriver(source, serverFlavor);
 
     return {
       ai: {
         provider: aiProvider,
-        model: aiModel ?? (aiProvider === 'openai-compatible' ? 'deepseek-chat' : 'gpt-5.4'),
+        model: aiProModel,
+        models: {
+          pro: aiProModel,
+          ...(aiLiteModel ? { lite: aiLiteModel } : {}),
+        },
         // Try provider-specific vars (e.g. OPENAI_API_KEY), fall back to generic AI_*
         apiKey: this.read(source, serverFlavor, `${prefix}_API_KEY`)
           ?? this.read(source, serverFlavor, 'AI_API_KEY'),
         baseUrl: this.read(source, serverFlavor, `${prefix}_BASE_URL`)
           ?? this.read(source, serverFlavor, 'AI_BASE_URL'),
+      },
+      templates: {
+        jsonImport: {
+          enabled: this.readBoolean(source, serverFlavor, 'TEMPLATE_JSON_IMPORT_ENABLED') ?? true,
+          directory: this.read(source, serverFlavor, 'TEMPLATE_JSON_IMPORT_DIR'),
+          deleteAfterImport:
+            this.readBoolean(source, serverFlavor, 'TEMPLATE_JSON_DELETE_AFTER_IMPORT') ?? true,
+        },
       },
       corsOrigins: this.readList(source, serverFlavor, 'CORS_ORIGINS'),
       database: {
@@ -266,7 +293,7 @@ export class ConfigFactory {
     const value = this.read(source, nodeEnv, 'DATABASE_DRIVER')
       ?? this.read(source, nodeEnv, 'DB_DRIVER');
     if (!value) {
-      return 'sqljs';
+      return 'sqlite';
     }
 
     const normalized = value.toLowerCase();

@@ -8,8 +8,8 @@ export class LoginDto {
 
   @ApiProperty({
     description:
-      'SHA-256(nonce + SHA-256(password)) — use hashForLogin() on the client. ' +
-      'Obtain the nonce from GET /users/auth/challenge first.',
+      'SHA-256(rawPassword) — the client-hashed password. ' +
+      'Nonce is used for anti-replay only and does NOT participate in password hashing.',
     minLength: 64,
     maxLength: 64,
   })

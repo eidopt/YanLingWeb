@@ -42,35 +42,35 @@ export type EditorAiEditInstruction =
     } & EditorAiInstructionTarget)
   | ({
       type: 'update_props';
-      nodeId: string;
+      nodeId?: string;
       props: Record<string, unknown>;
       select?: boolean;
     } & EditorAiInstructionTarget)
   | ({
       type: 'set_layout';
-      nodeId: string;
+      nodeId?: string;
       layout: Partial<LayoutNodeLayout>;
       select?: boolean;
     } & EditorAiInstructionTarget)
   | ({
       type: 'set_frame';
-      nodeId: string;
+      nodeId?: string;
       frame: Partial<LayoutNodeFrame>;
       select?: boolean;
     } & EditorAiInstructionTarget)
   | ({
       type: 'move_node';
-      nodeId: string;
+      nodeId?: string;
       parentId?: string;
       targetId?: string;
       position?: 'before' | 'after' | 'inside_end';
       axis?: 'horizontal' | 'vertical';
       select?: boolean;
     } & EditorAiInstructionTarget)
-  | ({ type: 'delete_node'; nodeId: string } & EditorAiInstructionTarget)
+  | ({ type: 'delete_node'; nodeId?: string } & EditorAiInstructionTarget)
   | ({
       type: 'update_interactions';
-      nodeId: string;
+      nodeId?: string;
       interactions: Partial<ThemeLayoutNodeInteractions>;
       select?: boolean;
     } & EditorAiInstructionTarget);
@@ -81,10 +81,31 @@ export interface EditorAiInstructionTarget {
   target?: string;
 }
 
+export interface NodeResolutionCandidate {
+  nodeId: string;
+  alias: string;
+  summary: string;
+  score: number;
+  matchReason: string;
+}
+
+export interface NodeResolutionErrorInfo {
+  error: string;
+  failedId: string;
+  candidates: NodeResolutionCandidate[];
+  siblingIds: string[];
+  parentAlias: string | null;
+}
+
 export interface ApplyEditorAiEditInstructionsOptions {
   userPrompt?: string;
   reason?: string;
   selectedNodeId?: string | null;
+  resolveSemanticTarget?: (
+    document: ThemeLayoutDocument,
+    target: string,
+    selectedNodeId?: string | null,
+  ) => { nodeId: string } | null;
 }
 
 export interface ApplyEditorAiEditInstructionsResult {
@@ -92,6 +113,7 @@ export interface ApplyEditorAiEditInstructionsResult {
   document: ThemeLayoutDocument;
   errors: string[];
   selectedNodeId?: string | null;
+  rollbackReason?: 'validation';
 }
 
 const CONTAINER_ALIASES = new Set([
@@ -253,6 +275,207 @@ function resolveNodeIdFromExistingIds(
     return null;
   }
   return best.nodeId;
+}
+
+function summarizeNodeForError(node: ThemeLayoutNode): string {
+  const entries = Object.entries(node.props ?? {})
+    .filter(([_, v]) => typeof v === 'string' || typeof v === 'number')
+    .map(([k, v]) => `${k}=${String(v).slice(0, 40)}`)
+    .slice(0, 3);
+  return entries.length > 0 ? entries.join(', ') : 'no text props';
+}
+
+function buildNodeResolutionError(
+  root: ThemeLayoutNode,
+  requestedId: string,
+): NodeResolutionErrorInfo {
+  const allIds = collectNodeIds(root);
+
+  const scoredCandidates = allIds
+    .map((nodeId) => {
+      const node = findNode(root, nodeId);
+      return {
+        nodeId,
+        alias: node?.alias ?? 'unknown',
+        summary: node ? summarizeNodeForError(node) : '',
+        score: scoreNodeIdMatch(requestedId, nodeId),
+        matchReason: '',
+      };
+    })
+    .sort((a, b) => b.score - a.score);
+
+  const candidates: NodeResolutionCandidate[] = [];
+  for (const item of scoredCandidates) {
+    if (item.score <= 0) {
+      break;
+    }
+    let matchReason = 'no match';
+    if (item.score >= 0.92) {
+      matchReason = 'substring match';
+    } else if (item.score >= 0.65) {
+      matchReason = 'token overlap';
+    } else if (item.score > 0) {
+      matchReason = 'partial prefix match';
+    }
+    candidates.push({ ...item, matchReason });
+    if (candidates.length >= 5) {
+      break;
+    }
+  }
+
+  const parentInfo = findParentAndSiblings(root, requestedId);
+
+  return {
+    error: `Node not found: ${requestedId}. See candidates below for possible matches.`,
+    failedId: requestedId,
+    candidates,
+    siblingIds: parentInfo.siblingIds,
+    parentAlias: parentInfo.parentAlias,
+  };
+}
+
+function findParentAndSiblings(
+  root: ThemeLayoutNode,
+  targetId: string,
+): { siblingIds: string[]; parentAlias: string | null } {
+  const parentId = findParentId(root, targetId);
+  if (!parentId) {
+    return { siblingIds: [], parentAlias: null };
+  }
+  const parent = findNode(root, parentId);
+  if (!parent?.children?.length) {
+    return { siblingIds: [], parentAlias: parent?.alias ?? null };
+  }
+  const siblingIds = parent.children
+    .filter((child) => child.id !== targetId)
+    .map((child) => child.id)
+    .slice(0, 10);
+  return { siblingIds, parentAlias: parent.alias };
+}
+
+function searchNodeByProps(root: ThemeLayoutNode, query: string): string | null {
+  const queryNorm = normalizeNodeId(query);
+  if (!queryNorm || queryNorm.length < 2) {
+    return null;
+  }
+
+  let bestMatchNodeId: string | null = null;
+  let bestMatchScore = 0;
+
+  const walk = (node: ThemeLayoutNode) => {
+    const propText = [
+      node.props?.text,
+      node.props?.label,
+      node.props?.title,
+      node.props?.placeholder,
+      node.props?.name,
+      node.props?.activeTab,
+      node.alias,
+    ]
+      .filter((v): v is string => typeof v === 'string')
+      .join(' ');
+
+    const normPropText = normalizeNodeId(propText);
+    if (!normPropText) {
+      node.children?.forEach(walk);
+      return;
+    }
+
+    let score = 0;
+    if (normPropText.includes(queryNorm)) {
+      score = 0.85;
+    } else if (queryNorm.includes(normPropText) && normPropText.length >= 3) {
+      score = 0.7;
+    }
+
+    if (score > bestMatchScore) {
+      bestMatchNodeId = node.id;
+      bestMatchScore = score;
+    }
+
+    node.children?.forEach(walk);
+  };
+
+  walk(root);
+  return bestMatchNodeId;
+}
+
+interface ResolveNodeIdMultiStrategyInput {
+  root: ThemeLayoutNode;
+  document: ThemeLayoutDocument;
+  instruction: EditorAiEditInstruction;
+  requestedId?: string;
+  selectedNodeId?: string | null;
+  alias?: string;
+  parentId?: string;
+  resolveSemanticTarget?: ApplyEditorAiEditInstructionsOptions['resolveSemanticTarget'];
+}
+
+interface ResolveNodeIdMultiStrategyResult {
+  resolvedId: string | null;
+  strategy: 'exact' | 'fuzzy_token' | 'prop_search' | 'semantic_role' | 'structural' | 'failed';
+  node?: ThemeLayoutNode;
+  error?: NodeResolutionErrorInfo;
+}
+
+function multiStrategyResolveNodeId(
+  input: ResolveNodeIdMultiStrategyInput,
+): ResolveNodeIdMultiStrategyResult {
+  const { root, document, instruction, requestedId, selectedNodeId, alias, parentId, resolveSemanticTarget } = input;
+
+  // semanticTarget first when no explicit nodeId — true one-of semantics
+  if (!requestedId && instruction.semanticTarget && resolveSemanticTarget) {
+    const semanticResult = resolveSemanticTarget(document, instruction.semanticTarget, selectedNodeId);
+    if (semanticResult) {
+      const semNode = findNode(root, semanticResult.nodeId);
+      if (semNode) {
+        return { resolvedId: semanticResult.nodeId, strategy: 'semantic_role', node: semNode };
+      }
+    }
+  }
+
+  // requestedId-based strategies (exact → fuzzy → prop_search)
+  if (requestedId) {
+    const exact = findNode(root, requestedId);
+    if (exact) {
+      return { resolvedId: requestedId, strategy: 'exact', node: exact };
+    }
+
+    const fuzzy = resolveNodeIdFromExistingIds(root, requestedId);
+    if (fuzzy) {
+      return { resolvedId: fuzzy, strategy: 'fuzzy_token', node: findNode(root, fuzzy) ?? undefined };
+    }
+
+    const propMatch = searchNodeByProps(root, requestedId);
+    if (propMatch) {
+      return { resolvedId: propMatch, strategy: 'prop_search', node: findNode(root, propMatch) ?? undefined };
+    }
+
+    // Also try semanticTarget as fallback when requestedId failed all strategies
+    if (instruction.semanticTarget && resolveSemanticTarget) {
+      const semanticResult = resolveSemanticTarget(document, instruction.semanticTarget, selectedNodeId);
+      if (semanticResult) {
+        const semNode = findNode(root, semanticResult.nodeId);
+        if (semNode) {
+          return { resolvedId: semanticResult.nodeId, strategy: 'semantic_role', node: semNode };
+        }
+      }
+    }
+  }
+
+  if (parentId && alias) {
+    const parent = findNode(root, parentId);
+    if (parent?.children) {
+      const child = parent.children.find((c) => c.alias === alias);
+      if (child) {
+        return { resolvedId: child.id, strategy: 'structural', node: child };
+      }
+    }
+  }
+
+  const fallbackId = requestedId ?? instruction.semanticTarget ?? instruction.target ?? '';
+  const error = buildNodeResolutionError(root, fallbackId);
+  return { resolvedId: null, strategy: 'failed', error };
 }
 
 function removeNode(node: ThemeLayoutNode, targetId: string): boolean {
@@ -576,6 +799,7 @@ interface ApplyOneResult {
 function applyOneInstruction(
   document: ThemeLayoutDocument,
   instruction: EditorAiEditInstruction,
+  options?: ApplyEditorAiEditInstructionsOptions,
 ): ApplyOneResult {
   if (instruction.type === 'create_page') {
     return applyCreatePage(document, instruction);
@@ -595,23 +819,36 @@ function applyOneInstruction(
   }
 
   if (instruction.type === 'insert_node') {
-    let parentId = instruction.parentId ?? page.layout.id;
-    let parent = findNode(page.layout, parentId);
-    if (!parent && instruction.parentId) {
-      const resolvedParentId = resolveNodeIdFromExistingIds(
-        page.layout,
-        instruction.parentId,
-      );
-      if (resolvedParentId) {
-        parentId = resolvedParentId;
-        parent = findNode(page.layout, parentId);
+    // semanticTarget as parentId takes priority over root default
+    let effectiveParentId = instruction.parentId;
+    if (!effectiveParentId && instruction.semanticTarget && options?.resolveSemanticTarget) {
+      const semResult = options.resolveSemanticTarget(document, instruction.semanticTarget, options?.selectedNodeId);
+      if (semResult) {
+        effectiveParentId = semResult.nodeId;
       }
     }
-    if (!parent) {
-      return { document, error: `AI referenced unknown parentId: ${parentId}` };
+    // Fall back to root only if neither parentId nor semanticTarget resolved
+    effectiveParentId ??= page.layout.id;
+
+    const parentResolution = multiStrategyResolveNodeId({
+      root: page.layout,
+      document,
+      instruction,
+      requestedId: effectiveParentId,
+      selectedNodeId: options?.selectedNodeId,
+      parentId: undefined,
+      alias: undefined,
+      resolveSemanticTarget: options?.resolveSemanticTarget,
+    });
+    if (!parentResolution.resolvedId || !parentResolution.node) {
+      if (parentResolution.error) {
+        return { document, error: JSON.stringify(parentResolution.error) };
+      }
+      return { document, error: `AI referenced unknown parentId: ${instruction.parentId ?? page.layout.id}` };
     }
+    const parent = parentResolution.node;
     if (!CONTAINER_ALIASES.has(parent.alias)) {
-      return { document, error: `Node ${parentId} cannot receive children` };
+      return { document, error: `Node ${parentResolution.resolvedId} (${parent.alias}) cannot receive children` };
     }
     const built = buildNode(document, instruction.alias, instruction.nodeId, instruction.props, instruction.layout);
     if (built.error || !built.node) {
@@ -623,15 +860,26 @@ function applyOneInstruction(
     }
     parent.children ??= [];
     if (instruction.targetId && instruction.position && instruction.position !== 'inside_end') {
-      let targetId = instruction.targetId;
-      if (!findNode(page.layout, targetId)) {
-        targetId = resolveNodeIdFromExistingIds(page.layout, targetId) ?? targetId;
+      const targetResolution = multiStrategyResolveNodeId({
+        root: page.layout,
+        document,
+        instruction,
+        requestedId: instruction.targetId,
+        selectedNodeId: options?.selectedNodeId,
+        resolveSemanticTarget: options?.resolveSemanticTarget,
+      });
+      if (!targetResolution.resolvedId) {
+        if (targetResolution.error) {
+          return { document, error: JSON.stringify(targetResolution.error) };
+        }
+        return { document, error: `AI referenced unknown targetId: ${instruction.targetId}` };
       }
+      const targetId = targetResolution.resolvedId;
       const index = parent.children.findIndex((child) => child.id === targetId);
       if (index >= 0) {
         parent.children.splice(instruction.position === 'before' ? index : index + 1, 0, built.node);
       } else {
-        return { document, error: `AI referenced unknown targetId: ${instruction.targetId}` };
+        return { document, error: `Resolved targetId ${targetId} not found among children of ${parentResolution.resolvedId}` };
       }
     } else {
       parent.children.push(built.node);
@@ -645,20 +893,27 @@ function applyOneInstruction(
     };
   }
 
-  let nodeId = instruction.nodeId;
-  let target = findNode(page.layout, nodeId);
-  if (!target) {
-    const resolvedNodeId = resolveNodeIdFromExistingIds(page.layout, nodeId);
-    if (resolvedNodeId) {
-      nodeId = resolvedNodeId;
-      target = findNode(page.layout, nodeId);
+  const nodeResolution = multiStrategyResolveNodeId({
+    root: page.layout,
+    document,
+    instruction,
+    requestedId: instruction.nodeId,
+    selectedNodeId: options?.selectedNodeId,
+    resolveSemanticTarget: options?.resolveSemanticTarget,
+  });
+  if (!nodeResolution.resolvedId || !nodeResolution.node) {
+    if (nodeResolution.error) {
+      return { document, error: JSON.stringify(nodeResolution.error) };
     }
-  }
-  if (!target) {
     return { document, error: `Node not found: ${instruction.nodeId}` };
   }
+  const nodeId = nodeResolution.resolvedId;
+  const target = nodeResolution.node;
 
   if (instruction.type === 'update_props') {
+    if (!instruction.props || Object.keys(instruction.props).length === 0) {
+      return { document, error: 'update_props requires at least one prop to update' };
+    }
     const descriptor = descriptorForAlias(document, target.alias);
     if (!descriptor) {
       return { document, error: `Unknown component alias: ${target.alias}` };
@@ -714,18 +969,27 @@ function applyOneInstruction(
     }
     let parentId = instruction.parentId ?? findParentId(page.layout, nodeId);
     if (instruction.parentId && !findNode(page.layout, instruction.parentId)) {
-      parentId = resolveNodeIdFromExistingIds(page.layout, instruction.parentId) ?? parentId;
+      const parentResolution = multiStrategyResolveNodeId({
+        root: page.layout,
+        document,
+        instruction,
+        requestedId: instruction.parentId,
+        selectedNodeId: options?.selectedNodeId,
+        resolveSemanticTarget: options?.resolveSemanticTarget,
+      });
+      if (parentResolution.resolvedId) {
+        parentId = parentResolution.resolvedId;
+      }
     }
     const parent = parentId ? findNode(page.layout, parentId) : null;
     if (!parent || !CONTAINER_ALIASES.has(parent.alias)) {
       return { document, error: `Invalid target parent: ${parentId ?? ''}` };
     }
-    const node = findNode(page.layout, nodeId);
-    if (!node || !removeNode(page.layout, nodeId)) {
+    if (!removeNode(page.layout, nodeId)) {
       return { document, error: `Node not found: ${instruction.nodeId}` };
     }
     parent.children ??= [];
-    parent.children.push(node);
+    parent.children.push(target);
     normalizeChildOrder(parent);
     syncRootLayout(document);
     return {
@@ -747,7 +1011,7 @@ function applyOneInstruction(
 export function applyEditorAiEditInstructions(
   document: ThemeLayoutDocument,
   instructions: readonly EditorAiEditInstruction[],
-  _options?: ApplyEditorAiEditInstructionsOptions,
+  options?: ApplyEditorAiEditInstructionsOptions,
 ): ApplyEditorAiEditInstructionsResult {
   const currentDocument = cloneDocument(document);
   const applied: string[] = [];
@@ -760,7 +1024,7 @@ export function applyEditorAiEditInstructions(
       return;
     }
 
-    const result = applyOneInstruction(currentDocument, instruction);
+    const result = applyOneInstruction(currentDocument, instruction, options);
     if (result.error) {
       errors.push(`Instruction ${index + 1}: ${result.error}`);
       aborted = true;
@@ -790,12 +1054,13 @@ export function applyEditorAiEditInstructions(
 
   if (!validation.valid) {
     return {
-      applied: [],
+      applied,
       document: cloneDocument(document),
       errors: validation.errors.map((error) => (
         `Validation ${error.path}: ${error.message}`
       )),
-      selectedNodeId: undefined,
+      selectedNodeId,
+      rollbackReason: 'validation',
     };
   }
 

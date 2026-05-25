@@ -1,3 +1,5 @@
+import { resolveSemanticTargetNodeId } from '../../ui/editor/services/semanticTargets';
+import { autoCompactIfNeeded, createAutoCompactState } from '../core/compact/autoCompact';
 import type { AIProvider, ProviderMessage } from '../core/providers/types';
 import { QueryLoop } from '../core/query-loop';
 import { formatUiIntentPlanForPrompt, planUiIntent } from '../planning/ui-intent-router';
@@ -40,6 +42,7 @@ import {
 export interface EditorEditAgentOptions {
   provider: AIProvider;
   model: string;
+  compactionModel?: string;
   maxIterations?: number;
   isCancelled?: () => boolean;
   onEvent?: (event: ReturnType<AgentEventRecorder['event']>) => void;
@@ -71,6 +74,13 @@ function parseOperations(operations: unknown): EditorAiEditInstruction[] {
     }
     return operation as EditorAiEditInstruction;
   });
+}
+
+function messageContentPreview(message: ProviderMessage): string {
+  if (typeof message.content === 'string') {
+    return message.content.slice(0, 200);
+  }
+  return JSON.stringify(message.content).slice(0, 200);
 }
 
 export class EditorEditAgent {
@@ -111,6 +121,33 @@ export class EditorEditAgent {
       { role: 'user', content: turnContext },
     ];
 
+    // Pre-compact BEFORE the loop starts to ensure prefix stability.
+    // Compaction inside the loop would change the message prefix mid-session,
+    // breaking DeepSeek's prefix caching for subsequent iterations.
+    const preCompactState = createAutoCompactState();
+    const compactResult = await autoCompactIfNeeded(
+      messages,
+      this.options.model,
+      preCompactState,
+      {
+        provider: this.options.provider,
+        compactionModel: this.options.compactionModel,
+      },
+    );
+    if (compactResult.wasCompacted) {
+      messages.length = 0;
+      messages.push(...compactResult.messages);
+    }
+
+    const prefixHash = simpleHash(
+      messages.slice(0, 2).map((m) => `${m.role}:${messageContentPreview(m)}`).join('|'),
+    );
+    const conversationDepth = conversationMessages.length;
+    console.warn(
+      `[Cache] prefix=${prefixHash} conversationDepth=${conversationDepth}`
+      + ` compacted=${compactResult.wasCompacted}`,
+    );
+
     const editorTools = selectEditorEditTools(input.prompt);
     const loop = new QueryLoop({
       provider: this.options.provider,
@@ -144,16 +181,64 @@ export class EditorEditAgent {
               userPrompt: input.prompt,
               reason,
               selectedNodeId: input.selectedNode?.id ?? null,
+              resolveSemanticTarget: (document, target, selectedNodeId) =>
+                resolveSemanticTargetNodeId(document, { target, selectedNodeId }),
             },
           );
-          currentDocument = result.document;
-          const payload = {
-            success: result.errors.length === 0,
-            applied: result.applied,
-            errors: result.errors,
-            selectedNodeId: result.selectedNodeId,
-            reason,
-          };
+          const isFullSuccess = result.errors.length === 0;
+          const hasAppliedOps = result.applied.length > 0;
+          const isValidationRollback = result.rollbackReason === 'validation';
+          // Accept document on full success or partial instruction failure (preserve successful edits)
+          // For validation rollback, document is already the original (rolled back by apply function)
+          if (isFullSuccess || (hasAppliedOps && !isValidationRollback)) {
+            currentDocument = result.document;
+          }
+          const payload = isFullSuccess
+            ? {
+                success: true as const,
+                applied: result.applied,
+                errors: result.errors,
+                selectedNodeId: result.selectedNodeId,
+                reason,
+              }
+            : isValidationRollback
+              ? {
+                  success: false as const,
+                  validationFailed: true as const,
+                  applied: result.applied,
+                  errors: result.errors,
+                  hint: [
+                    'All instructions executed but the final document failed validation.',
+                    'The document was rolled back to the original state.',
+                    'Review the validation errors and adjust your edits accordingly.',
+                  ].join(' '),
+                  reason,
+                }
+              : hasAppliedOps
+                ? {
+                    success: false as const,
+                    partial: true as const,
+                    applied: result.applied,
+                    errors: result.errors,
+                    hint: [
+                      'Some operations succeeded and were preserved.',
+                      'Review the errors for the failed operations.',
+                      'The successfully inserted nodes listed in "applied" are now available.',
+                      'Retry only the failed operation with correct node IDs.',
+                    ].join(' '),
+                    reason,
+                  }
+                : {
+                    success: false as const,
+                    errors: result.errors,
+                    hint: [
+                      'All operations failed.',
+                      'Review the errors and retry with correct node IDs from the canvas outline',
+                      'or Node ID Quick Reference.',
+                      'If unsure about the target, use semanticTarget or ask the user to confirm.',
+                    ].join(' '),
+                    reason,
+                  };
           call.result = payload;
           emit('edit_applied', payload);
           return Promise.resolve({
@@ -199,4 +284,14 @@ export class EditorEditAgent {
       error: terminalError || undefined,
     };
   }
+}
+
+function simpleHash(input: string): string {
+  let hash = 0;
+  for (let i = 0; i < input.length; i++) {
+    const char = input.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash |= 0; // Convert to 32-bit integer
+  }
+  return Math.abs(hash).toString(36).slice(0, 8);
 }

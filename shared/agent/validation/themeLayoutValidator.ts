@@ -25,6 +25,7 @@ export interface ThemeLayoutValidatorOptions {
 const CORE_ALIASES = new Set([
   'core.screen',
   'core.panel',
+  'core.progress',
   'core.stack',
   'core.row',
   'core.grid',

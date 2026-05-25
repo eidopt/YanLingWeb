@@ -7,6 +7,8 @@ export interface ThemeDto {
   description: string;
   accent: string;
   category: string;
+  platformCategories?: string[];
+  functionalCategories?: string[];
   traits: string[];
   cssVars: Record<string, string>;
   componentTemplates: Record<string, unknown>;
@@ -21,6 +23,8 @@ export interface CreateThemeDto {
   description: string;
   accent: string;
   category: string;
+  platformCategories?: string[];
+  functionalCategories?: string[];
   traits: string[];
   cssVars: Record<string, string>;
   componentTemplates: Record<string, unknown>;

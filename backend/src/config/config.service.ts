@@ -34,6 +34,10 @@ export class ConfigService {
     return this.config.ai;
   }
 
+  get templates() {
+    return this.config.templates;
+  }
+
   // ---------------------------------------------------------------------------
   // CORS
   // ---------------------------------------------------------------------------

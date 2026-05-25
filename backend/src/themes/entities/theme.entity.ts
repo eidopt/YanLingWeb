@@ -2,11 +2,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('themes')
+@Index(['category'])
+@Index(['createdAt'])
 export class Theme {
   @PrimaryGeneratedColumn('uuid')
   id: string;

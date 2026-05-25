@@ -10,17 +10,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import type { Request } from 'express';
 
+import { AuthenticatedRequest } from '../auth/authenticated-request.interface';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import {
   TemplatesService,
   type UpdateOwnedTemplateInput,
 } from './templates.service';
-
-interface AuthenticatedRequest extends Request {
-  user: { sub: string; username: string; };
-}
 
 @ApiTags('templates')
 @Controller('templates')
@@ -32,8 +28,9 @@ export class TemplatesController {
   findAll(
     @Query('search') search?: string,
     @Query('category') category?: string,
+    @Query('functionalCategory') functionalCategory?: string,
   ) {
-    return this.service.findMarketplace({ search, category });
+    return this.service.findMarketplace({ search, category, functionalCategory });
   }
 
   @Get('mine')
@@ -43,8 +40,9 @@ export class TemplatesController {
     @Req() req: AuthenticatedRequest,
     @Query('search') search?: string,
     @Query('category') category?: string,
+    @Query('functionalCategory') functionalCategory?: string,
   ) {
-    return this.service.findOwned(req.user.sub, { search, category });
+    return this.service.findOwned(req.user.sub, { search, category, functionalCategory });
   }
 
   @Get('recent')

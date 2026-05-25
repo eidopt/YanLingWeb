@@ -17,6 +17,8 @@ interface TemplateRecord {
   description: string;
   accent: string;
   category: string;
+  platformCategories?: string[];
+  functionalCategories?: string[];
   traits: string[];
   tags?: string[];
   cssVars: Record<string, string>;
@@ -32,6 +34,8 @@ export interface TemplateSaveInput {
   tagline?: string;
   description?: string;
   category?: string;
+  platformCategories?: string[];
+  functionalCategories?: string[];
   traits?: string[];
   tags?: string[];
   layoutDocument?: ThemeLayoutDocument;
@@ -63,6 +67,8 @@ export class TemplateService {
       description: record.description,
       accent: record.accent,
       category: record.category,
+      platformCategories: [...(record.platformCategories ?? [])],
+      functionalCategories: [...(record.functionalCategories ?? [])],
       traits: [...record.traits],
       tags: [...(record.tags ?? [])],
       createdAt: record.createdAt,

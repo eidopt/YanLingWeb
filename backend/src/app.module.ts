@@ -1,7 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { AiModule } from './ai/ai.module';
+import { AuthModule } from './auth/auth.module';
 import { ConfigFactory } from './config/config.factory';
 import { ConfigModule } from './config/config.module';
 import { DatabaseModule } from './database/database.module';
@@ -19,15 +22,26 @@ const startupServerFlavor = ConfigFactory.applyStartupFlavor();
       envFilePath: ConfigFactory.envFilePaths(startupServerFlavor),
       isGlobal: true,
     }),
+    ThrottlerModule.forRoot([{
+      ttl: 60000,  // 1 minute window
+      limit: 10,   // max 10 requests per window
+    }]),
 
     ConfigModule,
     DatabaseModule,
+    AuthModule,
     ThemesModule,
     TemplatesModule,
     SitesModule,
     ExportsModule,
     UsersModule,
     AiModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}

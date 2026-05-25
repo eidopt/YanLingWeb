@@ -36,6 +36,8 @@ The template uses a component tree system. Core layout components:
 - core.image: image placeholder
 - core.tag: status badge
   (props: label, tone: neutral|success|warning|info|hot|new|deal|member)
+- core.progress: progress bar
+  (props: value, max, tone: neutral|accent|success|warning|info)
 - core.divider: horizontal rule
 - core.spacer: blank space (props: size)
 - core.input: text field (props: placeholder, label)

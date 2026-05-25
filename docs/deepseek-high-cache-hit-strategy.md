@@ -1460,6 +1460,8 @@ function nestArguments(flatArgs: Record<string, unknown>): Record<string, unknow
 | `cacheHitRatio` | 缓存命中 tokens / (命中 + 未命中) | >60% (第二轮起 >90%) |
 | `cacheHitTokens` | 每轮被缓存命中的 token 数 | 稳定 = 前缀大小 |
 | `cacheMissTokens` | 每轮实际计算的 token 数 | 仅限增量部分 |
+| `prompt_cache_hit_tokens` / `prompt_cache_miss_tokens` | DeepSeek Chat Completions 当前可观测的权威缓存字段 | 作为本项目主指标 |
+| `x-model-cached-token` | 历史或代理层可能出现的响应头；当前 DeepSeek v4 实测未返回 | 不作为主指标 |
 | 单轮成本 | `hit*0.0028 + miss*0.14 + output*0.28` (flash) | 第一轮后降至 1/10 |
 
 ### 12.2 测试方案 A：手动验证（DL）
@@ -1887,6 +1889,55 @@ npm run agent:cache-test -- --limit 100 --rounds 5 --target 0.95
 ```
 
 脚本会读取 `backend/.env*` 或根目录 `.env*` 中的 `DEEPSEEK_API_KEY` / `AI_API_KEY`，每轮输出每个样例的 `cacheHitTokens` / `cacheMissTokens`、每轮综合 `cacheHitRate`，并写入 `output/agent-eval/cache-hitrate-latest.json` 与 `output/agent-eval/cache-hitrate-latest.md`。
+
+### 13.4 2026-05-25 实测补充：API 观测字段与模型名
+
+前九章的 prefix caching 策略仍作为本项目缓存设计依据：稳定前缀前置、动态上下文后置、使用 `prompt_cache_hit_tokens` / `prompt_cache_miss_tokens` 计算命中率。2026-05-25 对当前 DeepSeek v4 API 的实测补充如下：
+
+1. **模型名以当前 API 为准**
+   - `deepseek-v4` 裸模型名当前不可用，API 返回 `400 invalid_request_error`。
+   - 当前可用模型名为 `deepseek-v4-pro` 和 `deepseek-v4-flash`。
+   - 因此后端配置应继续使用 `AI_PRO_MODEL=deepseek-v4-pro`、`AI_LITE_MODEL=deepseek-v4-flash`。
+
+2. **缓存命中率主指标仍是 usage 字段**
+   - 当前实测响应未返回 `x-model-cached-token`，该 header 不应作为本项目判断缓存是否命中的主指标。
+   - 当前实测响应包含 `usage.prompt_cache_hit_tokens` 与 `usage.prompt_cache_miss_tokens`，本项目 provider、日志、统计脚本应继续以这两个字段为准。
+   - 响应头里观察到 `eo-cache-status: MISS`，但它不能替代 token 级命中率统计。
+
+3. **直连缓存样本**
+
+   使用稳定 system 前缀连续请求 `deepseek-v4-pro` 三次：
+
+   | Round | prompt tokens | cache hit | cache miss | hit rate |
+   |---:|---:|---:|---:|---:|
+   | 1 | 5071 | 0 | 5071 | 0.0% |
+   | 2 | 5071 | 4992 | 79 | 98.4% |
+   | 3 | 5071 | 4992 | 79 | 98.4% |
+
+   该结果与前九章的核心结论一致：首轮通常全量 miss，后续请求只要前缀稳定，就会命中大部分稳定 token。
+
+4. **真实 agent 编辑流程样本**
+
+   使用后端 `AgentRunnerService.runLiveScenario()` 真实调用 DeepSeek，跑 5 个编辑场景（新增、删除、更新、导航、跨页新增）：
+
+   - 通过率：5/5。
+   - 节点语义命中率：100%。
+   - 每个场景工具调用次数：1。
+   - `QueryLoop` 均为 `iter=1 tools=1`，未观察到死循环。
+   - 累计缓存：`cacheHitTokens=102016`、`cacheMissTokens=20420`，综合命中率约 83.3%。
+
+   另补测一个带 `selectedNodeId=home-search` 的非澄清路径，结果为 `passed`，一次 `editor_update_props` 完成，`iterations=1`。
+
+5. **压缩质量样本**
+
+   使用 `compactConversationWithLLM()` 与 `deepseek-v4-flash` 构造超长历史并实际压缩，摘要保留了以下关键信息：
+
+   - node ID：`home-panel-extra-text`、`home-search`、`missing-node-404`。
+   - 成功结果：`insert_node:home-panel-extra-text`、`update_props:home-search`。
+   - 错误上下文：`node not found missing-node-404`、`semantic target failed before delete`。
+   - 防重复执行语义：不要重复删除 `missing-node-404`。
+
+结论：前九章缓存策略仍然成立；后续落地章节应以当前 API 实测为准，尤其不要把 `x-model-cached-token` 作为必需观测字段。
 
 ---
 

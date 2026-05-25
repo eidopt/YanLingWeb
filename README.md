@@ -21,7 +21,7 @@ AI App 是一个在线 AI 应用生成与编辑平台。用户可以从模板广
 ## 技术栈
 
 - Frontend: Next.js 15, React 19, TypeScript
-- Backend: NestJS 10, TypeORM, sql.js, Swagger
+- Backend: NestJS 10, TypeORM, better-sqlite3, Swagger
 - AI: OpenAI-compatible provider through backend proxy
 - Desktop: Electron, Vite, electron-builder
 - Tooling: ESLint 9, simple-import-sort, concurrently
@@ -54,22 +54,15 @@ AI App 是一个在线 AI 应用生成与编辑平台。用户可以从模板广
 ## 环境要求
 
 - Node.js 22+。
-- npm
+- pnpm (推荐) 或 npm
 - macOS / Linux / Windows 均可开发前端和后端；Electron 打包目标按平台能力决定。
 
 ## 安装依赖
 
-根目录安装前端和 Electron 依赖：
+项目使用 pnpm workspace 管理前后端依赖，根目录一条命令安装全部：
 
 ```bash
-npm install
-```
-
-后端单独安装依赖：
-
-```bash
-cd backend
-npm install
+pnpm install
 ```
 
 ## 环境变量
@@ -96,7 +89,7 @@ PORT=4000
 SERVER_FLAVOR=development
 NODE_ENV=development
 CORS_ORIGINS=http://localhost:3000,http://localhost:3001,app://
-DATABASE_DRIVER=sqljs
+DATABASE_DRIVER=sqlite
 DEFAULT_DB_PATH=./data/app.dev.db
 DB_SYNCHRONIZE=true
 # Required in production. Generate with: openssl rand -hex 32
@@ -121,9 +114,9 @@ QQ_REDIRECT_URI=
 - `AI_BASE_URL` 可选，用于 OpenAI-compatible 网关。
 - `JWT_SECRET` 必须在生产环境显式设置为稳定随机值，否则后端会拒绝启动。修改该值会让已有 JWT 立即失效。
 - 开发 / 测试环境未设置 `JWT_SECRET` 时会使用固定的 insecure fallback，并在启动时打印 warning；建议仍在 `.env.*.local` 中配置稳定值。
-- `DATABASE_DRIVER` 当前默认使用 `sqljs`；后续上线可切换到 `postgres`、`mysql` 或原生 `sqlite` adapter。
+- `DATABASE_DRIVER` 默认使用 `better-sqlite3`（原生 SQLite），也兼容旧版 `sqljs`（WASM）；后续可扩展到 `postgres`、`mysql`。
 - `DEFAULT_DB_PATH` 是本地文件数据库默认路径；`DB_PATH` 可作为更具体的覆盖项。
-- `DB_SYNCHRONIZE` 本地可为 `true`，生产环境应关闭并改用迁移。
+- `DB_SYNCHRONIZE` 本地可为 `true`（自动建表），生产环境应设为 `false` 并使用 migration 管理 schema 变更。
 
 ## 启动开发环境
 
@@ -144,7 +137,7 @@ npm run dev
 启动前端：
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 前端默认地址：
@@ -154,7 +147,7 @@ npm run dev
 也可以在根目录同时启动前后端：
 
 ```bash
-npm run dev:all
+pnpm dev:all
 ```
 
 ## 后端启动模式
@@ -182,6 +175,15 @@ cd backend
 npm run db:init:dev
 npm run db:init:prod
 npm run db:init:test
+```
+
+数据库 migration（生产部署或 schema 变更时使用）：
+
+```bash
+cd backend
+npm run migration:run:dev      # dev 环境执行 migration
+npm run migration:run:prod     # prod 环境执行 migration
+npm run migration:generate:dev -- src/database/migrations/MigrationName  # 生成新 migration
 ```
 
 ## 前后端通信
@@ -252,14 +254,14 @@ AI 流式请求使用专门的 SSE 代理，避免 Next 普通响应缓冲破坏
 根目录：
 
 ```bash
-npm run dev              # 启动 Next 前端
-npm run dev:backend      # 启动 Nest 后端
-npm run dev:all          # 同时启动前后端
-npm run build            # 构建 Next 应用
-npm run lint             # 前端 lint
-npm run lint:backend     # 后端 lint
-npm run dev:electron     # Electron 开发模式
-npm run build:electron   # Electron 打包
+pnpm dev              # 启动 Next 前端
+pnpm dev:backend      # 启动 Nest 后端
+pnpm dev:all          # 同时启动前后端
+pnpm build            # 构建 Next 应用
+pnpm lint             # 前端 lint
+pnpm lint:backend     # 后端 lint
+pnpm dev:electron     # Electron 开发模式
+pnpm build:electron   # Electron 打包
 ```
 
 后端目录：
@@ -268,6 +270,7 @@ npm run build:electron   # Electron 打包
 npm run dev              # 初始化 dev 数据库并启动 watch
 npm run build            # Nest 构建
 npm run start:prod       # 使用 prod 模式启动 dist
+npm run migration:run:prod  # 执行生产 migration
 npm run lint             # eslint src --fix
 npm run test             # Jest 测试
 ```
@@ -277,22 +280,26 @@ npm run test             # Jest 测试
 前端生产构建：
 
 ```bash
-npm run build
-npm run start
+pnpm build
+pnpm start
 ```
 
-后端生产构建：
+后端生产构建与部署：
 
 ```bash
 cd backend
 npm run build
+npm run db:init:prod          # 创建数据库文件和目录
+npm run migration:run:prod    # 执行 migration 建表（首次部署必须）
 npm run start:prod
 ```
+
+> **注意**: 生产环境 `DB_SYNCHRONIZE=false`，TypeORM 不会自动建表。首次部署或 schema 变更后必须运行 `migration:run:prod`。
 
 Electron 打包：
 
 ```bash
-npm run build:electron
+pnpm build:electron
 ```
 
 打包产物输出到 `release/`。

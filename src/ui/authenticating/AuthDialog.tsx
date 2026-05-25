@@ -4,7 +4,7 @@ import { authDialogContent as c } from './AuthDialog.content';
 import styles from './AuthDialog.module.css';
 import { WechatQrView } from './WechatQrView';
 import { useAppServices } from 'hooks/useAppServices';
-import { hashForLogin, hashPassword } from 'lib/hash-password';
+import { hashPassword } from 'lib/hash-password';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ApiError } from 'services/UserService';
@@ -149,8 +149,7 @@ function LoginForm({
     try {
       const { nonce } = await userService.requestChallenge();
       const pwdHash = await hashPassword(password);
-      const loginHash = await hashForLogin(nonce, pwdHash);
-      const result = await userService.login(identifier, loginHash, nonce);
+      const result = await userService.login(identifier, pwdHash, nonce);
       authService.save(result);
       onClose(successRedirect);
     } catch (err) {

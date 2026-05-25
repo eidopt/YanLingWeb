@@ -19,11 +19,11 @@ export async function hashPassword(password: string): Promise<string> {
 }
 
 /**
- * Step 2 — bind the password hash to a server-issued nonce before login.
- * Produces SHA256(nonce + SHA256(password)).
+ * @deprecated No longer needed. The login protocol now sends SHA256(rawPassword)
+ * directly; the nonce is consumed server-side for anti-replay only and does NOT
+ * participate in password hashing.
  *
- * Because the nonce is single-use and server-generated, an intercepted value
- * cannot be replayed — it is tied to one specific login attempt.
+ * Kept for reference. Will be removed in a future cleanup.
  */
 export async function hashForLogin(nonce: string, passwordHash: string): Promise<string> {
   return sha256(nonce + passwordHash);

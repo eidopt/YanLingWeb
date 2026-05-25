@@ -135,7 +135,7 @@ function readDatabaseDriver(flavor) {
     ?? clean(process.env[`${scopePrefix(flavor)}_DB_DRIVER`])
     ?? clean(process.env.DATABASE_DRIVER)
     ?? clean(process.env.DB_DRIVER)
-    ?? 'sqljs';
+    ?? 'sqlite';
 }
 
 function isFileBackedDriver(driver) {

@@ -12,8 +12,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
-import type { Request, Response } from 'express';
+import type { Response } from 'express';
 
+import { AuthenticatedRequest } from '../auth/authenticated-request.interface';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import {
   AiService,
@@ -22,10 +23,6 @@ import {
   type StreamRequest,
 } from './ai.service';
 import type { TemplateToolInput } from './tools/generate-template.tool';
-
-interface AuthenticatedRequest extends Request {
-  user: { sub: string; username: string; };
-}
 
 @ApiTags('ai')
 @ApiSecurity('bearer')

@@ -9,7 +9,6 @@ import type { ThemeLayoutDocument } from '@shared/agent/types';
 import { CURRENT_THEME_LAYOUT_SCHEMA_VERSION } from '@shared/theme-layout/migrations';
 import { Repository } from 'typeorm';
 
-import { DatabaseFlushService } from '../database/database-flush.service';
 import { Template } from '../templates/entities/template.entity';
 import { prepareTemplateLayoutForPersistence } from '../templates/template-layout-validation';
 import { PublishedSite } from './entities/published-site.entity';
@@ -36,7 +35,6 @@ export class SitesService {
     private readonly revisionRepo: Repository<PublishedSiteRevision>,
     @InjectRepository(Template)
     private readonly templateRepo: Repository<Template>,
-    private readonly databaseFlush: DatabaseFlushService,
   ) {}
 
   async publish(ownerUserId: string, input: PublishSiteInput) {
@@ -67,7 +65,6 @@ export class SitesService {
 
     site.activeRevisionId = revision.id;
     site = await this.siteRepo.save(site);
-    await this.databaseFlush.flush('site publish');
     return this.toSiteDetail(site, revision);
   }
 
@@ -88,7 +85,6 @@ export class SitesService {
 
     site.activeRevisionId = revision.id;
     const savedSite = await this.siteRepo.save(site);
-    await this.databaseFlush.flush('site republish');
     return this.toSiteDetail(savedSite, revision);
   }
 
@@ -131,7 +127,6 @@ export class SitesService {
 
     site.activeRevisionId = revision.id;
     const savedSite = await this.siteRepo.save(site);
-    await this.databaseFlush.flush('site rollback');
     return this.toSiteDetail(savedSite, revision);
   }
 

@@ -8,18 +8,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import type { Request } from 'express';
 
+import { AuthenticatedRequest } from '../auth/authenticated-request.interface';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import {
   type PublishSiteInput,
   type RollbackSiteInput,
   SitesService,
 } from './sites.service';
-
-interface AuthenticatedRequest extends Request {
-  user: { sub: string; username: string; };
-}
 
 @ApiTags('sites')
 @Controller()

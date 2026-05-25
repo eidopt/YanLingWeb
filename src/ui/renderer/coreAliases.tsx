@@ -10,6 +10,7 @@ import {
   InputNode,
   NoticeNode,
   PanelNode,
+  ProgressNode,
   RowNode,
   ScreenNode,
   SearchNode,
@@ -60,6 +61,8 @@ export function renderCoreAlias(
       return <GridNode {...nodeProps} />;
     case 'core.panel':
       return <PanelNode {...nodeProps} />;
+    case 'core.progress':
+      return <ProgressNode {...nodeProps} />;
     case 'core.text':
       return <TextNode {...nodeProps} />;
     case 'core.button':

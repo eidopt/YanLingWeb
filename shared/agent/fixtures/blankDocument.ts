@@ -124,6 +124,17 @@ export const CORE_COMPONENTS: ThemeComponentDescriptor[] = [
     ],
   },
   {
+    alias: 'core.progress',
+    name: 'Progress',
+    kind: 'component',
+    description: 'Progress bar',
+    props: [
+      { name: 'value', type: 'number' },
+      { name: 'max', type: 'number' },
+      { name: 'tone', type: 'string', enum: ['neutral', 'accent', 'success', 'warning', 'info'] },
+    ],
+  },
+  {
     alias: 'core.notice',
     name: 'Notice',
     kind: 'component',

@@ -8,6 +8,8 @@ export interface TemplateSeedException {
   description: string;
   accent: string;
   category: string;
+  platformCategories?: string[];
+  functionalCategories?: string[];
   traits: string[];
   tags?: string[];
   cssVars: Record<string, string>;
@@ -178,6 +180,22 @@ const CORE_COMPONENT_DESCRIPTORS = [
           "deal",
           "member",
         ],
+      },
+    ],
+  },
+  {
+    alias: "core.progress",
+    name: "Progress",
+    kind: "component",
+    description: "Progress bar",
+    props: [
+      { name: "value", type: "number", description: "Current value" },
+      { name: "max", type: "number", description: "Maximum value" },
+      {
+        name: "tone",
+        type: "string",
+        description: "Visual tone",
+        enum: ["neutral", "accent", "success", "warning", "info"],
       },
     ],
   },
@@ -541,6 +559,8 @@ export const TEMPLATE_SEED_DATA: TemplateSeedException[] = [
       "适用于生鲜、快消等日常购物场景，暖橙色调搭配流畅的多页跳转，" +
       "支持商品展示、优惠信息和购物车结算。",
     accent: "#fa9d3b",
+    platformCategories: ["mini-program", "mobile-app"],
+    functionalCategories: ["commerce"],
     category: "电商购物",
     traits: ["生鲜电商", "多页跳转", "暖橙色调", "促销信息"],
     tags: [
@@ -1450,6 +1470,8 @@ export const TEMPLATE_SEED_DATA: TemplateSeedException[] = [
       "适用于生活服务、政务便民等场景，绿色基调搭配清晰的功能入口，" +
       "支持服务列表、订单追踪和会员管理。",
     accent: "#07c160",
+    platformCategories: ["mini-program", "mobile-app"],
+    functionalCategories: ["service"],
     category: "生活服务",
     traits: ["服务入口", "订单追踪", "绿色基调", "功能分区"],
     tags: [

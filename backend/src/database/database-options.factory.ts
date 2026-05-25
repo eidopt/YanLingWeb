@@ -26,6 +26,7 @@ export function createDatabaseOptions(env: ServerConfig): TypeOrmModuleOptions {
     case 'sqljs':
       return createSqlJsOptions(env);
     case 'sqlite':
+      return createSqliteOptions(env);
     case 'postgres':
     case 'mysql':
       throw new Error(
@@ -47,5 +48,26 @@ function createSqlJsOptions(env: ServerConfig): TypeOrmModuleOptions {
     entities: DATABASE_ENTITIES,
     synchronize: env.database.synchronize,
     logging: env.database.logging,
+  };
+}
+
+function createSqliteOptions(env: ServerConfig): TypeOrmModuleOptions {
+  const databasePath = env.database.path || 'data/app.db';
+
+  return {
+    type: 'better-sqlite3',
+    database: databasePath,
+    entities: DATABASE_ENTITIES,
+    synchronize: env.database.synchronize,
+    logging: env.database.logging,
+    prepareDatabase: (db: unknown) => {
+      // Enable WAL mode for better read/write concurrency.
+      // WAL allows concurrent readers while a write is in progress,
+      // which is a significant improvement over the default DELETE journal
+      // for a NestJS server handling concurrent requests.
+      (db as { pragma: (sql: string) => void }).pragma('journal_mode = WAL');
+      // Enable foreign key enforcement (SQLite has it off by default).
+      (db as { pragma: (sql: string) => void }).pragma('foreign_keys = ON');
+    },
   };
 }

@@ -11,6 +11,8 @@ import {
 @Index(['ownerUserId', 'updatedAt'])
 @Index(['ownerUserId', 'isPublic'])
 @Index(['sourceTemplateId'])
+@Index(['category'])
+@Index(['primaryFunctionalCategory'])
 export class Template {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -45,6 +47,16 @@ export class Template {
 
   @Column({ default: 'general' })
   category: string;
+
+  /** First element of functionalCategories, indexed for efficient DB-level filtering. */
+  @Column({ type: 'varchar', nullable: true })
+  primaryFunctionalCategory: string | null;
+
+  @Column({ type: 'simple-json', default: '[]' })
+  platformCategories: string[];
+
+  @Column({ type: 'simple-json', default: '[]' })
+  functionalCategories: string[];
 
   @Column({ type: 'simple-json', default: '[]' })
   traits: string[];

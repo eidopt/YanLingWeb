@@ -1,7 +1,6 @@
-import type { ProviderMessage } from '../providers/types';
-import { getContextWindow, tokenCountWithEstimation } from '../utils/tokens';
+import type { AIProvider, ProviderMessage } from '../providers/types';
+import { compactConversation, compactConversationWithLLM, needsCompaction } from './compact';
 
-const COMPACT_CONTEXT_TOKEN_LIMIT = 500_000;
 const MAX_FAILURES = 3;
 
 export interface AutoCompactState {
@@ -14,42 +13,62 @@ export function createAutoCompactState(): AutoCompactState {
   return { compacted: false, turnCounter: 0, consecutiveFailures: 0 };
 }
 
-export function getAutoCompactThreshold(model: string): number {
-  return Math.min(getContextWindow(model), COMPACT_CONTEXT_TOKEN_LIMIT);
+export interface AutoCompactOptions {
+  provider?: AIProvider;
+  compactionModel?: string;
+  forceSynchronous?: boolean;
 }
 
-export function autoCompactIfNeeded(
+/**
+ * Check if compaction is needed and apply it.
+ * Uses model-specific context window threshold via needsCompaction(messages, model).
+ * When provider is available, uses LLM-based semantic compaction.
+ * Falls back to synchronous rule-based compaction otherwise.
+ */
+export async function autoCompactIfNeeded(
   messages: ProviderMessage[],
   model: string,
   state: AutoCompactState,
-  compactFn: (msgs: ProviderMessage[]) => ProviderMessage[],
+  options?: AutoCompactOptions,
 ): Promise<{ messages: ProviderMessage[]; state: AutoCompactState; wasCompacted: boolean }> {
   if (state.consecutiveFailures >= MAX_FAILURES) {
-    return Promise.resolve({
+    return {
       messages,
       state: { ...state, turnCounter: state.turnCounter + 1 },
       wasCompacted: false,
-    });
+    };
   }
 
-  const tokens = tokenCountWithEstimation(messages);
-  if (tokens < getAutoCompactThreshold(model)) {
-    return Promise.resolve({
+  if (!needsCompaction(messages, model)) {
+    return {
       messages,
       state: { ...state, turnCounter: state.turnCounter + 1 },
       wasCompacted: false,
-    });
+    };
   }
 
   try {
-    const compacted = compactFn(messages);
-    return Promise.resolve({
+    let compacted: ProviderMessage[];
+
+    if (options?.provider && !options.forceSynchronous) {
+      // LLM-based semantic compaction
+      compacted = await compactConversationWithLLM(
+        messages,
+        options.provider,
+        options.compactionModel,
+      );
+    } else {
+      // Synchronous fallback
+      compacted = compactConversation(messages, model);
+    }
+
+    return {
       messages: compacted,
       state: { compacted: true, turnCounter: 0, consecutiveFailures: 0 },
       wasCompacted: true,
-    });
+    };
   } catch {
-    return Promise.resolve({
+    return {
       messages,
       state: {
         ...state,
@@ -57,6 +76,6 @@ export function autoCompactIfNeeded(
         consecutiveFailures: state.consecutiveFailures + 1,
       },
       wasCompacted: false,
-    });
+    };
   }
 }

@@ -137,6 +137,112 @@ export function summarizeCanvas(document: ThemeLayoutDocument): string {
   return lines.join('\n');
 }
 
+function buildNodeIndex(root: ThemeLayoutNode): string {
+  const lines: string[] = [];
+  let count = 0;
+  const MAX_INDEX_LINES = 50;
+
+  const collect = (node: ThemeLayoutNode, parentId?: string) => {
+    if (count >= MAX_INDEX_LINES) {
+      return;
+    }
+    const propSummary = Object.entries(node.props ?? {})
+      .filter(([, v]) => typeof v === 'string' || typeof v === 'number')
+      .map(([k, v]) => `${k}=${String(v).slice(0, 30)}`)
+      .slice(0, 2)
+      .join(', ');
+    const parentInfo = parentId ? `, parent=${parentId.slice(0, 8)}` : '';
+    lines.push(`  ${node.id.slice(0, 8)} | ${node.alias}${parentInfo} | ${propSummary || 'no text props'}`);
+    count += 1;
+    node.children?.forEach((c) => collect(c, node.id));
+  };
+
+  collect(root);
+  if (count >= MAX_INDEX_LINES) {
+    lines.push(`  ... ${count - MAX_INDEX_LINES} more nodes omitted`);
+  }
+  return lines.join('\n');
+}
+
+function buildSimpleSemanticLandmarks(root: ThemeLayoutNode): string {
+  const landmarks: { role: string; nodeId: string; alias: string; label: string }[] = [];
+
+  const walk = (node: ThemeLayoutNode, depth = 0, rootIndex = 0) => {
+    // page_footer_nav: footer slot tabs or bottom nav aliases
+    if (
+      (node.alias === 'core.tabs' && node.slot === 'footer') ||
+      (node.alias === 'svc-bottom-bar') ||
+      (node.alias === 'com-bottom-tabs')
+    ) {
+      landmarks.push({ role: 'page_footer_nav', nodeId: node.id, alias: node.alias, label: String(node.props?.activeTab ?? 'footer tabs') });
+    }
+
+    // page_header + page_title + main_content: root screen
+    if (node.alias === 'core.screen') {
+      landmarks.push({ role: 'page_header', nodeId: node.id, alias: node.alias, label: String(node.props?.title ?? 'root screen') });
+      landmarks.push({ role: 'page_title', nodeId: node.id, alias: node.alias, label: String(node.props?.title ?? 'root screen') });
+      landmarks.push({ role: 'main_content', nodeId: node.id, alias: node.alias, label: String(node.props?.title ?? 'root screen') });
+    }
+
+    // main_content: top-level body containers (depth=1, non-footer, first 2)
+    if (
+      depth === 1 &&
+      node.slot !== 'footer' &&
+      ['core.panel', 'core.stack', 'core.row', 'core.grid'].includes(node.alias) &&
+      rootIndex <= 1
+    ) {
+      landmarks.push({ role: 'main_content', nodeId: node.id, alias: node.alias, label: 'body container' });
+    }
+
+    // search_box
+    if (node.alias === 'core.search') {
+      landmarks.push({ role: 'search_box', nodeId: node.id, alias: node.alias, label: String(node.props?.placeholder ?? 'search') });
+    }
+
+    // primary_cta: primary variant buttons
+    if (node.alias === 'core.button' && node.props?.variant === 'primary') {
+      landmarks.push({ role: 'primary_cta', nodeId: node.id, alias: node.alias, label: String(node.props?.label ?? 'button') });
+    }
+    // primary_cta: any button (lower priority, shown for discoverability)
+    if (node.alias === 'core.button' && node.props?.variant !== 'primary') {
+      landmarks.push({ role: 'primary_cta', nodeId: node.id, alias: node.alias, label: String(node.props?.label ?? 'button') });
+    }
+
+    // notice_banner
+    if (node.alias === 'core.notice') {
+      landmarks.push({ role: 'notice_banner', nodeId: node.id, alias: node.alias, label: String(node.props?.text ?? 'notice') });
+    }
+
+    // section_header: nodes with both title and actionLabel
+    if (node.props?.title && node.props?.actionLabel) {
+      landmarks.push({ role: 'section_header', nodeId: node.id, alias: node.alias, label: String(node.props.title) });
+    }
+
+    node.children?.forEach((child, index) => {
+      walk(child, depth + 1, depth === 0 ? index : rootIndex);
+    });
+  };
+
+  walk(root);
+
+  if (!landmarks.length) {
+    return 'none detected';
+  }
+
+  // Deduplicate by role:nodeId, keeping the first (highest priority) entry
+  const seen = new Set<string>();
+  const unique = landmarks.filter((l) => {
+    const key = `${l.role}:${l.nodeId}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  return unique
+    .map((l) => `- ${l.role} -> nodeId=${l.nodeId}, alias=${l.alias}, label=${l.label}`)
+    .join('\n');
+}
+
 export function summarizeComponents(components: ThemeComponentDescriptor[]): string {
   return components.map((component) => {
     const props = component.props.map((prop) => {
@@ -224,6 +330,12 @@ export function buildEditorVolatileContext(
     '',
     'Current canvas outline:',
     summarizeCanvas(document),
+    '',
+    'Node ID Quick Reference (use these exact IDs in tool calls):',
+    buildNodeIndex(document.layout),
+    '',
+    'Semantic Landmarks (use these as fallback via semanticTarget):',
+    buildSimpleSemanticLandmarks(document.layout),
     depsSection,
   ].filter(Boolean).join('\n');
 }

@@ -65,6 +65,10 @@ export interface EditorAiConversationMessage {
 interface EditorAiRuntimeConfig {
   provider: string;
   model: string;
+  models?: {
+    pro: string;
+    lite?: string;
+  };
   semanticTargets?: SemanticTargetDefinitionConfig[];
 }
 

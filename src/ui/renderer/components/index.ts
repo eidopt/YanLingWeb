@@ -6,6 +6,7 @@ export { ImageNode } from './ImageNode/ImageNode';
 export { InputNode } from './InputNode/InputNode';
 export { NoticeNode } from './NoticeNode/NoticeNode';
 export { PanelNode } from './PanelNode/PanelNode';
+export { ProgressNode } from './ProgressNode/ProgressNode';
 export { RowNode } from './RowNode/RowNode';
 export { ScreenNode } from './ScreenNode/ScreenNode';
 export { SearchNode } from './SearchNode/SearchNode';

@@ -1,0 +1,34 @@
+.progress {
+  width: 100%;
+  height: var(--app-unit-1);
+  overflow: hidden;
+  border-radius: var(--app-radius-pill);
+  background: color-mix(in srgb, var(--text-base) 10%, transparent);
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transition: width 180ms ease;
+}
+
+.progressNeutral .fill {
+  background: var(--app-neutral-500);
+}
+
+.progressAccent .fill {
+  background: var(--accent);
+}
+
+.progressSuccess .fill {
+  background: var(--app-color-wechat);
+}
+
+.progressWarning .fill {
+  background: var(--app-color-orange);
+}
+
+.progressInfo .fill {
+  background: var(--app-color-sky);
+}
