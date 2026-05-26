@@ -11,6 +11,7 @@ export interface TemplateLayoutValidationInput {
   layoutDocument: unknown;
   componentTemplates?: Record<string, unknown>;
   cssVars?: Record<string, string>;
+  requireGeneratedTemplateQuality?: boolean;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -31,14 +32,20 @@ function toValidationErrorResponse(
 export function assertValidTemplateLayout({
   layoutDocument,
   componentTemplates,
+  requireGeneratedTemplateQuality,
 }: TemplateLayoutValidationInput): void {
-  prepareTemplateLayoutForPersistence({ layoutDocument, componentTemplates });
+  prepareTemplateLayoutForPersistence({
+    layoutDocument,
+    componentTemplates,
+    requireGeneratedTemplateQuality,
+  });
 }
 
 export function prepareTemplateLayoutForPersistence({
   layoutDocument,
   componentTemplates,
   cssVars,
+  requireGeneratedTemplateQuality,
 }: TemplateLayoutValidationInput): ThemeLayoutDocument {
   if (!isRecord(layoutDocument)) {
     throw new BadRequestException({
@@ -60,7 +67,18 @@ export function prepareTemplateLayoutForPersistence({
   ) as unknown as ThemeLayoutDocument;
   const validation = validateThemeLayoutDocument(
     migrated,
-    { componentTemplates, failOnUnknownProps: true },
+    {
+      componentTemplates,
+      failOnUnknownProps: true,
+      ...(requireGeneratedTemplateQuality
+        ? {
+          requireCoreAliasesOnly: true,
+          requireValidImageUrls: true,
+          requireLocalizedPropLabels: true,
+          requireChineseVisibleText: true,
+        }
+        : {}),
+    },
   );
 
   if (!validation.valid) {

@@ -2,7 +2,13 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from '../auth/auth.module';
+import { TemplateAgentPermissions } from '../templates/entities/template-agent-permissions.entity';
+import { TemplateAssetManifest } from '../templates/entities/template-asset-manifest.entity';
+import { TemplateEvaluationSpec } from '../templates/entities/template-evaluation-spec.entity';
 import { Template } from '../templates/entities/template.entity';
+import { TemplateProfileGenerated } from '../templates/entities/template-profile-generated.entity';
+import { TemplateProfileOverrideEntity } from '../templates/entities/template-profile-override.entity';
+import { TemplateCategoryRegistryService } from '../templates/template-category-registry.service';
 import { User } from '../users/entities/user.entity';
 import { AgentEvalController } from './agent-eval.controller';
 import { AgentRunnerService } from './agent-runner.service';
@@ -16,7 +22,17 @@ import { TokenUsageService } from './services/token-usage.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Template, EditorAiConversation, AiTokenUsageEvent, User]),
+    TypeOrmModule.forFeature([
+      Template,
+      TemplateProfileGenerated,
+      TemplateProfileOverrideEntity,
+      TemplateAssetManifest,
+      TemplateAgentPermissions,
+      TemplateEvaluationSpec,
+      EditorAiConversation,
+      AiTokenUsageEvent,
+      User,
+    ]),
     AuthModule,
   ],
   controllers: [AiController, AgentEvalController],
@@ -26,6 +42,7 @@ import { TokenUsageService } from './services/token-usage.service';
     TokenUsageService,
     EditorConversationService,
     ProviderLogCompactionService,
+    TemplateCategoryRegistryService,
   ],
   exports: [AiService, AgentRunnerService],
 })

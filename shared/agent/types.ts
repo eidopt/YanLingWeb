@@ -38,6 +38,7 @@ export interface LayoutNodeFrame {
 export interface LayoutPropDescriptor {
   name: string;
   type: string;
+  label?: string;
   required?: boolean;
   description?: string;
   enum?: string[];
@@ -67,6 +68,14 @@ export interface ThemeLayoutNodeInteractions {
   onTabClick?: ThemeLayoutTabInteraction;
 }
 
+export interface ThemeLayoutNodeSemanticMeta {
+  pageKey?: string;
+  regionKey?: string;
+  slotKey?: string;
+  patternKey?: string;
+  aiRole?: string;
+}
+
 export interface ThemeLayoutNode {
   id: string;
   alias: string;
@@ -75,6 +84,7 @@ export interface ThemeLayoutNode {
   frame?: LayoutNodeFrame;
   props?: Record<string, unknown>;
   interactions?: ThemeLayoutNodeInteractions;
+  meta?: ThemeLayoutNodeSemanticMeta;
   children?: ThemeLayoutNode[];
 }
 

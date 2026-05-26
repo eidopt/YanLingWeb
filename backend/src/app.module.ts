@@ -24,7 +24,7 @@ const startupServerFlavor = ConfigFactory.applyStartupFlavor();
     }),
     ThrottlerModule.forRoot([{
       ttl: 60000,  // 1 minute window
-      limit: 10,   // max 10 requests per window
+      limit: 120,  // general API limit; auth and AI endpoints apply stricter guards
     }]),
 
     ConfigModule,

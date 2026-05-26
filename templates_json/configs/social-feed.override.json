@@ -1,0 +1,35 @@
+{
+  "templateId": "social-feed",
+  "overrides": {
+    "pages": [],
+    "regions": [],
+    "slots": [
+      {
+        "slotKey": "feed.post.avatar",
+        "label": "用户头像",
+        "aiRole": "avatar",
+        "description": "动态发布者头像，建议使用正方形图片"
+      },
+      {
+        "slotKey": "feed.post.content",
+        "label": "动态内容",
+        "aiRole": "content",
+        "description": "动态文本内容，最长500个字符"
+      }
+    ],
+    "patterns": [],
+    "navigation": {
+      "type": "none",
+      "items": []
+    },
+    "constraints": {
+      "devices": ["miniapp"]
+    }
+  },
+  "metadata": {
+    "createdAt": "2026-05-26",
+    "updatedAt": "2026-05-26",
+    "author": "template-generator",
+    "notes": "社交动态模板 - 适用于朋友圈、社区帖子、动态流"
+  }
+}

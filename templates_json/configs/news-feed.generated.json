@@ -1,0 +1,374 @@
+{
+  "templateId": "news-feed",
+  "templateVersion": "1.0.0",
+  "profileVersion": "1.0.0",
+  "devices": [
+    "miniapp"
+  ],
+  "pages": [
+    {
+      "pageKey": "news.home",
+      "pageId": "page-home",
+      "pageKind": "feed",
+      "name": "资讯首页",
+      "description": "新闻列表和分类",
+      "rootNodeId": "page-home-screen",
+      "device": "miniapp",
+      "isDefault": true
+    },
+    {
+      "pageKey": "news.detail",
+      "pageId": "page-detail",
+      "pageKind": "detail",
+      "name": "新闻详情",
+      "description": "新闻全文内容",
+      "rootNodeId": "page-detail-screen",
+      "device": "miniapp"
+    },
+    {
+      "pageKey": "news.topic",
+      "pageId": "page-topic",
+      "pageKind": "collection",
+      "name": "专题频道",
+      "description": "专题集合",
+      "rootNodeId": "page-topic-screen",
+      "device": "miniapp"
+    },
+    {
+      "pageKey": "news.favorites",
+      "pageId": "page-favorites",
+      "pageKind": "list",
+      "name": "评论收藏",
+      "description": "收藏和评论",
+      "rootNodeId": "page-favorites-screen",
+      "device": "miniapp"
+    }
+  ],
+  "regions": [
+    {
+      "regionKey": "news.home.header",
+      "pageKey": "news.home",
+      "nodeId": "news-header",
+      "name": "资讯头部",
+      "sectionKind": "header",
+      "replaceable": false
+    },
+    {
+      "regionKey": "news.home.tabs",
+      "pageKey": "news.home",
+      "nodeId": "news-tabs",
+      "name": "分类标签",
+      "sectionKind": "tabs",
+      "replaceable": true,
+      "allowedPatternKeys": [
+        "news.categories"
+      ]
+    },
+    {
+      "regionKey": "news.home.feed",
+      "pageKey": "news.home",
+      "nodeId": "news-feed",
+      "name": "新闻列表",
+      "sectionKind": "feed",
+      "replaceable": true,
+      "allowedPatternKeys": [
+        "news.items"
+      ]
+    },
+    {
+      "regionKey": "news.detail.header",
+      "pageKey": "news.detail",
+      "nodeId": "detail-header",
+      "name": "新闻头部",
+      "sectionKind": "header",
+      "replaceable": false
+    },
+    {
+      "regionKey": "news.detail.content",
+      "pageKey": "news.detail",
+      "nodeId": "detail-content",
+      "name": "新闻内容",
+      "sectionKind": "content",
+      "replaceable": true
+    },
+    {
+      "regionKey": "news.detail.actions",
+      "pageKey": "news.detail",
+      "nodeId": "detail-actions",
+      "name": "互动按钮",
+      "sectionKind": "actions",
+      "replaceable": false
+    },
+    {
+      "regionKey": "news.topic.featured",
+      "pageKey": "news.topic",
+      "nodeId": "featured-topic",
+      "name": "精选专题",
+      "sectionKind": "featured",
+      "replaceable": false
+    },
+    {
+      "regionKey": "news.topic.list",
+      "pageKey": "news.topic",
+      "nodeId": "topic-list",
+      "name": "专题列表",
+      "sectionKind": "list",
+      "replaceable": true,
+      "allowedPatternKeys": [
+        "news.topics"
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "slotKey": "news.home.header.title",
+      "pageKey": "news.home",
+      "regionKey": "news.home.header",
+      "nodeId": "news-logo",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "title",
+      "label": "页面标题"
+    },
+    {
+      "slotKey": "news.item.title",
+      "pageKey": "news.home",
+      "regionKey": "news.home.feed",
+      "nodeId": "nc1-title",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "title",
+      "label": "新闻标题"
+    },
+    {
+      "slotKey": "news.item.image",
+      "pageKey": "news.home",
+      "regionKey": "news.home.feed",
+      "nodeId": "nc1-img",
+      "component": "core.image",
+      "editableProps": [
+        "src"
+      ],
+      "aiRole": "image",
+      "label": "新闻图片"
+    },
+    {
+      "slotKey": "news.item.source",
+      "pageKey": "news.home",
+      "regionKey": "news.home.feed",
+      "nodeId": "nc1-source",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "source",
+      "label": "新闻来源"
+    },
+    {
+      "slotKey": "news.item.time",
+      "pageKey": "news.home",
+      "regionKey": "news.home.feed",
+      "nodeId": "nc1-time",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "time",
+      "label": "发布时间"
+    },
+    {
+      "slotKey": "news.detail.title",
+      "pageKey": "news.detail",
+      "regionKey": "news.detail.header",
+      "nodeId": "detail-title",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "title",
+      "label": "详情标题"
+    },
+    {
+      "slotKey": "news.detail.source",
+      "pageKey": "news.detail",
+      "regionKey": "news.detail.header",
+      "nodeId": "source-name",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "source",
+      "label": "新闻来源"
+    },
+    {
+      "slotKey": "news.detail.cover",
+      "pageKey": "news.detail",
+      "regionKey": "news.detail.header",
+      "nodeId": "detail-cover",
+      "component": "core.image",
+      "editableProps": [
+        "src"
+      ],
+      "aiRole": "cover",
+      "label": "封面图片"
+    }
+  ],
+  "patterns": [
+    {
+      "patternKey": "news.categories",
+      "pageKey": "news.home",
+      "regionKey": "news.home.tabs",
+      "sourceRootNodeId": "tab-recommend",
+      "parentNodeId": "news-tabs",
+      "itemAlias": "category",
+      "fields": [
+        {
+          "fieldKey": "label",
+          "slotKey": "news.category.label",
+          "prop": "text",
+          "required": true
+        }
+      ],
+      "maxItems": 10,
+      "minItems": 3
+    },
+    {
+      "patternKey": "news.items",
+      "pageKey": "news.home",
+      "regionKey": "news.home.feed",
+      "sourceRootNodeId": "news-card-1",
+      "parentNodeId": "news-feed",
+      "itemAlias": "news",
+      "fields": [
+        {
+          "fieldKey": "title",
+          "slotKey": "news.item.title",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "image",
+          "slotKey": "news.item.image",
+          "prop": "src",
+          "required": false
+        },
+        {
+          "fieldKey": "source",
+          "slotKey": "news.item.source",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "time",
+          "slotKey": "news.item.time",
+          "prop": "text",
+          "required": true
+        }
+      ],
+      "maxItems": 30,
+      "minItems": 1
+    },
+    {
+      "patternKey": "news.topics",
+      "pageKey": "news.topic",
+      "regionKey": "news.topic.list",
+      "sourceRootNodeId": "topic-item",
+      "parentNodeId": "topic-list",
+      "itemAlias": "topic",
+      "fields": [
+        {
+          "fieldKey": "title",
+          "slotKey": "news.topic.title",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "image",
+          "slotKey": "news.topic.image",
+          "prop": "src",
+          "required": true
+        },
+        {
+          "fieldKey": "count",
+          "slotKey": "news.topic.count",
+          "prop": "text",
+          "required": true
+        }
+      ],
+      "maxItems": 20,
+      "minItems": 1
+    }
+  ],
+  "navigation": {
+    "type": "none",
+    "items": []
+  },
+  "constraints": {
+    "devices": [
+      "miniapp"
+    ],
+    "maxColumns": 1,
+    "allowedLayouts": [
+      "core.stack",
+      "core.row"
+    ],
+    "requiredComponents": [
+      "core.text",
+      "core.image"
+    ]
+  },
+  "styleProfile": {
+    "colors": [
+      "#dc2626",
+      "#b91c1c",
+      "#ef4444",
+      "#1e293b",
+      "#64748b",
+      "#e2e8f0",
+      "#f8fafc",
+      "#ffffff"
+    ],
+    "fontSizes": [
+      "22rpx",
+      "24rpx",
+      "26rpx",
+      "28rpx",
+      "30rpx",
+      "32rpx",
+      "36rpx",
+      "40rpx"
+    ],
+    "fontWeights": [
+      "normal",
+      "bold"
+    ],
+    "spacing": [
+      "8rpx",
+      "12rpx",
+      "16rpx",
+      "20rpx",
+      "24rpx",
+      "32rpx"
+    ],
+    "radius": [
+      "8rpx",
+      "12rpx",
+      "16rpx",
+      "24rpx",
+      "50%"
+    ],
+    "shadows": [
+      "0 2rpx 12rpx rgba(0,0,0,0.06)"
+    ],
+    "componentDensity": "comfortable",
+    "commonLayoutPatterns": [
+      "news-feed-card",
+      "article-detail",
+      "topic-collection"
+    ]
+  }
+}

@@ -7,12 +7,23 @@ export interface ThemeDto {
   description: string;
   accent: string;
   category: string;
+  categoryLabel?: string;
   platformCategories?: string[];
+  platformCategoryLabels?: Record<string, string>;
   functionalCategories?: string[];
+  functionalCategoryLabels?: Record<string, string>;
   traits: string[];
   cssVars: Record<string, string>;
   componentTemplates: Record<string, unknown>;
   layoutDocument: Record<string, unknown>;
+  agentConfig?: {
+    profileGenerated: Record<string, unknown> | null;
+    profileOverride: Record<string, unknown> | null;
+    effectiveProfile: Record<string, unknown> | null;
+    assets: Record<string, unknown> | null;
+    permissions: Record<string, unknown> | null;
+    evaluation: Record<string, unknown> | null;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -23,8 +34,11 @@ export interface CreateThemeDto {
   description: string;
   accent: string;
   category: string;
+  categoryLabel?: string;
   platformCategories?: string[];
+  platformCategoryLabels?: Record<string, string>;
   functionalCategories?: string[];
+  functionalCategoryLabels?: Record<string, string>;
   traits: string[];
   cssVars: Record<string, string>;
   componentTemplates: Record<string, unknown>;

@@ -10,7 +10,7 @@ export function getComponentDisplayName(alias: string, fallback?: string) {
 }
 
 export function getPropDisplayName(prop: LayoutPropDescriptor) {
-  return prop.description ?? propDisplayNameMap[prop.name] ?? prop.name;
+  return prop.label ?? prop.description ?? propDisplayNameMap[prop.name] ?? prop.name;
 }
 
 export function getOptionDisplayName(option: string) {

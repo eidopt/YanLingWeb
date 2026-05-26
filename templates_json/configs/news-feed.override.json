@@ -1,0 +1,15 @@
+{
+  "templateId": "news-feed",
+  "overrides": {
+    "pages": [],
+    "regions": [],
+    "slots": [
+      { "slotKey": "news.item.title", "label": "新闻标题", "aiRole": "title", "description": "新闻标题，建议不超过30个字符" },
+      { "slotKey": "news.item.source", "label": "新闻来源", "aiRole": "source", "description": "新闻来源媒体名称" }
+    ],
+    "patterns": [],
+    "navigation": { "type": "none", "items": [] },
+    "constraints": { "devices": ["miniapp"] }
+  },
+  "metadata": { "createdAt": "2026-05-26", "updatedAt": "2026-05-26", "author": "template-generator", "notes": "新闻资讯模板 - 适用于新闻客户端、资讯聚合、头条阅读" }
+}

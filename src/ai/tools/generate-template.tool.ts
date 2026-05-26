@@ -4,6 +4,12 @@ export interface TemplateToolInput {
   tagline: string;
   description: string;
   category: string;
+  categoryLabel?: string;
+  categoryLabels?: Record<string, string>;
+  platformCategories?: string[];
+  platformCategoryLabels?: Record<string, string>;
+  functionalCategories?: string[];
+  functionalCategoryLabels?: Record<string, string>;
   accent: string;
   traits: string[];
   cssVars: Record<string, string>;
@@ -80,7 +86,24 @@ LayoutDocument node:
 
 ComponentTemplate: { displayName, root: TemplateNode }
 TemplateNode: { alias, props (with optional $bind bindings), children }
-Use $bind for dynamic props: { $bind: "propName" }`,
+Use $bind for dynamic props: { $bind: "propName" }
+
+Generated-template quality rules:
+- User-facing copy, page names, titles, labels, placeholders, and mock data must
+  be coherent Simplified Chinese unless the user explicitly asks for another
+  language.
+- Compose with core.* aliases by default. Leave componentTemplates as {} unless
+  the user explicitly asks for a reusable custom alias and it can be fully
+  represented by core.* nodes.
+- core.image props.src must be a valid HTTPS URL. If no reliable image URL is
+  available, omit src and use alt/title/iconColor so the renderer shows the
+  built-in placeholder.
+- Every editable layoutDocument.components[].props[] item must include a
+  Chinese label field, e.g. { "name": "title", "type": "string",
+  "label": "标题" }, so the property inspector is localized.
+- Keep each page layout compact and logically ordered: header, primary content,
+  supporting sections, then navigation/actions. Avoid decorative filler nodes
+  that do not support the template's scenario.`,
   parameters: {
     type: 'object',
     required: [
@@ -98,7 +121,37 @@ Use $bind for dynamic props: { $bind: "propName" }`,
       description: { type: 'string', description: 'Detailed description' },
       category: {
         type: 'string',
-        description: 'Category: general|commerce|service|health|finance|social',
+        description: [
+          'Stable English category key/slug, e.g.',
+          'general|commerce|service|health|finance|social|profile.',
+          'Never use Chinese here.',
+        ].join(' '),
+      },
+      categoryLabel: {
+        type: 'string',
+        description: 'Chinese display label for category, e.g. "电商购物". Required when creating a new category key.',
+      },
+      categoryLabels: {
+        type: 'object',
+        description: 'Optional map of English category key to Chinese display label.',
+      },
+      platformCategories: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Stable English platform keys, e.g. ["mini-program", "mobile-app", "web"].',
+      },
+      platformCategoryLabels: {
+        type: 'object',
+        description: 'Optional map of English platform category key to Chinese display label.',
+      },
+      functionalCategories: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Stable English functional category keys. The first item should match category.',
+      },
+      functionalCategoryLabels: {
+        type: 'object',
+        description: 'Optional map of English functional category key to Chinese display label.',
       },
       accent: {
         type: 'string',
@@ -119,7 +172,7 @@ Use $bind for dynamic props: { $bind: "propName" }`,
       },
       componentTemplates: {
         type: 'object',
-        description: 'Map of component alias → ComponentTemplate definition',
+        description: 'Use {} by default. Custom aliases are only allowed when explicitly requested.',
       },
       layoutDocument: {
         type: 'object',

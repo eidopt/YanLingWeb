@@ -76,6 +76,32 @@ function isNonEmptyString(value) {
   return typeof value === 'string' && value.trim().length > 0;
 }
 
+function isCategoryKey(value) {
+  return isNonEmptyString(value)
+    && /^[a-z0-9][a-z0-9._-]*$/i.test(value)
+    && !/[\u4e00-\u9fff]/.test(value);
+}
+
+function hasCjkText(value) {
+  return /[\u3400-\u9fff]/.test(value);
+}
+
+function hasDisallowedLatinText(value) {
+  const normalized = value
+    .replace(/\b(AI|API|URL|URI|ID|VIP|H5|SaaS|CRM|ERP|IoT|OK)\b/gi, '')
+    .replace(/Wi-?Fi/gi, '');
+  return /[A-Za-z]{3,}/.test(normalized);
+}
+
+function isValidTemplateImageUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 function formatPath(filePath) {
   return path.relative(process.cwd(), filePath) || filePath;
 }
@@ -167,7 +193,14 @@ function validateCssVars(cssVars, filePath, issues) {
   }
 }
 
-function validateCategoryArray(value, allowedValues, filePath, issues, pathName) {
+function validateCategoryArray(
+  value,
+  allowedValues,
+  filePath,
+  issues,
+  pathName,
+  options = {},
+) {
   if (!Array.isArray(value) || value.length === 0) {
     addIssue(
       issues,
@@ -190,7 +223,17 @@ function validateCategoryArray(value, allowedValues, filePath, issues, pathName)
       );
       return;
     }
-    if (!allowedValues.has(item)) {
+    if (!isCategoryKey(item)) {
+      addIssue(
+        issues,
+        filePath,
+        'error',
+        `${pathName}[${index}]`,
+        'Category values must be English slug keys.',
+      );
+      return;
+    }
+    if (options.strict !== false && !allowedValues.has(item)) {
       addIssue(
         issues,
         filePath,
@@ -249,6 +292,16 @@ function validateComponents(document, componentTemplates, filePath, issues) {
       );
     }
 
+    if (!component.alias.startsWith('core.')) {
+      addIssue(
+        issues,
+        filePath,
+        'error',
+        `${pathName}.alias`,
+        `Generated templates must use core.* aliases only: ${component.alias}`,
+      );
+    }
+
     if (!component.alias.startsWith('core.') && !componentTemplates[component.alias]) {
       addIssue(
         issues,
@@ -258,9 +311,39 @@ function validateComponents(document, componentTemplates, filePath, issues) {
         `Custom alias "${component.alias}" must have a matching componentTemplates entry.`,
       );
     }
+
+    const props = Array.isArray(component.props) ? component.props : [];
+    props.forEach((prop, propIndex) => {
+      if (!isRecord(prop)) {
+        addIssue(
+          issues,
+          filePath,
+          'error',
+          `${pathName}.props[${propIndex}]`,
+          'Prop descriptor must be an object.',
+        );
+        return;
+      }
+      if (!hasCjkText(prop.label ?? '')) {
+        addIssue(
+          issues,
+          filePath,
+          'error',
+          `${pathName}.props[${propIndex}].label`,
+          `Editable prop "${prop.name ?? propIndex}" must define a Chinese label.`,
+        );
+      }
+    });
   });
 
   for (const alias of Object.keys(componentTemplates)) {
+    addIssue(
+      issues,
+      filePath,
+      'error',
+      `componentTemplates.${alias}`,
+      'Generated template JSON must keep componentTemplates empty and compose UI with core.* aliases.',
+    );
     if (alias.startsWith('core.')) {
       addIssue(
         issues,
@@ -424,6 +507,58 @@ function validateLayoutNode(node, context) {
       `${pathName}.props.content`,
       'core.text uses props.text; props.content will not render.',
     );
+  }
+  if (node.alias === 'core.button' && isRecord(node.props) && 'text' in node.props) {
+    addIssue(
+      issues,
+      filePath,
+      'error',
+      `${pathName}.props.text`,
+      'core.button uses props.label; props.text is normalized to label by backend validation.',
+    );
+  }
+  if (node.alias === 'core.image' && isRecord(node.props)) {
+    const src = node.props.src;
+    if (typeof src === 'string' && src.trim() && !isValidTemplateImageUrl(src.trim())) {
+      addIssue(
+        issues,
+        filePath,
+        'error',
+        `${pathName}.props.src`,
+        'core.image props.src must be a valid HTTPS URL; omit src to render the placeholder.',
+      );
+    }
+  }
+
+  if (isRecord(node.props)) {
+    [
+      'title',
+      'text',
+      'label',
+      'placeholder',
+      'activeTab',
+      'body',
+      'caption',
+      'subtitle',
+      'overline',
+      'badgeLabel',
+      'actionLabel',
+      'statusLabel',
+    ].forEach((propName) => {
+      const value = node.props[propName];
+      if (typeof value !== 'string' || !value.trim()) {
+        return;
+      }
+      if (hasDisallowedLatinText(value)) {
+        addIssue(
+          issues,
+          filePath,
+          'error',
+          `${pathName}.props.${propName}`,
+          `Visible text should use Simplified Chinese, got "${value}".`,
+        );
+      }
+    });
   }
 
   const interactions = isRecord(node.interactions) ? node.interactions : {};
@@ -593,6 +728,15 @@ function validateTemplate(template, filePath, issues) {
       addIssue(issues, filePath, 'error', field, `${field} must be a non-empty string.`);
     }
   }
+  if (isNonEmptyString(template.category) && !isCategoryKey(template.category)) {
+    addIssue(
+      issues,
+      filePath,
+      'error',
+      'category',
+      'category must be an English slug key; put Chinese in categoryLabel.',
+    );
+  }
 
   if (!Array.isArray(template.traits) || !template.traits.every((item) => typeof item === 'string')) {
     addIssue(issues, filePath, 'error', 'traits', 'traits must be string[].');
@@ -610,6 +754,7 @@ function validateTemplate(template, filePath, issues) {
     filePath,
     issues,
     'functionalCategories',
+    { strict: false },
   );
   if (
     Array.isArray(template.functionalCategories)
@@ -626,6 +771,36 @@ function validateTemplate(template, filePath, issues) {
   }
   if ('tags' in template && (!Array.isArray(template.tags) || !template.tags.every((item) => typeof item === 'string'))) {
     addIssue(issues, filePath, 'error', 'tags', 'tags must be string[] when present.');
+  }
+  if (!isNonEmptyString(template.categoryLabel)) {
+    addIssue(
+      issues,
+      filePath,
+      'error',
+      'categoryLabel',
+      'categoryLabel is required so frontend can display Chinese while category stays English.',
+    );
+  }
+  if (!isRecord(template.functionalCategoryLabels)) {
+    addIssue(
+      issues,
+      filePath,
+      'error',
+      'functionalCategoryLabels',
+      'functionalCategoryLabels must map English functional category keys to Chinese labels.',
+    );
+  } else if (Array.isArray(template.functionalCategories)) {
+    template.functionalCategories.forEach((key) => {
+      if (isCategoryKey(key) && !isNonEmptyString(template.functionalCategoryLabels[key])) {
+        addIssue(
+          issues,
+          filePath,
+          'error',
+          `functionalCategoryLabels.${key}`,
+          'Missing Chinese display label for functional category key.',
+        );
+      }
+    });
   }
 
   const componentTemplates = isRecord(template.componentTemplates)

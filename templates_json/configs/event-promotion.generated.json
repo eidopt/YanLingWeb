@@ -1,0 +1,293 @@
+{
+  "templateId": "event-promotion",
+  "templateVersion": "1.0.0",
+  "profileVersion": "1.0.0",
+  "devices": [
+    "miniapp"
+  ],
+  "pages": [
+    {
+      "pageKey": "event.home",
+      "pageId": "page-home",
+      "pageKind": "promotion",
+      "name": "活动首页",
+      "description": "活动主页面，包含倒计时、优惠券、商品",
+      "rootNodeId": "page-home-screen",
+      "device": "miniapp",
+      "isDefault": true
+    },
+    {
+      "pageKey": "event.rules",
+      "pageId": "page-rules",
+      "pageKind": "content",
+      "name": "活动规则",
+      "description": "活动规则详情",
+      "rootNodeId": "page-rules-screen",
+      "device": "miniapp"
+    },
+    {
+      "pageKey": "event.products",
+      "pageId": "page-products",
+      "pageKind": "list",
+      "name": "活动商品",
+      "description": "活动商品列表",
+      "rootNodeId": "page-products-screen",
+      "device": "miniapp"
+    },
+    {
+      "pageKey": "event.success",
+      "pageId": "page-success",
+      "pageKind": "result",
+      "name": "参与成功",
+      "description": "领取成功页面",
+      "rootNodeId": "page-success-screen",
+      "device": "miniapp"
+    }
+  ],
+  "regions": [
+    {
+      "regionKey": "event.home.banner",
+      "pageKey": "event.home",
+      "nodeId": "evt-banner",
+      "name": "活动Banner",
+      "sectionKind": "banner",
+      "replaceable": false
+    },
+    {
+      "regionKey": "event.home.timer",
+      "pageKey": "event.home",
+      "nodeId": "evt-timer",
+      "name": "倒计时",
+      "sectionKind": "timer",
+      "replaceable": false
+    },
+    {
+      "regionKey": "event.home.coupons",
+      "pageKey": "event.home",
+      "nodeId": "evt-coupons",
+      "name": "优惠券",
+      "sectionKind": "coupons",
+      "replaceable": true,
+      "allowedPatternKeys": [
+        "event.coupons"
+      ]
+    },
+    {
+      "regionKey": "event.home.products",
+      "pageKey": "event.home",
+      "nodeId": "evt-products",
+      "name": "活动商品",
+      "sectionKind": "grid",
+      "replaceable": true,
+      "allowedPatternKeys": [
+        "event.products"
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "slotKey": "event.home.banner.image",
+      "pageKey": "event.home",
+      "regionKey": "event.home.banner",
+      "nodeId": "evt-banner",
+      "component": "core.image",
+      "editableProps": [
+        "src"
+      ],
+      "aiRole": "banner",
+      "label": "Banner图片"
+    },
+    {
+      "slotKey": "event.home.coupon.amount",
+      "pageKey": "event.home",
+      "regionKey": "event.home.coupons",
+      "nodeId": "c1-amount",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "amount",
+      "label": "优惠金额"
+    },
+    {
+      "slotKey": "event.home.coupon.condition",
+      "pageKey": "event.home",
+      "regionKey": "event.home.coupons",
+      "nodeId": "c1-condition",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "condition",
+      "label": "使用条件"
+    },
+    {
+      "slotKey": "event.home.product.name",
+      "pageKey": "event.home",
+      "regionKey": "event.home.products",
+      "nodeId": "p1-name",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "name",
+      "label": "商品名称"
+    },
+    {
+      "slotKey": "event.home.product.price",
+      "pageKey": "event.home",
+      "regionKey": "event.home.products",
+      "nodeId": "p1-price",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "price",
+      "label": "商品价格"
+    },
+    {
+      "slotKey": "event.home.product.originalPrice",
+      "pageKey": "event.home",
+      "regionKey": "event.home.products",
+      "nodeId": "p1-orig",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "originalPrice",
+      "label": "原价"
+    }
+  ],
+  "patterns": [
+    {
+      "patternKey": "event.coupons",
+      "pageKey": "event.home",
+      "regionKey": "event.home.coupons",
+      "sourceRootNodeId": "coupon-1",
+      "parentNodeId": "coupon-list",
+      "itemAlias": "coupon",
+      "fields": [
+        {
+          "fieldKey": "amount",
+          "slotKey": "event.coupon.amount",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "condition",
+          "slotKey": "event.coupon.condition",
+          "prop": "text",
+          "required": true
+        }
+      ],
+      "maxItems": 5,
+      "minItems": 1
+    },
+    {
+      "patternKey": "event.products",
+      "pageKey": "event.home",
+      "regionKey": "event.home.products",
+      "sourceRootNodeId": "prod-1",
+      "parentNodeId": "prod-grid",
+      "itemAlias": "product",
+      "fields": [
+        {
+          "fieldKey": "name",
+          "slotKey": "event.product.name",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "image",
+          "slotKey": "event.product.image",
+          "prop": "src",
+          "required": true
+        },
+        {
+          "fieldKey": "price",
+          "slotKey": "event.product.price",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "originalPrice",
+          "slotKey": "event.product.originalPrice",
+          "prop": "text",
+          "required": false
+        }
+      ],
+      "maxItems": 20,
+      "minItems": 1
+    }
+  ],
+  "navigation": {
+    "type": "none",
+    "items": []
+  },
+  "constraints": {
+    "devices": [
+      "miniapp"
+    ],
+    "maxColumns": 2,
+    "allowedLayouts": [
+      "core.stack",
+      "core.row",
+      "core.grid"
+    ],
+    "requiredComponents": [
+      "core.text",
+      "core.image"
+    ]
+  },
+  "styleProfile": {
+    "colors": [
+      "#f97316",
+      "#ea580c",
+      "#fb923c",
+      "#1e293b",
+      "#64748b",
+      "#e2e8f0",
+      "#f8fafc",
+      "#ffffff"
+    ],
+    "fontSizes": [
+      "22rpx",
+      "24rpx",
+      "26rpx",
+      "28rpx",
+      "30rpx",
+      "32rpx",
+      "36rpx",
+      "40rpx",
+      "48rpx"
+    ],
+    "fontWeights": [
+      "normal",
+      "bold"
+    ],
+    "spacing": [
+      "8rpx",
+      "12rpx",
+      "16rpx",
+      "20rpx",
+      "24rpx",
+      "32rpx"
+    ],
+    "radius": [
+      "8rpx",
+      "12rpx",
+      "16rpx",
+      "24rpx",
+      "50%"
+    ],
+    "shadows": [
+      "0 4rpx 16rpx rgba(0,0,0,0.1)"
+    ],
+    "componentDensity": "comfortable",
+    "commonLayoutPatterns": [
+      "countdown-banner",
+      "coupon-card",
+      "product-grid"
+    ]
+  }
+}

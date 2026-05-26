@@ -20,6 +20,10 @@ import {
 export interface ThemeLayoutValidatorOptions {
   failOnUnknownProps?: boolean;
   componentTemplates?: Record<string, unknown>;
+  requireCoreAliasesOnly?: boolean;
+  requireValidImageUrls?: boolean;
+  requireLocalizedPropLabels?: boolean;
+  requireChineseVisibleText?: boolean;
 }
 
 const CORE_ALIASES = new Set([
@@ -79,6 +83,26 @@ function isNonEmptyString(value: unknown): value is string {
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function hasCjkText(value: string): boolean {
+  return /[\u3400-\u9fff]/.test(value);
+}
+
+function hasDisallowedLatinText(value: string): boolean {
+  const normalized = value
+    .replace(/\b(AI|API|URL|URI|ID|VIP|H5|SaaS|CRM|ERP|IoT|OK)\b/gi, '')
+    .replace(/Wi-?Fi/gi, '');
+  return /[A-Za-z]{3,}/.test(normalized);
+}
+
+function isValidGeneratedImageUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:';
+  } catch {
+    return false;
+  }
 }
 
 function collectAliases(
@@ -327,6 +351,80 @@ function validateComponentTemplateWidgets(
   });
 }
 
+function validateComponentDescriptors(
+  document: ThemeLayoutDocument,
+  componentTemplates: Record<string, unknown> | undefined,
+  errors: ValidationIssue[],
+  options: ThemeLayoutValidatorOptions,
+): void {
+  if (!Array.isArray(document.components)) {
+    return;
+  }
+
+  const aliases = new Set<string>();
+  document.components.forEach((component, index) => {
+    const path = `components[${index}]`;
+    if (!isPlainObject(component)) {
+      errors.push(issue('error', path, 'invalid_component_descriptor', 'Component descriptor must be an object'));
+      return;
+    }
+    if (!isNonEmptyString(component.alias)) {
+      errors.push(issue('error', `${path}.alias`, 'missing_component_alias', 'Component alias is required'));
+      return;
+    }
+    if (aliases.has(component.alias)) {
+      errors.push(issue('error', `${path}.alias`, 'duplicate_component_alias', `Duplicate component alias: ${component.alias}`));
+    }
+    aliases.add(component.alias);
+
+    if (component.alias.startsWith('core.') && !CORE_ALIASES.has(component.alias)) {
+      errors.push(issue('error', `${path}.alias`, 'unknown_core_alias', `Unknown core alias: ${component.alias}`));
+    }
+    if (options.requireCoreAliasesOnly && !component.alias.startsWith('core.')) {
+      errors.push(issue(
+        'error',
+        `${path}.alias`,
+        'custom_alias_blocked',
+        `Generated templates must use core.* aliases only: ${component.alias}`,
+      ));
+    }
+    if (options.requireLocalizedPropLabels) {
+      if (!Array.isArray(component.props)) {
+        errors.push(issue('error', `${path}.props`, 'invalid_component_props', 'Component props must be an array'));
+        return;
+      }
+      component.props.forEach((prop, propIndex) => {
+        if (!isPlainObject(prop)) {
+          errors.push(issue(
+            'error',
+            `${path}.props[${propIndex}]`,
+            'invalid_prop_descriptor',
+            'Prop descriptor must be an object',
+          ));
+          return;
+        }
+        if (!hasCjkText(prop.label ?? '')) {
+          errors.push(issue(
+            'error',
+            `${path}.props[${propIndex}].label`,
+            'missing_localized_prop_label',
+            `Editable prop "${prop.name}" must define a Chinese label`,
+          ));
+        }
+      });
+    }
+  });
+
+  if (options.requireCoreAliasesOnly && Object.keys(componentTemplates ?? {}).length > 0) {
+    errors.push(issue(
+      'error',
+      'componentTemplates',
+      'custom_component_templates_blocked',
+      'Generated templates must leave componentTemplates empty and compose UI with core.* aliases.',
+    ));
+  }
+}
+
 function validateNode(
   document: ThemeLayoutDocument,
   node: ThemeLayoutNode,
@@ -367,6 +465,15 @@ function validateNode(
     errors.push(issue('error', `${path}.children`, 'leaf_has_children', `${node.alias} cannot contain children`));
   }
 
+  if (options.requireCoreAliasesOnly && !node.alias.startsWith('core.')) {
+    errors.push(issue(
+      'error',
+      `${path}.alias`,
+      'custom_alias_blocked',
+      `Generated templates must use core.* aliases only: ${node.alias}`,
+    ));
+  }
+
   const descriptor = descriptorForAlias(document, node.alias);
   if (descriptor && node.props) {
     Object.entries(node.props).forEach(([propName, value]) => {
@@ -387,6 +494,36 @@ function validateNode(
       }
       errors.push(propIssue);
     });
+  }
+
+  if (options.requireValidImageUrls && node.alias === 'core.image') {
+    const src = node.props?.src;
+    if (typeof src === 'string' && src.trim() && !isValidGeneratedImageUrl(src.trim())) {
+      errors.push(issue(
+        'error',
+        `${path}.props.src`,
+        'invalid_generated_image_url',
+        'Generated core.image props.src must be a valid HTTPS URL; omit src to render the placeholder.',
+      ));
+    }
+  }
+
+  if (options.requireChineseVisibleText && node.props) {
+    ['title', 'text', 'label', 'placeholder', 'activeTab', 'body', 'caption', 'subtitle', 'overline', 'badgeLabel', 'actionLabel', 'statusLabel']
+      .forEach((propName) => {
+        const value = node.props?.[propName];
+        if (typeof value !== 'string' || !value.trim()) {
+          return;
+        }
+        if (hasDisallowedLatinText(value)) {
+          errors.push(issue(
+            'error',
+            `${path}.props.${propName}`,
+            'mixed_visible_language',
+            `Generated visible text should be Simplified Chinese, got "${value}"`,
+          ));
+        }
+      });
   }
 
   validateWidgetNode(node, path, dependencyNames, errors);
@@ -469,6 +606,12 @@ export function validateThemeLayoutDocument(
 
   const aliases = collectAliases(document, options.componentTemplates);
   const dependencyNames = validateDependencies(document.dependencies, errors);
+  validateComponentDescriptors(
+    document,
+    options.componentTemplates ?? document.componentTemplates,
+    errors,
+    effectiveOptions,
+  );
   validateComponentTemplateWidgets(
     options.componentTemplates ?? document.componentTemplates,
     dependencyNames,

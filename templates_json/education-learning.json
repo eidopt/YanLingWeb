@@ -1,0 +1,2288 @@
+{
+  "templateId": "education-learning",
+  "name": "教育学习",
+  "description": "适用于在线教育、课程详情、学习中心等场景的小程序模板，包含课程详情、课程目录、课时播放、学习进度页面",
+  "accent": "#14b8a6",
+  "thumbnail": "",
+  "platformCategories": [
+    "mini-program"
+  ],
+  "functionalCategories": [
+    "education-learning",
+    "education",
+    "learning"
+  ],
+  "category": "education-learning",
+  "tags": [
+    "教育",
+    "学习",
+    "课程",
+    "在线教育",
+    "培训"
+  ],
+  "layoutDocument": {
+    "version": 1,
+    "themeId": "education-learning",
+    "themeName": "教育学习",
+    "description": "适用于在线教育、课程详情、学习中心等场景的小程序模板，包含课程详情、课程目录、课时播放、学习进度页面",
+    "components": [
+      {
+        "alias": "core.button",
+        "name": "按钮",
+        "kind": "component",
+        "description": "按钮组件",
+        "props": [
+          {
+            "name": "label",
+            "type": "string",
+            "label": "显示文字"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.grid",
+        "name": "网格容器",
+        "kind": "layout",
+        "description": "网格容器组件",
+        "props": [
+          {
+            "name": "columns",
+            "type": "number",
+            "label": "列数"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.image",
+        "name": "图片",
+        "kind": "component",
+        "description": "图片组件",
+        "props": [
+          {
+            "name": "alt",
+            "type": "string",
+            "label": "替代文本"
+          },
+          {
+            "name": "iconColor",
+            "type": "string",
+            "label": "图标颜色"
+          },
+          {
+            "name": "objectFit",
+            "type": "string",
+            "label": "图片填充方式"
+          },
+          {
+            "name": "src",
+            "type": "string",
+            "label": "图片地址"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "label": "标题"
+          }
+        ]
+      },
+      {
+        "alias": "core.panel",
+        "name": "面板容器",
+        "kind": "layout",
+        "description": "面板容器组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.row",
+        "name": "横向容器",
+        "kind": "layout",
+        "description": "横向容器组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.screen",
+        "name": "页面画布",
+        "kind": "layout",
+        "description": "页面画布组件",
+        "props": [
+          {
+            "name": "title",
+            "type": "string",
+            "label": "标题"
+          }
+        ]
+      },
+      {
+        "alias": "core.stack",
+        "name": "纵向容器",
+        "kind": "layout",
+        "description": "纵向容器组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.text",
+        "name": "文本",
+        "kind": "component",
+        "description": "文本组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          },
+          {
+            "name": "text",
+            "type": "string",
+            "label": "显示内容"
+          }
+        ]
+      }
+    ],
+    "defaultPageId": "page-detail",
+    "pages": [
+      {
+        "id": "page-detail",
+        "name": "课程详情",
+        "description": "零基础入门Web前端开发",
+        "layout": {
+          "id": "page-detail-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 0
+          },
+          "props": {
+            "title": "课程详情"
+          },
+          "children": [
+            {
+              "id": "course-cover",
+              "alias": "core.image",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "src": "https://placeholder.com/course.png",
+                "style": {
+                  "width": "100%",
+                  "height": "400rpx"
+                },
+                "alt": "图片",
+                "title": "图片"
+              },
+              "children": []
+            },
+            {
+              "id": "course-info",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff"
+                }
+              },
+              "children": [
+                {
+                  "id": "course-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "零基础入门网页前端开发",
+                    "style": {
+                      "fontSize": "36rpx",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "course-meta",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "marginTop": "16rpx",
+                      "gap": "24rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "meta-students",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "alignItems": "center",
+                          "gap": "6rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "students-icon",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "图标",
+                            "title": "图标",
+                            "objectFit": "contain",
+                            "iconColor": "var(--color-text-secondary)"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "students-text",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "1.2万人学习",
+                            "style": {
+                              "fontSize": "24rpx",
+                              "color": "var(--color-text-secondary)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "meta-rating",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "alignItems": "center",
+                          "gap": "6rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "rating-icon",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "图标",
+                            "title": "图标",
+                            "objectFit": "contain",
+                            "iconColor": "#f59e0b"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "rating-text",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "4.9分",
+                            "style": {
+                              "fontSize": "24rpx",
+                              "color": "var(--color-text-secondary)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "meta-level",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "4rpx 12rpx",
+                          "borderRadius": "6rpx",
+                          "background": "rgba(20,184,166,0.1)"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "level-text",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "入门",
+                            "style": {
+                              "fontSize": "22rpx",
+                              "color": "var(--color-primary)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "course-price",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "style": {
+                      "marginTop": "20rpx",
+                      "alignItems": "baseline",
+                      "gap": "12rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "price-current",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "¥199",
+                        "style": {
+                          "fontSize": "40rpx",
+                          "fontWeight": "bold",
+                          "color": "var(--color-primary)"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "price-original",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "¥499",
+                        "style": {
+                          "fontSize": "26rpx",
+                          "color": "var(--color-text-secondary)",
+                          "textDecoration": "line-through"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "course-teacher",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff",
+                  "marginTop": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "teacher-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "授课老师",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "fontWeight": "bold",
+                      "marginBottom": "16rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "teacher-row",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "16rpx",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "teacher-avatar",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "src": "https://placeholder.com/teacher.png",
+                        "style": {
+                          "width": "80rpx",
+                          "height": "80rpx",
+                          "borderRadius": "50%"
+                        },
+                        "alt": "图片",
+                        "title": "图片"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "teacher-info",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "flex": 1,
+                          "gap": "4rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "teacher-name",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "张老师",
+                            "style": {
+                              "fontSize": "28rpx",
+                              "fontWeight": "bold"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "teacher-title-text",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "资深前端工程师 · 10年开发经验",
+                            "style": {
+                              "fontSize": "24rpx",
+                              "color": "var(--color-text-secondary)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "course-desc",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 3
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff",
+                  "marginTop": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "desc-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "课程介绍",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "fontWeight": "bold",
+                      "marginBottom": "12rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "desc-text",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "本课程从零基础出发，系统讲解网页结构、样式表、脚本编程核心技术，通过实战项目帮助你快速入门网页前端开发。",
+                    "style": {
+                      "fontSize": "26rpx",
+                      "color": "var(--color-text-secondary)",
+                      "lineHeight": "1.8"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "buy-btn",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 4
+              },
+              "props": {
+                "style": {
+                  "margin": "32rpx",
+                  "padding": "24rpx",
+                  "borderRadius": "48rpx",
+                  "background": "var(--color-primary)",
+                  "color": "#fff",
+                  "fontSize": "30rpx",
+                  "fontWeight": "bold",
+                  "textAlign": "center"
+                },
+                "label": "立即购买 ¥199"
+              },
+              "children": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-outline",
+        "name": "课程目录",
+        "description": "课程目录",
+        "layout": {
+          "id": "page-outline-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 1
+          },
+          "props": {
+            "title": "课程目录"
+          },
+          "children": [
+            {
+              "id": "outline-header",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "var(--color-primary)"
+                }
+              },
+              "children": [
+                {
+                  "id": "outline-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "课程目录",
+                    "style": {
+                      "fontSize": "34rpx",
+                      "fontWeight": "bold",
+                      "color": "#fff"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "outline-count",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "共24节课 · 总时长12小时",
+                    "style": {
+                      "fontSize": "24rpx",
+                      "color": "rgba(255,255,255,0.8)",
+                      "marginTop": "8rpx"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "outline-progress",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff",
+                  "marginTop": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "progress-label",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between",
+                      "marginBottom": "12rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "progress-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "学习进度",
+                        "style": {
+                          "fontSize": "26rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "progress-percent",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "33%",
+                        "style": {
+                          "fontSize": "26rpx",
+                          "color": "var(--color-primary)",
+                          "fontWeight": "bold"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "progress-bar",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "height": "12rpx",
+                      "borderRadius": "6rpx",
+                      "background": "var(--color-border)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "progress-fill",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "width": "33%",
+                          "height": "100%",
+                          "borderRadius": "6rpx",
+                          "background": "var(--color-primary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "outline-chapters",
+              "alias": "core.stack",
+              "layout": {
+                "mode": "flow",
+                "order": 2
+              },
+              "props": {
+                "style": {
+                  "padding": "16rpx 32rpx",
+                  "gap": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "chapter-1",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "borderRadius": "12rpx",
+                      "background": "#fff",
+                      "overflow": "hidden"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "ch1-header",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "20rpx 24rpx",
+                          "background": "rgba(20,184,166,0.05)"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "ch1-title",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "第一章：网页结构基础",
+                            "style": {
+                              "fontSize": "28rpx",
+                              "fontWeight": "bold"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "ch1-lessons",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "0 24rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "lesson-1",
+                          "alias": "core.row",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "style": {
+                              "justifyContent": "space-between",
+                              "alignItems": "center",
+                              "padding": "20rpx 0",
+                              "borderBottom": "1rpx solid var(--color-border)"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "l1-left",
+                              "alias": "core.row",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "style": {
+                                  "alignItems": "center",
+                                  "gap": "12rpx"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "id": "l1-status",
+                                  "alias": "core.image",
+                                  "layout": {
+                                    "mode": "flow",
+                                    "order": 0
+                                  },
+                                  "props": {
+                                    "alt": "图标",
+                                    "title": "图标",
+                                    "objectFit": "contain",
+                                    "iconColor": "var(--color-primary)"
+                                  },
+                                  "children": []
+                                },
+                                {
+                                  "id": "l1-title",
+                                  "alias": "core.text",
+                                  "layout": {
+                                    "mode": "flow",
+                                    "order": 1
+                                  },
+                                  "props": {
+                                    "text": "1.1 网页文档结构",
+                                    "style": {
+                                      "fontSize": "26rpx"
+                                    }
+                                  },
+                                  "children": []
+                                }
+                              ]
+                            },
+                            {
+                              "id": "l1-duration",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 1
+                              },
+                              "props": {
+                                "text": "15:30",
+                                "style": {
+                                  "fontSize": "22rpx",
+                                  "color": "var(--color-text-secondary)"
+                                }
+                              },
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "id": "lesson-2",
+                          "alias": "core.row",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "style": {
+                              "justifyContent": "space-between",
+                              "alignItems": "center",
+                              "padding": "20rpx 0"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "l2-left",
+                              "alias": "core.row",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "style": {
+                                  "alignItems": "center",
+                                  "gap": "12rpx"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "id": "l2-status",
+                                  "alias": "core.image",
+                                  "layout": {
+                                    "mode": "flow",
+                                    "order": 0
+                                  },
+                                  "props": {
+                                    "alt": "图标",
+                                    "title": "图标",
+                                    "objectFit": "contain",
+                                    "iconColor": "var(--color-border)"
+                                  },
+                                  "children": []
+                                },
+                                {
+                                  "id": "l2-title",
+                                  "alias": "core.text",
+                                  "layout": {
+                                    "mode": "flow",
+                                    "order": 1
+                                  },
+                                  "props": {
+                                    "text": "1.2 常用网页标签",
+                                    "style": {
+                                      "fontSize": "26rpx"
+                                    }
+                                  },
+                                  "children": []
+                                }
+                              ]
+                            },
+                            {
+                              "id": "l2-duration",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 1
+                              },
+                              "props": {
+                                "text": "20:15",
+                                "style": {
+                                  "fontSize": "22rpx",
+                                  "color": "var(--color-text-secondary)"
+                                }
+                              },
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-player",
+        "name": "课时播放",
+        "description": "1.1 HTML文档结构",
+        "layout": {
+          "id": "page-player-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 2
+          },
+          "props": {
+            "title": "课时播放"
+          },
+          "children": [
+            {
+              "id": "player-video",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "style": {
+                  "width": "100%",
+                  "height": "420rpx",
+                  "background": "#000",
+                  "display": "flex",
+                  "alignItems": "center",
+                  "justifyContent": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "play-icon",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "alt": "图标",
+                    "title": "图标",
+                    "objectFit": "contain",
+                    "iconColor": "#fff"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "player-info",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff"
+                }
+              },
+              "children": [
+                {
+                  "id": "player-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "1.1 网页文档结构",
+                    "style": {
+                      "fontSize": "30rpx",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "player-meta",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "marginTop": "12rpx",
+                      "gap": "16rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "player-duration",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "时长 15:30",
+                        "style": {
+                          "fontSize": "24rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "player-views",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "3.2万次播放",
+                        "style": {
+                          "fontSize": "24rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "player-tabs",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 2
+              },
+              "props": {
+                "style": {
+                  "justifyContent": "space-around",
+                  "padding": "16rpx 0",
+                  "background": "#fff",
+                  "borderTop": "1rpx solid var(--color-border)"
+                }
+              },
+              "children": [
+                {
+                  "id": "tab-intro",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "介绍",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "color": "var(--color-primary)",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "tab-notes",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "笔记",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "color": "var(--color-text-secondary)"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "tab-discuss",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "text": "讨论",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "color": "var(--color-text-secondary)"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "player-desc",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 3
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff",
+                  "marginTop": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "player-desc-text",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "本节课将讲解网页结构文档的基本结构，包括文档类型声明、页面根节点、头部信息、页面主体等核心元素。",
+                    "style": {
+                      "fontSize": "26rpx",
+                      "color": "var(--color-text-secondary)",
+                      "lineHeight": "1.8"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "player-nav",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 4
+              },
+              "props": {
+                "style": {
+                  "justifyContent": "space-between",
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff",
+                  "marginTop": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "prev-btn",
+                  "alias": "core.button",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "16rpx 32rpx",
+                      "borderRadius": "32rpx",
+                      "background": "var(--color-background)",
+                      "fontSize": "26rpx"
+                    },
+                    "label": "上一节"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "next-btn",
+                  "alias": "core.button",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "16rpx 32rpx",
+                      "borderRadius": "32rpx",
+                      "background": "var(--color-primary)",
+                      "color": "#fff",
+                      "fontSize": "26rpx"
+                    },
+                    "label": "下一节"
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-progress",
+        "name": "学习进度",
+        "description": "学习进度",
+        "layout": {
+          "id": "page-progress-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 3
+          },
+          "props": {
+            "title": "学习进度"
+          },
+          "children": [
+            {
+              "id": "progress-header",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "style": {
+                  "padding": "40rpx 32rpx",
+                  "background": "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))",
+                  "borderRadius": "0 0 32rpx 32rpx",
+                  "textAlign": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "progress-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "学习进度",
+                    "style": {
+                      "fontSize": "36rpx",
+                      "fontWeight": "bold",
+                      "color": "#fff"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "progress-ring",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "width": "160rpx",
+                      "height": "160rpx",
+                      "borderRadius": "50%",
+                      "border": "12rpx solid rgba(255,255,255,0.3)",
+                      "borderTopColor": "#fff",
+                      "margin": "24rpx auto 0",
+                      "display": "flex",
+                      "alignItems": "center",
+                      "justifyContent": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "ring-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "33%",
+                        "style": {
+                          "fontSize": "36rpx",
+                          "fontWeight": "bold",
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "progress-stats",
+              "alias": "core.grid",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "columns": 3,
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "gap": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "stat-learned",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "20rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#fff",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "learned-num",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "8",
+                        "style": {
+                          "fontSize": "36rpx",
+                          "fontWeight": "bold",
+                          "color": "var(--color-primary)"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "learned-label",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "已学课时",
+                        "style": {
+                          "fontSize": "22rpx",
+                          "color": "var(--color-text-secondary)",
+                          "marginTop": "4rpx"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "stat-hours",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "20rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#fff",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "hours-num",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "4.2",
+                        "style": {
+                          "fontSize": "36rpx",
+                          "fontWeight": "bold",
+                          "color": "var(--color-primary)"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "hours-label",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "学习小时",
+                        "style": {
+                          "fontSize": "22rpx",
+                          "color": "var(--color-text-secondary)",
+                          "marginTop": "4rpx"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "stat-streak",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "20rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#fff",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "streak-num",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "7",
+                        "style": {
+                          "fontSize": "36rpx",
+                          "fontWeight": "bold",
+                          "color": "var(--color-primary)"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "streak-label",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "连续天数",
+                        "style": {
+                          "fontSize": "22rpx",
+                          "color": "var(--color-text-secondary)",
+                          "marginTop": "4rpx"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "recent-lessons",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "recent-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "最近学习",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "fontWeight": "bold",
+                      "marginBottom": "16rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "recent-list",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "12rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "recent-1",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "16rpx 20rpx",
+                          "borderRadius": "12rpx",
+                          "background": "#fff",
+                          "alignItems": "center",
+                          "gap": "16rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "r1-check",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "图标",
+                            "title": "图标",
+                            "objectFit": "contain",
+                            "iconColor": "var(--color-primary)"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "r1-info",
+                          "alias": "core.stack",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "style": {
+                              "flex": 1
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "r1-title",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "text": "1.1 网页文档结构",
+                                "style": {
+                                  "fontSize": "26rpx",
+                                  "fontWeight": "bold"
+                                }
+                              },
+                              "children": []
+                            },
+                            {
+                              "id": "r1-date",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 1
+                              },
+                              "props": {
+                                "text": "今天 14:30",
+                                "style": {
+                                  "fontSize": "22rpx",
+                                  "color": "var(--color-text-secondary)"
+                                }
+                              },
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "layout": {
+      "id": "page-detail-screen",
+      "alias": "core.screen",
+      "layout": {
+        "mode": "flow",
+        "order": 0
+      },
+      "props": {
+        "title": "课程详情"
+      },
+      "children": [
+        {
+          "id": "course-cover",
+          "alias": "core.image",
+          "layout": {
+            "mode": "flow",
+            "order": 0
+          },
+          "props": {
+            "src": "https://placeholder.com/course.png",
+            "style": {
+              "width": "100%",
+              "height": "400rpx"
+            },
+            "alt": "图片",
+            "title": "图片"
+          },
+          "children": []
+        },
+        {
+          "id": "course-info",
+          "alias": "core.panel",
+          "layout": {
+            "mode": "flow",
+            "order": 1
+          },
+          "props": {
+            "style": {
+              "padding": "24rpx 32rpx",
+              "background": "#fff"
+            }
+          },
+          "children": [
+            {
+              "id": "course-title",
+              "alias": "core.text",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "text": "零基础入门网页前端开发",
+                "style": {
+                  "fontSize": "36rpx",
+                  "fontWeight": "bold"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "course-meta",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "style": {
+                  "marginTop": "16rpx",
+                  "gap": "24rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "meta-students",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "alignItems": "center",
+                      "gap": "6rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "students-icon",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "图标",
+                        "title": "图标",
+                        "objectFit": "contain",
+                        "iconColor": "var(--color-text-secondary)"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "students-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "1.2万人学习",
+                        "style": {
+                          "fontSize": "24rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "meta-rating",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "alignItems": "center",
+                      "gap": "6rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "rating-icon",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "图标",
+                        "title": "图标",
+                        "objectFit": "contain",
+                        "iconColor": "#f59e0b"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "rating-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "4.9分",
+                        "style": {
+                          "fontSize": "24rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "meta-level",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "4rpx 12rpx",
+                      "borderRadius": "6rpx",
+                      "background": "rgba(20,184,166,0.1)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "level-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "入门",
+                        "style": {
+                          "fontSize": "22rpx",
+                          "color": "var(--color-primary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "course-price",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 2
+              },
+              "props": {
+                "style": {
+                  "marginTop": "20rpx",
+                  "alignItems": "baseline",
+                  "gap": "12rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "price-current",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "¥199",
+                    "style": {
+                      "fontSize": "40rpx",
+                      "fontWeight": "bold",
+                      "color": "var(--color-primary)"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "price-original",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "¥499",
+                    "style": {
+                      "fontSize": "26rpx",
+                      "color": "var(--color-text-secondary)",
+                      "textDecoration": "line-through"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "course-teacher",
+          "alias": "core.panel",
+          "layout": {
+            "mode": "flow",
+            "order": 2
+          },
+          "props": {
+            "style": {
+              "padding": "24rpx 32rpx",
+              "background": "#fff",
+              "marginTop": "16rpx"
+            }
+          },
+          "children": [
+            {
+              "id": "teacher-title",
+              "alias": "core.text",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "text": "授课老师",
+                "style": {
+                  "fontSize": "28rpx",
+                  "fontWeight": "bold",
+                  "marginBottom": "16rpx"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "teacher-row",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "style": {
+                  "gap": "16rpx",
+                  "alignItems": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "teacher-avatar",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "src": "https://placeholder.com/teacher.png",
+                    "style": {
+                      "width": "80rpx",
+                      "height": "80rpx",
+                      "borderRadius": "50%"
+                    },
+                    "alt": "图片",
+                    "title": "图片"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "teacher-info",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "flex": 1,
+                      "gap": "4rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "teacher-name",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "张老师",
+                        "style": {
+                          "fontSize": "28rpx",
+                          "fontWeight": "bold"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "teacher-title-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "资深前端工程师 · 10年开发经验",
+                        "style": {
+                          "fontSize": "24rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "course-desc",
+          "alias": "core.panel",
+          "layout": {
+            "mode": "flow",
+            "order": 3
+          },
+          "props": {
+            "style": {
+              "padding": "24rpx 32rpx",
+              "background": "#fff",
+              "marginTop": "16rpx"
+            }
+          },
+          "children": [
+            {
+              "id": "desc-title",
+              "alias": "core.text",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "text": "课程介绍",
+                "style": {
+                  "fontSize": "28rpx",
+                  "fontWeight": "bold",
+                  "marginBottom": "12rpx"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "desc-text",
+              "alias": "core.text",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "text": "本课程从零基础出发，系统讲解网页结构、样式表、脚本编程核心技术，通过实战项目帮助你快速入门网页前端开发。",
+                "style": {
+                  "fontSize": "26rpx",
+                  "color": "var(--color-text-secondary)",
+                  "lineHeight": "1.8"
+                }
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "buy-btn",
+          "alias": "core.button",
+          "layout": {
+            "mode": "flow",
+            "order": 4
+          },
+          "props": {
+            "style": {
+              "margin": "32rpx",
+              "padding": "24rpx",
+              "borderRadius": "48rpx",
+              "background": "var(--color-primary)",
+              "color": "#fff",
+              "fontSize": "30rpx",
+              "fontWeight": "bold",
+              "textAlign": "center"
+            },
+            "label": "立即购买 ¥199"
+          },
+          "children": []
+        }
+      ]
+    },
+    "componentTemplates": {},
+    "cssVars": {
+      "--color-primary": "#14b8a6",
+      "--color-primary-dark": "#0d9488",
+      "--color-primary-light": "#2dd4bf",
+      "--color-text-primary": "#1e293b",
+      "--color-text-secondary": "#64748b",
+      "--color-border": "#e2e8f0",
+      "--color-background": "#f8fafc",
+      "--color-surface": "#ffffff"
+    },
+    "style": {
+      "cssVars": {
+        "--color-primary": "#14b8a6",
+        "--color-primary-dark": "#0d9488",
+        "--color-primary-light": "#2dd4bf",
+        "--color-text-primary": "#1e293b",
+        "--color-text-secondary": "#64748b",
+        "--color-border": "#e2e8f0",
+        "--color-background": "#f8fafc",
+        "--color-surface": "#ffffff"
+      }
+    }
+  },
+  "semanticConfig": {
+    "pages": [
+      {
+        "id": "page-detail",
+        "key": "course.detail",
+        "name": "课程详情",
+        "description": "课程介绍、老师信息、价格"
+      },
+      {
+        "id": "page-outline",
+        "key": "course.outline",
+        "name": "课程目录",
+        "description": "章节目录和学习进度"
+      },
+      {
+        "id": "page-player",
+        "key": "course.player",
+        "name": "课时播放",
+        "description": "视频播放和课时详情"
+      },
+      {
+        "id": "page-progress",
+        "key": "course.progress",
+        "name": "学习进度",
+        "description": "学习统计和进度"
+      }
+    ],
+    "regions": [
+      {
+        "id": "course-cover",
+        "key": "course.detail.cover",
+        "name": "课程封面",
+        "description": "课程封面图"
+      },
+      {
+        "id": "course-info",
+        "key": "course.detail.info",
+        "name": "课程信息",
+        "description": "标题、价格、元数据"
+      },
+      {
+        "id": "course-teacher",
+        "key": "course.detail.teacher",
+        "name": "授课老师",
+        "description": "老师信息"
+      },
+      {
+        "id": "outline-chapters",
+        "key": "course.outline.chapters",
+        "name": "章节目录",
+        "description": "课程章节目录"
+      }
+    ],
+    "slots": [
+      {
+        "id": "course-title",
+        "key": "course.detail.title",
+        "name": "课程标题",
+        "description": "课程标题"
+      },
+      {
+        "id": "price-current",
+        "key": "course.detail.price",
+        "name": "课程价格",
+        "description": "当前价格"
+      },
+      {
+        "id": "teacher-name",
+        "key": "course.detail.teacher.name",
+        "name": "老师姓名",
+        "description": "授课老师姓名"
+      }
+    ]
+  },
+  "categoryLabel": "教育学习",
+  "functionalCategoryLabels": {
+    "education-learning": "教育学习",
+    "education": "教育培训",
+    "learning": "学习"
+  },
+  "tagline": "适用于在线教育、课程详情、学习中心等场景的小程序模板，包含课程详情、课程目录、课时播放、学习进度页面",
+  "traits": [
+    "教育",
+    "学习",
+    "课程",
+    "在线教育",
+    "培训"
+  ],
+  "cssVars": {
+    "--color-primary": "#14b8a6",
+    "--color-primary-dark": "#0d9488",
+    "--color-primary-light": "#2dd4bf",
+    "--color-text-primary": "#1e293b",
+    "--color-text-secondary": "#64748b",
+    "--color-border": "#e2e8f0",
+    "--color-background": "#f8fafc",
+    "--color-surface": "#ffffff"
+  },
+  "componentTemplates": {}
+}

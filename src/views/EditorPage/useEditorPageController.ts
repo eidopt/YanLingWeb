@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { TemplateRequestError } from 'services/TemplateService';
 import type { ThemeSpec } from 'types/theme.types';
 import type { BuilderCanvas, LayoutBuilderTheme } from 'ui/editor/types';
 import type { ThemeLayoutDocument } from 'ui/layout/types';
@@ -35,6 +36,7 @@ export function useEditorPageController(): EditorPageController {
   const [loading, setLoading] = useState(true);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSavedRef = useRef('');
+  const pendingSaveRef = useRef('');
 
   useEffect(() => {
     const requestState = { cancelled: false };
@@ -100,19 +102,46 @@ export function useEditorPageController(): EditorPageController {
       activeCanvasId,
     );
     const serialized = JSON.stringify(layoutDocument);
-    if (serialized === lastSavedRef.current) {
+    if (
+      serialized === lastSavedRef.current ||
+      serialized === pendingSaveRef.current
+    ) {
       return;
     }
 
     if (saveTimerRef.current) {
       clearTimeout(saveTimerRef.current);
     }
-    saveTimerRef.current = setTimeout(() => {
-      lastSavedRef.current = serialized;
-      void templateService.saveOwned(ownedTemplateId, {
-        layoutDocument,
-      });
-    }, 900);
+    pendingSaveRef.current = serialized;
+    const runSave = (delayMs: number) => {
+      saveTimerRef.current = setTimeout(() => {
+        if (pendingSaveRef.current && pendingSaveRef.current !== serialized) {
+          return;
+        }
+        void templateService.saveOwned(ownedTemplateId, { layoutDocument })
+          .then(() => {
+            lastSavedRef.current = serialized;
+            if (pendingSaveRef.current === serialized) {
+              pendingSaveRef.current = '';
+            }
+          })
+          .catch((error: unknown) => {
+            if (pendingSaveRef.current && pendingSaveRef.current !== serialized) {
+              return;
+            }
+            pendingSaveRef.current = '';
+            if (error instanceof TemplateRequestError && error.status === 429) {
+              runSave(error.retryAfterMs ?? 3000);
+              return;
+            }
+            console.warn(
+              'Failed to autosave owned template',
+              error instanceof Error ? error.message : error,
+            );
+          });
+      }, delayMs);
+    };
+    runSave(900);
   }, [ownedTemplateId, templateService]);
 
   return {

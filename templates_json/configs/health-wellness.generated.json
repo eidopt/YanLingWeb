@@ -1,0 +1,306 @@
+{
+  "templateId": "health-wellness",
+  "templateVersion": "1.0.0",
+  "profileVersion": "1.0.0",
+  "devices": [
+    "miniapp"
+  ],
+  "pages": [
+    {
+      "pageKey": "health.home",
+      "pageId": "page-home",
+      "pageKind": "dashboard",
+      "name": "健康首页",
+      "description": "健康数据概览和指标",
+      "rootNodeId": "page-home-screen",
+      "device": "miniapp",
+      "isDefault": true
+    },
+    {
+      "pageKey": "health.trends",
+      "pageId": "page-trends",
+      "pageKind": "charts",
+      "name": "趋势详情",
+      "description": "健康数据趋势图表",
+      "rootNodeId": "page-trends-screen",
+      "device": "miniapp"
+    },
+    {
+      "pageKey": "health.exercise",
+      "pageId": "page-exercise",
+      "pageKind": "plan",
+      "name": "运动计划",
+      "description": "运动计划和记录",
+      "rootNodeId": "page-exercise-screen",
+      "device": "miniapp"
+    },
+    {
+      "pageKey": "health.consult",
+      "pageId": "page-consult",
+      "pageKind": "list",
+      "name": "健康咨询",
+      "description": "医生咨询",
+      "rootNodeId": "page-consult-screen",
+      "device": "miniapp"
+    }
+  ],
+  "regions": [
+    {
+      "regionKey": "health.home.header",
+      "pageKey": "health.home",
+      "nodeId": "health-header",
+      "name": "健康头部",
+      "sectionKind": "header",
+      "replaceable": false
+    },
+    {
+      "regionKey": "health.home.metrics",
+      "pageKey": "health.home",
+      "nodeId": "health-metrics",
+      "name": "健康指标",
+      "sectionKind": "metrics",
+      "replaceable": true,
+      "allowedPatternKeys": [
+        "health.metrics"
+      ]
+    },
+    {
+      "regionKey": "health.home.tips",
+      "pageKey": "health.home",
+      "nodeId": "health-tips",
+      "name": "健康贴士",
+      "sectionKind": "tips",
+      "replaceable": true
+    },
+    {
+      "regionKey": "health.trends.charts",
+      "pageKey": "health.trends",
+      "nodeId": "trends-chart",
+      "name": "趋势图表",
+      "sectionKind": "chart",
+      "replaceable": false
+    },
+    {
+      "regionKey": "health.exercise.today",
+      "pageKey": "health.exercise",
+      "nodeId": "exercise-today",
+      "name": "今日计划",
+      "sectionKind": "plan",
+      "replaceable": true,
+      "allowedPatternKeys": [
+        "health.exercises"
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "slotKey": "health.home.score",
+      "pageKey": "health.home",
+      "regionKey": "health.home.header",
+      "nodeId": "score-num",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "score",
+      "label": "健康评分"
+    },
+    {
+      "slotKey": "health.home.steps",
+      "pageKey": "health.home",
+      "regionKey": "health.home.header",
+      "nodeId": "steps-num",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "count",
+      "label": "今日步数"
+    },
+    {
+      "slotKey": "health.home.heartRate",
+      "pageKey": "health.home",
+      "regionKey": "health.home.metrics",
+      "nodeId": "heart-value",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "value",
+      "label": "心率"
+    },
+    {
+      "slotKey": "health.home.sleep",
+      "pageKey": "health.home",
+      "regionKey": "health.home.metrics",
+      "nodeId": "sleep-value",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "value",
+      "label": "睡眠时长"
+    },
+    {
+      "slotKey": "health.home.bloodPressure",
+      "pageKey": "health.home",
+      "regionKey": "health.home.metrics",
+      "nodeId": "bp-value",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "value",
+      "label": "血压"
+    },
+    {
+      "slotKey": "health.home.calories",
+      "pageKey": "health.home",
+      "regionKey": "health.home.metrics",
+      "nodeId": "cal-value",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "value",
+      "label": "卡路里消耗"
+    },
+    {
+      "slotKey": "health.tips.text",
+      "pageKey": "health.home",
+      "regionKey": "health.home.tips",
+      "nodeId": "tips-text",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "content",
+      "label": "健康贴士"
+    }
+  ],
+  "patterns": [
+    {
+      "patternKey": "health.metrics",
+      "pageKey": "health.home",
+      "regionKey": "health.home.metrics",
+      "sourceRootNodeId": "metric-heart",
+      "parentNodeId": "health-metrics",
+      "itemAlias": "metric",
+      "fields": [
+        {
+          "fieldKey": "icon",
+          "slotKey": "health.metric.icon",
+          "prop": "name",
+          "required": true
+        },
+        {
+          "fieldKey": "value",
+          "slotKey": "health.metric.value",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "label",
+          "slotKey": "health.metric.label",
+          "prop": "text",
+          "required": true
+        }
+      ],
+      "maxItems": 6,
+      "minItems": 2
+    },
+    {
+      "patternKey": "health.exercises",
+      "pageKey": "health.exercise",
+      "regionKey": "health.exercise.today",
+      "sourceRootNodeId": "exercise-card",
+      "parentNodeId": "exercise-today",
+      "itemAlias": "exercise",
+      "fields": [
+        {
+          "fieldKey": "name",
+          "slotKey": "health.exercise.name",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "duration",
+          "slotKey": "health.exercise.duration",
+          "prop": "text",
+          "required": true
+        }
+      ],
+      "maxItems": 10,
+      "minItems": 1
+    }
+  ],
+  "navigation": {
+    "type": "none",
+    "items": []
+  },
+  "constraints": {
+    "devices": [
+      "miniapp"
+    ],
+    "maxColumns": 2,
+    "allowedLayouts": [
+      "core.stack",
+      "core.row",
+      "core.grid"
+    ],
+    "requiredComponents": [
+      "core.text"
+    ]
+  },
+  "styleProfile": {
+    "colors": [
+      "#22c55e",
+      "#16a34a",
+      "#4ade80",
+      "#1e293b",
+      "#64748b",
+      "#e2e8f0",
+      "#f8fafc",
+      "#ffffff"
+    ],
+    "fontSizes": [
+      "22rpx",
+      "24rpx",
+      "26rpx",
+      "28rpx",
+      "32rpx",
+      "36rpx",
+      "40rpx",
+      "48rpx"
+    ],
+    "fontWeights": [
+      "normal",
+      "bold"
+    ],
+    "spacing": [
+      "8rpx",
+      "12rpx",
+      "16rpx",
+      "20rpx",
+      "24rpx",
+      "32rpx"
+    ],
+    "radius": [
+      "6rpx",
+      "8rpx",
+      "12rpx",
+      "16rpx",
+      "32rpx",
+      "50%"
+    ],
+    "shadows": [
+      "0 4rpx 16rpx rgba(0,0,0,0.08)"
+    ],
+    "componentDensity": "comfortable",
+    "commonLayoutPatterns": [
+      "metric-card",
+      "progress-ring",
+      "health-dashboard"
+    ]
+  }
+}

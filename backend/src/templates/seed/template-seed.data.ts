@@ -623,7 +623,7 @@ export const TEMPLATE_SEED_DATA: TemplateSeedException[] = [
     accent: "#fa9d3b",
     platformCategories: ["mini-program", "mobile-app"],
     functionalCategories: ["commerce"],
-    category: "电商购物",
+    category: "commerce",
     traits: ["生鲜电商", "多页跳转", "暖橙色调", "促销信息"],
     tags: [
       "电商",
@@ -1534,7 +1534,7 @@ export const TEMPLATE_SEED_DATA: TemplateSeedException[] = [
     accent: "#07c160",
     platformCategories: ["mini-program", "mobile-app"],
     functionalCategories: ["service"],
-    category: "生活服务",
+    category: "service",
     traits: ["服务入口", "订单追踪", "绿色基调", "功能分区"],
     tags: [
       "生活服务",

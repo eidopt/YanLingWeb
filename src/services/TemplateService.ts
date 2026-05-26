@@ -1,4 +1,4 @@
-import type { ThemeSpec } from 'types/theme.types';
+import type { TemplateAgentConfig, ThemeSpec } from 'types/theme.types';
 import type {
   ThemeLayoutDocument,
   ThemeLayoutDocumentSource,
@@ -17,14 +17,18 @@ interface TemplateRecord {
   description: string;
   accent: string;
   category: string;
+  categoryLabel?: string;
   platformCategories?: string[];
+  platformCategoryLabels?: Record<string, string>;
   functionalCategories?: string[];
+  functionalCategoryLabels?: Record<string, string>;
   traits: string[];
   tags?: string[];
   cssVars: Record<string, string>;
   cssAnimations?: Record<string, string> | null;
   componentTemplates: Record<string, unknown>;
   layoutDocument: ThemeLayoutDocumentSource;
+  agentConfig?: TemplateAgentConfig;
   createdAt: string;
   updatedAt: string;
 }
@@ -42,6 +46,33 @@ export interface TemplateSaveInput {
   componentTemplates?: Record<string, unknown>;
   cssVars?: Record<string, string>;
   cssAnimations?: Record<string, string> | null;
+}
+
+export class TemplateRequestError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly retryAfterMs?: number,
+  ) {
+    super(message);
+    this.name = 'TemplateRequestError';
+  }
+}
+
+function retryAfterMs(headers: Headers): number | undefined {
+  const value = headers.get('retry-after');
+  if (!value) {
+    return undefined;
+  }
+  const seconds = Number(value);
+  if (Number.isFinite(seconds) && seconds > 0) {
+    return Math.min(seconds * 1000, 60_000);
+  }
+  const date = Date.parse(value);
+  if (!Number.isFinite(date)) {
+    return undefined;
+  }
+  return Math.max(0, Math.min(date - Date.now(), 60_000));
 }
 
 export class TemplateService {
@@ -67,8 +98,11 @@ export class TemplateService {
       description: record.description,
       accent: record.accent,
       category: record.category,
+      categoryLabel: record.categoryLabel ?? record.category,
       platformCategories: [...(record.platformCategories ?? [])],
+      platformCategoryLabels: { ...(record.platformCategoryLabels ?? {}) },
       functionalCategories: [...(record.functionalCategories ?? [])],
+      functionalCategoryLabels: { ...(record.functionalCategoryLabels ?? {}) },
       traits: [...record.traits],
       tags: [...(record.tags ?? [])],
       createdAt: record.createdAt,
@@ -77,6 +111,7 @@ export class TemplateService {
         record.layoutDocument,
       ),
       runtime,
+      ...(record.agentConfig && { agentConfig: record.agentConfig }),
     };
   }
 
@@ -114,8 +149,10 @@ export class TemplateService {
     });
     const data = await res.json().catch(() => ({})) as T & { message?: string };
     if (!res.ok) {
-      throw new Error(
+      throw new TemplateRequestError(
         data.message ?? `Request failed (${res.status})`,
+        res.status,
+        retryAfterMs(res.headers),
       );
     }
     return data;

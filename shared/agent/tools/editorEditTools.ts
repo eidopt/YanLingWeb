@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 export interface AgentProviderTool {
   name: string;
   description: string;
@@ -141,13 +142,13 @@ const INSERT_NODE_DESCRIPTION = [
   '',
   'The "props" object holds ALL component-specific properties. Always include',
   'the minimum required props for the alias. Examples by component type:',
-  '  core.button  -> {"label":"Submit","variant":"primary"}',
-  '  core.text    -> {"text":"Hello world"}',
-  '  core.input   -> {"placeholder":"Enter email","type":"email"}',
-  '  core.image   -> {"src":"/img/photo.jpg","alt":"description"}',
-  '  core.tag     -> {"label":"New","tone":"info"}',
+  '  core.button  -> {"label":"提交","variant":"primary"}',
+  '  core.text    -> {"text":"欢迎使用"}',
+  '  core.input   -> {"placeholder":"请输入邮箱","type":"email"}',
+  '  core.image   -> {"src":"https://images.unsplash.com/photo-1498050108023-c5249f4df085","alt":"示例图片"}',
+  '  core.tag     -> {"label":"新品","tone":"info"}',
   '  core.progress -> {"value":60,"max":100,"tone":"accent"}',
-  '  core.screen  -> {"title":"My Page"}',
+  '  core.screen  -> {"title":"我的页面"}',
   '',
   'Do NOT put props at the top level - always inside the "props" object.',
 ].join('\n');
@@ -171,7 +172,7 @@ export const EDITOR_INSERT_NODE_TOOL = tool(
           'Common props: text, label, title, placeholder, name, variant,',
           'icon, src, alt, type, disabled, value, color, size.',
         ].join(' '),
-        'Example: {"text":"Submit","variant":"primary","disabled":false}',
+        'Example: {"text":"提交","variant":"primary","disabled":false}',
       ].join(' '),
     },
     layout: { type: 'object', description: 'Layout values (mode, width, height, etc).' },
@@ -184,10 +185,10 @@ const UPDATE_PROPS_DESCRIPTION = [
   '',
   'The "props" object holds the properties to update. Only include changed props.',
   'Examples:',
-  '  Change text    -> {"text":"New label"}',
+  '  Change text    -> {"text":"新的文案"}',
   '  Change variant -> {"variant":"outline"}',
   '  Disable button -> {"disabled":true}',
-  '  Change image   -> {"src":"/new-photo.jpg"}',
+  '  Change image   -> {"src":"https://images.unsplash.com/photo-1498050108023-c5249f4df085"}',
   '',
   'Do NOT put props at the top level - always inside the "props" object.',
 ].join('\n');
@@ -207,7 +208,7 @@ export const EDITOR_UPDATE_PROPS_TOOL = tool(
           'Common props: text, label, title, placeholder, name, variant,',
           'icon, activeTab, src, alt, type, disabled, value, color, size.',
         ].join(' '),
-        'Example: {"text":"Updated label","variant":"outline"}',
+        'Example: {"text":"更新后的文案","variant":"outline"}',
       ].join(' '),
     },
     semanticTarget: {
@@ -329,7 +330,79 @@ export const EDITOR_SYNC_NAVIGATION_TOOL = tool(
   },
 );
 
+export const EDITOR_SUBMIT_PAGE_SPEC_TOOL = tool(
+  'editor_submit_page_spec',
+  'Submit a high-level PageSpec. Use this first for page creation or broad page updates. Do not include real nodeId values.',
+  ['spec'],
+  {
+    spec: { type: 'object', description: 'PageSpec with intent, pageKind/pageKey, title, sections, and navigation.' },
+    select: { type: 'boolean' },
+  },
+);
+
+export const EDITOR_UPDATE_SLOT_TOOL = tool(
+  'editor_update_slot',
+  'Update an existing semantic slot by slotKey. Never use real nodeId here.',
+  ['slotKey', 'props'],
+  {
+    slotKey: { type: 'string', description: 'Semantic slot key from TemplateProfile.' },
+    pageKey: { type: 'string', description: 'Optional semantic page key.' },
+    props: { type: 'object', description: 'Only editable props declared by the slot.' },
+    select: { type: 'boolean' },
+  },
+);
+
+export const EDITOR_FILL_PATTERN_TOOL = tool(
+  'editor_fill_pattern',
+  'Fill a repeated semantic pattern such as product cards, order cards, grids, or lists.',
+  ['patternKey', 'items'],
+  {
+    patternKey: { type: 'string', description: 'Semantic pattern key from TemplateProfile.' },
+    pageKey: { type: 'string', description: 'Optional semantic page key.' },
+    items: { type: 'array', items: { type: 'object' }, description: 'Structured item data mapped to pattern fields.' },
+    replaceExisting: { type: 'boolean' },
+    select: { type: 'boolean' },
+  },
+);
+
+export const EDITOR_CREATE_PAGE_FROM_PAGE_KIND_TOOL = tool(
+  'editor_create_page_from_page_kind',
+  'Create a page by pageKind. The system chooses the reference page; AI must not pass referencePageId.',
+  ['pageKind', 'name'],
+  {
+    pageKind: { type: 'string', description: 'Semantic page kind such as order, profile, category, home.' },
+    name: { type: 'string', description: 'New page title/name.' },
+    contentIntent: { type: 'string', description: 'Short natural-language content intent.' },
+    activate: { type: 'boolean' },
+    select: { type: 'boolean' },
+    syncNavigation: { type: 'boolean' },
+  },
+);
+
+export const EDITOR_REPLACE_SECTION_TOOL = tool(
+  'editor_replace_section',
+  'Replace or update a replaceable semantic region using existing section patterns. Do not freehand arbitrary layout.',
+  ['regionKey', 'sectionKind'],
+  {
+    regionKey: { type: 'string', description: 'Semantic region key from TemplateProfile.' },
+    sectionKind: { type: 'string', description: 'Section kind to apply.' },
+    pageKey: { type: 'string', description: 'Optional semantic page key.' },
+    content: { type: 'object', description: 'Section content payload.' },
+    patternKey: { type: 'string', description: 'Optional compatible pattern key.' },
+    select: { type: 'boolean' },
+  },
+);
+
+export const EDITOR_SEMANTIC_TOOLS = [
+  EDITOR_SUBMIT_PAGE_SPEC_TOOL,
+  EDITOR_UPDATE_SLOT_TOOL,
+  EDITOR_FILL_PATTERN_TOOL,
+  EDITOR_CREATE_PAGE_FROM_PAGE_KIND_TOOL,
+  EDITOR_REPLACE_SECTION_TOOL,
+] as const satisfies readonly AgentProviderTool[];
+
 export const EDITOR_EDIT_TOOLS = [
+  ...EDITOR_SEMANTIC_TOOLS,
   EDITOR_CREATE_PAGE_FROM_REFERENCE_TOOL,
   EDITOR_CREATE_PAGE_TOOL,
   EDITOR_DELETE_PAGE_TOOL,
@@ -393,6 +466,25 @@ export function editorToolCallToOperations(
   const reason = typeof args.reason === 'string' ? args.reason : '';
 
   switch (name) {
+    case EDITOR_SUBMIT_PAGE_SPEC_TOOL.name: {
+      return { operations: [{ type: 'submit_page_spec', spec: args.spec, select: args.select }], reason };
+    }
+    case EDITOR_UPDATE_SLOT_TOOL.name: {
+      const base = cleanBaseArgs(args);
+      return { operations: [{ ...base, type: 'update_slot' }], reason };
+    }
+    case EDITOR_FILL_PATTERN_TOOL.name: {
+      const base = cleanBaseArgs(args);
+      return { operations: [{ ...base, type: 'fill_pattern' }], reason };
+    }
+    case EDITOR_CREATE_PAGE_FROM_PAGE_KIND_TOOL.name: {
+      const base = cleanBaseArgs(args);
+      return { operations: [{ ...base, type: 'create_page_from_page_kind' }], reason };
+    }
+    case EDITOR_REPLACE_SECTION_TOOL.name: {
+      const base = cleanBaseArgs(args);
+      return { operations: [{ ...base, type: 'replace_section' }], reason };
+    }
     case EDITOR_CREATE_PAGE_FROM_REFERENCE_TOOL.name: {
       const base = cleanBaseArgs(args);
       return { operations: [{ ...base, type: 'create_page_from_reference' }], reason };

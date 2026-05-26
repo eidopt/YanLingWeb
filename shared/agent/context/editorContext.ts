@@ -5,11 +5,22 @@ import type {
   ThemeLayoutDocument,
   ThemeLayoutNode,
 } from '../types';
+import type { TemplateProfile } from '../template/templateProfile';
 
 const MAX_NODE_SUMMARY_COUNT = 80;
 const MAX_TRIMMED_NODE_SUMMARY_COUNT = 28;
 const MAX_CONVERSATION_CONTEXT_CHARS = 500_000;
 const MAX_CONVERSATION_MESSAGE_CHARS = 40_000;
+const MAX_TEMPLATE_CONFIG_JSON_CHARS = 16_000;
+
+export interface AgentTemplateKnowledgeContext {
+  profileGenerated?: TemplateProfile | Record<string, unknown> | null;
+  profileOverride?: Record<string, unknown> | null;
+  effectiveProfile?: TemplateProfile | Record<string, unknown> | null;
+  assets?: Record<string, unknown> | null;
+  permissions?: Record<string, unknown> | null;
+  evaluation?: Record<string, unknown> | null;
+}
 
 function stringifyPropValue(value: unknown): string {
   if (value == null) {
@@ -297,6 +308,108 @@ export function summarizePages(pages: AgentPageContext[] | undefined): string {
     ].filter(Boolean).join(', ');
     return `- ${page.pageId}${activeMarker} | ${page.name} | ${stats}`;
   }).join('\n');
+}
+
+function asTemplateProfile(value: unknown): TemplateProfile | null {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+  const record = value as Partial<TemplateProfile>;
+  return Array.isArray(record.pages) &&
+    Array.isArray(record.regions) &&
+    Array.isArray(record.slots) &&
+    Array.isArray(record.patterns)
+    ? record as TemplateProfile
+    : null;
+}
+
+function compactJson(value: unknown): string {
+  if (value == null) {
+    return 'none';
+  }
+  const serialized = JSON.stringify(value);
+  if (serialized.length <= MAX_TEMPLATE_CONFIG_JSON_CHARS) {
+    return serialized;
+  }
+  return `${serialized.slice(0, MAX_TEMPLATE_CONFIG_JSON_CHARS)}... [truncated]`;
+}
+
+function summarizeRecordKeys(label: string, value: Record<string, unknown> | null | undefined): string {
+  if (!value) {
+    return `- ${label}: none`;
+  }
+  const keys = Object.keys(value).slice(0, 24);
+  return `- ${label}: keys=${keys.length ? keys.join(', ') : 'none'}`;
+}
+
+function summarizeTemplateProfile(profile: TemplateProfile): string {
+  const lines: string[] = [
+    `- templateId=${profile.templateId}`,
+    `- profileVersion=${profile.profileVersion}, templateVersion=${profile.templateVersion}`,
+    `- devices=${profile.devices.join(', ') || 'none'}`,
+    '- pages:',
+    ...(profile.pages.slice(0, 16).map((page) =>
+      `  - ${page.pageKey} | pageId=${page.pageId} | kind=${page.pageKind} | name=${page.name}`)),
+    profile.pages.length > 16
+      ? `  - ... ${profile.pages.length - 16} more pages`
+      : '',
+    '- regions:',
+    ...(profile.regions.slice(0, 24).map((region) =>
+      `  - ${region.regionKey} | page=${region.pageKey} | nodeId=${region.nodeId} | replaceable=${String(Boolean(region.replaceable))}`)),
+    profile.regions.length > 24
+      ? `  - ... ${profile.regions.length - 24} more regions`
+      : '',
+    '- slots:',
+    ...(profile.slots.slice(0, 40).map((slot) =>
+      `  - ${slot.slotKey} | page=${slot.pageKey} | nodeId=${slot.nodeId} | component=${slot.component} | props=${slot.editableProps.join(',')}`)),
+    profile.slots.length > 40
+      ? `  - ... ${profile.slots.length - 40} more slots`
+      : '',
+    '- patterns:',
+    ...(profile.patterns.slice(0, 16).map((pattern) =>
+      `  - ${pattern.patternKey} | page=${pattern.pageKey} | root=${pattern.sourceRootNodeId} | fields=${pattern.fields.map((field) => field.fieldKey).join(',')}`)),
+    profile.patterns.length > 16
+      ? `  - ... ${profile.patterns.length - 16} more patterns`
+      : '',
+  ].filter(Boolean);
+
+  if (profile.navigation) {
+    lines.push(
+      `- navigation=${profile.navigation.type}: ${
+        profile.navigation.items.map((item) => `${item.key}:${item.label}`).join(', ') || 'none'
+      }`,
+    );
+  }
+  if (profile.constraints) {
+    lines.push(`- constraints=${compactJson(profile.constraints)}`);
+  }
+  return lines.join('\n');
+}
+
+export function summarizeTemplateAgentKnowledge(
+  knowledge: AgentTemplateKnowledgeContext | null | undefined,
+): string {
+  if (!knowledge) {
+    return '';
+  }
+  const effectiveProfile = asTemplateProfile(knowledge.effectiveProfile);
+  const lines = [
+    'Template semantic config from database:',
+    effectiveProfile
+      ? summarizeTemplateProfile(effectiveProfile)
+      : `- effectiveProfile=${compactJson(knowledge.effectiveProfile)}`,
+    summarizeRecordKeys('profileOverride', knowledge.profileOverride),
+    summarizeRecordKeys('assets', knowledge.assets),
+    summarizeRecordKeys('permissions', knowledge.permissions),
+    summarizeRecordKeys('evaluation', knowledge.evaluation),
+    '',
+    'Template config JSON snippets:',
+    `profileOverride=${compactJson(knowledge.profileOverride)}`,
+    `assets=${compactJson(knowledge.assets)}`,
+    `permissions=${compactJson(knowledge.permissions)}`,
+    `evaluation=${compactJson(knowledge.evaluation)}`,
+  ];
+  return lines.join('\n');
 }
 
 export function buildEditorContext(

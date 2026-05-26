@@ -15,6 +15,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 export type SortKey = 'default' | 'name-asc' | 'newest';
 
 export interface CategoryMeta {
+  value: string;
   label: string;
   count: number;
 }
@@ -115,7 +116,8 @@ export function useTemplatesPageController(): TemplatesPageController {
       counts.set(cat, (counts.get(cat) ?? 0) + 1);
     }
     return categories.map((cat) => ({
-      label: cat,
+      value: cat,
+      label: getCategoryLabel(templates, cat),
       count: counts.get(cat) ?? 0,
     }));
   }, [templates, categories]);
@@ -167,4 +169,11 @@ function getCategories(themes: ThemeSpec[]): string[] {
     }
   }
   return result;
+}
+
+function getCategoryLabel(themes: ThemeSpec[], category: string): string {
+  if (category === ALL_CATEGORY) {
+    return ALL_CATEGORY;
+  }
+  return themes.find((theme) => theme.category === category)?.categoryLabel ?? category;
 }

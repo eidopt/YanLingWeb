@@ -1,0 +1,276 @@
+{
+  "templateId": "education-learning",
+  "templateVersion": "1.0.0",
+  "profileVersion": "1.0.0",
+  "devices": [
+    "miniapp"
+  ],
+  "pages": [
+    {
+      "pageKey": "course.detail",
+      "pageId": "page-detail",
+      "pageKind": "detail",
+      "name": "课程详情",
+      "description": "课程介绍、老师信息、价格",
+      "rootNodeId": "page-detail-screen",
+      "device": "miniapp",
+      "isDefault": true
+    },
+    {
+      "pageKey": "course.outline",
+      "pageId": "page-outline",
+      "pageKind": "outline",
+      "name": "课程目录",
+      "description": "章节目录和学习进度",
+      "rootNodeId": "page-outline-screen",
+      "device": "miniapp"
+    },
+    {
+      "pageKey": "course.player",
+      "pageId": "page-player",
+      "pageKind": "player",
+      "name": "课时播放",
+      "description": "视频播放和课时详情",
+      "rootNodeId": "page-player-screen",
+      "device": "miniapp"
+    },
+    {
+      "pageKey": "course.progress",
+      "pageId": "page-progress",
+      "pageKind": "stats",
+      "name": "学习进度",
+      "description": "学习统计和进度",
+      "rootNodeId": "page-progress-screen",
+      "device": "miniapp"
+    }
+  ],
+  "regions": [
+    {
+      "regionKey": "course.detail.cover",
+      "pageKey": "course.detail",
+      "nodeId": "course-cover",
+      "name": "课程封面",
+      "sectionKind": "cover",
+      "replaceable": false
+    },
+    {
+      "regionKey": "course.detail.info",
+      "pageKey": "course.detail",
+      "nodeId": "course-info",
+      "name": "课程信息",
+      "sectionKind": "info",
+      "replaceable": false
+    },
+    {
+      "regionKey": "course.detail.teacher",
+      "pageKey": "course.detail",
+      "nodeId": "course-teacher",
+      "name": "授课老师",
+      "sectionKind": "profile",
+      "replaceable": false
+    },
+    {
+      "regionKey": "course.detail.description",
+      "pageKey": "course.detail",
+      "nodeId": "course-desc",
+      "name": "课程介绍",
+      "sectionKind": "content",
+      "replaceable": true
+    },
+    {
+      "regionKey": "course.outline.chapters",
+      "pageKey": "course.outline",
+      "nodeId": "outline-chapters",
+      "name": "章节目录",
+      "sectionKind": "outline",
+      "replaceable": true,
+      "allowedPatternKeys": [
+        "course.chapters"
+      ]
+    },
+    {
+      "regionKey": "course.progress.stats",
+      "pageKey": "course.progress",
+      "nodeId": "progress-stats",
+      "name": "学习统计",
+      "sectionKind": "stats",
+      "replaceable": false
+    }
+  ],
+  "slots": [
+    {
+      "slotKey": "course.detail.title",
+      "pageKey": "course.detail",
+      "regionKey": "course.detail.info",
+      "nodeId": "course-title",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "title",
+      "label": "课程标题"
+    },
+    {
+      "slotKey": "course.detail.price",
+      "pageKey": "course.detail",
+      "regionKey": "course.detail.info",
+      "nodeId": "price-current",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "price",
+      "label": "课程价格"
+    },
+    {
+      "slotKey": "course.detail.originalPrice",
+      "pageKey": "course.detail",
+      "regionKey": "course.detail.info",
+      "nodeId": "price-original",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "originalPrice",
+      "label": "原价"
+    },
+    {
+      "slotKey": "course.detail.teacher.name",
+      "pageKey": "course.detail",
+      "regionKey": "course.detail.teacher",
+      "nodeId": "teacher-name",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "name",
+      "label": "老师姓名"
+    },
+    {
+      "slotKey": "course.detail.teacher.title",
+      "pageKey": "course.detail",
+      "regionKey": "course.detail.teacher",
+      "nodeId": "teacher-title-text",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "title",
+      "label": "老师头衔"
+    },
+    {
+      "slotKey": "course.detail.teacher.avatar",
+      "pageKey": "course.detail",
+      "regionKey": "course.detail.teacher",
+      "nodeId": "teacher-avatar",
+      "component": "core.image",
+      "editableProps": [
+        "src"
+      ],
+      "aiRole": "avatar",
+      "label": "老师头像"
+    },
+    {
+      "slotKey": "course.detail.description.text",
+      "pageKey": "course.detail",
+      "regionKey": "course.detail.description",
+      "nodeId": "desc-text",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "content",
+      "label": "课程介绍"
+    }
+  ],
+  "patterns": [
+    {
+      "patternKey": "course.chapters",
+      "pageKey": "course.outline",
+      "regionKey": "course.outline.chapters",
+      "sourceRootNodeId": "chapter-1",
+      "parentNodeId": "outline-chapters",
+      "itemAlias": "chapter",
+      "fields": [
+        {
+          "fieldKey": "title",
+          "slotKey": "course.chapter.title",
+          "prop": "text",
+          "required": true
+        }
+      ],
+      "maxItems": 20,
+      "minItems": 1
+    }
+  ],
+  "navigation": {
+    "type": "none",
+    "items": []
+  },
+  "constraints": {
+    "devices": [
+      "miniapp"
+    ],
+    "maxColumns": 3,
+    "allowedLayouts": [
+      "core.stack",
+      "core.row",
+      "core.grid"
+    ],
+    "requiredComponents": [
+      "core.text",
+      "core.image"
+    ]
+  },
+  "styleProfile": {
+    "colors": [
+      "#14b8a6",
+      "#0d9488",
+      "#2dd4bf",
+      "#1e293b",
+      "#64748b",
+      "#e2e8f0",
+      "#f8fafc",
+      "#ffffff"
+    ],
+    "fontSizes": [
+      "22rpx",
+      "24rpx",
+      "26rpx",
+      "28rpx",
+      "30rpx",
+      "32rpx",
+      "36rpx",
+      "40rpx"
+    ],
+    "fontWeights": [
+      "normal",
+      "bold"
+    ],
+    "spacing": [
+      "8rpx",
+      "12rpx",
+      "16rpx",
+      "20rpx",
+      "24rpx",
+      "32rpx"
+    ],
+    "radius": [
+      "6rpx",
+      "8rpx",
+      "12rpx",
+      "16rpx",
+      "32rpx",
+      "50%"
+    ],
+    "shadows": [
+      "0 2rpx 8rpx rgba(0,0,0,0.06)"
+    ],
+    "componentDensity": "comfortable",
+    "commonLayoutPatterns": [
+      "course-header",
+      "chapter-list",
+      "progress-ring"
+    ]
+  }
+}

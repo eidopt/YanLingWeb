@@ -1,0 +1,382 @@
+{
+  "templateId": "content-reader",
+  "templateVersion": "1.0.0",
+  "profileVersion": "1.0.0",
+  "devices": [
+    "miniapp"
+  ],
+  "pages": [
+    {
+      "pageKey": "articles.list",
+      "pageId": "page-list",
+      "pageKind": "feed",
+      "name": "文章列表",
+      "description": "展示文章列表，支持分类筛选",
+      "rootNodeId": "page-list-screen",
+      "device": "miniapp",
+      "isDefault": true
+    },
+    {
+      "pageKey": "articles.detail",
+      "pageId": "page-detail",
+      "pageKind": "detail",
+      "name": "文章详情",
+      "description": "展示文章完整内容、作者信息和互动按钮",
+      "rootNodeId": "page-detail-screen",
+      "device": "miniapp"
+    },
+    {
+      "pageKey": "articles.comments",
+      "pageId": "page-comments",
+      "pageKind": "comments",
+      "name": "评论区",
+      "description": "展示文章评论列表和评论输入框",
+      "rootNodeId": "page-comments-screen",
+      "device": "miniapp"
+    }
+  ],
+  "regions": [
+    {
+      "regionKey": "articles.list.header",
+      "pageKey": "articles.list",
+      "nodeId": "list-header",
+      "name": "列表头部",
+      "sectionKind": "header",
+      "replaceable": false
+    },
+    {
+      "regionKey": "articles.list.tabs",
+      "pageKey": "articles.list",
+      "nodeId": "category-tabs",
+      "name": "分类标签",
+      "sectionKind": "tabs",
+      "replaceable": true,
+      "allowedPatternKeys": [
+        "articles.categories"
+      ]
+    },
+    {
+      "regionKey": "articles.list.content",
+      "pageKey": "articles.list",
+      "nodeId": "article-list",
+      "name": "文章列表",
+      "sectionKind": "feed",
+      "replaceable": true,
+      "allowedPatternKeys": [
+        "articles.items"
+      ]
+    },
+    {
+      "regionKey": "articles.detail.header",
+      "pageKey": "articles.detail",
+      "nodeId": "detail-header",
+      "name": "文章头部",
+      "sectionKind": "header",
+      "replaceable": false
+    },
+    {
+      "regionKey": "articles.detail.content",
+      "pageKey": "articles.detail",
+      "nodeId": "detail-content",
+      "name": "文章内容",
+      "sectionKind": "content",
+      "replaceable": true
+    },
+    {
+      "regionKey": "articles.detail.actions",
+      "pageKey": "articles.detail",
+      "nodeId": "detail-actions",
+      "name": "互动按钮",
+      "sectionKind": "actions",
+      "replaceable": false
+    },
+    {
+      "regionKey": "articles.comments.list",
+      "pageKey": "articles.comments",
+      "nodeId": "comment-list",
+      "name": "评论列表",
+      "sectionKind": "comments",
+      "replaceable": true,
+      "allowedPatternKeys": [
+        "articles.commentItems"
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "slotKey": "articles.list.header.title",
+      "pageKey": "articles.list",
+      "regionKey": "articles.list.header",
+      "nodeId": "list-title",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "title",
+      "label": "页面标题"
+    },
+    {
+      "slotKey": "articles.list.header.subtitle",
+      "pageKey": "articles.list",
+      "regionKey": "articles.list.header",
+      "nodeId": "list-subtitle",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "subtitle",
+      "label": "副标题"
+    },
+    {
+      "slotKey": "articles.list.item.title",
+      "pageKey": "articles.list",
+      "regionKey": "articles.list.content",
+      "nodeId": "art1-title",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "title",
+      "label": "文章标题"
+    },
+    {
+      "slotKey": "articles.list.item.description",
+      "pageKey": "articles.list",
+      "regionKey": "articles.list.content",
+      "nodeId": "art1-desc",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "description",
+      "label": "文章摘要"
+    },
+    {
+      "slotKey": "articles.list.item.image",
+      "pageKey": "articles.list",
+      "regionKey": "articles.list.content",
+      "nodeId": "art1-img",
+      "component": "core.image",
+      "editableProps": [
+        "src"
+      ],
+      "aiRole": "image",
+      "label": "文章封面"
+    },
+    {
+      "slotKey": "articles.list.item.author",
+      "pageKey": "articles.list",
+      "regionKey": "articles.list.content",
+      "nodeId": "art1-author",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "author",
+      "label": "作者名称"
+    },
+    {
+      "slotKey": "articles.detail.title",
+      "pageKey": "articles.detail",
+      "regionKey": "articles.detail.header",
+      "nodeId": "detail-title",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "title",
+      "label": "详情标题"
+    },
+    {
+      "slotKey": "articles.detail.author",
+      "pageKey": "articles.detail",
+      "regionKey": "articles.detail.header",
+      "nodeId": "detail-author",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "author",
+      "label": "作者名称"
+    },
+    {
+      "slotKey": "articles.detail.cover",
+      "pageKey": "articles.detail",
+      "regionKey": "articles.detail.header",
+      "nodeId": "detail-cover",
+      "component": "core.image",
+      "editableProps": [
+        "src"
+      ],
+      "aiRole": "cover",
+      "label": "封面图片"
+    }
+  ],
+  "patterns": [
+    {
+      "patternKey": "articles.categories",
+      "pageKey": "articles.list",
+      "regionKey": "articles.list.tabs",
+      "sourceRootNodeId": "tab-hot",
+      "parentNodeId": "category-tabs",
+      "itemAlias": "category",
+      "fields": [
+        {
+          "fieldKey": "label",
+          "slotKey": "articles.category.label",
+          "prop": "text",
+          "required": true
+        }
+      ],
+      "maxItems": 8,
+      "minItems": 2
+    },
+    {
+      "patternKey": "articles.items",
+      "pageKey": "articles.list",
+      "regionKey": "articles.list.content",
+      "sourceRootNodeId": "article-1",
+      "parentNodeId": "article-list",
+      "itemAlias": "article",
+      "fields": [
+        {
+          "fieldKey": "title",
+          "slotKey": "articles.item.title",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "description",
+          "slotKey": "articles.item.description",
+          "prop": "text",
+          "required": false
+        },
+        {
+          "fieldKey": "image",
+          "slotKey": "articles.item.image",
+          "prop": "src",
+          "required": false
+        },
+        {
+          "fieldKey": "author",
+          "slotKey": "articles.item.author",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "time",
+          "slotKey": "articles.item.time",
+          "prop": "text",
+          "required": true
+        }
+      ],
+      "maxItems": 20,
+      "minItems": 1
+    },
+    {
+      "patternKey": "articles.commentItems",
+      "pageKey": "articles.comments",
+      "regionKey": "articles.comments.list",
+      "sourceRootNodeId": "comment-1",
+      "parentNodeId": "comment-list",
+      "itemAlias": "comment",
+      "fields": [
+        {
+          "fieldKey": "avatar",
+          "slotKey": "articles.comment.avatar",
+          "prop": "src",
+          "required": true
+        },
+        {
+          "fieldKey": "name",
+          "slotKey": "articles.comment.name",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "content",
+          "slotKey": "articles.comment.content",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "time",
+          "slotKey": "articles.comment.time",
+          "prop": "text",
+          "required": true
+        }
+      ],
+      "maxItems": 50,
+      "minItems": 0
+    }
+  ],
+  "navigation": {
+    "type": "none",
+    "items": []
+  },
+  "constraints": {
+    "devices": [
+      "miniapp"
+    ],
+    "maxColumns": 3,
+    "allowedLayouts": [
+      "core.stack",
+      "core.row",
+      "core.grid"
+    ],
+    "requiredComponents": [
+      "core.text",
+      "core.image"
+    ]
+  },
+  "styleProfile": {
+    "colors": [
+      "#0ea5e9",
+      "#0284c7",
+      "#38bdf8",
+      "#0f172a",
+      "#64748b",
+      "#e2e8f0",
+      "#f1f5f9",
+      "#ffffff"
+    ],
+    "fontSizes": [
+      "22rpx",
+      "24rpx",
+      "26rpx",
+      "28rpx",
+      "30rpx",
+      "32rpx",
+      "36rpx",
+      "40rpx"
+    ],
+    "fontWeights": [
+      "normal",
+      "bold"
+    ],
+    "spacing": [
+      "8rpx",
+      "12rpx",
+      "16rpx",
+      "20rpx",
+      "24rpx",
+      "32rpx"
+    ],
+    "radius": [
+      "8rpx",
+      "12rpx",
+      "16rpx",
+      "32rpx",
+      "50%"
+    ],
+    "shadows": [
+      "0 2rpx 12rpx rgba(0,0,0,0.06)"
+    ],
+    "componentDensity": "comfortable",
+    "commonLayoutPatterns": [
+      "feed-card",
+      "detail-content",
+      "comment-list"
+    ]
+  }
+}

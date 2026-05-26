@@ -1,3 +1,5 @@
+/* eslint-disable max-len */
+import { compileSemanticEditorInstruction, isSemanticEditorInstruction, type SemanticEditorInstruction } from '../compiler/semanticInstructionCompiler';
 import type {
   LayoutNodeFrame,
   LayoutNodeLayout,
@@ -12,6 +14,7 @@ import type {
 import { validateThemeLayoutDocument } from '../validation/themeLayoutValidator';
 
 export type EditorAiEditInstruction =
+  | SemanticEditorInstruction
   | ({
       type: 'create_page';
       pageId: string;
@@ -58,6 +61,20 @@ export type EditorAiEditInstruction =
       layout?: Partial<LayoutNodeLayout>;
       frame?: Partial<LayoutNodeFrame>;
       select?: boolean;
+    } & EditorAiInstructionTarget)
+  | ({
+      type: 'clone_pattern_items';
+      sourceRootNodeId: string;
+      parentId?: string;
+      replaceExisting?: boolean;
+      select?: boolean;
+      items: Record<string, unknown>[];
+      fields: {
+        fieldKey: string;
+        referenceNodeId: string;
+        prop: string;
+        required?: boolean;
+      }[];
     } & EditorAiInstructionTarget)
   | ({
       type: 'update_props';
@@ -771,6 +788,17 @@ function remapReferenceNodeId(
   return `${pageId}-${slugNodeId(referenceNodeId)}`;
 }
 
+function remapPatternNodeId(referenceNodeId: string, sourceRootNodeId: string, itemIndex: number): string {
+  const prefix = `${slugNodeId(sourceRootNodeId)}-item-${itemIndex + 1}`;
+  if (referenceNodeId === sourceRootNodeId) {
+    return prefix;
+  }
+  if (referenceNodeId.startsWith(`${sourceRootNodeId}-`)) {
+    return `${prefix}-${slugNodeId(referenceNodeId.slice(sourceRootNodeId.length + 1))}`;
+  }
+  return `${prefix}-${slugNodeId(referenceNodeId)}`;
+}
+
 function rewriteNavigateActionTarget(
   action: ThemeLayoutNavigateAction | undefined,
   referencePageId: string,
@@ -999,6 +1027,123 @@ function applyCreatePageFromReference(
   };
 }
 
+function clonePatternNode(
+  node: ThemeLayoutNode,
+  options: {
+    idMap: Map<string, string>;
+    itemIndex: number;
+    sourceRootNodeId: string;
+    usedIds: Set<string>;
+  },
+): ThemeLayoutNode {
+  const nextId = uniqueNodeId(
+    remapPatternNodeId(node.id, options.sourceRootNodeId, options.itemIndex),
+    options.usedIds,
+  );
+  options.idMap.set(node.id, nextId);
+  const cloned: ThemeLayoutNode = {
+    ...structuredClone(node),
+    id: nextId,
+  };
+  cloned.meta = {
+    ...(cloned.meta ?? {}),
+    patternKey: cloned.meta?.patternKey,
+  };
+  cloned.children = (node.children ?? []).map((child) => clonePatternNode(child, options));
+  if (!cloned.children.length && !CONTAINER_ALIASES.has(cloned.alias)) {
+    delete cloned.children;
+  }
+  return cloned;
+}
+
+function findParentNode(root: ThemeLayoutNode, targetId: string): ThemeLayoutNode | null {
+  for (const child of root.children ?? []) {
+    if (child.id === targetId) {
+      return root;
+    }
+    const found = findParentNode(child, targetId);
+    if (found) {
+      return found;
+    }
+  }
+  return null;
+}
+
+function applyClonePatternItems(
+  document: ThemeLayoutDocument,
+  instruction: Extract<EditorAiEditInstruction, { type: 'clone_pattern_items' }>,
+): ApplyOneResult {
+  const page = resolveTargetPage(document, instruction.pageId);
+  if (!page) {
+    return { document, error: `Page not found: ${instruction.pageId ?? document.defaultPageId}` };
+  }
+  const source = findNode(page.layout, instruction.sourceRootNodeId);
+  if (!source) {
+    return { document, error: `Pattern source node not found: ${instruction.sourceRootNodeId}` };
+  }
+  const parent = instruction.parentId ? findNode(page.layout, instruction.parentId) : findParentNode(page.layout, source.id);
+  if (!parent || !CONTAINER_ALIASES.has(parent.alias)) {
+    return { document, error: `Pattern parent node is invalid: ${instruction.parentId ?? ''}` };
+  }
+  parent.children ??= [];
+  const sourceIndex = parent.children.findIndex((child) => child.id === source.id);
+  if (sourceIndex < 0) {
+    return { document, error: `Pattern source ${source.id} is not a direct child of parent ${parent.id}` };
+  }
+
+  if (instruction.replaceExisting !== false) {
+    parent.children = parent.children.filter((child) => child.id === source.id || !child.id.startsWith(`${slugNodeId(source.id)}-item-`));
+  }
+
+  const usedIds = collectDocumentNodeIds(document);
+  const clones: ThemeLayoutNode[] = [];
+  for (const [itemIndex, item] of instruction.items.entries()) {
+    const idMap = new Map<string, string>();
+    const clone = clonePatternNode(source, {
+      idMap,
+      itemIndex,
+      sourceRootNodeId: source.id,
+      usedIds,
+    });
+    for (const field of instruction.fields) {
+      const value = item[field.fieldKey] ?? item[field.prop];
+      if (value === undefined) {
+        if (field.required) {
+          return { document, error: `Pattern item ${itemIndex + 1} missing required field: ${field.fieldKey}` };
+        }
+        continue;
+      }
+      const clonedNodeId = idMap.get(field.referenceNodeId);
+      if (!clonedNodeId) {
+        return { document, error: `Pattern field node was not cloned: ${field.referenceNodeId}` };
+      }
+      const target = findNode(clone, clonedNodeId);
+      if (!target) {
+        return { document, error: `Pattern cloned field node not found: ${clonedNodeId}` };
+      }
+      const descriptor = descriptorForAlias(document, target.alias);
+      if (!descriptor) {
+        return { document, error: `Unknown component alias: ${target.alias}` };
+      }
+      const coerced = coerceProps(descriptor, { [field.prop]: value });
+      if (coerced.errors.length > 0) {
+        return { document, error: coerced.errors.join('; ') };
+      }
+      target.props = { ...(target.props ?? {}), ...coerced.props };
+    }
+    clones.push(clone);
+  }
+
+  parent.children.splice(sourceIndex, 1, ...clones);
+  normalizeChildOrder(parent);
+  syncRootLayout(document);
+  return {
+    document,
+    message: `Cloned pattern ${instruction.sourceRootNodeId} with ${clones.length} item(s)`,
+    selectedNodeId: instruction.select === false ? undefined : clones[0]?.id ?? source.id,
+  };
+}
+
 function applyDeletePage(
   document: ThemeLayoutDocument,
   instruction: Extract<EditorAiEditInstruction, { type: 'delete_page' }>,
@@ -1079,11 +1224,38 @@ function applyOneInstruction(
   instruction: EditorAiEditInstruction,
   options?: ApplyEditorAiEditInstructionsOptions,
 ): ApplyOneResult {
+  if (isSemanticEditorInstruction(instruction)) {
+    const compiled = compileSemanticEditorInstruction(document, instruction);
+    if (!compiled.success || !compiled.data) {
+      return { document, error: JSON.stringify(compiled.error) };
+    }
+    let nextDocument = document;
+    const messages: string[] = [];
+    let selectedNodeId: string | null | undefined;
+    for (const operation of compiled.data.operations) {
+      const result = applyOneInstruction(nextDocument, operation, options);
+      if (result.error) {
+        return { document, error: result.error };
+      }
+      nextDocument = result.document;
+      if (result.message) {messages.push(result.message);}
+      if (result.selectedNodeId !== undefined) {selectedNodeId = result.selectedNodeId;}
+    }
+    return {
+      document: nextDocument,
+      message: messages.length ? `Semantic ${instruction.type}: ${messages.join('; ')}` : `Semantic ${instruction.type} compiled`,
+      selectedNodeId,
+    };
+  }
+
   if (instruction.type === 'create_page') {
     return applyCreatePage(document, instruction);
   }
   if (instruction.type === 'create_page_from_reference') {
     return applyCreatePageFromReference(document, instruction);
+  }
+  if (instruction.type === 'clone_pattern_items') {
+    return applyClonePatternItems(document, instruction);
   }
   if (instruction.type === 'delete_page') {
     return applyDeletePage(document, instruction);

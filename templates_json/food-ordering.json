@@ -1,0 +1,2845 @@
+{
+  "templateId": "food-ordering",
+  "name": "餐饮点单",
+  "description": "适用于外卖点餐、餐厅菜单、美食推荐等场景的小程序模板，包含点餐首页、购物车、确认订单、配送追踪页面",
+  "accent": "#ef4444",
+  "thumbnail": "",
+  "platformCategories": [
+    "mini-program"
+  ],
+  "functionalCategories": [
+    "food-ordering",
+    "restaurant",
+    "takeaway"
+  ],
+  "category": "food-ordering",
+  "tags": [
+    "餐饮",
+    "外卖",
+    "点餐",
+    "美食",
+    "餐厅"
+  ],
+  "layoutDocument": {
+    "version": 1,
+    "themeId": "food-ordering",
+    "themeName": "餐饮点单",
+    "description": "适用于外卖点餐、餐厅菜单、美食推荐等场景的小程序模板，包含点餐首页、购物车、确认订单、配送追踪页面",
+    "components": [
+      {
+        "alias": "core.button",
+        "name": "按钮",
+        "kind": "component",
+        "description": "按钮组件",
+        "props": [
+          {
+            "name": "label",
+            "type": "string",
+            "label": "显示文字"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.image",
+        "name": "图片",
+        "kind": "component",
+        "description": "图片组件",
+        "props": [
+          {
+            "name": "alt",
+            "type": "string",
+            "label": "替代文本"
+          },
+          {
+            "name": "iconColor",
+            "type": "string",
+            "label": "图标颜色"
+          },
+          {
+            "name": "objectFit",
+            "type": "string",
+            "label": "图片填充方式"
+          },
+          {
+            "name": "src",
+            "type": "string",
+            "label": "图片地址"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "label": "标题"
+          }
+        ]
+      },
+      {
+        "alias": "core.panel",
+        "name": "面板容器",
+        "kind": "layout",
+        "description": "面板容器组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.row",
+        "name": "横向容器",
+        "kind": "layout",
+        "description": "横向容器组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.screen",
+        "name": "页面画布",
+        "kind": "layout",
+        "description": "页面画布组件",
+        "props": [
+          {
+            "name": "title",
+            "type": "string",
+            "label": "标题"
+          }
+        ]
+      },
+      {
+        "alias": "core.stack",
+        "name": "纵向容器",
+        "kind": "layout",
+        "description": "纵向容器组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.tag",
+        "name": "标签",
+        "kind": "component",
+        "description": "标签组件",
+        "props": [
+          {
+            "name": "label",
+            "type": "string",
+            "label": "显示文字"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          }
+        ]
+      },
+      {
+        "alias": "core.text",
+        "name": "文本",
+        "kind": "component",
+        "description": "文本组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          },
+          {
+            "name": "text",
+            "type": "string",
+            "label": "显示内容"
+          }
+        ]
+      }
+    ],
+    "defaultPageId": "page-menu",
+    "pages": [
+      {
+        "id": "page-menu",
+        "name": "点餐首页",
+        "description": "美味餐厅",
+        "layout": {
+          "id": "page-menu-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 0
+          },
+          "props": {
+            "title": "点餐首页"
+          },
+          "children": [
+            {
+              "id": "shop-header",
+              "alias": "core.image",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "src": "https://placeholder.com/shop-banner.png",
+                "style": {
+                  "width": "100%",
+                  "height": "300rpx"
+                },
+                "alt": "图片",
+                "title": "图片"
+              },
+              "children": []
+            },
+            {
+              "id": "shop-info",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff",
+                  "marginTop": "-40rpx",
+                  "position": "relative",
+                  "zIndex": 1,
+                  "borderRadius": "24rpx 24rpx 0 0"
+                }
+              },
+              "children": [
+                {
+                  "id": "shop-name",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "美味餐厅",
+                    "style": {
+                      "fontSize": "36rpx",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "shop-meta",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "marginTop": "12rpx",
+                      "gap": "16rpx",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "shop-rating",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "4.8分",
+                        "style": {
+                          "fontSize": "24rpx",
+                          "color": "#f59e0b"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "shop-sales",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "月售 2.3k",
+                        "style": {
+                          "fontSize": "24rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "shop-delivery",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "text": "配送约30分钟",
+                        "style": {
+                          "fontSize": "24rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "menu-layout",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 2
+              },
+              "props": {
+                "style": {
+                  "height": "calc(100vh - 400rpx)"
+                }
+              },
+              "children": [
+                {
+                  "id": "category-sidebar",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "width": "180rpx",
+                      "background": "var(--color-background)",
+                      "overflow": "auto"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "cat-hot",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "24rpx 16rpx",
+                          "background": "#fff",
+                          "borderLeft": "6rpx solid var(--color-primary)"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "hot-text",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "热销",
+                            "style": {
+                              "fontSize": "24rpx",
+                              "fontWeight": "bold",
+                              "color": "var(--color-primary)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "cat-main",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "24rpx 16rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "main-text",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "主食",
+                            "style": {
+                              "fontSize": "24rpx",
+                              "color": "var(--color-text-secondary)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "cat-drink",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "24rpx 16rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "drink-text",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "饮品",
+                            "style": {
+                              "fontSize": "24rpx",
+                              "color": "var(--color-text-secondary)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "menu-list",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "flex": 1,
+                      "padding": "16rpx 24rpx",
+                      "gap": "16rpx",
+                      "overflow": "auto"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "menu-item-1",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "gap": "16rpx",
+                          "padding": "16rpx 0",
+                          "borderBottom": "1rpx solid var(--color-border)"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "mi1-img",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "src": "https://placeholder.com/food.png",
+                            "style": {
+                              "width": "160rpx",
+                              "height": "160rpx",
+                              "borderRadius": "12rpx"
+                            },
+                            "alt": "图片",
+                            "title": "图片"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "mi1-info",
+                          "alias": "core.stack",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "style": {
+                              "flex": 1,
+                              "justifyContent": "space-between"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "mi1-name",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "text": "招牌红烧肉饭",
+                                "style": {
+                                  "fontSize": "28rpx",
+                                  "fontWeight": "bold"
+                                }
+                              },
+                              "children": []
+                            },
+                            {
+                              "id": "mi1-desc",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 1
+                              },
+                              "props": {
+                                "text": "精选五花肉，入口即化",
+                                "style": {
+                                  "fontSize": "22rpx",
+                                  "color": "var(--color-text-secondary)"
+                                }
+                              },
+                              "children": []
+                            },
+                            {
+                              "id": "mi1-bottom",
+                              "alias": "core.row",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 2
+                              },
+                              "props": {
+                                "style": {
+                                  "justifyContent": "space-between",
+                                  "alignItems": "center"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "id": "mi1-price",
+                                  "alias": "core.text",
+                                  "layout": {
+                                    "mode": "flow",
+                                    "order": 0
+                                  },
+                                  "props": {
+                                    "text": "¥28",
+                                    "style": {
+                                      "fontSize": "30rpx",
+                                      "fontWeight": "bold",
+                                      "color": "var(--color-primary)"
+                                    }
+                                  },
+                                  "children": []
+                                },
+                                {
+                                  "id": "mi1-add",
+                                  "alias": "core.panel",
+                                  "layout": {
+                                    "mode": "flow",
+                                    "order": 1
+                                  },
+                                  "props": {
+                                    "style": {
+                                      "width": "48rpx",
+                                      "height": "48rpx",
+                                      "borderRadius": "50%",
+                                      "background": "var(--color-primary)",
+                                      "display": "flex",
+                                      "alignItems": "center",
+                                      "justifyContent": "center"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "id": "add-icon",
+                                      "alias": "core.image",
+                                      "layout": {
+                                        "mode": "flow",
+                                        "order": 0
+                                      },
+                                      "props": {
+                                        "alt": "图标",
+                                        "title": "图标",
+                                        "objectFit": "contain",
+                                        "iconColor": "#fff"
+                                      },
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "menu-item-2",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "gap": "16rpx",
+                          "padding": "16rpx 0"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "mi2-img",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "src": "https://placeholder.com/food.png",
+                            "style": {
+                              "width": "160rpx",
+                              "height": "160rpx",
+                              "borderRadius": "12rpx"
+                            },
+                            "alt": "图片",
+                            "title": "图片"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "mi2-info",
+                          "alias": "core.stack",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "style": {
+                              "flex": 1,
+                              "justifyContent": "space-between"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "mi2-name",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "text": "宫保鸡丁套餐",
+                                "style": {
+                                  "fontSize": "28rpx",
+                                  "fontWeight": "bold"
+                                }
+                              },
+                              "children": []
+                            },
+                            {
+                              "id": "mi2-desc",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 1
+                              },
+                              "props": {
+                                "text": "经典川菜，香辣可口",
+                                "style": {
+                                  "fontSize": "22rpx",
+                                  "color": "var(--color-text-secondary)"
+                                }
+                              },
+                              "children": []
+                            },
+                            {
+                              "id": "mi2-bottom",
+                              "alias": "core.row",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 2
+                              },
+                              "props": {
+                                "style": {
+                                  "justifyContent": "space-between",
+                                  "alignItems": "center"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "id": "mi2-price",
+                                  "alias": "core.text",
+                                  "layout": {
+                                    "mode": "flow",
+                                    "order": 0
+                                  },
+                                  "props": {
+                                    "text": "¥32",
+                                    "style": {
+                                      "fontSize": "30rpx",
+                                      "fontWeight": "bold",
+                                      "color": "var(--color-primary)"
+                                    }
+                                  },
+                                  "children": []
+                                },
+                                {
+                                  "id": "mi2-add",
+                                  "alias": "core.panel",
+                                  "layout": {
+                                    "mode": "flow",
+                                    "order": 1
+                                  },
+                                  "props": {
+                                    "style": {
+                                      "width": "48rpx",
+                                      "height": "48rpx",
+                                      "borderRadius": "50%",
+                                      "background": "var(--color-primary)",
+                                      "display": "flex",
+                                      "alignItems": "center",
+                                      "justifyContent": "center"
+                                    }
+                                  },
+                                  "children": [
+                                    {
+                                      "id": "add2-icon",
+                                      "alias": "core.image",
+                                      "layout": {
+                                        "mode": "flow",
+                                        "order": 0
+                                      },
+                                      "props": {
+                                        "alt": "图标",
+                                        "title": "图标",
+                                        "objectFit": "contain",
+                                        "iconColor": "#fff"
+                                      },
+                                      "children": []
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "cart-bar",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 3
+              },
+              "props": {
+                "style": {
+                  "position": "fixed",
+                  "bottom": 0,
+                  "left": 0,
+                  "right": 0,
+                  "padding": "16rpx 32rpx",
+                  "background": "#1e293b",
+                  "alignItems": "center",
+                  "gap": "24rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "cart-icon-wrap",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "width": "88rpx",
+                      "height": "88rpx",
+                      "borderRadius": "50%",
+                      "background": "var(--color-primary)",
+                      "marginTop": "-40rpx",
+                      "display": "flex",
+                      "alignItems": "center",
+                      "justifyContent": "center",
+                      "position": "relative"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "cart-icon",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "图标",
+                        "title": "图标",
+                        "objectFit": "contain",
+                        "iconColor": "#fff"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "cart-badge",
+                      "alias": "core.tag",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "label": "??",
+                        "tone": "info"
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "cart-total",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "¥60",
+                    "style": {
+                      "fontSize": "36rpx",
+                      "fontWeight": "bold",
+                      "color": "#fff",
+                      "flex": 1
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "cart-btn",
+                  "alias": "core.button",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "16rpx 40rpx",
+                      "borderRadius": "40rpx",
+                      "background": "var(--color-primary)",
+                      "color": "#fff",
+                      "fontSize": "28rpx"
+                    },
+                    "label": "去结算"
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-cart",
+        "name": "购物车",
+        "description": "购物车",
+        "layout": {
+          "id": "page-cart-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 1
+          },
+          "props": {
+            "title": "购物车"
+          },
+          "children": [
+            {
+              "id": "cart-header",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "var(--color-primary)"
+                }
+              },
+              "children": [
+                {
+                  "id": "cart-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "购物车",
+                    "style": {
+                      "fontSize": "34rpx",
+                      "fontWeight": "bold",
+                      "color": "#fff"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "cart-items",
+              "alias": "core.stack",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "gap": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "cart-item-1",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "20rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#fff",
+                      "gap": "16rpx",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "ci1-img",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "src": "https://placeholder.com/food.png",
+                        "style": {
+                          "width": "120rpx",
+                          "height": "120rpx",
+                          "borderRadius": "8rpx"
+                        },
+                        "alt": "图片",
+                        "title": "图片"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "ci1-info",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "flex": 1,
+                          "gap": "8rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "ci1-name",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "招牌红烧肉饭",
+                            "style": {
+                              "fontSize": "28rpx",
+                              "fontWeight": "bold"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "ci1-price",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "¥28",
+                            "style": {
+                              "fontSize": "28rpx",
+                              "color": "var(--color-primary)",
+                              "fontWeight": "bold"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "ci1-qty",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "style": {
+                          "alignItems": "center",
+                          "gap": "16rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "ci1-minus",
+                          "alias": "core.panel",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "style": {
+                              "width": "44rpx",
+                              "height": "44rpx",
+                              "borderRadius": "50%",
+                              "border": "2rpx solid var(--color-border)",
+                              "display": "flex",
+                              "alignItems": "center",
+                              "justifyContent": "center"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "minus-icon",
+                              "alias": "core.image",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "alt": "图标",
+                                "title": "图标",
+                                "objectFit": "contain",
+                                "iconColor": "var(--color-text-secondary)"
+                              },
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "id": "ci1-num",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "1",
+                            "style": {
+                              "fontSize": "28rpx",
+                              "fontWeight": "bold"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "ci1-plus",
+                          "alias": "core.panel",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 2
+                          },
+                          "props": {
+                            "style": {
+                              "width": "44rpx",
+                              "height": "44rpx",
+                              "borderRadius": "50%",
+                              "background": "var(--color-primary)",
+                              "display": "flex",
+                              "alignItems": "center",
+                              "justifyContent": "center"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "plus-icon",
+                              "alias": "core.image",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "alt": "图标",
+                                "title": "图标",
+                                "objectFit": "contain",
+                                "iconColor": "#fff"
+                              },
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "cart-summary",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff",
+                  "marginTop": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "summary-row1",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between",
+                      "marginBottom": "12rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "s1-label",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "商品小计",
+                        "style": {
+                          "fontSize": "26rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "s1-value",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "¥56",
+                        "style": {
+                          "fontSize": "26rpx"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "summary-row2",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between",
+                      "marginBottom": "12rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "s2-label",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "配送费",
+                        "style": {
+                          "fontSize": "26rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "s2-value",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "¥4",
+                        "style": {
+                          "fontSize": "26rpx"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "summary-total",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between",
+                      "paddingTop": "12rpx",
+                      "borderTop": "1rpx solid var(--color-border)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "total-label",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "合计",
+                        "style": {
+                          "fontSize": "28rpx",
+                          "fontWeight": "bold"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "total-value",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "¥60",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "fontWeight": "bold",
+                          "color": "var(--color-primary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "checkout-btn",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 3
+              },
+              "props": {
+                "style": {
+                  "margin": "32rpx",
+                  "padding": "24rpx",
+                  "borderRadius": "48rpx",
+                  "background": "var(--color-primary)",
+                  "color": "#fff",
+                  "fontSize": "30rpx",
+                  "fontWeight": "bold",
+                  "textAlign": "center"
+                },
+                "label": "提交订单"
+              },
+              "children": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-confirm",
+        "name": "确认订单",
+        "description": "确认订单",
+        "layout": {
+          "id": "page-confirm-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 2
+          },
+          "props": {
+            "title": "确认订单"
+          },
+          "children": [
+            {
+              "id": "confirm-header",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "var(--color-primary)"
+                }
+              },
+              "children": [
+                {
+                  "id": "confirm-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "确认订单",
+                    "style": {
+                      "fontSize": "34rpx",
+                      "fontWeight": "bold",
+                      "color": "#fff"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "delivery-address",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff",
+                  "marginTop": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "addr-row",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "16rpx",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "addr-icon",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "图标",
+                        "title": "图标",
+                        "objectFit": "contain",
+                        "iconColor": "var(--color-primary)"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "addr-info",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "flex": 1,
+                          "gap": "4rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "addr-name",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "张三 138****8888",
+                            "style": {
+                              "fontSize": "28rpx",
+                              "fontWeight": "bold"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "addr-detail",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "北京市朝阳区示例路示例号",
+                            "style": {
+                              "fontSize": "24rpx",
+                              "color": "var(--color-text-secondary)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "addr-arrow",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "text": ">",
+                        "style": {
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "order-items",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff",
+                  "marginTop": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "order-shop",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "美味餐厅",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "fontWeight": "bold",
+                      "marginBottom": "16rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "order-item",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "16rpx",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "oi-img",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "src": "https://placeholder.com/food.png",
+                        "style": {
+                          "width": "100rpx",
+                          "height": "100rpx",
+                          "borderRadius": "8rpx"
+                        },
+                        "alt": "图片",
+                        "title": "图片"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "oi-info",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "flex": 1
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "oi-name",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "招牌红烧肉饭 ×1",
+                            "style": {
+                              "fontSize": "26rpx"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "oi-price",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "text": "¥28",
+                        "style": {
+                          "fontSize": "26rpx",
+                          "fontWeight": "bold"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "order-remark",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 3
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff",
+                  "marginTop": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "remark-label",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "备注",
+                    "style": {
+                      "fontSize": "26rpx",
+                      "color": "var(--color-text-secondary)",
+                      "marginBottom": "12rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "remark-input",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "请填写备注信息...",
+                    "style": {
+                      "fontSize": "26rpx",
+                      "color": "var(--color-text-secondary)"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "order-submit",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 4
+              },
+              "props": {
+                "style": {
+                  "margin": "32rpx",
+                  "padding": "24rpx",
+                  "borderRadius": "48rpx",
+                  "background": "var(--color-primary)",
+                  "color": "#fff",
+                  "fontSize": "30rpx",
+                  "fontWeight": "bold",
+                  "textAlign": "center"
+                },
+                "label": "提交订单 ¥60"
+              },
+              "children": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-tracking",
+        "name": "配送追踪",
+        "description": "配送追踪",
+        "layout": {
+          "id": "page-tracking-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 3
+          },
+          "props": {
+            "title": "配送追踪"
+          },
+          "children": [
+            {
+              "id": "tracking-header",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "var(--color-primary)"
+                }
+              },
+              "children": [
+                {
+                  "id": "tracking-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "配送追踪",
+                    "style": {
+                      "fontSize": "34rpx",
+                      "fontWeight": "bold",
+                      "color": "#fff"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "tracking-map",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "style": {
+                  "height": "400rpx",
+                  "background": "var(--color-background)",
+                  "display": "flex",
+                  "alignItems": "center",
+                  "justifyContent": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "map-text",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "地图区域",
+                    "style": {
+                      "fontSize": "26rpx",
+                      "color": "var(--color-text-secondary)"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "tracking-status",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff"
+                }
+              },
+              "children": [
+                {
+                  "id": "status-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "骑手正在赶往商家",
+                    "style": {
+                      "fontSize": "30rpx",
+                      "fontWeight": "bold",
+                      "marginBottom": "16rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "rider-info",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "16rpx",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "rider-avatar",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "src": "https://placeholder.com/rider.png",
+                        "style": {
+                          "width": "80rpx",
+                          "height": "80rpx",
+                          "borderRadius": "50%"
+                        },
+                        "alt": "图片",
+                        "title": "图片"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "rider-name",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "骑手 王师傅",
+                        "style": {
+                          "fontSize": "26rpx",
+                          "flex": 1
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "rider-call",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "alt": "图标",
+                        "title": "图标",
+                        "objectFit": "contain",
+                        "iconColor": "var(--color-primary)"
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "tracking-timeline",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 3
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff",
+                  "marginTop": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "timeline-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "订单状态",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "fontWeight": "bold",
+                      "marginBottom": "16rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "timeline-1",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "16rpx",
+                      "marginBottom": "24rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "t1-dot",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "width": "24rpx",
+                          "height": "24rpx",
+                          "borderRadius": "50%",
+                          "background": "var(--color-primary)",
+                          "marginTop": "4rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "t1-content",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "gap": "4rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "t1-text",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "骑手已接单",
+                            "style": {
+                              "fontSize": "26rpx",
+                              "fontWeight": "bold"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "t1-time",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "14:30",
+                            "style": {
+                              "fontSize": "22rpx",
+                              "color": "var(--color-text-secondary)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "timeline-2",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "16rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "t2-dot",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "width": "24rpx",
+                          "height": "24rpx",
+                          "borderRadius": "50%",
+                          "background": "var(--color-border)",
+                          "marginTop": "4rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "t2-content",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "gap": "4rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "t2-text",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "订单已送达",
+                            "style": {
+                              "fontSize": "26rpx",
+                              "color": "var(--color-text-secondary)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "layout": {
+      "id": "page-menu-screen",
+      "alias": "core.screen",
+      "layout": {
+        "mode": "flow",
+        "order": 0
+      },
+      "props": {
+        "title": "点餐首页"
+      },
+      "children": [
+        {
+          "id": "shop-header",
+          "alias": "core.image",
+          "layout": {
+            "mode": "flow",
+            "order": 0
+          },
+          "props": {
+            "src": "https://placeholder.com/shop-banner.png",
+            "style": {
+              "width": "100%",
+              "height": "300rpx"
+            },
+            "alt": "图片",
+            "title": "图片"
+          },
+          "children": []
+        },
+        {
+          "id": "shop-info",
+          "alias": "core.panel",
+          "layout": {
+            "mode": "flow",
+            "order": 1
+          },
+          "props": {
+            "style": {
+              "padding": "24rpx 32rpx",
+              "background": "#fff",
+              "marginTop": "-40rpx",
+              "position": "relative",
+              "zIndex": 1,
+              "borderRadius": "24rpx 24rpx 0 0"
+            }
+          },
+          "children": [
+            {
+              "id": "shop-name",
+              "alias": "core.text",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "text": "美味餐厅",
+                "style": {
+                  "fontSize": "36rpx",
+                  "fontWeight": "bold"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "shop-meta",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "style": {
+                  "marginTop": "12rpx",
+                  "gap": "16rpx",
+                  "alignItems": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "shop-rating",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "4.8分",
+                    "style": {
+                      "fontSize": "24rpx",
+                      "color": "#f59e0b"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "shop-sales",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "月售 2.3k",
+                    "style": {
+                      "fontSize": "24rpx",
+                      "color": "var(--color-text-secondary)"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "shop-delivery",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "text": "配送约30分钟",
+                    "style": {
+                      "fontSize": "24rpx",
+                      "color": "var(--color-text-secondary)"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "menu-layout",
+          "alias": "core.row",
+          "layout": {
+            "mode": "flow",
+            "order": 2
+          },
+          "props": {
+            "style": {
+              "height": "calc(100vh - 400rpx)"
+            }
+          },
+          "children": [
+            {
+              "id": "category-sidebar",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "style": {
+                  "width": "180rpx",
+                  "background": "var(--color-background)",
+                  "overflow": "auto"
+                }
+              },
+              "children": [
+                {
+                  "id": "cat-hot",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx 16rpx",
+                      "background": "#fff",
+                      "borderLeft": "6rpx solid var(--color-primary)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "hot-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "热销",
+                        "style": {
+                          "fontSize": "24rpx",
+                          "fontWeight": "bold",
+                          "color": "var(--color-primary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "cat-main",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx 16rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "main-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "主食",
+                        "style": {
+                          "fontSize": "24rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "cat-drink",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx 16rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "drink-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "饮品",
+                        "style": {
+                          "fontSize": "24rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "menu-list",
+              "alias": "core.stack",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "style": {
+                  "flex": 1,
+                  "padding": "16rpx 24rpx",
+                  "gap": "16rpx",
+                  "overflow": "auto"
+                }
+              },
+              "children": [
+                {
+                  "id": "menu-item-1",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "16rpx",
+                      "padding": "16rpx 0",
+                      "borderBottom": "1rpx solid var(--color-border)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "mi1-img",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "src": "https://placeholder.com/food.png",
+                        "style": {
+                          "width": "160rpx",
+                          "height": "160rpx",
+                          "borderRadius": "12rpx"
+                        },
+                        "alt": "图片",
+                        "title": "图片"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "mi1-info",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "flex": 1,
+                          "justifyContent": "space-between"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "mi1-name",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "招牌红烧肉饭",
+                            "style": {
+                              "fontSize": "28rpx",
+                              "fontWeight": "bold"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "mi1-desc",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "精选五花肉，入口即化",
+                            "style": {
+                              "fontSize": "22rpx",
+                              "color": "var(--color-text-secondary)"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "mi1-bottom",
+                          "alias": "core.row",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 2
+                          },
+                          "props": {
+                            "style": {
+                              "justifyContent": "space-between",
+                              "alignItems": "center"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "mi1-price",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "text": "¥28",
+                                "style": {
+                                  "fontSize": "30rpx",
+                                  "fontWeight": "bold",
+                                  "color": "var(--color-primary)"
+                                }
+                              },
+                              "children": []
+                            },
+                            {
+                              "id": "mi1-add",
+                              "alias": "core.panel",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 1
+                              },
+                              "props": {
+                                "style": {
+                                  "width": "48rpx",
+                                  "height": "48rpx",
+                                  "borderRadius": "50%",
+                                  "background": "var(--color-primary)",
+                                  "display": "flex",
+                                  "alignItems": "center",
+                                  "justifyContent": "center"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "id": "add-icon",
+                                  "alias": "core.image",
+                                  "layout": {
+                                    "mode": "flow",
+                                    "order": 0
+                                  },
+                                  "props": {
+                                    "alt": "图标",
+                                    "title": "图标",
+                                    "objectFit": "contain",
+                                    "iconColor": "#fff"
+                                  },
+                                  "children": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "menu-item-2",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "16rpx",
+                      "padding": "16rpx 0"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "mi2-img",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "src": "https://placeholder.com/food.png",
+                        "style": {
+                          "width": "160rpx",
+                          "height": "160rpx",
+                          "borderRadius": "12rpx"
+                        },
+                        "alt": "图片",
+                        "title": "图片"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "mi2-info",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "flex": 1,
+                          "justifyContent": "space-between"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "mi2-name",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "宫保鸡丁套餐",
+                            "style": {
+                              "fontSize": "28rpx",
+                              "fontWeight": "bold"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "mi2-desc",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "经典川菜，香辣可口",
+                            "style": {
+                              "fontSize": "22rpx",
+                              "color": "var(--color-text-secondary)"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "mi2-bottom",
+                          "alias": "core.row",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 2
+                          },
+                          "props": {
+                            "style": {
+                              "justifyContent": "space-between",
+                              "alignItems": "center"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "mi2-price",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "text": "¥32",
+                                "style": {
+                                  "fontSize": "30rpx",
+                                  "fontWeight": "bold",
+                                  "color": "var(--color-primary)"
+                                }
+                              },
+                              "children": []
+                            },
+                            {
+                              "id": "mi2-add",
+                              "alias": "core.panel",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 1
+                              },
+                              "props": {
+                                "style": {
+                                  "width": "48rpx",
+                                  "height": "48rpx",
+                                  "borderRadius": "50%",
+                                  "background": "var(--color-primary)",
+                                  "display": "flex",
+                                  "alignItems": "center",
+                                  "justifyContent": "center"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "id": "add2-icon",
+                                  "alias": "core.image",
+                                  "layout": {
+                                    "mode": "flow",
+                                    "order": 0
+                                  },
+                                  "props": {
+                                    "alt": "图标",
+                                    "title": "图标",
+                                    "objectFit": "contain",
+                                    "iconColor": "#fff"
+                                  },
+                                  "children": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "cart-bar",
+          "alias": "core.row",
+          "layout": {
+            "mode": "flow",
+            "order": 3
+          },
+          "props": {
+            "style": {
+              "position": "fixed",
+              "bottom": 0,
+              "left": 0,
+              "right": 0,
+              "padding": "16rpx 32rpx",
+              "background": "#1e293b",
+              "alignItems": "center",
+              "gap": "24rpx"
+            }
+          },
+          "children": [
+            {
+              "id": "cart-icon-wrap",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "style": {
+                  "width": "88rpx",
+                  "height": "88rpx",
+                  "borderRadius": "50%",
+                  "background": "var(--color-primary)",
+                  "marginTop": "-40rpx",
+                  "display": "flex",
+                  "alignItems": "center",
+                  "justifyContent": "center",
+                  "position": "relative"
+                }
+              },
+              "children": [
+                {
+                  "id": "cart-icon",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "alt": "图标",
+                    "title": "图标",
+                    "objectFit": "contain",
+                    "iconColor": "#fff"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "cart-badge",
+                  "alias": "core.tag",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "label": "??",
+                    "tone": "info"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "cart-total",
+              "alias": "core.text",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "text": "¥60",
+                "style": {
+                  "fontSize": "36rpx",
+                  "fontWeight": "bold",
+                  "color": "#fff",
+                  "flex": 1
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "cart-btn",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 2
+              },
+              "props": {
+                "style": {
+                  "padding": "16rpx 40rpx",
+                  "borderRadius": "40rpx",
+                  "background": "var(--color-primary)",
+                  "color": "#fff",
+                  "fontSize": "28rpx"
+                },
+                "label": "去结算"
+              },
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    "componentTemplates": {},
+    "cssVars": {
+      "--color-primary": "#ef4444",
+      "--color-primary-dark": "#dc2626",
+      "--color-primary-light": "#f87171",
+      "--color-text-primary": "#1e293b",
+      "--color-text-secondary": "#64748b",
+      "--color-border": "#e2e8f0",
+      "--color-background": "#f8fafc",
+      "--color-surface": "#ffffff"
+    },
+    "style": {
+      "cssVars": {
+        "--color-primary": "#ef4444",
+        "--color-primary-dark": "#dc2626",
+        "--color-primary-light": "#f87171",
+        "--color-text-primary": "#1e293b",
+        "--color-text-secondary": "#64748b",
+        "--color-border": "#e2e8f0",
+        "--color-background": "#f8fafc",
+        "--color-surface": "#ffffff"
+      }
+    }
+  },
+  "semanticConfig": {
+    "pages": [
+      {
+        "id": "page-menu",
+        "key": "food.menu",
+        "name": "点餐首页",
+        "description": "菜单分类和菜品列表"
+      },
+      {
+        "id": "page-cart",
+        "key": "food.cart",
+        "name": "购物车",
+        "description": "已选菜品和结算"
+      },
+      {
+        "id": "page-confirm",
+        "key": "food.confirm",
+        "name": "确认订单",
+        "description": "订单确认页面"
+      },
+      {
+        "id": "page-tracking",
+        "key": "food.tracking",
+        "name": "配送追踪",
+        "description": "配送状态追踪"
+      }
+    ],
+    "regions": [
+      {
+        "id": "shop-header",
+        "key": "food.menu.header",
+        "name": "店铺头部",
+        "description": "店铺Banner"
+      },
+      {
+        "id": "shop-info",
+        "key": "food.menu.info",
+        "name": "店铺信息",
+        "description": "店铺名称和评分"
+      },
+      {
+        "id": "category-sidebar",
+        "key": "food.menu.categories",
+        "name": "分类侧栏",
+        "description": "菜品分类"
+      },
+      {
+        "id": "menu-list",
+        "key": "food.menu.list",
+        "name": "菜品列表",
+        "description": "菜品列表"
+      }
+    ],
+    "slots": [
+      {
+        "id": "shop-name",
+        "key": "food.menu.shopName",
+        "name": "店铺名称",
+        "description": "餐厅名称"
+      },
+      {
+        "id": "mi1-name",
+        "key": "food.menu.item.name",
+        "name": "菜品名称",
+        "description": "菜品名称"
+      },
+      {
+        "id": "mi1-price",
+        "key": "food.menu.item.price",
+        "name": "菜品价格",
+        "description": "菜品价格"
+      }
+    ]
+  },
+  "categoryLabel": "餐饮点单",
+  "functionalCategoryLabels": {
+    "food-ordering": "餐饮点单",
+    "restaurant": "餐饮",
+    "takeaway": "外卖"
+  },
+  "tagline": "适用于外卖点餐、餐厅菜单、美食推荐等场景的小程序模板，包含点餐首页、购物车、确认订单、配送追踪页面",
+  "traits": [
+    "餐饮",
+    "外卖",
+    "点餐",
+    "美食",
+    "餐厅"
+  ],
+  "cssVars": {
+    "--color-primary": "#ef4444",
+    "--color-primary-dark": "#dc2626",
+    "--color-primary-light": "#f87171",
+    "--color-text-primary": "#1e293b",
+    "--color-text-secondary": "#64748b",
+    "--color-border": "#e2e8f0",
+    "--color-background": "#f8fafc",
+    "--color-surface": "#ffffff"
+  },
+  "componentTemplates": {}
+}

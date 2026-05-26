@@ -57,7 +57,7 @@ function getTemplateViewFromUrl(): TemplateView {
 function groupByCategory(themes: ThemeSpec[]) {
   const groups = new Map<string, ThemeSpec[]>();
   themes.forEach((theme) => {
-    const key = theme.category.trim() || 'general';
+    const key = (theme.categoryLabel ?? theme.category).trim() || '通用';
     groups.set(key, [...(groups.get(key) ?? []), theme]);
   });
   return [...groups.entries()];

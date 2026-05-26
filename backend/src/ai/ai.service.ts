@@ -1,12 +1,22 @@
-import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  type AgentTemplateKnowledgeContext,
   buildConversationContextMessages,
   buildEditorMinimalVolatileContext,
   buildEditorStablePrefixContext,
   buildEditorTrimmedVolatileContext,
+  summarizeTemplateAgentKnowledge,
 } from '@shared/agent/context/editorContext';
+import {
+  compileSemanticEditorInstruction,
+  isSemanticEditorInstruction,
+  type SemanticEditorInstruction,
+} from '@shared/agent/compiler/semanticInstructionCompiler';
 import { EDITOR_COPILOT_SYSTEM_PROMPT } from '@shared/agent/prompts/editorCopilotPrompt';
+import { buildTemplateProfile } from '@shared/agent/template/buildTemplateProfile';
+import { applyTemplateProfileOverride } from '@shared/agent/template/templateProfileOverride';
+import type { TemplateProfile } from '@shared/agent/template/templateProfile';
 import type {
   AgentConversationMessage,
   AgentPageContext,
@@ -20,7 +30,13 @@ import { IsNull, Not, Repository } from 'typeorm';
 
 import { ConfigService } from '../config/config.service';
 import { deriveTags } from '../shared/derive-tags';
+import { TemplateAgentPermissions } from '../templates/entities/template-agent-permissions.entity';
+import { TemplateAssetManifest } from '../templates/entities/template-asset-manifest.entity';
+import { TemplateEvaluationSpec } from '../templates/entities/template-evaluation-spec.entity';
 import { Template } from '../templates/entities/template.entity';
+import { TemplateProfileGenerated } from '../templates/entities/template-profile-generated.entity';
+import { TemplateProfileOverrideEntity } from '../templates/entities/template-profile-override.entity';
+import { TemplateCategoryRegistryService } from '../templates/template-category-registry.service';
 import { assertValidTemplateLayout } from '../templates/template-layout-validation';
 import { User } from '../users/entities/user.entity';
 import { OpenAIProvider } from './core/providers/openai.provider';
@@ -309,6 +325,16 @@ export class AiService {
   constructor(
     @InjectRepository(Template)
     private readonly templateRepo: Repository<Template>,
+    @InjectRepository(TemplateProfileGenerated)
+    private readonly profileGeneratedRepo: Repository<TemplateProfileGenerated>,
+    @InjectRepository(TemplateProfileOverrideEntity)
+    private readonly profileOverrideRepo: Repository<TemplateProfileOverrideEntity>,
+    @InjectRepository(TemplateAssetManifest)
+    private readonly assetManifestRepo: Repository<TemplateAssetManifest>,
+    @InjectRepository(TemplateAgentPermissions)
+    private readonly agentPermissionsRepo: Repository<TemplateAgentPermissions>,
+    @InjectRepository(TemplateEvaluationSpec)
+    private readonly evaluationSpecRepo: Repository<TemplateEvaluationSpec>,
     @InjectRepository(EditorAiConversation)
     private readonly editorConversationRepo: Repository<EditorAiConversation>,
     @InjectRepository(AiTokenUsageEvent)
@@ -316,6 +342,7 @@ export class AiService {
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
     private readonly config: ConfigService,
+    private readonly categoryRegistry: TemplateCategoryRegistryService,
   ) {
     const apiKey = this.config.ai.apiKey ?? '';
 
@@ -809,6 +836,114 @@ export class AiService {
     }
   }
 
+  private async findAccessibleTemplate(
+    ownerUserId: string,
+    templateId: string,
+  ): Promise<Template | null> {
+    return this.templateRepo.findOne({
+      where: [
+        { templateId, ownerUserId },
+        { templateId, ownerUserId: IsNull(), isPublic: true },
+      ],
+    });
+  }
+
+  private async findTemplateAgentRecord<T extends { templateId: string }>(
+    repo: Repository<T>,
+    templateId: string,
+    fallbackTemplateId?: string,
+  ): Promise<T | null> {
+    const current = await repo.findOne({ where: { templateId } as never });
+    if (current || !fallbackTemplateId) {
+      return current;
+    }
+    return repo.findOne({ where: { templateId: fallbackTemplateId } as never });
+  }
+
+  private async loadTemplateAgentKnowledge(
+    ownerUserId: string,
+    document: ThemeLayoutDocument,
+    conversationId: string | undefined,
+  ): Promise<AgentTemplateKnowledgeContext> {
+    const requestedTemplateId =
+      templateIdFromConversationId(conversationId) ?? document.themeId;
+    const template = requestedTemplateId
+      ? await this.findAccessibleTemplate(ownerUserId, requestedTemplateId)
+      : null;
+    const templateId = template?.templateId;
+    const fallbackTemplateId = template?.sourceTemplateId ?? undefined;
+    let profileGenerated: TemplateProfileGenerated | null = null;
+    let profileOverride: TemplateProfileOverrideEntity | null = null;
+    let assets: TemplateAssetManifest | null = null;
+    let permissions: TemplateAgentPermissions | null = null;
+    let evaluation: TemplateEvaluationSpec | null = null;
+
+    if (templateId) {
+      [
+        profileGenerated,
+        profileOverride,
+        assets,
+        permissions,
+        evaluation,
+      ] = await Promise.all([
+        this.findTemplateAgentRecord(
+          this.profileGeneratedRepo,
+          templateId,
+          fallbackTemplateId,
+        ),
+        this.findTemplateAgentRecord(
+          this.profileOverrideRepo,
+          templateId,
+          fallbackTemplateId,
+        ),
+        this.findTemplateAgentRecord(
+          this.assetManifestRepo,
+          templateId,
+          fallbackTemplateId,
+        ),
+        this.findTemplateAgentRecord(
+          this.agentPermissionsRepo,
+          templateId,
+          fallbackTemplateId,
+        ),
+        this.findTemplateAgentRecord(
+          this.evaluationSpecRepo,
+          templateId,
+          fallbackTemplateId,
+        ),
+      ]);
+    }
+
+    const generatedProfile =
+      profileGenerated?.profile ??
+      buildTemplateProfile(document) as unknown as Record<string, unknown>;
+    const profileOverrideRecord = profileOverride?.override ?? null;
+    let effectiveProfile = generatedProfile;
+    if (profileOverrideRecord) {
+      try {
+        effectiveProfile = applyTemplateProfileOverride(
+          generatedProfile as unknown as TemplateProfile,
+          profileOverrideRecord as never,
+        ) as unknown as Record<string, unknown>;
+      } catch (error) {
+        this.logger.warn(
+          `[TemplateAgentConfig] Failed to apply profile override for ${templateId}: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        );
+      }
+    }
+
+    return {
+      profileGenerated: generatedProfile,
+      profileOverride: profileOverrideRecord,
+      effectiveProfile,
+      assets: assets?.manifest ?? null,
+      permissions: permissions?.permissions ?? null,
+      evaluation: evaluation?.evaluation ?? null,
+    };
+  }
+
   private emitStreamEvent(
     subject: Subject<StreamSseEvent>,
     event: ProviderStreamEvent,
@@ -955,9 +1090,22 @@ export class AiService {
     const fallbackConversation = providerLog.length > 0
       ? []
       : buildConversationContextMessages(req.conversation);
+    const templateKnowledge = await this.loadTemplateAgentKnowledge(
+      ownerUserId,
+      req.document,
+      cacheOptions?.conversationId,
+    );
+    const templateKnowledgeContext = summarizeTemplateAgentKnowledge(templateKnowledge);
+    const stableEditorContext = [
+      buildEditorStablePrefixContext(req.document.components),
+      templateKnowledgeContext,
+    ].filter(Boolean).join('\n\n');
+    const effectiveTemplateProfile = templateKnowledge.effectiveProfile
+      ? templateKnowledge.effectiveProfile as TemplateProfile
+      : undefined;
     const prefixMessages: StreamRequest['messages'] = [
       { role: 'system', content: EDITOR_COPILOT_SYSTEM_PROMPT },
-      { role: 'system', content: buildEditorStablePrefixContext(req.document.components) },
+      { role: 'system', content: stableEditorContext },
     ];
     const messages: StreamRequest['messages'] = [
       ...prefixMessages,
@@ -1026,7 +1174,13 @@ export class AiService {
       requestCache: previousResponseId
         ? { previousResponseId }
         : undefined,
-      toolExecutor: (name, args) => this.executeEditorTool(subject, name, args),
+      toolExecutor: (name, args) => this.executeEditorTool(
+        subject,
+        name,
+        args,
+        req.document,
+        effectiveTemplateProfile,
+      ),
     });
 
     const result = await loop.run(messages);
@@ -1063,6 +1217,8 @@ export class AiService {
     subject: Subject<StreamSseEvent>,
     name: string,
     args: Record<string, unknown>,
+    document?: ThemeLayoutDocument,
+    profile?: TemplateProfile,
   ): Promise<ToolResult> {
     if (!EDITOR_EDIT_TOOL_NAMES.has(name)) {
       return Promise.resolve({
@@ -1072,15 +1228,17 @@ export class AiService {
 
     try {
       const edit = editorToolCallToOperations(name, args);
-      this.assertEditorOperations(edit);
+      const compiledEdit = this.compileSemanticEditorOperations(edit, document, profile);
+      this.assertEditorOperations(compiledEdit);
       this.emitEditorEvent(subject, {
         type: 'edit_request',
-        data: JSON.stringify(edit),
+        data: JSON.stringify(compiledEdit),
       });
       return Promise.resolve({
         output: JSON.stringify({
           success: true,
           detail: 'Edit instructions were sent to the editor client.',
+          warnings: compiledEdit.warnings,
         }),
       });
     } catch (err) {
@@ -1090,6 +1248,46 @@ export class AiService {
         }),
       });
     }
+  }
+
+  private compileSemanticEditorOperations(
+    edit: EditorToolInput,
+    document: ThemeLayoutDocument | undefined,
+    profile: TemplateProfile | undefined,
+  ): EditorToolInput & { warnings?: string[] } {
+    if (!Array.isArray(edit.operations) || !document) {
+      return edit;
+    }
+
+    const operations: unknown[] = [];
+    const warnings: string[] = [];
+    for (const operation of edit.operations) {
+      if (
+        operation &&
+        typeof operation === 'object' &&
+        typeof (operation as { type?: unknown }).type === 'string' &&
+        isSemanticEditorInstruction(operation as { type: string })
+      ) {
+        const compiled = compileSemanticEditorInstruction(
+          document,
+          operation as SemanticEditorInstruction,
+          profile,
+        );
+        if (!compiled.success || !compiled.data) {
+          throw new Error(JSON.stringify(compiled.error));
+        }
+        operations.push(...compiled.data.operations);
+        warnings.push(...compiled.data.warnings);
+        continue;
+      }
+      operations.push(operation);
+    }
+
+    return {
+      ...edit,
+      operations,
+      ...(warnings.length ? { warnings } : {}),
+    };
   }
 
   private assertEditorOperations(input: EditorToolInput): void {
@@ -1182,7 +1380,13 @@ export class AiService {
     assertValidTemplateLayout({
       layoutDocument: input.layoutDocument,
       componentTemplates: input.componentTemplates,
+      requireGeneratedTemplateQuality: true,
     });
+    this.assertTemplateCategoryKeys(input);
+    await this.categoryRegistry.ensureTemplateCategories(
+      input,
+      { requireLabelsForUnknown: true },
+    );
 
     const existing = await this.templateRepo.findOne({ where: { templateId: input.templateId } });
 
@@ -1218,6 +1422,11 @@ export class AiService {
     template.tagline = input.tagline;
     template.description = input.description;
     template.category = input.category;
+    template.platformCategories = [...(input.platformCategories ?? [])];
+    template.functionalCategories = input.functionalCategories?.length
+      ? [...input.functionalCategories]
+      : [input.category];
+    template.primaryFunctionalCategory = template.functionalCategories[0] ?? null;
     template.accent = input.accent;
     template.traits = input.traits;
     template.tags = deriveTags({
@@ -1231,6 +1440,14 @@ export class AiService {
       input.layoutDocument,
       input.cssVars,
     );
+  }
+
+  private assertTemplateCategoryKeys(input: TemplateToolInput): void {
+    assertTemplateCategoryKey(input.category, 'category');
+    input.platformCategories?.forEach((category) =>
+      assertTemplateCategoryKey(category, 'platformCategories'));
+    input.functionalCategories?.forEach((category) =>
+      assertTemplateCategoryKey(category, 'functionalCategories'));
   }
 
   private async createAvailableUserTemplateId(
@@ -1261,6 +1478,12 @@ function sanitizeTokenCount(value: number | undefined): number {
     return 0;
   }
   return Math.floor(Math.min(value, Number.MAX_SAFE_INTEGER));
+}
+
+function assertTemplateCategoryKey(value: string, fieldName: string): void {
+  if (!/^[a-z0-9][a-z0-9._-]*$/i.test(value) || /[\u4e00-\u9fff]/.test(value)) {
+    throw new BadRequestException(`${fieldName} must be an English slug key.`);
+  }
 }
 
 function sanitizeOptionalTokenCount(value: number | undefined): number | null {

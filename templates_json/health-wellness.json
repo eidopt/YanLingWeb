@@ -1,0 +1,2983 @@
+{
+  "templateId": "health-wellness",
+  "name": "健康管理",
+  "description": "适用于健康数据、运动记录、医疗咨询等场景的小程序模板，包含健康首页、趋势详情、运动计划、健康咨询页面",
+  "accent": "#22c55e",
+  "thumbnail": "",
+  "platformCategories": [
+    "mini-program"
+  ],
+  "functionalCategories": [
+    "health-wellness",
+    "health",
+    "fitness"
+  ],
+  "category": "health-wellness",
+  "tags": [
+    "健康",
+    "运动",
+    "医疗",
+    "健身",
+    "养生"
+  ],
+  "layoutDocument": {
+    "version": 1,
+    "themeId": "health-wellness",
+    "themeName": "健康管理",
+    "description": "适用于健康数据、运动记录、医疗咨询等场景的小程序模板，包含健康首页、趋势详情、运动计划、健康咨询页面",
+    "components": [
+      {
+        "alias": "core.button",
+        "name": "按钮",
+        "kind": "component",
+        "description": "按钮组件",
+        "props": [
+          {
+            "name": "label",
+            "type": "string",
+            "label": "显示文字"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.grid",
+        "name": "网格容器",
+        "kind": "layout",
+        "description": "网格容器组件",
+        "props": [
+          {
+            "name": "columns",
+            "type": "number",
+            "label": "列数"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.image",
+        "name": "图片",
+        "kind": "component",
+        "description": "图片组件",
+        "props": [
+          {
+            "name": "alt",
+            "type": "string",
+            "label": "替代文本"
+          },
+          {
+            "name": "iconColor",
+            "type": "string",
+            "label": "图标颜色"
+          },
+          {
+            "name": "objectFit",
+            "type": "string",
+            "label": "图片填充方式"
+          },
+          {
+            "name": "src",
+            "type": "string",
+            "label": "图片地址"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "label": "标题"
+          }
+        ]
+      },
+      {
+        "alias": "core.panel",
+        "name": "面板容器",
+        "kind": "layout",
+        "description": "面板容器组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.row",
+        "name": "横向容器",
+        "kind": "layout",
+        "description": "横向容器组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.screen",
+        "name": "页面画布",
+        "kind": "layout",
+        "description": "页面画布组件",
+        "props": [
+          {
+            "name": "title",
+            "type": "string",
+            "label": "标题"
+          }
+        ]
+      },
+      {
+        "alias": "core.stack",
+        "name": "纵向容器",
+        "kind": "layout",
+        "description": "纵向容器组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.text",
+        "name": "文本",
+        "kind": "component",
+        "description": "文本组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          },
+          {
+            "name": "text",
+            "type": "string",
+            "label": "显示内容"
+          }
+        ]
+      }
+    ],
+    "defaultPageId": "page-home",
+    "pages": [
+      {
+        "id": "page-home",
+        "name": "健康首页",
+        "description": "健康中心",
+        "layout": {
+          "id": "page-home-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 0
+          },
+          "props": {
+            "title": "健康首页"
+          },
+          "children": [
+            {
+              "id": "health-header",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "style": {
+                  "padding": "40rpx 32rpx 48rpx",
+                  "background": "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))",
+                  "borderRadius": "0 0 32rpx 32rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "health-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "健康中心",
+                    "style": {
+                      "fontSize": "36rpx",
+                      "fontWeight": "bold",
+                      "color": "#fff"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "health-date",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "2024年1月15日 星期一",
+                    "style": {
+                      "fontSize": "24rpx",
+                      "color": "rgba(255,255,255,0.8)",
+                      "marginTop": "8rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "health-score",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "style": {
+                      "marginTop": "24rpx",
+                      "padding": "24rpx",
+                      "borderRadius": "16rpx",
+                      "background": "rgba(255,255,255,0.15)",
+                      "display": "flex",
+                      "justifyContent": "space-around"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "score-item",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "alignItems": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "score-num",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "86",
+                            "style": {
+                              "fontSize": "48rpx",
+                              "fontWeight": "bold",
+                              "color": "#fff"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "score-label",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "健康评分",
+                            "style": {
+                              "fontSize": "22rpx",
+                              "color": "rgba(255,255,255,0.8)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "divider",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "width": "1rpx",
+                          "height": "80rpx",
+                          "background": "rgba(255,255,255,0.3)"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "steps-item",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "style": {
+                          "alignItems": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "steps-num",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "8,234",
+                            "style": {
+                              "fontSize": "48rpx",
+                              "fontWeight": "bold",
+                              "color": "#fff"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "steps-label",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "今日步数",
+                            "style": {
+                              "fontSize": "22rpx",
+                              "color": "rgba(255,255,255,0.8)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "health-metrics",
+              "alias": "core.grid",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "columns": 2,
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "gap": "16rpx",
+                  "marginTop": "-24rpx",
+                  "position": "relative",
+                  "zIndex": 1
+                }
+              },
+              "children": [
+                {
+                  "id": "metric-heart",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "20rpx",
+                      "borderRadius": "16rpx",
+                      "background": "#fff",
+                      "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "heart-header",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "justifyContent": "space-between",
+                          "alignItems": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "heart-icon",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "图标",
+                            "title": "图标",
+                            "objectFit": "contain",
+                            "iconColor": "#ef4444"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "heart-status",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "正常",
+                            "style": {
+                              "fontSize": "22rpx",
+                              "color": "var(--color-primary)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "heart-value",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "72",
+                        "style": {
+                          "fontSize": "40rpx",
+                          "fontWeight": "bold",
+                          "marginTop": "12rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "heart-unit",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "text": "次/分 心率",
+                        "style": {
+                          "fontSize": "22rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "metric-sleep",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "20rpx",
+                      "borderRadius": "16rpx",
+                      "background": "#fff",
+                      "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "sleep-header",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "justifyContent": "space-between",
+                          "alignItems": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "sleep-icon",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "图标",
+                            "title": "图标",
+                            "objectFit": "contain",
+                            "iconColor": "#8b5cf6"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "sleep-status",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "良好",
+                            "style": {
+                              "fontSize": "22rpx",
+                              "color": "var(--color-primary)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "sleep-value",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "7.5",
+                        "style": {
+                          "fontSize": "40rpx",
+                          "fontWeight": "bold",
+                          "marginTop": "12rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "sleep-unit",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "text": "小时 睡眠",
+                        "style": {
+                          "fontSize": "22rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "metric-bp",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "20rpx",
+                      "borderRadius": "16rpx",
+                      "background": "#fff",
+                      "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "bp-header",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "justifyContent": "space-between",
+                          "alignItems": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "bp-icon",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "图标",
+                            "title": "图标",
+                            "objectFit": "contain",
+                            "iconColor": "#f59e0b"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "bp-status",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "正常",
+                            "style": {
+                              "fontSize": "22rpx",
+                              "color": "var(--color-primary)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "bp-value",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "120/80",
+                        "style": {
+                          "fontSize": "36rpx",
+                          "fontWeight": "bold",
+                          "marginTop": "12rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "bp-unit",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "text": "毫米汞柱 血压",
+                        "style": {
+                          "fontSize": "22rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "metric-cal",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "20rpx",
+                      "borderRadius": "16rpx",
+                      "background": "#fff",
+                      "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "cal-header",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "justifyContent": "space-between",
+                          "alignItems": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "cal-icon",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "图标",
+                            "title": "图标",
+                            "objectFit": "contain",
+                            "iconColor": "#f97316"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "cal-status",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "68%",
+                            "style": {
+                              "fontSize": "22rpx",
+                              "color": "var(--color-primary)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "cal-value",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "1,680",
+                        "style": {
+                          "fontSize": "40rpx",
+                          "fontWeight": "bold",
+                          "marginTop": "12rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "cal-unit",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "text": "千卡 消耗",
+                        "style": {
+                          "fontSize": "22rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "health-tips",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "tips-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "健康小贴士",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "fontWeight": "bold",
+                      "marginBottom": "16rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "tips-card",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "20rpx",
+                      "borderRadius": "12rpx",
+                      "background": "rgba(34,197,94,0.05)",
+                      "border": "1rpx solid rgba(34,197,94,0.2)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "tips-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "今日运动量达标，建议补充适量水分，保持充足睡眠。",
+                        "style": {
+                          "fontSize": "26rpx",
+                          "color": "var(--color-text-primary)",
+                          "lineHeight": "1.6"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-trends",
+        "name": "趋势详情",
+        "description": "健康趋势",
+        "layout": {
+          "id": "page-trends-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 1
+          },
+          "props": {
+            "title": "趋势详情"
+          },
+          "children": [
+            {
+              "id": "trends-header",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "var(--color-primary)"
+                }
+              },
+              "children": [
+                {
+                  "id": "trends-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "健康趋势",
+                    "style": {
+                      "fontSize": "34rpx",
+                      "fontWeight": "bold",
+                      "color": "#fff"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "trends-tabs",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "style": {
+                  "padding": "16rpx 32rpx",
+                  "gap": "24rpx",
+                  "background": "#fff",
+                  "borderBottom": "1rpx solid var(--color-border)"
+                }
+              },
+              "children": [
+                {
+                  "id": "tab-week",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "本周",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "color": "var(--color-primary)",
+                      "fontWeight": "bold"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "tab-month",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "本月",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "color": "var(--color-text-secondary)"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "tab-year",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "text": "本年",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "color": "var(--color-text-secondary)"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "trends-chart",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff",
+                  "marginTop": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "chart-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "步数趋势",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "fontWeight": "bold",
+                      "marginBottom": "16rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "chart-placeholder",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "height": "300rpx",
+                      "borderRadius": "12rpx",
+                      "background": "var(--color-background)",
+                      "display": "flex",
+                      "alignItems": "center",
+                      "justifyContent": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "chart-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "图表区域",
+                        "style": {
+                          "fontSize": "26rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "trends-summary",
+              "alias": "core.grid",
+              "layout": {
+                "mode": "flow",
+                "order": 3
+              },
+              "props": {
+                "columns": 3,
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "gap": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "summary-avg",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "16rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#fff",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "avg-num",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "7,856",
+                        "style": {
+                          "fontSize": "28rpx",
+                          "fontWeight": "bold",
+                          "color": "var(--color-primary)"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "avg-label",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "日均步数",
+                        "style": {
+                          "fontSize": "22rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "summary-max",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "16rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#fff",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "max-num",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "12,340",
+                        "style": {
+                          "fontSize": "28rpx",
+                          "fontWeight": "bold",
+                          "color": "var(--color-primary)"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "max-label",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "最高步数",
+                        "style": {
+                          "fontSize": "22rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "summary-goal",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "16rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#fff",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "goal-num",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "5/7",
+                        "style": {
+                          "fontSize": "28rpx",
+                          "fontWeight": "bold",
+                          "color": "var(--color-primary)"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "goal-label",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "达标天数",
+                        "style": {
+                          "fontSize": "22rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-exercise",
+        "name": "运动计划",
+        "description": "运动计划",
+        "layout": {
+          "id": "page-exercise-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 2
+          },
+          "props": {
+            "title": "运动计划"
+          },
+          "children": [
+            {
+              "id": "exercise-header",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "var(--color-primary)"
+                }
+              },
+              "children": [
+                {
+                  "id": "exercise-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "运动计划",
+                    "style": {
+                      "fontSize": "34rpx",
+                      "fontWeight": "bold",
+                      "color": "#fff"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "exercise-today",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff",
+                  "marginTop": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "today-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "今日计划",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "fontWeight": "bold",
+                      "marginBottom": "16rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "exercise-card",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "20rpx",
+                      "borderRadius": "12rpx",
+                      "background": "var(--color-background)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "ec-header",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "justifyContent": "space-between",
+                          "alignItems": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "ec-name",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "晨跑",
+                            "style": {
+                              "fontSize": "28rpx",
+                              "fontWeight": "bold"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "ec-duration",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "30分钟",
+                            "style": {
+                              "fontSize": "24rpx",
+                              "color": "var(--color-primary)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "ec-meta",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "marginTop": "12rpx",
+                          "gap": "16rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "ec-cal",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "消耗 280千卡",
+                            "style": {
+                              "fontSize": "22rpx",
+                              "color": "var(--color-text-secondary)"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "ec-time",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "07:00-07:30",
+                            "style": {
+                              "fontSize": "22rpx",
+                              "color": "var(--color-text-secondary)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "ec-btn",
+                      "alias": "core.button",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "style": {
+                          "marginTop": "16rpx",
+                          "padding": "12rpx",
+                          "borderRadius": "24rpx",
+                          "background": "var(--color-primary)",
+                          "color": "#fff",
+                          "fontSize": "26rpx",
+                          "textAlign": "center"
+                        },
+                        "label": "开始运动"
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "exercise-weekly",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff",
+                  "marginTop": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "weekly-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "本周运动",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "fontWeight": "bold",
+                      "marginBottom": "16rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "weekly-row",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-around"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "day-mon",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "alignItems": "center",
+                          "gap": "8rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "mon-dot",
+                          "alias": "core.panel",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "style": {
+                              "width": "40rpx",
+                              "height": "40rpx",
+                              "borderRadius": "50%",
+                              "background": "var(--color-primary)"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "mon-text",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "一",
+                            "style": {
+                              "fontSize": "22rpx"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "day-tue",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "alignItems": "center",
+                          "gap": "8rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "tue-dot",
+                          "alias": "core.panel",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "style": {
+                              "width": "40rpx",
+                              "height": "40rpx",
+                              "borderRadius": "50%",
+                              "background": "var(--color-primary)"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "tue-text",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "二",
+                            "style": {
+                              "fontSize": "22rpx"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "day-wed",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "style": {
+                          "alignItems": "center",
+                          "gap": "8rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "wed-dot",
+                          "alias": "core.panel",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "style": {
+                              "width": "40rpx",
+                              "height": "40rpx",
+                              "borderRadius": "50%",
+                              "background": "var(--color-border)"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "wed-text",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "三",
+                            "style": {
+                              "fontSize": "22rpx"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "day-thu",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 3
+                      },
+                      "props": {
+                        "style": {
+                          "alignItems": "center",
+                          "gap": "8rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "thu-dot",
+                          "alias": "core.panel",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "style": {
+                              "width": "40rpx",
+                              "height": "40rpx",
+                              "borderRadius": "50%",
+                              "background": "var(--color-primary)"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "thu-text",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "四",
+                            "style": {
+                              "fontSize": "22rpx"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "day-fri",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 4
+                      },
+                      "props": {
+                        "style": {
+                          "alignItems": "center",
+                          "gap": "8rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "fri-dot",
+                          "alias": "core.panel",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "style": {
+                              "width": "40rpx",
+                              "height": "40rpx",
+                              "borderRadius": "50%",
+                              "background": "var(--color-primary)"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "fri-text",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "五",
+                            "style": {
+                              "fontSize": "22rpx"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "day-sat",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 5
+                      },
+                      "props": {
+                        "style": {
+                          "alignItems": "center",
+                          "gap": "8rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "sat-dot",
+                          "alias": "core.panel",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "style": {
+                              "width": "40rpx",
+                              "height": "40rpx",
+                              "borderRadius": "50%",
+                              "background": "var(--color-border)"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "sat-text",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "六",
+                            "style": {
+                              "fontSize": "22rpx"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "day-sun",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 6
+                      },
+                      "props": {
+                        "style": {
+                          "alignItems": "center",
+                          "gap": "8rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "sun-dot",
+                          "alias": "core.panel",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "style": {
+                              "width": "40rpx",
+                              "height": "40rpx",
+                              "borderRadius": "50%",
+                              "background": "var(--color-border)"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "sun-text",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "日",
+                            "style": {
+                              "fontSize": "22rpx"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-consult",
+        "name": "健康咨询",
+        "description": "健康咨询",
+        "layout": {
+          "id": "page-consult-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 3
+          },
+          "props": {
+            "title": "健康咨询"
+          },
+          "children": [
+            {
+              "id": "consult-header",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "var(--color-primary)"
+                }
+              },
+              "children": [
+                {
+                  "id": "consult-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "健康咨询",
+                    "style": {
+                      "fontSize": "34rpx",
+                      "fontWeight": "bold",
+                      "color": "#fff"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "consult-categories",
+              "alias": "core.grid",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "columns": 3,
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "gap": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "cat-general",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "16rpx",
+                      "background": "#fff",
+                      "textAlign": "center",
+                      "boxShadow": "0 2rpx 8rpx rgba(0,0,0,0.06)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "general-icon",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "图标",
+                        "title": "图标",
+                        "objectFit": "contain",
+                        "iconColor": "var(--color-primary)"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "general-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "全科",
+                        "style": {
+                          "fontSize": "24rpx",
+                          "marginTop": "8rpx"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "cat-dental",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "16rpx",
+                      "background": "#fff",
+                      "textAlign": "center",
+                      "boxShadow": "0 2rpx 8rpx rgba(0,0,0,0.06)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "dental-icon",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "图标",
+                        "title": "图标",
+                        "objectFit": "contain",
+                        "iconColor": "#3b82f6"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "dental-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "口腔",
+                        "style": {
+                          "fontSize": "24rpx",
+                          "marginTop": "8rpx"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "cat-skin",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "16rpx",
+                      "background": "#fff",
+                      "textAlign": "center",
+                      "boxShadow": "0 2rpx 8rpx rgba(0,0,0,0.06)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "skin-icon",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "图标",
+                        "title": "图标",
+                        "objectFit": "contain",
+                        "iconColor": "#ec4899"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "skin-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "皮肤",
+                        "style": {
+                          "fontSize": "24rpx",
+                          "marginTop": "8rpx"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "consult-doctors",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "doctors-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "推荐医生",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "fontWeight": "bold",
+                      "marginBottom": "16rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "doctor-card",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "20rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#fff",
+                      "boxShadow": "0 2rpx 8rpx rgba(0,0,0,0.06)",
+                      "gap": "16rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "doctor-avatar",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "src": "https://placeholder.com/doctor.png",
+                        "style": {
+                          "width": "100rpx",
+                          "height": "100rpx",
+                          "borderRadius": "50%"
+                        },
+                        "alt": "图片",
+                        "title": "图片"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "doctor-info",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "flex": 1,
+                          "gap": "6rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "doctor-name",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "李医生",
+                            "style": {
+                              "fontSize": "28rpx",
+                              "fontWeight": "bold"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "doctor-title",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "主任医师 · 全科",
+                            "style": {
+                              "fontSize": "24rpx",
+                              "color": "var(--color-text-secondary)"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "doctor-rating",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 2
+                          },
+                          "props": {
+                            "text": "4.9分 · 1.2万次咨询",
+                            "style": {
+                              "fontSize": "22rpx",
+                              "color": "#f59e0b"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "consult-btn",
+                      "alias": "core.button",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "12rpx 24rpx",
+                          "borderRadius": "24rpx",
+                          "background": "var(--color-primary)",
+                          "color": "#fff",
+                          "fontSize": "24rpx",
+                          "alignSelf": "center"
+                        },
+                        "label": "咨询"
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "layout": {
+      "id": "page-home-screen",
+      "alias": "core.screen",
+      "layout": {
+        "mode": "flow",
+        "order": 0
+      },
+      "props": {
+        "title": "健康首页"
+      },
+      "children": [
+        {
+          "id": "health-header",
+          "alias": "core.panel",
+          "layout": {
+            "mode": "flow",
+            "order": 0
+          },
+          "props": {
+            "style": {
+              "padding": "40rpx 32rpx 48rpx",
+              "background": "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))",
+              "borderRadius": "0 0 32rpx 32rpx"
+            }
+          },
+          "children": [
+            {
+              "id": "health-title",
+              "alias": "core.text",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "text": "健康中心",
+                "style": {
+                  "fontSize": "36rpx",
+                  "fontWeight": "bold",
+                  "color": "#fff"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "health-date",
+              "alias": "core.text",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "text": "2024年1月15日 星期一",
+                "style": {
+                  "fontSize": "24rpx",
+                  "color": "rgba(255,255,255,0.8)",
+                  "marginTop": "8rpx"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "health-score",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2
+              },
+              "props": {
+                "style": {
+                  "marginTop": "24rpx",
+                  "padding": "24rpx",
+                  "borderRadius": "16rpx",
+                  "background": "rgba(255,255,255,0.15)",
+                  "display": "flex",
+                  "justifyContent": "space-around"
+                }
+              },
+              "children": [
+                {
+                  "id": "score-item",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "score-num",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "86",
+                        "style": {
+                          "fontSize": "48rpx",
+                          "fontWeight": "bold",
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "score-label",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "健康评分",
+                        "style": {
+                          "fontSize": "22rpx",
+                          "color": "rgba(255,255,255,0.8)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "divider",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "width": "1rpx",
+                      "height": "80rpx",
+                      "background": "rgba(255,255,255,0.3)"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "steps-item",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "style": {
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "steps-num",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "8,234",
+                        "style": {
+                          "fontSize": "48rpx",
+                          "fontWeight": "bold",
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "steps-label",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "今日步数",
+                        "style": {
+                          "fontSize": "22rpx",
+                          "color": "rgba(255,255,255,0.8)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "health-metrics",
+          "alias": "core.grid",
+          "layout": {
+            "mode": "flow",
+            "order": 1
+          },
+          "props": {
+            "columns": 2,
+            "style": {
+              "padding": "24rpx 32rpx",
+              "gap": "16rpx",
+              "marginTop": "-24rpx",
+              "position": "relative",
+              "zIndex": 1
+            }
+          },
+          "children": [
+            {
+              "id": "metric-heart",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "style": {
+                  "padding": "20rpx",
+                  "borderRadius": "16rpx",
+                  "background": "#fff",
+                  "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)"
+                }
+              },
+              "children": [
+                {
+                  "id": "heart-header",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "heart-icon",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "图标",
+                        "title": "图标",
+                        "objectFit": "contain",
+                        "iconColor": "#ef4444"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "heart-status",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "正常",
+                        "style": {
+                          "fontSize": "22rpx",
+                          "color": "var(--color-primary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "heart-value",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "72",
+                    "style": {
+                      "fontSize": "40rpx",
+                      "fontWeight": "bold",
+                      "marginTop": "12rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "heart-unit",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "text": "次/分 心率",
+                    "style": {
+                      "fontSize": "22rpx",
+                      "color": "var(--color-text-secondary)"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "metric-sleep",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "style": {
+                  "padding": "20rpx",
+                  "borderRadius": "16rpx",
+                  "background": "#fff",
+                  "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)"
+                }
+              },
+              "children": [
+                {
+                  "id": "sleep-header",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "sleep-icon",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "图标",
+                        "title": "图标",
+                        "objectFit": "contain",
+                        "iconColor": "#8b5cf6"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "sleep-status",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "良好",
+                        "style": {
+                          "fontSize": "22rpx",
+                          "color": "var(--color-primary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "sleep-value",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "7.5",
+                    "style": {
+                      "fontSize": "40rpx",
+                      "fontWeight": "bold",
+                      "marginTop": "12rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "sleep-unit",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "text": "小时 睡眠",
+                    "style": {
+                      "fontSize": "22rpx",
+                      "color": "var(--color-text-secondary)"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "metric-bp",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2
+              },
+              "props": {
+                "style": {
+                  "padding": "20rpx",
+                  "borderRadius": "16rpx",
+                  "background": "#fff",
+                  "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)"
+                }
+              },
+              "children": [
+                {
+                  "id": "bp-header",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "bp-icon",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "图标",
+                        "title": "图标",
+                        "objectFit": "contain",
+                        "iconColor": "#f59e0b"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "bp-status",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "正常",
+                        "style": {
+                          "fontSize": "22rpx",
+                          "color": "var(--color-primary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "bp-value",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "120/80",
+                    "style": {
+                      "fontSize": "36rpx",
+                      "fontWeight": "bold",
+                      "marginTop": "12rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "bp-unit",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "text": "毫米汞柱 血压",
+                    "style": {
+                      "fontSize": "22rpx",
+                      "color": "var(--color-text-secondary)"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "metric-cal",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 3
+              },
+              "props": {
+                "style": {
+                  "padding": "20rpx",
+                  "borderRadius": "16rpx",
+                  "background": "#fff",
+                  "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)"
+                }
+              },
+              "children": [
+                {
+                  "id": "cal-header",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "cal-icon",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "图标",
+                        "title": "图标",
+                        "objectFit": "contain",
+                        "iconColor": "#f97316"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "cal-status",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "68%",
+                        "style": {
+                          "fontSize": "22rpx",
+                          "color": "var(--color-primary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "cal-value",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "1,680",
+                    "style": {
+                      "fontSize": "40rpx",
+                      "fontWeight": "bold",
+                      "marginTop": "12rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "cal-unit",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "text": "千卡 消耗",
+                    "style": {
+                      "fontSize": "22rpx",
+                      "color": "var(--color-text-secondary)"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "health-tips",
+          "alias": "core.panel",
+          "layout": {
+            "mode": "flow",
+            "order": 2
+          },
+          "props": {
+            "style": {
+              "padding": "24rpx 32rpx"
+            }
+          },
+          "children": [
+            {
+              "id": "tips-title",
+              "alias": "core.text",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "text": "健康小贴士",
+                "style": {
+                  "fontSize": "28rpx",
+                  "fontWeight": "bold",
+                  "marginBottom": "16rpx"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "tips-card",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "style": {
+                  "padding": "20rpx",
+                  "borderRadius": "12rpx",
+                  "background": "rgba(34,197,94,0.05)",
+                  "border": "1rpx solid rgba(34,197,94,0.2)"
+                }
+              },
+              "children": [
+                {
+                  "id": "tips-text",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "今日运动量达标，建议补充适量水分，保持充足睡眠。",
+                    "style": {
+                      "fontSize": "26rpx",
+                      "color": "var(--color-text-primary)",
+                      "lineHeight": "1.6"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "componentTemplates": {},
+    "cssVars": {
+      "--color-primary": "#22c55e",
+      "--color-primary-dark": "#16a34a",
+      "--color-primary-light": "#4ade80",
+      "--color-text-primary": "#1e293b",
+      "--color-text-secondary": "#64748b",
+      "--color-border": "#e2e8f0",
+      "--color-background": "#f8fafc",
+      "--color-surface": "#ffffff"
+    },
+    "style": {
+      "cssVars": {
+        "--color-primary": "#22c55e",
+        "--color-primary-dark": "#16a34a",
+        "--color-primary-light": "#4ade80",
+        "--color-text-primary": "#1e293b",
+        "--color-text-secondary": "#64748b",
+        "--color-border": "#e2e8f0",
+        "--color-background": "#f8fafc",
+        "--color-surface": "#ffffff"
+      }
+    }
+  },
+  "semanticConfig": {
+    "pages": [
+      {
+        "id": "page-home",
+        "key": "health.home",
+        "name": "健康首页",
+        "description": "健康数据概览和指标"
+      },
+      {
+        "id": "page-trends",
+        "key": "health.trends",
+        "name": "趋势详情",
+        "description": "健康数据趋势图表"
+      },
+      {
+        "id": "page-exercise",
+        "key": "health.exercise",
+        "name": "运动计划",
+        "description": "运动计划和记录"
+      },
+      {
+        "id": "page-consult",
+        "key": "health.consult",
+        "name": "健康咨询",
+        "description": "医生咨询"
+      }
+    ],
+    "regions": [
+      {
+        "id": "health-header",
+        "key": "health.home.header",
+        "name": "健康头部",
+        "description": "评分和步数概览"
+      },
+      {
+        "id": "health-metrics",
+        "key": "health.home.metrics",
+        "name": "健康指标",
+        "description": "心率、睡眠、血压、卡路里"
+      },
+      {
+        "id": "health-tips",
+        "key": "health.home.tips",
+        "name": "健康贴士",
+        "description": "健康建议"
+      }
+    ],
+    "slots": [
+      {
+        "id": "score-num",
+        "key": "health.home.score",
+        "name": "健康评分",
+        "description": "健康评分数字"
+      },
+      {
+        "id": "steps-num",
+        "key": "health.home.steps",
+        "name": "今日步数",
+        "description": "今日步数"
+      },
+      {
+        "id": "heart-value",
+        "key": "health.home.heart",
+        "name": "心率",
+        "description": "心率数值"
+      }
+    ]
+  },
+  "categoryLabel": "健康管理",
+  "functionalCategoryLabels": {
+    "health-wellness": "健康管理",
+    "health": "医疗健康",
+    "fitness": "运动"
+  },
+  "tagline": "适用于健康数据、运动记录、医疗咨询等场景的小程序模板，包含健康首页、趋势详情、运动计划、健康咨询页面",
+  "traits": [
+    "健康",
+    "运动",
+    "医疗",
+    "健身",
+    "养生"
+  ],
+  "cssVars": {
+    "--color-primary": "#22c55e",
+    "--color-primary-dark": "#16a34a",
+    "--color-primary-light": "#4ade80",
+    "--color-text-primary": "#1e293b",
+    "--color-text-secondary": "#64748b",
+    "--color-border": "#e2e8f0",
+    "--color-background": "#f8fafc",
+    "--color-surface": "#ffffff"
+  },
+  "componentTemplates": {}
+}

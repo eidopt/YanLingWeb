@@ -121,6 +121,12 @@ function withResolvedNodeAliases(
         parentId: resolveNodeId(instruction.parentId),
         targetId: resolveNodeId(instruction.targetId),
       };
+    case 'clone_pattern_items':
+      return {
+        ...instruction,
+        sourceRootNodeId: resolveNodeId(instruction.sourceRootNodeId) ?? instruction.sourceRootNodeId,
+        parentId: resolveNodeId(instruction.parentId),
+      };
     case 'update_props':
     case 'set_layout':
     case 'set_frame':
@@ -173,7 +179,8 @@ function needsMultiPageContext(instruction: EditorAiEditInstruction) {
   return (
     isPageCreationInstruction(instruction) ||
     isPageDeletionInstruction(instruction) ||
-    isPageNavigationSyncInstruction(instruction)
+    isPageNavigationSyncInstruction(instruction) ||
+    instruction.type === 'clone_pattern_items'
   );
 }
 

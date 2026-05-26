@@ -1,0 +1,15 @@
+{
+  "templateId": "booking-reservation",
+  "overrides": {
+    "pages": [],
+    "regions": [],
+    "slots": [
+      { "slotKey": "booking.recommend.name", "label": "服务名称", "aiRole": "name", "description": "服务名称，建议不超过20个字符" },
+      { "slotKey": "booking.recommend.price", "label": "价格", "aiRole": "price", "description": "服务价格，格式为¥xxx" }
+    ],
+    "patterns": [],
+    "navigation": { "type": "none", "items": [] },
+    "constraints": { "devices": ["miniapp"] }
+  },
+  "metadata": { "createdAt": "2026-05-26", "updatedAt": "2026-05-26", "author": "template-generator", "notes": "预约预订模板 - 适用于酒店预订、餐厅预约、服务预约" }
+}

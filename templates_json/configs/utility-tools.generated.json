@@ -1,0 +1,268 @@
+{
+  "templateId": "utility-tools",
+  "templateVersion": "1.0.0",
+  "profileVersion": "1.0.0",
+  "devices": [
+    "miniapp"
+  ],
+  "pages": [
+    {
+      "pageKey": "tools.home",
+      "pageId": "page-home",
+      "pageKind": "home",
+      "name": "工具首页",
+      "description": "工具网格和最近使用",
+      "rootNodeId": "page-home-screen",
+      "device": "miniapp",
+      "isDefault": true
+    },
+    {
+      "pageKey": "tools.detail",
+      "pageId": "page-detail",
+      "pageKind": "tool",
+      "name": "工具详情",
+      "description": "计算器等工具界面",
+      "rootNodeId": "page-detail-screen",
+      "device": "miniapp"
+    },
+    {
+      "pageKey": "tools.history",
+      "pageId": "page-history",
+      "pageKind": "list",
+      "name": "历史结果",
+      "description": "计算历史记录",
+      "rootNodeId": "page-history-screen",
+      "device": "miniapp"
+    },
+    {
+      "pageKey": "tools.settings",
+      "pageId": "page-settings",
+      "pageKind": "settings",
+      "name": "工具设置",
+      "description": "工具配置选项",
+      "rootNodeId": "page-settings-screen",
+      "device": "miniapp"
+    }
+  ],
+  "regions": [
+    {
+      "regionKey": "tools.home.header",
+      "pageKey": "tools.home",
+      "nodeId": "tools-header",
+      "name": "工具头部",
+      "sectionKind": "header",
+      "replaceable": false
+    },
+    {
+      "regionKey": "tools.home.grid",
+      "pageKey": "tools.home",
+      "nodeId": "tools-grid",
+      "name": "工具网格",
+      "sectionKind": "grid",
+      "replaceable": true,
+      "allowedPatternKeys": [
+        "tools.items"
+      ]
+    },
+    {
+      "regionKey": "tools.home.recent",
+      "pageKey": "tools.home",
+      "nodeId": "recent-tools",
+      "name": "最近使用",
+      "sectionKind": "list",
+      "replaceable": true,
+      "allowedPatternKeys": [
+        "tools.recentItems"
+      ]
+    },
+    {
+      "regionKey": "tools.detail.display",
+      "pageKey": "tools.detail",
+      "nodeId": "calc-display",
+      "name": "计算器显示",
+      "sectionKind": "display",
+      "replaceable": false
+    },
+    {
+      "regionKey": "tools.detail.buttons",
+      "pageKey": "tools.detail",
+      "nodeId": "calc-buttons",
+      "name": "计算器按钮",
+      "sectionKind": "buttons",
+      "replaceable": false
+    }
+  ],
+  "slots": [
+    {
+      "slotKey": "tools.home.header.title",
+      "pageKey": "tools.home",
+      "regionKey": "tools.home.header",
+      "nodeId": "tools-title",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "title",
+      "label": "页面标题"
+    },
+    {
+      "slotKey": "tools.home.header.subtitle",
+      "pageKey": "tools.home",
+      "regionKey": "tools.home.header",
+      "nodeId": "tools-subtitle",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "subtitle",
+      "label": "副标题"
+    },
+    {
+      "slotKey": "tools.detail.result",
+      "pageKey": "tools.detail",
+      "regionKey": "tools.detail.display",
+      "nodeId": "calc-result",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "result",
+      "label": "计算结果"
+    },
+    {
+      "slotKey": "tools.detail.expression",
+      "pageKey": "tools.detail",
+      "regionKey": "tools.detail.display",
+      "nodeId": "calc-expression",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "expression",
+      "label": "表达式"
+    }
+  ],
+  "patterns": [
+    {
+      "patternKey": "tools.items",
+      "pageKey": "tools.home",
+      "regionKey": "tools.home.grid",
+      "sourceRootNodeId": "tool-calc",
+      "parentNodeId": "tools-grid",
+      "itemAlias": "tool",
+      "fields": [
+        {
+          "fieldKey": "icon",
+          "slotKey": "tools.item.icon",
+          "prop": "name",
+          "required": true
+        },
+        {
+          "fieldKey": "label",
+          "slotKey": "tools.item.label",
+          "prop": "text",
+          "required": true
+        }
+      ],
+      "maxItems": 12,
+      "minItems": 3
+    },
+    {
+      "patternKey": "tools.recentItems",
+      "pageKey": "tools.home",
+      "regionKey": "tools.home.recent",
+      "sourceRootNodeId": "recent-calc",
+      "parentNodeId": "recent-list",
+      "itemAlias": "recent",
+      "fields": [
+        {
+          "fieldKey": "icon",
+          "slotKey": "tools.recent.icon",
+          "prop": "name",
+          "required": true
+        },
+        {
+          "fieldKey": "name",
+          "slotKey": "tools.recent.name",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "time",
+          "slotKey": "tools.recent.time",
+          "prop": "text",
+          "required": true
+        }
+      ],
+      "maxItems": 5,
+      "minItems": 1
+    }
+  ],
+  "navigation": {
+    "type": "none",
+    "items": []
+  },
+  "constraints": {
+    "devices": [
+      "miniapp"
+    ],
+    "maxColumns": 3,
+    "allowedLayouts": [
+      "core.stack",
+      "core.row",
+      "core.grid"
+    ],
+    "requiredComponents": [
+      "core.text"
+    ]
+  },
+  "styleProfile": {
+    "colors": [
+      "#64748b",
+      "#475569",
+      "#94a3b8",
+      "#1e293b",
+      "#334155",
+      "#e2e8f0",
+      "#f8fafc",
+      "#ffffff"
+    ],
+    "fontSizes": [
+      "22rpx",
+      "24rpx",
+      "26rpx",
+      "28rpx",
+      "32rpx",
+      "36rpx",
+      "40rpx",
+      "64rpx"
+    ],
+    "fontWeights": [
+      "normal",
+      "bold"
+    ],
+    "spacing": [
+      "8rpx",
+      "12rpx",
+      "16rpx",
+      "20rpx",
+      "24rpx",
+      "32rpx"
+    ],
+    "radius": [
+      "8rpx",
+      "12rpx",
+      "16rpx",
+      "50%"
+    ],
+    "shadows": [
+      "0 4rpx 16rpx rgba(0,0,0,0.08)"
+    ],
+    "componentDensity": "compact",
+    "commonLayoutPatterns": [
+      "tool-grid",
+      "calculator-layout",
+      "settings-list"
+    ]
+  }
+}

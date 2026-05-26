@@ -4,8 +4,24 @@ import { asString } from '../../valueResolvers';
 import type { CoreNodeProps } from '../types';
 import styles from './ImageNode.module.css';
 
+function isRenderableImageSource(value: string) {
+  if (!value.trim()) {
+    return false;
+  }
+  if (value.startsWith('/')) {
+    return true;
+  }
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' || url.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
+
 export function ImageNode({ props, nodeLayoutStyle }: CoreNodeProps) {
-  const src = asString(props.src);
+  const rawSrc = asString(props.src);
+  const src = isRenderableImageSource(rawSrc) ? rawSrc : '';
   const alt = asString(props.alt) || '';
   const title = asString(props.title) || undefined;
   const iconColor = asString(props.iconColor) || undefined;

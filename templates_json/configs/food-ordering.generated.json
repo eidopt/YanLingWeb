@@ -1,0 +1,348 @@
+{
+  "templateId": "food-ordering",
+  "templateVersion": "1.0.0",
+  "profileVersion": "1.0.0",
+  "devices": [
+    "miniapp"
+  ],
+  "pages": [
+    {
+      "pageKey": "food.menu",
+      "pageId": "page-menu",
+      "pageKind": "menu",
+      "name": "点餐首页",
+      "description": "菜单分类和菜品列表",
+      "rootNodeId": "page-menu-screen",
+      "device": "miniapp",
+      "isDefault": true
+    },
+    {
+      "pageKey": "food.cart",
+      "pageId": "page-cart",
+      "pageKind": "cart",
+      "name": "购物车",
+      "description": "已选菜品和结算",
+      "rootNodeId": "page-cart-screen",
+      "device": "miniapp"
+    },
+    {
+      "pageKey": "food.confirm",
+      "pageId": "page-confirm",
+      "pageKind": "form",
+      "name": "确认订单",
+      "description": "订单确认页面",
+      "rootNodeId": "page-confirm-screen",
+      "device": "miniapp"
+    },
+    {
+      "pageKey": "food.tracking",
+      "pageId": "page-tracking",
+      "pageKind": "tracking",
+      "name": "配送追踪",
+      "description": "配送状态追踪",
+      "rootNodeId": "page-tracking-screen",
+      "device": "miniapp"
+    }
+  ],
+  "regions": [
+    {
+      "regionKey": "food.menu.header",
+      "pageKey": "food.menu",
+      "nodeId": "shop-header",
+      "name": "店铺头部",
+      "sectionKind": "banner",
+      "replaceable": false
+    },
+    {
+      "regionKey": "food.menu.info",
+      "pageKey": "food.menu",
+      "nodeId": "shop-info",
+      "name": "店铺信息",
+      "sectionKind": "info",
+      "replaceable": false
+    },
+    {
+      "regionKey": "food.menu.categories",
+      "pageKey": "food.menu",
+      "nodeId": "category-sidebar",
+      "name": "分类侧栏",
+      "sectionKind": "sidebar",
+      "replaceable": true,
+      "allowedPatternKeys": [
+        "food.categories"
+      ]
+    },
+    {
+      "regionKey": "food.menu.list",
+      "pageKey": "food.menu",
+      "nodeId": "menu-list",
+      "name": "菜品列表",
+      "sectionKind": "menu",
+      "replaceable": true,
+      "allowedPatternKeys": [
+        "food.menuItems"
+      ]
+    },
+    {
+      "regionKey": "food.cart.items",
+      "pageKey": "food.cart",
+      "nodeId": "cart-items",
+      "name": "购物车列表",
+      "sectionKind": "list",
+      "replaceable": true,
+      "allowedPatternKeys": [
+        "food.cartItems"
+      ]
+    },
+    {
+      "regionKey": "food.confirm.address",
+      "pageKey": "food.confirm",
+      "nodeId": "delivery-address",
+      "name": "配送地址",
+      "sectionKind": "address",
+      "replaceable": false
+    },
+    {
+      "regionKey": "food.tracking.status",
+      "pageKey": "food.tracking",
+      "nodeId": "tracking-status",
+      "name": "配送状态",
+      "sectionKind": "status",
+      "replaceable": false
+    }
+  ],
+  "slots": [
+    {
+      "slotKey": "food.menu.shopName",
+      "pageKey": "food.menu",
+      "regionKey": "food.menu.info",
+      "nodeId": "shop-name",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "name",
+      "label": "店铺名称"
+    },
+    {
+      "slotKey": "food.menu.shopRating",
+      "pageKey": "food.menu",
+      "regionKey": "food.menu.info",
+      "nodeId": "shop-rating",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "rating",
+      "label": "店铺评分"
+    },
+    {
+      "slotKey": "food.menu.item.name",
+      "pageKey": "food.menu",
+      "regionKey": "food.menu.list",
+      "nodeId": "mi1-name",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "name",
+      "label": "菜品名称"
+    },
+    {
+      "slotKey": "food.menu.item.description",
+      "pageKey": "food.menu",
+      "regionKey": "food.menu.list",
+      "nodeId": "mi1-desc",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "description",
+      "label": "菜品描述"
+    },
+    {
+      "slotKey": "food.menu.item.price",
+      "pageKey": "food.menu",
+      "regionKey": "food.menu.list",
+      "nodeId": "mi1-price",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "price",
+      "label": "菜品价格"
+    },
+    {
+      "slotKey": "food.menu.item.image",
+      "pageKey": "food.menu",
+      "regionKey": "food.menu.list",
+      "nodeId": "mi1-img",
+      "component": "core.image",
+      "editableProps": [
+        "src"
+      ],
+      "aiRole": "image",
+      "label": "菜品图片"
+    }
+  ],
+  "patterns": [
+    {
+      "patternKey": "food.categories",
+      "pageKey": "food.menu",
+      "regionKey": "food.menu.categories",
+      "sourceRootNodeId": "cat-hot",
+      "parentNodeId": "category-sidebar",
+      "itemAlias": "category",
+      "fields": [
+        {
+          "fieldKey": "label",
+          "slotKey": "food.category.label",
+          "prop": "text",
+          "required": true
+        }
+      ],
+      "maxItems": 10,
+      "minItems": 2
+    },
+    {
+      "patternKey": "food.menuItems",
+      "pageKey": "food.menu",
+      "regionKey": "food.menu.list",
+      "sourceRootNodeId": "menu-item-1",
+      "parentNodeId": "menu-list",
+      "itemAlias": "menuItem",
+      "fields": [
+        {
+          "fieldKey": "name",
+          "slotKey": "food.menuItem.name",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "description",
+          "slotKey": "food.menuItem.description",
+          "prop": "text",
+          "required": false
+        },
+        {
+          "fieldKey": "price",
+          "slotKey": "food.menuItem.price",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "image",
+          "slotKey": "food.menuItem.image",
+          "prop": "src",
+          "required": true
+        }
+      ],
+      "maxItems": 50,
+      "minItems": 1
+    },
+    {
+      "patternKey": "food.cartItems",
+      "pageKey": "food.cart",
+      "regionKey": "food.cart.items",
+      "sourceRootNodeId": "cart-item-1",
+      "parentNodeId": "cart-items",
+      "itemAlias": "cartItem",
+      "fields": [
+        {
+          "fieldKey": "name",
+          "slotKey": "food.cartItem.name",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "price",
+          "slotKey": "food.cartItem.price",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "quantity",
+          "slotKey": "food.cartItem.quantity",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "image",
+          "slotKey": "food.cartItem.image",
+          "prop": "src",
+          "required": true
+        }
+      ],
+      "maxItems": 20,
+      "minItems": 1
+    }
+  ],
+  "navigation": {
+    "type": "none",
+    "items": []
+  },
+  "constraints": {
+    "devices": [
+      "miniapp"
+    ],
+    "maxColumns": 1,
+    "allowedLayouts": [
+      "core.stack",
+      "core.row"
+    ],
+    "requiredComponents": [
+      "core.text",
+      "core.image"
+    ]
+  },
+  "styleProfile": {
+    "colors": [
+      "#ef4444",
+      "#dc2626",
+      "#f87171",
+      "#1e293b",
+      "#64748b",
+      "#e2e8f0",
+      "#f8fafc",
+      "#ffffff"
+    ],
+    "fontSizes": [
+      "22rpx",
+      "24rpx",
+      "26rpx",
+      "28rpx",
+      "30rpx",
+      "32rpx",
+      "36rpx"
+    ],
+    "fontWeights": [
+      "normal",
+      "bold"
+    ],
+    "spacing": [
+      "8rpx",
+      "12rpx",
+      "16rpx",
+      "20rpx",
+      "24rpx",
+      "32rpx"
+    ],
+    "radius": [
+      "8rpx",
+      "12rpx",
+      "16rpx",
+      "24rpx",
+      "40rpx",
+      "50%"
+    ],
+    "shadows": [
+      "0 2rpx 8rpx rgba(0,0,0,0.06)"
+    ],
+    "componentDensity": "comfortable",
+    "commonLayoutPatterns": [
+      "sidebar-menu",
+      "cart-bar",
+      "order-tracking"
+    ]
+  }
+}

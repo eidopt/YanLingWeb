@@ -1,0 +1,15 @@
+{
+  "templateId": "education-learning",
+  "overrides": {
+    "pages": [],
+    "regions": [],
+    "slots": [
+      { "slotKey": "course.detail.title", "label": "课程标题", "aiRole": "title", "description": "课程标题，建议不超过30个字符" },
+      { "slotKey": "course.detail.price", "label": "课程价格", "aiRole": "price", "description": "课程价格，格式为¥xxx" }
+    ],
+    "patterns": [],
+    "navigation": { "type": "none", "items": [] },
+    "constraints": { "devices": ["miniapp"] }
+  },
+  "metadata": { "createdAt": "2026-05-26", "updatedAt": "2026-05-26", "author": "template-generator", "notes": "教育学习模板 - 适用于在线教育、课程详情、学习中心" }
+}

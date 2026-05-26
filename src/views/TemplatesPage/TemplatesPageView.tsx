@@ -201,11 +201,11 @@ export function TemplatesPageView({
           <Inline className={styles.categoryTabs} gap="sm">
             {categoriesWithCounts.map((cat) => (
               <Button
-                key={cat.label}
+                key={cat.value}
                 type="button"
-                onClick={() => { setActiveCategory(cat.label); }}
+                onClick={() => { setActiveCategory(cat.value); }}
                 size="sm"
-                variant={cat.label === activeCategory ? 'tab-active' : 'tab'}
+                variant={cat.value === activeCategory ? 'tab-active' : 'tab'}
               >
                 {cat.label}
                 <Box as="span" className={styles.categoryCount}>

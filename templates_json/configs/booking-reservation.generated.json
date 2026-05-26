@@ -1,0 +1,311 @@
+{
+  "templateId": "booking-reservation",
+  "templateVersion": "1.0.0",
+  "profileVersion": "1.0.0",
+  "devices": [
+    "miniapp"
+  ],
+  "pages": [
+    {
+      "pageKey": "booking.home",
+      "pageId": "page-home",
+      "pageKind": "home",
+      "name": "预约首页",
+      "description": "分类入口和热门推荐",
+      "rootNodeId": "page-home-screen",
+      "device": "miniapp",
+      "isDefault": true
+    },
+    {
+      "pageKey": "booking.list",
+      "pageId": "page-list",
+      "pageKind": "list",
+      "name": "服务列表",
+      "description": "服务列表和筛选",
+      "rootNodeId": "page-list-screen",
+      "device": "miniapp"
+    },
+    {
+      "pageKey": "booking.detail",
+      "pageId": "page-detail",
+      "pageKind": "detail",
+      "name": "服务详情",
+      "description": "服务详情和预订",
+      "rootNodeId": "page-detail-screen",
+      "device": "miniapp"
+    },
+    {
+      "pageKey": "booking.confirm",
+      "pageId": "page-confirm",
+      "pageKind": "form",
+      "name": "确认预约",
+      "description": "预约信息确认",
+      "rootNodeId": "page-confirm-screen",
+      "device": "miniapp"
+    }
+  ],
+  "regions": [
+    {
+      "regionKey": "booking.home.header",
+      "pageKey": "booking.home",
+      "nodeId": "bk-header",
+      "name": "首页头部",
+      "sectionKind": "header",
+      "replaceable": false
+    },
+    {
+      "regionKey": "booking.home.categories",
+      "pageKey": "booking.home",
+      "nodeId": "bk-categories",
+      "name": "分类入口",
+      "sectionKind": "grid",
+      "replaceable": true,
+      "allowedPatternKeys": [
+        "booking.categories"
+      ]
+    },
+    {
+      "regionKey": "booking.home.recommend",
+      "pageKey": "booking.home",
+      "nodeId": "bk-recommend",
+      "name": "热门推荐",
+      "sectionKind": "feed",
+      "replaceable": true,
+      "allowedPatternKeys": [
+        "booking.recommendItems"
+      ]
+    },
+    {
+      "regionKey": "booking.list.content",
+      "pageKey": "booking.list",
+      "nodeId": "list-items",
+      "name": "服务列表",
+      "sectionKind": "list",
+      "replaceable": true,
+      "allowedPatternKeys": [
+        "booking.listItems"
+      ]
+    },
+    {
+      "regionKey": "booking.detail.info",
+      "pageKey": "booking.detail",
+      "nodeId": "detail-info",
+      "name": "服务信息",
+      "sectionKind": "info",
+      "replaceable": false
+    }
+  ],
+  "slots": [
+    {
+      "slotKey": "booking.home.header.title",
+      "pageKey": "booking.home",
+      "regionKey": "booking.home.header",
+      "nodeId": "bk-title",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "title",
+      "label": "页面标题"
+    },
+    {
+      "slotKey": "booking.home.header.subtitle",
+      "pageKey": "booking.home",
+      "regionKey": "booking.home.header",
+      "nodeId": "bk-subtitle",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "subtitle",
+      "label": "副标题"
+    },
+    {
+      "slotKey": "booking.recommend.name",
+      "pageKey": "booking.home",
+      "regionKey": "booking.home.recommend",
+      "nodeId": "rec1-name",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "name",
+      "label": "服务名称"
+    },
+    {
+      "slotKey": "booking.recommend.image",
+      "pageKey": "booking.home",
+      "regionKey": "booking.home.recommend",
+      "nodeId": "rec1-img",
+      "component": "core.image",
+      "editableProps": [
+        "src"
+      ],
+      "aiRole": "image",
+      "label": "服务图片"
+    },
+    {
+      "slotKey": "booking.recommend.price",
+      "pageKey": "booking.home",
+      "regionKey": "booking.home.recommend",
+      "nodeId": "rec1-price",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "price",
+      "label": "价格"
+    },
+    {
+      "slotKey": "booking.detail.name",
+      "pageKey": "booking.detail",
+      "regionKey": "booking.detail.info",
+      "nodeId": "detail-name",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "name",
+      "label": "服务名称"
+    },
+    {
+      "slotKey": "booking.detail.price",
+      "pageKey": "booking.detail",
+      "regionKey": "booking.detail.info",
+      "nodeId": "detail-price",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "price",
+      "label": "价格"
+    }
+  ],
+  "patterns": [
+    {
+      "patternKey": "booking.categories",
+      "pageKey": "booking.home",
+      "regionKey": "booking.home.categories",
+      "sourceRootNodeId": "cat-hotel",
+      "parentNodeId": "cat-grid",
+      "itemAlias": "category",
+      "fields": [
+        {
+          "fieldKey": "icon",
+          "slotKey": "booking.category.icon",
+          "prop": "name",
+          "required": true
+        },
+        {
+          "fieldKey": "label",
+          "slotKey": "booking.category.label",
+          "prop": "text",
+          "required": true
+        }
+      ],
+      "maxItems": 8,
+      "minItems": 2
+    },
+    {
+      "patternKey": "booking.recommendItems",
+      "pageKey": "booking.home",
+      "regionKey": "booking.home.recommend",
+      "sourceRootNodeId": "rec-item-1",
+      "parentNodeId": "rec-list",
+      "itemAlias": "item",
+      "fields": [
+        {
+          "fieldKey": "name",
+          "slotKey": "booking.item.name",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "image",
+          "slotKey": "booking.item.image",
+          "prop": "src",
+          "required": true
+        },
+        {
+          "fieldKey": "price",
+          "slotKey": "booking.item.price",
+          "prop": "text",
+          "required": true
+        }
+      ],
+      "maxItems": 10,
+      "minItems": 1
+    }
+  ],
+  "navigation": {
+    "type": "none",
+    "items": []
+  },
+  "constraints": {
+    "devices": [
+      "miniapp"
+    ],
+    "maxColumns": 4,
+    "allowedLayouts": [
+      "core.stack",
+      "core.row",
+      "core.grid"
+    ],
+    "requiredComponents": [
+      "core.text",
+      "core.image"
+    ]
+  },
+  "styleProfile": {
+    "colors": [
+      "#8b5cf6",
+      "#7c3aed",
+      "#a78bfa",
+      "#1e293b",
+      "#64748b",
+      "#e2e8f0",
+      "#f8fafc",
+      "#ffffff"
+    ],
+    "fontSizes": [
+      "22rpx",
+      "24rpx",
+      "26rpx",
+      "28rpx",
+      "30rpx",
+      "32rpx",
+      "36rpx",
+      "40rpx"
+    ],
+    "fontWeights": [
+      "normal",
+      "bold"
+    ],
+    "spacing": [
+      "8rpx",
+      "12rpx",
+      "16rpx",
+      "20rpx",
+      "24rpx",
+      "32rpx"
+    ],
+    "radius": [
+      "8rpx",
+      "12rpx",
+      "16rpx",
+      "32rpx",
+      "40rpx",
+      "50%"
+    ],
+    "shadows": [
+      "0 2rpx 12rpx rgba(0,0,0,0.06)",
+      "0 4rpx 16rpx rgba(0,0,0,0.08)"
+    ],
+    "componentDensity": "comfortable",
+    "commonLayoutSteps": [
+      "category-grid",
+      "service-card",
+      "booking-form"
+    ]
+  }
+}

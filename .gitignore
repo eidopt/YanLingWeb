@@ -41,4 +41,3 @@ shared/openapi.json
 *.njsproj
 *.sln
 *.sw?
-templates_json/*.json

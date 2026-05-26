@@ -1,0 +1,381 @@
+{
+  "templateId": "social-feed",
+  "templateVersion": "1.0.0",
+  "profileVersion": "1.0.0",
+  "devices": [
+    "miniapp"
+  ],
+  "pages": [
+    {
+      "pageKey": "feed.list",
+      "pageId": "page-feed",
+      "pageKind": "feed",
+      "name": "动态列表",
+      "description": "展示朋友圈/动态流",
+      "rootNodeId": "page-feed-screen",
+      "device": "miniapp",
+      "isDefault": true
+    },
+    {
+      "pageKey": "feed.detail",
+      "pageId": "page-detail",
+      "pageKind": "detail",
+      "name": "动态详情",
+      "description": "展示单条动态详情和评论",
+      "rootNodeId": "page-detail-screen",
+      "device": "miniapp"
+    },
+    {
+      "pageKey": "feed.publish",
+      "pageId": "page-publish",
+      "pageKind": "form",
+      "name": "发布动态",
+      "description": "发布新动态的编辑页面",
+      "rootNodeId": "page-publish-screen",
+      "device": "miniapp"
+    },
+    {
+      "pageKey": "feed.user",
+      "pageId": "page-user",
+      "pageKind": "profile",
+      "name": "用户主页",
+      "description": "展示用户的个人主页和动态",
+      "rootNodeId": "page-user-screen",
+      "device": "miniapp"
+    }
+  ],
+  "regions": [
+    {
+      "regionKey": "feed.list.header",
+      "pageKey": "feed.list",
+      "nodeId": "feed-header",
+      "name": "动态头部",
+      "sectionKind": "header",
+      "replaceable": false
+    },
+    {
+      "regionKey": "feed.list.content",
+      "pageKey": "feed.list",
+      "nodeId": "feed-list",
+      "name": "动态列表",
+      "sectionKind": "feed",
+      "replaceable": true,
+      "allowedPatternKeys": [
+        "feed.posts"
+      ]
+    },
+    {
+      "regionKey": "feed.detail.post",
+      "pageKey": "feed.detail",
+      "nodeId": "detail-post",
+      "name": "动态内容",
+      "sectionKind": "content",
+      "replaceable": false
+    },
+    {
+      "regionKey": "feed.detail.comments",
+      "pageKey": "feed.detail",
+      "nodeId": "comment-section",
+      "name": "评论区",
+      "sectionKind": "comments",
+      "replaceable": true,
+      "allowedPatternKeys": [
+        "feed.comments"
+      ]
+    },
+    {
+      "regionKey": "feed.user.profile",
+      "pageKey": "feed.user",
+      "nodeId": "user-profile",
+      "name": "用户资料",
+      "sectionKind": "profile",
+      "replaceable": false
+    },
+    {
+      "regionKey": "feed.user.posts",
+      "pageKey": "feed.user",
+      "nodeId": "user-posts",
+      "name": "用户动态",
+      "sectionKind": "feed",
+      "replaceable": true,
+      "allowedPatternKeys": [
+        "feed.userPosts"
+      ]
+    }
+  ],
+  "slots": [
+    {
+      "slotKey": "feed.list.header.title",
+      "pageKey": "feed.list",
+      "regionKey": "feed.list.header",
+      "nodeId": "feed-title",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "title",
+      "label": "页面标题"
+    },
+    {
+      "slotKey": "feed.post.avatar",
+      "pageKey": "feed.list",
+      "regionKey": "feed.list.content",
+      "nodeId": "p1-avatar",
+      "component": "core.image",
+      "editableProps": [
+        "src"
+      ],
+      "aiRole": "avatar",
+      "label": "用户头像"
+    },
+    {
+      "slotKey": "feed.post.username",
+      "pageKey": "feed.list",
+      "regionKey": "feed.list.content",
+      "nodeId": "p1-name",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "username",
+      "label": "用户名"
+    },
+    {
+      "slotKey": "feed.post.content",
+      "pageKey": "feed.list",
+      "regionKey": "feed.list.content",
+      "nodeId": "p1-text",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "content",
+      "label": "动态内容"
+    },
+    {
+      "slotKey": "feed.post.images",
+      "pageKey": "feed.list",
+      "regionKey": "feed.list.content",
+      "nodeId": "p1-images",
+      "component": "core.grid",
+      "editableProps": [
+        "columns"
+      ],
+      "aiRole": "images",
+      "label": "动态图片"
+    },
+    {
+      "slotKey": "feed.detail.avatar",
+      "pageKey": "feed.detail",
+      "regionKey": "feed.detail.post",
+      "nodeId": "dp-avatar",
+      "component": "core.image",
+      "editableProps": [
+        "src"
+      ],
+      "aiRole": "avatar",
+      "label": "用户头像"
+    },
+    {
+      "slotKey": "feed.detail.username",
+      "pageKey": "feed.detail",
+      "regionKey": "feed.detail.post",
+      "nodeId": "dp-name",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "username",
+      "label": "用户名"
+    },
+    {
+      "slotKey": "feed.detail.content",
+      "pageKey": "feed.detail",
+      "regionKey": "feed.detail.post",
+      "nodeId": "dp-text",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "content",
+      "label": "动态内容"
+    },
+    {
+      "slotKey": "feed.user.avatar",
+      "pageKey": "feed.user",
+      "regionKey": "feed.user.profile",
+      "nodeId": "up-avatar",
+      "component": "core.image",
+      "editableProps": [
+        "src"
+      ],
+      "aiRole": "avatar",
+      "label": "用户头像"
+    },
+    {
+      "slotKey": "feed.user.name",
+      "pageKey": "feed.user",
+      "regionKey": "feed.user.profile",
+      "nodeId": "up-name",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "username",
+      "label": "用户名"
+    },
+    {
+      "slotKey": "feed.user.bio",
+      "pageKey": "feed.user",
+      "regionKey": "feed.user.profile",
+      "nodeId": "up-bio",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "aiRole": "bio",
+      "label": "个人简介"
+    }
+  ],
+  "patterns": [
+    {
+      "patternKey": "feed.posts",
+      "pageKey": "feed.list",
+      "regionKey": "feed.list.content",
+      "sourceRootNodeId": "post-1",
+      "parentNodeId": "feed-list",
+      "itemAlias": "post",
+      "fields": [
+        {
+          "fieldKey": "avatar",
+          "slotKey": "feed.post.avatar",
+          "prop": "src",
+          "required": true
+        },
+        {
+          "fieldKey": "username",
+          "slotKey": "feed.post.username",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "content",
+          "slotKey": "feed.post.content",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "time",
+          "slotKey": "feed.post.time",
+          "prop": "text",
+          "required": true
+        }
+      ],
+      "maxItems": 50,
+      "minItems": 1
+    },
+    {
+      "patternKey": "feed.comments",
+      "pageKey": "feed.detail",
+      "regionKey": "feed.detail.comments",
+      "sourceRootNodeId": "comment-item",
+      "parentNodeId": "comment-section",
+      "itemAlias": "comment",
+      "fields": [
+        {
+          "fieldKey": "avatar",
+          "slotKey": "feed.comment.avatar",
+          "prop": "src",
+          "required": true
+        },
+        {
+          "fieldKey": "name",
+          "slotKey": "feed.comment.name",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "content",
+          "slotKey": "feed.comment.content",
+          "prop": "text",
+          "required": true
+        },
+        {
+          "fieldKey": "time",
+          "slotKey": "feed.comment.time",
+          "prop": "text",
+          "required": true
+        }
+      ],
+      "maxItems": 100,
+      "minItems": 0
+    }
+  ],
+  "navigation": {
+    "type": "none",
+    "items": []
+  },
+  "constraints": {
+    "devices": [
+      "miniapp"
+    ],
+    "maxColumns": 3,
+    "allowedLayouts": [
+      "core.stack",
+      "core.row",
+      "core.grid"
+    ],
+    "requiredComponents": [
+      "core.text",
+      "core.image"
+    ]
+  },
+  "styleProfile": {
+    "colors": [
+      "#f43f5e",
+      "#e11d48",
+      "#fb7185",
+      "#1e293b",
+      "#64748b",
+      "#e2e8f0",
+      "#f8fafc",
+      "#ffffff"
+    ],
+    "fontSizes": [
+      "22rpx",
+      "24rpx",
+      "26rpx",
+      "28rpx",
+      "30rpx",
+      "32rpx",
+      "36rpx"
+    ],
+    "fontWeights": [
+      "normal",
+      "bold"
+    ],
+    "spacing": [
+      "8rpx",
+      "12rpx",
+      "16rpx",
+      "20rpx",
+      "24rpx",
+      "32rpx"
+    ],
+    "radius": [
+      "8rpx",
+      "12rpx",
+      "16rpx",
+      "50%"
+    ],
+    "shadows": [
+      "0 2rpx 12rpx rgba(0,0,0,0.06)"
+    ],
+    "componentDensity": "comfortable",
+    "commonLayoutPatterns": [
+      "social-feed-card",
+      "user-profile-header",
+      "comment-thread"
+    ]
+  }
+}

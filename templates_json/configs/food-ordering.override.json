@@ -1,0 +1,16 @@
+{
+  "templateId": "food-ordering",
+  "overrides": {
+    "pages": [],
+    "regions": [],
+    "slots": [
+      { "slotKey": "food.menu.shopName", "label": "店铺名称", "aiRole": "name", "description": "餐厅名称" },
+      { "slotKey": "food.menu.item.name", "label": "菜品名称", "aiRole": "name", "description": "菜品名称，建议不超过15个字符" },
+      { "slotKey": "food.menu.item.price", "label": "菜品价格", "aiRole": "price", "description": "菜品价格，格式为¥xx" }
+    ],
+    "patterns": [],
+    "navigation": { "type": "none", "items": [] },
+    "constraints": { "devices": ["miniapp"] }
+  },
+  "metadata": { "createdAt": "2026-05-26", "updatedAt": "2026-05-26", "author": "template-generator", "notes": "餐饮点单模板 - 适用于外卖点餐、餐厅菜单、美食推荐" }
+}

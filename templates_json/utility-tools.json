@@ -1,0 +1,2744 @@
+{
+  "templateId": "utility-tools",
+  "name": "工具应用",
+  "description": "适用于工具类应用、效率工具、计算器等场景的小程序模板，包含工具首页、工具详情、历史结果、工具设置页面",
+  "accent": "#64748b",
+  "thumbnail": "",
+  "platformCategories": [
+    "mini-program"
+  ],
+  "functionalCategories": [
+    "utility-tools",
+    "utility",
+    "productivity"
+  ],
+  "category": "utility-tools",
+  "tags": [
+    "工具",
+    "效率",
+    "计算器",
+    "实用工具"
+  ],
+  "layoutDocument": {
+    "version": 1,
+    "themeId": "utility-tools",
+    "themeName": "工具应用",
+    "description": "适用于工具类应用、效率工具、计算器等场景的小程序模板，包含工具首页、工具详情、历史结果、工具设置页面",
+    "components": [
+      {
+        "alias": "core.grid",
+        "name": "网格容器",
+        "kind": "layout",
+        "description": "网格容器组件",
+        "props": [
+          {
+            "name": "columns",
+            "type": "number",
+            "label": "列数"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.image",
+        "name": "图片",
+        "kind": "component",
+        "description": "图片组件",
+        "props": [
+          {
+            "name": "alt",
+            "type": "string",
+            "label": "替代文本"
+          },
+          {
+            "name": "iconColor",
+            "type": "string",
+            "label": "图标颜色"
+          },
+          {
+            "name": "objectFit",
+            "type": "string",
+            "label": "图片填充方式"
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "label": "标题"
+          }
+        ]
+      },
+      {
+        "alias": "core.panel",
+        "name": "面板容器",
+        "kind": "layout",
+        "description": "面板容器组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.row",
+        "name": "横向容器",
+        "kind": "layout",
+        "description": "横向容器组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.screen",
+        "name": "页面画布",
+        "kind": "layout",
+        "description": "页面画布组件",
+        "props": [
+          {
+            "name": "title",
+            "type": "string",
+            "label": "标题"
+          }
+        ]
+      },
+      {
+        "alias": "core.stack",
+        "name": "纵向容器",
+        "kind": "layout",
+        "description": "纵向容器组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.text",
+        "name": "文本",
+        "kind": "component",
+        "description": "文本组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          },
+          {
+            "name": "text",
+            "type": "string",
+            "label": "显示内容"
+          }
+        ]
+      }
+    ],
+    "defaultPageId": "page-home",
+    "pages": [
+      {
+        "id": "page-home",
+        "name": "工具首页",
+        "description": "实用工具",
+        "layout": {
+          "id": "page-home-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 0
+          },
+          "props": {
+            "title": "工具首页"
+          },
+          "children": [
+            {
+              "id": "tools-header",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "style": {
+                  "padding": "40rpx 32rpx",
+                  "background": "linear-gradient(135deg, #475569, #334155)",
+                  "borderRadius": "0 0 32rpx 32rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "tools-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "实用工具",
+                    "style": {
+                      "fontSize": "40rpx",
+                      "fontWeight": "bold",
+                      "color": "#fff"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "tools-subtitle",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "让生活更便捷",
+                    "style": {
+                      "fontSize": "24rpx",
+                      "color": "rgba(255,255,255,0.7)",
+                      "marginTop": "8rpx"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "tools-grid",
+              "alias": "core.grid",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "columns": 3,
+                "style": {
+                  "padding": "32rpx",
+                  "gap": "24rpx",
+                  "marginTop": "-24rpx",
+                  "position": "relative",
+                  "zIndex": 1
+                }
+              },
+              "children": [
+                {
+                  "id": "tool-calc",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "16rpx",
+                      "background": "#fff",
+                      "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "calc-icon-bg",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "width": "80rpx",
+                          "height": "80rpx",
+                          "borderRadius": "50%",
+                          "background": "rgba(99,102,241,0.1)",
+                          "margin": "0 auto 12rpx",
+                          "display": "flex",
+                          "alignItems": "center",
+                          "justifyContent": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "calc-icon",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "图标",
+                            "title": "图标",
+                            "objectFit": "contain",
+                            "iconColor": "#6366f1"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "calc-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "计算器",
+                        "style": {
+                          "fontSize": "24rpx",
+                          "color": "var(--color-text-primary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "tool-convert",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "16rpx",
+                      "background": "#fff",
+                      "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "convert-icon-bg",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "width": "80rpx",
+                          "height": "80rpx",
+                          "borderRadius": "50%",
+                          "background": "rgba(34,197,94,0.1)",
+                          "margin": "0 auto 12rpx",
+                          "display": "flex",
+                          "alignItems": "center",
+                          "justifyContent": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "convert-icon",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "图标",
+                            "title": "图标",
+                            "objectFit": "contain",
+                            "iconColor": "#22c55e"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "convert-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "单位转换",
+                        "style": {
+                          "fontSize": "24rpx",
+                          "color": "var(--color-text-primary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "tool-qr",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "16rpx",
+                      "background": "#fff",
+                      "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "qr-icon-bg",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "width": "80rpx",
+                          "height": "80rpx",
+                          "borderRadius": "50%",
+                          "background": "rgba(249,115,22,0.1)",
+                          "margin": "0 auto 12rpx",
+                          "display": "flex",
+                          "alignItems": "center",
+                          "justifyContent": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "qr-icon",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "图标",
+                            "title": "图标",
+                            "objectFit": "contain",
+                            "iconColor": "#f97316"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "qr-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "二维码",
+                        "style": {
+                          "fontSize": "24rpx",
+                          "color": "var(--color-text-primary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "tool-timer",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "16rpx",
+                      "background": "#fff",
+                      "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "timer-icon-bg",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "width": "80rpx",
+                          "height": "80rpx",
+                          "borderRadius": "50%",
+                          "background": "rgba(239,68,68,0.1)",
+                          "margin": "0 auto 12rpx",
+                          "display": "flex",
+                          "alignItems": "center",
+                          "justifyContent": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "timer-icon",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "图标",
+                            "title": "图标",
+                            "objectFit": "contain",
+                            "iconColor": "#ef4444"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "timer-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "计时器",
+                        "style": {
+                          "fontSize": "24rpx",
+                          "color": "var(--color-text-primary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "tool-notes",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 4
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "16rpx",
+                      "background": "#fff",
+                      "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "notes-icon-bg",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "width": "80rpx",
+                          "height": "80rpx",
+                          "borderRadius": "50%",
+                          "background": "rgba(245,158,11,0.1)",
+                          "margin": "0 auto 12rpx",
+                          "display": "flex",
+                          "alignItems": "center",
+                          "justifyContent": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "notes-icon",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "图标",
+                            "title": "图标",
+                            "objectFit": "contain",
+                            "iconColor": "#f59e0b"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "notes-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "记事本",
+                        "style": {
+                          "fontSize": "24rpx",
+                          "color": "var(--color-text-primary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "tool-weather",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 5
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "16rpx",
+                      "background": "#fff",
+                      "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "weather-icon-bg",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "width": "80rpx",
+                          "height": "80rpx",
+                          "borderRadius": "50%",
+                          "background": "rgba(14,165,233,0.1)",
+                          "margin": "0 auto 12rpx",
+                          "display": "flex",
+                          "alignItems": "center",
+                          "justifyContent": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "weather-icon",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "图标",
+                            "title": "图标",
+                            "objectFit": "contain",
+                            "iconColor": "#0ea5e9"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "weather-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "天气",
+                        "style": {
+                          "fontSize": "24rpx",
+                          "color": "var(--color-text-primary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "recent-tools",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "recent-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "最近使用",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "fontWeight": "bold",
+                      "marginBottom": "16rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "recent-list",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "12rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "recent-calc",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "16rpx 20rpx",
+                          "borderRadius": "12rpx",
+                          "background": "#fff",
+                          "alignItems": "center",
+                          "gap": "16rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "rc-icon",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "图标",
+                            "title": "图标",
+                            "objectFit": "contain",
+                            "iconColor": "#6366f1"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "rc-name",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "计算器",
+                            "style": {
+                              "fontSize": "26rpx",
+                              "flex": 1
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "rc-time",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 2
+                          },
+                          "props": {
+                            "text": "5分钟前",
+                            "style": {
+                              "fontSize": "22rpx",
+                              "color": "var(--color-text-secondary)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-detail",
+        "name": "工具详情",
+        "description": "计算器",
+        "layout": {
+          "id": "page-detail-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 1
+          },
+          "props": {
+            "title": "工具详情"
+          },
+          "children": [
+            {
+              "id": "tool-header",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#475569"
+                }
+              },
+              "children": [
+                {
+                  "id": "tool-name",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "计算器",
+                    "style": {
+                      "fontSize": "34rpx",
+                      "fontWeight": "bold",
+                      "color": "#fff"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "calc-display",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "style": {
+                  "padding": "40rpx 32rpx",
+                  "background": "#1e293b",
+                  "textAlign": "right"
+                }
+              },
+              "children": [
+                {
+                  "id": "calc-expression",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "123 + 456",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "color": "rgba(255,255,255,0.6)"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "calc-result",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "579",
+                    "style": {
+                      "fontSize": "64rpx",
+                      "fontWeight": "bold",
+                      "color": "#fff",
+                      "marginTop": "8rpx"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "calc-buttons",
+              "alias": "core.grid",
+              "layout": {
+                "mode": "flow",
+                "order": 2
+              },
+              "props": {
+                "columns": 4,
+                "style": {
+                  "padding": "16rpx",
+                  "gap": "12rpx",
+                  "background": "#334155"
+                }
+              },
+              "children": [
+                {
+                  "id": "btn-c",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#475569",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "c-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "C",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "color": "#f59e0b"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "btn-del",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#475569",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "del-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "⌫",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "color": "#f59e0b"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "btn-percent",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#475569",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "percent-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "%",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "color": "#f59e0b"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "btn-div",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#f97316",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "div-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "÷",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "btn-7",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 4
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#1e293b",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "n7-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "7",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "btn-8",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 5
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#1e293b",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "n8-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "8",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "btn-9",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 6
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#1e293b",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "n9-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "9",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "btn-mul",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 7
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#f97316",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "mul-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "×",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "btn-4",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 8
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#1e293b",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "n4-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "4",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "btn-5",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 9
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#1e293b",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "n5-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "5",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "btn-6",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 10
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#1e293b",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "n6-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "6",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "btn-sub",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 11
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#f97316",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "sub-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "-",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "btn-1",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 12
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#1e293b",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "n1-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "1",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "btn-2",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 13
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#1e293b",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "n2-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "2",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "btn-3",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 14
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#1e293b",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "n3-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "3",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "btn-add",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 15
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#f97316",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "add-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "+",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "btn-0",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 16
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#1e293b",
+                      "textAlign": "center",
+                      "gridColumn": "span 2"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "n0-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "0",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "btn-dot",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 17
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#1e293b",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "dot-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": ".",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "btn-equal",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 18
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#22c55e",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "equal-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "=",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-history",
+        "name": "历史结果",
+        "description": "计算历史",
+        "layout": {
+          "id": "page-history-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 2
+          },
+          "props": {
+            "title": "历史结果"
+          },
+          "children": [
+            {
+              "id": "history-header",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#475569"
+                }
+              },
+              "children": [
+                {
+                  "id": "history-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "计算历史",
+                    "style": {
+                      "fontSize": "34rpx",
+                      "fontWeight": "bold",
+                      "color": "#fff"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "history-list",
+              "alias": "core.stack",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "gap": "12rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "history-1",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "20rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#fff"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "h1-expr",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "123 + 456",
+                        "style": {
+                          "fontSize": "26rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "h1-result",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "= 579",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "fontWeight": "bold",
+                          "marginTop": "4rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "h1-time",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "text": "今天 14:30",
+                        "style": {
+                          "fontSize": "22rpx",
+                          "color": "var(--color-text-secondary)",
+                          "marginTop": "8rpx"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "history-2",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "20rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#fff"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "h2-expr",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "100 × 0.85",
+                        "style": {
+                          "fontSize": "26rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "h2-result",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "= 85",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "fontWeight": "bold",
+                          "marginTop": "4rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "h2-time",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "text": "今天 10:15",
+                        "style": {
+                          "fontSize": "22rpx",
+                          "color": "var(--color-text-secondary)",
+                          "marginTop": "8rpx"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-settings",
+        "name": "工具设置",
+        "description": "设置",
+        "layout": {
+          "id": "page-settings-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 3
+          },
+          "props": {
+            "title": "工具设置"
+          },
+          "children": [
+            {
+              "id": "settings-header",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#475569"
+                }
+              },
+              "children": [
+                {
+                  "id": "settings-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "设置",
+                    "style": {
+                      "fontSize": "34rpx",
+                      "fontWeight": "bold",
+                      "color": "#fff"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "settings-list",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "style": {
+                  "margin": "24rpx 32rpx",
+                  "padding": "8rpx 24rpx",
+                  "borderRadius": "16rpx",
+                  "background": "#fff"
+                }
+              },
+              "children": [
+                {
+                  "id": "set-decimal",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between",
+                      "alignItems": "center",
+                      "padding": "24rpx 0",
+                      "borderBottom": "1rpx solid var(--color-border)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "decimal-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "小数位数",
+                        "style": {
+                          "fontSize": "28rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "decimal-value",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "2位",
+                        "style": {
+                          "fontSize": "26rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "set-history",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between",
+                      "alignItems": "center",
+                      "padding": "24rpx 0",
+                      "borderBottom": "1rpx solid var(--color-border)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "history-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "保存历史",
+                        "style": {
+                          "fontSize": "28rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "history-switch",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "width": "88rpx",
+                          "height": "48rpx",
+                          "borderRadius": "24rpx",
+                          "background": "var(--color-primary)",
+                          "position": "relative"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "switch-dot",
+                          "alias": "core.panel",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "style": {
+                              "width": "40rpx",
+                              "height": "40rpx",
+                              "borderRadius": "50%",
+                              "background": "#fff",
+                              "position": "absolute",
+                              "top": "4rpx",
+                              "right": "4rpx"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "set-vibrate",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between",
+                      "alignItems": "center",
+                      "padding": "24rpx 0"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "vibrate-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "按键震动",
+                        "style": {
+                          "fontSize": "28rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "vibrate-switch",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "width": "88rpx",
+                          "height": "48rpx",
+                          "borderRadius": "24rpx",
+                          "background": "var(--color-primary)",
+                          "position": "relative"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "vibrate-dot",
+                          "alias": "core.panel",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "style": {
+                              "width": "40rpx",
+                              "height": "40rpx",
+                              "borderRadius": "50%",
+                              "background": "#fff",
+                              "position": "absolute",
+                              "top": "4rpx",
+                              "right": "4rpx"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "layout": {
+      "id": "page-home-screen",
+      "alias": "core.screen",
+      "layout": {
+        "mode": "flow",
+        "order": 0
+      },
+      "props": {
+        "title": "工具首页"
+      },
+      "children": [
+        {
+          "id": "tools-header",
+          "alias": "core.panel",
+          "layout": {
+            "mode": "flow",
+            "order": 0
+          },
+          "props": {
+            "style": {
+              "padding": "40rpx 32rpx",
+              "background": "linear-gradient(135deg, #475569, #334155)",
+              "borderRadius": "0 0 32rpx 32rpx"
+            }
+          },
+          "children": [
+            {
+              "id": "tools-title",
+              "alias": "core.text",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "text": "实用工具",
+                "style": {
+                  "fontSize": "40rpx",
+                  "fontWeight": "bold",
+                  "color": "#fff"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "tools-subtitle",
+              "alias": "core.text",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "text": "让生活更便捷",
+                "style": {
+                  "fontSize": "24rpx",
+                  "color": "rgba(255,255,255,0.7)",
+                  "marginTop": "8rpx"
+                }
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "tools-grid",
+          "alias": "core.grid",
+          "layout": {
+            "mode": "flow",
+            "order": 1
+          },
+          "props": {
+            "columns": 3,
+            "style": {
+              "padding": "32rpx",
+              "gap": "24rpx",
+              "marginTop": "-24rpx",
+              "position": "relative",
+              "zIndex": 1
+            }
+          },
+          "children": [
+            {
+              "id": "tool-calc",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx",
+                  "borderRadius": "16rpx",
+                  "background": "#fff",
+                  "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
+                  "textAlign": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "calc-icon-bg",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "width": "80rpx",
+                      "height": "80rpx",
+                      "borderRadius": "50%",
+                      "background": "rgba(99,102,241,0.1)",
+                      "margin": "0 auto 12rpx",
+                      "display": "flex",
+                      "alignItems": "center",
+                      "justifyContent": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "calc-icon",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "图标",
+                        "title": "图标",
+                        "objectFit": "contain",
+                        "iconColor": "#6366f1"
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "calc-text",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "计算器",
+                    "style": {
+                      "fontSize": "24rpx",
+                      "color": "var(--color-text-primary)"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "tool-convert",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx",
+                  "borderRadius": "16rpx",
+                  "background": "#fff",
+                  "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
+                  "textAlign": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "convert-icon-bg",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "width": "80rpx",
+                      "height": "80rpx",
+                      "borderRadius": "50%",
+                      "background": "rgba(34,197,94,0.1)",
+                      "margin": "0 auto 12rpx",
+                      "display": "flex",
+                      "alignItems": "center",
+                      "justifyContent": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "convert-icon",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "图标",
+                        "title": "图标",
+                        "objectFit": "contain",
+                        "iconColor": "#22c55e"
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "convert-text",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "单位转换",
+                    "style": {
+                      "fontSize": "24rpx",
+                      "color": "var(--color-text-primary)"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "tool-qr",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx",
+                  "borderRadius": "16rpx",
+                  "background": "#fff",
+                  "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
+                  "textAlign": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "qr-icon-bg",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "width": "80rpx",
+                      "height": "80rpx",
+                      "borderRadius": "50%",
+                      "background": "rgba(249,115,22,0.1)",
+                      "margin": "0 auto 12rpx",
+                      "display": "flex",
+                      "alignItems": "center",
+                      "justifyContent": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "qr-icon",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "图标",
+                        "title": "图标",
+                        "objectFit": "contain",
+                        "iconColor": "#f97316"
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "qr-text",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "二维码",
+                    "style": {
+                      "fontSize": "24rpx",
+                      "color": "var(--color-text-primary)"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "tool-timer",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 3
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx",
+                  "borderRadius": "16rpx",
+                  "background": "#fff",
+                  "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
+                  "textAlign": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "timer-icon-bg",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "width": "80rpx",
+                      "height": "80rpx",
+                      "borderRadius": "50%",
+                      "background": "rgba(239,68,68,0.1)",
+                      "margin": "0 auto 12rpx",
+                      "display": "flex",
+                      "alignItems": "center",
+                      "justifyContent": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "timer-icon",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "图标",
+                        "title": "图标",
+                        "objectFit": "contain",
+                        "iconColor": "#ef4444"
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "timer-text",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "计时器",
+                    "style": {
+                      "fontSize": "24rpx",
+                      "color": "var(--color-text-primary)"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "tool-notes",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 4
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx",
+                  "borderRadius": "16rpx",
+                  "background": "#fff",
+                  "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
+                  "textAlign": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "notes-icon-bg",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "width": "80rpx",
+                      "height": "80rpx",
+                      "borderRadius": "50%",
+                      "background": "rgba(245,158,11,0.1)",
+                      "margin": "0 auto 12rpx",
+                      "display": "flex",
+                      "alignItems": "center",
+                      "justifyContent": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "notes-icon",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "图标",
+                        "title": "图标",
+                        "objectFit": "contain",
+                        "iconColor": "#f59e0b"
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "notes-text",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "记事本",
+                    "style": {
+                      "fontSize": "24rpx",
+                      "color": "var(--color-text-primary)"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "tool-weather",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 5
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx",
+                  "borderRadius": "16rpx",
+                  "background": "#fff",
+                  "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
+                  "textAlign": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "weather-icon-bg",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "width": "80rpx",
+                      "height": "80rpx",
+                      "borderRadius": "50%",
+                      "background": "rgba(14,165,233,0.1)",
+                      "margin": "0 auto 12rpx",
+                      "display": "flex",
+                      "alignItems": "center",
+                      "justifyContent": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "weather-icon",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "图标",
+                        "title": "图标",
+                        "objectFit": "contain",
+                        "iconColor": "#0ea5e9"
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "weather-text",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "天气",
+                    "style": {
+                      "fontSize": "24rpx",
+                      "color": "var(--color-text-primary)"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "recent-tools",
+          "alias": "core.panel",
+          "layout": {
+            "mode": "flow",
+            "order": 2
+          },
+          "props": {
+            "style": {
+              "padding": "24rpx 32rpx"
+            }
+          },
+          "children": [
+            {
+              "id": "recent-title",
+              "alias": "core.text",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "text": "最近使用",
+                "style": {
+                  "fontSize": "28rpx",
+                  "fontWeight": "bold",
+                  "marginBottom": "16rpx"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "recent-list",
+              "alias": "core.stack",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "style": {
+                  "gap": "12rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "recent-calc",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "16rpx 20rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#fff",
+                      "alignItems": "center",
+                      "gap": "16rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "rc-icon",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "图标",
+                        "title": "图标",
+                        "objectFit": "contain",
+                        "iconColor": "#6366f1"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "rc-name",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "计算器",
+                        "style": {
+                          "fontSize": "26rpx",
+                          "flex": 1
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "rc-time",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "text": "5分钟前",
+                        "style": {
+                          "fontSize": "22rpx",
+                          "color": "var(--color-text-secondary)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "componentTemplates": {},
+    "cssVars": {
+      "--color-primary": "#64748b",
+      "--color-primary-dark": "#475569",
+      "--color-primary-light": "#94a3b8",
+      "--color-text-primary": "#1e293b",
+      "--color-text-secondary": "#64748b",
+      "--color-border": "#e2e8f0",
+      "--color-background": "#f8fafc",
+      "--color-surface": "#ffffff"
+    },
+    "style": {
+      "cssVars": {
+        "--color-primary": "#64748b",
+        "--color-primary-dark": "#475569",
+        "--color-primary-light": "#94a3b8",
+        "--color-text-primary": "#1e293b",
+        "--color-text-secondary": "#64748b",
+        "--color-border": "#e2e8f0",
+        "--color-background": "#f8fafc",
+        "--color-surface": "#ffffff"
+      }
+    }
+  },
+  "semanticConfig": {
+    "pages": [
+      {
+        "id": "page-home",
+        "key": "tools.home",
+        "name": "工具首页",
+        "description": "工具网格和最近使用"
+      },
+      {
+        "id": "page-detail",
+        "key": "tools.detail",
+        "name": "工具详情",
+        "description": "计算器等工具界面"
+      },
+      {
+        "id": "page-history",
+        "key": "tools.history",
+        "name": "历史结果",
+        "description": "计算历史记录"
+      },
+      {
+        "id": "page-settings",
+        "key": "tools.settings",
+        "name": "工具设置",
+        "description": "工具配置选项"
+      }
+    ],
+    "regions": [
+      {
+        "id": "tools-header",
+        "key": "tools.home.header",
+        "name": "工具头部",
+        "description": "标题和副标题"
+      },
+      {
+        "id": "tools-grid",
+        "key": "tools.home.grid",
+        "name": "工具网格",
+        "description": "工具入口网格"
+      },
+      {
+        "id": "recent-tools",
+        "key": "tools.home.recent",
+        "name": "最近使用",
+        "description": "最近使用的工具"
+      }
+    ],
+    "slots": [
+      {
+        "id": "calc-result",
+        "key": "tools.detail.result",
+        "name": "计算结果",
+        "description": "计算器显示结果"
+      }
+    ]
+  },
+  "categoryLabel": "工具应用",
+  "functionalCategoryLabels": {
+    "utility-tools": "工具应用",
+    "utility": "工具效率",
+    "productivity": "效率"
+  },
+  "tagline": "适用于工具类应用、效率工具、计算器等场景的小程序模板，包含工具首页、工具详情、历史结果、工具设置页面",
+  "traits": [
+    "工具",
+    "效率",
+    "计算器",
+    "实用工具"
+  ],
+  "cssVars": {
+    "--color-primary": "#64748b",
+    "--color-primary-dark": "#475569",
+    "--color-primary-light": "#94a3b8",
+    "--color-text-primary": "#1e293b",
+    "--color-text-secondary": "#64748b",
+    "--color-border": "#e2e8f0",
+    "--color-background": "#f8fafc",
+    "--color-surface": "#ffffff"
+  },
+  "componentTemplates": {}
+}

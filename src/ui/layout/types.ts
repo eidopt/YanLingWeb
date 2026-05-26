@@ -35,6 +35,7 @@ export interface LayoutNodeFrame {
 export interface LayoutPropDescriptor {
   name: string;
   type: string;
+  label?: string;
   required?: boolean;
   description?: string;
   enum?: string[];
