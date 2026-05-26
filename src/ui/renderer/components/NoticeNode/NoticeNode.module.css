@@ -8,9 +8,29 @@
   font-size: var(--app-unit-1-5);
   font-weight: 700;
   line-height: 1.45;
-  box-shadow: inset 0 0 0 var(--app-unit-0-125) color-mix(in srgb, var(--accent) 24%, transparent);
+  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--notice-border);
 }
 
 .notice[data-parent-alias='core.grid'] {
   width: 100%;
+}
+
+.noticeInfo,
+.noticeNeutral {
+  --notice-border: color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
+.noticeSuccess {
+  --notice-border: color-mix(in srgb, var(--app-color-wechat) 34%, transparent);
+  background: var(--app-color-success-bg);
+}
+
+.noticeWarning {
+  --notice-border: color-mix(in srgb, var(--app-color-orange) 34%, transparent);
+  background: var(--app-color-warning-bg);
+}
+
+.noticeError {
+  --notice-border: color-mix(in srgb, var(--app-color-danger) 34%, transparent);
+  background: color-mix(in srgb, var(--app-color-danger) 12%, var(--app-surface-1));
 }

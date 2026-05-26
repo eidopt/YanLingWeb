@@ -17,8 +17,9 @@
  * This file is NOT used at runtime — the NestJS app uses database.module.ts instead.
  */
 
-import { config } from 'dotenv';
 import * as path from 'node:path';
+
+import { config } from 'dotenv';
 import { DataSource, type DataSourceOptions } from 'typeorm';
 
 // ── CLI --flavor parsing (mirrors ConfigFactory.readCliServerFlavor) ──
@@ -42,8 +43,8 @@ function readCliFlavor(): string | undefined {
 
 function normalizeFlavor(raw: string | undefined): 'development' | 'production' | 'test' {
   const v = raw?.trim().toLowerCase();
-  if (v === 'prod' || v === 'production') return 'production';
-  if (v === 'test') return 'test';
+  if (v === 'prod' || v === 'production') {return 'production';}
+  if (v === 'test') {return 'test';}
   return 'development';
 }
 
@@ -85,15 +86,15 @@ config({ path: path.join(backendRoot, '.env') });
 // ── Scoped env var reading (mirrors ConfigFactory.read) ──
 
 function scopePrefix(): 'DEV' | 'PROD' | 'TEST' {
-  if (flavor === 'production') return 'PROD';
-  if (flavor === 'test') return 'TEST';
+  if (flavor === 'production') {return 'PROD';}
+  if (flavor === 'test') {return 'TEST';}
   return 'DEV';
 }
 
 function readEnv(name: string): string | undefined {
   // Try scoped var first (e.g. PROD_DATABASE_DRIVER)
   const scoped = process.env[`${scopePrefix()}_${name}`]?.trim();
-  if (scoped) return scoped;
+  if (scoped) {return scoped;}
   // Fall back to generic var (e.g. DATABASE_DRIVER)
   const generic = process.env[name]?.trim();
   return generic || undefined;
@@ -141,18 +142,9 @@ function buildOptions(): DataSourceOptions {
       entities: ALL_ENTITIES,
       migrations: [path.join(__dirname, 'migrations', '*.{ts,js}')],
       prepareDatabase: (db: unknown) => {
-        (db as { pragma: (sql: string) => void }).pragma('journal_mode = WAL');
-        (db as { pragma: (sql: string) => void }).pragma('foreign_keys = ON');
+        (db as { pragma: (sql: string) => void; }).pragma('journal_mode = WAL');
+        (db as { pragma: (sql: string) => void; }).pragma('foreign_keys = ON');
       },
-    };
-  }
-
-  if (driver === 'sqljs') {
-    return {
-      type: 'sqljs',
-      location: path.resolve(backendRoot, dbPath),
-      entities: ALL_ENTITIES,
-      migrations: [path.join(__dirname, 'migrations', '*.{ts,js}')],
     };
   }
 

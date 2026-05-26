@@ -3,7 +3,14 @@ export function asString(value: unknown, fallback = '') {
 }
 
 export function asNumber(value: unknown, fallback: number) {
-  return typeof value === 'number' ? value : fallback;
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === 'string' && value.trim()) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  }
+  return fallback;
 }
 
 export function asBoolean(value: unknown, fallback = false) {

@@ -1,6 +1,10 @@
 'use client';
 
-import type { DynamicThemeScreenPreset } from '../renderer';
+import {
+  type DynamicThemeScreenPreset,
+  getDefaultPreviewScreenPreset,
+  getPreviewScreenPresetOptions,
+} from '../renderer';
 import { ThemePreview } from '../theme_preview';
 import { themePreviewModalContent as c } from './ThemePreviewModal.content';
 import styles from './ThemePreviewModal.module.css';
@@ -28,8 +32,13 @@ interface ThemePreviewModalProps {
 function ThemePreviewModalContent(
   { theme, onEdit, onClose, editLabel }: ThemePreviewModalProps,
 ) {
+  const screenPresetOptions = getPreviewScreenPresetOptions(
+    theme.platformCategories,
+  );
   const [screenPreset, setScreenPreset] =
-    useState<DynamicThemeScreenPreset>('mobile');
+    useState<DynamicThemeScreenPreset>(
+      getDefaultPreviewScreenPreset(theme.platformCategories),
+    );
 
   function handleEdit() {
     onEdit();
@@ -53,22 +62,22 @@ function ThemePreviewModalContent(
         {/* Left: preview area */}
         <Stack className={styles.previewSide}>
           <Inline className={styles.previewTabs} gap="u0-75">
-            <Button
-              type="button"
-              onClick={() => setScreenPreset('mobile')}
-              size="sm"
-              variant={screenPreset === 'mobile' ? 'tab-active' : 'tab'}
-            >
-              {c.mobileTab}
-            </Button>
-            <Button
-              type="button"
-              onClick={() => setScreenPreset('desktop')}
-              size="sm"
-              variant={screenPreset === 'desktop' ? 'tab-active' : 'tab'}
-            >
-              {c.desktopTab}
-            </Button>
+            {screenPresetOptions.filter((option) => option.visible).map((option) => (
+              <Button
+                key={option.preset}
+                type="button"
+                onClick={() => setScreenPreset(option.preset)}
+                disabled={option.disabled}
+                size="sm"
+                variant={screenPreset === option.preset ? 'tab-active' : 'tab'}
+              >
+                {option.preset === 'desktop'
+                  ? c.desktopTab
+                  : option.preset === 'tablet'
+                    ? c.tabletTab
+                    : c.mobileTab}
+              </Button>
+            ))}
           </Inline>
           <Inline
             className={styles.previewFrame}

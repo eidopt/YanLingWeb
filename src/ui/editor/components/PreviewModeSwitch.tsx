@@ -1,60 +1,82 @@
 'use client';
 
-import type { DynamicThemeScreenPreset } from '../../renderer';
-import { DesktopIcon, MobileIcon } from '../icons/DeviceIcons';
+import type {
+  DynamicThemeScreenPreset,
+  PreviewScreenPresetOption,
+} from '../../renderer';
+import { DesktopIcon, MobileIcon, TabletIcon } from '../icons/DeviceIcons';
 import styles from '../ThemeLayoutBuilder.module.css';
 import { previewModeSwitchContent } from './PreviewModeSwitch.content';
 import { cx } from 'base/classname';
+import type { CSSProperties } from 'react';
 import { Box } from 'ui/system';
 
 interface PreviewModeSwitchProps {
   screenPreset: DynamicThemeScreenPreset;
+  options: PreviewScreenPresetOption[];
   onChange: (preset: DynamicThemeScreenPreset) => void;
 }
 
+const PRESET_CONTENT = {
+  desktop: {
+    ariaLabel: previewModeSwitchContent.desktopAriaLabel,
+    icon: <DesktopIcon />,
+  },
+  tablet: {
+    ariaLabel: previewModeSwitchContent.tabletAriaLabel,
+    icon: <TabletIcon />,
+  },
+  mobile: {
+    ariaLabel: previewModeSwitchContent.mobileAriaLabel,
+    icon: <MobileIcon />,
+  },
+} as const;
+
 export function PreviewModeSwitch(
-  { screenPreset, onChange }: PreviewModeSwitchProps,
+  { screenPreset, options, onChange }: PreviewModeSwitchProps,
 ) {
+  const visibleOptions = options.filter((option) => option.visible);
+  const activeIndex = Math.max(
+    0,
+    visibleOptions.findIndex((option) => option.preset === screenPreset),
+  );
+
   return (
     <Box
-      className={cx(
-        styles.segmentedSwitch,
-        screenPreset === 'mobile' && styles.segmentedSwitchSecondActive,
-      )}
+      className={styles.segmentedSwitch}
+      style={{
+        '--segmented-switch-active-index': activeIndex,
+      } as CSSProperties}
       role="tablist"
       aria-label={previewModeSwitchContent.tablistAriaLabel}
     >
       <Box as="span" className={styles.segmentedSwitchThumb} aria-hidden="true" />
-      <button
-        type="button"
-        role="tab"
-        className={cx(
-          styles.segmentedSwitchButton,
-          screenPreset === 'desktop' && styles.segmentedSwitchButtonActive,
-        )}
-        onClick={() => onChange('desktop')}
-        aria-selected={screenPreset === 'desktop'}
-        aria-label={previewModeSwitchContent.desktopAriaLabel}
-      >
-        <Box as="span" className={styles.switchIcon}>
-          <DesktopIcon />
-        </Box>
-      </button>
-      <button
-        type="button"
-        role="tab"
-        className={cx(
-          styles.segmentedSwitchButton,
-          screenPreset === 'mobile' && styles.segmentedSwitchButtonActive,
-        )}
-        onClick={() => onChange('mobile')}
-        aria-selected={screenPreset === 'mobile'}
-        aria-label={previewModeSwitchContent.mobileAriaLabel}
-      >
-        <Box as="span" className={styles.switchIcon}>
-          <MobileIcon />
-        </Box>
-      </button>
+      {visibleOptions.map((option) => {
+        const content = PRESET_CONTENT[option.preset];
+        return (
+          <button
+            key={option.preset}
+            type="button"
+            role="tab"
+            className={cx(
+              styles.segmentedSwitchButton,
+              screenPreset === option.preset && styles.segmentedSwitchButtonActive,
+            )}
+            onClick={() => {
+              if (!option.disabled) {
+                onChange(option.preset);
+              }
+            }}
+            disabled={option.disabled}
+            aria-selected={screenPreset === option.preset}
+            aria-label={content.ariaLabel}
+          >
+            <Box as="span" className={styles.switchIcon}>
+              {content.icon}
+            </Box>
+          </button>
+        );
+      })}
     </Box>
   );
 }

@@ -167,21 +167,44 @@ function buildNodeIndex(root: ThemeLayoutNode): string {
 function buildSimpleSemanticLandmarks(root: ThemeLayoutNode): string {
   const landmarks: { role: string; nodeId: string; alias: string; label: string }[] = [];
 
+  const labelFromProp = (value: unknown, fallback: string) =>
+    stringifyPropValue(value) || fallback;
+
+  const pushLandmark = (
+    role: string,
+    node: ThemeLayoutNode,
+    label: string,
+  ) => {
+    landmarks.push({
+      role,
+      nodeId: node.id,
+      alias: node.alias,
+      label,
+    });
+  };
+
   const walk = (node: ThemeLayoutNode, depth = 0, rootIndex = 0) => {
+    const props = node.props ?? {};
+
     // page_footer_nav: footer slot tabs or bottom nav aliases
     if (
       (node.alias === 'core.tabs' && node.slot === 'footer') ||
       (node.alias === 'svc-bottom-bar') ||
       (node.alias === 'com-bottom-tabs')
     ) {
-      landmarks.push({ role: 'page_footer_nav', nodeId: node.id, alias: node.alias, label: String(node.props?.activeTab ?? 'footer tabs') });
+      pushLandmark(
+        'page_footer_nav',
+        node,
+        labelFromProp(props.activeTab, 'footer tabs'),
+      );
     }
 
     // page_header + page_title + main_content: root screen
     if (node.alias === 'core.screen') {
-      landmarks.push({ role: 'page_header', nodeId: node.id, alias: node.alias, label: String(node.props?.title ?? 'root screen') });
-      landmarks.push({ role: 'page_title', nodeId: node.id, alias: node.alias, label: String(node.props?.title ?? 'root screen') });
-      landmarks.push({ role: 'main_content', nodeId: node.id, alias: node.alias, label: String(node.props?.title ?? 'root screen') });
+      const title = labelFromProp(props.title, 'root screen');
+      pushLandmark('page_header', node, title);
+      pushLandmark('page_title', node, title);
+      pushLandmark('main_content', node, title);
     }
 
     // main_content: top-level body containers (depth=1, non-footer, first 2)
@@ -191,31 +214,39 @@ function buildSimpleSemanticLandmarks(root: ThemeLayoutNode): string {
       ['core.panel', 'core.stack', 'core.row', 'core.grid'].includes(node.alias) &&
       rootIndex <= 1
     ) {
-      landmarks.push({ role: 'main_content', nodeId: node.id, alias: node.alias, label: 'body container' });
+      pushLandmark('main_content', node, 'body container');
     }
 
     // search_box
     if (node.alias === 'core.search') {
-      landmarks.push({ role: 'search_box', nodeId: node.id, alias: node.alias, label: String(node.props?.placeholder ?? 'search') });
+      pushLandmark(
+        'search_box',
+        node,
+        labelFromProp(props.placeholder, 'search'),
+      );
     }
 
     // primary_cta: primary variant buttons
-    if (node.alias === 'core.button' && node.props?.variant === 'primary') {
-      landmarks.push({ role: 'primary_cta', nodeId: node.id, alias: node.alias, label: String(node.props?.label ?? 'button') });
+    if (node.alias === 'core.button' && props.variant === 'primary') {
+      pushLandmark('primary_cta', node, labelFromProp(props.label, 'button'));
     }
     // primary_cta: any button (lower priority, shown for discoverability)
-    if (node.alias === 'core.button' && node.props?.variant !== 'primary') {
-      landmarks.push({ role: 'primary_cta', nodeId: node.id, alias: node.alias, label: String(node.props?.label ?? 'button') });
+    if (node.alias === 'core.button' && props.variant !== 'primary') {
+      pushLandmark('primary_cta', node, labelFromProp(props.label, 'button'));
     }
 
     // notice_banner
     if (node.alias === 'core.notice') {
-      landmarks.push({ role: 'notice_banner', nodeId: node.id, alias: node.alias, label: String(node.props?.text ?? 'notice') });
+      pushLandmark('notice_banner', node, labelFromProp(props.text, 'notice'));
     }
 
     // section_header: nodes with both title and actionLabel
-    if (node.props?.title && node.props?.actionLabel) {
-      landmarks.push({ role: 'section_header', nodeId: node.id, alias: node.alias, label: String(node.props.title) });
+    if (props.title && props.actionLabel) {
+      pushLandmark(
+        'section_header',
+        node,
+        labelFromProp(props.title, 'section header'),
+      );
     }
 
     node.children?.forEach((child, index) => {
@@ -233,7 +264,7 @@ function buildSimpleSemanticLandmarks(root: ThemeLayoutNode): string {
   const seen = new Set<string>();
   const unique = landmarks.filter((l) => {
     const key = `${l.role}:${l.nodeId}`;
-    if (seen.has(key)) return false;
+    if (seen.has(key)) {return false;}
     seen.add(key);
     return true;
   });

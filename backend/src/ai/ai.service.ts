@@ -106,7 +106,7 @@ interface TokenUsagePayload {
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 10;
 const rateLimitMap = new Map<string, { count: number; resetAt: number; }>();
-const EDITOR_AGENT_MAX_ITERATIONS = 32;
+const DEFAULT_EDITOR_AGENT_MAX_ITERATIONS = 96;
 const EDITOR_PROVIDER_SESSION_TTL_MS = 30 * 60_000;
 const EDITOR_PROVIDER_SESSION_EXPIRY_SAFETY_MS = 60_000;
 const MAX_EDITOR_CONVERSATION_CONTEXT_CHARS = 500_000;
@@ -117,6 +117,15 @@ const PROVIDER_LOG_FOLD_MARKER = [
   '[Editor provider history summary - earlier provider messages folded',
   'for cache and context efficiency]',
 ].join(' ');
+
+function resolveEditorAgentMaxIterations() {
+  const configured = Number(process.env.EDITOR_AGENT_MAX_ITERATIONS);
+  return Number.isFinite(configured) && configured >= 32
+    ? Math.floor(configured)
+    : DEFAULT_EDITOR_AGENT_MAX_ITERATIONS;
+}
+
+const EDITOR_AGENT_MAX_ITERATIONS = resolveEditorAgentMaxIterations();
 
 function normalizeEditorConversationMessages(
   messages: unknown,

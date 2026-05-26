@@ -335,11 +335,12 @@
   background: var(--preview-accent);
   box-shadow: 0 var(--app-unit-1) var(--app-unit-2) color-mix(in srgb, var(--preview-accent) 24%, transparent);
   transition: transform 160ms ease;
+  transform: translateX(calc(var(--segmented-switch-active-index, 0) * (var(--app-unit-4) + var(--app-unit-0-375))));
   pointer-events: none;
 }
 
 .segmentedSwitchSecondActive .segmentedSwitchThumb {
-  transform: translateX(var(--app-unit-4));
+  --segmented-switch-active-index: 1;
 }
 
 .segmentedSwitchButton {
@@ -360,6 +361,15 @@
 
 .segmentedSwitchButton:hover {
   color: var(--app-text-primary);
+}
+
+.segmentedSwitchButton:disabled {
+  color: color-mix(in srgb, var(--app-text-muted) 42%, transparent);
+  cursor: not-allowed;
+}
+
+.segmentedSwitchButton:disabled:hover {
+  color: color-mix(in srgb, var(--app-text-muted) 42%, transparent);
 }
 
 .segmentedSwitchButtonActive {

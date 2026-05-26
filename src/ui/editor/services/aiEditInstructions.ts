@@ -50,6 +50,22 @@ export type EditorAiEditInstruction =
       activate?: boolean;
     } & EditorAiInstructionTarget)
   | ({
+      type: "create_page_from_reference";
+      pageId: string;
+      name: string;
+      referencePageId: string;
+      rootNodeId?: string;
+      rootProps?: Record<string, unknown>;
+      referenceNodeUpdates?: {
+        referenceNodeId: string;
+        props: Record<string, unknown>;
+      }[];
+      omitReferenceNodeIds?: string[];
+      select?: boolean;
+      activate?: boolean;
+      syncNavigation?: boolean;
+    } & EditorAiInstructionTarget)
+  | ({
       type: "delete_page";
       name?: string;
       select?: boolean;
@@ -135,6 +151,18 @@ interface ApplyOneResult {
 }
 
 type NodeIdAliases = Map<string, string>;
+
+const CORE_IMAGE_PROP_FALLBACKS = new Map([
+  ["src", "string"],
+  ["alt", "string"],
+  ["title", "string"],
+  ["iconColor", "string"],
+  ["objectFit", "string"],
+]);
+const CORE_PROP_ALIASES = new Map([
+  ["core.button:text", "label"],
+  ["core.notice:variant", "tone"],
+]);
 
 const SIZE_LAYOUT_KEYS = [
   "width",
@@ -283,7 +311,13 @@ function coercePropValue(
   name: string,
   value: unknown,
 ): { error?: string; value?: unknown } {
-  const prop = descriptor.props.find((item) => item.name === name);
+  const fallbackType =
+    descriptor.alias === "core.image"
+      ? CORE_IMAGE_PROP_FALLBACKS.get(name)
+      : undefined;
+  const prop = descriptor.props.find((item) => item.name === name) ?? (
+    fallbackType ? { name, type: fallbackType } : undefined
+  );
   if (!prop) {
     return { error: `属性 "${name}" 不属于组件 ${descriptor.alias}` };
   }
@@ -355,12 +389,16 @@ function coerceProps(
   const nextProps: Record<string, unknown> = {};
   const errors: string[] = [];
   Object.entries(props ?? {}).forEach(([name, value]) => {
-    const result = coercePropValue(descriptor, name, value);
+    const effectiveName = CORE_PROP_ALIASES.get(`${descriptor.alias}:${name}`) ?? name;
+    if (effectiveName !== name && nextProps[effectiveName] !== undefined) {
+      return;
+    }
+    const result = coercePropValue(descriptor, effectiveName, value);
     if (result.error) {
       errors.push(result.error);
       return;
     }
-    nextProps[name] = result.value;
+    nextProps[effectiveName] = result.value;
   });
   return { errors, props: nextProps };
 }
@@ -609,6 +647,7 @@ function resolveInstructionIds(
 ): EditorAiEditInstruction {
   switch (instruction.type) {
     case "create_page":
+    case "create_page_from_reference":
     case "delete_page":
     case "sync_page_navigation":
     case "sync_footer_tabs":
@@ -702,6 +741,7 @@ function resolveInstructionSemanticTargets(
 ): EditorAiEditInstruction {
   switch (instruction.type) {
     case "create_page":
+    case "create_page_from_reference":
     case "delete_page":
     case "sync_page_navigation":
     case "sync_footer_tabs":
@@ -1199,6 +1239,7 @@ function applyOneInstruction(
 ): ApplyOneResult {
   switch (instruction.type) {
     case "create_page":
+    case "create_page_from_reference":
       return { document, error: "创建页面需要编辑器页面上下文" };
     case "delete_page":
       return { document, error: "删除页面需要编辑器页面上下文" };

@@ -1,5 +1,5 @@
 export type ServerFlavors = 'development' | 'production' | 'test';
-export type BackendDatabaseDriver = 'sqljs' | 'sqlite' | 'postgres' | 'mysql';
+export type BackendDatabaseDriver = 'sqlite' | 'postgres' | 'mysql';
 
 export interface BackendOAuthProviderConfig {
   appId?: string;
@@ -298,7 +298,6 @@ export class ConfigFactory {
 
     const normalized = value.toLowerCase();
     if (
-      normalized === 'sqljs' ||
       normalized === 'sqlite' ||
       normalized === 'postgres' ||
       normalized === 'mysql'

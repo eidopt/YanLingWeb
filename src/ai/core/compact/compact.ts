@@ -311,6 +311,11 @@ function buildToolDetail(name: string, args: Record<string, unknown>): string {
       return `node=${valueToString(args.nodeId, '?')} → parent=${valueToString(args.parentId, '?')}`;
     case 'editor_create_page':
       return `name=${valueToString(args.name, '?')}`;
+    case 'editor_create_page_from_reference':
+      return [
+        `name=${valueToString(args.name, '?')}`,
+        `reference=${valueToString(args.referencePageId, '?')}`,
+      ].join(' ');
     case 'editor_delete_page':
       return `page=${valueToString(args.pageId, '?')}`;
     case 'editor_sync_navigation':

@@ -28,6 +28,7 @@
 
   /* ── Fixed: screen dimensions ────────────────────────────────────── */
   --screen-height: var(--app-unit-80);
+  --screen-height-tablet: calc(var(--app-base-unit) * 128);
   --screen-height-desktop: var(--app-unit-112);
 
   /* ── Derived: accent-tinted components ───────────────────────────── */
@@ -69,6 +70,18 @@
 }
 
 .screenDesktop {
+}
+
+.screenTablet {
+  border: var(--app-unit-0-125) solid var(--app-border);
+  border-radius: var(--app-unit-3-5);
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--accent) 8%, transparent), transparent 34%),
+    var(--surface);
+  box-shadow:
+    0 var(--app-unit-3) var(--app-unit-7) var(--app-ink-alpha-02),
+    inset 0 var(--app-unit-0-125) 0 var(--app-white-alpha-80),
+    inset 0 0 0 var(--app-unit-0-125) var(--app-border-subtle);
 }
 
 .screenMobile {

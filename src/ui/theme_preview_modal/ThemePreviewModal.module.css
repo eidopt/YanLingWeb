@@ -79,6 +79,12 @@
   height: var(--app-unit-80);
 }
 
+.previewViewport[data-preset='tablet'] {
+  width: calc(var(--app-base-unit) * 61.44);
+  height: calc(var(--app-base-unit) * 81.92);
+  border-radius: var(--app-radius-xl);
+}
+
 .previewViewport[data-preset='desktop'] {
   width: calc(var(--app-base-unit) * 89.6);
   height: calc(var(--app-base-unit) * 71.68);
@@ -93,6 +99,12 @@
 .previewScaleShell[data-preset='mobile'] {
   width: var(--app-unit-45);
   height: var(--app-unit-80);
+}
+
+.previewScaleShell[data-preset='tablet'] {
+  width: calc(var(--app-base-unit) * 96);
+  height: calc(var(--app-base-unit) * 128);
+  transform: scale(0.64);
 }
 
 .previewScaleShell[data-preset='desktop'] {

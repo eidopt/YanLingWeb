@@ -152,6 +152,7 @@ const CORE_COMPONENT_DESCRIPTORS = [
       },
       { name: "active", type: "boolean", description: "是否高亮" },
       { name: "disabled", type: "boolean", description: "是否禁用" },
+      { name: "icon", type: "string", description: "前置图标文本" },
     ],
   },
   {
@@ -204,7 +205,18 @@ const CORE_COMPONENT_DESCRIPTORS = [
     name: "图片占位",
     kind: "component",
     description: "图片或图标占位块",
-    props: [{ name: "iconColor", type: "string", description: "图标颜色" }],
+    props: [
+      { name: "src", type: "string", description: "图片地址" },
+      { name: "alt", type: "string", description: "替代文本" },
+      { name: "title", type: "string", description: "标题" },
+      { name: "iconColor", type: "string", description: "占位背景色" },
+      {
+        name: "objectFit",
+        type: "string",
+        description: "图片填充方式",
+        enum: ["cover", "contain", "fill"],
+      },
+    ],
   },
   {
     alias: "core.tabs",
@@ -228,6 +240,7 @@ const CORE_COMPONENT_DESCRIPTORS = [
     description: "搜索输入框",
     props: [
       { name: "placeholder", type: "string", description: "占位提示文字" },
+      { name: "value", type: "string", description: "当前值" },
     ],
   },
   {
@@ -237,6 +250,55 @@ const CORE_COMPONENT_DESCRIPTORS = [
     description: "提示信息条",
     props: [
       { name: "text", type: "string", required: true, description: "显示内容" },
+      {
+        name: "tone",
+        type: "string",
+        description: "风格",
+        enum: ["info", "warning", "error", "success", "neutral"],
+      },
+    ],
+  },
+  {
+    alias: "core.divider",
+    name: "分割线",
+    kind: "component",
+    description: "水平分割线",
+    props: [],
+  },
+  {
+    alias: "core.spacer",
+    name: "间距",
+    kind: "component",
+    description: "空白间距",
+    props: [{ name: "size", type: "string", description: "间距尺寸" }],
+  },
+  {
+    alias: "core.input",
+    name: "输入框",
+    kind: "component",
+    description: "文本输入框",
+    props: [
+      { name: "placeholder", type: "string", description: "占位提示文字" },
+      { name: "label", type: "string", description: "标签" },
+      { name: "type", type: "string", description: "输入类型" },
+      { name: "value", type: "string", description: "当前值" },
+      { name: "disabled", type: "boolean", description: "是否禁用" },
+    ],
+  },
+  {
+    alias: "core.widget",
+    name: "安全组件",
+    kind: "component",
+    description: "安全的第三方 ESM 可视化组件",
+    props: [
+      { name: "library", type: "string", description: "依赖库名称" },
+      {
+        name: "renderer",
+        type: "string",
+        description: "渲染器",
+        enum: ["echarts", "chartjs", "lottie", "mermaid"],
+      },
+      { name: "data", type: "object", description: "渲染数据" },
     ],
   },
   {

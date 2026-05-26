@@ -69,6 +69,61 @@ export const EDITOR_CREATE_PAGE_TOOL = tool(
   },
 );
 
+export const EDITOR_CREATE_PAGE_FROM_REFERENCE_TOOL = tool(
+  'editor_create_page_from_reference',
+  [
+    'Create a new page by cloning an existing reference page skeleton, then',
+    'patch copied nodes by referenceNodeId. Use this instead of editor_create_page',
+    'when the user asks for a new page with content, so layout, spacing, footer,',
+    'variants, and section density stay consistent with the current template.',
+    'Only change content props through referenceNodeUpdates; do not freehand',
+    'insert many nodes unless the cloned structure is insufficient.',
+  ].join(' '),
+  ['pageId', 'name', 'referencePageId'],
+  {
+    pageId: { type: 'string', description: 'New page id.' },
+    name: { type: 'string', description: 'New page name/title.' },
+    referencePageId: {
+      type: 'string',
+      description: 'Existing page id whose structure should be copied.',
+    },
+    rootNodeId: {
+      type: 'string',
+      description: 'Optional new root screen id. Defaults to `${pageId}-screen`.',
+    },
+    rootProps: {
+      type: 'object',
+      description: 'Optional root screen props, usually {"title":"Page title"}.',
+    },
+    referenceNodeUpdates: {
+      type: 'array',
+      description: [
+        'Content-only patches to apply to copied nodes. Each item uses the',
+        'reference page node id, not the new cloned id:',
+        '{"referenceNodeId":"old-title","props":{"text":"New title"}}.',
+      ].join(' '),
+      items: {
+        type: 'object',
+        properties: {
+          referenceNodeId: { type: 'string' },
+          props: { type: 'object' },
+        },
+      },
+    },
+    omitReferenceNodeIds: {
+      type: 'array',
+      description: 'Optional reference node ids to omit from the cloned page.',
+      items: { type: 'string' },
+    },
+    activate: { type: 'boolean', description: 'Activate page. Defaults to true.' },
+    select: { type: 'boolean', description: 'Select the new root screen. Defaults to true.' },
+    syncNavigation: {
+      type: 'boolean',
+      description: 'Sync footer/page navigation after creation. Defaults to true.',
+    },
+  },
+);
+
 export const EDITOR_DELETE_PAGE_TOOL = tool(
   'editor_delete_page',
   'Delete a page.',
@@ -112,7 +167,10 @@ export const EDITOR_INSERT_NODE_TOOL = tool(
       type: 'object',
       description: [
         'Component-specific properties. Include the minimum required props for the alias.',
-        'Common props: text, label, title, placeholder, name, variant, href, icon, src, alt, type, disabled, value, color, size.',
+        [
+          'Common props: text, label, title, placeholder, name, variant,',
+          'icon, src, alt, type, disabled, value, color, size.',
+        ].join(' '),
         'Example: {"text":"Submit","variant":"primary","disabled":false}',
       ].join(' '),
     },
@@ -145,7 +203,10 @@ export const EDITOR_UPDATE_PROPS_TOOL = tool(
       type: 'object',
       description: [
         'Properties to update. Only include changed props.',
-        'Common props: text, label, title, placeholder, name, variant, href, icon, activeTab, src, alt, type, disabled, value, color, size.',
+        [
+          'Common props: text, label, title, placeholder, name, variant,',
+          'icon, activeTab, src, alt, type, disabled, value, color, size.',
+        ].join(' '),
         'Example: {"text":"Updated label","variant":"outline"}',
       ].join(' '),
     },
@@ -269,6 +330,7 @@ export const EDITOR_SYNC_NAVIGATION_TOOL = tool(
 );
 
 export const EDITOR_EDIT_TOOLS = [
+  EDITOR_CREATE_PAGE_FROM_REFERENCE_TOOL,
   EDITOR_CREATE_PAGE_TOOL,
   EDITOR_DELETE_PAGE_TOOL,
   EDITOR_INSERT_NODE_TOOL,
@@ -294,7 +356,10 @@ function mergeFlatProps(args: Record<string, unknown>): Record<string, unknown> 
 
   const legacyKeys = [
     'text', 'label', 'title', 'placeholder', 'name',
-    'variant', 'href', 'icon', 'activeTab', 'propsJson',
+    'variant', 'tone', 'href', 'icon', 'activeTab', 'propsJson',
+    'tabs', 'src', 'alt', 'objectFit', 'type', 'target', 'value',
+    'disabled', 'max', 'gap', 'columns', 'size', 'color',
+    'library', 'renderer', 'data',
   ];
   const props: Record<string, unknown> = {};
   for (const key of legacyKeys) {
@@ -313,7 +378,9 @@ function cleanBaseArgs(args: Record<string, unknown>): Record<string, unknown> {
   const skip = new Set(['reason', 'props', 'propsJson']);
   const cleaned: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(args)) {
-    if (skip.has(key) || value === undefined) continue;
+    if (skip.has(key) || value === undefined) {
+      continue;
+    }
     cleaned[key] = value;
   }
   return cleaned;
@@ -326,6 +393,10 @@ export function editorToolCallToOperations(
   const reason = typeof args.reason === 'string' ? args.reason : '';
 
   switch (name) {
+    case EDITOR_CREATE_PAGE_FROM_REFERENCE_TOOL.name: {
+      const base = cleanBaseArgs(args);
+      return { operations: [{ ...base, type: 'create_page_from_reference' }], reason };
+    }
     case EDITOR_CREATE_PAGE_TOOL.name: {
       const base = cleanBaseArgs(args);
       return { operations: [{ ...base, type: 'create_page' }], reason };

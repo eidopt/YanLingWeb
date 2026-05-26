@@ -27,7 +27,7 @@ export interface DynamicThemeNodeShellContext {
   rendered: ReactNode;
 }
 
-export type DynamicThemeScreenPreset = 'mobile' | 'desktop';
+export type DynamicThemeScreenPreset = 'mobile' | 'tablet' | 'desktop';
 
 export interface DynamicThemeRendererState {
   layoutDocument: ThemeLayoutDocument;

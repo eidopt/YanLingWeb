@@ -7,7 +7,8 @@ import { cx } from 'base/classname';
 
 export function ButtonNode({ props, nodeLayoutStyle }: CoreNodeProps) {
   const variant = asString(props.variant, 'primary');
-  const label = asString(props.label);
+  const label = asString(props.label) || asString(props.text);
+  const icon = asString(props.icon);
   const active = asBoolean(props.active);
   const disabled = asBoolean(props.disabled);
   const variantClass =
@@ -27,6 +28,7 @@ export function ButtonNode({ props, nodeLayoutStyle }: CoreNodeProps) {
       disabled={disabled}
       style={nodeLayoutStyle}
     >
+      {icon ? <span aria-hidden="true">{icon}</span> : null}
       {label}
     </button>
   );

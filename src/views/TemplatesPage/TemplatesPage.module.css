@@ -145,7 +145,7 @@
 
 .skeletonMeta {
   display: flex;
-  align-items: start;
+  align-items: flex-start;
   gap: var(--app-unit-1-25);
   padding: var(--app-unit-1-75) var(--app-unit-2);
   min-height: var(--app-unit-9);

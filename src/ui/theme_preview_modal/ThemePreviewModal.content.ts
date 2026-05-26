@@ -1,5 +1,6 @@
 export const themePreviewModalContent = {
   mobileTab: '手机',
+  tabletTab: '平板',
   desktopTab: '桌面',
   closeAriaLabel: '关闭',
   editButton: '开始编辑',

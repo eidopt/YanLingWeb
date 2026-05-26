@@ -7,6 +7,7 @@ export interface LayoutBuilderTheme {
   tagline: string;
   description: string;
   accent: string;
+  platformCategories?: string[];
   layoutDocument: ThemeLayoutDocument;
   runtime: ThemeRuntime;
 }

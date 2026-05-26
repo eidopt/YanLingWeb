@@ -24,9 +24,12 @@ function normalizePages(document: Record<string, unknown>): ThemeLayoutPage[] {
     return document.pages.map((page) => {
       const pageRecord = isRecord(page) ? page : {};
       const layout = pageRecord.layout as ThemeLayoutNode;
+      const layoutId = isRecord(pageRecord.layout) && typeof pageRecord.layout.id === 'string'
+        ? pageRecord.layout.id
+        : 'page-1';
       const id = typeof pageRecord.id === 'string' && pageRecord.id.trim()
         ? pageRecord.id.trim()
-        : layout?.id ?? 'page-1';
+        : layoutId;
       return {
         ...(pageRecord as unknown as ThemeLayoutPage),
         id,
@@ -63,9 +66,10 @@ export function migrateThemeLayoutDocument(input: unknown): ThemeLayoutDocument 
     && document.defaultPageId.trim()
     ? document.defaultPageId.trim()
     : undefined;
-  const activePage =
+  const activePage = (
     pages.find((page) => page.id === requestedDefaultPageId)
-    ?? pages[0];
+    ?? pages[0]
+  ) as ThemeLayoutPage | undefined;
 
   return {
     ...(document as unknown as ThemeLayoutDocument),

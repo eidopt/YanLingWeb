@@ -23,8 +23,6 @@ const DATABASE_ENTITIES = [
 
 export function createDatabaseOptions(env: ServerConfig): TypeOrmModuleOptions {
   switch (env.database.driver) {
-    case 'sqljs':
-      return createSqlJsOptions(env);
     case 'sqlite':
       return createSqliteOptions(env);
     case 'postgres':
@@ -33,22 +31,6 @@ export function createDatabaseOptions(env: ServerConfig): TypeOrmModuleOptions {
         `Database driver "${env.database.driver}" is configured but not implemented yet.`,
       );
   }
-}
-
-function createSqlJsOptions(env: ServerConfig): TypeOrmModuleOptions {
-  if (!env.database.path) {
-    throw new Error('DATABASE_DRIVER=sqljs requires DB_PATH or DEFAULT_DB_PATH');
-  }
-
-  return {
-    type: 'sqljs',
-    location: env.database.path,
-    autoSave: true,
-    useLocalForage: false,
-    entities: DATABASE_ENTITIES,
-    synchronize: env.database.synchronize,
-    logging: env.database.logging,
-  };
 }
 
 function createSqliteOptions(env: ServerConfig): TypeOrmModuleOptions {
@@ -65,9 +47,9 @@ function createSqliteOptions(env: ServerConfig): TypeOrmModuleOptions {
       // WAL allows concurrent readers while a write is in progress,
       // which is a significant improvement over the default DELETE journal
       // for a NestJS server handling concurrent requests.
-      (db as { pragma: (sql: string) => void }).pragma('journal_mode = WAL');
+      (db as { pragma: (sql: string) => void; }).pragma('journal_mode = WAL');
       // Enable foreign key enforcement (SQLite has it off by default).
-      (db as { pragma: (sql: string) => void }).pragma('foreign_keys = ON');
+      (db as { pragma: (sql: string) => void; }).pragma('foreign_keys = ON');
     },
   };
 }

@@ -139,11 +139,11 @@ function readDatabaseDriver(flavor) {
 }
 
 function isFileBackedDriver(driver) {
-  return driver === 'sqljs' || driver === 'sqlite';
+  return driver === 'sqlite';
 }
 
 function isKnownDriver(driver) {
-  return ['sqljs', 'sqlite', 'postgres', 'mysql'].includes(driver);
+  return ['sqlite', 'postgres', 'mysql'].includes(driver);
 }
 
 function scopePrefix(flavor) {

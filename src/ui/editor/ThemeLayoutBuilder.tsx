@@ -1,8 +1,11 @@
 'use client';
 
-import type { DynamicThemeScreenPreset } from '../renderer';
 import {
   DynamicThemeRenderer,
+  type DynamicThemeScreenPreset,
+  getDefaultPreviewScreenPreset,
+  getPreviewScreenPresetOptions,
+  isPreviewScreenPresetAllowed,
   useDynamicThemeRendererController,
 } from '../renderer';
 import { BuilderLibraryPanel } from './components/BuilderLibraryPanel';
@@ -49,6 +52,8 @@ interface ThemeLayoutBuilderProps {
 
 const PHONE_CANVAS_WIDTH = 352;
 const PHONE_CANVAS_HEIGHT = 672;
+const TABLET_CANVAS_WIDTH = 768;
+const TABLET_CANVAS_HEIGHT = 1024;
 const DESKTOP_CANVAS_WIDTH = 1120;
 const DESKTOP_CANVAS_HEIGHT = 896;
 
@@ -68,9 +73,13 @@ function getElementContentSize(element: HTMLElement) {
 }
 
 function canvasSizeForPreset(screenPreset: DynamicThemeScreenPreset) {
-  return screenPreset === 'desktop'
-    ? { width: DESKTOP_CANVAS_WIDTH, height: DESKTOP_CANVAS_HEIGHT }
-    : { width: PHONE_CANVAS_WIDTH, height: PHONE_CANVAS_HEIGHT };
+  if (screenPreset === 'desktop') {
+    return { width: DESKTOP_CANVAS_WIDTH, height: DESKTOP_CANVAS_HEIGHT };
+  }
+  if (screenPreset === 'tablet') {
+    return { width: TABLET_CANVAS_WIDTH, height: TABLET_CANVAS_HEIGHT };
+  }
+  return { width: PHONE_CANVAS_WIDTH, height: PHONE_CANVAS_HEIGHT };
 }
 
 function getCanvasPageStats(canvas: BuilderCanvas) {
@@ -149,6 +158,9 @@ export function ThemeLayoutBuilder(
     updateActiveCanvasName,
     containerNodes,
   } = controller;
+  const screenPresetOptions = getPreviewScreenPresetOptions(
+    activeTheme.platformCategories,
+  );
 
   const { width: canvasWidth, height: canvasHeight } =
     canvasSizeForPreset(screenPreset);
@@ -166,6 +178,20 @@ export function ThemeLayoutBuilder(
   /* eslint-enable @typescript-eslint/no-unnecessary-condition */
   const isPreviewMode = interactionMode === 'preview';
   const documentForRender = previewDocument ?? currentDocument;
+
+  useEffect(() => {
+    if (
+      !isPreviewScreenPresetAllowed(
+        screenPreset,
+        activeTheme.platformCategories,
+      )
+    ) {
+      setScreenPreset(
+        getDefaultPreviewScreenPreset(activeTheme.platformCategories),
+      );
+    }
+  }, [activeTheme.platformCategories, screenPreset, setScreenPreset]);
+
   const rendererController = useDynamicThemeRendererController({
     layoutDocument: documentForRender,
     runtime: activeTheme.runtime,
@@ -366,6 +392,7 @@ export function ThemeLayoutBuilder(
               >
                 <PreviewModeSwitch
                   screenPreset={screenPreset}
+                  options={screenPresetOptions}
                   onChange={setScreenPreset}
                 />
               </Tooltip>

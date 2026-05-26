@@ -42,6 +42,17 @@ const CORE_ALIASES = new Set([
   'core.spacer',
   'core.input',
 ]);
+const CORE_IMAGE_PROP_TYPES = new Map([
+  ['src', 'string'],
+  ['alt', 'string'],
+  ['title', 'string'],
+  ['iconColor', 'string'],
+  ['objectFit', 'string'],
+]);
+const CORE_PROP_ALIASES = new Map([
+  ['core.button:text', 'label'],
+  ['core.notice:variant', 'tone'],
+]);
 
 const CONTAINER_ALIASES = new Set([
   'core.screen',
@@ -95,7 +106,13 @@ function validatePropValue(
   value: unknown,
   path: string,
 ): ValidationIssue | null {
-  const prop = descriptor.props.find((item) => item.name === propName);
+  const fallbackType =
+    descriptor.alias === 'core.image'
+      ? CORE_IMAGE_PROP_TYPES.get(propName)
+      : undefined;
+  const prop = descriptor.props.find((item) => item.name === propName) ?? (
+    fallbackType ? { name: propName, type: fallbackType } : undefined
+  );
   if (!prop) {
     return issue('error', path, 'unknown_prop', `Unknown prop "${propName}" for ${descriptor.alias}`);
   }
@@ -336,7 +353,8 @@ function validateNode(
     errors.push(issue('error', `${path}.alias`, 'unknown_alias', `Unknown alias: ${node.alias}`));
   }
 
-  if (!node.layout || !LAYOUT_MODES.has(node.layout.mode)) {
+  const nodeLayout = (node as Partial<ThemeLayoutNode>).layout;
+  if (!nodeLayout || !LAYOUT_MODES.has(nodeLayout.mode)) {
     errors.push(issue(
       'error',
       `${path}.layout.mode`,
@@ -352,7 +370,14 @@ function validateNode(
   const descriptor = descriptorForAlias(document, node.alias);
   if (descriptor && node.props) {
     Object.entries(node.props).forEach(([propName, value]) => {
-      const propIssue = validatePropValue(descriptor, propName, value, `${path}.props.${propName}`);
+      const effectivePropName =
+        CORE_PROP_ALIASES.get(`${descriptor.alias}:${propName}`) ?? propName;
+      const propIssue = validatePropValue(
+        descriptor,
+        effectivePropName,
+        value,
+        `${path}.props.${propName}`,
+      );
       if (!propIssue) {
         return;
       }
@@ -432,7 +457,8 @@ export function validateThemeLayoutDocument(
     ));
   }
   const defaultPage = pages.find((page) => page.id === document.defaultPageId);
-  if (defaultPage && document.layout?.id !== defaultPage.layout.id) {
+  const documentLayout = (document as Partial<ThemeLayoutDocument>).layout;
+  if (defaultPage && documentLayout?.id !== defaultPage.layout.id) {
     errors.push(issue(
       'error',
       'layout',
@@ -450,10 +476,11 @@ export function validateThemeLayoutDocument(
   );
   const seenIds = new Set<string>();
   pages.forEach((page, pageIndex) => {
+    const pageLayout = (page as { layout?: ThemeLayoutNode }).layout;
     if (!isNonEmptyString(page.id)) {
       errors.push(issue('error', `pages[${pageIndex}].id`, 'missing_page_id', 'Page id is required'));
     }
-    if (page.layout?.alias !== 'core.screen') {
+    if (pageLayout?.alias !== 'core.screen') {
       errors.push(issue(
         'error',
         `pages[${pageIndex}].layout.alias`,
@@ -461,10 +488,10 @@ export function validateThemeLayoutDocument(
         'Page root must be core.screen',
       ));
     }
-    if (page.layout) {
+    if (pageLayout) {
       validateNode(
         document,
-        page.layout,
+        pageLayout,
         `pages[${pageIndex}].layout`,
         aliases,
         pageIds,

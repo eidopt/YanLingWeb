@@ -32,9 +32,11 @@ export function useEditorKeyboardShortcuts({
 
     function handleKeyDown(e: KeyboardEvent) {
       // Don't intercept when typing in inputs
-      const tag = (e.target as HTMLElement)?.tagName;
+      if (!(e.target instanceof HTMLElement)) {return;}
+      const target = e.target;
+      const tag = target.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {return;}
-      if ((e.target as HTMLElement)?.isContentEditable) {return;}
+      if (target.isContentEditable) {return;}
 
       switch (e.key) {
         case 'Delete':

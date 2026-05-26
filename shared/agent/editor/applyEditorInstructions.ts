@@ -3,8 +3,11 @@ import type {
   LayoutNodeLayout,
   ThemeComponentDescriptor,
   ThemeLayoutDocument,
+  ThemeLayoutNavigateAction,
   ThemeLayoutNode,
   ThemeLayoutNodeInteractions,
+  ThemeLayoutPage,
+  ThemeLayoutTabInteraction,
 } from '../types';
 import { validateThemeLayoutDocument } from '../validation/themeLayoutValidator';
 
@@ -18,6 +21,22 @@ export type EditorAiEditInstruction =
       layout?: Partial<LayoutNodeLayout>;
       select?: boolean;
       activate?: boolean;
+    } & EditorAiInstructionTarget)
+  | ({
+      type: 'create_page_from_reference';
+      pageId: string;
+      name: string;
+      referencePageId: string;
+      rootNodeId?: string;
+      rootProps?: Record<string, unknown>;
+      referenceNodeUpdates?: {
+        referenceNodeId: string;
+        props: Record<string, unknown>;
+      }[];
+      omitReferenceNodeIds?: string[];
+      select?: boolean;
+      activate?: boolean;
+      syncNavigation?: boolean;
     } & EditorAiInstructionTarget)
   | ({
       type: 'delete_page';
@@ -183,6 +202,17 @@ const GENERIC_NODE_ID_TOKENS = new Set([
   'screen',
   'section',
   'wrapper',
+]);
+const CORE_IMAGE_PROP_FALLBACKS = new Map([
+  ['src', 'string'],
+  ['alt', 'string'],
+  ['title', 'string'],
+  ['iconColor', 'string'],
+  ['objectFit', 'string'],
+]);
+const CORE_PROP_ALIASES = new Map([
+  ['core.button:text', 'label'],
+  ['core.notice:variant', 'tone'],
 ]);
 const MIN_NODE_ID_MATCH_SCORE = 0.6;
 const MIN_NODE_ID_MATCH_GAP = 0.15;
@@ -583,7 +613,13 @@ function coercePropValue(
   name: string,
   value: unknown,
 ): { error?: string; value?: unknown } {
-  const prop = descriptor.props.find((item) => item.name === name);
+  const fallbackType =
+    descriptor.alias === 'core.image'
+      ? CORE_IMAGE_PROP_FALLBACKS.get(name)
+      : undefined;
+  const prop = descriptor.props.find((item) => item.name === name) ?? (
+    fallbackType ? { name, type: fallbackType } : undefined
+  );
   if (!prop) {
     return { error: `Property "${name}" is not valid for ${descriptor.alias}` };
   }
@@ -622,12 +658,16 @@ function coerceProps(descriptor: ThemeComponentDescriptor, props: Record<string,
   const nextProps: Record<string, unknown> = {};
   const errors: string[] = [];
   Object.entries(props ?? {}).forEach(([name, value]) => {
-    const result = coercePropValue(descriptor, name, value);
+    const effectiveName = CORE_PROP_ALIASES.get(`${descriptor.alias}:${name}`) ?? name;
+    if (effectiveName !== name && nextProps[effectiveName] !== undefined) {
+      return;
+    }
+    const result = coercePropValue(descriptor, effectiveName, value);
     if (result.error) {
       errors.push(result.error);
       return;
     }
-    nextProps[name] = result.value;
+    nextProps[effectiveName] = result.value;
   });
   return { errors, props: nextProps };
 }
@@ -682,9 +722,148 @@ function buildNode(
 }
 
 function resolveTargetPage(document: ThemeLayoutDocument, pageId?: string) {
+  const fallbackPage = document.pages[0] as ThemeLayoutPage | undefined;
   return pageId
     ? document.pages.find((page) => page.id === pageId) ?? null
-    : document.pages.find((page) => page.id === document.defaultPageId) ?? document.pages[0] ?? null;
+    : document.pages.find((page) => page.id === document.defaultPageId) ?? fallbackPage ?? null;
+}
+
+function slugNodeId(value: string): string {
+  const slug = value
+    .trim()
+    .replace(/[^A-Za-z0-9_.:-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return slug || 'node';
+}
+
+function collectDocumentNodeIds(document: ThemeLayoutDocument): Set<string> {
+  const ids = new Set<string>();
+  const walk = (node: ThemeLayoutNode) => {
+    ids.add(node.id);
+    node.children?.forEach(walk);
+  };
+  document.pages.forEach((page) => walk(page.layout));
+  return ids;
+}
+
+function uniqueNodeId(baseId: string, usedIds: Set<string>): string {
+  let candidate = baseId;
+  let suffix = 2;
+  while (usedIds.has(candidate)) {
+    candidate = `${baseId}-${String(suffix)}`;
+    suffix += 1;
+  }
+  usedIds.add(candidate);
+  return candidate;
+}
+
+function remapReferenceNodeId(
+  referenceNodeId: string,
+  referencePageId: string,
+  pageId: string,
+): string {
+  if (referenceNodeId === `${referencePageId}-screen`) {
+    return `${pageId}-screen`;
+  }
+  if (referenceNodeId.startsWith(`${referencePageId}-`)) {
+    return `${pageId}-${referenceNodeId.slice(referencePageId.length + 1)}`;
+  }
+  return `${pageId}-${slugNodeId(referenceNodeId)}`;
+}
+
+function rewriteNavigateActionTarget(
+  action: ThemeLayoutNavigateAction | undefined,
+  referencePageId: string,
+  pageId: string,
+): ThemeLayoutNavigateAction | undefined {
+  if (!action) {
+    return undefined;
+  }
+  return action.targetPageId === referencePageId
+    ? { ...action, targetPageId: pageId }
+    : action;
+}
+
+function isNavigateAction(
+  interaction: ThemeLayoutTabInteraction,
+): interaction is ThemeLayoutNavigateAction {
+  return 'type' in interaction && interaction.type === 'navigate';
+}
+
+function rewriteTabInteractionTargets(
+  interaction: ThemeLayoutTabInteraction | undefined,
+  referencePageId: string,
+  pageId: string,
+): ThemeLayoutTabInteraction | undefined {
+  if (!interaction) {
+    return undefined;
+  }
+  if (isNavigateAction(interaction)) {
+    return rewriteNavigateActionTarget(interaction, referencePageId, pageId);
+  }
+  return Object.fromEntries(
+    Object.entries(interaction).map(([label, action]) => [
+      label,
+      rewriteNavigateActionTarget(action, referencePageId, pageId) ?? action,
+    ]),
+  );
+}
+
+function rewriteInteractionTargets(
+  interactions: ThemeLayoutNodeInteractions | undefined,
+  referencePageId: string,
+  pageId: string,
+): ThemeLayoutNodeInteractions | undefined {
+  if (!interactions) {
+    return undefined;
+  }
+  return {
+    ...interactions,
+    onClick: rewriteNavigateActionTarget(interactions.onClick, referencePageId, pageId),
+    onActionClick: rewriteNavigateActionTarget(interactions.onActionClick, referencePageId, pageId),
+    onStatusClick: rewriteNavigateActionTarget(interactions.onStatusClick, referencePageId, pageId),
+    onTabClick: rewriteTabInteractionTargets(interactions.onTabClick, referencePageId, pageId),
+  };
+}
+
+function cloneReferenceNode(
+  node: ThemeLayoutNode,
+  options: {
+    idMap: Map<string, string>;
+    omitIds: Set<string>;
+    pageId: string;
+    referencePageId: string;
+    rootNodeId: string;
+    usedIds: Set<string>;
+    isRoot?: boolean;
+  },
+): ThemeLayoutNode | null {
+  if (!options.isRoot && options.omitIds.has(node.id)) {
+    return null;
+  }
+  const nextId = uniqueNodeId(
+    options.isRoot
+      ? options.rootNodeId
+      : remapReferenceNodeId(node.id, options.referencePageId, options.pageId),
+    options.usedIds,
+  );
+  options.idMap.set(node.id, nextId);
+  const cloned: ThemeLayoutNode = {
+    ...structuredClone(node),
+    id: nextId,
+    interactions: rewriteInteractionTargets(
+      node.interactions,
+      options.referencePageId,
+      options.pageId,
+    ),
+  };
+  cloned.children = (node.children ?? [])
+    .map((child) => cloneReferenceNode(child, { ...options, isRoot: false }))
+    .filter((child): child is ThemeLayoutNode => Boolean(child));
+  if (!cloned.children.length && !CONTAINER_ALIASES.has(cloned.alias)) {
+    delete cloned.children;
+  }
+  return cloned;
 }
 
 function applyCreatePage(
@@ -717,6 +896,105 @@ function applyCreatePage(
   return {
     document,
     message: `Created page ${name}`,
+    selectedNodeId: instruction.select === false ? undefined : root.id,
+  };
+}
+
+function applyCreatePageFromReference(
+  document: ThemeLayoutDocument,
+  instruction: Extract<EditorAiEditInstruction, { type: 'create_page_from_reference' }>,
+): ApplyOneResult {
+  if (document.pages.some((page) => page.id === instruction.pageId)) {
+    return { document, error: `Page id already exists: ${instruction.pageId}` };
+  }
+  const referencePage = document.pages.find((page) => page.id === instruction.referencePageId);
+  if (!referencePage) {
+    return { document, error: `Reference page not found: ${instruction.referencePageId}` };
+  }
+
+  const name = instruction.name.trim() || instruction.pageId;
+  const requestedRootNodeId = instruction.rootNodeId?.trim();
+  const rootNodeId =
+    requestedRootNodeId === undefined || requestedRootNodeId.length === 0
+      ? `${instruction.pageId}-screen`
+      : requestedRootNodeId;
+  if (
+    instruction.referenceNodeUpdates !== undefined &&
+    !Array.isArray(instruction.referenceNodeUpdates)
+  ) {
+    return { document, error: 'referenceNodeUpdates must be an array' };
+  }
+  if (
+    instruction.omitReferenceNodeIds !== undefined &&
+    !Array.isArray(instruction.omitReferenceNodeIds)
+  ) {
+    return { document, error: 'omitReferenceNodeIds must be an array' };
+  }
+  const idMap = new Map<string, string>();
+  const usedIds = collectDocumentNodeIds(document);
+  const omitIds = new Set(
+    (instruction.omitReferenceNodeIds ?? [])
+      .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+      .map((value) => value.trim()),
+  );
+  const root = cloneReferenceNode(referencePage.layout, {
+    idMap,
+    omitIds,
+    pageId: instruction.pageId,
+    referencePageId: referencePage.id,
+    rootNodeId,
+    usedIds,
+    isRoot: true,
+  });
+  if (!root) {
+    return { document, error: `Failed to clone reference page: ${referencePage.id}` };
+  }
+
+  const rootDescriptor = descriptorForAlias(document, root.alias);
+  if (!rootDescriptor) {
+    return { document, error: `Unknown component alias: ${root.alias}` };
+  }
+  const rootProps = coerceProps(rootDescriptor, {
+    ...(instruction.rootProps ?? {}),
+    title: stringifyPrimitive(instruction.rootProps?.title) || name,
+  });
+  if (rootProps.errors.length > 0) {
+    return { document, error: rootProps.errors.join('; ') };
+  }
+  root.props = { ...(root.props ?? {}), ...rootProps.props };
+
+  for (const update of instruction.referenceNodeUpdates ?? []) {
+    const targetNodeId = idMap.get(update.referenceNodeId);
+    if (!targetNodeId) {
+      return { document, error: `Reference node was not cloned: ${update.referenceNodeId}` };
+    }
+    const target = findNode(root, targetNodeId);
+    if (!target) {
+      return { document, error: `Cloned node not found: ${targetNodeId}` };
+    }
+    const descriptor = descriptorForAlias(document, target.alias);
+    if (!descriptor) {
+      return { document, error: `Unknown component alias: ${target.alias}` };
+    }
+    const coerced = coerceProps(descriptor, update.props);
+    if (coerced.errors.length > 0) {
+      return { document, error: coerced.errors.join('; ') };
+    }
+    target.props = { ...(target.props ?? {}), ...coerced.props };
+  }
+
+  normalizeChildOrder(root);
+  document.pages.push({ id: instruction.pageId, name, layout: root });
+  if (instruction.activate !== false) {
+    document.defaultPageId = instruction.pageId;
+  }
+  if (instruction.syncNavigation !== false) {
+    syncPageNavigation(document);
+  }
+  syncRootLayout(document);
+  return {
+    document,
+    message: `Created page ${name} from ${referencePage.name || referencePage.id}`,
     selectedNodeId: instruction.select === false ? undefined : root.id,
   };
 }
@@ -804,6 +1082,9 @@ function applyOneInstruction(
   if (instruction.type === 'create_page') {
     return applyCreatePage(document, instruction);
   }
+  if (instruction.type === 'create_page_from_reference') {
+    return applyCreatePageFromReference(document, instruction);
+  }
   if (instruction.type === 'delete_page') {
     return applyDeletePage(document, instruction);
   }
@@ -822,7 +1103,11 @@ function applyOneInstruction(
     // semanticTarget as parentId takes priority over root default
     let effectiveParentId = instruction.parentId;
     if (!effectiveParentId && instruction.semanticTarget && options?.resolveSemanticTarget) {
-      const semResult = options.resolveSemanticTarget(document, instruction.semanticTarget, options?.selectedNodeId);
+      const semResult = options.resolveSemanticTarget(
+        document,
+        instruction.semanticTarget,
+        options.selectedNodeId,
+      );
       if (semResult) {
         effectiveParentId = semResult.nodeId;
       }
@@ -879,7 +1164,10 @@ function applyOneInstruction(
       if (index >= 0) {
         parent.children.splice(instruction.position === 'before' ? index : index + 1, 0, built.node);
       } else {
-        return { document, error: `Resolved targetId ${targetId} not found among children of ${parentResolution.resolvedId}` };
+        return {
+          document,
+          error: `Resolved targetId ${targetId} not found among children of ${parentResolution.resolvedId}`,
+        };
       }
     } else {
       parent.children.push(built.node);
@@ -911,7 +1199,7 @@ function applyOneInstruction(
   const target = nodeResolution.node;
 
   if (instruction.type === 'update_props') {
-    if (!instruction.props || Object.keys(instruction.props).length === 0) {
+    if (Object.keys(instruction.props).length === 0) {
       return { document, error: 'update_props requires at least one prop to update' };
     }
     const descriptor = descriptorForAlias(document, target.alias);

@@ -43,7 +43,6 @@
     "openai": "^6.35.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "sql.js": "^1.14.1",
     "typeorm": "^0.3.20",
     "uuid": "^11.0.5"
   },
@@ -54,7 +53,6 @@
     "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.7",
-    "@types/sql.js": "^1.4.9",
     "@types/uuid": "^10.0.0",
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",

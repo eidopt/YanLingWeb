@@ -13,8 +13,13 @@ interface ScreenNodeProps extends CoreNodeProps {
 }
 
 export function ScreenNode({ runtime, props, children, nodeLayoutStyle }: ScreenNodeProps) {
-  const screenPreset = props.__screenPreset === 'desktop' ? 'desktop' : 'mobile';
+  const screenPreset = props.__screenPreset === 'desktop'
+    ? 'desktop'
+    : props.__screenPreset === 'tablet'
+      ? 'tablet'
+      : 'mobile';
   const isMobileScreen = screenPreset === 'mobile';
+  const isTabletScreen = screenPreset === 'tablet';
   const footerChildren: ReactNode[] = [];
   const bodyChildren: { child: ReactNode; row: number }[] = [];
   const childRows = Array.isArray(props.__childFlowRows)
@@ -48,7 +53,9 @@ export function ScreenNode({ runtime, props, children, nodeLayoutStyle }: Screen
     <section
       className={cx(
         styles.screen,
-        isMobileScreen ? styles.screenMobile : styles.screenDesktop,
+        isMobileScreen && styles.screenMobile,
+        isTabletScreen && styles.screenTablet,
+        screenPreset === 'desktop' && styles.screenDesktop,
       )}
       style={{
         ...(runtime.cssVars as CSSProperties),
@@ -57,11 +64,19 @@ export function ScreenNode({ runtime, props, children, nodeLayoutStyle }: Screen
         maxWidth: isMobileScreen ? undefined : '100%',
         height: isMobileScreen
           ? 'var(--screen-height, var(--app-unit-80))'
-          : 'var(--screen-height-desktop, var(--app-unit-112))',
+          : isTabletScreen
+            ? 'var(--screen-height-tablet, calc(var(--app-base-unit) * 128))'
+            : 'var(--screen-height-desktop, var(--app-unit-112))',
         maxHeight: isMobileScreen
           ? 'var(--screen-height, var(--app-unit-80))'
-          : 'var(--screen-height-desktop, var(--app-unit-112))',
-        minHeight: isMobileScreen ? undefined : 'var(--screen-height-desktop, var(--app-unit-112))',
+          : isTabletScreen
+            ? 'var(--screen-height-tablet, calc(var(--app-base-unit) * 128))'
+            : 'var(--screen-height-desktop, var(--app-unit-112))',
+        minHeight: isMobileScreen
+          ? undefined
+          : isTabletScreen
+            ? 'var(--screen-height-tablet, calc(var(--app-base-unit) * 128))'
+            : 'var(--screen-height-desktop, var(--app-unit-112))',
         borderRadius: isMobileScreen ? undefined : 'var(--radius-screen, var(--app-radius-3xl))',
       }}
     >

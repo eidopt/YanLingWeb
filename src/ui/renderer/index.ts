@@ -3,6 +3,12 @@ export {
   useDynamicThemeRendererController,
 } from './controller';
 export { DynamicThemeRenderer } from './DynamicThemeRenderer';
+export type { PreviewScreenPresetOption } from './screenPresets';
+export {
+  getDefaultPreviewScreenPreset,
+  getPreviewScreenPresetOptions,
+  isPreviewScreenPresetAllowed,
+} from './screenPresets';
 export {
   createDynamicThemeRendererState,
   useDynamicThemeRendererState,

@@ -30,6 +30,22 @@ export function MobileIcon() {
   );
 }
 
+export function TabletIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect
+        x="5" y="2.5" width="14" height="19" rx="2.6"
+        fill="none" stroke="currentColor" strokeWidth="1.8"
+      />
+      <path
+        d="M10 5.5h4M11.25 18.5h1.5"
+        fill="none" stroke="currentColor"
+        strokeWidth="1.8" strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 export function EditIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">

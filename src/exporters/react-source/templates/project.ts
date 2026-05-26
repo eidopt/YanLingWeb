@@ -306,6 +306,10 @@ input {
 
 .core-button,
 .core-tabs button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   border: 0;
   border-radius: 999px;
   padding: 8px 12px;
@@ -315,10 +319,27 @@ input {
   font-weight: 700;
 }
 
+.core-button:disabled {
+  cursor: default;
+  opacity: 0.48;
+}
+
 .core-button[data-variant="pill"],
 .core-tabs button {
   color: color-mix(in srgb, var(--export-accent, #2563eb) 70%, black);
   background: color-mix(in srgb, var(--export-accent, #2563eb) 10%, white);
+}
+
+.core-button[data-variant="secondary"] {
+  color: var(--export-accent, #2563eb);
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--export-accent, #2563eb) 22%, transparent);
+}
+
+.core-button[data-variant="link"] {
+  padding: 0;
+  color: var(--export-accent, #2563eb);
+  background: transparent;
 }
 
 .core-button[data-active="true"],
@@ -334,6 +355,20 @@ input {
   border-radius: calc(var(--export-radius-base, 8px) * 1.1);
   border: 0;
   background: rgba(28, 17, 7, 0.08);
+}
+
+img.core-image {
+  display: block;
+  object-fit: cover;
+  width: 100%;
+}
+
+img.core-image[data-fit="contain"] {
+  object-fit: contain;
+}
+
+img.core-image[data-fit="fill"] {
+  object-fit: fill;
 }
 
 .core-tabs {
@@ -361,6 +396,24 @@ input {
   box-shadow: inset 0 0 0 1px rgba(28, 17, 7, 0.06);
 }
 
+.core-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.core-input-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--export-text-base, #101828) 68%, white);
+}
+
+.core-search:disabled,
+.core-input:disabled {
+  opacity: 0.48;
+}
+
 .core-tag,
 .core-notice {
   display: inline-flex;
@@ -368,6 +421,52 @@ input {
   padding: 6px 10px;
   background: color-mix(in srgb, var(--export-accent, #2563eb) 15%, white);
   color: color-mix(in srgb, var(--export-accent, #2563eb) 70%, black);
+}
+
+.core-notice[data-tone="success"] {
+  background: color-mix(in srgb, #16a34a 16%, white);
+  color: color-mix(in srgb, #166534 82%, black);
+}
+
+.core-notice[data-tone="warning"] {
+  background: color-mix(in srgb, #f97316 16%, white);
+  color: color-mix(in srgb, #9a3412 82%, black);
+}
+
+.core-notice[data-tone="error"] {
+  background: color-mix(in srgb, #dc2626 14%, white);
+  color: color-mix(in srgb, #991b1b 82%, black);
+}
+
+.core-progress {
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--export-text-base, #101828) 10%, transparent);
+}
+
+.core-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--export-accent, #2563eb);
+}
+
+.core-progress[data-tone="neutral"] span {
+  background: color-mix(in srgb, var(--export-text-base, #101828) 42%, white);
+}
+
+.core-progress[data-tone="success"] span {
+  background: #16a34a;
+}
+
+.core-progress[data-tone="warning"] span {
+  background: #f97316;
+}
+
+.core-progress[data-tone="info"] span {
+  background: #0ea5e9;
 }
 
 .core-divider {

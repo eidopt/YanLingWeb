@@ -96,6 +96,10 @@ function tokenCountWithEstimation(messages: readonly ProviderMessage[]): number 
   return Math.ceil(total * (4 / 3));
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
 function truncateToolResult(content: string, toolName: string): string {
   if (content.length <= 340) {
     return content;
@@ -157,7 +161,10 @@ function compactConversation(messages: ProviderMessage[]): ProviderMessage[] {
   const summary = old
     .filter((m) => typeof m.content === 'string' && (m.role === 'user' || m.role === 'tool_result'))
     .slice(-12)
-    .map((m) => `- ${m.role}: ${String(m.content).slice(0, 180)}`)
+    .map((m) => {
+      const content = typeof m.content === 'string' ? m.content : '';
+      return `- ${m.role}: ${content.slice(0, 180)}`;
+    })
     .join('\n') || 'Prior work recorded.';
   return [
     ...system,
@@ -235,7 +242,7 @@ async function executeToolCalls(
 
   const results: { call: PendingToolCall; result: ToolResult }[] = [];
   for (const call of pendingCalls) {
-    if (cfg.isCancelled()) break;
+    if (cfg.isCancelled()) {break;}
     results.push(await executeToolCall(call, cfg));
   }
   return results;
@@ -289,7 +296,7 @@ export class QueryLoop {
 
       try {
         for await (const event of this.streamWithRetry(request)) {
-          if (this.cfg.isCancelled()) break;
+          if (this.cfg.isCancelled()) {break;}
           switch (event.type) {
             case 'text_delta':
               hasText = true;
@@ -304,10 +311,10 @@ export class QueryLoop {
               isPTL = isPTLError(event.message);
               break;
             case 'done':
-              if (event.stopReason) stopReason = event.stopReason;
-              if (event.response_id) lastResponseId = event.response_id;
-              if (event.reasoningContent) reasoningContent = event.reasoningContent;
-              if (event.usage) await this.cfg.onUsage?.(event.usage, request);
+              if (event.stopReason) {stopReason = event.stopReason;}
+              if (event.response_id) {lastResponseId = event.response_id;}
+              if (event.reasoningContent) {reasoningContent = event.reasoningContent;}
+              if (event.usage) {await this.cfg.onUsage?.(event.usage, request);}
               break;
           }
         }
@@ -316,7 +323,7 @@ export class QueryLoop {
         isPTL = isPTLError(apiError);
       }
 
-      if (this.cfg.isCancelled()) break;
+      if (this.cfg.isCancelled()) {break;}
 
       if (
         stopReason === 'max_tokens'
@@ -400,7 +407,7 @@ export class QueryLoop {
       continuationParts = [];
 
       const toolResults = await executeToolCalls(pendingCalls, this.cfg);
-      if (this.cfg.isCancelled()) break;
+      if (this.cfg.isCancelled()) {break;}
 
       for (const { call, result } of toolResults) {
         current.push({
@@ -463,11 +470,13 @@ export class QueryLoop {
 
     for (const tr of toolResults) {
       try {
-        const parsed = JSON.parse(tr.result.output);
-        if (typeof parsed === 'object' && parsed !== null) {
+        const parsed: unknown = JSON.parse(tr.result.output);
+        if (isRecord(parsed)) {
           if ('failedId' in parsed && 'candidates' in parsed) {
             hasNodeNotFound = true;
-            if (typeof parsed.failedId === 'string') failedIdsThisRound.push(parsed.failedId);
+            if (typeof parsed.failedId === 'string') {
+              failedIdsThisRound.push(parsed.failedId);
+            }
           } else if (
             typeof parsed.error === 'string' &&
             (parsed.error.includes('Node not found') || parsed.error.includes('AI referenced unknown'))
@@ -477,12 +486,12 @@ export class QueryLoop {
 
           if (Array.isArray(parsed.errors)) {
             for (const err of parsed.errors) {
-              if (typeof err !== 'string') continue;
+              if (typeof err !== 'string') {continue;}
               try {
-                const match = err.match(/\{.*\}/);
+                const match = /\{.*\}/.exec(err);
                 if (match) {
-                  const inner = JSON.parse(match[0]);
-                  if (typeof inner === 'object' && inner !== null && typeof inner.failedId === 'string') {
+                  const inner: unknown = JSON.parse(match[0]);
+                  if (isRecord(inner) && typeof inner.failedId === 'string') {
                     hasNodeNotFound = true;
                     failedIdsThisRound.push(inner.failedId);
                   }
@@ -514,9 +523,14 @@ export class QueryLoop {
     }
 
     if (this.consecutiveNodeNotFoundErrors >= 2 && this.nodeNotFoundIds.length > 0) {
+      const failedIds = [...new Set(this.nodeNotFoundIds)].join(', ');
       messages.push({
         role: 'user',
-        content: `[系统提示] 以下节点ID连续失败: ${[...new Set(this.nodeNotFoundIds)].join(', ')}。请使用当前页面中存在的精确节点ID，或检查上一条工具返回结果中的 candidates 列表来选取匹配节点。如果仍不确定目标节点，请请求用户确认。`,
+        content: [
+          `[系统提示] 以下节点ID连续失败: ${failedIds}。`,
+          '请使用当前页面中存在的精确节点ID，或检查上一条工具返回结果中的 candidates 列表来选取匹配节点。',
+          '如果仍不确定目标节点，请请求用户确认。',
+        ].join(''),
       });
       this.consecutiveNodeNotFoundErrors = 0;
       this.nodeNotFoundIds = [];
@@ -536,7 +550,7 @@ export class QueryLoop {
     let lastError: Error | null = null;
 
     for (let attempt = 0; attempt < MAX_API_RETRIES; attempt++) {
-      if (this.cfg.isCancelled()) return;
+      if (this.cfg.isCancelled()) {return;}
       try {
         for await (const event of this.cfg.provider.stream(request)) {
           yield event;
@@ -549,12 +563,12 @@ export class QueryLoop {
           || msg.includes('500') || msg.includes('503')
           || msg.includes('timeout') || msg.includes('network');
 
-        if (!retryable || attempt === MAX_API_RETRIES - 1) throw lastError;
+        if (!retryable || attempt === MAX_API_RETRIES - 1) {throw lastError;}
         await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, attempt)));
       }
     }
 
-    if (lastError) throw lastError;
+    if (lastError) {throw lastError;}
   }
 }
 

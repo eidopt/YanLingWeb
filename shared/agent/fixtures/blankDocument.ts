@@ -89,8 +89,10 @@ export const CORE_COMPONENTS: ThemeComponentDescriptor[] = [
     description: 'Action button',
     props: [
       { name: 'label', type: 'string' },
-      { name: 'variant', type: 'string', enum: ['primary', 'secondary', 'link'] },
+      { name: 'variant', type: 'string', enum: ['primary', 'secondary', 'link', 'pill'] },
+      { name: 'active', type: 'boolean' },
       { name: 'disabled', type: 'boolean' },
+      { name: 'icon', type: 'string' },
     ],
   },
   {
@@ -141,7 +143,7 @@ export const CORE_COMPONENTS: ThemeComponentDescriptor[] = [
     description: 'Notice banner',
     props: [
       { name: 'text', type: 'string' },
-      { name: 'tone', type: 'string' },
+      { name: 'tone', type: 'string', enum: ['info', 'warning', 'error', 'success', 'neutral'] },
     ],
   },
   {
@@ -150,8 +152,11 @@ export const CORE_COMPONENTS: ThemeComponentDescriptor[] = [
     kind: 'component',
     description: 'Image placeholder',
     props: [
+      { name: 'src', type: 'string' },
       { name: 'alt', type: 'string' },
       { name: 'title', type: 'string' },
+      { name: 'iconColor', type: 'string' },
+      { name: 'objectFit', type: 'string', enum: ['cover', 'contain', 'fill'] },
     ],
   },
   {
@@ -197,6 +202,9 @@ export const CORE_COMPONENTS: ThemeComponentDescriptor[] = [
     props: [
       { name: 'placeholder', type: 'string' },
       { name: 'label', type: 'string' },
+      { name: 'type', type: 'string' },
+      { name: 'value', type: 'string' },
+      { name: 'disabled', type: 'boolean' },
     ],
   },
 ];

@@ -28,7 +28,14 @@ function propString(value: unknown, fallback = ''): string {
 }
 
 function propNumber(value: unknown, fallback: number): number {
-  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === 'string' && value.trim()) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  }
+  return fallback;
 }
 
 function propStringArray(value: unknown): string[] {
@@ -41,8 +48,16 @@ function attrs(attributes: (string | null | undefined)[]): string {
   return attributes.filter(Boolean).join(' ');
 }
 
-function styleAttr(node: ThemeLayoutNode): string | null {
+function styleAttr(
+  node: ThemeLayoutNode,
+  extraStyle: Record<string, string | number | undefined> = {},
+): string | null {
   const style = compileLayoutStyle(node.layout, node.frame);
+  Object.entries(extraStyle).forEach(([key, value]) => {
+    if (value !== undefined) {
+      style[key] = value;
+    }
+  });
   return Object.keys(style).length ? `style={${toObjectLiteral(style)}}` : null;
 }
 
@@ -71,6 +86,25 @@ function tabNavigateTarget(
   return typeof action?.targetPageId === 'string' ? action.targetPageId : null;
 }
 
+function clampPercent(value: number, max: number): number {
+  if (!Number.isFinite(value) || !Number.isFinite(max) || max <= 0) {
+    return 0;
+  }
+  return Math.min(100, Math.max(0, (value / max) * 100));
+}
+
+function spacerHeight(value: unknown): string {
+  const size = propString(value, 'md');
+  const sizeMap: Record<string, string> = {
+    xs: '4px',
+    sm: '8px',
+    md: '12px',
+    lg: '16px',
+    xl: '24px',
+  };
+  return sizeMap[size] ?? size;
+}
+
 function wrap(
   tag: string,
   className: string,
@@ -78,10 +112,11 @@ function wrap(
   children: string,
   context: CompileNodeContext,
   extraAttrs: (string | null)[] = [],
+  extraStyle: Record<string, string | number | undefined> = {},
 ): string {
   const open = attrs([
     `className="${className}"`,
-    styleAttr(node),
+    styleAttr(node, extraStyle),
     navigateAttr(node.interactions?.onClick),
     ...extraAttrs,
   ]);
@@ -200,22 +235,41 @@ function compileNodeInternal(
       };
       }
     case 'core.panel':
+      return {
+        ...nextContext,
+        code: wrap('div', className, node, children, context, [
+          `data-tone=${JSON.stringify(propString(props.tone, 'default'))}`,
+        ], {
+          gap: `${propNumber(props.gap, 12)}px`,
+        }),
+      };
     case 'core.stack':
+      return {
+        ...nextContext,
+        code: wrap('div', className, node, children, context, [], {
+          gap: `${propNumber(props.gap, 12)}px`,
+          alignItems: propString(props.alignItems) || undefined,
+        }),
+      };
     case 'core.row':
       return {
         ...nextContext,
         code: wrap('div', className, node, children, context, [
           `data-tone=${JSON.stringify(propString(props.tone, 'default'))}`,
-          `data-gap={${JSON.stringify(propNumber(props.gap, 12))}}`,
-        ]),
+        ], {
+          gap: `${propNumber(props.gap, 12)}px`,
+          flexWrap: props.wrap ? 'wrap' : 'nowrap',
+          justifyContent: propString(props.justify) || undefined,
+          alignItems: propString(props.align) || undefined,
+        }),
       };
     case 'core.grid':
       return {
         ...nextContext,
-        code: wrap('div', className, node, children, context, [
-          `data-columns={${JSON.stringify(propNumber(props.columns, 2))}}`,
-          `data-gap={${JSON.stringify(propNumber(props.gap, 12))}}`,
-        ]),
+        code: wrap('div', className, node, children, context, [], {
+          gap: `${propNumber(props.gap, 12)}px`,
+          gridTemplateColumns: `repeat(${propNumber(props.columns, 2)}, minmax(0, 1fr))`,
+        }),
       };
     case 'core.text': {
       const variant = propString(props.variant, 'body');
@@ -231,6 +285,8 @@ function compileNodeInternal(
       };
     }
     case 'core.button': {
+      const label = propString(props.label) || propString(props.text, 'Button');
+      const icon = propString(props.icon);
       const buttonAttrs = attrs([
         styleAttr(node),
         navigateAttr(node.interactions?.onClick),
@@ -243,12 +299,29 @@ function compileNodeInternal(
         code: [
           `${indent(context.depth)}<button type="button" className="core-button"`,
           buttonAttrs ? ` ${buttonAttrs}` : '',
-          `>{${JSON.stringify(propString(props.label, 'Button'))}}</button>`,
+          '>',
+          icon ? `<span aria-hidden="true">{${JSON.stringify(icon)}}</span>` : '',
+          `{${JSON.stringify(label)}}</button>`,
         ].join(''),
       };
     }
     case 'core.image': {
       const style = styleAttr(node);
+      const src = propString(props.src);
+      if (src) {
+        return {
+          ...nextContext,
+          code: [
+            `${indent(context.depth)}<img className="core-image"`,
+            ` src=${JSON.stringify(src)}`,
+            ` alt=${JSON.stringify(propString(props.alt))}`,
+            props.title ? ` title=${JSON.stringify(propString(props.title))}` : '',
+            ` data-fit=${JSON.stringify(propString(props.objectFit, 'cover'))}`,
+            style ? ` ${style}` : '',
+            ' />',
+          ].join(''),
+        };
+      }
       return {
         ...nextContext,
         code: [
@@ -276,17 +349,46 @@ function compileNodeInternal(
         code: wrap('nav', 'core-tabs', node, tabButtons, context),
       };
     }
-    case 'core.search':
-    case 'core.input': {
+    case 'core.search': {
       const style = styleAttr(node);
       return {
         ...nextContext,
         code: [
           `${indent(context.depth)}<input className="${className}"`,
           style ? ` ${style}` : '',
+          ' type="search"',
           ` placeholder=${JSON.stringify(propString(props.placeholder))}`,
-          ` aria-label=${JSON.stringify(propString(props.placeholder, 'Input'))} />`,
+          props.value ? ` defaultValue=${JSON.stringify(propString(props.value))}` : '',
+          ` aria-label=${JSON.stringify(propString(props.placeholder, 'Search'))} />`,
         ].join(''),
+      };
+    }
+    case 'core.input': {
+      const label = propString(props.label);
+      const style = styleAttr(node);
+      const input = [
+        `<input className="core-input"`,
+        label ? '' : style ? ` ${style}` : '',
+        ` type=${JSON.stringify(propString(props.type, 'text'))}`,
+        ` placeholder=${JSON.stringify(propString(props.placeholder))}`,
+        props.value ? ` defaultValue=${JSON.stringify(propString(props.value))}` : '',
+        props.disabled ? ' disabled' : '',
+        ` aria-label=${JSON.stringify(propString(props.label) || propString(props.placeholder, 'Input'))} />`,
+      ].join('');
+      if (!label) {
+        return {
+          ...nextContext,
+          code: `${indent(context.depth)}${input}`,
+        };
+      }
+      return {
+        ...nextContext,
+        code: [
+          `${indent(context.depth)}<label className="core-field"${style ? ` ${style}` : ''}>`,
+          `${indent(context.depth + 1)}<span className="core-input-label">{${JSON.stringify(label)}}</span>`,
+          `${indent(context.depth + 1)}${input}`,
+          `${indent(context.depth)}</label>`,
+        ].join('\n'),
       };
     }
     case 'core.tag': {
@@ -303,12 +405,35 @@ function compileNodeInternal(
     }
     case 'core.notice': {
       const style = styleAttr(node);
+      const tone = propString(props.tone) || propString(props.variant, 'info');
       return {
         ...nextContext,
         code: [
           `${indent(context.depth)}<aside className="core-notice"`,
+          ` data-tone=${JSON.stringify(tone)}`,
           style ? ` ${style}` : '',
           `>{${JSON.stringify(propString(props.text))}}</aside>`,
+        ].join(''),
+      };
+    }
+    case 'core.progress': {
+      const value = propNumber(props.value, 0);
+      const max = propNumber(props.max, 100);
+      const percent = clampPercent(value, max);
+      const style = styleAttr(node);
+      return {
+        ...nextContext,
+        code: [
+          `${indent(context.depth)}<div className="core-progress"`,
+          ` data-tone=${JSON.stringify(propString(props.tone, 'accent'))}`,
+          ' role="progressbar"',
+          ' aria-valuemin={0}',
+          ` aria-valuemax={${JSON.stringify(max)}}`,
+          ` aria-valuenow={${JSON.stringify(Math.min(max, Math.max(0, value)))}}`,
+          style ? ` ${style}` : '',
+          '>',
+          `<span style={${toObjectLiteral({ width: `${percent}%` })}} />`,
+          '</div>',
         ].join(''),
       };
     }
@@ -320,7 +445,7 @@ function compileNodeInternal(
       };
     }
     case 'core.spacer': {
-      const style = styleAttr(node);
+      const style = styleAttr(node, { minHeight: spacerHeight(props.size) });
       return {
         ...nextContext,
         code: [

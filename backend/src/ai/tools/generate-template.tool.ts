@@ -32,20 +32,25 @@ The template uses a component tree system. Core layout components:
 - core.text: text
   (props: text, variant: display|heading|subheading|body|caption|price|
    overline|eyebrow|title|subtitle)
-- core.button: button (props: label, variant: primary|secondary|link, disabled)
-- core.image: image placeholder
+- core.button: button (props: label, variant: primary|secondary|link|pill, active, disabled, icon)
+- core.image: image or placeholder (props: src, alt, title, iconColor, objectFit)
 - core.tag: status badge
   (props: label, tone: neutral|success|warning|info|hot|new|deal|member)
 - core.progress: progress bar
   (props: value, max, tone: neutral|accent|success|warning|info)
 - core.divider: horizontal rule
 - core.spacer: blank space (props: size)
-- core.input: text field (props: placeholder, label)
+- core.input: text field (props: placeholder, label, type, value, disabled)
 - core.tabs: tab bar (props: activeTab)
+- core.search: search bar (props: placeholder, value)
+- core.notice: notification banner (props: text, tone)
+- core.html: raw HTML wrapper (props: tag, style). Use only for markup that
+  can't be expressed with other core.* aliases.
 - core.widget: safe third-party ESM widget
   (props: library, renderer, data)
   - Use only when the user request is better solved by a package available
     through esm.sh and a supported renderer.
+  - library: dependency name declared in dependencies.
   - allowed libraries/renderers:
     - echarts + renderer "echarts": data is an ECharts option object
       or { option: {...} }

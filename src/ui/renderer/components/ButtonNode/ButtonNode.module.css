@@ -2,6 +2,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: var(--app-unit-0-75);
   min-height: var(--app-unit-5);
   border: none;
   border-radius: var(--radius-btn, var(--app-radius-pill));
