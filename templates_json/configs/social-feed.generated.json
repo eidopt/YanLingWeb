@@ -1,333 +1,2451 @@
 {
   "templateId": "social-feed",
-  "templateVersion": "1.0.0",
+  "templateVersion": "1",
   "profileVersion": "1.0.0",
   "devices": [
-    "miniapp"
+    "miniapp",
+    "mobile"
   ],
   "pages": [
     {
-      "pageKey": "feed.list",
+      "pageKey": "page-feed",
       "pageId": "page-feed",
-      "pageKind": "feed",
-      "name": "动态列表",
-      "description": "展示朋友圈/动态流",
+      "pageKind": "home",
+      "name": "动态首页",
+      "description": "故事圈和好友动态",
       "rootNodeId": "page-feed-screen",
-      "device": "miniapp",
       "isDefault": true
     },
     {
-      "pageKey": "feed.detail",
+      "pageKey": "page-detail",
       "pageId": "page-detail",
       "pageKind": "detail",
       "name": "动态详情",
-      "description": "展示单条动态详情和评论",
+      "description": "小明",
       "rootNodeId": "page-detail-screen",
-      "device": "miniapp"
+      "isDefault": false
     },
     {
-      "pageKey": "feed.publish",
+      "pageKey": "page-publish",
       "pageId": "page-publish",
-      "pageKind": "form",
+      "pageKind": "unknown",
       "name": "发布动态",
-      "description": "发布新动态的编辑页面",
+      "description": "取消",
       "rootNodeId": "page-publish-screen",
-      "device": "miniapp"
+      "isDefault": false
     },
     {
-      "pageKey": "feed.user",
+      "pageKey": "page-user",
       "pageId": "page-user",
       "pageKind": "profile",
       "name": "用户主页",
-      "description": "展示用户的个人主页和动态",
+      "description": "小明",
       "rootNodeId": "page-user-screen",
-      "device": "miniapp"
+      "isDefault": false
     }
   ],
   "regions": [
     {
-      "regionKey": "feed.list.header",
-      "pageKey": "feed.list",
-      "nodeId": "feed-header",
-      "name": "动态头部",
-      "sectionKind": "header",
+      "regionKey": "page-feed.item",
+      "pageKey": "page-feed",
+      "nodeId": "social-story-row",
+      "name": "我的头像",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-feed.item-2",
+      "pageKey": "page-feed",
+      "nodeId": "social-composer-card",
+      "name": "我的头像",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-feed.item-3",
+      "pageKey": "page-feed",
+      "nodeId": "social-card-feed",
+      "name": "好友头像",
+      "sectionKind": "stack",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-feed.item-4",
+      "pageKey": "page-feed",
+      "nodeId": "social-floating-publish",
+      "name": "发布动态",
+      "sectionKind": "button",
       "replaceable": false
     },
     {
-      "regionKey": "feed.list.content",
-      "pageKey": "feed.list",
-      "nodeId": "feed-list",
-      "name": "动态列表",
-      "sectionKind": "feed",
-      "replaceable": true,
-      "allowedPatternKeys": [
-        "feed.posts"
-      ]
+      "regionKey": "page-detail.item",
+      "pageKey": "page-detail",
+      "nodeId": "page-detail-hero-banner",
+      "name": "动态详情",
+      "sectionKind": "biz-hero-banner",
+      "replaceable": false
     },
     {
-      "regionKey": "feed.detail.post",
-      "pageKey": "feed.detail",
+      "regionKey": "page-detail.item-2",
+      "pageKey": "page-detail",
+      "nodeId": "page-detail-quick-search",
+      "name": "搜索动态",
+      "sectionKind": "search",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-detail.item-3",
+      "pageKey": "page-detail",
       "nodeId": "detail-post",
-      "name": "动态内容",
-      "sectionKind": "content",
-      "replaceable": false
+      "name": "业务视觉元素",
+      "sectionKind": "panel",
+      "replaceable": true
     },
     {
-      "regionKey": "feed.detail.comments",
-      "pageKey": "feed.detail",
+      "regionKey": "page-detail.k-3",
+      "pageKey": "page-detail",
       "nodeId": "comment-section",
-      "name": "评论区",
-      "sectionKind": "comments",
-      "replaceable": true,
-      "allowedPatternKeys": [
-        "feed.comments"
-      ]
+      "name": "评论 (3)",
+      "sectionKind": "panel",
+      "replaceable": true
     },
     {
-      "regionKey": "feed.user.profile",
-      "pageKey": "feed.user",
-      "nodeId": "user-profile",
-      "name": "用户资料",
-      "sectionKind": "profile",
+      "regionKey": "page-detail.item-4",
+      "pageKey": "page-detail",
+      "nodeId": "page-detail-primary-action",
+      "name": "发布动态",
+      "sectionKind": "button",
       "replaceable": false
     },
     {
-      "regionKey": "feed.user.posts",
-      "pageKey": "feed.user",
+      "regionKey": "page-publish.item",
+      "pageKey": "page-publish",
+      "nodeId": "page-publish-hero-banner",
+      "name": "发布动态",
+      "sectionKind": "biz-hero-banner",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-publish.item-2",
+      "pageKey": "page-publish",
+      "nodeId": "page-publish-quick-search",
+      "name": "搜索发布动态",
+      "sectionKind": "search",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-publish.item-3",
+      "pageKey": "page-publish",
+      "nodeId": "pub-header",
+      "name": "取消",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-publish.item-4",
+      "pageKey": "page-publish",
+      "nodeId": "pub-content",
+      "name": "分享你的新鲜事...",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-publish.item-5",
+      "pageKey": "page-publish",
+      "nodeId": "pub-images",
+      "name": "图标",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-publish.item-6",
+      "pageKey": "page-publish",
+      "nodeId": "pub-options",
+      "name": "图标",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-user.item",
+      "pageKey": "page-user",
+      "nodeId": "page-user-hero-banner",
+      "name": "用户主页",
+      "sectionKind": "biz-hero-banner",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-user.item-2",
+      "pageKey": "page-user",
+      "nodeId": "user-cover",
+      "name": "业务视觉元素",
+      "sectionKind": "image",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-user.item-3",
+      "pageKey": "page-user",
+      "nodeId": "user-profile",
+      "name": "业务视觉元素",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-user.item-4",
+      "pageKey": "page-user",
       "nodeId": "user-posts",
-      "name": "用户动态",
-      "sectionKind": "feed",
-      "replaceable": true,
-      "allowedPatternKeys": [
-        "feed.userPosts"
-      ]
+      "name": "好友动态",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-user.item-5",
+      "pageKey": "page-user",
+      "nodeId": "page-user-primary-action",
+      "name": "发布动态",
+      "sectionKind": "button",
+      "replaceable": false
     }
   ],
   "slots": [
     {
-      "slotKey": "feed.list.header.title",
-      "pageKey": "feed.list",
-      "regionKey": "feed.list.header",
-      "nodeId": "feed-title",
-      "component": "core.text",
+      "slotKey": "page-feed.page-feed-screen.screen",
+      "pageKey": "page-feed",
+      "nodeId": "page-feed-screen",
+      "component": "core.screen",
       "editableProps": [
-        "text"
+        "title",
+        "statusTime",
+        "headerActionLabel"
       ],
-      "aiRole": "title",
-      "label": "页面标题"
+      "label": "动态首页"
     },
     {
-      "slotKey": "feed.post.avatar",
-      "pageKey": "feed.list",
-      "regionKey": "feed.list.content",
-      "nodeId": "p1-avatar",
+      "slotKey": "page-feed.social-story-row.row",
+      "pageKey": "page-feed",
+      "regionKey": "page-feed.item",
+      "nodeId": "social-story-row",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "我的头像"
+    },
+    {
+      "slotKey": "page-feed.social-story-0.stack",
+      "pageKey": "page-feed",
+      "regionKey": "page-feed.item",
+      "nodeId": "social-story-0",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "我的头像"
+    },
+    {
+      "slotKey": "page-feed.social-story-ring-0.panel",
+      "pageKey": "page-feed",
+      "nodeId": "social-story-ring-0",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "我的头像"
+    },
+    {
+      "slotKey": "page-feed.social-story-img-0.image",
+      "pageKey": "page-feed",
+      "nodeId": "social-story-img-0",
       "component": "core.image",
       "editableProps": [
-        "src"
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
       ],
-      "aiRole": "avatar",
-      "label": "用户头像"
+      "label": "我的头像"
     },
     {
-      "slotKey": "feed.post.username",
-      "pageKey": "feed.list",
-      "regionKey": "feed.list.content",
-      "nodeId": "p1-name",
+      "slotKey": "page-feed.social-story-name-0.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-story-name-0",
       "component": "core.text",
       "editableProps": [
-        "text"
+        "text",
+        "variant",
+        "as"
       ],
-      "aiRole": "username",
-      "label": "用户名"
+      "label": "我的"
     },
     {
-      "slotKey": "feed.post.content",
-      "pageKey": "feed.list",
-      "regionKey": "feed.list.content",
-      "nodeId": "p1-text",
+      "slotKey": "page-feed.social-story-1.stack",
+      "pageKey": "page-feed",
+      "regionKey": "page-feed.item",
+      "nodeId": "social-story-1",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "小明头像"
+    },
+    {
+      "slotKey": "page-feed.social-story-ring-1.panel",
+      "pageKey": "page-feed",
+      "nodeId": "social-story-ring-1",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "小明头像"
+    },
+    {
+      "slotKey": "page-feed.social-story-img-1.image",
+      "pageKey": "page-feed",
+      "nodeId": "social-story-img-1",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "小明头像"
+    },
+    {
+      "slotKey": "page-feed.social-story-name-1.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-story-name-1",
       "component": "core.text",
       "editableProps": [
-        "text"
+        "text",
+        "variant",
+        "as"
       ],
-      "aiRole": "content",
-      "label": "动态内容"
+      "label": "小明"
     },
     {
-      "slotKey": "feed.post.images",
-      "pageKey": "feed.list",
-      "regionKey": "feed.list.content",
-      "nodeId": "p1-images",
+      "slotKey": "page-feed.social-story-2.stack",
+      "pageKey": "page-feed",
+      "regionKey": "page-feed.item",
+      "nodeId": "social-story-2",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "阿琳头像"
+    },
+    {
+      "slotKey": "page-feed.social-story-ring-2.panel",
+      "pageKey": "page-feed",
+      "nodeId": "social-story-ring-2",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "阿琳头像"
+    },
+    {
+      "slotKey": "page-feed.social-story-img-2.image",
+      "pageKey": "page-feed",
+      "nodeId": "social-story-img-2",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "阿琳头像"
+    },
+    {
+      "slotKey": "page-feed.social-story-name-2.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-story-name-2",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "阿琳"
+    },
+    {
+      "slotKey": "page-feed.social-story-3.stack",
+      "pageKey": "page-feed",
+      "regionKey": "page-feed.item",
+      "nodeId": "social-story-3",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "同事头像"
+    },
+    {
+      "slotKey": "page-feed.social-story-ring-3.panel",
+      "pageKey": "page-feed",
+      "nodeId": "social-story-ring-3",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "同事头像"
+    },
+    {
+      "slotKey": "page-feed.social-story-img-3.image",
+      "pageKey": "page-feed",
+      "nodeId": "social-story-img-3",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "同事头像"
+    },
+    {
+      "slotKey": "page-feed.social-story-name-3.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-story-name-3",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "同事"
+    },
+    {
+      "slotKey": "page-feed.social-story-4.stack",
+      "pageKey": "page-feed",
+      "regionKey": "page-feed.item",
+      "nodeId": "social-story-4",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "同城头像"
+    },
+    {
+      "slotKey": "page-feed.social-story-ring-4.panel",
+      "pageKey": "page-feed",
+      "nodeId": "social-story-ring-4",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "同城头像"
+    },
+    {
+      "slotKey": "page-feed.social-story-img-4.image",
+      "pageKey": "page-feed",
+      "nodeId": "social-story-img-4",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "同城头像"
+    },
+    {
+      "slotKey": "page-feed.social-story-name-4.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-story-name-4",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "同城"
+    },
+    {
+      "slotKey": "page-feed.social-composer-card.panel",
+      "pageKey": "page-feed",
+      "regionKey": "page-feed.item-2",
+      "nodeId": "social-composer-card",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "我的头像"
+    },
+    {
+      "slotKey": "page-feed.social-composer-row.row",
+      "pageKey": "page-feed",
+      "regionKey": "page-feed.item-2",
+      "nodeId": "social-composer-row",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "我的头像"
+    },
+    {
+      "slotKey": "page-feed.social-my-avatar.image",
+      "pageKey": "page-feed",
+      "nodeId": "social-my-avatar",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "我的头像"
+    },
+    {
+      "slotKey": "page-feed.social-input-placeholder.panel",
+      "pageKey": "page-feed",
+      "nodeId": "social-input-placeholder",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "分享此刻想法..."
+    },
+    {
+      "slotKey": "page-feed.social-input-text.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-input-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "分享此刻想法..."
+    },
+    {
+      "slotKey": "page-feed.social-photo-action.button",
+      "pageKey": "page-feed",
+      "nodeId": "social-photo-action",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "相册"
+    },
+    {
+      "slotKey": "page-feed.social-card-feed.stack",
+      "pageKey": "page-feed",
+      "regionKey": "page-feed.item-3",
+      "nodeId": "social-card-feed",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "好友头像"
+    },
+    {
+      "slotKey": "page-feed.social-card-0.panel",
+      "pageKey": "page-feed",
+      "regionKey": "page-feed.item-3",
+      "nodeId": "social-card-0",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "好友头像"
+    },
+    {
+      "slotKey": "page-feed.social-card-user-0.row",
+      "pageKey": "page-feed",
+      "nodeId": "social-card-user-0",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "好友头像"
+    },
+    {
+      "slotKey": "page-feed.social-card-avatar-0.image",
+      "pageKey": "page-feed",
+      "nodeId": "social-card-avatar-0",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "好友头像"
+    },
+    {
+      "slotKey": "page-feed.social-card-user-copy-0.stack",
+      "pageKey": "page-feed",
+      "nodeId": "social-card-user-copy-0",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "小明"
+    },
+    {
+      "slotKey": "page-feed.social-card-name-0.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-card-name-0",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "小明"
+    },
+    {
+      "slotKey": "page-feed.social-card-time-0.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-card-time-0",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "1小时前"
+    },
+    {
+      "slotKey": "page-feed.social-card-text-0.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-card-text-0",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "咖啡店里的周末计划"
+    },
+    {
+      "slotKey": "page-feed.social-card-images-0.grid",
+      "pageKey": "page-feed",
+      "nodeId": "social-card-images-0",
       "component": "core.grid",
       "editableProps": [
+        "gap",
         "columns"
       ],
-      "aiRole": "images",
       "label": "动态图片"
     },
     {
-      "slotKey": "feed.detail.avatar",
-      "pageKey": "feed.detail",
-      "regionKey": "feed.detail.post",
+      "slotKey": "page-feed.social-img-0-0.image",
+      "pageKey": "page-feed",
+      "nodeId": "social-img-0-0",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "动态图片"
+    },
+    {
+      "slotKey": "page-feed.social-img-0-1.image",
+      "pageKey": "page-feed",
+      "nodeId": "social-img-0-1",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "动态图片"
+    },
+    {
+      "slotKey": "page-feed.social-img-0-2.image",
+      "pageKey": "page-feed",
+      "nodeId": "social-img-0-2",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "动态图片"
+    },
+    {
+      "slotKey": "page-feed.social-actions-0.row",
+      "pageKey": "page-feed",
+      "nodeId": "social-actions-0",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "赞 128"
+    },
+    {
+      "slotKey": "page-feed.social-like-0.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-like-0",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "赞 128"
+    },
+    {
+      "slotKey": "page-feed.social-comment-0.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-comment-0",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "评论 36"
+    },
+    {
+      "slotKey": "page-feed.social-share-0.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-share-0",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "转发"
+    },
+    {
+      "slotKey": "page-feed.social-card-1.panel",
+      "pageKey": "page-feed",
+      "regionKey": "page-feed.item-3",
+      "nodeId": "social-card-1",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "好友头像"
+    },
+    {
+      "slotKey": "page-feed.social-card-user-1.row",
+      "pageKey": "page-feed",
+      "nodeId": "social-card-user-1",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "好友头像"
+    },
+    {
+      "slotKey": "page-feed.social-card-avatar-1.image",
+      "pageKey": "page-feed",
+      "nodeId": "social-card-avatar-1",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "好友头像"
+    },
+    {
+      "slotKey": "page-feed.social-card-user-copy-1.stack",
+      "pageKey": "page-feed",
+      "nodeId": "social-card-user-copy-1",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "阿琳"
+    },
+    {
+      "slotKey": "page-feed.social-card-name-1.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-card-name-1",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "阿琳"
+    },
+    {
+      "slotKey": "page-feed.social-card-time-1.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-card-time-1",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "2小时前"
+    },
+    {
+      "slotKey": "page-feed.social-card-text-1.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-card-text-1",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "城市夜跑打卡成功"
+    },
+    {
+      "slotKey": "page-feed.social-card-images-1.grid",
+      "pageKey": "page-feed",
+      "nodeId": "social-card-images-1",
+      "component": "core.grid",
+      "editableProps": [
+        "gap",
+        "columns"
+      ],
+      "label": "动态图片"
+    },
+    {
+      "slotKey": "page-feed.social-img-1-0.image",
+      "pageKey": "page-feed",
+      "nodeId": "social-img-1-0",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "动态图片"
+    },
+    {
+      "slotKey": "page-feed.social-img-1-1.image",
+      "pageKey": "page-feed",
+      "nodeId": "social-img-1-1",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "动态图片"
+    },
+    {
+      "slotKey": "page-feed.social-img-1-2.image",
+      "pageKey": "page-feed",
+      "nodeId": "social-img-1-2",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "动态图片"
+    },
+    {
+      "slotKey": "page-feed.social-actions-1.row",
+      "pageKey": "page-feed",
+      "nodeId": "social-actions-1",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "赞 128"
+    },
+    {
+      "slotKey": "page-feed.social-like-1.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-like-1",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "赞 128"
+    },
+    {
+      "slotKey": "page-feed.social-comment-1.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-comment-1",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "评论 36"
+    },
+    {
+      "slotKey": "page-feed.social-share-1.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-share-1",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "转发"
+    },
+    {
+      "slotKey": "page-feed.social-card-2.panel",
+      "pageKey": "page-feed",
+      "regionKey": "page-feed.item-3",
+      "nodeId": "social-card-2",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "好友头像"
+    },
+    {
+      "slotKey": "page-feed.social-card-user-2.row",
+      "pageKey": "page-feed",
+      "nodeId": "social-card-user-2",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "好友头像"
+    },
+    {
+      "slotKey": "page-feed.social-card-avatar-2.image",
+      "pageKey": "page-feed",
+      "nodeId": "social-card-avatar-2",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "好友头像"
+    },
+    {
+      "slotKey": "page-feed.social-card-user-copy-2.stack",
+      "pageKey": "page-feed",
+      "nodeId": "social-card-user-copy-2",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "陈安"
+    },
+    {
+      "slotKey": "page-feed.social-card-name-2.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-card-name-2",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "陈安"
+    },
+    {
+      "slotKey": "page-feed.social-card-time-2.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-card-time-2",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "3小时前"
+    },
+    {
+      "slotKey": "page-feed.social-card-text-2.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-card-text-2",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "新开的展览值得去"
+    },
+    {
+      "slotKey": "page-feed.social-card-images-2.grid",
+      "pageKey": "page-feed",
+      "nodeId": "social-card-images-2",
+      "component": "core.grid",
+      "editableProps": [
+        "gap",
+        "columns"
+      ],
+      "label": "动态图片"
+    },
+    {
+      "slotKey": "page-feed.social-img-2-0.image",
+      "pageKey": "page-feed",
+      "nodeId": "social-img-2-0",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "动态图片"
+    },
+    {
+      "slotKey": "page-feed.social-img-2-1.image",
+      "pageKey": "page-feed",
+      "nodeId": "social-img-2-1",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "动态图片"
+    },
+    {
+      "slotKey": "page-feed.social-img-2-2.image",
+      "pageKey": "page-feed",
+      "nodeId": "social-img-2-2",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "动态图片"
+    },
+    {
+      "slotKey": "page-feed.social-actions-2.row",
+      "pageKey": "page-feed",
+      "nodeId": "social-actions-2",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "赞 128"
+    },
+    {
+      "slotKey": "page-feed.social-like-2.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-like-2",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "赞 128"
+    },
+    {
+      "slotKey": "page-feed.social-comment-2.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-comment-2",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "评论 36"
+    },
+    {
+      "slotKey": "page-feed.social-share-2.text",
+      "pageKey": "page-feed",
+      "nodeId": "social-share-2",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "转发"
+    },
+    {
+      "slotKey": "page-feed.social-floating-publish.button",
+      "pageKey": "page-feed",
+      "regionKey": "page-feed.item-4",
+      "nodeId": "social-floating-publish",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "发布动态"
+    },
+    {
+      "slotKey": "page-feed.page-feed-bottom-tabs.tabs",
+      "pageKey": "page-feed",
+      "nodeId": "page-feed-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-feed-bottom-tabs"
+    },
+    {
+      "slotKey": "page-detail.page-detail-screen.screen",
+      "pageKey": "page-detail",
+      "nodeId": "page-detail-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel"
+      ],
+      "label": "动态详情"
+    },
+    {
+      "slotKey": "page-detail.page-detail-quick-search.search",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-2",
+      "nodeId": "page-detail-quick-search",
+      "component": "core.search",
+      "editableProps": [
+        "placeholder",
+        "value"
+      ],
+      "label": "搜索动态"
+    },
+    {
+      "slotKey": "page-detail.detail-post.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-3",
+      "nodeId": "detail-post",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-detail.dp-header.row",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-3",
+      "nodeId": "dp-header",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-detail.dp-avatar.image",
+      "pageKey": "page-detail",
       "nodeId": "dp-avatar",
       "component": "core.image",
       "editableProps": [
-        "src"
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
       ],
-      "aiRole": "avatar",
-      "label": "用户头像"
+      "label": "业务视觉元素"
     },
     {
-      "slotKey": "feed.detail.username",
-      "pageKey": "feed.detail",
-      "regionKey": "feed.detail.post",
+      "slotKey": "page-detail.dp-info.stack",
+      "pageKey": "page-detail",
+      "nodeId": "dp-info",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "小明"
+    },
+    {
+      "slotKey": "page-detail.dp-name.text",
+      "pageKey": "page-detail",
       "nodeId": "dp-name",
       "component": "core.text",
       "editableProps": [
-        "text"
+        "text",
+        "variant",
+        "as"
       ],
-      "aiRole": "username",
-      "label": "用户名"
+      "label": "小明"
     },
     {
-      "slotKey": "feed.detail.content",
-      "pageKey": "feed.detail",
-      "regionKey": "feed.detail.post",
+      "slotKey": "page-detail.dp-time.text",
+      "pageKey": "page-detail",
+      "nodeId": "dp-time",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "10分钟前 · 北京"
+    },
+    {
+      "slotKey": "page-detail.dp-text.text",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-3",
       "nodeId": "dp-text",
       "component": "core.text",
       "editableProps": [
-        "text"
+        "text",
+        "variant",
+        "as"
       ],
-      "aiRole": "content",
-      "label": "动态内容"
+      "label": "今天天气真好，出去走走拍了些照片分享给大家～阳光明媚，心情也跟着好起来了！"
     },
     {
-      "slotKey": "feed.user.avatar",
-      "pageKey": "feed.user",
-      "regionKey": "feed.user.profile",
+      "slotKey": "page-detail.dp-images.grid",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-3",
+      "nodeId": "dp-images",
+      "component": "core.grid",
+      "editableProps": [
+        "gap",
+        "columns"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-detail.dp-img1.image",
+      "pageKey": "page-detail",
+      "nodeId": "dp-img1",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-detail.dp-img2.image",
+      "pageKey": "page-detail",
+      "nodeId": "dp-img2",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-detail.dp-img3.image",
+      "pageKey": "page-detail",
+      "nodeId": "dp-img3",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-detail.comment-section.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.k-3",
+      "nodeId": "comment-section",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "评论 (3)"
+    },
+    {
+      "slotKey": "page-detail.comment-title.text",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.k-3",
+      "nodeId": "comment-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "评论 (3)"
+    },
+    {
+      "slotKey": "page-detail.comment-item.row",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.k-3",
+      "nodeId": "comment-item",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-detail.ci-avatar.image",
+      "pageKey": "page-detail",
+      "nodeId": "ci-avatar",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-detail.ci-body.stack",
+      "pageKey": "page-detail",
+      "nodeId": "ci-body",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "热心网友"
+    },
+    {
+      "slotKey": "page-detail.ci-name.text",
+      "pageKey": "page-detail",
+      "nodeId": "ci-name",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "热心网友"
+    },
+    {
+      "slotKey": "page-detail.ci-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "ci-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "拍得真好看！"
+    },
+    {
+      "slotKey": "page-detail.ci-time.text",
+      "pageKey": "page-detail",
+      "nodeId": "ci-time",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "5分钟前"
+    },
+    {
+      "slotKey": "page-detail.page-detail-primary-action.button",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "nodeId": "page-detail-primary-action",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "发布动态"
+    },
+    {
+      "slotKey": "page-detail.page-detail-bottom-tabs.tabs",
+      "pageKey": "page-detail",
+      "nodeId": "page-detail-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-detail-bottom-tabs"
+    },
+    {
+      "slotKey": "page-publish.page-publish-screen.screen",
+      "pageKey": "page-publish",
+      "nodeId": "page-publish-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel"
+      ],
+      "label": "发布动态"
+    },
+    {
+      "slotKey": "page-publish.page-publish-quick-search.search",
+      "pageKey": "page-publish",
+      "regionKey": "page-publish.item-2",
+      "nodeId": "page-publish-quick-search",
+      "component": "core.search",
+      "editableProps": [
+        "placeholder",
+        "value"
+      ],
+      "label": "搜索发布动态"
+    },
+    {
+      "slotKey": "page-publish.pub-header.row",
+      "pageKey": "page-publish",
+      "regionKey": "page-publish.item-3",
+      "nodeId": "pub-header",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "取消"
+    },
+    {
+      "slotKey": "page-publish.pub-cancel.text",
+      "pageKey": "page-publish",
+      "regionKey": "page-publish.item-3",
+      "nodeId": "pub-cancel",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "取消"
+    },
+    {
+      "slotKey": "page-publish.pub-title.text",
+      "pageKey": "page-publish",
+      "regionKey": "page-publish.item-3",
+      "nodeId": "pub-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "发布动态"
+    },
+    {
+      "slotKey": "page-publish.pub-submit.button",
+      "pageKey": "page-publish",
+      "regionKey": "page-publish.item-3",
+      "nodeId": "pub-submit",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "发布"
+    },
+    {
+      "slotKey": "page-publish.pub-content.panel",
+      "pageKey": "page-publish",
+      "regionKey": "page-publish.item-4",
+      "nodeId": "pub-content",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "分享你的新鲜事..."
+    },
+    {
+      "slotKey": "page-publish.pub-textarea.text",
+      "pageKey": "page-publish",
+      "regionKey": "page-publish.item-4",
+      "nodeId": "pub-textarea",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "分享你的新鲜事..."
+    },
+    {
+      "slotKey": "page-publish.pub-images.panel",
+      "pageKey": "page-publish",
+      "regionKey": "page-publish.item-5",
+      "nodeId": "pub-images",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-publish.pub-img-grid.grid",
+      "pageKey": "page-publish",
+      "regionKey": "page-publish.item-5",
+      "nodeId": "pub-img-grid",
+      "component": "core.grid",
+      "editableProps": [
+        "gap",
+        "columns"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-publish.pub-add-img.panel",
+      "pageKey": "page-publish",
+      "nodeId": "pub-add-img",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-publish.pub-add-icon.image",
+      "pageKey": "page-publish",
+      "nodeId": "pub-add-icon",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-publish.pub-options.panel",
+      "pageKey": "page-publish",
+      "regionKey": "page-publish.item-6",
+      "nodeId": "pub-options",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-publish.pub-location.row",
+      "pageKey": "page-publish",
+      "regionKey": "page-publish.item-6",
+      "nodeId": "pub-location",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-publish.loc-left.row",
+      "pageKey": "page-publish",
+      "nodeId": "loc-left",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-publish.loc-icon.image",
+      "pageKey": "page-publish",
+      "nodeId": "loc-icon",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-publish.loc-text.text",
+      "pageKey": "page-publish",
+      "nodeId": "loc-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "所在位置"
+    },
+    {
+      "slotKey": "page-publish.loc-arrow.text",
+      "pageKey": "page-publish",
+      "nodeId": "loc-arrow",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": ">"
+    },
+    {
+      "slotKey": "page-publish.pub-visibility.row",
+      "pageKey": "page-publish",
+      "regionKey": "page-publish.item-6",
+      "nodeId": "pub-visibility",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-publish.vis-left.row",
+      "pageKey": "page-publish",
+      "nodeId": "vis-left",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-publish.vis-icon.image",
+      "pageKey": "page-publish",
+      "nodeId": "vis-icon",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-publish.vis-text.text",
+      "pageKey": "page-publish",
+      "nodeId": "vis-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "谁可以看"
+    },
+    {
+      "slotKey": "page-publish.vis-value.text",
+      "pageKey": "page-publish",
+      "nodeId": "vis-value",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "公开"
+    },
+    {
+      "slotKey": "page-publish.page-publish-bottom-tabs.tabs",
+      "pageKey": "page-publish",
+      "nodeId": "page-publish-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-publish-bottom-tabs"
+    },
+    {
+      "slotKey": "page-user.page-user-screen.screen",
+      "pageKey": "page-user",
+      "nodeId": "page-user-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel"
+      ],
+      "label": "用户主页"
+    },
+    {
+      "slotKey": "page-user.user-cover.image",
+      "pageKey": "page-user",
+      "regionKey": "page-user.item-2",
+      "nodeId": "user-cover",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-user.user-profile.panel",
+      "pageKey": "page-user",
+      "regionKey": "page-user.item-3",
+      "nodeId": "user-profile",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-user.up-card.panel",
+      "pageKey": "page-user",
+      "regionKey": "page-user.item-3",
+      "nodeId": "up-card",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-user.up-avatar.image",
+      "pageKey": "page-user",
       "nodeId": "up-avatar",
       "component": "core.image",
       "editableProps": [
-        "src"
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
       ],
-      "aiRole": "avatar",
-      "label": "用户头像"
+      "label": "业务视觉元素"
     },
     {
-      "slotKey": "feed.user.name",
-      "pageKey": "feed.user",
-      "regionKey": "feed.user.profile",
+      "slotKey": "page-user.up-name.text",
+      "pageKey": "page-user",
       "nodeId": "up-name",
       "component": "core.text",
       "editableProps": [
-        "text"
+        "text",
+        "variant",
+        "as"
       ],
-      "aiRole": "username",
-      "label": "用户名"
+      "label": "小明"
     },
     {
-      "slotKey": "feed.user.bio",
-      "pageKey": "feed.user",
-      "regionKey": "feed.user.profile",
+      "slotKey": "page-user.up-bio.text",
+      "pageKey": "page-user",
       "nodeId": "up-bio",
       "component": "core.text",
       "editableProps": [
-        "text"
+        "text",
+        "variant",
+        "as"
       ],
-      "aiRole": "bio",
-      "label": "个人简介"
+      "label": "热爱生活，分享美好"
+    },
+    {
+      "slotKey": "page-user.up-stats.row",
+      "pageKey": "page-user",
+      "nodeId": "up-stats",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "56"
+    },
+    {
+      "slotKey": "page-user.up-posts.stack",
+      "pageKey": "page-user",
+      "nodeId": "up-posts",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "56"
+    },
+    {
+      "slotKey": "page-user.posts-num.text",
+      "pageKey": "page-user",
+      "nodeId": "posts-num",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "56"
+    },
+    {
+      "slotKey": "page-user.posts-label.text",
+      "pageKey": "page-user",
+      "nodeId": "posts-label",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "动态"
+    },
+    {
+      "slotKey": "page-user.up-followers.stack",
+      "pageKey": "page-user",
+      "nodeId": "up-followers",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "230"
+    },
+    {
+      "slotKey": "page-user.followers-num.text",
+      "pageKey": "page-user",
+      "nodeId": "followers-num",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "230"
+    },
+    {
+      "slotKey": "page-user.followers-label.text",
+      "pageKey": "page-user",
+      "nodeId": "followers-label",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "粉丝"
+    },
+    {
+      "slotKey": "page-user.up-following.stack",
+      "pageKey": "page-user",
+      "nodeId": "up-following",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "128"
+    },
+    {
+      "slotKey": "page-user.following-num.text",
+      "pageKey": "page-user",
+      "nodeId": "following-num",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "128"
+    },
+    {
+      "slotKey": "page-user.following-label.text",
+      "pageKey": "page-user",
+      "nodeId": "following-label",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "关注"
+    },
+    {
+      "slotKey": "page-user.user-posts.panel",
+      "pageKey": "page-user",
+      "regionKey": "page-user.item-4",
+      "nodeId": "user-posts",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "好友动态"
+    },
+    {
+      "slotKey": "page-user.posts-title.text",
+      "pageKey": "page-user",
+      "regionKey": "page-user.item-4",
+      "nodeId": "posts-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "好友动态"
+    },
+    {
+      "slotKey": "page-user.posts-list.stack",
+      "pageKey": "page-user",
+      "regionKey": "page-user.item-4",
+      "nodeId": "posts-list",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "周末的午后，来杯咖啡☕"
+    },
+    {
+      "slotKey": "page-user.upost-1.panel",
+      "pageKey": "page-user",
+      "nodeId": "upost-1",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "周末的午后，来杯咖啡☕"
+    },
+    {
+      "slotKey": "page-user.upost1-text.text",
+      "pageKey": "page-user",
+      "nodeId": "upost1-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "周末的午后，来杯咖啡☕"
+    },
+    {
+      "slotKey": "page-user.upost1-img.image",
+      "pageKey": "page-user",
+      "nodeId": "upost1-img",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-user.page-user-primary-action.button",
+      "pageKey": "page-user",
+      "regionKey": "page-user.item-5",
+      "nodeId": "page-user-primary-action",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "发布动态"
+    },
+    {
+      "slotKey": "page-user.page-user-bottom-tabs.tabs",
+      "pageKey": "page-user",
+      "nodeId": "page-user-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-user-bottom-tabs"
     }
   ],
   "patterns": [
     {
-      "patternKey": "feed.posts",
-      "pageKey": "feed.list",
-      "regionKey": "feed.list.content",
-      "sourceRootNodeId": "post-1",
-      "parentNodeId": "feed-list",
-      "itemAlias": "post",
+      "patternKey": "page-feed.item.pattern",
+      "pageKey": "page-feed",
+      "regionKey": "page-feed.item",
+      "sourceRootNodeId": "social-story-0",
+      "parentNodeId": "social-story-row",
+      "itemAlias": "core.stack",
       "fields": [
         {
-          "fieldKey": "avatar",
-          "slotKey": "feed.post.avatar",
-          "prop": "src",
-          "required": true
+          "fieldKey": "alt",
+          "slotKey": "page-feed.social-story-img-0.image",
+          "prop": "alt"
         },
         {
-          "fieldKey": "username",
-          "slotKey": "feed.post.username",
-          "prop": "text",
-          "required": true
-        },
-        {
-          "fieldKey": "content",
-          "slotKey": "feed.post.content",
-          "prop": "text",
-          "required": true
-        },
-        {
-          "fieldKey": "time",
-          "slotKey": "feed.post.time",
-          "prop": "text",
-          "required": true
+          "fieldKey": "social-story-name-0",
+          "slotKey": "page-feed.social-story-name-0.text",
+          "prop": "text"
         }
       ],
-      "maxItems": 50,
-      "minItems": 1
+      "minItems": 0,
+      "maxItems": 50
     },
     {
-      "patternKey": "feed.comments",
-      "pageKey": "feed.detail",
-      "regionKey": "feed.detail.comments",
-      "sourceRootNodeId": "comment-item",
-      "parentNodeId": "comment-section",
-      "itemAlias": "comment",
+      "patternKey": "page-feed.item.pattern-2",
+      "pageKey": "page-feed",
+      "regionKey": "page-feed.item-2",
+      "sourceRootNodeId": "social-composer-row",
+      "parentNodeId": "social-composer-card",
+      "itemAlias": "core.row",
       "fields": [
         {
-          "fieldKey": "avatar",
-          "slotKey": "feed.comment.avatar",
-          "prop": "src",
-          "required": true
+          "fieldKey": "alt",
+          "slotKey": "page-feed.social-my-avatar.image",
+          "prop": "alt"
         },
         {
-          "fieldKey": "name",
-          "slotKey": "feed.comment.name",
-          "prop": "text",
-          "required": true
+          "fieldKey": "social-input-text",
+          "slotKey": "page-feed.social-input-text.text",
+          "prop": "text"
         },
         {
-          "fieldKey": "content",
-          "slotKey": "feed.comment.content",
-          "prop": "text",
-          "required": true
-        },
-        {
-          "fieldKey": "time",
-          "slotKey": "feed.comment.time",
-          "prop": "text",
-          "required": true
+          "fieldKey": "label",
+          "slotKey": "page-feed.social-photo-action.button",
+          "prop": "label"
         }
       ],
-      "maxItems": 100,
-      "minItems": 0
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-feed.item.pattern-3",
+      "pageKey": "page-feed",
+      "regionKey": "page-feed.item-3",
+      "sourceRootNodeId": "social-card-0",
+      "parentNodeId": "social-card-feed",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-feed.social-card-avatar-0.image",
+          "prop": "alt"
+        },
+        {
+          "fieldKey": "social-card-name-0",
+          "slotKey": "page-feed.social-card-name-0.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "social-card-time-0",
+          "slotKey": "page-feed.social-card-time-0.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "social-card-text-0",
+          "slotKey": "page-feed.social-card-text-0.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-feed.social-img-0-0.image",
+          "prop": "alt"
+        },
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-feed.social-img-0-1.image",
+          "prop": "alt"
+        },
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-feed.social-img-0-2.image",
+          "prop": "alt"
+        },
+        {
+          "fieldKey": "social-like-0",
+          "slotKey": "page-feed.social-like-0.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-detail.item.pattern",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-3",
+      "sourceRootNodeId": "dp-header",
+      "parentNodeId": "detail-post",
+      "itemAlias": "core.row",
+      "fields": [
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-detail.dp-avatar.image",
+          "prop": "alt"
+        },
+        {
+          "fieldKey": "dp-name",
+          "slotKey": "page-detail.dp-name.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "dp-time",
+          "slotKey": "page-detail.dp-time.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-detail.k-3.pattern",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.k-3",
+      "sourceRootNodeId": "comment-item",
+      "parentNodeId": "comment-section",
+      "itemAlias": "core.row",
+      "fields": [
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-detail.ci-avatar.image",
+          "prop": "alt"
+        },
+        {
+          "fieldKey": "ci-name",
+          "slotKey": "page-detail.ci-name.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "ci-text",
+          "slotKey": "page-detail.ci-text.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "ci-time",
+          "slotKey": "page-detail.ci-time.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-publish.item.pattern",
+      "pageKey": "page-publish",
+      "regionKey": "page-publish.item-3",
+      "sourceRootNodeId": "pub-cancel",
+      "parentNodeId": "pub-header",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "pub-cancel",
+          "slotKey": "page-publish.pub-cancel.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-publish.item.pattern-2",
+      "pageKey": "page-publish",
+      "regionKey": "page-publish.item-4",
+      "sourceRootNodeId": "pub-textarea",
+      "parentNodeId": "pub-content",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "pub-textarea",
+          "slotKey": "page-publish.pub-textarea.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-publish.item.pattern-3",
+      "pageKey": "page-publish",
+      "regionKey": "page-publish.item-5",
+      "sourceRootNodeId": "pub-img-grid",
+      "parentNodeId": "pub-images",
+      "itemAlias": "core.grid",
+      "fields": [
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-publish.pub-add-icon.image",
+          "prop": "alt"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-publish.item.pattern-4",
+      "pageKey": "page-publish",
+      "regionKey": "page-publish.item-6",
+      "sourceRootNodeId": "pub-location",
+      "parentNodeId": "pub-options",
+      "itemAlias": "core.row",
+      "fields": [
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-publish.loc-icon.image",
+          "prop": "alt"
+        },
+        {
+          "fieldKey": "loc-text",
+          "slotKey": "page-publish.loc-text.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "loc-arrow",
+          "slotKey": "page-publish.loc-arrow.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-user.item.pattern",
+      "pageKey": "page-user",
+      "regionKey": "page-user.item-3",
+      "sourceRootNodeId": "up-card",
+      "parentNodeId": "user-profile",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-user.up-avatar.image",
+          "prop": "alt"
+        },
+        {
+          "fieldKey": "up-name",
+          "slotKey": "page-user.up-name.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "up-bio",
+          "slotKey": "page-user.up-bio.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "posts-num",
+          "slotKey": "page-user.posts-num.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "posts-label",
+          "slotKey": "page-user.posts-label.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "followers-num",
+          "slotKey": "page-user.followers-num.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "followers-label",
+          "slotKey": "page-user.followers-label.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "following-num",
+          "slotKey": "page-user.following-num.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-user.item.pattern-2",
+      "pageKey": "page-user",
+      "regionKey": "page-user.item-4",
+      "sourceRootNodeId": "posts-list",
+      "parentNodeId": "user-posts",
+      "itemAlias": "core.stack",
+      "fields": [
+        {
+          "fieldKey": "upost1-text",
+          "slotKey": "page-user.upost1-text.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-user.upost1-img.image",
+          "prop": "alt"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
     }
   ],
   "navigation": {
-    "type": "none",
-    "items": []
+    "type": "bottom_tabs",
+    "items": [
+      {
+        "key": "page-feed",
+        "label": "动态首页",
+        "pageKey": "page-feed",
+        "pageId": "page-feed"
+      },
+      {
+        "key": "page-detail",
+        "label": "动态详情",
+        "pageKey": "page-detail",
+        "pageId": "page-detail"
+      },
+      {
+        "key": "page-publish",
+        "label": "发布动态",
+        "pageKey": "page-publish",
+        "pageId": "page-publish"
+      },
+      {
+        "key": "page-user",
+        "label": "用户主页",
+        "pageKey": "page-user",
+        "pageId": "page-user"
+      }
+    ]
   },
   "constraints": {
     "devices": [
-      "miniapp"
-    ],
-    "maxColumns": 3,
-    "allowedLayouts": [
-      "core.stack",
-      "core.row",
-      "core.grid"
-    ],
-    "requiredComponents": [
-      "core.text",
-      "core.image"
+      "miniapp",
+      "mobile"
     ]
   },
   "styleProfile": {
@@ -341,41 +2459,19 @@
       "#f8fafc",
       "#ffffff"
     ],
-    "fontSizes": [
-      "22rpx",
-      "24rpx",
-      "26rpx",
-      "28rpx",
-      "30rpx",
-      "32rpx",
-      "36rpx"
-    ],
-    "fontWeights": [
-      "normal",
-      "bold"
-    ],
-    "spacing": [
-      "8rpx",
-      "12rpx",
-      "16rpx",
-      "20rpx",
-      "24rpx",
-      "32rpx"
-    ],
-    "radius": [
-      "8rpx",
-      "12rpx",
-      "16rpx",
-      "50%"
-    ],
-    "shadows": [
-      "0 2rpx 12rpx rgba(0,0,0,0.06)"
-    ],
-    "componentDensity": "comfortable",
+    "fontSizes": [],
+    "fontWeights": [],
+    "spacing": [],
+    "radius": [],
+    "shadows": [],
     "commonLayoutPatterns": [
-      "social-feed-card",
-      "user-profile-header",
-      "comment-thread"
+      "row",
+      "panel",
+      "stack",
+      "button",
+      "biz-hero-banner",
+      "search",
+      "image"
     ]
   }
 }

@@ -72,7 +72,6 @@ export function prepareTemplateLayoutForPersistence({
       failOnUnknownProps: true,
       ...(requireGeneratedTemplateQuality
         ? {
-          requireCoreAliasesOnly: true,
           requireValidImageUrls: true,
           requireLocalizedPropLabels: true,
           requireChineseVisibleText: true,

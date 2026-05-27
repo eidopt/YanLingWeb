@@ -41,6 +41,26 @@
             "name": "style",
             "type": "object",
             "label": "样式"
+          },
+          {
+            "name": "variant",
+            "type": "string",
+            "label": "文字层级"
+          },
+          {
+            "name": "active",
+            "type": "string",
+            "label": "选中"
+          },
+          {
+            "name": "disabled",
+            "type": "string",
+            "label": "禁用"
+          },
+          {
+            "name": "icon",
+            "type": "string",
+            "label": "图标"
           }
         ]
       },
@@ -59,6 +79,11 @@
             "name": "style",
             "type": "object",
             "label": "样式"
+          },
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
           }
         ]
       },
@@ -110,6 +135,16 @@
             "name": "style",
             "type": "object",
             "label": "样式"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
           }
         ]
       },
@@ -123,6 +158,31 @@
             "name": "style",
             "type": "object",
             "label": "样式"
+          },
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
+          },
+          {
+            "name": "wrap",
+            "type": "string",
+            "label": "换行"
+          },
+          {
+            "name": "justify",
+            "type": "string",
+            "label": "主轴对齐"
+          },
+          {
+            "name": "align",
+            "type": "string",
+            "label": "交叉轴对齐"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
           }
         ]
       },
@@ -149,6 +209,16 @@
             "name": "style",
             "type": "object",
             "label": "样式"
+          },
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
+          },
+          {
+            "name": "alignItems",
+            "type": "string",
+            "label": "对齐方式"
           }
         ]
       },
@@ -167,6 +237,233 @@
             "name": "text",
             "type": "string",
             "label": "显示内容"
+          },
+          {
+            "name": "variant",
+            "type": "string",
+            "label": "文字层级"
+          },
+          {
+            "name": "as",
+            "type": "string",
+            "label": "标签"
+          }
+        ]
+      },
+      {
+        "alias": "core.tag",
+        "name": "标签",
+        "kind": "component",
+        "description": "标签 组件",
+        "props": [
+          {
+            "name": "label",
+            "type": "string",
+            "label": "显示文字"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.tabs",
+        "name": "标签导航",
+        "kind": "component",
+        "description": "标签导航 组件",
+        "props": [
+          {
+            "name": "tabs",
+            "type": "string",
+            "label": "标签项"
+          },
+          {
+            "name": "activeTab",
+            "type": "string",
+            "label": "当前标签"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.search",
+        "name": "搜索框",
+        "kind": "component",
+        "description": "搜索框 组件",
+        "props": [
+          {
+            "name": "placeholder",
+            "type": "string",
+            "label": "占位文本"
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "label": "值"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.input",
+        "name": "输入框",
+        "kind": "component",
+        "description": "输入框 组件",
+        "props": [
+          {
+            "name": "placeholder",
+            "type": "string",
+            "label": "占位文本"
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "label": "显示文字"
+          },
+          {
+            "name": "type",
+            "type": "string",
+            "label": "类型"
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "label": "值"
+          },
+          {
+            "name": "disabled",
+            "type": "string",
+            "label": "禁用"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.notice",
+        "name": "提示",
+        "kind": "component",
+        "description": "提示 组件",
+        "props": [
+          {
+            "name": "text",
+            "type": "string",
+            "label": "显示内容"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.progress",
+        "name": "进度条",
+        "kind": "component",
+        "description": "进度条 组件",
+        "props": [
+          {
+            "name": "value",
+            "type": "number",
+            "label": "值"
+          },
+          {
+            "name": "max",
+            "type": "number",
+            "label": "最大值"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.divider",
+        "name": "分隔线",
+        "kind": "component",
+        "description": "分隔线 组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.spacer",
+        "name": "空白",
+        "kind": "component",
+        "description": "空白 组件",
+        "props": [
+          {
+            "name": "size",
+            "type": "string",
+            "label": "尺寸"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "biz-hero-banner",
+        "name": "业务头图",
+        "kind": "component",
+        "description": "业务头图组件",
+        "props": [
+          {
+            "name": "badge",
+            "type": "string",
+            "label": "徽标"
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "label": "标题"
+          },
+          {
+            "name": "subtitle",
+            "type": "string",
+            "label": "副标题"
+          },
+          {
+            "name": "actionLabel",
+            "type": "string",
+            "label": "行动按钮文案"
           }
         ]
       }
@@ -175,8 +472,8 @@
     "pages": [
       {
         "id": "page-feed",
-        "name": "动态列表",
-        "description": "朋友圈",
+        "name": "动态首页",
+        "description": "故事圈和好友动态",
         "layout": {
           "id": "page-feed-screen",
           "alias": "core.screen",
@@ -185,113 +482,573 @@
             "order": 0
           },
           "props": {
-            "title": "动态列表"
+            "title": "动态首页",
+            "style": {
+              "background": "#f8fafc"
+            }
           },
           "children": [
             {
-              "id": "feed-header",
-              "alias": "core.panel",
+              "id": "social-story-row",
+              "alias": "core.row",
               "layout": {
                 "mode": "flow",
-                "order": 0
+                "order": 0,
+                "width": "100%"
               },
               "props": {
                 "style": {
-                  "padding": "24rpx 32rpx",
-                  "background": "var(--color-primary)",
-                  "borderRadius": "0 0 24rpx 24rpx"
+                  "padding": "20rpx",
+                  "gap": "16rpx",
+                  "overflowX": "auto"
                 }
               },
               "children": [
                 {
-                  "id": "feed-title",
-                  "alias": "core.text",
+                  "id": "social-story-0",
+                  "alias": "core.stack",
                   "layout": {
                     "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "text": "朋友圈",
-                    "style": {
-                      "fontSize": "36rpx",
-                      "fontWeight": "bold",
-                      "color": "#fff"
-                    }
-                  },
-                  "children": []
-                }
-              ]
-            },
-            {
-              "id": "feed-list",
-              "alias": "core.stack",
-              "layout": {
-                "mode": "flow",
-                "order": 1
-              },
-              "props": {
-                "style": {
-                  "padding": "24rpx 32rpx",
-                  "gap": "24rpx"
-                }
-              },
-              "children": [
-                {
-                  "id": "post-1",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0
+                    "order": 0,
+                    "width": "auto"
                   },
                   "props": {
                     "style": {
-                      "padding": "24rpx",
-                      "borderRadius": "16rpx",
-                      "background": "#fff",
-                      "boxShadow": "0 2rpx 12rpx rgba(0,0,0,0.06)"
+                      "alignItems": "center",
+                      "gap": "8rpx",
+                      "minWidth": "104rpx"
                     }
                   },
                   "children": [
                     {
-                      "id": "p1-header",
-                      "alias": "core.row",
+                      "id": "social-story-ring-0",
+                      "alias": "core.panel",
                       "layout": {
                         "mode": "flow",
-                        "order": 0
+                        "order": 0,
+                        "width": "auto"
                       },
                       "props": {
                         "style": {
-                          "gap": "16rpx",
-                          "alignItems": "center",
-                          "marginBottom": "16rpx"
+                          "width": "88rpx",
+                          "height": "88rpx",
+                          "borderRadius": "50%",
+                          "padding": "6rpx",
+                          "background": "#dbeafe"
                         }
                       },
                       "children": [
                         {
-                          "id": "p1-avatar",
+                          "id": "social-story-img-0",
                           "alias": "core.image",
                           "layout": {
                             "mode": "flow",
                             "order": 0
                           },
                           "props": {
-                            "src": "https://placeholder.com/avatar.png",
+                            "alt": "我的头像",
+                            "title": "我的头像",
+                            "iconColor": "#3b82f6",
+                            "objectFit": "contain",
                             "style": {
-                              "width": "80rpx",
-                              "height": "80rpx",
+                              "width": "100%",
+                              "height": "100%",
+                              "borderRadius": "50%",
+                              "background": "#fff"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "social-story-name-0",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "我的",
+                        "variant": "caption",
+                        "style": {}
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "social-story-1",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "auto"
+                  },
+                  "props": {
+                    "style": {
+                      "alignItems": "center",
+                      "gap": "8rpx",
+                      "minWidth": "104rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "social-story-ring-1",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "auto"
+                      },
+                      "props": {
+                        "style": {
+                          "width": "88rpx",
+                          "height": "88rpx",
+                          "borderRadius": "50%",
+                          "padding": "6rpx",
+                          "background": "linear-gradient(135deg,#f97316,#ec4899)"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "social-story-img-1",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "小明头像",
+                            "title": "小明头像",
+                            "iconColor": "#ec4899",
+                            "objectFit": "contain",
+                            "style": {
+                              "width": "100%",
+                              "height": "100%",
+                              "borderRadius": "50%",
+                              "background": "#fff"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "social-story-name-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "小明",
+                        "variant": "caption",
+                        "style": {}
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "social-story-2",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "auto"
+                  },
+                  "props": {
+                    "style": {
+                      "alignItems": "center",
+                      "gap": "8rpx",
+                      "minWidth": "104rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "social-story-ring-2",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "auto"
+                      },
+                      "props": {
+                        "style": {
+                          "width": "88rpx",
+                          "height": "88rpx",
+                          "borderRadius": "50%",
+                          "padding": "6rpx",
+                          "background": "linear-gradient(135deg,#f97316,#ec4899)"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "social-story-img-2",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "阿琳头像",
+                            "title": "阿琳头像",
+                            "iconColor": "#ec4899",
+                            "objectFit": "contain",
+                            "style": {
+                              "width": "100%",
+                              "height": "100%",
+                              "borderRadius": "50%",
+                              "background": "#fff"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "social-story-name-2",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "阿琳",
+                        "variant": "caption",
+                        "style": {}
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "social-story-3",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3,
+                    "width": "auto"
+                  },
+                  "props": {
+                    "style": {
+                      "alignItems": "center",
+                      "gap": "8rpx",
+                      "minWidth": "104rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "social-story-ring-3",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "auto"
+                      },
+                      "props": {
+                        "style": {
+                          "width": "88rpx",
+                          "height": "88rpx",
+                          "borderRadius": "50%",
+                          "padding": "6rpx",
+                          "background": "linear-gradient(135deg,#f97316,#ec4899)"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "social-story-img-3",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "同事头像",
+                            "title": "同事头像",
+                            "iconColor": "#ec4899",
+                            "objectFit": "contain",
+                            "style": {
+                              "width": "100%",
+                              "height": "100%",
+                              "borderRadius": "50%",
+                              "background": "#fff"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "social-story-name-3",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "同事",
+                        "variant": "caption",
+                        "style": {}
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "social-story-4",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 4,
+                    "width": "auto"
+                  },
+                  "props": {
+                    "style": {
+                      "alignItems": "center",
+                      "gap": "8rpx",
+                      "minWidth": "104rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "social-story-ring-4",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "auto"
+                      },
+                      "props": {
+                        "style": {
+                          "width": "88rpx",
+                          "height": "88rpx",
+                          "borderRadius": "50%",
+                          "padding": "6rpx",
+                          "background": "linear-gradient(135deg,#f97316,#ec4899)"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "social-story-img-4",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "同城头像",
+                            "title": "同城头像",
+                            "iconColor": "#ec4899",
+                            "objectFit": "contain",
+                            "style": {
+                              "width": "100%",
+                              "height": "100%",
+                              "borderRadius": "50%",
+                              "background": "#fff"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "social-story-name-4",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "同城",
+                        "variant": "caption",
+                        "style": {}
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "social-composer-card",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "margin": "0 20rpx",
+                  "padding": "20rpx",
+                  "borderRadius": "24rpx",
+                  "background": "#fff"
+                }
+              },
+              "children": [
+                {
+                  "id": "social-composer-row",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "14rpx",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "social-my-avatar",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "我的头像",
+                        "title": "我的头像",
+                        "iconColor": "#60a5fa",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "72rpx",
+                          "height": "72rpx",
+                          "borderRadius": "50%"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "social-input-placeholder",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1,
+                        "width": "auto"
+                      },
+                      "props": {
+                        "style": {
+                          "flex": 1,
+                          "padding": "18rpx 22rpx",
+                          "borderRadius": "999rpx",
+                          "background": "#f1f5f9"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "social-input-text",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "分享此刻想法...",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#64748b"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "social-photo-action",
+                      "alias": "core.button",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "label": "相册",
+                        "variant": "secondary",
+                        "style": {}
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "social-card-feed",
+              "alias": "core.stack",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "20rpx",
+                  "gap": "18rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "social-card-0",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "22rpx",
+                      "borderRadius": "26rpx",
+                      "background": "#fff"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "social-card-user-0",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "gap": "14rpx",
+                          "alignItems": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "social-card-avatar-0",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "好友头像",
+                            "title": "好友头像",
+                            "iconColor": "#f97316",
+                            "objectFit": "contain",
+                            "style": {
+                              "width": "72rpx",
+                              "height": "72rpx",
                               "borderRadius": "50%"
-                            },
-                            "alt": "图片",
-                            "title": "图片"
+                            }
                           },
                           "children": []
                         },
                         {
-                          "id": "p1-userinfo",
+                          "id": "social-card-user-copy-0",
                           "alias": "core.stack",
                           "layout": {
                             "mode": "flow",
-                            "order": 1
+                            "order": 1,
+                            "width": "auto"
                           },
                           "props": {
                             "style": {
@@ -300,7 +1057,7 @@
                           },
                           "children": [
                             {
-                              "id": "p1-name",
+                              "id": "social-card-name-0",
                               "alias": "core.text",
                               "layout": {
                                 "mode": "flow",
@@ -308,26 +1065,23 @@
                               },
                               "props": {
                                 "text": "小明",
-                                "style": {
-                                  "fontSize": "28rpx",
-                                  "fontWeight": "bold",
-                                  "color": "var(--color-text-primary)"
-                                }
+                                "variant": "subheading",
+                                "style": {}
                               },
                               "children": []
                             },
                             {
-                              "id": "p1-time",
+                              "id": "social-card-time-0",
                               "alias": "core.text",
                               "layout": {
                                 "mode": "flow",
                                 "order": 1
                               },
                               "props": {
-                                "text": "10分钟前",
+                                "text": "1小时前",
+                                "variant": "caption",
                                 "style": {
-                                  "fontSize": "22rpx",
-                                  "color": "var(--color-text-secondary)"
+                                  "color": "#64748b"
                                 }
                               },
                               "children": []
@@ -337,265 +1091,224 @@
                       ]
                     },
                     {
-                      "id": "p1-text",
+                      "id": "social-card-text-0",
                       "alias": "core.text",
                       "layout": {
                         "mode": "flow",
                         "order": 1
                       },
                       "props": {
-                        "text": "今天天气真好，出去走走拍了些照片分享给大家～",
+                        "text": "咖啡店里的周末计划",
+                        "variant": "body",
                         "style": {
-                          "fontSize": "28rpx",
-                          "color": "var(--color-text-primary)",
-                          "lineHeight": "1.6",
-                          "marginBottom": "16rpx"
+                          "marginTop": "16rpx"
                         }
                       },
                       "children": []
                     },
                     {
-                      "id": "p1-images",
+                      "id": "social-card-images-0",
                       "alias": "core.grid",
                       "layout": {
                         "mode": "flow",
-                        "order": 2
+                        "order": 2,
+                        "width": "100%"
                       },
                       "props": {
                         "columns": 3,
                         "style": {
-                          "gap": "8rpx"
+                          "gap": "8rpx",
+                          "marginTop": "14rpx"
                         }
                       },
                       "children": [
                         {
-                          "id": "p1-img1",
+                          "id": "social-img-0-0",
                           "alias": "core.image",
                           "layout": {
                             "mode": "flow",
                             "order": 0
                           },
                           "props": {
-                            "src": "https://placeholder.com/photo1.png",
+                            "alt": "动态图片",
+                            "title": "动态图片",
+                            "iconColor": "#fed7aa",
+                            "objectFit": "contain",
                             "style": {
                               "width": "100%",
-                              "height": "200rpx",
-                              "borderRadius": "8rpx"
-                            },
-                            "alt": "图片",
-                            "title": "图片"
+                              "height": "128rpx",
+                              "borderRadius": "14rpx"
+                            }
                           },
                           "children": []
                         },
                         {
-                          "id": "p1-img2",
+                          "id": "social-img-0-1",
                           "alias": "core.image",
                           "layout": {
                             "mode": "flow",
                             "order": 1
                           },
                           "props": {
-                            "src": "https://placeholder.com/photo2.png",
+                            "alt": "动态图片",
+                            "title": "动态图片",
+                            "iconColor": "#bbf7d0",
+                            "objectFit": "contain",
                             "style": {
                               "width": "100%",
-                              "height": "200rpx",
-                              "borderRadius": "8rpx"
-                            },
-                            "alt": "图片",
-                            "title": "图片"
+                              "height": "128rpx",
+                              "borderRadius": "14rpx"
+                            }
                           },
                           "children": []
                         },
                         {
-                          "id": "p1-img3",
+                          "id": "social-img-0-2",
                           "alias": "core.image",
                           "layout": {
                             "mode": "flow",
                             "order": 2
                           },
                           "props": {
-                            "src": "https://placeholder.com/photo3.png",
+                            "alt": "动态图片",
+                            "title": "动态图片",
+                            "iconColor": "#ddd6fe",
+                            "objectFit": "contain",
                             "style": {
                               "width": "100%",
-                              "height": "200rpx",
-                              "borderRadius": "8rpx"
-                            },
-                            "alt": "图片",
-                            "title": "图片"
+                              "height": "128rpx",
+                              "borderRadius": "14rpx"
+                            }
                           },
                           "children": []
                         }
                       ]
                     },
                     {
-                      "id": "p1-actions",
+                      "id": "social-actions-0",
                       "alias": "core.row",
                       "layout": {
                         "mode": "flow",
-                        "order": 3
+                        "order": 3,
+                        "width": "100%"
                       },
                       "props": {
                         "style": {
-                          "justifyContent": "flex-end",
-                          "gap": "32rpx",
-                          "marginTop": "16rpx"
+                          "justifyContent": "space-between",
+                          "marginTop": "14rpx"
                         }
                       },
                       "children": [
                         {
-                          "id": "p1-like",
-                          "alias": "core.row",
+                          "id": "social-like-0",
+                          "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 0
                           },
                           "props": {
+                            "text": "赞 128",
+                            "variant": "caption",
                             "style": {
-                              "alignItems": "center",
-                              "gap": "8rpx"
+                              "color": "#64748b"
                             }
                           },
-                          "children": [
-                            {
-                              "id": "p1-like-icon",
-                              "alias": "core.image",
-                              "layout": {
-                                "mode": "flow",
-                                "order": 0
-                              },
-                              "props": {
-                                "alt": "图标",
-                                "title": "图标",
-                                "objectFit": "contain",
-                                "iconColor": "var(--color-text-secondary)"
-                              },
-                              "children": []
-                            },
-                            {
-                              "id": "p1-like-num",
-                              "alias": "core.text",
-                              "layout": {
-                                "mode": "flow",
-                                "order": 1
-                              },
-                              "props": {
-                                "text": "12",
-                                "style": {
-                                  "fontSize": "22rpx",
-                                  "color": "var(--color-text-secondary)"
-                                }
-                              },
-                              "children": []
-                            }
-                          ]
+                          "children": []
                         },
                         {
-                          "id": "p1-comment",
-                          "alias": "core.row",
+                          "id": "social-comment-0",
+                          "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 1
                           },
                           "props": {
+                            "text": "评论 36",
+                            "variant": "caption",
                             "style": {
-                              "alignItems": "center",
-                              "gap": "8rpx"
+                              "color": "#64748b"
                             }
                           },
-                          "children": [
-                            {
-                              "id": "p1-comment-icon",
-                              "alias": "core.image",
-                              "layout": {
-                                "mode": "flow",
-                                "order": 0
-                              },
-                              "props": {
-                                "alt": "图标",
-                                "title": "图标",
-                                "objectFit": "contain",
-                                "iconColor": "var(--color-text-secondary)"
-                              },
-                              "children": []
-                            },
-                            {
-                              "id": "p1-comment-num",
-                              "alias": "core.text",
-                              "layout": {
-                                "mode": "flow",
-                                "order": 1
-                              },
-                              "props": {
-                                "text": "5",
-                                "style": {
-                                  "fontSize": "22rpx",
-                                  "color": "var(--color-text-secondary)"
-                                }
-                              },
-                              "children": []
+                          "children": []
+                        },
+                        {
+                          "id": "social-share-0",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 2
+                          },
+                          "props": {
+                            "text": "转发",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#64748b"
                             }
-                          ]
+                          },
+                          "children": []
                         }
                       ]
                     }
                   ]
                 },
                 {
-                  "id": "post-2",
+                  "id": "social-card-1",
                   "alias": "core.panel",
                   "layout": {
                     "mode": "flow",
-                    "order": 1
+                    "order": 1,
+                    "width": "100%"
                   },
                   "props": {
                     "style": {
-                      "padding": "24rpx",
-                      "borderRadius": "16rpx",
-                      "background": "#fff",
-                      "boxShadow": "0 2rpx 12rpx rgba(0,0,0,0.06)"
+                      "padding": "22rpx",
+                      "borderRadius": "26rpx",
+                      "background": "#fff"
                     }
                   },
                   "children": [
                     {
-                      "id": "p2-header",
+                      "id": "social-card-user-1",
                       "alias": "core.row",
                       "layout": {
                         "mode": "flow",
-                        "order": 0
+                        "order": 0,
+                        "width": "100%"
                       },
                       "props": {
                         "style": {
-                          "gap": "16rpx",
-                          "alignItems": "center",
-                          "marginBottom": "16rpx"
+                          "gap": "14rpx",
+                          "alignItems": "center"
                         }
                       },
                       "children": [
                         {
-                          "id": "p2-avatar",
+                          "id": "social-card-avatar-1",
                           "alias": "core.image",
                           "layout": {
                             "mode": "flow",
                             "order": 0
                           },
                           "props": {
-                            "src": "https://placeholder.com/avatar.png",
+                            "alt": "好友头像",
+                            "title": "好友头像",
+                            "iconColor": "#22c55e",
+                            "objectFit": "contain",
                             "style": {
-                              "width": "80rpx",
-                              "height": "80rpx",
+                              "width": "72rpx",
+                              "height": "72rpx",
                               "borderRadius": "50%"
-                            },
-                            "alt": "图片",
-                            "title": "图片"
+                            }
                           },
                           "children": []
                         },
                         {
-                          "id": "p2-userinfo",
+                          "id": "social-card-user-copy-1",
                           "alias": "core.stack",
                           "layout": {
                             "mode": "flow",
-                            "order": 1
+                            "order": 1,
+                            "width": "auto"
                           },
                           "props": {
                             "style": {
@@ -604,33 +1317,31 @@
                           },
                           "children": [
                             {
-                              "id": "p2-name",
+                              "id": "social-card-name-1",
                               "alias": "core.text",
                               "layout": {
                                 "mode": "flow",
                                 "order": 0
                               },
                               "props": {
-                                "text": "美食达人",
-                                "style": {
-                                  "fontSize": "28rpx",
-                                  "fontWeight": "bold"
-                                }
+                                "text": "阿琳",
+                                "variant": "subheading",
+                                "style": {}
                               },
                               "children": []
                             },
                             {
-                              "id": "p2-time",
+                              "id": "social-card-time-1",
                               "alias": "core.text",
                               "layout": {
                                 "mode": "flow",
                                 "order": 1
                               },
                               "props": {
-                                "text": "30分钟前",
+                                "text": "2小时前",
+                                "variant": "caption",
                                 "style": {
-                                  "fontSize": "22rpx",
-                                  "color": "var(--color-text-secondary)"
+                                  "color": "#64748b"
                                 }
                               },
                               "children": []
@@ -640,84 +1351,484 @@
                       ]
                     },
                     {
-                      "id": "p2-text",
+                      "id": "social-card-text-1",
                       "alias": "core.text",
                       "layout": {
                         "mode": "flow",
                         "order": 1
                       },
                       "props": {
-                        "text": "分享一个超简单的家常菜做法，保证一学就会！",
+                        "text": "城市夜跑打卡成功",
+                        "variant": "body",
                         "style": {
-                          "fontSize": "28rpx",
-                          "lineHeight": "1.6",
-                          "marginBottom": "16rpx"
+                          "marginTop": "16rpx"
                         }
                       },
                       "children": []
                     },
                     {
-                      "id": "p2-single-img",
-                      "alias": "core.image",
+                      "id": "social-card-images-1",
+                      "alias": "core.grid",
                       "layout": {
                         "mode": "flow",
-                        "order": 2
+                        "order": 2,
+                        "width": "100%"
                       },
                       "props": {
-                        "src": "https://placeholder.com/food.png",
+                        "columns": 3,
                         "style": {
-                          "width": "100%",
-                          "height": "360rpx",
-                          "borderRadius": "12rpx"
+                          "gap": "8rpx",
+                          "marginTop": "14rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "social-img-1-0",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "动态图片",
+                            "title": "动态图片",
+                            "iconColor": "#fed7aa",
+                            "objectFit": "contain",
+                            "style": {
+                              "width": "100%",
+                              "height": "128rpx",
+                              "borderRadius": "14rpx"
+                            }
+                          },
+                          "children": []
                         },
-                        "alt": "图片",
-                        "title": "图片"
+                        {
+                          "id": "social-img-1-1",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "alt": "动态图片",
+                            "title": "动态图片",
+                            "iconColor": "#bbf7d0",
+                            "objectFit": "contain",
+                            "style": {
+                              "width": "100%",
+                              "height": "128rpx",
+                              "borderRadius": "14rpx"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "social-img-1-2",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 2
+                          },
+                          "props": {
+                            "alt": "动态图片",
+                            "title": "动态图片",
+                            "iconColor": "#ddd6fe",
+                            "objectFit": "contain",
+                            "style": {
+                              "width": "100%",
+                              "height": "128rpx",
+                              "borderRadius": "14rpx"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "social-actions-1",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 3,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "justifyContent": "space-between",
+                          "marginTop": "14rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "social-like-1",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "赞 128",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#64748b"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "social-comment-1",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "评论 36",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#64748b"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "social-share-1",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 2
+                          },
+                          "props": {
+                            "text": "转发",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#64748b"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "social-card-2",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "22rpx",
+                      "borderRadius": "26rpx",
+                      "background": "#fff"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "social-card-user-2",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "gap": "14rpx",
+                          "alignItems": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "social-card-avatar-2",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "好友头像",
+                            "title": "好友头像",
+                            "iconColor": "#8b5cf6",
+                            "objectFit": "contain",
+                            "style": {
+                              "width": "72rpx",
+                              "height": "72rpx",
+                              "borderRadius": "50%"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "social-card-user-copy-2",
+                          "alias": "core.stack",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1,
+                            "width": "auto"
+                          },
+                          "props": {
+                            "style": {
+                              "gap": "4rpx"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "social-card-name-2",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "text": "陈安",
+                                "variant": "subheading",
+                                "style": {}
+                              },
+                              "children": []
+                            },
+                            {
+                              "id": "social-card-time-2",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 1
+                              },
+                              "props": {
+                                "text": "3小时前",
+                                "variant": "caption",
+                                "style": {
+                                  "color": "#64748b"
+                                }
+                              },
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "social-card-text-2",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "新开的展览值得去",
+                        "variant": "body",
+                        "style": {
+                          "marginTop": "16rpx"
+                        }
                       },
                       "children": []
+                    },
+                    {
+                      "id": "social-card-images-2",
+                      "alias": "core.grid",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "columns": 3,
+                        "style": {
+                          "gap": "8rpx",
+                          "marginTop": "14rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "social-img-2-0",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "动态图片",
+                            "title": "动态图片",
+                            "iconColor": "#fed7aa",
+                            "objectFit": "contain",
+                            "style": {
+                              "width": "100%",
+                              "height": "128rpx",
+                              "borderRadius": "14rpx"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "social-img-2-1",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "alt": "动态图片",
+                            "title": "动态图片",
+                            "iconColor": "#bbf7d0",
+                            "objectFit": "contain",
+                            "style": {
+                              "width": "100%",
+                              "height": "128rpx",
+                              "borderRadius": "14rpx"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "social-img-2-2",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 2
+                          },
+                          "props": {
+                            "alt": "动态图片",
+                            "title": "动态图片",
+                            "iconColor": "#ddd6fe",
+                            "objectFit": "contain",
+                            "style": {
+                              "width": "100%",
+                              "height": "128rpx",
+                              "borderRadius": "14rpx"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "social-actions-2",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 3,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "justifyContent": "space-between",
+                          "marginTop": "14rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "social-like-2",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "赞 128",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#64748b"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "social-comment-2",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "评论 36",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#64748b"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "social-share-2",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 2
+                          },
+                          "props": {
+                            "text": "转发",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#64748b"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
                     }
                   ]
                 }
               ]
             },
             {
-              "id": "publish-btn",
-              "alias": "core.panel",
+              "id": "social-floating-publish",
+              "alias": "core.button",
               "layout": {
                 "mode": "flow",
-                "order": 2
+                "order": 3
               },
               "props": {
+                "label": "发布动态",
+                "variant": "primary",
                 "style": {
-                  "position": "fixed",
-                  "right": "32rpx",
-                  "bottom": "120rpx",
-                  "width": "100rpx",
-                  "height": "100rpx",
-                  "borderRadius": "50%",
-                  "background": "var(--color-primary)",
-                  "boxShadow": "0 4rpx 16rpx rgba(244,63,94,0.4)",
-                  "display": "flex",
-                  "alignItems": "center",
-                  "justifyContent": "center"
+                  "margin": "0 20rpx 20rpx",
+                  "width": "calc(100% - 40rpx)"
                 }
               },
-              "children": [
-                {
-                  "id": "publish-icon",
-                  "alias": "core.image",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0
+              "children": []
+            },
+            {
+              "id": "page-feed-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "动态列表",
+                  "动态详情",
+                  "发布动态",
+                  "用户主页"
+                ],
+                "activeTab": "动态列表"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "动态列表": {
+                    "type": "navigate",
+                    "targetPageId": "page-feed"
                   },
-                  "props": {
-                    "alt": "图标",
-                    "title": "图标",
-                    "objectFit": "contain",
-                    "iconColor": "#fff"
+                  "动态详情": {
+                    "type": "navigate",
+                    "targetPageId": "page-detail"
                   },
-                  "children": []
+                  "发布动态": {
+                    "type": "navigate",
+                    "targetPageId": "page-publish"
+                  },
+                  "用户主页": {
+                    "type": "navigate",
+                    "targetPageId": "page-user"
+                  }
                 }
-              ]
+              },
+              "children": []
             }
           ]
         }
@@ -734,15 +1845,51 @@
             "order": 1
           },
           "props": {
-            "title": "动态详情"
+            "title": "动态详情",
+            "style": {
+              "background": "var(--color-background, #f6f7fb)"
+            }
           },
           "children": [
+            {
+              "id": "page-detail-hero-banner",
+              "alias": "biz-hero-banner",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "badge": "社交动态",
+                "title": "动态详情",
+                "subtitle": "小明",
+                "actionLabel": "发布动态"
+              },
+              "children": []
+            },
+            {
+              "id": "page-detail-quick-search",
+              "alias": "core.search",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "placeholder": "搜索动态",
+                "style": {
+                  "width": "100%"
+                }
+              },
+              "children": []
+            },
             {
               "id": "detail-post",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 0
+                "order": 2,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -774,14 +1921,15 @@
                         "order": 0
                       },
                       "props": {
-                        "src": "https://placeholder.com/avatar.png",
                         "style": {
                           "width": "88rpx",
                           "height": "88rpx",
                           "borderRadius": "50%"
                         },
-                        "alt": "图片",
-                        "title": "图片"
+                        "alt": "业务视觉元素",
+                        "title": "业务视觉元素",
+                        "iconColor": "#f43f5e",
+                        "objectFit": "cover"
                       },
                       "children": []
                     },
@@ -810,7 +1958,8 @@
                             "style": {
                               "fontSize": "30rpx",
                               "fontWeight": "bold"
-                            }
+                            },
+                            "variant": "heading"
                           },
                           "children": []
                         },
@@ -826,7 +1975,8 @@
                             "style": {
                               "fontSize": "22rpx",
                               "color": "var(--color-text-secondary)"
-                            }
+                            },
+                            "variant": "caption"
                           },
                           "children": []
                         }
@@ -847,7 +1997,8 @@
                       "fontSize": "30rpx",
                       "lineHeight": "1.8",
                       "marginBottom": "20rpx"
-                    }
+                    },
+                    "variant": "body"
                   },
                   "children": []
                 },
@@ -874,14 +2025,15 @@
                         "order": 0
                       },
                       "props": {
-                        "src": "https://placeholder.com/photo1.png",
                         "style": {
                           "width": "100%",
                           "height": "220rpx",
                           "borderRadius": "8rpx"
                         },
-                        "alt": "图片",
-                        "title": "图片"
+                        "alt": "业务视觉元素",
+                        "title": "业务视觉元素",
+                        "iconColor": "#f43f5e",
+                        "objectFit": "cover"
                       },
                       "children": []
                     },
@@ -893,14 +2045,15 @@
                         "order": 1
                       },
                       "props": {
-                        "src": "https://placeholder.com/photo2.png",
                         "style": {
                           "width": "100%",
                           "height": "220rpx",
                           "borderRadius": "8rpx"
                         },
-                        "alt": "图片",
-                        "title": "图片"
+                        "alt": "业务视觉元素",
+                        "title": "业务视觉元素",
+                        "iconColor": "#f43f5e",
+                        "objectFit": "cover"
                       },
                       "children": []
                     },
@@ -912,14 +2065,15 @@
                         "order": 2
                       },
                       "props": {
-                        "src": "https://placeholder.com/photo3.png",
                         "style": {
                           "width": "100%",
                           "height": "220rpx",
                           "borderRadius": "8rpx"
                         },
-                        "alt": "图片",
-                        "title": "图片"
+                        "alt": "业务视觉元素",
+                        "title": "业务视觉元素",
+                        "iconColor": "#f43f5e",
+                        "objectFit": "cover"
                       },
                       "children": []
                     }
@@ -932,7 +2086,8 @@
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 1
+                "order": 3,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -955,7 +2110,8 @@
                       "fontSize": "28rpx",
                       "fontWeight": "bold",
                       "marginBottom": "20rpx"
-                    }
+                    },
+                    "variant": "heading"
                   },
                   "children": []
                 },
@@ -981,15 +2137,16 @@
                         "order": 0
                       },
                       "props": {
-                        "src": "https://placeholder.com/avatar.png",
                         "style": {
                           "width": "56rpx",
                           "height": "56rpx",
                           "borderRadius": "50%",
                           "flexShrink": 0
                         },
-                        "alt": "图片",
-                        "title": "图片"
+                        "alt": "业务视觉元素",
+                        "title": "业务视觉元素",
+                        "iconColor": "#f43f5e",
+                        "objectFit": "cover"
                       },
                       "children": []
                     },
@@ -1020,7 +2177,8 @@
                               "fontSize": "24rpx",
                               "fontWeight": "bold",
                               "color": "var(--color-primary)"
-                            }
+                            },
+                            "variant": "heading"
                           },
                           "children": []
                         },
@@ -1036,7 +2194,8 @@
                             "style": {
                               "fontSize": "26rpx",
                               "lineHeight": "1.6"
-                            }
+                            },
+                            "variant": "body"
                           },
                           "children": []
                         },
@@ -1052,7 +2211,8 @@
                             "style": {
                               "fontSize": "22rpx",
                               "color": "var(--color-text-secondary)"
-                            }
+                            },
+                            "variant": "caption"
                           },
                           "children": []
                         }
@@ -1061,6 +2221,63 @@
                   ]
                 }
               ]
+            },
+            {
+              "id": "page-detail-primary-action",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 4,
+                "width": "100%"
+              },
+              "props": {
+                "variant": "primary",
+                "label": "发布动态",
+                "style": {
+                  "width": "100%"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "page-detail-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "动态列表",
+                  "动态详情",
+                  "发布动态",
+                  "用户主页"
+                ],
+                "activeTab": "动态详情"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "动态列表": {
+                    "type": "navigate",
+                    "targetPageId": "page-feed"
+                  },
+                  "动态详情": {
+                    "type": "navigate",
+                    "targetPageId": "page-detail"
+                  },
+                  "发布动态": {
+                    "type": "navigate",
+                    "targetPageId": "page-publish"
+                  },
+                  "用户主页": {
+                    "type": "navigate",
+                    "targetPageId": "page-user"
+                  }
+                }
+              },
+              "children": []
             }
           ]
         }
@@ -1077,15 +2294,51 @@
             "order": 2
           },
           "props": {
-            "title": "发布动态"
+            "title": "发布动态",
+            "style": {
+              "background": "var(--color-background, #f6f7fb)"
+            }
           },
           "children": [
+            {
+              "id": "page-publish-hero-banner",
+              "alias": "biz-hero-banner",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "badge": "社交动态",
+                "title": "发布动态",
+                "subtitle": "取消",
+                "actionLabel": "发布动态"
+              },
+              "children": []
+            },
+            {
+              "id": "page-publish-quick-search",
+              "alias": "core.search",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "placeholder": "搜索发布动态",
+                "style": {
+                  "width": "100%"
+                }
+              },
+              "children": []
+            },
             {
               "id": "pub-header",
               "alias": "core.row",
               "layout": {
                 "mode": "flow",
-                "order": 0
+                "order": 2,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -1109,7 +2362,8 @@
                     "style": {
                       "fontSize": "28rpx",
                       "color": "var(--color-text-secondary)"
-                    }
+                    },
+                    "variant": "body"
                   },
                   "children": []
                 },
@@ -1125,7 +2379,8 @@
                     "style": {
                       "fontSize": "32rpx",
                       "fontWeight": "bold"
-                    }
+                    },
+                    "variant": "heading"
                   },
                   "children": []
                 },
@@ -1134,9 +2389,11 @@
                   "alias": "core.button",
                   "layout": {
                     "mode": "flow",
-                    "order": 2
+                    "order": 2,
+                    "width": "100%"
                   },
                   "props": {
+                    "variant": "primary",
                     "style": {
                       "padding": "12rpx 28rpx",
                       "borderRadius": "32rpx",
@@ -1155,7 +2412,8 @@
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 1
+                "order": 3,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -1177,7 +2435,8 @@
                       "fontSize": "30rpx",
                       "color": "var(--color-text-secondary)",
                       "minHeight": "200rpx"
-                    }
+                    },
+                    "variant": "body"
                   },
                   "children": []
                 }
@@ -1188,7 +2447,8 @@
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 2
+                "order": 4,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -1257,7 +2517,8 @@
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 3
+                "order": 5,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -1323,7 +2584,8 @@
                             "text": "所在位置",
                             "style": {
                               "fontSize": "28rpx"
-                            }
+                            },
+                            "variant": "body"
                           },
                           "children": []
                         }
@@ -1340,7 +2602,8 @@
                         "text": ">",
                         "style": {
                           "color": "var(--color-text-secondary)"
-                        }
+                        },
+                        "variant": "body"
                       },
                       "children": []
                     }
@@ -1401,7 +2664,8 @@
                             "text": "谁可以看",
                             "style": {
                               "fontSize": "28rpx"
-                            }
+                            },
+                            "variant": "body"
                           },
                           "children": []
                         }
@@ -1419,13 +2683,54 @@
                         "style": {
                           "fontSize": "26rpx",
                           "color": "var(--color-text-secondary)"
-                        }
+                        },
+                        "variant": "body"
                       },
                       "children": []
                     }
                   ]
                 }
               ]
+            },
+            {
+              "id": "page-publish-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "动态列表",
+                  "动态详情",
+                  "发布动态",
+                  "用户主页"
+                ],
+                "activeTab": "发布动态"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "动态列表": {
+                    "type": "navigate",
+                    "targetPageId": "page-feed"
+                  },
+                  "动态详情": {
+                    "type": "navigate",
+                    "targetPageId": "page-detail"
+                  },
+                  "发布动态": {
+                    "type": "navigate",
+                    "targetPageId": "page-publish"
+                  },
+                  "用户主页": {
+                    "type": "navigate",
+                    "targetPageId": "page-user"
+                  }
+                }
+              },
+              "children": []
             }
           ]
         }
@@ -1442,24 +2747,45 @@
             "order": 3
           },
           "props": {
-            "title": "用户主页"
+            "title": "用户主页",
+            "style": {
+              "background": "var(--color-background, #f6f7fb)"
+            }
           },
           "children": [
+            {
+              "id": "page-user-hero-banner",
+              "alias": "biz-hero-banner",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "badge": "社交动态",
+                "title": "用户主页",
+                "subtitle": "小明",
+                "actionLabel": "发布动态"
+              },
+              "children": []
+            },
             {
               "id": "user-cover",
               "alias": "core.image",
               "layout": {
                 "mode": "flow",
-                "order": 0
+                "order": 1,
+                "width": "100%"
               },
               "props": {
-                "src": "https://placeholder.com/cover.png",
                 "style": {
                   "width": "100%",
                   "height": "360rpx"
                 },
-                "alt": "图片",
-                "title": "图片"
+                "alt": "业务视觉元素",
+                "title": "业务视觉元素",
+                "iconColor": "#f43f5e",
+                "objectFit": "cover"
               },
               "children": []
             },
@@ -1468,7 +2794,8 @@
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 1
+                "order": 2,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -1504,7 +2831,6 @@
                         "order": 0
                       },
                       "props": {
-                        "src": "https://placeholder.com/avatar.png",
                         "style": {
                           "width": "120rpx",
                           "height": "120rpx",
@@ -1512,8 +2838,10 @@
                           "margin": "-80rpx auto 16rpx",
                           "border": "4rpx solid #fff"
                         },
-                        "alt": "图片",
-                        "title": "图片"
+                        "alt": "业务视觉元素",
+                        "title": "业务视觉元素",
+                        "iconColor": "#f43f5e",
+                        "objectFit": "cover"
                       },
                       "children": []
                     },
@@ -1529,7 +2857,8 @@
                         "style": {
                           "fontSize": "34rpx",
                           "fontWeight": "bold"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     },
@@ -1546,7 +2875,8 @@
                           "fontSize": "24rpx",
                           "color": "var(--color-text-secondary)",
                           "marginTop": "8rpx"
-                        }
+                        },
+                        "variant": "caption"
                       },
                       "children": []
                     },
@@ -1592,7 +2922,8 @@
                                   "fontSize": "32rpx",
                                   "fontWeight": "bold",
                                   "color": "var(--color-primary)"
-                                }
+                                },
+                                "variant": "heading"
                               },
                               "children": []
                             },
@@ -1608,7 +2939,8 @@
                                 "style": {
                                   "fontSize": "22rpx",
                                   "color": "var(--color-text-secondary)"
-                                }
+                                },
+                                "variant": "caption"
                               },
                               "children": []
                             }
@@ -1640,7 +2972,8 @@
                                   "fontSize": "32rpx",
                                   "fontWeight": "bold",
                                   "color": "var(--color-primary)"
-                                }
+                                },
+                                "variant": "heading"
                               },
                               "children": []
                             },
@@ -1656,7 +2989,8 @@
                                 "style": {
                                   "fontSize": "22rpx",
                                   "color": "var(--color-text-secondary)"
-                                }
+                                },
+                                "variant": "caption"
                               },
                               "children": []
                             }
@@ -1688,7 +3022,8 @@
                                   "fontSize": "32rpx",
                                   "fontWeight": "bold",
                                   "color": "var(--color-primary)"
-                                }
+                                },
+                                "variant": "heading"
                               },
                               "children": []
                             },
@@ -1704,7 +3039,8 @@
                                 "style": {
                                   "fontSize": "22rpx",
                                   "color": "var(--color-text-secondary)"
-                                }
+                                },
+                                "variant": "caption"
                               },
                               "children": []
                             }
@@ -1721,7 +3057,8 @@
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 2
+                "order": 3,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -1737,12 +3074,13 @@
                     "order": 0
                   },
                   "props": {
-                    "text": "TA的动态",
+                    "text": "好友动态",
                     "style": {
                       "fontSize": "28rpx",
                       "fontWeight": "bold",
                       "marginBottom": "16rpx"
-                    }
+                    },
+                    "variant": "heading"
                   },
                   "children": []
                 },
@@ -1787,7 +3125,8 @@
                             "style": {
                               "fontSize": "26rpx",
                               "marginBottom": "12rpx"
-                            }
+                            },
+                            "variant": "body"
                           },
                           "children": []
                         },
@@ -1799,14 +3138,15 @@
                             "order": 1
                           },
                           "props": {
-                            "src": "https://placeholder.com/coffee.png",
                             "style": {
                               "width": "100%",
                               "height": "240rpx",
                               "borderRadius": "8rpx"
                             },
-                            "alt": "图片",
-                            "title": "图片"
+                            "alt": "业务视觉元素",
+                            "title": "业务视觉元素",
+                            "iconColor": "#f43f5e",
+                            "objectFit": "cover"
                           },
                           "children": []
                         }
@@ -1815,6 +3155,63 @@
                   ]
                 }
               ]
+            },
+            {
+              "id": "page-user-primary-action",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 4,
+                "width": "100%"
+              },
+              "props": {
+                "variant": "primary",
+                "label": "发布动态",
+                "style": {
+                  "width": "100%"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "page-user-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "动态列表",
+                  "动态详情",
+                  "发布动态",
+                  "用户主页"
+                ],
+                "activeTab": "用户主页"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "动态列表": {
+                    "type": "navigate",
+                    "targetPageId": "page-feed"
+                  },
+                  "动态详情": {
+                    "type": "navigate",
+                    "targetPageId": "page-detail"
+                  },
+                  "发布动态": {
+                    "type": "navigate",
+                    "targetPageId": "page-publish"
+                  },
+                  "用户主页": {
+                    "type": "navigate",
+                    "targetPageId": "page-user"
+                  }
+                }
+              },
+              "children": []
             }
           ]
         }
@@ -1828,113 +3225,573 @@
         "order": 0
       },
       "props": {
-        "title": "动态列表"
+        "title": "动态首页",
+        "style": {
+          "background": "#f8fafc"
+        }
       },
       "children": [
         {
-          "id": "feed-header",
-          "alias": "core.panel",
+          "id": "social-story-row",
+          "alias": "core.row",
           "layout": {
             "mode": "flow",
-            "order": 0
+            "order": 0,
+            "width": "100%"
           },
           "props": {
             "style": {
-              "padding": "24rpx 32rpx",
-              "background": "var(--color-primary)",
-              "borderRadius": "0 0 24rpx 24rpx"
+              "padding": "20rpx",
+              "gap": "16rpx",
+              "overflowX": "auto"
             }
           },
           "children": [
             {
-              "id": "feed-title",
-              "alias": "core.text",
+              "id": "social-story-0",
+              "alias": "core.stack",
               "layout": {
                 "mode": "flow",
-                "order": 0
-              },
-              "props": {
-                "text": "朋友圈",
-                "style": {
-                  "fontSize": "36rpx",
-                  "fontWeight": "bold",
-                  "color": "#fff"
-                }
-              },
-              "children": []
-            }
-          ]
-        },
-        {
-          "id": "feed-list",
-          "alias": "core.stack",
-          "layout": {
-            "mode": "flow",
-            "order": 1
-          },
-          "props": {
-            "style": {
-              "padding": "24rpx 32rpx",
-              "gap": "24rpx"
-            }
-          },
-          "children": [
-            {
-              "id": "post-1",
-              "alias": "core.panel",
-              "layout": {
-                "mode": "flow",
-                "order": 0
+                "order": 0,
+                "width": "auto"
               },
               "props": {
                 "style": {
-                  "padding": "24rpx",
-                  "borderRadius": "16rpx",
-                  "background": "#fff",
-                  "boxShadow": "0 2rpx 12rpx rgba(0,0,0,0.06)"
+                  "alignItems": "center",
+                  "gap": "8rpx",
+                  "minWidth": "104rpx"
                 }
               },
               "children": [
                 {
-                  "id": "p1-header",
-                  "alias": "core.row",
+                  "id": "social-story-ring-0",
+                  "alias": "core.panel",
                   "layout": {
                     "mode": "flow",
-                    "order": 0
+                    "order": 0,
+                    "width": "auto"
                   },
                   "props": {
                     "style": {
-                      "gap": "16rpx",
-                      "alignItems": "center",
-                      "marginBottom": "16rpx"
+                      "width": "88rpx",
+                      "height": "88rpx",
+                      "borderRadius": "50%",
+                      "padding": "6rpx",
+                      "background": "#dbeafe"
                     }
                   },
                   "children": [
                     {
-                      "id": "p1-avatar",
+                      "id": "social-story-img-0",
                       "alias": "core.image",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
-                        "src": "https://placeholder.com/avatar.png",
+                        "alt": "我的头像",
+                        "title": "我的头像",
+                        "iconColor": "#3b82f6",
+                        "objectFit": "contain",
                         "style": {
-                          "width": "80rpx",
-                          "height": "80rpx",
+                          "width": "100%",
+                          "height": "100%",
+                          "borderRadius": "50%",
+                          "background": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "social-story-name-0",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "我的",
+                    "variant": "caption",
+                    "style": {}
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "social-story-1",
+              "alias": "core.stack",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "auto"
+              },
+              "props": {
+                "style": {
+                  "alignItems": "center",
+                  "gap": "8rpx",
+                  "minWidth": "104rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "social-story-ring-1",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "auto"
+                  },
+                  "props": {
+                    "style": {
+                      "width": "88rpx",
+                      "height": "88rpx",
+                      "borderRadius": "50%",
+                      "padding": "6rpx",
+                      "background": "linear-gradient(135deg,#f97316,#ec4899)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "social-story-img-1",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "小明头像",
+                        "title": "小明头像",
+                        "iconColor": "#ec4899",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "100%",
+                          "height": "100%",
+                          "borderRadius": "50%",
+                          "background": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "social-story-name-1",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "小明",
+                    "variant": "caption",
+                    "style": {}
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "social-story-2",
+              "alias": "core.stack",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "auto"
+              },
+              "props": {
+                "style": {
+                  "alignItems": "center",
+                  "gap": "8rpx",
+                  "minWidth": "104rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "social-story-ring-2",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "auto"
+                  },
+                  "props": {
+                    "style": {
+                      "width": "88rpx",
+                      "height": "88rpx",
+                      "borderRadius": "50%",
+                      "padding": "6rpx",
+                      "background": "linear-gradient(135deg,#f97316,#ec4899)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "social-story-img-2",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "阿琳头像",
+                        "title": "阿琳头像",
+                        "iconColor": "#ec4899",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "100%",
+                          "height": "100%",
+                          "borderRadius": "50%",
+                          "background": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "social-story-name-2",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "阿琳",
+                    "variant": "caption",
+                    "style": {}
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "social-story-3",
+              "alias": "core.stack",
+              "layout": {
+                "mode": "flow",
+                "order": 3,
+                "width": "auto"
+              },
+              "props": {
+                "style": {
+                  "alignItems": "center",
+                  "gap": "8rpx",
+                  "minWidth": "104rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "social-story-ring-3",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "auto"
+                  },
+                  "props": {
+                    "style": {
+                      "width": "88rpx",
+                      "height": "88rpx",
+                      "borderRadius": "50%",
+                      "padding": "6rpx",
+                      "background": "linear-gradient(135deg,#f97316,#ec4899)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "social-story-img-3",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "同事头像",
+                        "title": "同事头像",
+                        "iconColor": "#ec4899",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "100%",
+                          "height": "100%",
+                          "borderRadius": "50%",
+                          "background": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "social-story-name-3",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "同事",
+                    "variant": "caption",
+                    "style": {}
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "social-story-4",
+              "alias": "core.stack",
+              "layout": {
+                "mode": "flow",
+                "order": 4,
+                "width": "auto"
+              },
+              "props": {
+                "style": {
+                  "alignItems": "center",
+                  "gap": "8rpx",
+                  "minWidth": "104rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "social-story-ring-4",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "auto"
+                  },
+                  "props": {
+                    "style": {
+                      "width": "88rpx",
+                      "height": "88rpx",
+                      "borderRadius": "50%",
+                      "padding": "6rpx",
+                      "background": "linear-gradient(135deg,#f97316,#ec4899)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "social-story-img-4",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "同城头像",
+                        "title": "同城头像",
+                        "iconColor": "#ec4899",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "100%",
+                          "height": "100%",
+                          "borderRadius": "50%",
+                          "background": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "social-story-name-4",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "同城",
+                    "variant": "caption",
+                    "style": {}
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "social-composer-card",
+          "alias": "core.panel",
+          "layout": {
+            "mode": "flow",
+            "order": 1,
+            "width": "100%"
+          },
+          "props": {
+            "style": {
+              "margin": "0 20rpx",
+              "padding": "20rpx",
+              "borderRadius": "24rpx",
+              "background": "#fff"
+            }
+          },
+          "children": [
+            {
+              "id": "social-composer-row",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "gap": "14rpx",
+                  "alignItems": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "social-my-avatar",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "alt": "我的头像",
+                    "title": "我的头像",
+                    "iconColor": "#60a5fa",
+                    "objectFit": "contain",
+                    "style": {
+                      "width": "72rpx",
+                      "height": "72rpx",
+                      "borderRadius": "50%"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "social-input-placeholder",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "auto"
+                  },
+                  "props": {
+                    "style": {
+                      "flex": 1,
+                      "padding": "18rpx 22rpx",
+                      "borderRadius": "999rpx",
+                      "background": "#f1f5f9"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "social-input-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "分享此刻想法...",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#64748b"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "social-photo-action",
+                  "alias": "core.button",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "label": "相册",
+                    "variant": "secondary",
+                    "style": {}
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "social-card-feed",
+          "alias": "core.stack",
+          "layout": {
+            "mode": "flow",
+            "order": 2,
+            "width": "100%"
+          },
+          "props": {
+            "style": {
+              "padding": "20rpx",
+              "gap": "18rpx"
+            }
+          },
+          "children": [
+            {
+              "id": "social-card-0",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "22rpx",
+                  "borderRadius": "26rpx",
+                  "background": "#fff"
+                }
+              },
+              "children": [
+                {
+                  "id": "social-card-user-0",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "14rpx",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "social-card-avatar-0",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "好友头像",
+                        "title": "好友头像",
+                        "iconColor": "#f97316",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "72rpx",
+                          "height": "72rpx",
                           "borderRadius": "50%"
-                        },
-                        "alt": "图片",
-                        "title": "图片"
+                        }
                       },
                       "children": []
                     },
                     {
-                      "id": "p1-userinfo",
+                      "id": "social-card-user-copy-0",
                       "alias": "core.stack",
                       "layout": {
                         "mode": "flow",
-                        "order": 1
+                        "order": 1,
+                        "width": "auto"
                       },
                       "props": {
                         "style": {
@@ -1943,7 +3800,7 @@
                       },
                       "children": [
                         {
-                          "id": "p1-name",
+                          "id": "social-card-name-0",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
@@ -1951,26 +3808,23 @@
                           },
                           "props": {
                             "text": "小明",
-                            "style": {
-                              "fontSize": "28rpx",
-                              "fontWeight": "bold",
-                              "color": "var(--color-text-primary)"
-                            }
+                            "variant": "subheading",
+                            "style": {}
                           },
                           "children": []
                         },
                         {
-                          "id": "p1-time",
+                          "id": "social-card-time-0",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 1
                           },
                           "props": {
-                            "text": "10分钟前",
+                            "text": "1小时前",
+                            "variant": "caption",
                             "style": {
-                              "fontSize": "22rpx",
-                              "color": "var(--color-text-secondary)"
+                              "color": "#64748b"
                             }
                           },
                           "children": []
@@ -1980,265 +3834,224 @@
                   ]
                 },
                 {
-                  "id": "p1-text",
+                  "id": "social-card-text-0",
                   "alias": "core.text",
                   "layout": {
                     "mode": "flow",
                     "order": 1
                   },
                   "props": {
-                    "text": "今天天气真好，出去走走拍了些照片分享给大家～",
+                    "text": "咖啡店里的周末计划",
+                    "variant": "body",
                     "style": {
-                      "fontSize": "28rpx",
-                      "color": "var(--color-text-primary)",
-                      "lineHeight": "1.6",
-                      "marginBottom": "16rpx"
+                      "marginTop": "16rpx"
                     }
                   },
                   "children": []
                 },
                 {
-                  "id": "p1-images",
+                  "id": "social-card-images-0",
                   "alias": "core.grid",
                   "layout": {
                     "mode": "flow",
-                    "order": 2
+                    "order": 2,
+                    "width": "100%"
                   },
                   "props": {
                     "columns": 3,
                     "style": {
-                      "gap": "8rpx"
+                      "gap": "8rpx",
+                      "marginTop": "14rpx"
                     }
                   },
                   "children": [
                     {
-                      "id": "p1-img1",
+                      "id": "social-img-0-0",
                       "alias": "core.image",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
-                        "src": "https://placeholder.com/photo1.png",
+                        "alt": "动态图片",
+                        "title": "动态图片",
+                        "iconColor": "#fed7aa",
+                        "objectFit": "contain",
                         "style": {
                           "width": "100%",
-                          "height": "200rpx",
-                          "borderRadius": "8rpx"
-                        },
-                        "alt": "图片",
-                        "title": "图片"
+                          "height": "128rpx",
+                          "borderRadius": "14rpx"
+                        }
                       },
                       "children": []
                     },
                     {
-                      "id": "p1-img2",
+                      "id": "social-img-0-1",
                       "alias": "core.image",
                       "layout": {
                         "mode": "flow",
                         "order": 1
                       },
                       "props": {
-                        "src": "https://placeholder.com/photo2.png",
+                        "alt": "动态图片",
+                        "title": "动态图片",
+                        "iconColor": "#bbf7d0",
+                        "objectFit": "contain",
                         "style": {
                           "width": "100%",
-                          "height": "200rpx",
-                          "borderRadius": "8rpx"
-                        },
-                        "alt": "图片",
-                        "title": "图片"
+                          "height": "128rpx",
+                          "borderRadius": "14rpx"
+                        }
                       },
                       "children": []
                     },
                     {
-                      "id": "p1-img3",
+                      "id": "social-img-0-2",
                       "alias": "core.image",
                       "layout": {
                         "mode": "flow",
                         "order": 2
                       },
                       "props": {
-                        "src": "https://placeholder.com/photo3.png",
+                        "alt": "动态图片",
+                        "title": "动态图片",
+                        "iconColor": "#ddd6fe",
+                        "objectFit": "contain",
                         "style": {
                           "width": "100%",
-                          "height": "200rpx",
-                          "borderRadius": "8rpx"
-                        },
-                        "alt": "图片",
-                        "title": "图片"
+                          "height": "128rpx",
+                          "borderRadius": "14rpx"
+                        }
                       },
                       "children": []
                     }
                   ]
                 },
                 {
-                  "id": "p1-actions",
+                  "id": "social-actions-0",
                   "alias": "core.row",
                   "layout": {
                     "mode": "flow",
-                    "order": 3
+                    "order": 3,
+                    "width": "100%"
                   },
                   "props": {
                     "style": {
-                      "justifyContent": "flex-end",
-                      "gap": "32rpx",
-                      "marginTop": "16rpx"
+                      "justifyContent": "space-between",
+                      "marginTop": "14rpx"
                     }
                   },
                   "children": [
                     {
-                      "id": "p1-like",
-                      "alias": "core.row",
+                      "id": "social-like-0",
+                      "alias": "core.text",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
+                        "text": "赞 128",
+                        "variant": "caption",
                         "style": {
-                          "alignItems": "center",
-                          "gap": "8rpx"
+                          "color": "#64748b"
                         }
                       },
-                      "children": [
-                        {
-                          "id": "p1-like-icon",
-                          "alias": "core.image",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "alt": "图标",
-                            "title": "图标",
-                            "objectFit": "contain",
-                            "iconColor": "var(--color-text-secondary)"
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "p1-like-num",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 1
-                          },
-                          "props": {
-                            "text": "12",
-                            "style": {
-                              "fontSize": "22rpx",
-                              "color": "var(--color-text-secondary)"
-                            }
-                          },
-                          "children": []
-                        }
-                      ]
+                      "children": []
                     },
                     {
-                      "id": "p1-comment",
-                      "alias": "core.row",
+                      "id": "social-comment-0",
+                      "alias": "core.text",
                       "layout": {
                         "mode": "flow",
                         "order": 1
                       },
                       "props": {
+                        "text": "评论 36",
+                        "variant": "caption",
                         "style": {
-                          "alignItems": "center",
-                          "gap": "8rpx"
+                          "color": "#64748b"
                         }
                       },
-                      "children": [
-                        {
-                          "id": "p1-comment-icon",
-                          "alias": "core.image",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "alt": "图标",
-                            "title": "图标",
-                            "objectFit": "contain",
-                            "iconColor": "var(--color-text-secondary)"
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "p1-comment-num",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 1
-                          },
-                          "props": {
-                            "text": "5",
-                            "style": {
-                              "fontSize": "22rpx",
-                              "color": "var(--color-text-secondary)"
-                            }
-                          },
-                          "children": []
+                      "children": []
+                    },
+                    {
+                      "id": "social-share-0",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "text": "转发",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#64748b"
                         }
-                      ]
+                      },
+                      "children": []
                     }
                   ]
                 }
               ]
             },
             {
-              "id": "post-2",
+              "id": "social-card-1",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 1
+                "order": 1,
+                "width": "100%"
               },
               "props": {
                 "style": {
-                  "padding": "24rpx",
-                  "borderRadius": "16rpx",
-                  "background": "#fff",
-                  "boxShadow": "0 2rpx 12rpx rgba(0,0,0,0.06)"
+                  "padding": "22rpx",
+                  "borderRadius": "26rpx",
+                  "background": "#fff"
                 }
               },
               "children": [
                 {
-                  "id": "p2-header",
+                  "id": "social-card-user-1",
                   "alias": "core.row",
                   "layout": {
                     "mode": "flow",
-                    "order": 0
+                    "order": 0,
+                    "width": "100%"
                   },
                   "props": {
                     "style": {
-                      "gap": "16rpx",
-                      "alignItems": "center",
-                      "marginBottom": "16rpx"
+                      "gap": "14rpx",
+                      "alignItems": "center"
                     }
                   },
                   "children": [
                     {
-                      "id": "p2-avatar",
+                      "id": "social-card-avatar-1",
                       "alias": "core.image",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
-                        "src": "https://placeholder.com/avatar.png",
+                        "alt": "好友头像",
+                        "title": "好友头像",
+                        "iconColor": "#22c55e",
+                        "objectFit": "contain",
                         "style": {
-                          "width": "80rpx",
-                          "height": "80rpx",
+                          "width": "72rpx",
+                          "height": "72rpx",
                           "borderRadius": "50%"
-                        },
-                        "alt": "图片",
-                        "title": "图片"
+                        }
                       },
                       "children": []
                     },
                     {
-                      "id": "p2-userinfo",
+                      "id": "social-card-user-copy-1",
                       "alias": "core.stack",
                       "layout": {
                         "mode": "flow",
-                        "order": 1
+                        "order": 1,
+                        "width": "auto"
                       },
                       "props": {
                         "style": {
@@ -2247,33 +4060,31 @@
                       },
                       "children": [
                         {
-                          "id": "p2-name",
+                          "id": "social-card-name-1",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 0
                           },
                           "props": {
-                            "text": "美食达人",
-                            "style": {
-                              "fontSize": "28rpx",
-                              "fontWeight": "bold"
-                            }
+                            "text": "阿琳",
+                            "variant": "subheading",
+                            "style": {}
                           },
                           "children": []
                         },
                         {
-                          "id": "p2-time",
+                          "id": "social-card-time-1",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 1
                           },
                           "props": {
-                            "text": "30分钟前",
+                            "text": "2小时前",
+                            "variant": "caption",
                             "style": {
-                              "fontSize": "22rpx",
-                              "color": "var(--color-text-secondary)"
+                              "color": "#64748b"
                             }
                           },
                           "children": []
@@ -2283,88 +4094,559 @@
                   ]
                 },
                 {
-                  "id": "p2-text",
+                  "id": "social-card-text-1",
                   "alias": "core.text",
                   "layout": {
                     "mode": "flow",
                     "order": 1
                   },
                   "props": {
-                    "text": "分享一个超简单的家常菜做法，保证一学就会！",
+                    "text": "城市夜跑打卡成功",
+                    "variant": "body",
                     "style": {
-                      "fontSize": "28rpx",
-                      "lineHeight": "1.6",
-                      "marginBottom": "16rpx"
+                      "marginTop": "16rpx"
                     }
                   },
                   "children": []
                 },
                 {
-                  "id": "p2-single-img",
-                  "alias": "core.image",
+                  "id": "social-card-images-1",
+                  "alias": "core.grid",
                   "layout": {
                     "mode": "flow",
-                    "order": 2
+                    "order": 2,
+                    "width": "100%"
                   },
                   "props": {
-                    "src": "https://placeholder.com/food.png",
+                    "columns": 3,
                     "style": {
-                      "width": "100%",
-                      "height": "360rpx",
-                      "borderRadius": "12rpx"
+                      "gap": "8rpx",
+                      "marginTop": "14rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "social-img-1-0",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "动态图片",
+                        "title": "动态图片",
+                        "iconColor": "#fed7aa",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "100%",
+                          "height": "128rpx",
+                          "borderRadius": "14rpx"
+                        }
+                      },
+                      "children": []
                     },
-                    "alt": "图片",
-                    "title": "图片"
+                    {
+                      "id": "social-img-1-1",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "alt": "动态图片",
+                        "title": "动态图片",
+                        "iconColor": "#bbf7d0",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "100%",
+                          "height": "128rpx",
+                          "borderRadius": "14rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "social-img-1-2",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "alt": "动态图片",
+                        "title": "动态图片",
+                        "iconColor": "#ddd6fe",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "100%",
+                          "height": "128rpx",
+                          "borderRadius": "14rpx"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "social-actions-1",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between",
+                      "marginTop": "14rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "social-like-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "赞 128",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#64748b"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "social-comment-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "评论 36",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#64748b"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "social-share-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "text": "转发",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#64748b"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "social-card-2",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "22rpx",
+                  "borderRadius": "26rpx",
+                  "background": "#fff"
+                }
+              },
+              "children": [
+                {
+                  "id": "social-card-user-2",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "14rpx",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "social-card-avatar-2",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "好友头像",
+                        "title": "好友头像",
+                        "iconColor": "#8b5cf6",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "72rpx",
+                          "height": "72rpx",
+                          "borderRadius": "50%"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "social-card-user-copy-2",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1,
+                        "width": "auto"
+                      },
+                      "props": {
+                        "style": {
+                          "gap": "4rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "social-card-name-2",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "陈安",
+                            "variant": "subheading",
+                            "style": {}
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "social-card-time-2",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "3小时前",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#64748b"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "social-card-text-2",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "新开的展览值得去",
+                    "variant": "body",
+                    "style": {
+                      "marginTop": "16rpx"
+                    }
                   },
                   "children": []
+                },
+                {
+                  "id": "social-card-images-2",
+                  "alias": "core.grid",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "columns": 3,
+                    "style": {
+                      "gap": "8rpx",
+                      "marginTop": "14rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "social-img-2-0",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "动态图片",
+                        "title": "动态图片",
+                        "iconColor": "#fed7aa",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "100%",
+                          "height": "128rpx",
+                          "borderRadius": "14rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "social-img-2-1",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "alt": "动态图片",
+                        "title": "动态图片",
+                        "iconColor": "#bbf7d0",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "100%",
+                          "height": "128rpx",
+                          "borderRadius": "14rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "social-img-2-2",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "alt": "动态图片",
+                        "title": "动态图片",
+                        "iconColor": "#ddd6fe",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "100%",
+                          "height": "128rpx",
+                          "borderRadius": "14rpx"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "social-actions-2",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between",
+                      "marginTop": "14rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "social-like-2",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "赞 128",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#64748b"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "social-comment-2",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "评论 36",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#64748b"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "social-share-2",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "text": "转发",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#64748b"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
                 }
               ]
             }
           ]
         },
         {
-          "id": "publish-btn",
-          "alias": "core.panel",
+          "id": "social-floating-publish",
+          "alias": "core.button",
           "layout": {
             "mode": "flow",
-            "order": 2
+            "order": 3
           },
           "props": {
+            "label": "发布动态",
+            "variant": "primary",
             "style": {
-              "position": "fixed",
-              "right": "32rpx",
-              "bottom": "120rpx",
-              "width": "100rpx",
-              "height": "100rpx",
-              "borderRadius": "50%",
-              "background": "var(--color-primary)",
-              "boxShadow": "0 4rpx 16rpx rgba(244,63,94,0.4)",
-              "display": "flex",
-              "alignItems": "center",
-              "justifyContent": "center"
+              "margin": "0 20rpx 20rpx",
+              "width": "calc(100% - 40rpx)"
+            }
+          },
+          "children": []
+        },
+        {
+          "id": "page-feed-bottom-tabs",
+          "alias": "core.tabs",
+          "slot": "footer",
+          "layout": {
+            "mode": "flow",
+            "order": 999,
+            "width": "100%"
+          },
+          "props": {
+            "tabs": [
+              "动态列表",
+              "动态详情",
+              "发布动态",
+              "用户主页"
+            ],
+            "activeTab": "动态列表"
+          },
+          "interactions": {
+            "onTabClick": {
+              "动态列表": {
+                "type": "navigate",
+                "targetPageId": "page-feed"
+              },
+              "动态详情": {
+                "type": "navigate",
+                "targetPageId": "page-detail"
+              },
+              "发布动态": {
+                "type": "navigate",
+                "targetPageId": "page-publish"
+              },
+              "用户主页": {
+                "type": "navigate",
+                "targetPageId": "page-user"
+              }
+            }
+          },
+          "children": []
+        }
+      ]
+    },
+    "componentTemplates": {
+      "biz-hero-banner": {
+        "root": {
+          "alias": "core.panel",
+          "props": {
+            "tone": "accent",
+            "gap": 12,
+            "style": {
+              "width": "100%",
+              "padding": "28px 24px",
+              "color": "#fff",
+              "borderRadius": "0 0 28px 28px",
+              "background": "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark, var(--color-primary)))",
+              "boxShadow": "0 16px 36px rgba(15,23,42,0.18)"
             }
           },
           "children": [
             {
-              "id": "publish-icon",
-              "alias": "core.image",
-              "layout": {
-                "mode": "flow",
-                "order": 0
-              },
+              "alias": "core.tag",
               "props": {
-                "alt": "图标",
-                "title": "图标",
-                "objectFit": "contain",
-                "iconColor": "#fff"
-              },
-              "children": []
+                "label": {
+                  "$bind": "badge"
+                },
+                "tone": "member",
+                "style": {
+                  "alignSelf": "flex-start",
+                  "background": "rgba(255,255,255,0.22)",
+                  "color": "#fff"
+                }
+              }
+            },
+            {
+              "alias": "core.text",
+              "props": {
+                "text": {
+                  "$bind": "title"
+                },
+                "variant": "display",
+                "style": {
+                  "color": "#fff"
+                }
+              }
+            },
+            {
+              "alias": "core.text",
+              "props": {
+                "text": {
+                  "$bind": "subtitle"
+                },
+                "variant": "body",
+                "style": {
+                  "color": "rgba(255,255,255,0.86)"
+                }
+              }
+            },
+            {
+              "alias": "core.button",
+              "props": {
+                "label": {
+                  "$bind": "actionLabel"
+                },
+                "variant": "secondary",
+                "style": {
+                  "width": "100%",
+                  "marginTop": "8px"
+                }
+              }
             }
           ]
         }
-      ]
+      }
     },
-    "componentTemplates": {},
     "cssVars": {
       "--color-primary": "#f43f5e",
       "--color-primary-dark": "#e11d48",
@@ -2492,5 +4774,76 @@
     "--color-background": "#f8fafc",
     "--color-surface": "#ffffff"
   },
-  "componentTemplates": {}
+  "componentTemplates": {
+    "biz-hero-banner": {
+      "root": {
+        "alias": "core.panel",
+        "props": {
+          "tone": "accent",
+          "gap": 12,
+          "style": {
+            "width": "100%",
+            "padding": "28px 24px",
+            "color": "#fff",
+            "borderRadius": "0 0 28px 28px",
+            "background": "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark, var(--color-primary)))",
+            "boxShadow": "0 16px 36px rgba(15,23,42,0.18)"
+          }
+        },
+        "children": [
+          {
+            "alias": "core.tag",
+            "props": {
+              "label": {
+                "$bind": "badge"
+              },
+              "tone": "member",
+              "style": {
+                "alignSelf": "flex-start",
+                "background": "rgba(255,255,255,0.22)",
+                "color": "#fff"
+              }
+            }
+          },
+          {
+            "alias": "core.text",
+            "props": {
+              "text": {
+                "$bind": "title"
+              },
+              "variant": "display",
+              "style": {
+                "color": "#fff"
+              }
+            }
+          },
+          {
+            "alias": "core.text",
+            "props": {
+              "text": {
+                "$bind": "subtitle"
+              },
+              "variant": "body",
+              "style": {
+                "color": "rgba(255,255,255,0.86)"
+              }
+            }
+          },
+          {
+            "alias": "core.button",
+            "props": {
+              "label": {
+                "$bind": "actionLabel"
+              },
+              "variant": "secondary",
+              "style": {
+                "width": "100%",
+                "marginTop": "8px"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
 }

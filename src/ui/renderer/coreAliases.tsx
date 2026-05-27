@@ -25,6 +25,27 @@ import { resolveFrameStyle, resolveLayoutStyle } from './styleResolvers';
 import type { ThemeRuntime } from './types';
 import type { CSSProperties, ReactNode } from 'react';
 
+function resolveTemplateStyle(value: unknown): CSSProperties {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return {};
+  }
+
+  const style: CSSProperties = {};
+
+  for (const [key, item] of Object.entries(value)) {
+    if (
+      typeof item === 'string'
+      || typeof item === 'number'
+      || item === null
+      || item === undefined
+    ) {
+      style[key as keyof CSSProperties] = item as never;
+    }
+  }
+
+  return style;
+}
+
 export function renderCoreAlias(
   runtime: ThemeRuntime,
   alias: string,
@@ -32,6 +53,7 @@ export function renderCoreAlias(
   children: ReactNode[],
 ) {
   const applyNodeLayoutStyle = props.__applyNodeLayoutStyle !== false;
+  const templateStyle = resolveTemplateStyle(props.style);
   const nodeLayoutStyle: CSSProperties = applyNodeLayoutStyle
     ? {
         ...resolveLayoutStyle(
@@ -41,8 +63,12 @@ export function renderCoreAlias(
         ...(props.__layoutMode === 'absolute'
           ? resolveFrameStyle(props.__frame as LayoutNodeFrame | undefined)
           : {}),
+        ...templateStyle,
       }
-    : ((props.__templateStyle as CSSProperties | undefined) ?? {});
+    : {
+        ...((props.__templateStyle as CSSProperties | undefined) ?? {}),
+        ...templateStyle,
+      };
 
   const nodeProps = { props, children, nodeLayoutStyle };
 

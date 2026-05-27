@@ -74,6 +74,16 @@
             "name": "style",
             "type": "object",
             "label": "样式"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
           }
         ]
       },
@@ -87,6 +97,31 @@
             "name": "style",
             "type": "object",
             "label": "样式"
+          },
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
+          },
+          {
+            "name": "wrap",
+            "type": "string",
+            "label": "换行"
+          },
+          {
+            "name": "justify",
+            "type": "string",
+            "label": "主轴对齐"
+          },
+          {
+            "name": "align",
+            "type": "string",
+            "label": "交叉轴对齐"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
           }
         ]
       },
@@ -113,6 +148,16 @@
             "name": "style",
             "type": "object",
             "label": "样式"
+          },
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
+          },
+          {
+            "name": "alignItems",
+            "type": "string",
+            "label": "对齐方式"
           }
         ]
       },
@@ -131,6 +176,294 @@
             "name": "text",
             "type": "string",
             "label": "显示内容"
+          },
+          {
+            "name": "variant",
+            "type": "string",
+            "label": "文字层级"
+          },
+          {
+            "name": "as",
+            "type": "string",
+            "label": "标签"
+          }
+        ]
+      },
+      {
+        "alias": "core.grid",
+        "name": "网格容器",
+        "kind": "layout",
+        "description": "网格容器 组件",
+        "props": [
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
+          },
+          {
+            "name": "columns",
+            "type": "number",
+            "label": "列数"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.button",
+        "name": "按钮",
+        "kind": "component",
+        "description": "按钮 组件",
+        "props": [
+          {
+            "name": "label",
+            "type": "string",
+            "label": "显示文字"
+          },
+          {
+            "name": "variant",
+            "type": "string",
+            "label": "文字层级"
+          },
+          {
+            "name": "active",
+            "type": "string",
+            "label": "选中"
+          },
+          {
+            "name": "disabled",
+            "type": "string",
+            "label": "禁用"
+          },
+          {
+            "name": "icon",
+            "type": "string",
+            "label": "图标"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.tag",
+        "name": "标签",
+        "kind": "component",
+        "description": "标签 组件",
+        "props": [
+          {
+            "name": "label",
+            "type": "string",
+            "label": "显示文字"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.tabs",
+        "name": "标签导航",
+        "kind": "component",
+        "description": "标签导航 组件",
+        "props": [
+          {
+            "name": "tabs",
+            "type": "string",
+            "label": "标签项"
+          },
+          {
+            "name": "activeTab",
+            "type": "string",
+            "label": "当前标签"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.search",
+        "name": "搜索框",
+        "kind": "component",
+        "description": "搜索框 组件",
+        "props": [
+          {
+            "name": "placeholder",
+            "type": "string",
+            "label": "占位文本"
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "label": "值"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.input",
+        "name": "输入框",
+        "kind": "component",
+        "description": "输入框 组件",
+        "props": [
+          {
+            "name": "placeholder",
+            "type": "string",
+            "label": "占位文本"
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "label": "显示文字"
+          },
+          {
+            "name": "type",
+            "type": "string",
+            "label": "类型"
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "label": "值"
+          },
+          {
+            "name": "disabled",
+            "type": "string",
+            "label": "禁用"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.notice",
+        "name": "提示",
+        "kind": "component",
+        "description": "提示 组件",
+        "props": [
+          {
+            "name": "text",
+            "type": "string",
+            "label": "显示内容"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.progress",
+        "name": "进度条",
+        "kind": "component",
+        "description": "进度条 组件",
+        "props": [
+          {
+            "name": "value",
+            "type": "number",
+            "label": "值"
+          },
+          {
+            "name": "max",
+            "type": "number",
+            "label": "最大值"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.divider",
+        "name": "分隔线",
+        "kind": "component",
+        "description": "分隔线 组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.spacer",
+        "name": "空白",
+        "kind": "component",
+        "description": "空白 组件",
+        "props": [
+          {
+            "name": "size",
+            "type": "string",
+            "label": "尺寸"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "biz-hero-banner",
+        "name": "业务头图",
+        "kind": "component",
+        "description": "业务头图组件",
+        "props": [
+          {
+            "name": "badge",
+            "type": "string",
+            "label": "徽标"
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "label": "标题"
+          },
+          {
+            "name": "subtitle",
+            "type": "string",
+            "label": "副标题"
+          },
+          {
+            "name": "actionLabel",
+            "type": "string",
+            "label": "行动按钮文案"
           }
         ]
       }
@@ -149,193 +482,221 @@
             "order": 0
           },
           "props": {
-            "title": "资讯首页"
+            "title": "资讯首页",
+            "style": {
+              "background": "#f8fafc"
+            }
           },
           "children": [
             {
-              "id": "news-header",
+              "id": "news-flash-card",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 0
+                "order": 0,
+                "width": "100%"
               },
               "props": {
                 "style": {
-                  "padding": "40rpx 32rpx 24rpx",
-                  "background": "var(--color-primary)"
+                  "margin": "20rpx 20rpx 0",
+                  "padding": "28rpx",
+                  "borderRadius": "30rpx",
+                  "background": "#fff",
+                  "borderLeft": "10rpx solid #dc2626"
                 }
               },
               "children": [
                 {
-                  "id": "news-logo",
-                  "alias": "core.text",
+                  "id": "news-flash-top",
+                  "alias": "core.row",
                   "layout": {
                     "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "text": "新闻资讯",
-                    "style": {
-                      "fontSize": "40rpx",
-                      "fontWeight": "bold",
-                      "color": "#fff"
-                    }
-                  },
-                  "children": []
-                },
-                {
-                  "id": "news-search",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1
+                    "order": 0,
+                    "width": "100%"
                   },
                   "props": {
                     "style": {
-                      "marginTop": "20rpx",
-                      "padding": "16rpx 24rpx",
-                      "borderRadius": "40rpx",
-                      "background": "rgba(255,255,255,0.2)",
-                      "display": "flex",
-                      "alignItems": "center",
-                      "gap": "12rpx"
+                      "justifyContent": "space-between",
+                      "alignItems": "center"
                     }
                   },
                   "children": [
                     {
-                      "id": "search-icon",
-                      "alias": "core.image",
+                      "id": "news-flash-tag",
+                      "alias": "core.tag",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
-                        "alt": "图标",
-                        "title": "图标",
-                        "objectFit": "contain",
-                        "iconColor": "rgba(255,255,255,0.7)"
+                        "label": "快讯",
+                        "tone": "hot",
+                        "style": {}
                       },
                       "children": []
                     },
                     {
-                      "id": "search-placeholder",
+                      "id": "news-flash-time",
                       "alias": "core.text",
                       "layout": {
                         "mode": "flow",
                         "order": 1
                       },
                       "props": {
-                        "text": "搜索新闻...",
+                        "text": "刚刚",
+                        "variant": "caption",
                         "style": {
-                          "fontSize": "26rpx",
-                          "color": "rgba(255,255,255,0.7)"
+                          "color": "#64748b"
                         }
                       },
                       "children": []
                     }
                   ]
-                }
-              ]
-            },
-            {
-              "id": "news-tabs",
-              "alias": "core.row",
-              "layout": {
-                "mode": "flow",
-                "order": 1
-              },
-              "props": {
-                "style": {
-                  "padding": "16rpx 32rpx",
-                  "gap": "24rpx",
-                  "background": "#fff",
-                  "borderBottom": "1rpx solid var(--color-border)",
-                  "overflow": "auto"
-                }
-              },
-              "children": [
-                {
-                  "id": "tab-recommend",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "text": "推荐",
-                    "style": {
-                      "fontSize": "28rpx",
-                      "color": "var(--color-primary)",
-                      "fontWeight": "bold",
-                      "whiteSpace": "nowrap"
-                    }
-                  },
-                  "children": []
                 },
                 {
-                  "id": "tab-hot",
+                  "id": "news-flash-title",
                   "alias": "core.text",
                   "layout": {
                     "mode": "flow",
                     "order": 1
                   },
                   "props": {
-                    "text": "热点",
+                    "text": "城市低空航线试运行，首批站点公布",
+                    "variant": "display",
                     "style": {
-                      "fontSize": "28rpx",
-                      "color": "var(--color-text-secondary)",
-                      "whiteSpace": "nowrap"
+                      "marginTop": "18rpx",
+                      "color": "#111827"
                     }
                   },
                   "children": []
                 },
                 {
-                  "id": "tab-tech",
+                  "id": "news-flash-desc",
                   "alias": "core.text",
                   "layout": {
                     "mode": "flow",
                     "order": 2
                   },
                   "props": {
-                    "text": "科技",
+                    "text": "滚动更新 · 12 条相关报道",
+                    "variant": "caption",
                     "style": {
-                      "fontSize": "28rpx",
-                      "color": "var(--color-text-secondary)",
-                      "whiteSpace": "nowrap"
+                      "marginTop": "12rpx",
+                      "color": "#64748b"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "news-channel-row",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "18rpx 20rpx 0",
+                  "gap": "12rpx",
+                  "overflowX": "auto"
+                }
+              },
+              "children": [
+                {
+                  "id": "news-channel-0",
+                  "alias": "core.button",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "label": "关注",
+                    "variant": "primary",
+                    "style": {
+                      "minWidth": "104rpx"
                     }
                   },
                   "children": []
                 },
                 {
-                  "id": "tab-sports",
-                  "alias": "core.text",
+                  "id": "news-channel-1",
+                  "alias": "core.button",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "label": "本地",
+                    "variant": "pill",
+                    "style": {
+                      "minWidth": "104rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "news-channel-2",
+                  "alias": "core.button",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "label": "科技",
+                    "variant": "pill",
+                    "style": {
+                      "minWidth": "104rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "news-channel-3",
+                  "alias": "core.button",
                   "layout": {
                     "mode": "flow",
                     "order": 3
                   },
                   "props": {
-                    "text": "体育",
+                    "label": "财经",
+                    "variant": "pill",
                     "style": {
-                      "fontSize": "28rpx",
-                      "color": "var(--color-text-secondary)",
-                      "whiteSpace": "nowrap"
+                      "minWidth": "104rpx"
                     }
                   },
                   "children": []
                 },
                 {
-                  "id": "tab-ent",
-                  "alias": "core.text",
+                  "id": "news-channel-4",
+                  "alias": "core.button",
                   "layout": {
                     "mode": "flow",
                     "order": 4
                   },
                   "props": {
-                    "text": "娱乐",
+                    "label": "生活",
+                    "variant": "pill",
                     "style": {
-                      "fontSize": "28rpx",
-                      "color": "var(--color-text-secondary)",
-                      "whiteSpace": "nowrap"
+                      "minWidth": "104rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "news-channel-5",
+                  "alias": "core.button",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 5
+                  },
+                  "props": {
+                    "label": "视频",
+                    "variant": "pill",
+                    "style": {
+                      "minWidth": "104rpx"
                     }
                   },
                   "children": []
@@ -343,356 +704,553 @@
               ]
             },
             {
-              "id": "breaking-news",
-              "alias": "core.panel",
+              "id": "news-topic-grid",
+              "alias": "core.grid",
               "layout": {
                 "mode": "flow",
-                "order": 2
+                "order": 2,
+                "width": "100%"
               },
               "props": {
+                "columns": 2,
                 "style": {
-                  "padding": "16rpx 32rpx",
-                  "background": "#fff"
+                  "padding": "20rpx",
+                  "gap": "16rpx"
                 }
               },
               "children": [
                 {
-                  "id": "breaking-label",
-                  "alias": "core.row",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "style": {
-                      "alignItems": "center",
-                      "gap": "8rpx",
-                      "marginBottom": "12rpx"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "breaking-tag",
-                      "alias": "core.panel",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "style": {
-                          "padding": "4rpx 12rpx",
-                          "borderRadius": "4rpx",
-                          "background": "var(--color-primary)"
-                        }
-                      },
-                      "children": [
-                        {
-                          "id": "tag-text",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "text": "快讯",
-                            "style": {
-                              "fontSize": "20rpx",
-                              "color": "#fff"
-                            }
-                          },
-                          "children": []
-                        }
-                      ]
-                    },
-                    {
-                      "id": "breaking-title",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "今日重要新闻摘要",
-                        "style": {
-                          "fontSize": "28rpx",
-                          "fontWeight": "bold"
-                        }
-                      },
-                      "children": []
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "id": "news-feed",
-              "alias": "core.stack",
-              "layout": {
-                "mode": "flow",
-                "order": 3
-              },
-              "props": {
-                "style": {
-                  "padding": "0 32rpx 32rpx",
-                  "gap": "20rpx"
-                }
-              },
-              "children": [
-                {
-                  "id": "news-card-1",
+                  "id": "news-topic-0",
                   "alias": "core.panel",
                   "layout": {
                     "mode": "flow",
-                    "order": 0
+                    "order": 0,
+                    "width": "100%"
                   },
                   "props": {
                     "style": {
-                      "padding": "20rpx",
-                      "borderRadius": "16rpx",
-                      "background": "#fff",
-                      "boxShadow": "0 2rpx 12rpx rgba(0,0,0,0.06)"
+                      "minHeight": "150rpx",
+                      "padding": "22rpx",
+                      "borderRadius": "24rpx",
+                      "background": "#fee2e2"
                     }
                   },
                   "children": [
                     {
-                      "id": "nc1-img",
+                      "id": "news-topic-icon-0",
                       "alias": "core.image",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
-                        "src": "https://placeholder.com/news.png",
+                        "alt": "热点追踪图标",
+                        "title": "热点追踪图标",
+                        "iconColor": "#dc2626",
+                        "objectFit": "contain",
                         "style": {
-                          "width": "100%",
-                          "height": "320rpx",
-                          "borderRadius": "12rpx",
-                          "marginBottom": "16rpx"
-                        },
-                        "alt": "图片",
-                        "title": "图片"
+                          "width": "60rpx",
+                          "height": "60rpx"
+                        }
                       },
                       "children": []
                     },
                     {
-                      "id": "nc1-title",
+                      "id": "news-topic-title-0",
                       "alias": "core.text",
                       "layout": {
                         "mode": "flow",
                         "order": 1
                       },
                       "props": {
-                        "text": "2024年科技发展新趋势：AI将如何改变我们的生活",
+                        "text": "热点追踪",
+                        "variant": "subheading",
                         "style": {
-                          "fontSize": "32rpx",
-                          "fontWeight": "bold",
-                          "lineClamp": 2,
-                          "lineHeight": "1.5"
+                          "marginTop": "14rpx"
                         }
                       },
                       "children": []
-                    },
-                    {
-                      "id": "nc1-meta",
-                      "alias": "core.row",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 2
-                      },
-                      "props": {
-                        "style": {
-                          "marginTop": "12rpx",
-                          "gap": "16rpx",
-                          "alignItems": "center"
-                        }
-                      },
-                      "children": [
-                        {
-                          "id": "nc1-source",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "text": "科技日报",
-                            "style": {
-                              "fontSize": "22rpx",
-                              "color": "var(--color-primary)"
-                            }
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "nc1-time",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 1
-                          },
-                          "props": {
-                            "text": "2小时前",
-                            "style": {
-                              "fontSize": "22rpx",
-                              "color": "var(--color-text-secondary)"
-                            }
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "nc1-views",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 2
-                          },
-                          "props": {
-                            "text": "3.2万阅读",
-                            "style": {
-                              "fontSize": "22rpx",
-                              "color": "var(--color-text-secondary)"
-                            }
-                          },
-                          "children": []
-                        }
-                      ]
                     }
                   ]
                 },
                 {
-                  "id": "news-card-2",
+                  "id": "news-topic-1",
                   "alias": "core.panel",
                   "layout": {
                     "mode": "flow",
-                    "order": 1
+                    "order": 1,
+                    "width": "100%"
                   },
                   "props": {
                     "style": {
-                      "padding": "20rpx",
-                      "borderRadius": "16rpx",
-                      "background": "#fff",
-                      "boxShadow": "0 2rpx 12rpx rgba(0,0,0,0.06)"
+                      "minHeight": "150rpx",
+                      "padding": "22rpx",
+                      "borderRadius": "24rpx",
+                      "background": "#dbeafe"
                     }
                   },
                   "children": [
                     {
-                      "id": "nc2-row",
-                      "alias": "core.row",
+                      "id": "news-topic-icon-1",
+                      "alias": "core.image",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
+                        "alt": "深度专题图标",
+                        "title": "深度专题图标",
+                        "iconColor": "#2563eb",
+                        "objectFit": "contain",
                         "style": {
-                          "gap": "20rpx"
+                          "width": "60rpx",
+                          "height": "60rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "news-topic-title-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "深度专题",
+                        "variant": "subheading",
+                        "style": {
+                          "marginTop": "14rpx"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "news-topic-2",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "minHeight": "150rpx",
+                      "padding": "22rpx",
+                      "borderRadius": "24rpx",
+                      "background": "#fef3c7"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "news-topic-icon-2",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "视频新闻图标",
+                        "title": "视频新闻图标",
+                        "iconColor": "#d97706",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "60rpx",
+                          "height": "60rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "news-topic-title-2",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "视频新闻",
+                        "variant": "subheading",
+                        "style": {
+                          "marginTop": "14rpx"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "news-topic-3",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "minHeight": "150rpx",
+                      "padding": "22rpx",
+                      "borderRadius": "24rpx",
+                      "background": "#dcfce7"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "news-topic-icon-3",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "早晚报图标",
+                        "title": "早晚报图标",
+                        "iconColor": "#16a34a",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "60rpx",
+                          "height": "60rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "news-topic-title-3",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "早晚报",
+                        "variant": "subheading",
+                        "style": {
+                          "marginTop": "14rpx"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "news-waterfall-list",
+              "alias": "core.stack",
+              "layout": {
+                "mode": "flow",
+                "order": 3,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "0 20rpx 20rpx",
+                  "gap": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "news-item-0",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "18rpx",
+                      "borderRadius": "22rpx",
+                      "background": "#fff",
+                      "gap": "16rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "news-item-copy-0",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "auto"
+                      },
+                      "props": {
+                        "style": {
+                          "flex": 1,
+                          "gap": "8rpx"
                         }
                       },
                       "children": [
                         {
-                          "id": "nc2-content",
-                          "alias": "core.stack",
+                          "id": "news-item-title-0",
+                          "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 0
                           },
                           "props": {
-                            "style": {
-                              "flex": 1,
-                              "gap": "8rpx"
-                            }
+                            "text": "社区商业街完成改造",
+                            "variant": "subheading",
+                            "style": {}
                           },
-                          "children": [
-                            {
-                              "id": "nc2-title",
-                              "alias": "core.text",
-                              "layout": {
-                                "mode": "flow",
-                                "order": 0
-                              },
-                              "props": {
-                                "text": "全球气候变化大会召开，各国达成新协议",
-                                "style": {
-                                  "fontSize": "28rpx",
-                                  "fontWeight": "bold",
-                                  "lineClamp": 2
-                                }
-                              },
-                              "children": []
-                            },
-                            {
-                              "id": "nc2-meta",
-                              "alias": "core.row",
-                              "layout": {
-                                "mode": "flow",
-                                "order": 1
-                              },
-                              "props": {
-                                "style": {
-                                  "gap": "12rpx"
-                                }
-                              },
-                              "children": [
-                                {
-                                  "id": "nc2-source",
-                                  "alias": "core.text",
-                                  "layout": {
-                                    "mode": "flow",
-                                    "order": 0
-                                  },
-                                  "props": {
-                                    "text": "新华社",
-                                    "style": {
-                                      "fontSize": "22rpx",
-                                      "color": "var(--color-primary)"
-                                    }
-                                  },
-                                  "children": []
-                                },
-                                {
-                                  "id": "nc2-time",
-                                  "alias": "core.text",
-                                  "layout": {
-                                    "mode": "flow",
-                                    "order": 1
-                                  },
-                                  "props": {
-                                    "text": "3小时前",
-                                    "style": {
-                                      "fontSize": "22rpx",
-                                      "color": "var(--color-text-secondary)"
-                                    }
-                                  },
-                                  "children": []
-                                }
-                              ]
-                            }
-                          ]
+                          "children": []
                         },
                         {
-                          "id": "nc2-img",
-                          "alias": "core.image",
+                          "id": "news-item-meta-0",
+                          "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 1
                           },
                           "props": {
-                            "src": "https://placeholder.com/news2.png",
+                            "text": "1小时前 · 1200 阅读",
+                            "variant": "caption",
                             "style": {
-                              "width": "200rpx",
-                              "height": "140rpx",
-                              "borderRadius": "8rpx",
-                              "flexShrink": 0
-                            },
-                            "alt": "图片",
-                            "title": "图片"
+                              "color": "#64748b"
+                            }
                           },
                           "children": []
                         }
                       ]
+                    },
+                    {
+                      "id": "news-item-img-0",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "alt": "新闻缩略图",
+                        "title": "新闻缩略图",
+                        "iconColor": "#dc2626",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "136rpx",
+                          "height": "104rpx",
+                          "borderRadius": "18rpx"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "news-item-1",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "18rpx",
+                      "borderRadius": "22rpx",
+                      "background": "#fff",
+                      "gap": "16rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "news-item-copy-1",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "auto"
+                      },
+                      "props": {
+                        "style": {
+                          "flex": 1,
+                          "gap": "8rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "news-item-title-1",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "新能源车补能地图上线",
+                            "variant": "subheading",
+                            "style": {}
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "news-item-meta-1",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "2小时前 · 1560 阅读",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#64748b"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "news-item-img-1",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "alt": "新闻缩略图",
+                        "title": "新闻缩略图",
+                        "iconColor": "#2563eb",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "136rpx",
+                          "height": "104rpx",
+                          "borderRadius": "18rpx"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "news-item-2",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "18rpx",
+                      "borderRadius": "22rpx",
+                      "background": "#fff",
+                      "gap": "16rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "news-item-copy-2",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "auto"
+                      },
+                      "props": {
+                        "style": {
+                          "flex": 1,
+                          "gap": "8rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "news-item-title-2",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "青年夜校新增 20 门课程",
+                            "variant": "subheading",
+                            "style": {}
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "news-item-meta-2",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "3小时前 · 1920 阅读",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#64748b"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "news-item-img-2",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "alt": "新闻缩略图",
+                        "title": "新闻缩略图",
+                        "iconColor": "#16a34a",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "136rpx",
+                          "height": "104rpx",
+                          "borderRadius": "18rpx"
+                        }
+                      },
+                      "children": []
                     }
                   ]
                 }
               ]
+            },
+            {
+              "id": "page-home-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "资讯首页",
+                  "新闻详情",
+                  "专题频道",
+                  "评论收藏"
+                ],
+                "activeTab": "资讯首页"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "资讯首页": {
+                    "type": "navigate",
+                    "targetPageId": "page-home"
+                  },
+                  "新闻详情": {
+                    "type": "navigate",
+                    "targetPageId": "page-detail"
+                  },
+                  "专题频道": {
+                    "type": "navigate",
+                    "targetPageId": "page-topic"
+                  },
+                  "评论收藏": {
+                    "type": "navigate",
+                    "targetPageId": "page-favorites"
+                  }
+                }
+              },
+              "children": []
             }
           ]
         }
@@ -700,7 +1258,7 @@
       {
         "id": "page-detail",
         "name": "新闻详情",
-        "description": "2024年科技发展新趋势：AI将如何改变我们的生活",
+        "description": "2024年科技发展新趋势：智能将如何改变我们的生活",
         "layout": {
           "id": "page-detail-screen",
           "alias": "core.screen",
@@ -709,24 +1267,45 @@
             "order": 1
           },
           "props": {
-            "title": "新闻详情"
+            "title": "新闻详情",
+            "style": {
+              "background": "var(--color-background, #f6f7fb)"
+            }
           },
           "children": [
+            {
+              "id": "page-detail-hero-banner",
+              "alias": "biz-hero-banner",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "badge": "新闻资讯",
+                "title": "新闻详情",
+                "subtitle": "2024年科技发展新趋势：智能将如何改变我们的生活",
+                "actionLabel": "继续阅读"
+              },
+              "children": []
+            },
             {
               "id": "detail-cover",
               "alias": "core.image",
               "layout": {
                 "mode": "flow",
-                "order": 0
+                "order": 1,
+                "width": "100%"
               },
               "props": {
-                "src": "https://placeholder.com/news-cover.png",
                 "style": {
                   "width": "100%",
                   "height": "400rpx"
                 },
-                "alt": "图片",
-                "title": "图片"
+                "alt": "业务视觉元素",
+                "title": "业务视觉元素",
+                "iconColor": "#dc2626",
+                "objectFit": "cover"
               },
               "children": []
             },
@@ -735,7 +1314,8 @@
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 1
+                "order": 2,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -752,12 +1332,13 @@
                     "order": 0
                   },
                   "props": {
-                    "text": "2024年科技发展新趋势：AI将如何改变我们的生活",
+                    "text": "2024年科技发展新趋势：智能将如何改变我们的生活",
                     "style": {
                       "fontSize": "40rpx",
                       "fontWeight": "bold",
                       "lineHeight": "1.5"
-                    }
+                    },
+                    "variant": "heading"
                   },
                   "children": []
                 },
@@ -798,14 +1379,15 @@
                             "order": 0
                           },
                           "props": {
-                            "src": "https://placeholder.com/source.png",
                             "style": {
                               "width": "48rpx",
                               "height": "48rpx",
                               "borderRadius": "50%"
                             },
-                            "alt": "图片",
-                            "title": "图片"
+                            "alt": "业务视觉元素",
+                            "title": "业务视觉元素",
+                            "iconColor": "#dc2626",
+                            "objectFit": "cover"
                           },
                           "children": []
                         },
@@ -822,7 +1404,8 @@
                               "fontSize": "26rpx",
                               "fontWeight": "bold",
                               "color": "var(--color-primary)"
-                            }
+                            },
+                            "variant": "heading"
                           },
                           "children": []
                         }
@@ -840,7 +1423,8 @@
                         "style": {
                           "fontSize": "24rpx",
                           "color": "var(--color-text-secondary)"
-                        }
+                        },
+                        "variant": "caption"
                       },
                       "children": []
                     },
@@ -856,7 +1440,8 @@
                         "style": {
                           "fontSize": "24rpx",
                           "color": "var(--color-text-secondary)"
-                        }
+                        },
+                        "variant": "caption"
                       },
                       "children": []
                     }
@@ -869,7 +1454,8 @@
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 2
+                "order": 3,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -891,7 +1477,8 @@
                       "color": "var(--color-text-primary)",
                       "lineHeight": "1.8",
                       "marginBottom": "24rpx"
-                    }
+                    },
+                    "variant": "body"
                   },
                   "children": []
                 },
@@ -903,13 +1490,14 @@
                     "order": 1
                   },
                   "props": {
-                    "text": "从智能家居到自动驾驶，从医疗诊断到金融风控，AI技术的应用场景正在不断扩展。专家预测，未来五年内，AI将在更多领域实现商业化落地。",
+                    "text": "从智能家居到自动驾驶，从医疗诊断到金融风控，智能技术的应用场景正在不断扩展。专家预测，未来五年内，智能将在更多领域实现商业化落地。",
                     "style": {
                       "fontSize": "30rpx",
                       "color": "var(--color-text-primary)",
                       "lineHeight": "1.8",
                       "marginBottom": "24rpx"
-                    }
+                    },
+                    "variant": "body"
                   },
                   "children": []
                 },
@@ -921,15 +1509,16 @@
                     "order": 2
                   },
                   "props": {
-                    "src": "https://placeholder.com/content.png",
                     "style": {
                       "width": "100%",
                       "height": "360rpx",
                       "borderRadius": "12rpx",
                       "marginBottom": "24rpx"
                     },
-                    "alt": "图片",
-                    "title": "图片"
+                    "alt": "业务视觉元素",
+                    "title": "业务视觉元素",
+                    "iconColor": "#dc2626",
+                    "objectFit": "cover"
                   },
                   "children": []
                 },
@@ -941,12 +1530,13 @@
                     "order": 3
                   },
                   "props": {
-                    "text": "然而，AI技术的快速发展也带来了一系列挑战。数据隐私、算法偏见、就业替代等问题引发了广泛讨论。如何在推动技术进步的同时保障社会公平，成为各国政府和企业面临的重要课题。",
+                    "text": "然而，智能技术的快速发展也带来了一系列挑战。数据隐私、算法偏见、就业替代等问题引发了广泛讨论。如何在推动技术进步的同时保障社会公平，成为各国政府和企业面临的重要课题。",
                     "style": {
                       "fontSize": "30rpx",
                       "color": "var(--color-text-primary)",
                       "lineHeight": "1.8"
-                    }
+                    },
+                    "variant": "body"
                   },
                   "children": []
                 }
@@ -957,7 +1547,8 @@
               "alias": "core.row",
               "layout": {
                 "mode": "flow",
-                "order": 3
+                "order": 4,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -1009,7 +1600,8 @@
                         "style": {
                           "fontSize": "24rpx",
                           "color": "var(--color-text-secondary)"
-                        }
+                        },
+                        "variant": "caption"
                       },
                       "children": []
                     }
@@ -1056,7 +1648,8 @@
                         "style": {
                           "fontSize": "24rpx",
                           "color": "var(--color-text-secondary)"
-                        }
+                        },
+                        "variant": "caption"
                       },
                       "children": []
                     }
@@ -1103,7 +1696,8 @@
                         "style": {
                           "fontSize": "24rpx",
                           "color": "var(--color-text-secondary)"
-                        }
+                        },
+                        "variant": "caption"
                       },
                       "children": []
                     }
@@ -1150,13 +1744,71 @@
                         "style": {
                           "fontSize": "24rpx",
                           "color": "var(--color-text-secondary)"
-                        }
+                        },
+                        "variant": "caption"
                       },
                       "children": []
                     }
                   ]
                 }
               ]
+            },
+            {
+              "id": "page-detail-primary-action",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 5,
+                "width": "100%"
+              },
+              "props": {
+                "variant": "primary",
+                "label": "继续阅读",
+                "style": {
+                  "width": "100%"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "page-detail-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "资讯首页",
+                  "新闻详情",
+                  "专题频道",
+                  "评论收藏"
+                ],
+                "activeTab": "新闻详情"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "资讯首页": {
+                    "type": "navigate",
+                    "targetPageId": "page-home"
+                  },
+                  "新闻详情": {
+                    "type": "navigate",
+                    "targetPageId": "page-detail"
+                  },
+                  "专题频道": {
+                    "type": "navigate",
+                    "targetPageId": "page-topic"
+                  },
+                  "评论收藏": {
+                    "type": "navigate",
+                    "targetPageId": "page-favorites"
+                  }
+                }
+              },
+              "children": []
             }
           ]
         }
@@ -1173,15 +1825,35 @@
             "order": 2
           },
           "props": {
-            "title": "专题频道"
+            "title": "专题频道",
+            "style": {
+              "background": "var(--color-background, #f6f7fb)"
+            }
           },
           "children": [
+            {
+              "id": "page-topic-hero-banner",
+              "alias": "biz-hero-banner",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "badge": "新闻资讯",
+                "title": "专题频道",
+                "subtitle": "专题频道",
+                "actionLabel": "继续阅读"
+              },
+              "children": []
+            },
             {
               "id": "topic-header",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 0
+                "order": 1,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -1203,7 +1875,8 @@
                       "fontSize": "34rpx",
                       "fontWeight": "bold",
                       "color": "#fff"
-                    }
+                    },
+                    "variant": "heading"
                   },
                   "children": []
                 }
@@ -1214,7 +1887,8 @@
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 1
+                "order": 2,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -1233,13 +1907,14 @@
                     "order": 0
                   },
                   "props": {
-                    "src": "https://placeholder.com/topic.png",
                     "style": {
                       "width": "100%",
                       "height": "300rpx"
                     },
-                    "alt": "图片",
-                    "title": "图片"
+                    "alt": "业务视觉元素",
+                    "title": "业务视觉元素",
+                    "iconColor": "#dc2626",
+                    "objectFit": "cover"
                   },
                   "children": []
                 },
@@ -1289,7 +1964,8 @@
                             "style": {
                               "fontSize": "20rpx",
                               "color": "#fff"
-                            }
+                            },
+                            "variant": "caption"
                           },
                           "children": []
                         }
@@ -1308,7 +1984,8 @@
                           "fontSize": "32rpx",
                           "fontWeight": "bold",
                           "color": "#fff"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     },
@@ -1325,7 +2002,8 @@
                           "fontSize": "24rpx",
                           "color": "rgba(255,255,255,0.8)",
                           "marginTop": "8rpx"
-                        }
+                        },
+                        "variant": "body"
                       },
                       "children": []
                     }
@@ -1338,7 +2016,8 @@
               "alias": "core.stack",
               "layout": {
                 "mode": "flow",
-                "order": 2
+                "order": 3,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -1372,14 +2051,15 @@
                         "order": 0
                       },
                       "props": {
-                        "src": "https://placeholder.com/topic2.png",
                         "style": {
                           "width": "160rpx",
                           "height": "120rpx",
                           "borderRadius": "8rpx"
                         },
-                        "alt": "图片",
-                        "title": "图片"
+                        "alt": "业务视觉元素",
+                        "title": "业务视觉元素",
+                        "iconColor": "#dc2626",
+                        "objectFit": "cover"
                       },
                       "children": []
                     },
@@ -1409,7 +2089,8 @@
                             "style": {
                               "fontSize": "28rpx",
                               "fontWeight": "bold"
-                            }
+                            },
+                            "variant": "heading"
                           },
                           "children": []
                         },
@@ -1425,7 +2106,8 @@
                             "style": {
                               "fontSize": "22rpx",
                               "color": "var(--color-text-secondary)"
-                            }
+                            },
+                            "variant": "body"
                           },
                           "children": []
                         }
@@ -1434,6 +2116,63 @@
                   ]
                 }
               ]
+            },
+            {
+              "id": "page-topic-primary-action",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 4,
+                "width": "100%"
+              },
+              "props": {
+                "variant": "primary",
+                "label": "继续阅读",
+                "style": {
+                  "width": "100%"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "page-topic-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "资讯首页",
+                  "新闻详情",
+                  "专题频道",
+                  "评论收藏"
+                ],
+                "activeTab": "专题频道"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "资讯首页": {
+                    "type": "navigate",
+                    "targetPageId": "page-home"
+                  },
+                  "新闻详情": {
+                    "type": "navigate",
+                    "targetPageId": "page-detail"
+                  },
+                  "专题频道": {
+                    "type": "navigate",
+                    "targetPageId": "page-topic"
+                  },
+                  "评论收藏": {
+                    "type": "navigate",
+                    "targetPageId": "page-favorites"
+                  }
+                }
+              },
+              "children": []
             }
           ]
         }
@@ -1450,15 +2189,35 @@
             "order": 3
           },
           "props": {
-            "title": "评论收藏"
+            "title": "评论收藏",
+            "style": {
+              "background": "var(--color-background, #f6f7fb)"
+            }
           },
           "children": [
+            {
+              "id": "page-favorites-hero-banner",
+              "alias": "biz-hero-banner",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "badge": "新闻资讯",
+                "title": "评论收藏",
+                "subtitle": "我的收藏",
+                "actionLabel": "继续阅读"
+              },
+              "children": []
+            },
             {
               "id": "fav-header",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 0
+                "order": 1,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -1480,7 +2239,8 @@
                       "fontSize": "34rpx",
                       "fontWeight": "bold",
                       "color": "#fff"
-                    }
+                    },
+                    "variant": "heading"
                   },
                   "children": []
                 }
@@ -1491,7 +2251,8 @@
               "alias": "core.row",
               "layout": {
                 "mode": "flow",
-                "order": 1
+                "order": 2,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -1515,7 +2276,8 @@
                       "fontSize": "28rpx",
                       "color": "var(--color-primary)",
                       "fontWeight": "bold"
-                    }
+                    },
+                    "variant": "heading"
                   },
                   "children": []
                 },
@@ -1531,7 +2293,8 @@
                     "style": {
                       "fontSize": "28rpx",
                       "color": "var(--color-text-secondary)"
-                    }
+                    },
+                    "variant": "body"
                   },
                   "children": []
                 }
@@ -1542,7 +2305,8 @@
               "alias": "core.stack",
               "layout": {
                 "mode": "flow",
-                "order": 2
+                "order": 3,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -1590,12 +2354,13 @@
                             "order": 0
                           },
                           "props": {
-                            "text": "AI技术发展新趋势分析",
+                            "text": "智能技术发展新趋势分析",
                             "style": {
                               "fontSize": "28rpx",
                               "fontWeight": "bold",
                               "lineClamp": 2
-                            }
+                            },
+                            "variant": "heading"
                           },
                           "children": []
                         },
@@ -1624,7 +2389,8 @@
                                 "style": {
                                   "fontSize": "22rpx",
                                   "color": "var(--color-primary)"
-                                }
+                                },
+                                "variant": "caption"
                               },
                               "children": []
                             },
@@ -1640,7 +2406,8 @@
                                 "style": {
                                   "fontSize": "22rpx",
                                   "color": "var(--color-text-secondary)"
-                                }
+                                },
+                                "variant": "caption"
                               },
                               "children": []
                             }
@@ -1656,21 +2423,80 @@
                         "order": 1
                       },
                       "props": {
-                        "src": "https://placeholder.com/news.png",
                         "style": {
                           "width": "160rpx",
                           "height": "120rpx",
                           "borderRadius": "8rpx",
                           "flexShrink": 0
                         },
-                        "alt": "图片",
-                        "title": "图片"
+                        "alt": "业务视觉元素",
+                        "title": "业务视觉元素",
+                        "iconColor": "#dc2626",
+                        "objectFit": "cover"
                       },
                       "children": []
                     }
                   ]
                 }
               ]
+            },
+            {
+              "id": "page-favorites-primary-action",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 998,
+                "width": "100%"
+              },
+              "props": {
+                "variant": "primary",
+                "label": "查看最新资讯",
+                "style": {
+                  "width": "calc(100% - 64rpx)",
+                  "margin": "8rpx 32rpx 24rpx"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "page-favorites-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "资讯首页",
+                  "新闻详情",
+                  "专题频道",
+                  "评论收藏"
+                ],
+                "activeTab": "评论收藏"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "资讯首页": {
+                    "type": "navigate",
+                    "targetPageId": "page-home"
+                  },
+                  "新闻详情": {
+                    "type": "navigate",
+                    "targetPageId": "page-detail"
+                  },
+                  "专题频道": {
+                    "type": "navigate",
+                    "targetPageId": "page-topic"
+                  },
+                  "评论收藏": {
+                    "type": "navigate",
+                    "targetPageId": "page-favorites"
+                  }
+                }
+              },
+              "children": []
             }
           ]
         }
@@ -1684,193 +2510,221 @@
         "order": 0
       },
       "props": {
-        "title": "资讯首页"
+        "title": "资讯首页",
+        "style": {
+          "background": "#f8fafc"
+        }
       },
       "children": [
         {
-          "id": "news-header",
+          "id": "news-flash-card",
           "alias": "core.panel",
           "layout": {
             "mode": "flow",
-            "order": 0
+            "order": 0,
+            "width": "100%"
           },
           "props": {
             "style": {
-              "padding": "40rpx 32rpx 24rpx",
-              "background": "var(--color-primary)"
+              "margin": "20rpx 20rpx 0",
+              "padding": "28rpx",
+              "borderRadius": "30rpx",
+              "background": "#fff",
+              "borderLeft": "10rpx solid #dc2626"
             }
           },
           "children": [
             {
-              "id": "news-logo",
-              "alias": "core.text",
+              "id": "news-flash-top",
+              "alias": "core.row",
               "layout": {
                 "mode": "flow",
-                "order": 0
-              },
-              "props": {
-                "text": "新闻资讯",
-                "style": {
-                  "fontSize": "40rpx",
-                  "fontWeight": "bold",
-                  "color": "#fff"
-                }
-              },
-              "children": []
-            },
-            {
-              "id": "news-search",
-              "alias": "core.panel",
-              "layout": {
-                "mode": "flow",
-                "order": 1
+                "order": 0,
+                "width": "100%"
               },
               "props": {
                 "style": {
-                  "marginTop": "20rpx",
-                  "padding": "16rpx 24rpx",
-                  "borderRadius": "40rpx",
-                  "background": "rgba(255,255,255,0.2)",
-                  "display": "flex",
-                  "alignItems": "center",
-                  "gap": "12rpx"
+                  "justifyContent": "space-between",
+                  "alignItems": "center"
                 }
               },
               "children": [
                 {
-                  "id": "search-icon",
-                  "alias": "core.image",
+                  "id": "news-flash-tag",
+                  "alias": "core.tag",
                   "layout": {
                     "mode": "flow",
                     "order": 0
                   },
                   "props": {
-                    "alt": "图标",
-                    "title": "图标",
-                    "objectFit": "contain",
-                    "iconColor": "rgba(255,255,255,0.7)"
+                    "label": "快讯",
+                    "tone": "hot",
+                    "style": {}
                   },
                   "children": []
                 },
                 {
-                  "id": "search-placeholder",
+                  "id": "news-flash-time",
                   "alias": "core.text",
                   "layout": {
                     "mode": "flow",
                     "order": 1
                   },
                   "props": {
-                    "text": "搜索新闻...",
+                    "text": "刚刚",
+                    "variant": "caption",
                     "style": {
-                      "fontSize": "26rpx",
-                      "color": "rgba(255,255,255,0.7)"
+                      "color": "#64748b"
                     }
                   },
                   "children": []
                 }
               ]
-            }
-          ]
-        },
-        {
-          "id": "news-tabs",
-          "alias": "core.row",
-          "layout": {
-            "mode": "flow",
-            "order": 1
-          },
-          "props": {
-            "style": {
-              "padding": "16rpx 32rpx",
-              "gap": "24rpx",
-              "background": "#fff",
-              "borderBottom": "1rpx solid var(--color-border)",
-              "overflow": "auto"
-            }
-          },
-          "children": [
-            {
-              "id": "tab-recommend",
-              "alias": "core.text",
-              "layout": {
-                "mode": "flow",
-                "order": 0
-              },
-              "props": {
-                "text": "推荐",
-                "style": {
-                  "fontSize": "28rpx",
-                  "color": "var(--color-primary)",
-                  "fontWeight": "bold",
-                  "whiteSpace": "nowrap"
-                }
-              },
-              "children": []
             },
             {
-              "id": "tab-hot",
+              "id": "news-flash-title",
               "alias": "core.text",
               "layout": {
                 "mode": "flow",
                 "order": 1
               },
               "props": {
-                "text": "热点",
+                "text": "城市低空航线试运行，首批站点公布",
+                "variant": "display",
                 "style": {
-                  "fontSize": "28rpx",
-                  "color": "var(--color-text-secondary)",
-                  "whiteSpace": "nowrap"
+                  "marginTop": "18rpx",
+                  "color": "#111827"
                 }
               },
               "children": []
             },
             {
-              "id": "tab-tech",
+              "id": "news-flash-desc",
               "alias": "core.text",
               "layout": {
                 "mode": "flow",
                 "order": 2
               },
               "props": {
-                "text": "科技",
+                "text": "滚动更新 · 12 条相关报道",
+                "variant": "caption",
                 "style": {
-                  "fontSize": "28rpx",
-                  "color": "var(--color-text-secondary)",
-                  "whiteSpace": "nowrap"
+                  "marginTop": "12rpx",
+                  "color": "#64748b"
+                }
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "news-channel-row",
+          "alias": "core.row",
+          "layout": {
+            "mode": "flow",
+            "order": 1,
+            "width": "100%"
+          },
+          "props": {
+            "style": {
+              "padding": "18rpx 20rpx 0",
+              "gap": "12rpx",
+              "overflowX": "auto"
+            }
+          },
+          "children": [
+            {
+              "id": "news-channel-0",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "label": "关注",
+                "variant": "primary",
+                "style": {
+                  "minWidth": "104rpx"
                 }
               },
               "children": []
             },
             {
-              "id": "tab-sports",
-              "alias": "core.text",
+              "id": "news-channel-1",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "label": "本地",
+                "variant": "pill",
+                "style": {
+                  "minWidth": "104rpx"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "news-channel-2",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 2
+              },
+              "props": {
+                "label": "科技",
+                "variant": "pill",
+                "style": {
+                  "minWidth": "104rpx"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "news-channel-3",
+              "alias": "core.button",
               "layout": {
                 "mode": "flow",
                 "order": 3
               },
               "props": {
-                "text": "体育",
+                "label": "财经",
+                "variant": "pill",
                 "style": {
-                  "fontSize": "28rpx",
-                  "color": "var(--color-text-secondary)",
-                  "whiteSpace": "nowrap"
+                  "minWidth": "104rpx"
                 }
               },
               "children": []
             },
             {
-              "id": "tab-ent",
-              "alias": "core.text",
+              "id": "news-channel-4",
+              "alias": "core.button",
               "layout": {
                 "mode": "flow",
                 "order": 4
               },
               "props": {
-                "text": "娱乐",
+                "label": "生活",
+                "variant": "pill",
                 "style": {
-                  "fontSize": "28rpx",
-                  "color": "var(--color-text-secondary)",
-                  "whiteSpace": "nowrap"
+                  "minWidth": "104rpx"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "news-channel-5",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 5
+              },
+              "props": {
+                "label": "视频",
+                "variant": "pill",
+                "style": {
+                  "minWidth": "104rpx"
                 }
               },
               "children": []
@@ -1878,360 +2732,628 @@
           ]
         },
         {
-          "id": "breaking-news",
-          "alias": "core.panel",
+          "id": "news-topic-grid",
+          "alias": "core.grid",
           "layout": {
             "mode": "flow",
-            "order": 2
+            "order": 2,
+            "width": "100%"
           },
           "props": {
+            "columns": 2,
             "style": {
-              "padding": "16rpx 32rpx",
-              "background": "#fff"
+              "padding": "20rpx",
+              "gap": "16rpx"
             }
           },
           "children": [
             {
-              "id": "breaking-label",
-              "alias": "core.row",
-              "layout": {
-                "mode": "flow",
-                "order": 0
-              },
-              "props": {
-                "style": {
-                  "alignItems": "center",
-                  "gap": "8rpx",
-                  "marginBottom": "12rpx"
-                }
-              },
-              "children": [
-                {
-                  "id": "breaking-tag",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "style": {
-                      "padding": "4rpx 12rpx",
-                      "borderRadius": "4rpx",
-                      "background": "var(--color-primary)"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "tag-text",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "text": "快讯",
-                        "style": {
-                          "fontSize": "20rpx",
-                          "color": "#fff"
-                        }
-                      },
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "breaking-title",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1
-                  },
-                  "props": {
-                    "text": "今日重要新闻摘要",
-                    "style": {
-                      "fontSize": "28rpx",
-                      "fontWeight": "bold"
-                    }
-                  },
-                  "children": []
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "id": "news-feed",
-          "alias": "core.stack",
-          "layout": {
-            "mode": "flow",
-            "order": 3
-          },
-          "props": {
-            "style": {
-              "padding": "0 32rpx 32rpx",
-              "gap": "20rpx"
-            }
-          },
-          "children": [
-            {
-              "id": "news-card-1",
+              "id": "news-topic-0",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 0
+                "order": 0,
+                "width": "100%"
               },
               "props": {
                 "style": {
-                  "padding": "20rpx",
-                  "borderRadius": "16rpx",
-                  "background": "#fff",
-                  "boxShadow": "0 2rpx 12rpx rgba(0,0,0,0.06)"
+                  "minHeight": "150rpx",
+                  "padding": "22rpx",
+                  "borderRadius": "24rpx",
+                  "background": "#fee2e2"
                 }
               },
               "children": [
                 {
-                  "id": "nc1-img",
+                  "id": "news-topic-icon-0",
                   "alias": "core.image",
                   "layout": {
                     "mode": "flow",
                     "order": 0
                   },
                   "props": {
-                    "src": "https://placeholder.com/news.png",
+                    "alt": "热点追踪图标",
+                    "title": "热点追踪图标",
+                    "iconColor": "#dc2626",
+                    "objectFit": "contain",
                     "style": {
-                      "width": "100%",
-                      "height": "320rpx",
-                      "borderRadius": "12rpx",
-                      "marginBottom": "16rpx"
-                    },
-                    "alt": "图片",
-                    "title": "图片"
+                      "width": "60rpx",
+                      "height": "60rpx"
+                    }
                   },
                   "children": []
                 },
                 {
-                  "id": "nc1-title",
+                  "id": "news-topic-title-0",
                   "alias": "core.text",
                   "layout": {
                     "mode": "flow",
                     "order": 1
                   },
                   "props": {
-                    "text": "2024年科技发展新趋势：AI将如何改变我们的生活",
+                    "text": "热点追踪",
+                    "variant": "subheading",
                     "style": {
-                      "fontSize": "32rpx",
-                      "fontWeight": "bold",
-                      "lineClamp": 2,
-                      "lineHeight": "1.5"
+                      "marginTop": "14rpx"
                     }
                   },
                   "children": []
-                },
-                {
-                  "id": "nc1-meta",
-                  "alias": "core.row",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 2
-                  },
-                  "props": {
-                    "style": {
-                      "marginTop": "12rpx",
-                      "gap": "16rpx",
-                      "alignItems": "center"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "nc1-source",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "text": "科技日报",
-                        "style": {
-                          "fontSize": "22rpx",
-                          "color": "var(--color-primary)"
-                        }
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "nc1-time",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "2小时前",
-                        "style": {
-                          "fontSize": "22rpx",
-                          "color": "var(--color-text-secondary)"
-                        }
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "nc1-views",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 2
-                      },
-                      "props": {
-                        "text": "3.2万阅读",
-                        "style": {
-                          "fontSize": "22rpx",
-                          "color": "var(--color-text-secondary)"
-                        }
-                      },
-                      "children": []
-                    }
-                  ]
                 }
               ]
             },
             {
-              "id": "news-card-2",
+              "id": "news-topic-1",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 1
+                "order": 1,
+                "width": "100%"
               },
               "props": {
                 "style": {
-                  "padding": "20rpx",
-                  "borderRadius": "16rpx",
-                  "background": "#fff",
-                  "boxShadow": "0 2rpx 12rpx rgba(0,0,0,0.06)"
+                  "minHeight": "150rpx",
+                  "padding": "22rpx",
+                  "borderRadius": "24rpx",
+                  "background": "#dbeafe"
                 }
               },
               "children": [
                 {
-                  "id": "nc2-row",
-                  "alias": "core.row",
+                  "id": "news-topic-icon-1",
+                  "alias": "core.image",
                   "layout": {
                     "mode": "flow",
                     "order": 0
                   },
                   "props": {
+                    "alt": "深度专题图标",
+                    "title": "深度专题图标",
+                    "iconColor": "#2563eb",
+                    "objectFit": "contain",
                     "style": {
-                      "gap": "20rpx"
+                      "width": "60rpx",
+                      "height": "60rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "news-topic-title-1",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "深度专题",
+                    "variant": "subheading",
+                    "style": {
+                      "marginTop": "14rpx"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "news-topic-2",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "minHeight": "150rpx",
+                  "padding": "22rpx",
+                  "borderRadius": "24rpx",
+                  "background": "#fef3c7"
+                }
+              },
+              "children": [
+                {
+                  "id": "news-topic-icon-2",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "alt": "视频新闻图标",
+                    "title": "视频新闻图标",
+                    "iconColor": "#d97706",
+                    "objectFit": "contain",
+                    "style": {
+                      "width": "60rpx",
+                      "height": "60rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "news-topic-title-2",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "视频新闻",
+                    "variant": "subheading",
+                    "style": {
+                      "marginTop": "14rpx"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "news-topic-3",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 3,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "minHeight": "150rpx",
+                  "padding": "22rpx",
+                  "borderRadius": "24rpx",
+                  "background": "#dcfce7"
+                }
+              },
+              "children": [
+                {
+                  "id": "news-topic-icon-3",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "alt": "早晚报图标",
+                    "title": "早晚报图标",
+                    "iconColor": "#16a34a",
+                    "objectFit": "contain",
+                    "style": {
+                      "width": "60rpx",
+                      "height": "60rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "news-topic-title-3",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "早晚报",
+                    "variant": "subheading",
+                    "style": {
+                      "marginTop": "14rpx"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "news-waterfall-list",
+          "alias": "core.stack",
+          "layout": {
+            "mode": "flow",
+            "order": 3,
+            "width": "100%"
+          },
+          "props": {
+            "style": {
+              "padding": "0 20rpx 20rpx",
+              "gap": "16rpx"
+            }
+          },
+          "children": [
+            {
+              "id": "news-item-0",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "18rpx",
+                  "borderRadius": "22rpx",
+                  "background": "#fff",
+                  "gap": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "news-item-copy-0",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "auto"
+                  },
+                  "props": {
+                    "style": {
+                      "flex": 1,
+                      "gap": "8rpx"
                     }
                   },
                   "children": [
                     {
-                      "id": "nc2-content",
-                      "alias": "core.stack",
+                      "id": "news-item-title-0",
+                      "alias": "core.text",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
-                        "style": {
-                          "flex": 1,
-                          "gap": "8rpx"
-                        }
+                        "text": "社区商业街完成改造",
+                        "variant": "subheading",
+                        "style": {}
                       },
-                      "children": [
-                        {
-                          "id": "nc2-title",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "text": "全球气候变化大会召开，各国达成新协议",
-                            "style": {
-                              "fontSize": "28rpx",
-                              "fontWeight": "bold",
-                              "lineClamp": 2
-                            }
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "nc2-meta",
-                          "alias": "core.row",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 1
-                          },
-                          "props": {
-                            "style": {
-                              "gap": "12rpx"
-                            }
-                          },
-                          "children": [
-                            {
-                              "id": "nc2-source",
-                              "alias": "core.text",
-                              "layout": {
-                                "mode": "flow",
-                                "order": 0
-                              },
-                              "props": {
-                                "text": "新华社",
-                                "style": {
-                                  "fontSize": "22rpx",
-                                  "color": "var(--color-primary)"
-                                }
-                              },
-                              "children": []
-                            },
-                            {
-                              "id": "nc2-time",
-                              "alias": "core.text",
-                              "layout": {
-                                "mode": "flow",
-                                "order": 1
-                              },
-                              "props": {
-                                "text": "3小时前",
-                                "style": {
-                                  "fontSize": "22rpx",
-                                  "color": "var(--color-text-secondary)"
-                                }
-                              },
-                              "children": []
-                            }
-                          ]
-                        }
-                      ]
+                      "children": []
                     },
                     {
-                      "id": "nc2-img",
-                      "alias": "core.image",
+                      "id": "news-item-meta-0",
+                      "alias": "core.text",
                       "layout": {
                         "mode": "flow",
                         "order": 1
                       },
                       "props": {
-                        "src": "https://placeholder.com/news2.png",
+                        "text": "1小时前 · 1200 阅读",
+                        "variant": "caption",
                         "style": {
-                          "width": "200rpx",
-                          "height": "140rpx",
-                          "borderRadius": "8rpx",
-                          "flexShrink": 0
-                        },
-                        "alt": "图片",
-                        "title": "图片"
+                          "color": "#64748b"
+                        }
                       },
                       "children": []
                     }
                   ]
+                },
+                {
+                  "id": "news-item-img-0",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "alt": "新闻缩略图",
+                    "title": "新闻缩略图",
+                    "iconColor": "#dc2626",
+                    "objectFit": "contain",
+                    "style": {
+                      "width": "136rpx",
+                      "height": "104rpx",
+                      "borderRadius": "18rpx"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "news-item-1",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "18rpx",
+                  "borderRadius": "22rpx",
+                  "background": "#fff",
+                  "gap": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "news-item-copy-1",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "auto"
+                  },
+                  "props": {
+                    "style": {
+                      "flex": 1,
+                      "gap": "8rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "news-item-title-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "新能源车补能地图上线",
+                        "variant": "subheading",
+                        "style": {}
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "news-item-meta-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "2小时前 · 1560 阅读",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#64748b"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "news-item-img-1",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "alt": "新闻缩略图",
+                    "title": "新闻缩略图",
+                    "iconColor": "#2563eb",
+                    "objectFit": "contain",
+                    "style": {
+                      "width": "136rpx",
+                      "height": "104rpx",
+                      "borderRadius": "18rpx"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "news-item-2",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "18rpx",
+                  "borderRadius": "22rpx",
+                  "background": "#fff",
+                  "gap": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "news-item-copy-2",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "auto"
+                  },
+                  "props": {
+                    "style": {
+                      "flex": 1,
+                      "gap": "8rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "news-item-title-2",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "青年夜校新增 20 门课程",
+                        "variant": "subheading",
+                        "style": {}
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "news-item-meta-2",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "3小时前 · 1920 阅读",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#64748b"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "news-item-img-2",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "alt": "新闻缩略图",
+                    "title": "新闻缩略图",
+                    "iconColor": "#16a34a",
+                    "objectFit": "contain",
+                    "style": {
+                      "width": "136rpx",
+                      "height": "104rpx",
+                      "borderRadius": "18rpx"
+                    }
+                  },
+                  "children": []
                 }
               ]
             }
           ]
+        },
+        {
+          "id": "page-home-bottom-tabs",
+          "alias": "core.tabs",
+          "slot": "footer",
+          "layout": {
+            "mode": "flow",
+            "order": 999,
+            "width": "100%"
+          },
+          "props": {
+            "tabs": [
+              "资讯首页",
+              "新闻详情",
+              "专题频道",
+              "评论收藏"
+            ],
+            "activeTab": "资讯首页"
+          },
+          "interactions": {
+            "onTabClick": {
+              "资讯首页": {
+                "type": "navigate",
+                "targetPageId": "page-home"
+              },
+              "新闻详情": {
+                "type": "navigate",
+                "targetPageId": "page-detail"
+              },
+              "专题频道": {
+                "type": "navigate",
+                "targetPageId": "page-topic"
+              },
+              "评论收藏": {
+                "type": "navigate",
+                "targetPageId": "page-favorites"
+              }
+            }
+          },
+          "children": []
         }
       ]
     },
-    "componentTemplates": {},
+    "componentTemplates": {
+      "biz-hero-banner": {
+        "root": {
+          "alias": "core.panel",
+          "props": {
+            "tone": "accent",
+            "gap": 12,
+            "style": {
+              "width": "100%",
+              "padding": "28px 24px",
+              "color": "#fff",
+              "borderRadius": "0 0 28px 28px",
+              "background": "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark, var(--color-primary)))",
+              "boxShadow": "0 16px 36px rgba(15,23,42,0.18)"
+            }
+          },
+          "children": [
+            {
+              "alias": "core.tag",
+              "props": {
+                "label": {
+                  "$bind": "badge"
+                },
+                "tone": "member",
+                "style": {
+                  "alignSelf": "flex-start",
+                  "background": "rgba(255,255,255,0.22)",
+                  "color": "#fff"
+                }
+              }
+            },
+            {
+              "alias": "core.text",
+              "props": {
+                "text": {
+                  "$bind": "title"
+                },
+                "variant": "display",
+                "style": {
+                  "color": "#fff"
+                }
+              }
+            },
+            {
+              "alias": "core.text",
+              "props": {
+                "text": {
+                  "$bind": "subtitle"
+                },
+                "variant": "body",
+                "style": {
+                  "color": "rgba(255,255,255,0.86)"
+                }
+              }
+            },
+            {
+              "alias": "core.button",
+              "props": {
+                "label": {
+                  "$bind": "actionLabel"
+                },
+                "variant": "secondary",
+                "style": {
+                  "width": "100%",
+                  "marginTop": "8px"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
     "cssVars": {
       "--color-primary": "#dc2626",
       "--color-primary-dark": "#b91c1c",
@@ -2353,5 +3475,76 @@
     "--color-background": "#f8fafc",
     "--color-surface": "#ffffff"
   },
-  "componentTemplates": {}
+  "componentTemplates": {
+    "biz-hero-banner": {
+      "root": {
+        "alias": "core.panel",
+        "props": {
+          "tone": "accent",
+          "gap": 12,
+          "style": {
+            "width": "100%",
+            "padding": "28px 24px",
+            "color": "#fff",
+            "borderRadius": "0 0 28px 28px",
+            "background": "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark, var(--color-primary)))",
+            "boxShadow": "0 16px 36px rgba(15,23,42,0.18)"
+          }
+        },
+        "children": [
+          {
+            "alias": "core.tag",
+            "props": {
+              "label": {
+                "$bind": "badge"
+              },
+              "tone": "member",
+              "style": {
+                "alignSelf": "flex-start",
+                "background": "rgba(255,255,255,0.22)",
+                "color": "#fff"
+              }
+            }
+          },
+          {
+            "alias": "core.text",
+            "props": {
+              "text": {
+                "$bind": "title"
+              },
+              "variant": "display",
+              "style": {
+                "color": "#fff"
+              }
+            }
+          },
+          {
+            "alias": "core.text",
+            "props": {
+              "text": {
+                "$bind": "subtitle"
+              },
+              "variant": "body",
+              "style": {
+                "color": "rgba(255,255,255,0.86)"
+              }
+            }
+          },
+          {
+            "alias": "core.button",
+            "props": {
+              "label": {
+                "$bind": "actionLabel"
+              },
+              "variant": "secondary",
+              "style": {
+                "width": "100%",
+                "marginTop": "8px"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
 }

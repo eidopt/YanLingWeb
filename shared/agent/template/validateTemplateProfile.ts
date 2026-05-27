@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import type { ThemeLayoutDocument, ThemeLayoutNode, ValidationIssue, ValidationResult } from '../types';
-import type { TemplateProfile } from './templateProfile';
+import { EDITABLE_PROPS_BY_ALIAS, type TemplateProfile } from './templateProfile';
 import { containsSensitiveData, maskNodeId, validateSemanticKeyFormat } from './templateSecurity';
 
 function issue(severity: ValidationIssue['severity'], path: string, code: string, message: string): ValidationIssue {
@@ -26,7 +26,10 @@ function findNodeInDocument(document: ThemeLayoutDocument, nodeId: string): Them
 
 function componentProps(document: ThemeLayoutDocument, alias: string): Set<string> {
   const descriptor = document.components.find((component) => component.alias === alias);
-  return new Set((descriptor?.props ?? []).map((prop) => prop.name));
+  return new Set([
+    ...(descriptor?.props ?? []).map((prop) => prop.name),
+    ...(EDITABLE_PROPS_BY_ALIAS[alias] ?? []),
+  ]);
 }
 
 function checkUnique(keys: string[], path: string, errors: ValidationIssue[]): void {

@@ -41,6 +41,26 @@
             "name": "style",
             "type": "object",
             "label": "样式"
+          },
+          {
+            "name": "variant",
+            "type": "string",
+            "label": "文字层级"
+          },
+          {
+            "name": "active",
+            "type": "string",
+            "label": "选中"
+          },
+          {
+            "name": "disabled",
+            "type": "string",
+            "label": "禁用"
+          },
+          {
+            "name": "icon",
+            "type": "string",
+            "label": "图标"
           }
         ]
       },
@@ -59,6 +79,11 @@
             "name": "style",
             "type": "object",
             "label": "样式"
+          },
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
           }
         ]
       },
@@ -110,6 +135,16 @@
             "name": "style",
             "type": "object",
             "label": "样式"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
           }
         ]
       },
@@ -123,6 +158,31 @@
             "name": "style",
             "type": "object",
             "label": "样式"
+          },
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
+          },
+          {
+            "name": "wrap",
+            "type": "string",
+            "label": "换行"
+          },
+          {
+            "name": "justify",
+            "type": "string",
+            "label": "主轴对齐"
+          },
+          {
+            "name": "align",
+            "type": "string",
+            "label": "交叉轴对齐"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
           }
         ]
       },
@@ -149,6 +209,16 @@
             "name": "style",
             "type": "object",
             "label": "样式"
+          },
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
+          },
+          {
+            "name": "alignItems",
+            "type": "string",
+            "label": "对齐方式"
           }
         ]
       },
@@ -167,6 +237,233 @@
             "name": "text",
             "type": "string",
             "label": "显示内容"
+          },
+          {
+            "name": "variant",
+            "type": "string",
+            "label": "文字层级"
+          },
+          {
+            "name": "as",
+            "type": "string",
+            "label": "标签"
+          }
+        ]
+      },
+      {
+        "alias": "core.tag",
+        "name": "标签",
+        "kind": "component",
+        "description": "标签 组件",
+        "props": [
+          {
+            "name": "label",
+            "type": "string",
+            "label": "显示文字"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.tabs",
+        "name": "标签导航",
+        "kind": "component",
+        "description": "标签导航 组件",
+        "props": [
+          {
+            "name": "tabs",
+            "type": "string",
+            "label": "标签项"
+          },
+          {
+            "name": "activeTab",
+            "type": "string",
+            "label": "当前标签"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.search",
+        "name": "搜索框",
+        "kind": "component",
+        "description": "搜索框 组件",
+        "props": [
+          {
+            "name": "placeholder",
+            "type": "string",
+            "label": "占位文本"
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "label": "值"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.input",
+        "name": "输入框",
+        "kind": "component",
+        "description": "输入框 组件",
+        "props": [
+          {
+            "name": "placeholder",
+            "type": "string",
+            "label": "占位文本"
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "label": "显示文字"
+          },
+          {
+            "name": "type",
+            "type": "string",
+            "label": "类型"
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "label": "值"
+          },
+          {
+            "name": "disabled",
+            "type": "string",
+            "label": "禁用"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.notice",
+        "name": "提示",
+        "kind": "component",
+        "description": "提示 组件",
+        "props": [
+          {
+            "name": "text",
+            "type": "string",
+            "label": "显示内容"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.progress",
+        "name": "进度条",
+        "kind": "component",
+        "description": "进度条 组件",
+        "props": [
+          {
+            "name": "value",
+            "type": "number",
+            "label": "值"
+          },
+          {
+            "name": "max",
+            "type": "number",
+            "label": "最大值"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.divider",
+        "name": "分隔线",
+        "kind": "component",
+        "description": "分隔线 组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.spacer",
+        "name": "空白",
+        "kind": "component",
+        "description": "空白 组件",
+        "props": [
+          {
+            "name": "size",
+            "type": "string",
+            "label": "尺寸"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "biz-hero-banner",
+        "name": "业务头图",
+        "kind": "component",
+        "description": "业务头图组件",
+        "props": [
+          {
+            "name": "badge",
+            "type": "string",
+            "label": "徽标"
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "label": "标题"
+          },
+          {
+            "name": "subtitle",
+            "type": "string",
+            "label": "副标题"
+          },
+          {
+            "name": "actionLabel",
+            "type": "string",
+            "label": "行动按钮文案"
           }
         ]
       }
@@ -185,105 +482,110 @@
             "order": 0
           },
           "props": {
-            "title": "活动首页"
+            "title": "活动首页",
+            "style": {
+              "background": "#fff7ed"
+            }
           },
           "children": [
             {
-              "id": "evt-banner",
-              "alias": "core.image",
-              "layout": {
-                "mode": "flow",
-                "order": 0
-              },
-              "props": {
-                "src": "https://placeholder.com/event-banner.png",
-                "style": {
-                  "width": "100%",
-                  "height": "360rpx"
-                },
-                "alt": "图片",
-                "title": "图片"
-              },
-              "children": []
-            },
-            {
-              "id": "evt-timer",
+              "id": "event-countdown-stage",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 1
+                "order": 0,
+                "width": "100%"
               },
               "props": {
                 "style": {
-                  "margin": "-40rpx 32rpx 0",
-                  "padding": "24rpx",
-                  "borderRadius": "16rpx",
-                  "background": "#fff",
-                  "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.1)",
-                  "position": "relative",
-                  "zIndex": 1,
-                  "textAlign": "center"
+                  "margin": "20rpx 20rpx 0",
+                  "padding": "30rpx",
+                  "borderRadius": "34rpx",
+                  "background": "radial-gradient(circle at 20% 0,#fde047,#f97316 42%,#dc2626)",
+                  "color": "#fff",
+                  "minHeight": "360rpx"
                 }
               },
               "children": [
                 {
-                  "id": "timer-label",
-                  "alias": "core.text",
+                  "id": "event-stage-tag",
+                  "alias": "core.tag",
                   "layout": {
                     "mode": "flow",
                     "order": 0
                   },
                   "props": {
-                    "text": "距离活动结束",
+                    "label": "限时秒杀",
+                    "tone": "hot",
                     "style": {
-                      "fontSize": "24rpx",
-                      "color": "var(--color-text-secondary)"
+                      "background": "#111827",
+                      "color": "#fff",
+                      "alignSelf": "flex-start"
                     }
                   },
                   "children": []
                 },
                 {
-                  "id": "timer-countdown",
-                  "alias": "core.row",
+                  "id": "event-stage-title",
+                  "alias": "core.text",
                   "layout": {
                     "mode": "flow",
                     "order": 1
                   },
                   "props": {
+                    "text": "今晚八点开抢",
+                    "variant": "display",
                     "style": {
-                      "justifyContent": "center",
+                      "color": "#fff",
+                      "marginTop": "38rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "event-countdown-boxes",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
                       "gap": "12rpx",
-                      "marginTop": "12rpx"
+                      "marginTop": "24rpx"
                     }
                   },
                   "children": [
                     {
-                      "id": "timer-h",
+                      "id": "event-time-0",
                       "alias": "core.panel",
                       "layout": {
                         "mode": "flow",
-                        "order": 0
+                        "order": 0,
+                        "width": "auto"
                       },
                       "props": {
                         "style": {
-                          "padding": "12rpx 20rpx",
-                          "borderRadius": "8rpx",
-                          "background": "var(--color-primary)"
+                          "width": "96rpx",
+                          "padding": "16rpx 0",
+                          "borderRadius": "18rpx",
+                          "background": "rgba(255,255,255,0.24)",
+                          "textAlign": "center"
                         }
                       },
                       "children": [
                         {
-                          "id": "h-text",
+                          "id": "event-time-text-0",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 0
                           },
                           "props": {
-                            "text": "23",
+                            "text": "02",
+                            "variant": "heading",
                             "style": {
-                              "fontSize": "32rpx",
-                              "fontWeight": "bold",
                               "color": "#fff"
                             }
                           },
@@ -292,49 +594,34 @@
                       ]
                     },
                     {
-                      "id": "timer-colon1",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": ":",
-                        "style": {
-                          "fontSize": "32rpx",
-                          "fontWeight": "bold",
-                          "color": "var(--color-primary)"
-                        }
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "timer-m",
+                      "id": "event-time-1",
                       "alias": "core.panel",
                       "layout": {
                         "mode": "flow",
-                        "order": 2
+                        "order": 1,
+                        "width": "auto"
                       },
                       "props": {
                         "style": {
-                          "padding": "12rpx 20rpx",
-                          "borderRadius": "8rpx",
-                          "background": "var(--color-primary)"
+                          "width": "96rpx",
+                          "padding": "16rpx 0",
+                          "borderRadius": "18rpx",
+                          "background": "rgba(255,255,255,0.24)",
+                          "textAlign": "center"
                         }
                       },
                       "children": [
                         {
-                          "id": "m-text",
+                          "id": "event-time-text-1",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 0
                           },
                           "props": {
-                            "text": "59",
+                            "text": "18",
+                            "variant": "heading",
                             "style": {
-                              "fontSize": "32rpx",
-                              "fontWeight": "bold",
                               "color": "#fff"
                             }
                           },
@@ -343,39 +630,25 @@
                       ]
                     },
                     {
-                      "id": "timer-colon2",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 3
-                      },
-                      "props": {
-                        "text": ":",
-                        "style": {
-                          "fontSize": "32rpx",
-                          "fontWeight": "bold",
-                          "color": "var(--color-primary)"
-                        }
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "timer-s",
+                      "id": "event-time-2",
                       "alias": "core.panel",
                       "layout": {
                         "mode": "flow",
-                        "order": 4
+                        "order": 2,
+                        "width": "auto"
                       },
                       "props": {
                         "style": {
-                          "padding": "12rpx 20rpx",
-                          "borderRadius": "8rpx",
-                          "background": "var(--color-primary)"
+                          "width": "96rpx",
+                          "padding": "16rpx 0",
+                          "borderRadius": "18rpx",
+                          "background": "rgba(255,255,255,0.24)",
+                          "textAlign": "center"
                         }
                       },
                       "children": [
                         {
-                          "id": "s-text",
+                          "id": "event-time-text-2",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
@@ -383,9 +656,8 @@
                           },
                           "props": {
                             "text": "45",
+                            "variant": "heading",
                             "style": {
-                              "fontSize": "32rpx",
-                              "fontWeight": "bold",
                               "color": "#fff"
                             }
                           },
@@ -394,484 +666,640 @@
                       ]
                     }
                   ]
+                },
+                {
+                  "id": "event-stage-action",
+                  "alias": "core.button",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3
+                  },
+                  "props": {
+                    "label": "订阅提醒",
+                    "variant": "primary",
+                    "style": {
+                      "marginTop": "28rpx",
+                      "background": "#fff",
+                      "color": "#dc2626"
+                    }
+                  },
+                  "children": []
                 }
               ]
             },
             {
-              "id": "evt-coupons",
-              "alias": "core.panel",
+              "id": "event-coupon-strip",
+              "alias": "core.row",
               "layout": {
                 "mode": "flow",
-                "order": 2
+                "order": 1,
+                "width": "100%"
               },
               "props": {
                 "style": {
-                  "padding": "32rpx 32rpx 16rpx"
+                  "padding": "20rpx",
+                  "gap": "14rpx",
+                  "overflowX": "auto"
                 }
               },
               "children": [
                 {
-                  "id": "coupon-title",
+                  "id": "event-coupon-0",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "auto"
+                  },
+                  "props": {
+                    "style": {
+                      "minWidth": "210rpx",
+                      "padding": "20rpx",
+                      "borderRadius": "22rpx",
+                      "background": "#fff7ed",
+                      "border": "1rpx dashed #fb923c"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "event-coupon-title-0",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "满199减40",
+                        "variant": "subheading",
+                        "style": {
+                          "color": "#ea580c"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "event-coupon-sub-0",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "立即领取",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#9a3412"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "event-coupon-1",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "auto"
+                  },
+                  "props": {
+                    "style": {
+                      "minWidth": "210rpx",
+                      "padding": "20rpx",
+                      "borderRadius": "22rpx",
+                      "background": "#fff7ed",
+                      "border": "1rpx dashed #fb923c"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "event-coupon-title-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "新人礼券",
+                        "variant": "subheading",
+                        "style": {
+                          "color": "#ea580c"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "event-coupon-sub-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "立即领取",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#9a3412"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "event-coupon-2",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "auto"
+                  },
+                  "props": {
+                    "style": {
+                      "minWidth": "210rpx",
+                      "padding": "20rpx",
+                      "borderRadius": "22rpx",
+                      "background": "#fff7ed",
+                      "border": "1rpx dashed #fb923c"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "event-coupon-title-2",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "免邮券",
+                        "variant": "subheading",
+                        "style": {
+                          "color": "#ea580c"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "event-coupon-sub-2",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "立即领取",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#9a3412"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "event-scene-grid",
+              "alias": "core.grid",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "columns": 2,
+                "style": {
+                  "padding": "0 20rpx",
+                  "gap": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "event-scene-0",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "24rpx",
+                      "background": "#fff"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "event-scene-img-0",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "爆品专区图标",
+                        "title": "爆品专区图标",
+                        "iconColor": "#ef4444",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "68rpx",
+                          "height": "68rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "event-scene-title-0",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "爆品专区",
+                        "variant": "subheading",
+                        "style": {
+                          "marginTop": "14rpx"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "event-scene-1",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "24rpx",
+                      "background": "#fef2f2"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "event-scene-img-1",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "会员专享图标",
+                        "title": "会员专享图标",
+                        "iconColor": "#f97316",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "68rpx",
+                          "height": "68rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "event-scene-title-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "会员专享",
+                        "variant": "subheading",
+                        "style": {
+                          "marginTop": "14rpx"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "event-scene-2",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "24rpx",
+                      "background": "#fefce8"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "event-scene-img-2",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "直播会场图标",
+                        "title": "直播会场图标",
+                        "iconColor": "#eab308",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "68rpx",
+                          "height": "68rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "event-scene-title-2",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "直播会场",
+                        "variant": "subheading",
+                        "style": {
+                          "marginTop": "14rpx"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "event-scene-3",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "24rpx",
+                      "background": "#eff6ff"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "event-scene-img-3",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "门店活动图标",
+                        "title": "门店活动图标",
+                        "iconColor": "#2563eb",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "68rpx",
+                          "height": "68rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "event-scene-title-3",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "门店活动",
+                        "variant": "subheading",
+                        "style": {
+                          "marginTop": "14rpx"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "event-rank-card",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 3,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "margin": "20rpx",
+                  "padding": "24rpx",
+                  "borderRadius": "24rpx",
+                  "background": "#fff"
+                }
+              },
+              "children": [
+                {
+                  "id": "event-rank-title",
                   "alias": "core.text",
                   "layout": {
                     "mode": "flow",
                     "order": 0
                   },
                   "props": {
-                    "text": "优惠券",
-                    "style": {
-                      "fontSize": "30rpx",
-                      "fontWeight": "bold",
-                      "marginBottom": "16rpx"
-                    }
+                    "text": "热度榜",
+                    "variant": "heading",
+                    "style": {}
                   },
                   "children": []
                 },
                 {
-                  "id": "coupon-list",
+                  "id": "event-rank-0",
                   "alias": "core.row",
                   "layout": {
                     "mode": "flow",
-                    "order": 1
+                    "order": 1,
+                    "width": "100%"
                   },
                   "props": {
                     "style": {
-                      "gap": "16rpx",
-                      "overflow": "auto"
+                      "padding": "16rpx 0",
+                      "justifyContent": "space-between"
                     }
                   },
                   "children": [
                     {
-                      "id": "coupon-1",
-                      "alias": "core.panel",
+                      "id": "event-rank-name-0",
+                      "alias": "core.text",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
-                        "style": {
-                          "minWidth": "260rpx",
-                          "padding": "20rpx",
-                          "borderRadius": "12rpx",
-                          "background": "linear-gradient(135deg, #ff6b35, #f97316)",
-                          "color": "#fff"
-                        }
+                        "text": "1. 空气炸锅",
+                        "variant": "body",
+                        "style": {}
                       },
-                      "children": [
-                        {
-                          "id": "c1-amount",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "text": "¥50",
-                            "style": {
-                              "fontSize": "40rpx",
-                              "fontWeight": "bold"
-                            }
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "c1-condition",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 1
-                          },
-                          "props": {
-                            "text": "满200可用",
-                            "style": {
-                              "fontSize": "22rpx",
-                              "opacity": 0.8
-                            }
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "c1-btn",
-                          "alias": "core.button",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 2
-                          },
-                          "props": {
-                            "style": {
-                              "marginTop": "12rpx",
-                              "padding": "8rpx 20rpx",
-                              "borderRadius": "24rpx",
-                              "background": "rgba(255,255,255,0.3)",
-                              "fontSize": "22rpx",
-                              "color": "#fff",
-                              "textAlign": "center"
-                            },
-                            "label": "立即领取"
-                          },
-                          "children": []
-                        }
-                      ]
+                      "children": []
                     },
                     {
-                      "id": "coupon-2",
-                      "alias": "core.panel",
+                      "id": "event-rank-tag-0",
+                      "alias": "core.tag",
                       "layout": {
                         "mode": "flow",
                         "order": 1
                       },
                       "props": {
-                        "style": {
-                          "minWidth": "260rpx",
-                          "padding": "20rpx",
-                          "borderRadius": "12rpx",
-                          "background": "linear-gradient(135deg, #ef4444, #dc2626)",
-                          "color": "#fff"
-                        }
+                        "label": "98万热度",
+                        "tone": "hot",
+                        "style": {}
                       },
-                      "children": [
-                        {
-                          "id": "c2-amount",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "text": "¥100",
-                            "style": {
-                              "fontSize": "40rpx",
-                              "fontWeight": "bold"
-                            }
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "c2-condition",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 1
-                          },
-                          "props": {
-                            "text": "满500可用",
-                            "style": {
-                              "fontSize": "22rpx",
-                              "opacity": 0.8
-                            }
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "c2-btn",
-                          "alias": "core.button",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 2
-                          },
-                          "props": {
-                            "style": {
-                              "marginTop": "12rpx",
-                              "padding": "8rpx 20rpx",
-                              "borderRadius": "24rpx",
-                              "background": "rgba(255,255,255,0.3)",
-                              "fontSize": "22rpx",
-                              "color": "#fff",
-                              "textAlign": "center"
-                            },
-                            "label": "立即领取"
-                          },
-                          "children": []
-                        }
-                      ]
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "event-rank-1",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "16rpx 0",
+                      "justifyContent": "space-between",
+                      "borderTop": "1rpx solid #f1f5f9"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "event-rank-name-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "2. 露营车",
+                        "variant": "body",
+                        "style": {}
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "event-rank-tag-1",
+                      "alias": "core.tag",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "label": "91万热度",
+                        "tone": "info",
+                        "style": {}
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "event-rank-2",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "16rpx 0",
+                      "justifyContent": "space-between",
+                      "borderTop": "1rpx solid #f1f5f9"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "event-rank-name-2",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "3. 智能手表",
+                        "variant": "body",
+                        "style": {}
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "event-rank-tag-2",
+                      "alias": "core.tag",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "label": "84万热度",
+                        "tone": "info",
+                        "style": {}
+                      },
+                      "children": []
                     }
                   ]
                 }
               ]
             },
             {
-              "id": "evt-products",
-              "alias": "core.panel",
+              "id": "page-home-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
               "layout": {
                 "mode": "flow",
-                "order": 3
+                "order": 999,
+                "width": "100%"
               },
               "props": {
-                "style": {
-                  "padding": "16rpx 32rpx 32rpx"
+                "tabs": [
+                  "活动首页",
+                  "活动规则",
+                  "活动商品",
+                  "参与成功"
+                ],
+                "activeTab": "活动首页"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "活动首页": {
+                    "type": "navigate",
+                    "targetPageId": "page-home"
+                  },
+                  "活动规则": {
+                    "type": "navigate",
+                    "targetPageId": "page-rules"
+                  },
+                  "活动商品": {
+                    "type": "navigate",
+                    "targetPageId": "page-products"
+                  },
+                  "参与成功": {
+                    "type": "navigate",
+                    "targetPageId": "page-success"
+                  }
                 }
               },
-              "children": [
-                {
-                  "id": "prod-title",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "text": "活动商品",
-                    "style": {
-                      "fontSize": "30rpx",
-                      "fontWeight": "bold",
-                      "marginBottom": "16rpx"
-                    }
-                  },
-                  "children": []
-                },
-                {
-                  "id": "prod-grid",
-                  "alias": "core.grid",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1
-                  },
-                  "props": {
-                    "columns": 2,
-                    "style": {
-                      "gap": "16rpx"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "prod-1",
-                      "alias": "core.panel",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "style": {
-                          "borderRadius": "16rpx",
-                          "overflow": "hidden",
-                          "background": "#fff",
-                          "boxShadow": "0 2rpx 8rpx rgba(0,0,0,0.06)"
-                        }
-                      },
-                      "children": [
-                        {
-                          "id": "p1-img",
-                          "alias": "core.image",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "src": "https://placeholder.com/product.png",
-                            "style": {
-                              "width": "100%",
-                              "height": "280rpx"
-                            },
-                            "alt": "图片",
-                            "title": "图片"
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "p1-info",
-                          "alias": "core.panel",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 1
-                          },
-                          "props": {
-                            "style": {
-                              "padding": "12rpx 16rpx"
-                            }
-                          },
-                          "children": [
-                            {
-                              "id": "p1-name",
-                              "alias": "core.text",
-                              "layout": {
-                                "mode": "flow",
-                                "order": 0
-                              },
-                              "props": {
-                                "text": "限时特惠商品",
-                                "style": {
-                                  "fontSize": "26rpx",
-                                  "lineClamp": 1
-                                }
-                              },
-                              "children": []
-                            },
-                            {
-                              "id": "p1-price-row",
-                              "alias": "core.row",
-                              "layout": {
-                                "mode": "flow",
-                                "order": 1
-                              },
-                              "props": {
-                                "style": {
-                                  "alignItems": "baseline",
-                                  "gap": "8rpx",
-                                  "marginTop": "8rpx"
-                                }
-                              },
-                              "children": [
-                                {
-                                  "id": "p1-price",
-                                  "alias": "core.text",
-                                  "layout": {
-                                    "mode": "flow",
-                                    "order": 0
-                                  },
-                                  "props": {
-                                    "text": "¥199",
-                                    "style": {
-                                      "fontSize": "30rpx",
-                                      "fontWeight": "bold",
-                                      "color": "var(--color-primary)"
-                                    }
-                                  },
-                                  "children": []
-                                },
-                                {
-                                  "id": "p1-orig",
-                                  "alias": "core.text",
-                                  "layout": {
-                                    "mode": "flow",
-                                    "order": 1
-                                  },
-                                  "props": {
-                                    "text": "¥399",
-                                    "style": {
-                                      "fontSize": "22rpx",
-                                      "color": "var(--color-text-secondary)",
-                                      "textDecoration": "line-through"
-                                    }
-                                  },
-                                  "children": []
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "id": "prod-2",
-                      "alias": "core.panel",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "style": {
-                          "borderRadius": "16rpx",
-                          "overflow": "hidden",
-                          "background": "#fff",
-                          "boxShadow": "0 2rpx 8rpx rgba(0,0,0,0.06)"
-                        }
-                      },
-                      "children": [
-                        {
-                          "id": "p2-img",
-                          "alias": "core.image",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "src": "https://placeholder.com/product.png",
-                            "style": {
-                              "width": "100%",
-                              "height": "280rpx"
-                            },
-                            "alt": "图片",
-                            "title": "图片"
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "p2-info",
-                          "alias": "core.panel",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 1
-                          },
-                          "props": {
-                            "style": {
-                              "padding": "12rpx 16rpx"
-                            }
-                          },
-                          "children": [
-                            {
-                              "id": "p2-name",
-                              "alias": "core.text",
-                              "layout": {
-                                "mode": "flow",
-                                "order": 0
-                              },
-                              "props": {
-                                "text": "爆款推荐好物",
-                                "style": {
-                                  "fontSize": "26rpx",
-                                  "lineClamp": 1
-                                }
-                              },
-                              "children": []
-                            },
-                            {
-                              "id": "p2-price-row",
-                              "alias": "core.row",
-                              "layout": {
-                                "mode": "flow",
-                                "order": 1
-                              },
-                              "props": {
-                                "style": {
-                                  "alignItems": "baseline",
-                                  "gap": "8rpx",
-                                  "marginTop": "8rpx"
-                                }
-                              },
-                              "children": [
-                                {
-                                  "id": "p2-price",
-                                  "alias": "core.text",
-                                  "layout": {
-                                    "mode": "flow",
-                                    "order": 0
-                                  },
-                                  "props": {
-                                    "text": "¥299",
-                                    "style": {
-                                      "fontSize": "30rpx",
-                                      "fontWeight": "bold",
-                                      "color": "var(--color-primary)"
-                                    }
-                                  },
-                                  "children": []
-                                },
-                                {
-                                  "id": "p2-orig",
-                                  "alias": "core.text",
-                                  "layout": {
-                                    "mode": "flow",
-                                    "order": 1
-                                  },
-                                  "props": {
-                                    "text": "¥599",
-                                    "style": {
-                                      "fontSize": "22rpx",
-                                      "color": "var(--color-text-secondary)",
-                                      "textDecoration": "line-through"
-                                    }
-                                  },
-                                  "children": []
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
+              "children": []
             }
           ]
         }
@@ -888,15 +1316,35 @@
             "order": 1
           },
           "props": {
-            "title": "活动规则"
+            "title": "活动规则",
+            "style": {
+              "background": "var(--color-background, #f6f7fb)"
+            }
           },
           "children": [
+            {
+              "id": "page-rules-hero-banner",
+              "alias": "biz-hero-banner",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "badge": "活动推广",
+                "title": "活动规则",
+                "subtitle": "活动规则",
+                "actionLabel": "立即参与"
+              },
+              "children": []
+            },
             {
               "id": "rules-header",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 0
+                "order": 1,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -918,7 +1366,8 @@
                       "fontSize": "34rpx",
                       "fontWeight": "bold",
                       "color": "#fff"
-                    }
+                    },
+                    "variant": "heading"
                   },
                   "children": []
                 }
@@ -929,7 +1378,8 @@
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 1
+                "order": 2,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -966,7 +1416,8 @@
                           "fontSize": "28rpx",
                           "fontWeight": "bold",
                           "marginBottom": "8rpx"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     },
@@ -983,7 +1434,8 @@
                           "fontSize": "26rpx",
                           "color": "var(--color-text-secondary)",
                           "lineHeight": "1.6"
-                        }
+                        },
+                        "variant": "body"
                       },
                       "children": []
                     }
@@ -1015,7 +1467,8 @@
                           "fontSize": "28rpx",
                           "fontWeight": "bold",
                           "marginBottom": "8rpx"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     },
@@ -1032,7 +1485,8 @@
                           "fontSize": "26rpx",
                           "color": "var(--color-text-secondary)",
                           "lineHeight": "1.6"
-                        }
+                        },
+                        "variant": "body"
                       },
                       "children": []
                     }
@@ -1064,7 +1518,8 @@
                           "fontSize": "28rpx",
                           "fontWeight": "bold",
                           "marginBottom": "8rpx"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     },
@@ -1081,13 +1536,71 @@
                           "fontSize": "26rpx",
                           "color": "var(--color-text-secondary)",
                           "lineHeight": "1.6"
-                        }
+                        },
+                        "variant": "body"
                       },
                       "children": []
                     }
                   ]
                 }
               ]
+            },
+            {
+              "id": "page-rules-primary-action",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 3,
+                "width": "100%"
+              },
+              "props": {
+                "variant": "primary",
+                "label": "立即参与",
+                "style": {
+                  "width": "100%"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "page-rules-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "活动首页",
+                  "活动规则",
+                  "活动商品",
+                  "参与成功"
+                ],
+                "activeTab": "活动规则"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "活动首页": {
+                    "type": "navigate",
+                    "targetPageId": "page-home"
+                  },
+                  "活动规则": {
+                    "type": "navigate",
+                    "targetPageId": "page-rules"
+                  },
+                  "活动商品": {
+                    "type": "navigate",
+                    "targetPageId": "page-products"
+                  },
+                  "参与成功": {
+                    "type": "navigate",
+                    "targetPageId": "page-success"
+                  }
+                }
+              },
+              "children": []
             }
           ]
         }
@@ -1104,15 +1617,35 @@
             "order": 2
           },
           "props": {
-            "title": "活动商品"
+            "title": "活动商品",
+            "style": {
+              "background": "var(--color-background, #f6f7fb)"
+            }
           },
           "children": [
+            {
+              "id": "page-products-hero-banner",
+              "alias": "biz-hero-banner",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "badge": "活动推广",
+                "title": "活动商品",
+                "subtitle": "活动商品",
+                "actionLabel": "立即参与"
+              },
+              "children": []
+            },
             {
               "id": "products-header",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 0
+                "order": 1,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -1134,7 +1667,8 @@
                       "fontSize": "34rpx",
                       "fontWeight": "bold",
                       "color": "#fff"
-                    }
+                    },
+                    "variant": "heading"
                   },
                   "children": []
                 }
@@ -1145,7 +1679,8 @@
               "alias": "core.row",
               "layout": {
                 "mode": "flow",
-                "order": 1
+                "order": 2,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -1169,7 +1704,8 @@
                       "fontSize": "28rpx",
                       "color": "var(--color-primary)",
                       "fontWeight": "bold"
-                    }
+                    },
+                    "variant": "heading"
                   },
                   "children": []
                 },
@@ -1185,7 +1721,8 @@
                     "style": {
                       "fontSize": "28rpx",
                       "color": "var(--color-text-secondary)"
-                    }
+                    },
+                    "variant": "body"
                   },
                   "children": []
                 },
@@ -1201,7 +1738,8 @@
                     "style": {
                       "fontSize": "28rpx",
                       "color": "var(--color-text-secondary)"
-                    }
+                    },
+                    "variant": "body"
                   },
                   "children": []
                 }
@@ -1212,7 +1750,8 @@
               "alias": "core.stack",
               "layout": {
                 "mode": "flow",
-                "order": 2
+                "order": 3,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -1246,14 +1785,15 @@
                         "order": 0
                       },
                       "props": {
-                        "src": "https://placeholder.com/product.png",
                         "style": {
                           "width": "180rpx",
                           "height": "180rpx",
                           "borderRadius": "8rpx"
                         },
-                        "alt": "图片",
-                        "title": "图片"
+                        "alt": "业务视觉元素",
+                        "title": "业务视觉元素",
+                        "iconColor": "#f97316",
+                        "objectFit": "cover"
                       },
                       "children": []
                     },
@@ -1284,7 +1824,8 @@
                               "fontSize": "28rpx",
                               "fontWeight": "bold",
                               "lineClamp": 2
-                            }
+                            },
+                            "variant": "heading"
                           },
                           "children": []
                         },
@@ -1315,7 +1856,8 @@
                                   "fontSize": "32rpx",
                                   "fontWeight": "bold",
                                   "color": "var(--color-primary)"
-                                }
+                                },
+                                "variant": "price"
                               },
                               "children": []
                             },
@@ -1324,9 +1866,11 @@
                               "alias": "core.button",
                               "layout": {
                                 "mode": "flow",
-                                "order": 1
+                                "order": 1,
+                                "width": "100%"
                               },
                               "props": {
+                                "variant": "primary",
                                 "style": {
                                   "padding": "8rpx 24rpx",
                                   "borderRadius": "24rpx",
@@ -1345,6 +1889,46 @@
                   ]
                 }
               ]
+            },
+            {
+              "id": "page-products-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "活动首页",
+                  "活动规则",
+                  "活动商品",
+                  "参与成功"
+                ],
+                "activeTab": "活动商品"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "活动首页": {
+                    "type": "navigate",
+                    "targetPageId": "page-home"
+                  },
+                  "活动规则": {
+                    "type": "navigate",
+                    "targetPageId": "page-rules"
+                  },
+                  "活动商品": {
+                    "type": "navigate",
+                    "targetPageId": "page-products"
+                  },
+                  "参与成功": {
+                    "type": "navigate",
+                    "targetPageId": "page-success"
+                  }
+                }
+              },
+              "children": []
             }
           ]
         }
@@ -1361,15 +1945,35 @@
             "order": 3
           },
           "props": {
-            "title": "参与成功"
+            "title": "参与成功",
+            "style": {
+              "background": "var(--color-background, #f6f7fb)"
+            }
           },
           "children": [
+            {
+              "id": "page-success-hero-banner",
+              "alias": "biz-hero-banner",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "badge": "活动推广",
+                "title": "参与成功",
+                "subtitle": "领取成功！",
+                "actionLabel": "立即参与"
+              },
+              "children": []
+            },
             {
               "id": "success-card",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 0
+                "order": 1,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -1432,7 +2036,8 @@
                       "fontSize": "36rpx",
                       "fontWeight": "bold",
                       "color": "var(--color-text-primary)"
-                    }
+                    },
+                    "variant": "heading"
                   },
                   "children": []
                 },
@@ -1449,7 +2054,8 @@
                       "fontSize": "26rpx",
                       "color": "var(--color-text-secondary)",
                       "marginTop": "12rpx"
-                    }
+                    },
+                    "variant": "body"
                   },
                   "children": []
                 },
@@ -1482,7 +2088,8 @@
                           "fontSize": "48rpx",
                           "fontWeight": "bold",
                           "color": "#fff"
-                        }
+                        },
+                        "variant": "price"
                       },
                       "children": []
                     },
@@ -1499,7 +2106,8 @@
                           "fontSize": "24rpx",
                           "color": "rgba(255,255,255,0.8)",
                           "marginTop": "8rpx"
-                        }
+                        },
+                        "variant": "caption"
                       },
                       "children": []
                     }
@@ -1524,9 +2132,11 @@
                       "alias": "core.button",
                       "layout": {
                         "mode": "flow",
-                        "order": 0
+                        "order": 0,
+                        "width": "100%"
                       },
                       "props": {
+                        "variant": "primary",
                         "style": {
                           "flex": 1,
                           "padding": "20rpx",
@@ -1545,9 +2155,11 @@
                       "alias": "core.button",
                       "layout": {
                         "mode": "flow",
-                        "order": 1
+                        "order": 1,
+                        "width": "100%"
                       },
                       "props": {
+                        "variant": "primary",
                         "style": {
                           "flex": 1,
                           "padding": "20rpx",
@@ -1564,6 +2176,46 @@
                   ]
                 }
               ]
+            },
+            {
+              "id": "page-success-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "活动首页",
+                  "活动规则",
+                  "活动商品",
+                  "参与成功"
+                ],
+                "activeTab": "参与成功"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "活动首页": {
+                    "type": "navigate",
+                    "targetPageId": "page-home"
+                  },
+                  "活动规则": {
+                    "type": "navigate",
+                    "targetPageId": "page-rules"
+                  },
+                  "活动商品": {
+                    "type": "navigate",
+                    "targetPageId": "page-products"
+                  },
+                  "参与成功": {
+                    "type": "navigate",
+                    "targetPageId": "page-success"
+                  }
+                }
+              },
+              "children": []
             }
           ]
         }
@@ -1577,105 +2229,110 @@
         "order": 0
       },
       "props": {
-        "title": "活动首页"
+        "title": "活动首页",
+        "style": {
+          "background": "#fff7ed"
+        }
       },
       "children": [
         {
-          "id": "evt-banner",
-          "alias": "core.image",
-          "layout": {
-            "mode": "flow",
-            "order": 0
-          },
-          "props": {
-            "src": "https://placeholder.com/event-banner.png",
-            "style": {
-              "width": "100%",
-              "height": "360rpx"
-            },
-            "alt": "图片",
-            "title": "图片"
-          },
-          "children": []
-        },
-        {
-          "id": "evt-timer",
+          "id": "event-countdown-stage",
           "alias": "core.panel",
           "layout": {
             "mode": "flow",
-            "order": 1
+            "order": 0,
+            "width": "100%"
           },
           "props": {
             "style": {
-              "margin": "-40rpx 32rpx 0",
-              "padding": "24rpx",
-              "borderRadius": "16rpx",
-              "background": "#fff",
-              "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.1)",
-              "position": "relative",
-              "zIndex": 1,
-              "textAlign": "center"
+              "margin": "20rpx 20rpx 0",
+              "padding": "30rpx",
+              "borderRadius": "34rpx",
+              "background": "radial-gradient(circle at 20% 0,#fde047,#f97316 42%,#dc2626)",
+              "color": "#fff",
+              "minHeight": "360rpx"
             }
           },
           "children": [
             {
-              "id": "timer-label",
-              "alias": "core.text",
+              "id": "event-stage-tag",
+              "alias": "core.tag",
               "layout": {
                 "mode": "flow",
                 "order": 0
               },
               "props": {
-                "text": "距离活动结束",
+                "label": "限时秒杀",
+                "tone": "hot",
                 "style": {
-                  "fontSize": "24rpx",
-                  "color": "var(--color-text-secondary)"
+                  "background": "#111827",
+                  "color": "#fff",
+                  "alignSelf": "flex-start"
                 }
               },
               "children": []
             },
             {
-              "id": "timer-countdown",
-              "alias": "core.row",
+              "id": "event-stage-title",
+              "alias": "core.text",
               "layout": {
                 "mode": "flow",
                 "order": 1
               },
               "props": {
+                "text": "今晚八点开抢",
+                "variant": "display",
                 "style": {
-                  "justifyContent": "center",
+                  "color": "#fff",
+                  "marginTop": "38rpx"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "event-countdown-boxes",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
                   "gap": "12rpx",
-                  "marginTop": "12rpx"
+                  "marginTop": "24rpx"
                 }
               },
               "children": [
                 {
-                  "id": "timer-h",
+                  "id": "event-time-0",
                   "alias": "core.panel",
                   "layout": {
                     "mode": "flow",
-                    "order": 0
+                    "order": 0,
+                    "width": "auto"
                   },
                   "props": {
                     "style": {
-                      "padding": "12rpx 20rpx",
-                      "borderRadius": "8rpx",
-                      "background": "var(--color-primary)"
+                      "width": "96rpx",
+                      "padding": "16rpx 0",
+                      "borderRadius": "18rpx",
+                      "background": "rgba(255,255,255,0.24)",
+                      "textAlign": "center"
                     }
                   },
                   "children": [
                     {
-                      "id": "h-text",
+                      "id": "event-time-text-0",
                       "alias": "core.text",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
-                        "text": "23",
+                        "text": "02",
+                        "variant": "heading",
                         "style": {
-                          "fontSize": "32rpx",
-                          "fontWeight": "bold",
                           "color": "#fff"
                         }
                       },
@@ -1684,49 +2341,34 @@
                   ]
                 },
                 {
-                  "id": "timer-colon1",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1
-                  },
-                  "props": {
-                    "text": ":",
-                    "style": {
-                      "fontSize": "32rpx",
-                      "fontWeight": "bold",
-                      "color": "var(--color-primary)"
-                    }
-                  },
-                  "children": []
-                },
-                {
-                  "id": "timer-m",
+                  "id": "event-time-1",
                   "alias": "core.panel",
                   "layout": {
                     "mode": "flow",
-                    "order": 2
+                    "order": 1,
+                    "width": "auto"
                   },
                   "props": {
                     "style": {
-                      "padding": "12rpx 20rpx",
-                      "borderRadius": "8rpx",
-                      "background": "var(--color-primary)"
+                      "width": "96rpx",
+                      "padding": "16rpx 0",
+                      "borderRadius": "18rpx",
+                      "background": "rgba(255,255,255,0.24)",
+                      "textAlign": "center"
                     }
                   },
                   "children": [
                     {
-                      "id": "m-text",
+                      "id": "event-time-text-1",
                       "alias": "core.text",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
-                        "text": "59",
+                        "text": "18",
+                        "variant": "heading",
                         "style": {
-                          "fontSize": "32rpx",
-                          "fontWeight": "bold",
                           "color": "#fff"
                         }
                       },
@@ -1735,39 +2377,25 @@
                   ]
                 },
                 {
-                  "id": "timer-colon2",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 3
-                  },
-                  "props": {
-                    "text": ":",
-                    "style": {
-                      "fontSize": "32rpx",
-                      "fontWeight": "bold",
-                      "color": "var(--color-primary)"
-                    }
-                  },
-                  "children": []
-                },
-                {
-                  "id": "timer-s",
+                  "id": "event-time-2",
                   "alias": "core.panel",
                   "layout": {
                     "mode": "flow",
-                    "order": 4
+                    "order": 2,
+                    "width": "auto"
                   },
                   "props": {
                     "style": {
-                      "padding": "12rpx 20rpx",
-                      "borderRadius": "8rpx",
-                      "background": "var(--color-primary)"
+                      "width": "96rpx",
+                      "padding": "16rpx 0",
+                      "borderRadius": "18rpx",
+                      "background": "rgba(255,255,255,0.24)",
+                      "textAlign": "center"
                     }
                   },
                   "children": [
                     {
-                      "id": "s-text",
+                      "id": "event-time-text-2",
                       "alias": "core.text",
                       "layout": {
                         "mode": "flow",
@@ -1775,9 +2403,8 @@
                       },
                       "props": {
                         "text": "45",
+                        "variant": "heading",
                         "style": {
-                          "fontSize": "32rpx",
-                          "fontWeight": "bold",
                           "color": "#fff"
                         }
                       },
@@ -1786,488 +2413,715 @@
                   ]
                 }
               ]
+            },
+            {
+              "id": "event-stage-action",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 3
+              },
+              "props": {
+                "label": "订阅提醒",
+                "variant": "primary",
+                "style": {
+                  "marginTop": "28rpx",
+                  "background": "#fff",
+                  "color": "#dc2626"
+                }
+              },
+              "children": []
             }
           ]
         },
         {
-          "id": "evt-coupons",
-          "alias": "core.panel",
+          "id": "event-coupon-strip",
+          "alias": "core.row",
           "layout": {
             "mode": "flow",
-            "order": 2
+            "order": 1,
+            "width": "100%"
           },
           "props": {
             "style": {
-              "padding": "32rpx 32rpx 16rpx"
+              "padding": "20rpx",
+              "gap": "14rpx",
+              "overflowX": "auto"
             }
           },
           "children": [
             {
-              "id": "coupon-title",
+              "id": "event-coupon-0",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "auto"
+              },
+              "props": {
+                "style": {
+                  "minWidth": "210rpx",
+                  "padding": "20rpx",
+                  "borderRadius": "22rpx",
+                  "background": "#fff7ed",
+                  "border": "1rpx dashed #fb923c"
+                }
+              },
+              "children": [
+                {
+                  "id": "event-coupon-title-0",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "满199减40",
+                    "variant": "subheading",
+                    "style": {
+                      "color": "#ea580c"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "event-coupon-sub-0",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "立即领取",
+                    "variant": "caption",
+                    "style": {
+                      "color": "#9a3412"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "event-coupon-1",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "auto"
+              },
+              "props": {
+                "style": {
+                  "minWidth": "210rpx",
+                  "padding": "20rpx",
+                  "borderRadius": "22rpx",
+                  "background": "#fff7ed",
+                  "border": "1rpx dashed #fb923c"
+                }
+              },
+              "children": [
+                {
+                  "id": "event-coupon-title-1",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "新人礼券",
+                    "variant": "subheading",
+                    "style": {
+                      "color": "#ea580c"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "event-coupon-sub-1",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "立即领取",
+                    "variant": "caption",
+                    "style": {
+                      "color": "#9a3412"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "event-coupon-2",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "auto"
+              },
+              "props": {
+                "style": {
+                  "minWidth": "210rpx",
+                  "padding": "20rpx",
+                  "borderRadius": "22rpx",
+                  "background": "#fff7ed",
+                  "border": "1rpx dashed #fb923c"
+                }
+              },
+              "children": [
+                {
+                  "id": "event-coupon-title-2",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "免邮券",
+                    "variant": "subheading",
+                    "style": {
+                      "color": "#ea580c"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "event-coupon-sub-2",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "立即领取",
+                    "variant": "caption",
+                    "style": {
+                      "color": "#9a3412"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "event-scene-grid",
+          "alias": "core.grid",
+          "layout": {
+            "mode": "flow",
+            "order": 2,
+            "width": "100%"
+          },
+          "props": {
+            "columns": 2,
+            "style": {
+              "padding": "0 20rpx",
+              "gap": "16rpx"
+            }
+          },
+          "children": [
+            {
+              "id": "event-scene-0",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx",
+                  "borderRadius": "24rpx",
+                  "background": "#fff"
+                }
+              },
+              "children": [
+                {
+                  "id": "event-scene-img-0",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "alt": "爆品专区图标",
+                    "title": "爆品专区图标",
+                    "iconColor": "#ef4444",
+                    "objectFit": "contain",
+                    "style": {
+                      "width": "68rpx",
+                      "height": "68rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "event-scene-title-0",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "爆品专区",
+                    "variant": "subheading",
+                    "style": {
+                      "marginTop": "14rpx"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "event-scene-1",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx",
+                  "borderRadius": "24rpx",
+                  "background": "#fef2f2"
+                }
+              },
+              "children": [
+                {
+                  "id": "event-scene-img-1",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "alt": "会员专享图标",
+                    "title": "会员专享图标",
+                    "iconColor": "#f97316",
+                    "objectFit": "contain",
+                    "style": {
+                      "width": "68rpx",
+                      "height": "68rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "event-scene-title-1",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "会员专享",
+                    "variant": "subheading",
+                    "style": {
+                      "marginTop": "14rpx"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "event-scene-2",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx",
+                  "borderRadius": "24rpx",
+                  "background": "#fefce8"
+                }
+              },
+              "children": [
+                {
+                  "id": "event-scene-img-2",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "alt": "直播会场图标",
+                    "title": "直播会场图标",
+                    "iconColor": "#eab308",
+                    "objectFit": "contain",
+                    "style": {
+                      "width": "68rpx",
+                      "height": "68rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "event-scene-title-2",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "直播会场",
+                    "variant": "subheading",
+                    "style": {
+                      "marginTop": "14rpx"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "event-scene-3",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 3,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx",
+                  "borderRadius": "24rpx",
+                  "background": "#eff6ff"
+                }
+              },
+              "children": [
+                {
+                  "id": "event-scene-img-3",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "alt": "门店活动图标",
+                    "title": "门店活动图标",
+                    "iconColor": "#2563eb",
+                    "objectFit": "contain",
+                    "style": {
+                      "width": "68rpx",
+                      "height": "68rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "event-scene-title-3",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "门店活动",
+                    "variant": "subheading",
+                    "style": {
+                      "marginTop": "14rpx"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "event-rank-card",
+          "alias": "core.panel",
+          "layout": {
+            "mode": "flow",
+            "order": 3,
+            "width": "100%"
+          },
+          "props": {
+            "style": {
+              "margin": "20rpx",
+              "padding": "24rpx",
+              "borderRadius": "24rpx",
+              "background": "#fff"
+            }
+          },
+          "children": [
+            {
+              "id": "event-rank-title",
               "alias": "core.text",
               "layout": {
                 "mode": "flow",
                 "order": 0
               },
               "props": {
-                "text": "优惠券",
-                "style": {
-                  "fontSize": "30rpx",
-                  "fontWeight": "bold",
-                  "marginBottom": "16rpx"
-                }
+                "text": "热度榜",
+                "variant": "heading",
+                "style": {}
               },
               "children": []
             },
             {
-              "id": "coupon-list",
+              "id": "event-rank-0",
               "alias": "core.row",
               "layout": {
                 "mode": "flow",
-                "order": 1
+                "order": 1,
+                "width": "100%"
               },
               "props": {
                 "style": {
-                  "gap": "16rpx",
-                  "overflow": "auto"
+                  "padding": "16rpx 0",
+                  "justifyContent": "space-between"
                 }
               },
               "children": [
                 {
-                  "id": "coupon-1",
-                  "alias": "core.panel",
+                  "id": "event-rank-name-0",
+                  "alias": "core.text",
                   "layout": {
                     "mode": "flow",
                     "order": 0
                   },
                   "props": {
-                    "style": {
-                      "minWidth": "260rpx",
-                      "padding": "20rpx",
-                      "borderRadius": "12rpx",
-                      "background": "linear-gradient(135deg, #ff6b35, #f97316)",
-                      "color": "#fff"
-                    }
+                    "text": "1. 空气炸锅",
+                    "variant": "body",
+                    "style": {}
                   },
-                  "children": [
-                    {
-                      "id": "c1-amount",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "text": "¥50",
-                        "style": {
-                          "fontSize": "40rpx",
-                          "fontWeight": "bold"
-                        }
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "c1-condition",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "满200可用",
-                        "style": {
-                          "fontSize": "22rpx",
-                          "opacity": 0.8
-                        }
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "c1-btn",
-                      "alias": "core.button",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 2
-                      },
-                      "props": {
-                        "style": {
-                          "marginTop": "12rpx",
-                          "padding": "8rpx 20rpx",
-                          "borderRadius": "24rpx",
-                          "background": "rgba(255,255,255,0.3)",
-                          "fontSize": "22rpx",
-                          "color": "#fff",
-                          "textAlign": "center"
-                        },
-                        "label": "立即领取"
-                      },
-                      "children": []
-                    }
-                  ]
+                  "children": []
                 },
                 {
-                  "id": "coupon-2",
-                  "alias": "core.panel",
+                  "id": "event-rank-tag-0",
+                  "alias": "core.tag",
                   "layout": {
                     "mode": "flow",
                     "order": 1
                   },
                   "props": {
-                    "style": {
-                      "minWidth": "260rpx",
-                      "padding": "20rpx",
-                      "borderRadius": "12rpx",
-                      "background": "linear-gradient(135deg, #ef4444, #dc2626)",
-                      "color": "#fff"
-                    }
+                    "label": "98万热度",
+                    "tone": "hot",
+                    "style": {}
                   },
-                  "children": [
-                    {
-                      "id": "c2-amount",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "text": "¥100",
-                        "style": {
-                          "fontSize": "40rpx",
-                          "fontWeight": "bold"
-                        }
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "c2-condition",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "满500可用",
-                        "style": {
-                          "fontSize": "22rpx",
-                          "opacity": 0.8
-                        }
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "c2-btn",
-                      "alias": "core.button",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 2
-                      },
-                      "props": {
-                        "style": {
-                          "marginTop": "12rpx",
-                          "padding": "8rpx 20rpx",
-                          "borderRadius": "24rpx",
-                          "background": "rgba(255,255,255,0.3)",
-                          "fontSize": "22rpx",
-                          "color": "#fff",
-                          "textAlign": "center"
-                        },
-                        "label": "立即领取"
-                      },
-                      "children": []
-                    }
-                  ]
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "event-rank-1",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "16rpx 0",
+                  "justifyContent": "space-between",
+                  "borderTop": "1rpx solid #f1f5f9"
+                }
+              },
+              "children": [
+                {
+                  "id": "event-rank-name-1",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "2. 露营车",
+                    "variant": "body",
+                    "style": {}
+                  },
+                  "children": []
+                },
+                {
+                  "id": "event-rank-tag-1",
+                  "alias": "core.tag",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "label": "91万热度",
+                    "tone": "info",
+                    "style": {}
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "event-rank-2",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 3,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "16rpx 0",
+                  "justifyContent": "space-between",
+                  "borderTop": "1rpx solid #f1f5f9"
+                }
+              },
+              "children": [
+                {
+                  "id": "event-rank-name-2",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "3. 智能手表",
+                    "variant": "body",
+                    "style": {}
+                  },
+                  "children": []
+                },
+                {
+                  "id": "event-rank-tag-2",
+                  "alias": "core.tag",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "label": "84万热度",
+                    "tone": "info",
+                    "style": {}
+                  },
+                  "children": []
                 }
               ]
             }
           ]
         },
         {
-          "id": "evt-products",
-          "alias": "core.panel",
+          "id": "page-home-bottom-tabs",
+          "alias": "core.tabs",
+          "slot": "footer",
           "layout": {
             "mode": "flow",
-            "order": 3
+            "order": 999,
+            "width": "100%"
           },
           "props": {
+            "tabs": [
+              "活动首页",
+              "活动规则",
+              "活动商品",
+              "参与成功"
+            ],
+            "activeTab": "活动首页"
+          },
+          "interactions": {
+            "onTabClick": {
+              "活动首页": {
+                "type": "navigate",
+                "targetPageId": "page-home"
+              },
+              "活动规则": {
+                "type": "navigate",
+                "targetPageId": "page-rules"
+              },
+              "活动商品": {
+                "type": "navigate",
+                "targetPageId": "page-products"
+              },
+              "参与成功": {
+                "type": "navigate",
+                "targetPageId": "page-success"
+              }
+            }
+          },
+          "children": []
+        }
+      ]
+    },
+    "componentTemplates": {
+      "biz-hero-banner": {
+        "root": {
+          "alias": "core.panel",
+          "props": {
+            "tone": "accent",
+            "gap": 12,
             "style": {
-              "padding": "16rpx 32rpx 32rpx"
+              "width": "100%",
+              "padding": "28px 24px",
+              "color": "#fff",
+              "borderRadius": "0 0 28px 28px",
+              "background": "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark, var(--color-primary)))",
+              "boxShadow": "0 16px 36px rgba(15,23,42,0.18)"
             }
           },
           "children": [
             {
-              "id": "prod-title",
-              "alias": "core.text",
-              "layout": {
-                "mode": "flow",
-                "order": 0
-              },
+              "alias": "core.tag",
               "props": {
-                "text": "活动商品",
+                "label": {
+                  "$bind": "badge"
+                },
+                "tone": "member",
                 "style": {
-                  "fontSize": "30rpx",
-                  "fontWeight": "bold",
-                  "marginBottom": "16rpx"
+                  "alignSelf": "flex-start",
+                  "background": "rgba(255,255,255,0.22)",
+                  "color": "#fff"
                 }
-              },
-              "children": []
+              }
             },
             {
-              "id": "prod-grid",
-              "alias": "core.grid",
-              "layout": {
-                "mode": "flow",
-                "order": 1
-              },
+              "alias": "core.text",
               "props": {
-                "columns": 2,
-                "style": {
-                  "gap": "16rpx"
-                }
-              },
-              "children": [
-                {
-                  "id": "prod-1",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "style": {
-                      "borderRadius": "16rpx",
-                      "overflow": "hidden",
-                      "background": "#fff",
-                      "boxShadow": "0 2rpx 8rpx rgba(0,0,0,0.06)"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "p1-img",
-                      "alias": "core.image",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "src": "https://placeholder.com/product.png",
-                        "style": {
-                          "width": "100%",
-                          "height": "280rpx"
-                        },
-                        "alt": "图片",
-                        "title": "图片"
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "p1-info",
-                      "alias": "core.panel",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "style": {
-                          "padding": "12rpx 16rpx"
-                        }
-                      },
-                      "children": [
-                        {
-                          "id": "p1-name",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "text": "限时特惠商品",
-                            "style": {
-                              "fontSize": "26rpx",
-                              "lineClamp": 1
-                            }
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "p1-price-row",
-                          "alias": "core.row",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 1
-                          },
-                          "props": {
-                            "style": {
-                              "alignItems": "baseline",
-                              "gap": "8rpx",
-                              "marginTop": "8rpx"
-                            }
-                          },
-                          "children": [
-                            {
-                              "id": "p1-price",
-                              "alias": "core.text",
-                              "layout": {
-                                "mode": "flow",
-                                "order": 0
-                              },
-                              "props": {
-                                "text": "¥199",
-                                "style": {
-                                  "fontSize": "30rpx",
-                                  "fontWeight": "bold",
-                                  "color": "var(--color-primary)"
-                                }
-                              },
-                              "children": []
-                            },
-                            {
-                              "id": "p1-orig",
-                              "alias": "core.text",
-                              "layout": {
-                                "mode": "flow",
-                                "order": 1
-                              },
-                              "props": {
-                                "text": "¥399",
-                                "style": {
-                                  "fontSize": "22rpx",
-                                  "color": "var(--color-text-secondary)",
-                                  "textDecoration": "line-through"
-                                }
-                              },
-                              "children": []
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
+                "text": {
+                  "$bind": "title"
                 },
-                {
-                  "id": "prod-2",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1
-                  },
-                  "props": {
-                    "style": {
-                      "borderRadius": "16rpx",
-                      "overflow": "hidden",
-                      "background": "#fff",
-                      "boxShadow": "0 2rpx 8rpx rgba(0,0,0,0.06)"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "p2-img",
-                      "alias": "core.image",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "src": "https://placeholder.com/product.png",
-                        "style": {
-                          "width": "100%",
-                          "height": "280rpx"
-                        },
-                        "alt": "图片",
-                        "title": "图片"
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "p2-info",
-                      "alias": "core.panel",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "style": {
-                          "padding": "12rpx 16rpx"
-                        }
-                      },
-                      "children": [
-                        {
-                          "id": "p2-name",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "text": "爆款推荐好物",
-                            "style": {
-                              "fontSize": "26rpx",
-                              "lineClamp": 1
-                            }
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "p2-price-row",
-                          "alias": "core.row",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 1
-                          },
-                          "props": {
-                            "style": {
-                              "alignItems": "baseline",
-                              "gap": "8rpx",
-                              "marginTop": "8rpx"
-                            }
-                          },
-                          "children": [
-                            {
-                              "id": "p2-price",
-                              "alias": "core.text",
-                              "layout": {
-                                "mode": "flow",
-                                "order": 0
-                              },
-                              "props": {
-                                "text": "¥299",
-                                "style": {
-                                  "fontSize": "30rpx",
-                                  "fontWeight": "bold",
-                                  "color": "var(--color-primary)"
-                                }
-                              },
-                              "children": []
-                            },
-                            {
-                              "id": "p2-orig",
-                              "alias": "core.text",
-                              "layout": {
-                                "mode": "flow",
-                                "order": 1
-                              },
-                              "props": {
-                                "text": "¥599",
-                                "style": {
-                                  "fontSize": "22rpx",
-                                  "color": "var(--color-text-secondary)",
-                                  "textDecoration": "line-through"
-                                }
-                              },
-                              "children": []
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
+                "variant": "display",
+                "style": {
+                  "color": "#fff"
                 }
-              ]
+              }
+            },
+            {
+              "alias": "core.text",
+              "props": {
+                "text": {
+                  "$bind": "subtitle"
+                },
+                "variant": "body",
+                "style": {
+                  "color": "rgba(255,255,255,0.86)"
+                }
+              }
+            },
+            {
+              "alias": "core.button",
+              "props": {
+                "label": {
+                  "$bind": "actionLabel"
+                },
+                "variant": "secondary",
+                "style": {
+                  "width": "100%",
+                  "marginTop": "8px"
+                }
+              }
             }
           ]
         }
-      ]
+      }
     },
-    "componentTemplates": {},
     "cssVars": {
       "--color-primary": "#f97316",
       "--color-primary-dark": "#ea580c",
@@ -2322,7 +3176,7 @@
       {
         "id": "evt-banner",
         "key": "event.home.banner",
-        "name": "活动Banner",
+        "name": "活动横幅",
         "description": "活动主视觉"
       },
       {
@@ -2348,8 +3202,8 @@
       {
         "id": "evt-banner",
         "key": "event.home.banner.image",
-        "name": "Banner图片",
-        "description": "活动Banner图片"
+        "name": "横幅图片",
+        "description": "活动横幅图片"
       },
       {
         "id": "c1-amount",
@@ -2389,5 +3243,76 @@
     "--color-background": "#f8fafc",
     "--color-surface": "#ffffff"
   },
-  "componentTemplates": {}
+  "componentTemplates": {
+    "biz-hero-banner": {
+      "root": {
+        "alias": "core.panel",
+        "props": {
+          "tone": "accent",
+          "gap": 12,
+          "style": {
+            "width": "100%",
+            "padding": "28px 24px",
+            "color": "#fff",
+            "borderRadius": "0 0 28px 28px",
+            "background": "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark, var(--color-primary)))",
+            "boxShadow": "0 16px 36px rgba(15,23,42,0.18)"
+          }
+        },
+        "children": [
+          {
+            "alias": "core.tag",
+            "props": {
+              "label": {
+                "$bind": "badge"
+              },
+              "tone": "member",
+              "style": {
+                "alignSelf": "flex-start",
+                "background": "rgba(255,255,255,0.22)",
+                "color": "#fff"
+              }
+            }
+          },
+          {
+            "alias": "core.text",
+            "props": {
+              "text": {
+                "$bind": "title"
+              },
+              "variant": "display",
+              "style": {
+                "color": "#fff"
+              }
+            }
+          },
+          {
+            "alias": "core.text",
+            "props": {
+              "text": {
+                "$bind": "subtitle"
+              },
+              "variant": "body",
+              "style": {
+                "color": "rgba(255,255,255,0.86)"
+              }
+            }
+          },
+          {
+            "alias": "core.button",
+            "props": {
+              "label": {
+                "$bind": "actionLabel"
+              },
+              "variant": "secondary",
+              "style": {
+                "width": "100%",
+                "marginTop": "8px"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
 }

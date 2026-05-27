@@ -1,219 +1,2233 @@
 {
   "templateId": "utility-tools",
-  "templateVersion": "1.0.0",
+  "templateVersion": "1",
   "profileVersion": "1.0.0",
   "devices": [
-    "miniapp"
+    "miniapp",
+    "mobile"
   ],
   "pages": [
     {
-      "pageKey": "tools.home",
+      "pageKey": "page-home",
       "pageId": "page-home",
       "pageKind": "home",
       "name": "工具首页",
-      "description": "工具网格和最近使用",
+      "description": "实用工具",
       "rootNodeId": "page-home-screen",
-      "device": "miniapp",
       "isDefault": true
     },
     {
-      "pageKey": "tools.detail",
+      "pageKey": "page-detail",
       "pageId": "page-detail",
-      "pageKind": "tool",
+      "pageKind": "detail",
       "name": "工具详情",
-      "description": "计算器等工具界面",
+      "description": "计算器",
       "rootNodeId": "page-detail-screen",
-      "device": "miniapp"
+      "isDefault": false
     },
     {
-      "pageKey": "tools.history",
+      "pageKey": "page-history",
       "pageId": "page-history",
-      "pageKind": "list",
+      "pageKind": "unknown",
       "name": "历史结果",
-      "description": "计算历史记录",
+      "description": "计算历史",
       "rootNodeId": "page-history-screen",
-      "device": "miniapp"
+      "isDefault": false
     },
     {
-      "pageKey": "tools.settings",
+      "pageKey": "page-settings",
       "pageId": "page-settings",
-      "pageKind": "settings",
+      "pageKind": "unknown",
       "name": "工具设置",
-      "description": "工具配置选项",
+      "description": "设置",
       "rootNodeId": "page-settings-screen",
-      "device": "miniapp"
+      "isDefault": false
     }
   ],
   "regions": [
     {
-      "regionKey": "tools.home.header",
-      "pageKey": "tools.home",
-      "nodeId": "tools-header",
-      "name": "工具头部",
-      "sectionKind": "header",
-      "replaceable": false
+      "regionKey": "page-home.item",
+      "pageKey": "page-home",
+      "nodeId": "tools-smart-panel",
+      "name": "快捷工具台",
+      "sectionKind": "panel",
+      "replaceable": true
     },
     {
-      "regionKey": "tools.home.grid",
-      "pageKey": "tools.home",
-      "nodeId": "tools-grid",
-      "name": "工具网格",
+      "regionKey": "page-home.item-2",
+      "pageKey": "page-home",
+      "nodeId": "tools-quick-grid",
+      "name": "计算图标",
       "sectionKind": "grid",
-      "replaceable": true,
-      "allowedPatternKeys": [
-        "tools.items"
-      ]
+      "replaceable": true
     },
     {
-      "regionKey": "tools.home.recent",
-      "pageKey": "tools.home",
-      "nodeId": "recent-tools",
-      "name": "最近使用",
-      "sectionKind": "list",
-      "replaceable": true,
-      "allowedPatternKeys": [
-        "tools.recentItems"
-      ]
+      "regionKey": "page-home.k-123-456",
+      "pageKey": "page-home",
+      "nodeId": "tools-calculator-widget",
+      "name": "123 + 456",
+      "sectionKind": "panel",
+      "replaceable": true
     },
     {
-      "regionKey": "tools.detail.display",
-      "pageKey": "tools.detail",
-      "nodeId": "calc-display",
-      "name": "计算器显示",
-      "sectionKind": "display",
+      "regionKey": "page-home.item-3",
+      "pageKey": "page-home",
+      "nodeId": "tools-automation-card",
+      "name": "一键组合工具",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.item",
+      "pageKey": "page-detail",
+      "nodeId": "page-detail-hero-banner",
+      "name": "工具详情",
+      "sectionKind": "biz-hero-banner",
       "replaceable": false
     },
     {
-      "regionKey": "tools.detail.buttons",
-      "pageKey": "tools.detail",
+      "regionKey": "page-detail.item-2",
+      "pageKey": "page-detail",
+      "nodeId": "page-detail-quick-search",
+      "name": "搜索工具",
+      "sectionKind": "search",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-detail.item-3",
+      "pageKey": "page-detail",
+      "nodeId": "tool-header",
+      "name": "计算器",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.k-123-456",
+      "pageKey": "page-detail",
+      "nodeId": "calc-display",
+      "name": "123 + 456",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.item-4",
+      "pageKey": "page-detail",
       "nodeId": "calc-buttons",
-      "name": "计算器按钮",
-      "sectionKind": "buttons",
+      "name": "清除",
+      "sectionKind": "grid",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.item-5",
+      "pageKey": "page-detail",
+      "nodeId": "page-detail-primary-action",
+      "name": "立即使用",
+      "sectionKind": "button",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-history.item",
+      "pageKey": "page-history",
+      "nodeId": "page-history-hero-banner",
+      "name": "历史结果",
+      "sectionKind": "biz-hero-banner",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-history.item-2",
+      "pageKey": "page-history",
+      "nodeId": "history-header",
+      "name": "计算历史",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-history.k-123-456",
+      "pageKey": "page-history",
+      "nodeId": "history-list",
+      "name": "123 + 456",
+      "sectionKind": "stack",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-history.item-3",
+      "pageKey": "page-history",
+      "nodeId": "page-history-primary-action",
+      "name": "立即使用",
+      "sectionKind": "button",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-settings.item",
+      "pageKey": "page-settings",
+      "nodeId": "page-settings-hero-banner",
+      "name": "工具设置",
+      "sectionKind": "biz-hero-banner",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-settings.item-2",
+      "pageKey": "page-settings",
+      "nodeId": "page-settings-quick-search",
+      "name": "搜索工具设置",
+      "sectionKind": "search",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-settings.item-3",
+      "pageKey": "page-settings",
+      "nodeId": "settings-header",
+      "name": "设置",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-settings.item-4",
+      "pageKey": "page-settings",
+      "nodeId": "settings-list",
+      "name": "小数位数",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-settings.item-5",
+      "pageKey": "page-settings",
+      "nodeId": "page-settings-primary-action",
+      "name": "立即使用",
+      "sectionKind": "button",
       "replaceable": false
     }
   ],
   "slots": [
     {
-      "slotKey": "tools.home.header.title",
-      "pageKey": "tools.home",
-      "regionKey": "tools.home.header",
-      "nodeId": "tools-title",
-      "component": "core.text",
+      "slotKey": "page-home.page-home-screen.screen",
+      "pageKey": "page-home",
+      "nodeId": "page-home-screen",
+      "component": "core.screen",
       "editableProps": [
-        "text"
+        "title",
+        "statusTime",
+        "headerActionLabel"
       ],
-      "aiRole": "title",
-      "label": "页面标题"
+      "label": "工具首页"
     },
     {
-      "slotKey": "tools.home.header.subtitle",
-      "pageKey": "tools.home",
-      "regionKey": "tools.home.header",
-      "nodeId": "tools-subtitle",
-      "component": "core.text",
+      "slotKey": "page-home.tools-smart-panel.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item",
+      "nodeId": "tools-smart-panel",
+      "component": "core.panel",
       "editableProps": [
-        "text"
+        "tone",
+        "gap",
+        "title"
       ],
-      "aiRole": "subtitle",
-      "label": "副标题"
+      "label": "快捷工具台"
     },
     {
-      "slotKey": "tools.detail.result",
-      "pageKey": "tools.detail",
-      "regionKey": "tools.detail.display",
-      "nodeId": "calc-result",
-      "component": "core.text",
+      "slotKey": "page-home.tools-smart-top.row",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item",
+      "nodeId": "tools-smart-top",
+      "component": "core.row",
       "editableProps": [
-        "text"
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
       ],
-      "aiRole": "result",
-      "label": "计算结果"
+      "label": "快捷工具台"
     },
     {
-      "slotKey": "tools.detail.expression",
-      "pageKey": "tools.detail",
-      "regionKey": "tools.detail.display",
+      "slotKey": "page-home.tools-smart-title.text",
+      "pageKey": "page-home",
+      "nodeId": "tools-smart-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "快捷工具台"
+    },
+    {
+      "slotKey": "page-home.tools-smart-tag.tag",
+      "pageKey": "page-home",
+      "nodeId": "tools-smart-tag",
+      "component": "core.tag",
+      "editableProps": [
+        "label",
+        "tone"
+      ],
+      "label": "常用 6 个"
+    },
+    {
+      "slotKey": "page-home.tools-smart-search.search",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item",
+      "nodeId": "tools-smart-search",
+      "component": "core.search",
+      "editableProps": [
+        "placeholder",
+        "value"
+      ],
+      "label": "搜索计算、换算、记事"
+    },
+    {
+      "slotKey": "page-home.tools-quick-grid.grid",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-2",
+      "nodeId": "tools-quick-grid",
+      "component": "core.grid",
+      "editableProps": [
+        "gap",
+        "columns"
+      ],
+      "label": "计算图标"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-0.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-2",
+      "nodeId": "tools-quick-tile-0",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "计算图标"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-icon-0.image",
+      "pageKey": "page-home",
+      "nodeId": "tools-quick-tile-icon-0",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "计算图标"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-text-0.text",
+      "pageKey": "page-home",
+      "nodeId": "tools-quick-tile-text-0",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "计算"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-1.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-2",
+      "nodeId": "tools-quick-tile-1",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "天气图标"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-icon-1.image",
+      "pageKey": "page-home",
+      "nodeId": "tools-quick-tile-icon-1",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "天气图标"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-text-1.text",
+      "pageKey": "page-home",
+      "nodeId": "tools-quick-tile-text-1",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "天气"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-2.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-2",
+      "nodeId": "tools-quick-tile-2",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "汇率图标"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-icon-2.image",
+      "pageKey": "page-home",
+      "nodeId": "tools-quick-tile-icon-2",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "汇率图标"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-text-2.text",
+      "pageKey": "page-home",
+      "nodeId": "tools-quick-tile-text-2",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "汇率"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-3.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-2",
+      "nodeId": "tools-quick-tile-3",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "便签图标"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-icon-3.image",
+      "pageKey": "page-home",
+      "nodeId": "tools-quick-tile-icon-3",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "便签图标"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-text-3.text",
+      "pageKey": "page-home",
+      "nodeId": "tools-quick-tile-text-3",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "便签"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-4.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-2",
+      "nodeId": "tools-quick-tile-4",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "计时图标"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-icon-4.image",
+      "pageKey": "page-home",
+      "nodeId": "tools-quick-tile-icon-4",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "计时图标"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-text-4.text",
+      "pageKey": "page-home",
+      "nodeId": "tools-quick-tile-text-4",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "计时"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-5.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-2",
+      "nodeId": "tools-quick-tile-5",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "扫码图标"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-icon-5.image",
+      "pageKey": "page-home",
+      "nodeId": "tools-quick-tile-icon-5",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "扫码图标"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-text-5.text",
+      "pageKey": "page-home",
+      "nodeId": "tools-quick-tile-text-5",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "扫码"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-6.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-2",
+      "nodeId": "tools-quick-tile-6",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "日历图标"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-icon-6.image",
+      "pageKey": "page-home",
+      "nodeId": "tools-quick-tile-icon-6",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "日历图标"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-text-6.text",
+      "pageKey": "page-home",
+      "nodeId": "tools-quick-tile-text-6",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "日历"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-7.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-2",
+      "nodeId": "tools-quick-tile-7",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "单位图标"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-icon-7.image",
+      "pageKey": "page-home",
+      "nodeId": "tools-quick-tile-icon-7",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "单位图标"
+    },
+    {
+      "slotKey": "page-home.tools-quick-tile-text-7.text",
+      "pageKey": "page-home",
+      "nodeId": "tools-quick-tile-text-7",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "单位"
+    },
+    {
+      "slotKey": "page-home.tools-calculator-widget.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.k-123-456",
+      "nodeId": "tools-calculator-widget",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "123 + 456"
+    },
+    {
+      "slotKey": "page-home.tools-calc-expression.text",
+      "pageKey": "page-home",
+      "regionKey": "page-home.k-123-456",
+      "nodeId": "tools-calc-expression",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "123 + 456"
+    },
+    {
+      "slotKey": "page-home.tools-calc-result.text",
+      "pageKey": "page-home",
+      "regionKey": "page-home.k-123-456",
+      "nodeId": "tools-calc-result",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "579"
+    },
+    {
+      "slotKey": "page-home.tools-calc-mini-grid.grid",
+      "pageKey": "page-home",
+      "regionKey": "page-home.k-123-456",
+      "nodeId": "tools-calc-mini-grid",
+      "component": "core.grid",
+      "editableProps": [
+        "gap",
+        "columns"
+      ],
+      "label": "7"
+    },
+    {
+      "slotKey": "page-home.tools-calc-key-0.panel",
+      "pageKey": "page-home",
+      "nodeId": "tools-calc-key-0",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "7"
+    },
+    {
+      "slotKey": "page-home.tools-calc-key-text-0.text",
+      "pageKey": "page-home",
+      "nodeId": "tools-calc-key-text-0",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "7"
+    },
+    {
+      "slotKey": "page-home.tools-calc-key-1.panel",
+      "pageKey": "page-home",
+      "nodeId": "tools-calc-key-1",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "8"
+    },
+    {
+      "slotKey": "page-home.tools-calc-key-text-1.text",
+      "pageKey": "page-home",
+      "nodeId": "tools-calc-key-text-1",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "8"
+    },
+    {
+      "slotKey": "page-home.tools-calc-key-2.panel",
+      "pageKey": "page-home",
+      "nodeId": "tools-calc-key-2",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "9"
+    },
+    {
+      "slotKey": "page-home.tools-calc-key-text-2.text",
+      "pageKey": "page-home",
+      "nodeId": "tools-calc-key-text-2",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "9"
+    },
+    {
+      "slotKey": "page-home.tools-calc-key-3.panel",
+      "pageKey": "page-home",
+      "nodeId": "tools-calc-key-3",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "除"
+    },
+    {
+      "slotKey": "page-home.tools-calc-key-text-3.text",
+      "pageKey": "page-home",
+      "nodeId": "tools-calc-key-text-3",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "除"
+    },
+    {
+      "slotKey": "page-home.tools-calc-key-4.panel",
+      "pageKey": "page-home",
+      "nodeId": "tools-calc-key-4",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "4"
+    },
+    {
+      "slotKey": "page-home.tools-calc-key-text-4.text",
+      "pageKey": "page-home",
+      "nodeId": "tools-calc-key-text-4",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "4"
+    },
+    {
+      "slotKey": "page-home.tools-calc-key-5.panel",
+      "pageKey": "page-home",
+      "nodeId": "tools-calc-key-5",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "5"
+    },
+    {
+      "slotKey": "page-home.tools-calc-key-text-5.text",
+      "pageKey": "page-home",
+      "nodeId": "tools-calc-key-text-5",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "5"
+    },
+    {
+      "slotKey": "page-home.tools-calc-key-6.panel",
+      "pageKey": "page-home",
+      "nodeId": "tools-calc-key-6",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "6"
+    },
+    {
+      "slotKey": "page-home.tools-calc-key-text-6.text",
+      "pageKey": "page-home",
+      "nodeId": "tools-calc-key-text-6",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "6"
+    },
+    {
+      "slotKey": "page-home.tools-calc-key-7.panel",
+      "pageKey": "page-home",
+      "nodeId": "tools-calc-key-7",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "乘"
+    },
+    {
+      "slotKey": "page-home.tools-calc-key-text-7.text",
+      "pageKey": "page-home",
+      "nodeId": "tools-calc-key-text-7",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "乘"
+    },
+    {
+      "slotKey": "page-home.tools-automation-card.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-3",
+      "nodeId": "tools-automation-card",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "一键组合工具"
+    },
+    {
+      "slotKey": "page-home.tools-auto-row.row",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-3",
+      "nodeId": "tools-auto-row",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "一键组合工具"
+    },
+    {
+      "slotKey": "page-home.tools-auto-copy.stack",
+      "pageKey": "page-home",
+      "nodeId": "tools-auto-copy",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "一键组合工具"
+    },
+    {
+      "slotKey": "page-home.tools-auto-title.text",
+      "pageKey": "page-home",
+      "nodeId": "tools-auto-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "一键组合工具"
+    },
+    {
+      "slotKey": "page-home.tools-auto-desc.text",
+      "pageKey": "page-home",
+      "nodeId": "tools-auto-desc",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "扫码后自动记账并生成提醒"
+    },
+    {
+      "slotKey": "page-home.tools-auto-action.button",
+      "pageKey": "page-home",
+      "nodeId": "tools-auto-action",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "创建"
+    },
+    {
+      "slotKey": "page-home.page-home-bottom-tabs.tabs",
+      "pageKey": "page-home",
+      "nodeId": "page-home-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-home-bottom-tabs"
+    },
+    {
+      "slotKey": "page-detail.page-detail-screen.screen",
+      "pageKey": "page-detail",
+      "nodeId": "page-detail-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel"
+      ],
+      "label": "工具详情"
+    },
+    {
+      "slotKey": "page-detail.page-detail-quick-search.search",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-2",
+      "nodeId": "page-detail-quick-search",
+      "component": "core.search",
+      "editableProps": [
+        "placeholder",
+        "value"
+      ],
+      "label": "搜索工具"
+    },
+    {
+      "slotKey": "page-detail.tool-header.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-3",
+      "nodeId": "tool-header",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "计算器"
+    },
+    {
+      "slotKey": "page-detail.tool-name.text",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-3",
+      "nodeId": "tool-name",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "计算器"
+    },
+    {
+      "slotKey": "page-detail.calc-display.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.k-123-456",
+      "nodeId": "calc-display",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "123 + 456"
+    },
+    {
+      "slotKey": "page-detail.calc-expression.text",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.k-123-456",
       "nodeId": "calc-expression",
       "component": "core.text",
       "editableProps": [
-        "text"
+        "text",
+        "variant",
+        "as"
       ],
-      "aiRole": "expression",
-      "label": "表达式"
+      "label": "123 + 456"
+    },
+    {
+      "slotKey": "page-detail.calc-result.text",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.k-123-456",
+      "nodeId": "calc-result",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "579"
+    },
+    {
+      "slotKey": "page-detail.calc-buttons.grid",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "nodeId": "calc-buttons",
+      "component": "core.grid",
+      "editableProps": [
+        "gap",
+        "columns"
+      ],
+      "label": "清除"
+    },
+    {
+      "slotKey": "page-detail.btn-c.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "nodeId": "btn-c",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "清除"
+    },
+    {
+      "slotKey": "page-detail.c-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "c-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "清除"
+    },
+    {
+      "slotKey": "page-detail.btn-del.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "nodeId": "btn-del",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "⌫"
+    },
+    {
+      "slotKey": "page-detail.del-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "del-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "⌫"
+    },
+    {
+      "slotKey": "page-detail.btn-percent.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "nodeId": "btn-percent",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "%"
+    },
+    {
+      "slotKey": "page-detail.percent-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "percent-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "%"
+    },
+    {
+      "slotKey": "page-detail.btn-div.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "nodeId": "btn-div",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "÷"
+    },
+    {
+      "slotKey": "page-detail.div-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "div-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "÷"
+    },
+    {
+      "slotKey": "page-detail.btn-7.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "nodeId": "btn-7",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "7"
+    },
+    {
+      "slotKey": "page-detail.n7-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "n7-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "7"
+    },
+    {
+      "slotKey": "page-detail.btn-8.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "nodeId": "btn-8",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "8"
+    },
+    {
+      "slotKey": "page-detail.n8-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "n8-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "8"
+    },
+    {
+      "slotKey": "page-detail.btn-9.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "nodeId": "btn-9",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "9"
+    },
+    {
+      "slotKey": "page-detail.n9-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "n9-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "9"
+    },
+    {
+      "slotKey": "page-detail.btn-mul.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "nodeId": "btn-mul",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "×"
+    },
+    {
+      "slotKey": "page-detail.mul-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "mul-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "×"
+    },
+    {
+      "slotKey": "page-detail.btn-4.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "nodeId": "btn-4",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "4"
+    },
+    {
+      "slotKey": "page-detail.n4-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "n4-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "4"
+    },
+    {
+      "slotKey": "page-detail.btn-5.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "nodeId": "btn-5",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "5"
+    },
+    {
+      "slotKey": "page-detail.n5-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "n5-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "5"
+    },
+    {
+      "slotKey": "page-detail.btn-6.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "nodeId": "btn-6",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "6"
+    },
+    {
+      "slotKey": "page-detail.n6-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "n6-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "6"
+    },
+    {
+      "slotKey": "page-detail.btn-sub.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "nodeId": "btn-sub",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "-"
+    },
+    {
+      "slotKey": "page-detail.sub-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "sub-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "-"
+    },
+    {
+      "slotKey": "page-detail.btn-1.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "nodeId": "btn-1",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "1"
+    },
+    {
+      "slotKey": "page-detail.n1-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "n1-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "1"
+    },
+    {
+      "slotKey": "page-detail.btn-2.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "nodeId": "btn-2",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "2"
+    },
+    {
+      "slotKey": "page-detail.n2-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "n2-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "2"
+    },
+    {
+      "slotKey": "page-detail.btn-3.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "nodeId": "btn-3",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "3"
+    },
+    {
+      "slotKey": "page-detail.n3-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "n3-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "3"
+    },
+    {
+      "slotKey": "page-detail.btn-add.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "nodeId": "btn-add",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "+"
+    },
+    {
+      "slotKey": "page-detail.add-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "add-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "+"
+    },
+    {
+      "slotKey": "page-detail.btn-0.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "nodeId": "btn-0",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "0"
+    },
+    {
+      "slotKey": "page-detail.n0-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "n0-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "0"
+    },
+    {
+      "slotKey": "page-detail.btn-dot.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "nodeId": "btn-dot",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "."
+    },
+    {
+      "slotKey": "page-detail.dot-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "dot-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "."
+    },
+    {
+      "slotKey": "page-detail.btn-equal.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "nodeId": "btn-equal",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "="
+    },
+    {
+      "slotKey": "page-detail.equal-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "equal-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "="
+    },
+    {
+      "slotKey": "page-detail.page-detail-primary-action.button",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-5",
+      "nodeId": "page-detail-primary-action",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "立即使用"
+    },
+    {
+      "slotKey": "page-detail.page-detail-bottom-tabs.tabs",
+      "pageKey": "page-detail",
+      "nodeId": "page-detail-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-detail-bottom-tabs"
+    },
+    {
+      "slotKey": "page-history.page-history-screen.screen",
+      "pageKey": "page-history",
+      "nodeId": "page-history-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel"
+      ],
+      "label": "历史结果"
+    },
+    {
+      "slotKey": "page-history.history-header.panel",
+      "pageKey": "page-history",
+      "regionKey": "page-history.item-2",
+      "nodeId": "history-header",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "计算历史"
+    },
+    {
+      "slotKey": "page-history.history-title.text",
+      "pageKey": "page-history",
+      "regionKey": "page-history.item-2",
+      "nodeId": "history-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "计算历史"
+    },
+    {
+      "slotKey": "page-history.history-list.stack",
+      "pageKey": "page-history",
+      "regionKey": "page-history.k-123-456",
+      "nodeId": "history-list",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "123 + 456"
+    },
+    {
+      "slotKey": "page-history.history-1.panel",
+      "pageKey": "page-history",
+      "regionKey": "page-history.k-123-456",
+      "nodeId": "history-1",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "123 + 456"
+    },
+    {
+      "slotKey": "page-history.h1-expr.text",
+      "pageKey": "page-history",
+      "nodeId": "h1-expr",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "123 + 456"
+    },
+    {
+      "slotKey": "page-history.h1-result.text",
+      "pageKey": "page-history",
+      "nodeId": "h1-result",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "= 579"
+    },
+    {
+      "slotKey": "page-history.h1-time.text",
+      "pageKey": "page-history",
+      "nodeId": "h1-time",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "今天 14:30"
+    },
+    {
+      "slotKey": "page-history.history-2.panel",
+      "pageKey": "page-history",
+      "regionKey": "page-history.k-123-456",
+      "nodeId": "history-2",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "100 × 0.85"
+    },
+    {
+      "slotKey": "page-history.h2-expr.text",
+      "pageKey": "page-history",
+      "nodeId": "h2-expr",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "100 × 0.85"
+    },
+    {
+      "slotKey": "page-history.h2-result.text",
+      "pageKey": "page-history",
+      "nodeId": "h2-result",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "= 85"
+    },
+    {
+      "slotKey": "page-history.h2-time.text",
+      "pageKey": "page-history",
+      "nodeId": "h2-time",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "今天 10:15"
+    },
+    {
+      "slotKey": "page-history.page-history-primary-action.button",
+      "pageKey": "page-history",
+      "regionKey": "page-history.item-3",
+      "nodeId": "page-history-primary-action",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "立即使用"
+    },
+    {
+      "slotKey": "page-history.page-history-bottom-tabs.tabs",
+      "pageKey": "page-history",
+      "nodeId": "page-history-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-history-bottom-tabs"
+    },
+    {
+      "slotKey": "page-settings.page-settings-screen.screen",
+      "pageKey": "page-settings",
+      "nodeId": "page-settings-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel"
+      ],
+      "label": "工具设置"
+    },
+    {
+      "slotKey": "page-settings.page-settings-quick-search.search",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.item-2",
+      "nodeId": "page-settings-quick-search",
+      "component": "core.search",
+      "editableProps": [
+        "placeholder",
+        "value"
+      ],
+      "label": "搜索工具设置"
+    },
+    {
+      "slotKey": "page-settings.settings-header.panel",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.item-3",
+      "nodeId": "settings-header",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "设置"
+    },
+    {
+      "slotKey": "page-settings.settings-title.text",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.item-3",
+      "nodeId": "settings-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "设置"
+    },
+    {
+      "slotKey": "page-settings.settings-list.panel",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.item-4",
+      "nodeId": "settings-list",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "小数位数"
+    },
+    {
+      "slotKey": "page-settings.set-decimal.row",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.item-4",
+      "nodeId": "set-decimal",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "小数位数"
+    },
+    {
+      "slotKey": "page-settings.decimal-text.text",
+      "pageKey": "page-settings",
+      "nodeId": "decimal-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "小数位数"
+    },
+    {
+      "slotKey": "page-settings.decimal-value.text",
+      "pageKey": "page-settings",
+      "nodeId": "decimal-value",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "2位"
+    },
+    {
+      "slotKey": "page-settings.set-history.row",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.item-4",
+      "nodeId": "set-history",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "保存历史"
+    },
+    {
+      "slotKey": "page-settings.history-text.text",
+      "pageKey": "page-settings",
+      "nodeId": "history-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "保存历史"
+    },
+    {
+      "slotKey": "page-settings.history-switch.panel",
+      "pageKey": "page-settings",
+      "nodeId": "history-switch",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "history-switch"
+    },
+    {
+      "slotKey": "page-settings.switch-dot.panel",
+      "pageKey": "page-settings",
+      "nodeId": "switch-dot",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "switch-dot"
+    },
+    {
+      "slotKey": "page-settings.set-vibrate.row",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.item-4",
+      "nodeId": "set-vibrate",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "按键震动"
+    },
+    {
+      "slotKey": "page-settings.vibrate-text.text",
+      "pageKey": "page-settings",
+      "nodeId": "vibrate-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "按键震动"
+    },
+    {
+      "slotKey": "page-settings.vibrate-switch.panel",
+      "pageKey": "page-settings",
+      "nodeId": "vibrate-switch",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "vibrate-switch"
+    },
+    {
+      "slotKey": "page-settings.vibrate-dot.panel",
+      "pageKey": "page-settings",
+      "nodeId": "vibrate-dot",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "vibrate-dot"
+    },
+    {
+      "slotKey": "page-settings.page-settings-primary-action.button",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.item-5",
+      "nodeId": "page-settings-primary-action",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "立即使用"
+    },
+    {
+      "slotKey": "page-settings.page-settings-bottom-tabs.tabs",
+      "pageKey": "page-settings",
+      "nodeId": "page-settings-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-settings-bottom-tabs"
     }
   ],
   "patterns": [
     {
-      "patternKey": "tools.items",
-      "pageKey": "tools.home",
-      "regionKey": "tools.home.grid",
-      "sourceRootNodeId": "tool-calc",
-      "parentNodeId": "tools-grid",
-      "itemAlias": "tool",
+      "patternKey": "page-home.item.pattern",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item",
+      "sourceRootNodeId": "tools-smart-top",
+      "parentNodeId": "tools-smart-panel",
+      "itemAlias": "core.row",
       "fields": [
         {
-          "fieldKey": "icon",
-          "slotKey": "tools.item.icon",
-          "prop": "name",
-          "required": true
+          "fieldKey": "tools-smart-title",
+          "slotKey": "page-home.tools-smart-title.text",
+          "prop": "text"
         },
         {
           "fieldKey": "label",
-          "slotKey": "tools.item.label",
-          "prop": "text",
-          "required": true
+          "slotKey": "page-home.tools-smart-tag.tag",
+          "prop": "label"
         }
       ],
-      "maxItems": 12,
-      "minItems": 3
+      "minItems": 0,
+      "maxItems": 50
     },
     {
-      "patternKey": "tools.recentItems",
-      "pageKey": "tools.home",
-      "regionKey": "tools.home.recent",
-      "sourceRootNodeId": "recent-calc",
-      "parentNodeId": "recent-list",
-      "itemAlias": "recent",
+      "patternKey": "page-home.item.pattern-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-2",
+      "sourceRootNodeId": "tools-quick-tile-0",
+      "parentNodeId": "tools-quick-grid",
+      "itemAlias": "core.panel",
       "fields": [
         {
-          "fieldKey": "icon",
-          "slotKey": "tools.recent.icon",
-          "prop": "name",
-          "required": true
+          "fieldKey": "alt",
+          "slotKey": "page-home.tools-quick-tile-icon-0.image",
+          "prop": "alt"
         },
         {
-          "fieldKey": "name",
-          "slotKey": "tools.recent.name",
-          "prop": "text",
-          "required": true
-        },
-        {
-          "fieldKey": "time",
-          "slotKey": "tools.recent.time",
-          "prop": "text",
-          "required": true
+          "fieldKey": "tools-quick-tile-text-0",
+          "slotKey": "page-home.tools-quick-tile-text-0.text",
+          "prop": "text"
         }
       ],
-      "maxItems": 5,
-      "minItems": 1
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-home.k-123-456.pattern",
+      "pageKey": "page-home",
+      "regionKey": "page-home.k-123-456",
+      "sourceRootNodeId": "tools-calc-mini-grid",
+      "parentNodeId": "tools-calculator-widget",
+      "itemAlias": "core.grid",
+      "fields": [
+        {
+          "fieldKey": "tools-calc-key-text-0",
+          "slotKey": "page-home.tools-calc-key-text-0.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "tools-calc-key-text-1",
+          "slotKey": "page-home.tools-calc-key-text-1.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "tools-calc-key-text-2",
+          "slotKey": "page-home.tools-calc-key-text-2.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "tools-calc-key-text-3",
+          "slotKey": "page-home.tools-calc-key-text-3.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "tools-calc-key-text-4",
+          "slotKey": "page-home.tools-calc-key-text-4.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "tools-calc-key-text-5",
+          "slotKey": "page-home.tools-calc-key-text-5.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "tools-calc-key-text-6",
+          "slotKey": "page-home.tools-calc-key-text-6.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "tools-calc-key-text-7",
+          "slotKey": "page-home.tools-calc-key-text-7.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-home.item.pattern-3",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-3",
+      "sourceRootNodeId": "tools-auto-row",
+      "parentNodeId": "tools-automation-card",
+      "itemAlias": "core.row",
+      "fields": [
+        {
+          "fieldKey": "tools-auto-title",
+          "slotKey": "page-home.tools-auto-title.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "tools-auto-desc",
+          "slotKey": "page-home.tools-auto-desc.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "label",
+          "slotKey": "page-home.tools-auto-action.button",
+          "prop": "label"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-detail.item.pattern",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-3",
+      "sourceRootNodeId": "tool-name",
+      "parentNodeId": "tool-header",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "tool-name",
+          "slotKey": "page-detail.tool-name.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-detail.k-123-456.pattern",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.k-123-456",
+      "sourceRootNodeId": "calc-expression",
+      "parentNodeId": "calc-display",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "calc-expression",
+          "slotKey": "page-detail.calc-expression.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-detail.item.pattern-2",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "sourceRootNodeId": "btn-c",
+      "parentNodeId": "calc-buttons",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "c-text",
+          "slotKey": "page-detail.c-text.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-history.item.pattern",
+      "pageKey": "page-history",
+      "regionKey": "page-history.item-2",
+      "sourceRootNodeId": "history-title",
+      "parentNodeId": "history-header",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "history-title",
+          "slotKey": "page-history.history-title.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-history.k-123-456.pattern",
+      "pageKey": "page-history",
+      "regionKey": "page-history.k-123-456",
+      "sourceRootNodeId": "history-1",
+      "parentNodeId": "history-list",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "h1-expr",
+          "slotKey": "page-history.h1-expr.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "h1-result",
+          "slotKey": "page-history.h1-result.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "h1-time",
+          "slotKey": "page-history.h1-time.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-settings.item.pattern",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.item-3",
+      "sourceRootNodeId": "settings-title",
+      "parentNodeId": "settings-header",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "settings-title",
+          "slotKey": "page-settings.settings-title.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-settings.item.pattern-2",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.item-4",
+      "sourceRootNodeId": "set-decimal",
+      "parentNodeId": "settings-list",
+      "itemAlias": "core.row",
+      "fields": [
+        {
+          "fieldKey": "decimal-text",
+          "slotKey": "page-settings.decimal-text.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "decimal-value",
+          "slotKey": "page-settings.decimal-value.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
     }
   ],
   "navigation": {
-    "type": "none",
-    "items": []
+    "type": "bottom_tabs",
+    "items": [
+      {
+        "key": "page-home",
+        "label": "工具首页",
+        "pageKey": "page-home",
+        "pageId": "page-home"
+      },
+      {
+        "key": "page-detail",
+        "label": "工具详情",
+        "pageKey": "page-detail",
+        "pageId": "page-detail"
+      },
+      {
+        "key": "page-history",
+        "label": "历史结果",
+        "pageKey": "page-history",
+        "pageId": "page-history"
+      },
+      {
+        "key": "page-settings",
+        "label": "工具设置",
+        "pageKey": "page-settings",
+        "pageId": "page-settings"
+      }
+    ]
   },
   "constraints": {
     "devices": [
-      "miniapp"
-    ],
-    "maxColumns": 3,
-    "allowedLayouts": [
-      "core.stack",
-      "core.row",
-      "core.grid"
-    ],
-    "requiredComponents": [
-      "core.text"
+      "miniapp",
+      "mobile"
     ]
   },
   "styleProfile": {
@@ -222,47 +2236,23 @@
       "#475569",
       "#94a3b8",
       "#1e293b",
-      "#334155",
+      "#64748b",
       "#e2e8f0",
       "#f8fafc",
       "#ffffff"
     ],
-    "fontSizes": [
-      "22rpx",
-      "24rpx",
-      "26rpx",
-      "28rpx",
-      "32rpx",
-      "36rpx",
-      "40rpx",
-      "64rpx"
-    ],
-    "fontWeights": [
-      "normal",
-      "bold"
-    ],
-    "spacing": [
-      "8rpx",
-      "12rpx",
-      "16rpx",
-      "20rpx",
-      "24rpx",
-      "32rpx"
-    ],
-    "radius": [
-      "8rpx",
-      "12rpx",
-      "16rpx",
-      "50%"
-    ],
-    "shadows": [
-      "0 4rpx 16rpx rgba(0,0,0,0.08)"
-    ],
-    "componentDensity": "compact",
+    "fontSizes": [],
+    "fontWeights": [],
+    "spacing": [],
+    "radius": [],
+    "shadows": [],
     "commonLayoutPatterns": [
-      "tool-grid",
-      "calculator-layout",
-      "settings-list"
+      "panel",
+      "grid",
+      "biz-hero-banner",
+      "search",
+      "button",
+      "stack"
     ]
   }
 }

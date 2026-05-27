@@ -20,7 +20,6 @@ import {
 export interface ThemeLayoutValidatorOptions {
   failOnUnknownProps?: boolean;
   componentTemplates?: Record<string, unknown>;
-  requireCoreAliasesOnly?: boolean;
   requireValidImageUrls?: boolean;
   requireLocalizedPropLabels?: boolean;
   requireChineseVisibleText?: boolean;
@@ -52,6 +51,9 @@ const CORE_IMAGE_PROP_TYPES = new Map([
   ['title', 'string'],
   ['iconColor', 'string'],
   ['objectFit', 'string'],
+]);
+const CORE_UNIVERSAL_PROP_TYPES = new Map([
+  ['style', 'object'],
 ]);
 const CORE_PROP_ALIASES = new Map([
   ['core.button:text', 'label'],
@@ -131,9 +133,10 @@ function validatePropValue(
   path: string,
 ): ValidationIssue | null {
   const fallbackType =
-    descriptor.alias === 'core.image'
+    CORE_UNIVERSAL_PROP_TYPES.get(propName) ??
+    (descriptor.alias === 'core.image'
       ? CORE_IMAGE_PROP_TYPES.get(propName)
-      : undefined;
+      : undefined);
   const prop = descriptor.props.find((item) => item.name === propName) ?? (
     fallbackType ? { name: propName, type: fallbackType } : undefined
   );
@@ -351,6 +354,74 @@ function validateComponentTemplateWidgets(
   });
 }
 
+function validateComponentTemplateNode(
+  value: unknown,
+  path: string,
+  errors: ValidationIssue[],
+): void {
+  if (!isPlainObject(value)) {
+    errors.push(issue('error', path, 'invalid_component_template_node', 'Component template node must be an object'));
+    return;
+  }
+
+  const alias = value.alias;
+  if (!isNonEmptyString(alias)) {
+    errors.push(issue('error', `${path}.alias`, 'missing_template_node_alias', 'Template node alias is required'));
+  } else if (!CORE_ALIASES.has(alias)) {
+    errors.push(issue(
+      'error',
+      `${path}.alias`,
+      'custom_component_template_alias',
+      `componentTemplates may only expand to core.* aliases: ${alias}`,
+    ));
+  }
+
+  if ('children' in value && !Array.isArray(value.children)) {
+    errors.push(issue('error', `${path}.children`, 'invalid_template_node_children', 'children must be an array'));
+    return;
+  }
+
+  const children = Array.isArray(value.children) ? value.children : [];
+  children.forEach((child, index) => {
+    validateComponentTemplateNode(child, `${path}.children[${index}]`, errors);
+  });
+}
+
+function validateComponentTemplates(
+  componentTemplates: Record<string, unknown> | undefined,
+  descriptorAliases: Set<string>,
+  errors: ValidationIssue[],
+): void {
+  Object.entries(componentTemplates ?? {}).forEach(([alias, template]) => {
+    if (alias.startsWith('core.')) {
+      errors.push(issue(
+        'error',
+        `componentTemplates.${alias}`,
+        'core_component_template_alias',
+        'componentTemplates keys must be custom aliases, not core.* aliases.',
+      ));
+    }
+    if (!descriptorAliases.has(alias)) {
+      errors.push(issue(
+        'error',
+        `componentTemplates.${alias}`,
+        'missing_component_descriptor',
+        `componentTemplates alias "${alias}" must be declared in layoutDocument.components.`,
+      ));
+    }
+    if (!isPlainObject(template)) {
+      errors.push(issue(
+        'error',
+        `componentTemplates.${alias}`,
+        'invalid_component_template',
+        'Template must be an object',
+      ));
+      return;
+    }
+    validateComponentTemplateNode(template.root, `componentTemplates.${alias}.root`, errors);
+  });
+}
+
 function validateComponentDescriptors(
   document: ThemeLayoutDocument,
   componentTemplates: Record<string, unknown> | undefined,
@@ -373,19 +444,24 @@ function validateComponentDescriptors(
       return;
     }
     if (aliases.has(component.alias)) {
-      errors.push(issue('error', `${path}.alias`, 'duplicate_component_alias', `Duplicate component alias: ${component.alias}`));
+      errors.push(issue(
+        'error',
+        `${path}.alias`,
+        'duplicate_component_alias',
+        `Duplicate component alias: ${component.alias}`,
+      ));
     }
     aliases.add(component.alias);
 
     if (component.alias.startsWith('core.') && !CORE_ALIASES.has(component.alias)) {
       errors.push(issue('error', `${path}.alias`, 'unknown_core_alias', `Unknown core alias: ${component.alias}`));
     }
-    if (options.requireCoreAliasesOnly && !component.alias.startsWith('core.')) {
+    if (!component.alias.startsWith('core.') && !componentTemplates?.[component.alias]) {
       errors.push(issue(
         'error',
         `${path}.alias`,
-        'custom_alias_blocked',
-        `Generated templates must use core.* aliases only: ${component.alias}`,
+        'missing_component_template',
+        `Custom alias "${component.alias}" must have a matching componentTemplates entry.`,
       ));
     }
     if (options.requireLocalizedPropLabels) {
@@ -415,14 +491,7 @@ function validateComponentDescriptors(
     }
   });
 
-  if (options.requireCoreAliasesOnly && Object.keys(componentTemplates ?? {}).length > 0) {
-    errors.push(issue(
-      'error',
-      'componentTemplates',
-      'custom_component_templates_blocked',
-      'Generated templates must leave componentTemplates empty and compose UI with core.* aliases.',
-    ));
-  }
+  validateComponentTemplates(componentTemplates, aliases, errors);
 }
 
 function validateNode(
@@ -465,15 +534,6 @@ function validateNode(
     errors.push(issue('error', `${path}.children`, 'leaf_has_children', `${node.alias} cannot contain children`));
   }
 
-  if (options.requireCoreAliasesOnly && !node.alias.startsWith('core.')) {
-    errors.push(issue(
-      'error',
-      `${path}.alias`,
-      'custom_alias_blocked',
-      `Generated templates must use core.* aliases only: ${node.alias}`,
-    ));
-  }
-
   const descriptor = descriptorForAlias(document, node.alias);
   if (descriptor && node.props) {
     Object.entries(node.props).forEach(([propName, value]) => {
@@ -509,8 +569,20 @@ function validateNode(
   }
 
   if (options.requireChineseVisibleText && node.props) {
-    ['title', 'text', 'label', 'placeholder', 'activeTab', 'body', 'caption', 'subtitle', 'overline', 'badgeLabel', 'actionLabel', 'statusLabel']
-      .forEach((propName) => {
+    [
+      'title',
+      'text',
+      'label',
+      'placeholder',
+      'activeTab',
+      'body',
+      'caption',
+      'subtitle',
+      'overline',
+      'badgeLabel',
+      'actionLabel',
+      'statusLabel',
+    ].forEach((propName) => {
         const value = node.props?.[propName];
         if (typeof value !== 'string' || !value.trim()) {
           return;

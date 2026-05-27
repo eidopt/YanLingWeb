@@ -1,242 +1,1573 @@
 {
   "templateId": "event-promotion",
-  "templateVersion": "1.0.0",
+  "templateVersion": "1",
   "profileVersion": "1.0.0",
   "devices": [
-    "miniapp"
+    "miniapp",
+    "mobile"
   ],
   "pages": [
     {
-      "pageKey": "event.home",
+      "pageKey": "page-home",
       "pageId": "page-home",
-      "pageKind": "promotion",
+      "pageKind": "home",
       "name": "活动首页",
-      "description": "活动主页面，包含倒计时、优惠券、商品",
+      "description": "距离活动结束",
       "rootNodeId": "page-home-screen",
-      "device": "miniapp",
       "isDefault": true
     },
     {
-      "pageKey": "event.rules",
+      "pageKey": "page-rules",
       "pageId": "page-rules",
-      "pageKind": "content",
+      "pageKind": "unknown",
       "name": "活动规则",
-      "description": "活动规则详情",
+      "description": "活动规则",
       "rootNodeId": "page-rules-screen",
-      "device": "miniapp"
+      "isDefault": false
     },
     {
-      "pageKey": "event.products",
+      "pageKey": "page-products",
       "pageId": "page-products",
-      "pageKind": "list",
+      "pageKind": "product",
       "name": "活动商品",
-      "description": "活动商品列表",
+      "description": "活动商品",
       "rootNodeId": "page-products-screen",
-      "device": "miniapp"
+      "isDefault": false
     },
     {
-      "pageKey": "event.success",
+      "pageKey": "page-success",
       "pageId": "page-success",
-      "pageKind": "result",
+      "pageKind": "unknown",
       "name": "参与成功",
-      "description": "领取成功页面",
+      "description": "领取成功！",
       "rootNodeId": "page-success-screen",
-      "device": "miniapp"
+      "isDefault": false
     }
   ],
   "regions": [
     {
-      "regionKey": "event.home.banner",
-      "pageKey": "event.home",
-      "nodeId": "evt-banner",
-      "name": "活动Banner",
-      "sectionKind": "banner",
-      "replaceable": false
+      "regionKey": "page-home.item",
+      "pageKey": "page-home",
+      "nodeId": "event-countdown-stage",
+      "name": "限时秒杀",
+      "sectionKind": "panel",
+      "replaceable": true
     },
     {
-      "regionKey": "event.home.timer",
-      "pageKey": "event.home",
-      "nodeId": "evt-timer",
-      "name": "倒计时",
-      "sectionKind": "timer",
-      "replaceable": false
+      "regionKey": "page-home.k-199-40",
+      "pageKey": "page-home",
+      "nodeId": "event-coupon-strip",
+      "name": "满199减40",
+      "sectionKind": "row",
+      "replaceable": true
     },
     {
-      "regionKey": "event.home.coupons",
-      "pageKey": "event.home",
-      "nodeId": "evt-coupons",
-      "name": "优惠券",
-      "sectionKind": "coupons",
-      "replaceable": true,
-      "allowedPatternKeys": [
-        "event.coupons"
-      ]
-    },
-    {
-      "regionKey": "event.home.products",
-      "pageKey": "event.home",
-      "nodeId": "evt-products",
-      "name": "活动商品",
+      "regionKey": "page-home.item-2",
+      "pageKey": "page-home",
+      "nodeId": "event-scene-grid",
+      "name": "爆品专区图标",
       "sectionKind": "grid",
-      "replaceable": true,
-      "allowedPatternKeys": [
-        "event.products"
-      ]
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-home.item-3",
+      "pageKey": "page-home",
+      "nodeId": "event-rank-card",
+      "name": "热度榜",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-rules.item",
+      "pageKey": "page-rules",
+      "nodeId": "page-rules-hero-banner",
+      "name": "活动规则",
+      "sectionKind": "biz-hero-banner",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-rules.item-2",
+      "pageKey": "page-rules",
+      "nodeId": "rules-header",
+      "name": "活动规则",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-rules.item-3",
+      "pageKey": "page-rules",
+      "nodeId": "rules-content",
+      "name": "一、活动时间",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-rules.item-4",
+      "pageKey": "page-rules",
+      "nodeId": "page-rules-primary-action",
+      "name": "立即参与",
+      "sectionKind": "button",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-products.item",
+      "pageKey": "page-products",
+      "nodeId": "page-products-hero-banner",
+      "name": "活动商品",
+      "sectionKind": "biz-hero-banner",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-products.item-2",
+      "pageKey": "page-products",
+      "nodeId": "products-header",
+      "name": "活动商品",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-products.item-3",
+      "pageKey": "page-products",
+      "nodeId": "products-tabs",
+      "name": "全部",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-products.item-4",
+      "pageKey": "page-products",
+      "nodeId": "products-list",
+      "name": "业务视觉元素",
+      "sectionKind": "stack",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-success.item",
+      "pageKey": "page-success",
+      "nodeId": "page-success-hero-banner",
+      "name": "参与成功",
+      "sectionKind": "biz-hero-banner",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-success.item-2",
+      "pageKey": "page-success",
+      "nodeId": "success-card",
+      "name": "图标",
+      "sectionKind": "panel",
+      "replaceable": true
     }
   ],
   "slots": [
     {
-      "slotKey": "event.home.banner.image",
-      "pageKey": "event.home",
-      "regionKey": "event.home.banner",
-      "nodeId": "evt-banner",
+      "slotKey": "page-home.page-home-screen.screen",
+      "pageKey": "page-home",
+      "nodeId": "page-home-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel"
+      ],
+      "label": "活动首页"
+    },
+    {
+      "slotKey": "page-home.event-countdown-stage.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item",
+      "nodeId": "event-countdown-stage",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "限时秒杀"
+    },
+    {
+      "slotKey": "page-home.event-stage-tag.tag",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item",
+      "nodeId": "event-stage-tag",
+      "component": "core.tag",
+      "editableProps": [
+        "label",
+        "tone"
+      ],
+      "label": "限时秒杀"
+    },
+    {
+      "slotKey": "page-home.event-stage-title.text",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item",
+      "nodeId": "event-stage-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "今晚八点开抢"
+    },
+    {
+      "slotKey": "page-home.event-countdown-boxes.row",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item",
+      "nodeId": "event-countdown-boxes",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "02"
+    },
+    {
+      "slotKey": "page-home.event-time-0.panel",
+      "pageKey": "page-home",
+      "nodeId": "event-time-0",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "02"
+    },
+    {
+      "slotKey": "page-home.event-time-text-0.text",
+      "pageKey": "page-home",
+      "nodeId": "event-time-text-0",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "02"
+    },
+    {
+      "slotKey": "page-home.event-time-1.panel",
+      "pageKey": "page-home",
+      "nodeId": "event-time-1",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "18"
+    },
+    {
+      "slotKey": "page-home.event-time-text-1.text",
+      "pageKey": "page-home",
+      "nodeId": "event-time-text-1",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "18"
+    },
+    {
+      "slotKey": "page-home.event-time-2.panel",
+      "pageKey": "page-home",
+      "nodeId": "event-time-2",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "45"
+    },
+    {
+      "slotKey": "page-home.event-time-text-2.text",
+      "pageKey": "page-home",
+      "nodeId": "event-time-text-2",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "45"
+    },
+    {
+      "slotKey": "page-home.event-stage-action.button",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item",
+      "nodeId": "event-stage-action",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "订阅提醒"
+    },
+    {
+      "slotKey": "page-home.event-coupon-strip.row",
+      "pageKey": "page-home",
+      "regionKey": "page-home.k-199-40",
+      "nodeId": "event-coupon-strip",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "满199减40"
+    },
+    {
+      "slotKey": "page-home.event-coupon-0.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.k-199-40",
+      "nodeId": "event-coupon-0",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "满199减40"
+    },
+    {
+      "slotKey": "page-home.event-coupon-title-0.text",
+      "pageKey": "page-home",
+      "nodeId": "event-coupon-title-0",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "满199减40"
+    },
+    {
+      "slotKey": "page-home.event-coupon-sub-0.text",
+      "pageKey": "page-home",
+      "nodeId": "event-coupon-sub-0",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "立即领取"
+    },
+    {
+      "slotKey": "page-home.event-coupon-1.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.k-199-40",
+      "nodeId": "event-coupon-1",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "新人礼券"
+    },
+    {
+      "slotKey": "page-home.event-coupon-title-1.text",
+      "pageKey": "page-home",
+      "nodeId": "event-coupon-title-1",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "新人礼券"
+    },
+    {
+      "slotKey": "page-home.event-coupon-sub-1.text",
+      "pageKey": "page-home",
+      "nodeId": "event-coupon-sub-1",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "立即领取"
+    },
+    {
+      "slotKey": "page-home.event-coupon-2.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.k-199-40",
+      "nodeId": "event-coupon-2",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "免邮券"
+    },
+    {
+      "slotKey": "page-home.event-coupon-title-2.text",
+      "pageKey": "page-home",
+      "nodeId": "event-coupon-title-2",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "免邮券"
+    },
+    {
+      "slotKey": "page-home.event-coupon-sub-2.text",
+      "pageKey": "page-home",
+      "nodeId": "event-coupon-sub-2",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "立即领取"
+    },
+    {
+      "slotKey": "page-home.event-scene-grid.grid",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-2",
+      "nodeId": "event-scene-grid",
+      "component": "core.grid",
+      "editableProps": [
+        "gap",
+        "columns"
+      ],
+      "label": "爆品专区图标"
+    },
+    {
+      "slotKey": "page-home.event-scene-0.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-2",
+      "nodeId": "event-scene-0",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "爆品专区图标"
+    },
+    {
+      "slotKey": "page-home.event-scene-img-0.image",
+      "pageKey": "page-home",
+      "nodeId": "event-scene-img-0",
       "component": "core.image",
       "editableProps": [
-        "src"
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
       ],
-      "aiRole": "banner",
-      "label": "Banner图片"
+      "label": "爆品专区图标"
     },
     {
-      "slotKey": "event.home.coupon.amount",
-      "pageKey": "event.home",
-      "regionKey": "event.home.coupons",
-      "nodeId": "c1-amount",
+      "slotKey": "page-home.event-scene-title-0.text",
+      "pageKey": "page-home",
+      "nodeId": "event-scene-title-0",
       "component": "core.text",
       "editableProps": [
-        "text"
+        "text",
+        "variant",
+        "as"
       ],
-      "aiRole": "amount",
-      "label": "优惠金额"
+      "label": "爆品专区"
     },
     {
-      "slotKey": "event.home.coupon.condition",
-      "pageKey": "event.home",
-      "regionKey": "event.home.coupons",
-      "nodeId": "c1-condition",
-      "component": "core.text",
+      "slotKey": "page-home.event-scene-1.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-2",
+      "nodeId": "event-scene-1",
+      "component": "core.panel",
       "editableProps": [
-        "text"
+        "tone",
+        "gap",
+        "title"
       ],
-      "aiRole": "condition",
-      "label": "使用条件"
+      "label": "会员专享图标"
     },
     {
-      "slotKey": "event.home.product.name",
-      "pageKey": "event.home",
-      "regionKey": "event.home.products",
-      "nodeId": "p1-name",
-      "component": "core.text",
+      "slotKey": "page-home.event-scene-img-1.image",
+      "pageKey": "page-home",
+      "nodeId": "event-scene-img-1",
+      "component": "core.image",
       "editableProps": [
-        "text"
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
       ],
-      "aiRole": "name",
-      "label": "商品名称"
+      "label": "会员专享图标"
     },
     {
-      "slotKey": "event.home.product.price",
-      "pageKey": "event.home",
-      "regionKey": "event.home.products",
-      "nodeId": "p1-price",
+      "slotKey": "page-home.event-scene-title-1.text",
+      "pageKey": "page-home",
+      "nodeId": "event-scene-title-1",
       "component": "core.text",
       "editableProps": [
-        "text"
+        "text",
+        "variant",
+        "as"
       ],
-      "aiRole": "price",
-      "label": "商品价格"
+      "label": "会员专享"
     },
     {
-      "slotKey": "event.home.product.originalPrice",
-      "pageKey": "event.home",
-      "regionKey": "event.home.products",
-      "nodeId": "p1-orig",
+      "slotKey": "page-home.event-scene-2.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-2",
+      "nodeId": "event-scene-2",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "直播会场图标"
+    },
+    {
+      "slotKey": "page-home.event-scene-img-2.image",
+      "pageKey": "page-home",
+      "nodeId": "event-scene-img-2",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "直播会场图标"
+    },
+    {
+      "slotKey": "page-home.event-scene-title-2.text",
+      "pageKey": "page-home",
+      "nodeId": "event-scene-title-2",
       "component": "core.text",
       "editableProps": [
-        "text"
+        "text",
+        "variant",
+        "as"
       ],
-      "aiRole": "originalPrice",
-      "label": "原价"
+      "label": "直播会场"
+    },
+    {
+      "slotKey": "page-home.event-scene-3.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-2",
+      "nodeId": "event-scene-3",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "门店活动图标"
+    },
+    {
+      "slotKey": "page-home.event-scene-img-3.image",
+      "pageKey": "page-home",
+      "nodeId": "event-scene-img-3",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "门店活动图标"
+    },
+    {
+      "slotKey": "page-home.event-scene-title-3.text",
+      "pageKey": "page-home",
+      "nodeId": "event-scene-title-3",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "门店活动"
+    },
+    {
+      "slotKey": "page-home.event-rank-card.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-3",
+      "nodeId": "event-rank-card",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "热度榜"
+    },
+    {
+      "slotKey": "page-home.event-rank-title.text",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-3",
+      "nodeId": "event-rank-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "热度榜"
+    },
+    {
+      "slotKey": "page-home.event-rank-0.row",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-3",
+      "nodeId": "event-rank-0",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "1. 空气炸锅"
+    },
+    {
+      "slotKey": "page-home.event-rank-name-0.text",
+      "pageKey": "page-home",
+      "nodeId": "event-rank-name-0",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "1. 空气炸锅"
+    },
+    {
+      "slotKey": "page-home.event-rank-tag-0.tag",
+      "pageKey": "page-home",
+      "nodeId": "event-rank-tag-0",
+      "component": "core.tag",
+      "editableProps": [
+        "label",
+        "tone"
+      ],
+      "label": "98万热度"
+    },
+    {
+      "slotKey": "page-home.event-rank-1.row",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-3",
+      "nodeId": "event-rank-1",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "2. 露营车"
+    },
+    {
+      "slotKey": "page-home.event-rank-name-1.text",
+      "pageKey": "page-home",
+      "nodeId": "event-rank-name-1",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "2. 露营车"
+    },
+    {
+      "slotKey": "page-home.event-rank-tag-1.tag",
+      "pageKey": "page-home",
+      "nodeId": "event-rank-tag-1",
+      "component": "core.tag",
+      "editableProps": [
+        "label",
+        "tone"
+      ],
+      "label": "91万热度"
+    },
+    {
+      "slotKey": "page-home.event-rank-2.row",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-3",
+      "nodeId": "event-rank-2",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "3. 智能手表"
+    },
+    {
+      "slotKey": "page-home.event-rank-name-2.text",
+      "pageKey": "page-home",
+      "nodeId": "event-rank-name-2",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "3. 智能手表"
+    },
+    {
+      "slotKey": "page-home.event-rank-tag-2.tag",
+      "pageKey": "page-home",
+      "nodeId": "event-rank-tag-2",
+      "component": "core.tag",
+      "editableProps": [
+        "label",
+        "tone"
+      ],
+      "label": "84万热度"
+    },
+    {
+      "slotKey": "page-home.page-home-bottom-tabs.tabs",
+      "pageKey": "page-home",
+      "nodeId": "page-home-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-home-bottom-tabs"
+    },
+    {
+      "slotKey": "page-rules.page-rules-screen.screen",
+      "pageKey": "page-rules",
+      "nodeId": "page-rules-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel"
+      ],
+      "label": "活动规则"
+    },
+    {
+      "slotKey": "page-rules.rules-header.panel",
+      "pageKey": "page-rules",
+      "regionKey": "page-rules.item-2",
+      "nodeId": "rules-header",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "活动规则"
+    },
+    {
+      "slotKey": "page-rules.rules-title.text",
+      "pageKey": "page-rules",
+      "regionKey": "page-rules.item-2",
+      "nodeId": "rules-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "活动规则"
+    },
+    {
+      "slotKey": "page-rules.rules-content.panel",
+      "pageKey": "page-rules",
+      "regionKey": "page-rules.item-3",
+      "nodeId": "rules-content",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "一、活动时间"
+    },
+    {
+      "slotKey": "page-rules.rule1.stack",
+      "pageKey": "page-rules",
+      "regionKey": "page-rules.item-3",
+      "nodeId": "rule1",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "一、活动时间"
+    },
+    {
+      "slotKey": "page-rules.rule1-title.text",
+      "pageKey": "page-rules",
+      "nodeId": "rule1-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "一、活动时间"
+    },
+    {
+      "slotKey": "page-rules.rule1-desc.text",
+      "pageKey": "page-rules",
+      "nodeId": "rule1-desc",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "2024年1月15日 00:00:00 至 2024年1月31日 23:59:59"
+    },
+    {
+      "slotKey": "page-rules.rule2.stack",
+      "pageKey": "page-rules",
+      "regionKey": "page-rules.item-3",
+      "nodeId": "rule2",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "二、参与条件"
+    },
+    {
+      "slotKey": "page-rules.rule2-title.text",
+      "pageKey": "page-rules",
+      "nodeId": "rule2-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "二、参与条件"
+    },
+    {
+      "slotKey": "page-rules.rule2-desc.text",
+      "pageKey": "page-rules",
+      "nodeId": "rule2-desc",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "所有注册用户均可参与，每人每天限领3张优惠券"
+    },
+    {
+      "slotKey": "page-rules.rule3.stack",
+      "pageKey": "page-rules",
+      "regionKey": "page-rules.item-3",
+      "nodeId": "rule3",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "三、优惠说明"
+    },
+    {
+      "slotKey": "page-rules.rule3-title.text",
+      "pageKey": "page-rules",
+      "nodeId": "rule3-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "三、优惠说明"
+    },
+    {
+      "slotKey": "page-rules.rule3-desc.text",
+      "pageKey": "page-rules",
+      "nodeId": "rule3-desc",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "优惠券可与平台其他优惠叠加使用，有效期为领取后7天"
+    },
+    {
+      "slotKey": "page-rules.page-rules-primary-action.button",
+      "pageKey": "page-rules",
+      "regionKey": "page-rules.item-4",
+      "nodeId": "page-rules-primary-action",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "立即参与"
+    },
+    {
+      "slotKey": "page-rules.page-rules-bottom-tabs.tabs",
+      "pageKey": "page-rules",
+      "nodeId": "page-rules-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-rules-bottom-tabs"
+    },
+    {
+      "slotKey": "page-products.page-products-screen.screen",
+      "pageKey": "page-products",
+      "nodeId": "page-products-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel"
+      ],
+      "label": "活动商品"
+    },
+    {
+      "slotKey": "page-products.products-header.panel",
+      "pageKey": "page-products",
+      "regionKey": "page-products.item-2",
+      "nodeId": "products-header",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "活动商品"
+    },
+    {
+      "slotKey": "page-products.products-title.text",
+      "pageKey": "page-products",
+      "regionKey": "page-products.item-2",
+      "nodeId": "products-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "活动商品"
+    },
+    {
+      "slotKey": "page-products.products-tabs.row",
+      "pageKey": "page-products",
+      "regionKey": "page-products.item-3",
+      "nodeId": "products-tabs",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "全部"
+    },
+    {
+      "slotKey": "page-products.tab-all.text",
+      "pageKey": "page-products",
+      "regionKey": "page-products.item-3",
+      "nodeId": "tab-all",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "全部"
+    },
+    {
+      "slotKey": "page-products.tab-hot.text",
+      "pageKey": "page-products",
+      "regionKey": "page-products.item-3",
+      "nodeId": "tab-hot",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "热销"
+    },
+    {
+      "slotKey": "page-products.tab-new.text",
+      "pageKey": "page-products",
+      "regionKey": "page-products.item-3",
+      "nodeId": "tab-new",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "新品"
+    },
+    {
+      "slotKey": "page-products.products-list.stack",
+      "pageKey": "page-products",
+      "regionKey": "page-products.item-4",
+      "nodeId": "products-list",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-products.product-card.row",
+      "pageKey": "page-products",
+      "regionKey": "page-products.item-4",
+      "nodeId": "product-card",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-products.pc-img.image",
+      "pageKey": "page-products",
+      "nodeId": "pc-img",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-products.pc-info.stack",
+      "pageKey": "page-products",
+      "nodeId": "pc-info",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "限时特惠爆款商品名称"
+    },
+    {
+      "slotKey": "page-products.pc-name.text",
+      "pageKey": "page-products",
+      "nodeId": "pc-name",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "限时特惠爆款商品名称"
+    },
+    {
+      "slotKey": "page-products.pc-bottom.row",
+      "pageKey": "page-products",
+      "nodeId": "pc-bottom",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "¥199"
+    },
+    {
+      "slotKey": "page-products.pc-price.text",
+      "pageKey": "page-products",
+      "nodeId": "pc-price",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "¥199"
+    },
+    {
+      "slotKey": "page-products.pc-buy.button",
+      "pageKey": "page-products",
+      "nodeId": "pc-buy",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "抢购"
+    },
+    {
+      "slotKey": "page-products.page-products-bottom-tabs.tabs",
+      "pageKey": "page-products",
+      "nodeId": "page-products-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-products-bottom-tabs"
+    },
+    {
+      "slotKey": "page-success.page-success-screen.screen",
+      "pageKey": "page-success",
+      "nodeId": "page-success-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel"
+      ],
+      "label": "参与成功"
+    },
+    {
+      "slotKey": "page-success.success-card.panel",
+      "pageKey": "page-success",
+      "regionKey": "page-success.item-2",
+      "nodeId": "success-card",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-success.success-icon.panel",
+      "pageKey": "page-success",
+      "regionKey": "page-success.item-2",
+      "nodeId": "success-icon",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-success.check-icon.image",
+      "pageKey": "page-success",
+      "nodeId": "check-icon",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-success.success-title.text",
+      "pageKey": "page-success",
+      "regionKey": "page-success.item-2",
+      "nodeId": "success-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "领取成功！"
+    },
+    {
+      "slotKey": "page-success.success-desc.text",
+      "pageKey": "page-success",
+      "regionKey": "page-success.item-2",
+      "nodeId": "success-desc",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "优惠券已放入您的卡包"
+    },
+    {
+      "slotKey": "page-success.coupon-detail.panel",
+      "pageKey": "page-success",
+      "regionKey": "page-success.item-2",
+      "nodeId": "coupon-detail",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "¥50"
+    },
+    {
+      "slotKey": "page-success.cd-amount.text",
+      "pageKey": "page-success",
+      "nodeId": "cd-amount",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "¥50"
+    },
+    {
+      "slotKey": "page-success.cd-condition.text",
+      "pageKey": "page-success",
+      "nodeId": "cd-condition",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "满200可用 · 有效期7天"
+    },
+    {
+      "slotKey": "page-success.success-btns.row",
+      "pageKey": "page-success",
+      "regionKey": "page-success.item-2",
+      "nodeId": "success-btns",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "去使用"
+    },
+    {
+      "slotKey": "page-success.btn-use.button",
+      "pageKey": "page-success",
+      "nodeId": "btn-use",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "去使用"
+    },
+    {
+      "slotKey": "page-success.btn-back.button",
+      "pageKey": "page-success",
+      "nodeId": "btn-back",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "返回活动"
+    },
+    {
+      "slotKey": "page-success.page-success-bottom-tabs.tabs",
+      "pageKey": "page-success",
+      "nodeId": "page-success-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-success-bottom-tabs"
     }
   ],
   "patterns": [
     {
-      "patternKey": "event.coupons",
-      "pageKey": "event.home",
-      "regionKey": "event.home.coupons",
-      "sourceRootNodeId": "coupon-1",
-      "parentNodeId": "coupon-list",
-      "itemAlias": "coupon",
+      "patternKey": "page-home.item.pattern",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item",
+      "sourceRootNodeId": "event-countdown-boxes",
+      "parentNodeId": "event-countdown-stage",
+      "itemAlias": "core.row",
       "fields": [
         {
-          "fieldKey": "amount",
-          "slotKey": "event.coupon.amount",
-          "prop": "text",
-          "required": true
+          "fieldKey": "event-time-text-0",
+          "slotKey": "page-home.event-time-text-0.text",
+          "prop": "text"
         },
         {
-          "fieldKey": "condition",
-          "slotKey": "event.coupon.condition",
-          "prop": "text",
-          "required": true
+          "fieldKey": "event-time-text-1",
+          "slotKey": "page-home.event-time-text-1.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "event-time-text-2",
+          "slotKey": "page-home.event-time-text-2.text",
+          "prop": "text"
         }
       ],
-      "maxItems": 5,
-      "minItems": 1
+      "minItems": 0,
+      "maxItems": 50
     },
     {
-      "patternKey": "event.products",
-      "pageKey": "event.home",
-      "regionKey": "event.home.products",
-      "sourceRootNodeId": "prod-1",
-      "parentNodeId": "prod-grid",
-      "itemAlias": "product",
+      "patternKey": "page-home.k-199-40.pattern",
+      "pageKey": "page-home",
+      "regionKey": "page-home.k-199-40",
+      "sourceRootNodeId": "event-coupon-0",
+      "parentNodeId": "event-coupon-strip",
+      "itemAlias": "core.panel",
       "fields": [
         {
-          "fieldKey": "name",
-          "slotKey": "event.product.name",
-          "prop": "text",
-          "required": true
+          "fieldKey": "event-coupon-title-0",
+          "slotKey": "page-home.event-coupon-title-0.text",
+          "prop": "text"
         },
         {
-          "fieldKey": "image",
-          "slotKey": "event.product.image",
-          "prop": "src",
-          "required": true
-        },
-        {
-          "fieldKey": "price",
-          "slotKey": "event.product.price",
-          "prop": "text",
-          "required": true
-        },
-        {
-          "fieldKey": "originalPrice",
-          "slotKey": "event.product.originalPrice",
-          "prop": "text",
-          "required": false
+          "fieldKey": "event-coupon-sub-0",
+          "slotKey": "page-home.event-coupon-sub-0.text",
+          "prop": "text"
         }
       ],
-      "maxItems": 20,
-      "minItems": 1
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-home.item.pattern-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-2",
+      "sourceRootNodeId": "event-scene-0",
+      "parentNodeId": "event-scene-grid",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-home.event-scene-img-0.image",
+          "prop": "alt"
+        },
+        {
+          "fieldKey": "event-scene-title-0",
+          "slotKey": "page-home.event-scene-title-0.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-home.item.pattern-3",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-3",
+      "sourceRootNodeId": "event-rank-0",
+      "parentNodeId": "event-rank-card",
+      "itemAlias": "core.row",
+      "fields": [
+        {
+          "fieldKey": "event-rank-name-0",
+          "slotKey": "page-home.event-rank-name-0.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "label",
+          "slotKey": "page-home.event-rank-tag-0.tag",
+          "prop": "label"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-rules.item.pattern",
+      "pageKey": "page-rules",
+      "regionKey": "page-rules.item-2",
+      "sourceRootNodeId": "rules-title",
+      "parentNodeId": "rules-header",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "rules-title",
+          "slotKey": "page-rules.rules-title.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-rules.item.pattern-2",
+      "pageKey": "page-rules",
+      "regionKey": "page-rules.item-3",
+      "sourceRootNodeId": "rule1",
+      "parentNodeId": "rules-content",
+      "itemAlias": "core.stack",
+      "fields": [
+        {
+          "fieldKey": "rule1-title",
+          "slotKey": "page-rules.rule1-title.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "rule1-desc",
+          "slotKey": "page-rules.rule1-desc.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-products.item.pattern",
+      "pageKey": "page-products",
+      "regionKey": "page-products.item-2",
+      "sourceRootNodeId": "products-title",
+      "parentNodeId": "products-header",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "products-title",
+          "slotKey": "page-products.products-title.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-products.item.pattern-2",
+      "pageKey": "page-products",
+      "regionKey": "page-products.item-3",
+      "sourceRootNodeId": "tab-all",
+      "parentNodeId": "products-tabs",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "tab-all",
+          "slotKey": "page-products.tab-all.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-products.item.pattern-3",
+      "pageKey": "page-products",
+      "regionKey": "page-products.item-4",
+      "sourceRootNodeId": "product-card",
+      "parentNodeId": "products-list",
+      "itemAlias": "core.row",
+      "fields": [
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-products.pc-img.image",
+          "prop": "alt"
+        },
+        {
+          "fieldKey": "pc-name",
+          "slotKey": "page-products.pc-name.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "pc-price",
+          "slotKey": "page-products.pc-price.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "label",
+          "slotKey": "page-products.pc-buy.button",
+          "prop": "label"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-success.item.pattern",
+      "pageKey": "page-success",
+      "regionKey": "page-success.item-2",
+      "sourceRootNodeId": "success-icon",
+      "parentNodeId": "success-card",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-success.check-icon.image",
+          "prop": "alt"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
     }
   ],
   "navigation": {
-    "type": "none",
-    "items": []
+    "type": "bottom_tabs",
+    "items": [
+      {
+        "key": "page-home",
+        "label": "活动首页",
+        "pageKey": "page-home",
+        "pageId": "page-home"
+      },
+      {
+        "key": "page-rules",
+        "label": "活动规则",
+        "pageKey": "page-rules",
+        "pageId": "page-rules"
+      },
+      {
+        "key": "page-products",
+        "label": "活动商品",
+        "pageKey": "page-products",
+        "pageId": "page-products"
+      },
+      {
+        "key": "page-success",
+        "label": "参与成功",
+        "pageKey": "page-success",
+        "pageId": "page-success"
+      }
+    ]
   },
   "constraints": {
     "devices": [
-      "miniapp"
-    ],
-    "maxColumns": 2,
-    "allowedLayouts": [
-      "core.stack",
-      "core.row",
-      "core.grid"
-    ],
-    "requiredComponents": [
-      "core.text",
-      "core.image"
+      "miniapp",
+      "mobile"
     ]
   },
   "styleProfile": {
@@ -250,44 +1581,18 @@
       "#f8fafc",
       "#ffffff"
     ],
-    "fontSizes": [
-      "22rpx",
-      "24rpx",
-      "26rpx",
-      "28rpx",
-      "30rpx",
-      "32rpx",
-      "36rpx",
-      "40rpx",
-      "48rpx"
-    ],
-    "fontWeights": [
-      "normal",
-      "bold"
-    ],
-    "spacing": [
-      "8rpx",
-      "12rpx",
-      "16rpx",
-      "20rpx",
-      "24rpx",
-      "32rpx"
-    ],
-    "radius": [
-      "8rpx",
-      "12rpx",
-      "16rpx",
-      "24rpx",
-      "50%"
-    ],
-    "shadows": [
-      "0 4rpx 16rpx rgba(0,0,0,0.1)"
-    ],
-    "componentDensity": "comfortable",
+    "fontSizes": [],
+    "fontWeights": [],
+    "spacing": [],
+    "radius": [],
+    "shadows": [],
     "commonLayoutPatterns": [
-      "countdown-banner",
-      "coupon-card",
-      "product-grid"
+      "panel",
+      "row",
+      "grid",
+      "biz-hero-banner",
+      "button",
+      "stack"
     ]
   }
 }

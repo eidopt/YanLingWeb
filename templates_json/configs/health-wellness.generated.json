@@ -1,255 +1,2102 @@
 {
   "templateId": "health-wellness",
-  "templateVersion": "1.0.0",
+  "templateVersion": "1",
   "profileVersion": "1.0.0",
   "devices": [
-    "miniapp"
+    "miniapp",
+    "mobile"
   ],
   "pages": [
     {
-      "pageKey": "health.home",
+      "pageKey": "page-home",
       "pageId": "page-home",
-      "pageKind": "dashboard",
+      "pageKind": "home",
       "name": "健康首页",
-      "description": "健康数据概览和指标",
+      "description": "健康中心",
       "rootNodeId": "page-home-screen",
-      "device": "miniapp",
       "isDefault": true
     },
     {
-      "pageKey": "health.trends",
+      "pageKey": "page-trends",
       "pageId": "page-trends",
-      "pageKind": "charts",
+      "pageKind": "detail",
       "name": "趋势详情",
-      "description": "健康数据趋势图表",
+      "description": "健康趋势",
       "rootNodeId": "page-trends-screen",
-      "device": "miniapp"
+      "isDefault": false
     },
     {
-      "pageKey": "health.exercise",
+      "pageKey": "page-exercise",
       "pageId": "page-exercise",
-      "pageKind": "plan",
+      "pageKind": "unknown",
       "name": "运动计划",
-      "description": "运动计划和记录",
+      "description": "运动计划",
       "rootNodeId": "page-exercise-screen",
-      "device": "miniapp"
+      "isDefault": false
     },
     {
-      "pageKey": "health.consult",
+      "pageKey": "page-consult",
       "pageId": "page-consult",
-      "pageKind": "list",
+      "pageKind": "unknown",
       "name": "健康咨询",
-      "description": "医生咨询",
+      "description": "健康咨询",
       "rootNodeId": "page-consult-screen",
-      "device": "miniapp"
+      "isDefault": false
     }
   ],
   "regions": [
     {
-      "regionKey": "health.home.header",
-      "pageKey": "health.home",
-      "nodeId": "health-header",
-      "name": "健康头部",
-      "sectionKind": "header",
-      "replaceable": false
-    },
-    {
-      "regionKey": "health.home.metrics",
-      "pageKey": "health.home",
-      "nodeId": "health-metrics",
-      "name": "健康指标",
-      "sectionKind": "metrics",
-      "replaceable": true,
-      "allowedPatternKeys": [
-        "health.metrics"
-      ]
-    },
-    {
-      "regionKey": "health.home.tips",
-      "pageKey": "health.home",
-      "nodeId": "health-tips",
-      "name": "健康贴士",
-      "sectionKind": "tips",
+      "regionKey": "page-home.item",
+      "pageKey": "page-home",
+      "nodeId": "health-ring-summary",
+      "name": "今日健康环",
+      "sectionKind": "panel",
       "replaceable": true
     },
     {
-      "regionKey": "health.trends.charts",
-      "pageKey": "health.trends",
-      "nodeId": "trends-chart",
-      "name": "趋势图表",
-      "sectionKind": "chart",
+      "regionKey": "page-home.item-2",
+      "pageKey": "page-home",
+      "nodeId": "health-plan-card",
+      "name": "今天的计划",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-home.item-3",
+      "pageKey": "page-home",
+      "nodeId": "health-consult-row",
+      "name": "医生头像",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-home.item-4",
+      "pageKey": "page-home",
+      "nodeId": "health-main-action",
+      "name": "开始今日计划",
+      "sectionKind": "button",
       "replaceable": false
     },
     {
-      "regionKey": "health.exercise.today",
-      "pageKey": "health.exercise",
+      "regionKey": "page-trends.item",
+      "pageKey": "page-trends",
+      "nodeId": "page-trends-hero-banner",
+      "name": "趋势详情",
+      "sectionKind": "biz-hero-banner",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-trends.item-2",
+      "pageKey": "page-trends",
+      "nodeId": "trends-header",
+      "name": "健康趋势",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-trends.item-3",
+      "pageKey": "page-trends",
+      "nodeId": "trends-tabs",
+      "name": "本周",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-trends.item-4",
+      "pageKey": "page-trends",
+      "nodeId": "trends-chart",
+      "name": "步数趋势",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-trends.k-7-856",
+      "pageKey": "page-trends",
+      "nodeId": "trends-summary",
+      "name": "7,856",
+      "sectionKind": "grid",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-trends.item-5",
+      "pageKey": "page-trends",
+      "nodeId": "page-trends-primary-action",
+      "name": "查看计划",
+      "sectionKind": "button",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-exercise.item",
+      "pageKey": "page-exercise",
+      "nodeId": "page-exercise-hero-banner",
+      "name": "运动计划",
+      "sectionKind": "biz-hero-banner",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-exercise.item-2",
+      "pageKey": "page-exercise",
+      "nodeId": "exercise-header",
+      "name": "运动计划",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-exercise.item-3",
+      "pageKey": "page-exercise",
       "nodeId": "exercise-today",
       "name": "今日计划",
-      "sectionKind": "plan",
-      "replaceable": true,
-      "allowedPatternKeys": [
-        "health.exercises"
-      ]
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-exercise.item-4",
+      "pageKey": "page-exercise",
+      "nodeId": "exercise-weekly",
+      "name": "本周运动",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-consult.item",
+      "pageKey": "page-consult",
+      "nodeId": "page-consult-hero-banner",
+      "name": "健康咨询",
+      "sectionKind": "biz-hero-banner",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-consult.item-2",
+      "pageKey": "page-consult",
+      "nodeId": "consult-header",
+      "name": "健康咨询",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-consult.item-3",
+      "pageKey": "page-consult",
+      "nodeId": "consult-categories",
+      "name": "图标",
+      "sectionKind": "grid",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-consult.item-4",
+      "pageKey": "page-consult",
+      "nodeId": "consult-doctors",
+      "name": "推荐医生",
+      "sectionKind": "panel",
+      "replaceable": true
     }
   ],
   "slots": [
     {
-      "slotKey": "health.home.score",
-      "pageKey": "health.home",
-      "regionKey": "health.home.header",
-      "nodeId": "score-num",
-      "component": "core.text",
+      "slotKey": "page-home.page-home-screen.screen",
+      "pageKey": "page-home",
+      "nodeId": "page-home-screen",
+      "component": "core.screen",
       "editableProps": [
-        "text"
+        "title",
+        "statusTime",
+        "headerActionLabel"
       ],
-      "aiRole": "score",
-      "label": "健康评分"
+      "label": "健康首页"
     },
     {
-      "slotKey": "health.home.steps",
-      "pageKey": "health.home",
-      "regionKey": "health.home.header",
-      "nodeId": "steps-num",
-      "component": "core.text",
+      "slotKey": "page-home.health-ring-summary.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item",
+      "nodeId": "health-ring-summary",
+      "component": "core.panel",
       "editableProps": [
-        "text"
+        "tone",
+        "gap",
+        "title"
       ],
-      "aiRole": "count",
-      "label": "今日步数"
+      "label": "今日健康环"
     },
     {
-      "slotKey": "health.home.heartRate",
-      "pageKey": "health.home",
-      "regionKey": "health.home.metrics",
-      "nodeId": "heart-value",
-      "component": "core.text",
+      "slotKey": "page-home.health-ring-top.row",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item",
+      "nodeId": "health-ring-top",
+      "component": "core.row",
       "editableProps": [
-        "text"
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
       ],
-      "aiRole": "value",
-      "label": "心率"
+      "label": "今日健康环"
     },
     {
-      "slotKey": "health.home.sleep",
-      "pageKey": "health.home",
-      "regionKey": "health.home.metrics",
-      "nodeId": "sleep-value",
+      "slotKey": "page-home.health-ring-title.text",
+      "pageKey": "page-home",
+      "nodeId": "health-ring-title",
       "component": "core.text",
       "editableProps": [
-        "text"
+        "text",
+        "variant",
+        "as"
       ],
-      "aiRole": "value",
-      "label": "睡眠时长"
+      "label": "今日健康环"
     },
     {
-      "slotKey": "health.home.bloodPressure",
-      "pageKey": "health.home",
-      "regionKey": "health.home.metrics",
-      "nodeId": "bp-value",
-      "component": "core.text",
+      "slotKey": "page-home.health-ring-tag.tag",
+      "pageKey": "page-home",
+      "nodeId": "health-ring-tag",
+      "component": "core.tag",
       "editableProps": [
-        "text"
+        "label",
+        "tone"
       ],
-      "aiRole": "value",
-      "label": "血压"
+      "label": "良好"
     },
     {
-      "slotKey": "health.home.calories",
-      "pageKey": "health.home",
-      "regionKey": "health.home.metrics",
-      "nodeId": "cal-value",
-      "component": "core.text",
+      "slotKey": "page-home.health-ring-grid.grid",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item",
+      "nodeId": "health-ring-grid",
+      "component": "core.grid",
       "editableProps": [
-        "text"
+        "gap",
+        "columns"
       ],
-      "aiRole": "value",
-      "label": "卡路里消耗"
+      "label": "8420"
     },
     {
-      "slotKey": "health.tips.text",
-      "pageKey": "health.home",
-      "regionKey": "health.home.tips",
-      "nodeId": "tips-text",
+      "slotKey": "page-home.health-ring-0.panel",
+      "pageKey": "page-home",
+      "nodeId": "health-ring-0",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "8420"
+    },
+    {
+      "slotKey": "page-home.health-ring-num-0.text",
+      "pageKey": "page-home",
+      "nodeId": "health-ring-num-0",
       "component": "core.text",
       "editableProps": [
-        "text"
+        "text",
+        "variant",
+        "as"
       ],
-      "aiRole": "content",
-      "label": "健康贴士"
+      "label": "8420"
+    },
+    {
+      "slotKey": "page-home.health-ring-label-0.text",
+      "pageKey": "page-home",
+      "nodeId": "health-ring-label-0",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "步数"
+    },
+    {
+      "slotKey": "page-home.health-ring-1.panel",
+      "pageKey": "page-home",
+      "nodeId": "health-ring-1",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "6杯"
+    },
+    {
+      "slotKey": "page-home.health-ring-num-1.text",
+      "pageKey": "page-home",
+      "nodeId": "health-ring-num-1",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "6杯"
+    },
+    {
+      "slotKey": "page-home.health-ring-label-1.text",
+      "pageKey": "page-home",
+      "nodeId": "health-ring-label-1",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "饮水"
+    },
+    {
+      "slotKey": "page-home.health-ring-2.panel",
+      "pageKey": "page-home",
+      "nodeId": "health-ring-2",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "7.5时"
+    },
+    {
+      "slotKey": "page-home.health-ring-num-2.text",
+      "pageKey": "page-home",
+      "nodeId": "health-ring-num-2",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "7.5时"
+    },
+    {
+      "slotKey": "page-home.health-ring-label-2.text",
+      "pageKey": "page-home",
+      "nodeId": "health-ring-label-2",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "睡眠"
+    },
+    {
+      "slotKey": "page-home.health-plan-card.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-2",
+      "nodeId": "health-plan-card",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "今天的计划"
+    },
+    {
+      "slotKey": "page-home.health-plan-head.row",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-2",
+      "nodeId": "health-plan-head",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "今天的计划"
+    },
+    {
+      "slotKey": "page-home.health-plan-title.text",
+      "pageKey": "page-home",
+      "nodeId": "health-plan-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "今天的计划"
+    },
+    {
+      "slotKey": "page-home.health-plan-count.text",
+      "pageKey": "page-home",
+      "nodeId": "health-plan-count",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "2/4 完成"
+    },
+    {
+      "slotKey": "page-home.health-plan-progress.progress",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-2",
+      "nodeId": "health-plan-progress",
+      "component": "core.progress",
+      "editableProps": [
+        "value",
+        "max",
+        "tone"
+      ],
+      "label": "health-plan-progress"
+    },
+    {
+      "slotKey": "page-home.health-plan-grid.grid",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-2",
+      "nodeId": "health-plan-grid",
+      "component": "core.grid",
+      "editableProps": [
+        "gap",
+        "columns"
+      ],
+      "label": "晨间拉伸"
+    },
+    {
+      "slotKey": "page-home.health-plan-0.panel",
+      "pageKey": "page-home",
+      "nodeId": "health-plan-0",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "晨间拉伸"
+    },
+    {
+      "slotKey": "page-home.health-plan-text-0.text",
+      "pageKey": "page-home",
+      "nodeId": "health-plan-text-0",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "晨间拉伸"
+    },
+    {
+      "slotKey": "page-home.health-plan-1.panel",
+      "pageKey": "page-home",
+      "nodeId": "health-plan-1",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "低糖午餐"
+    },
+    {
+      "slotKey": "page-home.health-plan-text-1.text",
+      "pageKey": "page-home",
+      "nodeId": "health-plan-text-1",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "低糖午餐"
+    },
+    {
+      "slotKey": "page-home.health-plan-2.panel",
+      "pageKey": "page-home",
+      "nodeId": "health-plan-2",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "冥想 10 分钟"
+    },
+    {
+      "slotKey": "page-home.health-plan-text-2.text",
+      "pageKey": "page-home",
+      "nodeId": "health-plan-text-2",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "冥想 10 分钟"
+    },
+    {
+      "slotKey": "page-home.health-plan-3.panel",
+      "pageKey": "page-home",
+      "nodeId": "health-plan-3",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "晚间快走"
+    },
+    {
+      "slotKey": "page-home.health-plan-text-3.text",
+      "pageKey": "page-home",
+      "nodeId": "health-plan-text-3",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "晚间快走"
+    },
+    {
+      "slotKey": "page-home.health-consult-row.row",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-3",
+      "nodeId": "health-consult-row",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "医生头像"
+    },
+    {
+      "slotKey": "page-home.health-doctor-card.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-3",
+      "nodeId": "health-doctor-card",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "医生头像"
+    },
+    {
+      "slotKey": "page-home.health-doctor-img.image",
+      "pageKey": "page-home",
+      "nodeId": "health-doctor-img",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "医生头像"
+    },
+    {
+      "slotKey": "page-home.health-doctor-title.text",
+      "pageKey": "page-home",
+      "nodeId": "health-doctor-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "医生问诊"
+    },
+    {
+      "slotKey": "page-home.health-doctor-desc.text",
+      "pageKey": "page-home",
+      "nodeId": "health-doctor-desc",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "3 位在线"
+    },
+    {
+      "slotKey": "page-home.health-report-card.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-3",
+      "nodeId": "health-report-card",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "报告图标"
+    },
+    {
+      "slotKey": "page-home.health-report-img.image",
+      "pageKey": "page-home",
+      "nodeId": "health-report-img",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "报告图标"
+    },
+    {
+      "slotKey": "page-home.health-report-title.text",
+      "pageKey": "page-home",
+      "nodeId": "health-report-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "健康报告"
+    },
+    {
+      "slotKey": "page-home.health-report-desc.text",
+      "pageKey": "page-home",
+      "nodeId": "health-report-desc",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "本周已更新"
+    },
+    {
+      "slotKey": "page-home.health-main-action.button",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-4",
+      "nodeId": "health-main-action",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "开始今日计划"
+    },
+    {
+      "slotKey": "page-home.page-home-bottom-tabs.tabs",
+      "pageKey": "page-home",
+      "nodeId": "page-home-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-home-bottom-tabs"
+    },
+    {
+      "slotKey": "page-trends.page-trends-screen.screen",
+      "pageKey": "page-trends",
+      "nodeId": "page-trends-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel"
+      ],
+      "label": "趋势详情"
+    },
+    {
+      "slotKey": "page-trends.trends-header.panel",
+      "pageKey": "page-trends",
+      "regionKey": "page-trends.item-2",
+      "nodeId": "trends-header",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "健康趋势"
+    },
+    {
+      "slotKey": "page-trends.trends-title.text",
+      "pageKey": "page-trends",
+      "regionKey": "page-trends.item-2",
+      "nodeId": "trends-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "健康趋势"
+    },
+    {
+      "slotKey": "page-trends.trends-tabs.row",
+      "pageKey": "page-trends",
+      "regionKey": "page-trends.item-3",
+      "nodeId": "trends-tabs",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "本周"
+    },
+    {
+      "slotKey": "page-trends.tab-week.text",
+      "pageKey": "page-trends",
+      "regionKey": "page-trends.item-3",
+      "nodeId": "tab-week",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "本周"
+    },
+    {
+      "slotKey": "page-trends.tab-month.text",
+      "pageKey": "page-trends",
+      "regionKey": "page-trends.item-3",
+      "nodeId": "tab-month",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "本月"
+    },
+    {
+      "slotKey": "page-trends.tab-year.text",
+      "pageKey": "page-trends",
+      "regionKey": "page-trends.item-3",
+      "nodeId": "tab-year",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "本年"
+    },
+    {
+      "slotKey": "page-trends.trends-chart.panel",
+      "pageKey": "page-trends",
+      "regionKey": "page-trends.item-4",
+      "nodeId": "trends-chart",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "步数趋势"
+    },
+    {
+      "slotKey": "page-trends.chart-title.text",
+      "pageKey": "page-trends",
+      "regionKey": "page-trends.item-4",
+      "nodeId": "chart-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "步数趋势"
+    },
+    {
+      "slotKey": "page-trends.chart-placeholder.panel",
+      "pageKey": "page-trends",
+      "regionKey": "page-trends.item-4",
+      "nodeId": "chart-placeholder",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "图表区域"
+    },
+    {
+      "slotKey": "page-trends.chart-text.text",
+      "pageKey": "page-trends",
+      "nodeId": "chart-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "图表区域"
+    },
+    {
+      "slotKey": "page-trends.trends-summary.grid",
+      "pageKey": "page-trends",
+      "regionKey": "page-trends.k-7-856",
+      "nodeId": "trends-summary",
+      "component": "core.grid",
+      "editableProps": [
+        "gap",
+        "columns"
+      ],
+      "label": "7,856"
+    },
+    {
+      "slotKey": "page-trends.summary-avg.panel",
+      "pageKey": "page-trends",
+      "regionKey": "page-trends.k-7-856",
+      "nodeId": "summary-avg",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "7,856"
+    },
+    {
+      "slotKey": "page-trends.avg-num.text",
+      "pageKey": "page-trends",
+      "nodeId": "avg-num",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "7,856"
+    },
+    {
+      "slotKey": "page-trends.avg-label.text",
+      "pageKey": "page-trends",
+      "nodeId": "avg-label",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "日均步数"
+    },
+    {
+      "slotKey": "page-trends.summary-max.panel",
+      "pageKey": "page-trends",
+      "regionKey": "page-trends.k-7-856",
+      "nodeId": "summary-max",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "12,340"
+    },
+    {
+      "slotKey": "page-trends.max-num.text",
+      "pageKey": "page-trends",
+      "nodeId": "max-num",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "12,340"
+    },
+    {
+      "slotKey": "page-trends.max-label.text",
+      "pageKey": "page-trends",
+      "nodeId": "max-label",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "最高步数"
+    },
+    {
+      "slotKey": "page-trends.summary-goal.panel",
+      "pageKey": "page-trends",
+      "regionKey": "page-trends.k-7-856",
+      "nodeId": "summary-goal",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "5/7"
+    },
+    {
+      "slotKey": "page-trends.goal-num.text",
+      "pageKey": "page-trends",
+      "nodeId": "goal-num",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "5/7"
+    },
+    {
+      "slotKey": "page-trends.goal-label.text",
+      "pageKey": "page-trends",
+      "nodeId": "goal-label",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "达标天数"
+    },
+    {
+      "slotKey": "page-trends.page-trends-primary-action.button",
+      "pageKey": "page-trends",
+      "regionKey": "page-trends.item-5",
+      "nodeId": "page-trends-primary-action",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "查看计划"
+    },
+    {
+      "slotKey": "page-trends.page-trends-bottom-tabs.tabs",
+      "pageKey": "page-trends",
+      "nodeId": "page-trends-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-trends-bottom-tabs"
+    },
+    {
+      "slotKey": "page-exercise.page-exercise-screen.screen",
+      "pageKey": "page-exercise",
+      "nodeId": "page-exercise-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel"
+      ],
+      "label": "运动计划"
+    },
+    {
+      "slotKey": "page-exercise.exercise-header.panel",
+      "pageKey": "page-exercise",
+      "regionKey": "page-exercise.item-2",
+      "nodeId": "exercise-header",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "运动计划"
+    },
+    {
+      "slotKey": "page-exercise.exercise-title.text",
+      "pageKey": "page-exercise",
+      "regionKey": "page-exercise.item-2",
+      "nodeId": "exercise-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "运动计划"
+    },
+    {
+      "slotKey": "page-exercise.exercise-today.panel",
+      "pageKey": "page-exercise",
+      "regionKey": "page-exercise.item-3",
+      "nodeId": "exercise-today",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "今日计划"
+    },
+    {
+      "slotKey": "page-exercise.today-title.text",
+      "pageKey": "page-exercise",
+      "regionKey": "page-exercise.item-3",
+      "nodeId": "today-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "今日计划"
+    },
+    {
+      "slotKey": "page-exercise.exercise-card.panel",
+      "pageKey": "page-exercise",
+      "regionKey": "page-exercise.item-3",
+      "nodeId": "exercise-card",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "晨跑"
+    },
+    {
+      "slotKey": "page-exercise.ec-header.row",
+      "pageKey": "page-exercise",
+      "nodeId": "ec-header",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "晨跑"
+    },
+    {
+      "slotKey": "page-exercise.ec-name.text",
+      "pageKey": "page-exercise",
+      "nodeId": "ec-name",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "晨跑"
+    },
+    {
+      "slotKey": "page-exercise.ec-duration.text",
+      "pageKey": "page-exercise",
+      "nodeId": "ec-duration",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "30分钟"
+    },
+    {
+      "slotKey": "page-exercise.ec-meta.row",
+      "pageKey": "page-exercise",
+      "nodeId": "ec-meta",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "消耗 280千卡"
+    },
+    {
+      "slotKey": "page-exercise.ec-cal.text",
+      "pageKey": "page-exercise",
+      "nodeId": "ec-cal",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "消耗 280千卡"
+    },
+    {
+      "slotKey": "page-exercise.ec-time.text",
+      "pageKey": "page-exercise",
+      "nodeId": "ec-time",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "07:00-07:30"
+    },
+    {
+      "slotKey": "page-exercise.ec-btn.button",
+      "pageKey": "page-exercise",
+      "nodeId": "ec-btn",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "开始运动"
+    },
+    {
+      "slotKey": "page-exercise.exercise-weekly.panel",
+      "pageKey": "page-exercise",
+      "regionKey": "page-exercise.item-4",
+      "nodeId": "exercise-weekly",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "本周运动"
+    },
+    {
+      "slotKey": "page-exercise.weekly-title.text",
+      "pageKey": "page-exercise",
+      "regionKey": "page-exercise.item-4",
+      "nodeId": "weekly-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "本周运动"
+    },
+    {
+      "slotKey": "page-exercise.weekly-row.row",
+      "pageKey": "page-exercise",
+      "regionKey": "page-exercise.item-4",
+      "nodeId": "weekly-row",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "一"
+    },
+    {
+      "slotKey": "page-exercise.day-mon.stack",
+      "pageKey": "page-exercise",
+      "nodeId": "day-mon",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "一"
+    },
+    {
+      "slotKey": "page-exercise.mon-dot.panel",
+      "pageKey": "page-exercise",
+      "nodeId": "mon-dot",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "mon-dot"
+    },
+    {
+      "slotKey": "page-exercise.mon-text.text",
+      "pageKey": "page-exercise",
+      "nodeId": "mon-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "一"
+    },
+    {
+      "slotKey": "page-exercise.day-tue.stack",
+      "pageKey": "page-exercise",
+      "nodeId": "day-tue",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "二"
+    },
+    {
+      "slotKey": "page-exercise.tue-dot.panel",
+      "pageKey": "page-exercise",
+      "nodeId": "tue-dot",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "tue-dot"
+    },
+    {
+      "slotKey": "page-exercise.tue-text.text",
+      "pageKey": "page-exercise",
+      "nodeId": "tue-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "二"
+    },
+    {
+      "slotKey": "page-exercise.day-wed.stack",
+      "pageKey": "page-exercise",
+      "nodeId": "day-wed",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "三"
+    },
+    {
+      "slotKey": "page-exercise.wed-dot.panel",
+      "pageKey": "page-exercise",
+      "nodeId": "wed-dot",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "wed-dot"
+    },
+    {
+      "slotKey": "page-exercise.wed-text.text",
+      "pageKey": "page-exercise",
+      "nodeId": "wed-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "三"
+    },
+    {
+      "slotKey": "page-exercise.day-thu.stack",
+      "pageKey": "page-exercise",
+      "nodeId": "day-thu",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "四"
+    },
+    {
+      "slotKey": "page-exercise.thu-dot.panel",
+      "pageKey": "page-exercise",
+      "nodeId": "thu-dot",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "thu-dot"
+    },
+    {
+      "slotKey": "page-exercise.thu-text.text",
+      "pageKey": "page-exercise",
+      "nodeId": "thu-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "四"
+    },
+    {
+      "slotKey": "page-exercise.day-fri.stack",
+      "pageKey": "page-exercise",
+      "nodeId": "day-fri",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "五"
+    },
+    {
+      "slotKey": "page-exercise.fri-dot.panel",
+      "pageKey": "page-exercise",
+      "nodeId": "fri-dot",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "fri-dot"
+    },
+    {
+      "slotKey": "page-exercise.fri-text.text",
+      "pageKey": "page-exercise",
+      "nodeId": "fri-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "五"
+    },
+    {
+      "slotKey": "page-exercise.day-sat.stack",
+      "pageKey": "page-exercise",
+      "nodeId": "day-sat",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "六"
+    },
+    {
+      "slotKey": "page-exercise.sat-dot.panel",
+      "pageKey": "page-exercise",
+      "nodeId": "sat-dot",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "sat-dot"
+    },
+    {
+      "slotKey": "page-exercise.sat-text.text",
+      "pageKey": "page-exercise",
+      "nodeId": "sat-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "六"
+    },
+    {
+      "slotKey": "page-exercise.day-sun.stack",
+      "pageKey": "page-exercise",
+      "nodeId": "day-sun",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "日"
+    },
+    {
+      "slotKey": "page-exercise.sun-dot.panel",
+      "pageKey": "page-exercise",
+      "nodeId": "sun-dot",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "sun-dot"
+    },
+    {
+      "slotKey": "page-exercise.sun-text.text",
+      "pageKey": "page-exercise",
+      "nodeId": "sun-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "日"
+    },
+    {
+      "slotKey": "page-exercise.page-exercise-bottom-tabs.tabs",
+      "pageKey": "page-exercise",
+      "nodeId": "page-exercise-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-exercise-bottom-tabs"
+    },
+    {
+      "slotKey": "page-consult.page-consult-screen.screen",
+      "pageKey": "page-consult",
+      "nodeId": "page-consult-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel"
+      ],
+      "label": "健康咨询"
+    },
+    {
+      "slotKey": "page-consult.consult-header.panel",
+      "pageKey": "page-consult",
+      "regionKey": "page-consult.item-2",
+      "nodeId": "consult-header",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "健康咨询"
+    },
+    {
+      "slotKey": "page-consult.consult-title.text",
+      "pageKey": "page-consult",
+      "regionKey": "page-consult.item-2",
+      "nodeId": "consult-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "健康咨询"
+    },
+    {
+      "slotKey": "page-consult.consult-categories.grid",
+      "pageKey": "page-consult",
+      "regionKey": "page-consult.item-3",
+      "nodeId": "consult-categories",
+      "component": "core.grid",
+      "editableProps": [
+        "gap",
+        "columns"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-consult.cat-general.panel",
+      "pageKey": "page-consult",
+      "regionKey": "page-consult.item-3",
+      "nodeId": "cat-general",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-consult.general-icon.image",
+      "pageKey": "page-consult",
+      "nodeId": "general-icon",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-consult.general-text.text",
+      "pageKey": "page-consult",
+      "nodeId": "general-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "全科"
+    },
+    {
+      "slotKey": "page-consult.cat-dental.panel",
+      "pageKey": "page-consult",
+      "regionKey": "page-consult.item-3",
+      "nodeId": "cat-dental",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-consult.dental-icon.image",
+      "pageKey": "page-consult",
+      "nodeId": "dental-icon",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-consult.dental-text.text",
+      "pageKey": "page-consult",
+      "nodeId": "dental-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "口腔"
+    },
+    {
+      "slotKey": "page-consult.cat-skin.panel",
+      "pageKey": "page-consult",
+      "regionKey": "page-consult.item-3",
+      "nodeId": "cat-skin",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-consult.skin-icon.image",
+      "pageKey": "page-consult",
+      "nodeId": "skin-icon",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-consult.skin-text.text",
+      "pageKey": "page-consult",
+      "nodeId": "skin-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "皮肤"
+    },
+    {
+      "slotKey": "page-consult.consult-doctors.panel",
+      "pageKey": "page-consult",
+      "regionKey": "page-consult.item-4",
+      "nodeId": "consult-doctors",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "推荐医生"
+    },
+    {
+      "slotKey": "page-consult.doctors-title.text",
+      "pageKey": "page-consult",
+      "regionKey": "page-consult.item-4",
+      "nodeId": "doctors-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "推荐医生"
+    },
+    {
+      "slotKey": "page-consult.doctor-card.row",
+      "pageKey": "page-consult",
+      "regionKey": "page-consult.item-4",
+      "nodeId": "doctor-card",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-consult.doctor-avatar.image",
+      "pageKey": "page-consult",
+      "nodeId": "doctor-avatar",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-consult.doctor-info.stack",
+      "pageKey": "page-consult",
+      "nodeId": "doctor-info",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "李医生"
+    },
+    {
+      "slotKey": "page-consult.doctor-name.text",
+      "pageKey": "page-consult",
+      "nodeId": "doctor-name",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "李医生"
+    },
+    {
+      "slotKey": "page-consult.doctor-title.text",
+      "pageKey": "page-consult",
+      "nodeId": "doctor-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "主任医师 · 全科"
+    },
+    {
+      "slotKey": "page-consult.doctor-rating.text",
+      "pageKey": "page-consult",
+      "nodeId": "doctor-rating",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "4.9分 · 1.2万次咨询"
+    },
+    {
+      "slotKey": "page-consult.consult-btn.button",
+      "pageKey": "page-consult",
+      "nodeId": "consult-btn",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "咨询"
+    },
+    {
+      "slotKey": "page-consult.page-consult-bottom-tabs.tabs",
+      "pageKey": "page-consult",
+      "nodeId": "page-consult-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-consult-bottom-tabs"
     }
   ],
   "patterns": [
     {
-      "patternKey": "health.metrics",
-      "pageKey": "health.home",
-      "regionKey": "health.home.metrics",
-      "sourceRootNodeId": "metric-heart",
-      "parentNodeId": "health-metrics",
-      "itemAlias": "metric",
+      "patternKey": "page-home.item.pattern",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item",
+      "sourceRootNodeId": "health-ring-top",
+      "parentNodeId": "health-ring-summary",
+      "itemAlias": "core.row",
       "fields": [
         {
-          "fieldKey": "icon",
-          "slotKey": "health.metric.icon",
-          "prop": "name",
-          "required": true
-        },
-        {
-          "fieldKey": "value",
-          "slotKey": "health.metric.value",
-          "prop": "text",
-          "required": true
+          "fieldKey": "health-ring-title",
+          "slotKey": "page-home.health-ring-title.text",
+          "prop": "text"
         },
         {
           "fieldKey": "label",
-          "slotKey": "health.metric.label",
-          "prop": "text",
-          "required": true
+          "slotKey": "page-home.health-ring-tag.tag",
+          "prop": "label"
         }
       ],
-      "maxItems": 6,
-      "minItems": 2
+      "minItems": 0,
+      "maxItems": 50
     },
     {
-      "patternKey": "health.exercises",
-      "pageKey": "health.exercise",
-      "regionKey": "health.exercise.today",
-      "sourceRootNodeId": "exercise-card",
-      "parentNodeId": "exercise-today",
-      "itemAlias": "exercise",
+      "patternKey": "page-home.item.pattern-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-2",
+      "sourceRootNodeId": "health-plan-head",
+      "parentNodeId": "health-plan-card",
+      "itemAlias": "core.row",
       "fields": [
         {
-          "fieldKey": "name",
-          "slotKey": "health.exercise.name",
-          "prop": "text",
-          "required": true
+          "fieldKey": "health-plan-title",
+          "slotKey": "page-home.health-plan-title.text",
+          "prop": "text"
         },
         {
-          "fieldKey": "duration",
-          "slotKey": "health.exercise.duration",
-          "prop": "text",
-          "required": true
+          "fieldKey": "health-plan-count",
+          "slotKey": "page-home.health-plan-count.text",
+          "prop": "text"
         }
       ],
-      "maxItems": 10,
-      "minItems": 1
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-home.item.pattern-3",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-3",
+      "sourceRootNodeId": "health-doctor-card",
+      "parentNodeId": "health-consult-row",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-home.health-doctor-img.image",
+          "prop": "alt"
+        },
+        {
+          "fieldKey": "health-doctor-title",
+          "slotKey": "page-home.health-doctor-title.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "health-doctor-desc",
+          "slotKey": "page-home.health-doctor-desc.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-trends.item.pattern",
+      "pageKey": "page-trends",
+      "regionKey": "page-trends.item-2",
+      "sourceRootNodeId": "trends-title",
+      "parentNodeId": "trends-header",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "trends-title",
+          "slotKey": "page-trends.trends-title.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-trends.item.pattern-2",
+      "pageKey": "page-trends",
+      "regionKey": "page-trends.item-3",
+      "sourceRootNodeId": "tab-week",
+      "parentNodeId": "trends-tabs",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "tab-week",
+          "slotKey": "page-trends.tab-week.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-trends.item.pattern-3",
+      "pageKey": "page-trends",
+      "regionKey": "page-trends.item-4",
+      "sourceRootNodeId": "chart-placeholder",
+      "parentNodeId": "trends-chart",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "chart-text",
+          "slotKey": "page-trends.chart-text.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-trends.k-7-856.pattern",
+      "pageKey": "page-trends",
+      "regionKey": "page-trends.k-7-856",
+      "sourceRootNodeId": "summary-avg",
+      "parentNodeId": "trends-summary",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "avg-num",
+          "slotKey": "page-trends.avg-num.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "avg-label",
+          "slotKey": "page-trends.avg-label.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-exercise.item.pattern",
+      "pageKey": "page-exercise",
+      "regionKey": "page-exercise.item-2",
+      "sourceRootNodeId": "exercise-title",
+      "parentNodeId": "exercise-header",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "exercise-title",
+          "slotKey": "page-exercise.exercise-title.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-exercise.item.pattern-2",
+      "pageKey": "page-exercise",
+      "regionKey": "page-exercise.item-3",
+      "sourceRootNodeId": "exercise-card",
+      "parentNodeId": "exercise-today",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "ec-name",
+          "slotKey": "page-exercise.ec-name.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "ec-duration",
+          "slotKey": "page-exercise.ec-duration.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "ec-cal",
+          "slotKey": "page-exercise.ec-cal.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "ec-time",
+          "slotKey": "page-exercise.ec-time.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "label",
+          "slotKey": "page-exercise.ec-btn.button",
+          "prop": "label"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-exercise.item.pattern-3",
+      "pageKey": "page-exercise",
+      "regionKey": "page-exercise.item-4",
+      "sourceRootNodeId": "weekly-row",
+      "parentNodeId": "exercise-weekly",
+      "itemAlias": "core.row",
+      "fields": [
+        {
+          "fieldKey": "mon-text",
+          "slotKey": "page-exercise.mon-text.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "tue-text",
+          "slotKey": "page-exercise.tue-text.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "wed-text",
+          "slotKey": "page-exercise.wed-text.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "thu-text",
+          "slotKey": "page-exercise.thu-text.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "fri-text",
+          "slotKey": "page-exercise.fri-text.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "sat-text",
+          "slotKey": "page-exercise.sat-text.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "sun-text",
+          "slotKey": "page-exercise.sun-text.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-consult.item.pattern",
+      "pageKey": "page-consult",
+      "regionKey": "page-consult.item-2",
+      "sourceRootNodeId": "consult-title",
+      "parentNodeId": "consult-header",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "consult-title",
+          "slotKey": "page-consult.consult-title.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-consult.item.pattern-2",
+      "pageKey": "page-consult",
+      "regionKey": "page-consult.item-3",
+      "sourceRootNodeId": "cat-general",
+      "parentNodeId": "consult-categories",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-consult.general-icon.image",
+          "prop": "alt"
+        },
+        {
+          "fieldKey": "general-text",
+          "slotKey": "page-consult.general-text.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-consult.item.pattern-3",
+      "pageKey": "page-consult",
+      "regionKey": "page-consult.item-4",
+      "sourceRootNodeId": "doctor-card",
+      "parentNodeId": "consult-doctors",
+      "itemAlias": "core.row",
+      "fields": [
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-consult.doctor-avatar.image",
+          "prop": "alt"
+        },
+        {
+          "fieldKey": "doctor-name",
+          "slotKey": "page-consult.doctor-name.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "doctor-title",
+          "slotKey": "page-consult.doctor-title.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "doctor-rating",
+          "slotKey": "page-consult.doctor-rating.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "label",
+          "slotKey": "page-consult.consult-btn.button",
+          "prop": "label"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
     }
   ],
   "navigation": {
-    "type": "none",
-    "items": []
+    "type": "bottom_tabs",
+    "items": [
+      {
+        "key": "page-home",
+        "label": "健康首页",
+        "pageKey": "page-home",
+        "pageId": "page-home"
+      },
+      {
+        "key": "page-trends",
+        "label": "趋势详情",
+        "pageKey": "page-trends",
+        "pageId": "page-trends"
+      },
+      {
+        "key": "page-exercise",
+        "label": "运动计划",
+        "pageKey": "page-exercise",
+        "pageId": "page-exercise"
+      },
+      {
+        "key": "page-consult",
+        "label": "健康咨询",
+        "pageKey": "page-consult",
+        "pageId": "page-consult"
+      }
+    ]
   },
   "constraints": {
     "devices": [
-      "miniapp"
-    ],
-    "maxColumns": 2,
-    "allowedLayouts": [
-      "core.stack",
-      "core.row",
-      "core.grid"
-    ],
-    "requiredComponents": [
-      "core.text"
+      "miniapp",
+      "mobile"
     ]
   },
   "styleProfile": {
@@ -263,44 +2110,17 @@
       "#f8fafc",
       "#ffffff"
     ],
-    "fontSizes": [
-      "22rpx",
-      "24rpx",
-      "26rpx",
-      "28rpx",
-      "32rpx",
-      "36rpx",
-      "40rpx",
-      "48rpx"
-    ],
-    "fontWeights": [
-      "normal",
-      "bold"
-    ],
-    "spacing": [
-      "8rpx",
-      "12rpx",
-      "16rpx",
-      "20rpx",
-      "24rpx",
-      "32rpx"
-    ],
-    "radius": [
-      "6rpx",
-      "8rpx",
-      "12rpx",
-      "16rpx",
-      "32rpx",
-      "50%"
-    ],
-    "shadows": [
-      "0 4rpx 16rpx rgba(0,0,0,0.08)"
-    ],
-    "componentDensity": "comfortable",
+    "fontSizes": [],
+    "fontWeights": [],
+    "spacing": [],
+    "radius": [],
+    "shadows": [],
     "commonLayoutPatterns": [
-      "metric-card",
-      "progress-ring",
-      "health-dashboard"
+      "panel",
+      "row",
+      "button",
+      "biz-hero-banner",
+      "grid"
     ]
   }
 }

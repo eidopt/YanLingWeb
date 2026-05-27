@@ -40,6 +40,11 @@
             "name": "style",
             "type": "object",
             "label": "样式"
+          },
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
           }
         ]
       },
@@ -68,6 +73,16 @@
             "name": "title",
             "type": "string",
             "label": "标题"
+          },
+          {
+            "name": "src",
+            "type": "string",
+            "label": "图片地址"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
           }
         ]
       },
@@ -81,6 +96,16 @@
             "name": "style",
             "type": "object",
             "label": "样式"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
           }
         ]
       },
@@ -94,6 +119,31 @@
             "name": "style",
             "type": "object",
             "label": "样式"
+          },
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
+          },
+          {
+            "name": "wrap",
+            "type": "string",
+            "label": "换行"
+          },
+          {
+            "name": "justify",
+            "type": "string",
+            "label": "主轴对齐"
+          },
+          {
+            "name": "align",
+            "type": "string",
+            "label": "交叉轴对齐"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
           }
         ]
       },
@@ -120,6 +170,16 @@
             "name": "style",
             "type": "object",
             "label": "样式"
+          },
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
+          },
+          {
+            "name": "alignItems",
+            "type": "string",
+            "label": "对齐方式"
           }
         ]
       },
@@ -138,6 +198,271 @@
             "name": "text",
             "type": "string",
             "label": "显示内容"
+          },
+          {
+            "name": "variant",
+            "type": "string",
+            "label": "文字层级"
+          },
+          {
+            "name": "as",
+            "type": "string",
+            "label": "标签"
+          }
+        ]
+      },
+      {
+        "alias": "core.button",
+        "name": "按钮",
+        "kind": "component",
+        "description": "按钮 组件",
+        "props": [
+          {
+            "name": "label",
+            "type": "string",
+            "label": "显示文字"
+          },
+          {
+            "name": "variant",
+            "type": "string",
+            "label": "文字层级"
+          },
+          {
+            "name": "active",
+            "type": "string",
+            "label": "选中"
+          },
+          {
+            "name": "disabled",
+            "type": "string",
+            "label": "禁用"
+          },
+          {
+            "name": "icon",
+            "type": "string",
+            "label": "图标"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.tag",
+        "name": "标签",
+        "kind": "component",
+        "description": "标签 组件",
+        "props": [
+          {
+            "name": "label",
+            "type": "string",
+            "label": "显示文字"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.tabs",
+        "name": "标签导航",
+        "kind": "component",
+        "description": "标签导航 组件",
+        "props": [
+          {
+            "name": "tabs",
+            "type": "string",
+            "label": "标签项"
+          },
+          {
+            "name": "activeTab",
+            "type": "string",
+            "label": "当前标签"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.search",
+        "name": "搜索框",
+        "kind": "component",
+        "description": "搜索框 组件",
+        "props": [
+          {
+            "name": "placeholder",
+            "type": "string",
+            "label": "占位文本"
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "label": "值"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.input",
+        "name": "输入框",
+        "kind": "component",
+        "description": "输入框 组件",
+        "props": [
+          {
+            "name": "placeholder",
+            "type": "string",
+            "label": "占位文本"
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "label": "显示文字"
+          },
+          {
+            "name": "type",
+            "type": "string",
+            "label": "类型"
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "label": "值"
+          },
+          {
+            "name": "disabled",
+            "type": "string",
+            "label": "禁用"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.notice",
+        "name": "提示",
+        "kind": "component",
+        "description": "提示 组件",
+        "props": [
+          {
+            "name": "text",
+            "type": "string",
+            "label": "显示内容"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.progress",
+        "name": "进度条",
+        "kind": "component",
+        "description": "进度条 组件",
+        "props": [
+          {
+            "name": "value",
+            "type": "number",
+            "label": "值"
+          },
+          {
+            "name": "max",
+            "type": "number",
+            "label": "最大值"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.divider",
+        "name": "分隔线",
+        "kind": "component",
+        "description": "分隔线 组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.spacer",
+        "name": "空白",
+        "kind": "component",
+        "description": "空白 组件",
+        "props": [
+          {
+            "name": "size",
+            "type": "string",
+            "label": "尺寸"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "biz-hero-banner",
+        "name": "业务头图",
+        "kind": "component",
+        "description": "业务头图组件",
+        "props": [
+          {
+            "name": "badge",
+            "type": "string",
+            "label": "徽标"
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "label": "标题"
+          },
+          {
+            "name": "subtitle",
+            "type": "string",
+            "label": "副标题"
+          },
+          {
+            "name": "actionLabel",
+            "type": "string",
+            "label": "行动按钮文案"
           }
         ]
       }
@@ -156,54 +481,95 @@
             "order": 0
           },
           "props": {
-            "title": "工具首页"
+            "title": "工具首页",
+            "style": {
+              "background": "#eef2f7"
+            }
           },
           "children": [
             {
-              "id": "tools-header",
+              "id": "tools-smart-panel",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 0
+                "order": 0,
+                "width": "100%"
               },
               "props": {
                 "style": {
-                  "padding": "40rpx 32rpx",
-                  "background": "linear-gradient(135deg, #475569, #334155)",
-                  "borderRadius": "0 0 32rpx 32rpx"
+                  "margin": "20rpx",
+                  "padding": "28rpx",
+                  "borderRadius": "32rpx",
+                  "background": "linear-gradient(135deg,#334155,#0f172a)",
+                  "color": "#fff"
                 }
               },
               "children": [
                 {
-                  "id": "tools-title",
-                  "alias": "core.text",
+                  "id": "tools-smart-top",
+                  "alias": "core.row",
                   "layout": {
                     "mode": "flow",
-                    "order": 0
+                    "order": 0,
+                    "width": "100%"
                   },
                   "props": {
-                    "text": "实用工具",
                     "style": {
-                      "fontSize": "40rpx",
-                      "fontWeight": "bold",
-                      "color": "#fff"
+                      "justifyContent": "space-between",
+                      "alignItems": "center"
                     }
                   },
-                  "children": []
+                  "children": [
+                    {
+                      "id": "tools-smart-title",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "快捷工具台",
+                        "variant": "display",
+                        "style": {
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "tools-smart-tag",
+                      "alias": "core.tag",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "label": "常用 6 个",
+                        "tone": "info",
+                        "style": {
+                          "background": "rgba(255,255,255,0.16)",
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
                 },
                 {
-                  "id": "tools-subtitle",
-                  "alias": "core.text",
+                  "id": "tools-smart-search",
+                  "alias": "core.search",
                   "layout": {
                     "mode": "flow",
-                    "order": 1
+                    "order": 1,
+                    "width": "100%"
                   },
                   "props": {
-                    "text": "让生活更便捷",
+                    "placeholder": "搜索计算、换算、记事",
                     "style": {
-                      "fontSize": "24rpx",
-                      "color": "rgba(255,255,255,0.7)",
-                      "marginTop": "8rpx"
+                      "width": "100%",
+                      "marginTop": "22rpx",
+                      "background": "rgba(255,255,255,0.14)",
+                      "color": "#fff"
                     }
                   },
                   "children": []
@@ -211,89 +577,70 @@
               ]
             },
             {
-              "id": "tools-grid",
+              "id": "tools-quick-grid",
               "alias": "core.grid",
               "layout": {
                 "mode": "flow",
-                "order": 1
+                "order": 1,
+                "width": "100%"
               },
               "props": {
-                "columns": 3,
+                "columns": 4,
                 "style": {
-                  "padding": "32rpx",
-                  "gap": "24rpx",
-                  "marginTop": "-24rpx",
-                  "position": "relative",
-                  "zIndex": 1
+                  "padding": "0 20rpx",
+                  "gap": "14rpx"
                 }
               },
               "children": [
                 {
-                  "id": "tool-calc",
+                  "id": "tools-quick-tile-0",
                   "alias": "core.panel",
                   "layout": {
                     "mode": "flow",
-                    "order": 0
+                    "order": 0,
+                    "width": "100%"
                   },
                   "props": {
                     "style": {
-                      "padding": "24rpx",
-                      "borderRadius": "16rpx",
+                      "padding": "20rpx 8rpx",
+                      "borderRadius": "20rpx",
                       "background": "#fff",
-                      "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
                       "textAlign": "center"
                     }
                   },
                   "children": [
                     {
-                      "id": "calc-icon-bg",
-                      "alias": "core.panel",
+                      "id": "tools-quick-tile-icon-0",
+                      "alias": "core.image",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
+                        "alt": "计算图标",
+                        "title": "计算图标",
+                        "iconColor": "#6366f1",
+                        "objectFit": "contain",
                         "style": {
-                          "width": "80rpx",
-                          "height": "80rpx",
-                          "borderRadius": "50%",
-                          "background": "rgba(99,102,241,0.1)",
-                          "margin": "0 auto 12rpx",
-                          "display": "flex",
-                          "alignItems": "center",
-                          "justifyContent": "center"
+                          "width": "58rpx",
+                          "height": "58rpx",
+                          "margin": "0 auto 10rpx"
                         }
                       },
-                      "children": [
-                        {
-                          "id": "calc-icon",
-                          "alias": "core.image",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "alt": "图标",
-                            "title": "图标",
-                            "objectFit": "contain",
-                            "iconColor": "#6366f1"
-                          },
-                          "children": []
-                        }
-                      ]
+                      "children": []
                     },
                     {
-                      "id": "calc-text",
+                      "id": "tools-quick-tile-text-0",
                       "alias": "core.text",
                       "layout": {
                         "mode": "flow",
                         "order": 1
                       },
                       "props": {
-                        "text": "计算器",
+                        "text": "计算",
+                        "variant": "caption",
                         "style": {
-                          "fontSize": "24rpx",
-                          "color": "var(--color-text-primary)"
+                          "fontWeight": 700
                         }
                       },
                       "children": []
@@ -301,349 +648,44 @@
                   ]
                 },
                 {
-                  "id": "tool-convert",
+                  "id": "tools-quick-tile-1",
                   "alias": "core.panel",
                   "layout": {
                     "mode": "flow",
-                    "order": 1
+                    "order": 1,
+                    "width": "100%"
                   },
                   "props": {
                     "style": {
-                      "padding": "24rpx",
-                      "borderRadius": "16rpx",
+                      "padding": "20rpx 8rpx",
+                      "borderRadius": "20rpx",
                       "background": "#fff",
-                      "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
                       "textAlign": "center"
                     }
                   },
                   "children": [
                     {
-                      "id": "convert-icon-bg",
-                      "alias": "core.panel",
+                      "id": "tools-quick-tile-icon-1",
+                      "alias": "core.image",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
+                        "alt": "天气图标",
+                        "title": "天气图标",
+                        "iconColor": "#0ea5e9",
+                        "objectFit": "contain",
                         "style": {
-                          "width": "80rpx",
-                          "height": "80rpx",
-                          "borderRadius": "50%",
-                          "background": "rgba(34,197,94,0.1)",
-                          "margin": "0 auto 12rpx",
-                          "display": "flex",
-                          "alignItems": "center",
-                          "justifyContent": "center"
-                        }
-                      },
-                      "children": [
-                        {
-                          "id": "convert-icon",
-                          "alias": "core.image",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "alt": "图标",
-                            "title": "图标",
-                            "objectFit": "contain",
-                            "iconColor": "#22c55e"
-                          },
-                          "children": []
-                        }
-                      ]
-                    },
-                    {
-                      "id": "convert-text",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "单位转换",
-                        "style": {
-                          "fontSize": "24rpx",
-                          "color": "var(--color-text-primary)"
+                          "width": "58rpx",
+                          "height": "58rpx",
+                          "margin": "0 auto 10rpx"
                         }
                       },
                       "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "tool-qr",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 2
-                  },
-                  "props": {
-                    "style": {
-                      "padding": "24rpx",
-                      "borderRadius": "16rpx",
-                      "background": "#fff",
-                      "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
-                      "textAlign": "center"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "qr-icon-bg",
-                      "alias": "core.panel",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "style": {
-                          "width": "80rpx",
-                          "height": "80rpx",
-                          "borderRadius": "50%",
-                          "background": "rgba(249,115,22,0.1)",
-                          "margin": "0 auto 12rpx",
-                          "display": "flex",
-                          "alignItems": "center",
-                          "justifyContent": "center"
-                        }
-                      },
-                      "children": [
-                        {
-                          "id": "qr-icon",
-                          "alias": "core.image",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "alt": "图标",
-                            "title": "图标",
-                            "objectFit": "contain",
-                            "iconColor": "#f97316"
-                          },
-                          "children": []
-                        }
-                      ]
                     },
                     {
-                      "id": "qr-text",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "二维码",
-                        "style": {
-                          "fontSize": "24rpx",
-                          "color": "var(--color-text-primary)"
-                        }
-                      },
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "tool-timer",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 3
-                  },
-                  "props": {
-                    "style": {
-                      "padding": "24rpx",
-                      "borderRadius": "16rpx",
-                      "background": "#fff",
-                      "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
-                      "textAlign": "center"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "timer-icon-bg",
-                      "alias": "core.panel",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "style": {
-                          "width": "80rpx",
-                          "height": "80rpx",
-                          "borderRadius": "50%",
-                          "background": "rgba(239,68,68,0.1)",
-                          "margin": "0 auto 12rpx",
-                          "display": "flex",
-                          "alignItems": "center",
-                          "justifyContent": "center"
-                        }
-                      },
-                      "children": [
-                        {
-                          "id": "timer-icon",
-                          "alias": "core.image",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "alt": "图标",
-                            "title": "图标",
-                            "objectFit": "contain",
-                            "iconColor": "#ef4444"
-                          },
-                          "children": []
-                        }
-                      ]
-                    },
-                    {
-                      "id": "timer-text",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "计时器",
-                        "style": {
-                          "fontSize": "24rpx",
-                          "color": "var(--color-text-primary)"
-                        }
-                      },
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "tool-notes",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 4
-                  },
-                  "props": {
-                    "style": {
-                      "padding": "24rpx",
-                      "borderRadius": "16rpx",
-                      "background": "#fff",
-                      "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
-                      "textAlign": "center"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "notes-icon-bg",
-                      "alias": "core.panel",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "style": {
-                          "width": "80rpx",
-                          "height": "80rpx",
-                          "borderRadius": "50%",
-                          "background": "rgba(245,158,11,0.1)",
-                          "margin": "0 auto 12rpx",
-                          "display": "flex",
-                          "alignItems": "center",
-                          "justifyContent": "center"
-                        }
-                      },
-                      "children": [
-                        {
-                          "id": "notes-icon",
-                          "alias": "core.image",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "alt": "图标",
-                            "title": "图标",
-                            "objectFit": "contain",
-                            "iconColor": "#f59e0b"
-                          },
-                          "children": []
-                        }
-                      ]
-                    },
-                    {
-                      "id": "notes-text",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "记事本",
-                        "style": {
-                          "fontSize": "24rpx",
-                          "color": "var(--color-text-primary)"
-                        }
-                      },
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "tool-weather",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 5
-                  },
-                  "props": {
-                    "style": {
-                      "padding": "24rpx",
-                      "borderRadius": "16rpx",
-                      "background": "#fff",
-                      "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
-                      "textAlign": "center"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "weather-icon-bg",
-                      "alias": "core.panel",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "style": {
-                          "width": "80rpx",
-                          "height": "80rpx",
-                          "borderRadius": "50%",
-                          "background": "rgba(14,165,233,0.1)",
-                          "margin": "0 auto 12rpx",
-                          "display": "flex",
-                          "alignItems": "center",
-                          "justifyContent": "center"
-                        }
-                      },
-                      "children": [
-                        {
-                          "id": "weather-icon",
-                          "alias": "core.image",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "alt": "图标",
-                            "title": "图标",
-                            "objectFit": "contain",
-                            "iconColor": "#0ea5e9"
-                          },
-                          "children": []
-                        }
-                      ]
-                    },
-                    {
-                      "id": "weather-text",
+                      "id": "tools-quick-tile-text-1",
                       "alias": "core.text",
                       "layout": {
                         "mode": "flow",
@@ -651,9 +693,339 @@
                       },
                       "props": {
                         "text": "天气",
+                        "variant": "caption",
                         "style": {
-                          "fontSize": "24rpx",
-                          "color": "var(--color-text-primary)"
+                          "fontWeight": 700
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "tools-quick-tile-2",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "20rpx 8rpx",
+                      "borderRadius": "20rpx",
+                      "background": "#fff",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "tools-quick-tile-icon-2",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "汇率图标",
+                        "title": "汇率图标",
+                        "iconColor": "#22c55e",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "58rpx",
+                          "height": "58rpx",
+                          "margin": "0 auto 10rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "tools-quick-tile-text-2",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "汇率",
+                        "variant": "caption",
+                        "style": {
+                          "fontWeight": 700
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "tools-quick-tile-3",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "20rpx 8rpx",
+                      "borderRadius": "20rpx",
+                      "background": "#fff",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "tools-quick-tile-icon-3",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "便签图标",
+                        "title": "便签图标",
+                        "iconColor": "#f59e0b",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "58rpx",
+                          "height": "58rpx",
+                          "margin": "0 auto 10rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "tools-quick-tile-text-3",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "便签",
+                        "variant": "caption",
+                        "style": {
+                          "fontWeight": 700
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "tools-quick-tile-4",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 4,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "20rpx 8rpx",
+                      "borderRadius": "20rpx",
+                      "background": "#fff",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "tools-quick-tile-icon-4",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "计时图标",
+                        "title": "计时图标",
+                        "iconColor": "#ef4444",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "58rpx",
+                          "height": "58rpx",
+                          "margin": "0 auto 10rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "tools-quick-tile-text-4",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "计时",
+                        "variant": "caption",
+                        "style": {
+                          "fontWeight": 700
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "tools-quick-tile-5",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 5,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "20rpx 8rpx",
+                      "borderRadius": "20rpx",
+                      "background": "#fff",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "tools-quick-tile-icon-5",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "扫码图标",
+                        "title": "扫码图标",
+                        "iconColor": "#14b8a6",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "58rpx",
+                          "height": "58rpx",
+                          "margin": "0 auto 10rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "tools-quick-tile-text-5",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "扫码",
+                        "variant": "caption",
+                        "style": {
+                          "fontWeight": 700
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "tools-quick-tile-6",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 6,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "20rpx 8rpx",
+                      "borderRadius": "20rpx",
+                      "background": "#fff",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "tools-quick-tile-icon-6",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "日历图标",
+                        "title": "日历图标",
+                        "iconColor": "#8b5cf6",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "58rpx",
+                          "height": "58rpx",
+                          "margin": "0 auto 10rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "tools-quick-tile-text-6",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "日历",
+                        "variant": "caption",
+                        "style": {
+                          "fontWeight": 700
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "tools-quick-tile-7",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 7,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "20rpx 8rpx",
+                      "borderRadius": "20rpx",
+                      "background": "#fff",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "tools-quick-tile-icon-7",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "单位图标",
+                        "title": "单位图标",
+                        "iconColor": "#64748b",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "58rpx",
+                          "height": "58rpx",
+                          "margin": "0 auto 10rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "tools-quick-tile-text-7",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "单位",
+                        "variant": "caption",
+                        "style": {
+                          "fontWeight": 700
                         }
                       },
                       "children": []
@@ -663,108 +1035,347 @@
               ]
             },
             {
-              "id": "recent-tools",
+              "id": "tools-calculator-widget",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 2
+                "order": 2,
+                "width": "100%"
               },
               "props": {
                 "style": {
-                  "padding": "24rpx 32rpx"
+                  "margin": "20rpx",
+                  "padding": "20rpx",
+                  "borderRadius": "26rpx",
+                  "background": "#1e293b",
+                  "color": "#fff"
                 }
               },
               "children": [
                 {
-                  "id": "recent-title",
+                  "id": "tools-calc-expression",
                   "alias": "core.text",
                   "layout": {
                     "mode": "flow",
                     "order": 0
                   },
                   "props": {
-                    "text": "最近使用",
+                    "text": "123 + 456",
+                    "variant": "caption",
                     "style": {
-                      "fontSize": "28rpx",
-                      "fontWeight": "bold",
-                      "marginBottom": "16rpx"
+                      "color": "rgba(255,255,255,0.6)",
+                      "textAlign": "right"
                     }
                   },
                   "children": []
                 },
                 {
-                  "id": "recent-list",
-                  "alias": "core.stack",
+                  "id": "tools-calc-result",
+                  "alias": "core.text",
                   "layout": {
                     "mode": "flow",
                     "order": 1
                   },
                   "props": {
+                    "text": "579",
+                    "variant": "display",
                     "style": {
-                      "gap": "12rpx"
+                      "color": "#fff",
+                      "textAlign": "right"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "tools-calc-mini-grid",
+                  "alias": "core.grid",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "columns": 4,
+                    "style": {
+                      "gap": "10rpx",
+                      "marginTop": "18rpx"
                     }
                   },
                   "children": [
                     {
-                      "id": "recent-calc",
-                      "alias": "core.row",
+                      "id": "tools-calc-key-0",
+                      "alias": "core.panel",
                       "layout": {
                         "mode": "flow",
-                        "order": 0
+                        "order": 0,
+                        "width": "100%"
                       },
                       "props": {
                         "style": {
-                          "padding": "16rpx 20rpx",
-                          "borderRadius": "12rpx",
-                          "background": "#fff",
-                          "alignItems": "center",
-                          "gap": "16rpx"
+                          "padding": "16rpx 0",
+                          "borderRadius": "14rpx",
+                          "background": "#334155",
+                          "textAlign": "center"
                         }
                       },
                       "children": [
                         {
-                          "id": "rc-icon",
-                          "alias": "core.image",
+                          "id": "tools-calc-key-text-0",
+                          "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 0
                           },
                           "props": {
-                            "alt": "图标",
-                            "title": "图标",
-                            "objectFit": "contain",
-                            "iconColor": "#6366f1"
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "rc-name",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 1
-                          },
-                          "props": {
-                            "text": "计算器",
+                            "text": "7",
+                            "variant": "subheading",
                             "style": {
-                              "fontSize": "26rpx",
-                              "flex": 1
+                              "color": "#fff"
                             }
                           },
                           "children": []
-                        },
+                        }
+                      ]
+                    },
+                    {
+                      "id": "tools-calc-key-1",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "16rpx 0",
+                          "borderRadius": "14rpx",
+                          "background": "#334155",
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
                         {
-                          "id": "rc-time",
+                          "id": "tools-calc-key-text-1",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
-                            "order": 2
+                            "order": 0
                           },
                           "props": {
-                            "text": "5分钟前",
+                            "text": "8",
+                            "variant": "subheading",
                             "style": {
-                              "fontSize": "22rpx",
-                              "color": "var(--color-text-secondary)"
+                              "color": "#fff"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "tools-calc-key-2",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "16rpx 0",
+                          "borderRadius": "14rpx",
+                          "background": "#334155",
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "tools-calc-key-text-2",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "9",
+                            "variant": "subheading",
+                            "style": {
+                              "color": "#fff"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "tools-calc-key-3",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 3,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "16rpx 0",
+                          "borderRadius": "14rpx",
+                          "background": "#f59e0b",
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "tools-calc-key-text-3",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "除",
+                            "variant": "subheading",
+                            "style": {
+                              "color": "#fff"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "tools-calc-key-4",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 4,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "16rpx 0",
+                          "borderRadius": "14rpx",
+                          "background": "#334155",
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "tools-calc-key-text-4",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "4",
+                            "variant": "subheading",
+                            "style": {
+                              "color": "#fff"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "tools-calc-key-5",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 5,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "16rpx 0",
+                          "borderRadius": "14rpx",
+                          "background": "#334155",
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "tools-calc-key-text-5",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "5",
+                            "variant": "subheading",
+                            "style": {
+                              "color": "#fff"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "tools-calc-key-6",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 6,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "16rpx 0",
+                          "borderRadius": "14rpx",
+                          "background": "#334155",
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "tools-calc-key-text-6",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "6",
+                            "variant": "subheading",
+                            "style": {
+                              "color": "#fff"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "tools-calc-key-7",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 7,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "16rpx 0",
+                          "borderRadius": "14rpx",
+                          "background": "#f59e0b",
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "tools-calc-key-text-7",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "乘",
+                            "variant": "subheading",
+                            "style": {
+                              "color": "#fff"
                             }
                           },
                           "children": []
@@ -774,6 +1385,142 @@
                   ]
                 }
               ]
+            },
+            {
+              "id": "tools-automation-card",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 3,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "margin": "0 20rpx 20rpx",
+                  "padding": "24rpx",
+                  "borderRadius": "24rpx",
+                  "background": "#fff"
+                }
+              },
+              "children": [
+                {
+                  "id": "tools-auto-row",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "tools-auto-copy",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "auto"
+                      },
+                      "props": {
+                        "style": {
+                          "gap": "6rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "tools-auto-title",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "一键组合工具",
+                            "variant": "heading",
+                            "style": {}
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "tools-auto-desc",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "扫码后自动记账并生成提醒",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#64748b"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "tools-auto-action",
+                      "alias": "core.button",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "label": "创建",
+                        "variant": "primary",
+                        "style": {}
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "page-home-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "工具首页",
+                  "工具详情",
+                  "历史结果",
+                  "工具设置"
+                ],
+                "activeTab": "工具首页"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "工具首页": {
+                    "type": "navigate",
+                    "targetPageId": "page-home"
+                  },
+                  "工具详情": {
+                    "type": "navigate",
+                    "targetPageId": "page-detail"
+                  },
+                  "历史结果": {
+                    "type": "navigate",
+                    "targetPageId": "page-history"
+                  },
+                  "工具设置": {
+                    "type": "navigate",
+                    "targetPageId": "page-settings"
+                  }
+                }
+              },
+              "children": []
             }
           ]
         }
@@ -790,15 +1537,51 @@
             "order": 1
           },
           "props": {
-            "title": "工具详情"
+            "title": "工具详情",
+            "style": {
+              "background": "var(--color-background, #f6f7fb)"
+            }
           },
           "children": [
+            {
+              "id": "page-detail-hero-banner",
+              "alias": "biz-hero-banner",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "badge": "工具应用",
+                "title": "工具详情",
+                "subtitle": "计算器",
+                "actionLabel": "立即使用"
+              },
+              "children": []
+            },
+            {
+              "id": "page-detail-quick-search",
+              "alias": "core.search",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "placeholder": "搜索工具",
+                "style": {
+                  "width": "100%"
+                }
+              },
+              "children": []
+            },
             {
               "id": "tool-header",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 0
+                "order": 2,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -820,7 +1603,8 @@
                       "fontSize": "34rpx",
                       "fontWeight": "bold",
                       "color": "#fff"
-                    }
+                    },
+                    "variant": "heading"
                   },
                   "children": []
                 }
@@ -831,7 +1615,8 @@
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 1
+                "order": 3,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -853,7 +1638,8 @@
                     "style": {
                       "fontSize": "28rpx",
                       "color": "rgba(255,255,255,0.6)"
-                    }
+                    },
+                    "variant": "body"
                   },
                   "children": []
                 },
@@ -871,7 +1657,8 @@
                       "fontWeight": "bold",
                       "color": "#fff",
                       "marginTop": "8rpx"
-                    }
+                    },
+                    "variant": "heading"
                   },
                   "children": []
                 }
@@ -882,7 +1669,8 @@
               "alias": "core.grid",
               "layout": {
                 "mode": "flow",
-                "order": 2
+                "order": 4,
+                "width": "100%"
               },
               "props": {
                 "columns": 4,
@@ -917,11 +1705,12 @@
                         "order": 0
                       },
                       "props": {
-                        "text": "C",
+                        "text": "清除",
                         "style": {
                           "fontSize": "32rpx",
                           "color": "#f59e0b"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     }
@@ -955,7 +1744,8 @@
                         "style": {
                           "fontSize": "32rpx",
                           "color": "#f59e0b"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     }
@@ -989,7 +1779,8 @@
                         "style": {
                           "fontSize": "32rpx",
                           "color": "#f59e0b"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     }
@@ -1023,7 +1814,8 @@
                         "style": {
                           "fontSize": "32rpx",
                           "color": "#fff"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     }
@@ -1057,7 +1849,8 @@
                         "style": {
                           "fontSize": "32rpx",
                           "color": "#fff"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     }
@@ -1091,7 +1884,8 @@
                         "style": {
                           "fontSize": "32rpx",
                           "color": "#fff"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     }
@@ -1125,7 +1919,8 @@
                         "style": {
                           "fontSize": "32rpx",
                           "color": "#fff"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     }
@@ -1159,7 +1954,8 @@
                         "style": {
                           "fontSize": "32rpx",
                           "color": "#fff"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     }
@@ -1193,7 +1989,8 @@
                         "style": {
                           "fontSize": "32rpx",
                           "color": "#fff"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     }
@@ -1227,7 +2024,8 @@
                         "style": {
                           "fontSize": "32rpx",
                           "color": "#fff"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     }
@@ -1261,7 +2059,8 @@
                         "style": {
                           "fontSize": "32rpx",
                           "color": "#fff"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     }
@@ -1295,7 +2094,8 @@
                         "style": {
                           "fontSize": "32rpx",
                           "color": "#fff"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     }
@@ -1329,7 +2129,8 @@
                         "style": {
                           "fontSize": "32rpx",
                           "color": "#fff"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     }
@@ -1363,7 +2164,8 @@
                         "style": {
                           "fontSize": "32rpx",
                           "color": "#fff"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     }
@@ -1397,7 +2199,8 @@
                         "style": {
                           "fontSize": "32rpx",
                           "color": "#fff"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     }
@@ -1431,7 +2234,8 @@
                         "style": {
                           "fontSize": "32rpx",
                           "color": "#fff"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     }
@@ -1466,7 +2270,8 @@
                         "style": {
                           "fontSize": "32rpx",
                           "color": "#fff"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     }
@@ -1500,7 +2305,8 @@
                         "style": {
                           "fontSize": "32rpx",
                           "color": "#fff"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     }
@@ -1534,13 +2340,71 @@
                         "style": {
                           "fontSize": "32rpx",
                           "color": "#fff"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     }
                   ]
                 }
               ]
+            },
+            {
+              "id": "page-detail-primary-action",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 5,
+                "width": "100%"
+              },
+              "props": {
+                "variant": "primary",
+                "label": "立即使用",
+                "style": {
+                  "width": "100%"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "page-detail-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "工具首页",
+                  "工具详情",
+                  "历史结果",
+                  "工具设置"
+                ],
+                "activeTab": "工具详情"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "工具首页": {
+                    "type": "navigate",
+                    "targetPageId": "page-home"
+                  },
+                  "工具详情": {
+                    "type": "navigate",
+                    "targetPageId": "page-detail"
+                  },
+                  "历史结果": {
+                    "type": "navigate",
+                    "targetPageId": "page-history"
+                  },
+                  "工具设置": {
+                    "type": "navigate",
+                    "targetPageId": "page-settings"
+                  }
+                }
+              },
+              "children": []
             }
           ]
         }
@@ -1557,15 +2421,35 @@
             "order": 2
           },
           "props": {
-            "title": "历史结果"
+            "title": "历史结果",
+            "style": {
+              "background": "var(--color-background, #f6f7fb)"
+            }
           },
           "children": [
+            {
+              "id": "page-history-hero-banner",
+              "alias": "biz-hero-banner",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "badge": "工具应用",
+                "title": "历史结果",
+                "subtitle": "计算历史",
+                "actionLabel": "立即使用"
+              },
+              "children": []
+            },
             {
               "id": "history-header",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 0
+                "order": 1,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -1587,7 +2471,8 @@
                       "fontSize": "34rpx",
                       "fontWeight": "bold",
                       "color": "#fff"
-                    }
+                    },
+                    "variant": "heading"
                   },
                   "children": []
                 }
@@ -1598,7 +2483,8 @@
               "alias": "core.stack",
               "layout": {
                 "mode": "flow",
-                "order": 1
+                "order": 2,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -1634,7 +2520,8 @@
                         "style": {
                           "fontSize": "26rpx",
                           "color": "var(--color-text-secondary)"
-                        }
+                        },
+                        "variant": "body"
                       },
                       "children": []
                     },
@@ -1651,7 +2538,8 @@
                           "fontSize": "32rpx",
                           "fontWeight": "bold",
                           "marginTop": "4rpx"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     },
@@ -1668,7 +2556,8 @@
                           "fontSize": "22rpx",
                           "color": "var(--color-text-secondary)",
                           "marginTop": "8rpx"
-                        }
+                        },
+                        "variant": "caption"
                       },
                       "children": []
                     }
@@ -1701,7 +2590,8 @@
                         "style": {
                           "fontSize": "26rpx",
                           "color": "var(--color-text-secondary)"
-                        }
+                        },
+                        "variant": "body"
                       },
                       "children": []
                     },
@@ -1718,7 +2608,8 @@
                           "fontSize": "32rpx",
                           "fontWeight": "bold",
                           "marginTop": "4rpx"
-                        }
+                        },
+                        "variant": "heading"
                       },
                       "children": []
                     },
@@ -1735,13 +2626,71 @@
                           "fontSize": "22rpx",
                           "color": "var(--color-text-secondary)",
                           "marginTop": "8rpx"
-                        }
+                        },
+                        "variant": "caption"
                       },
                       "children": []
                     }
                   ]
                 }
               ]
+            },
+            {
+              "id": "page-history-primary-action",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 3,
+                "width": "100%"
+              },
+              "props": {
+                "variant": "primary",
+                "label": "立即使用",
+                "style": {
+                  "width": "100%"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "page-history-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "工具首页",
+                  "工具详情",
+                  "历史结果",
+                  "工具设置"
+                ],
+                "activeTab": "历史结果"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "工具首页": {
+                    "type": "navigate",
+                    "targetPageId": "page-home"
+                  },
+                  "工具详情": {
+                    "type": "navigate",
+                    "targetPageId": "page-detail"
+                  },
+                  "历史结果": {
+                    "type": "navigate",
+                    "targetPageId": "page-history"
+                  },
+                  "工具设置": {
+                    "type": "navigate",
+                    "targetPageId": "page-settings"
+                  }
+                }
+              },
+              "children": []
             }
           ]
         }
@@ -1758,15 +2707,51 @@
             "order": 3
           },
           "props": {
-            "title": "工具设置"
+            "title": "工具设置",
+            "style": {
+              "background": "var(--color-background, #f6f7fb)"
+            }
           },
           "children": [
+            {
+              "id": "page-settings-hero-banner",
+              "alias": "biz-hero-banner",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "badge": "工具应用",
+                "title": "工具设置",
+                "subtitle": "设置",
+                "actionLabel": "立即使用"
+              },
+              "children": []
+            },
+            {
+              "id": "page-settings-quick-search",
+              "alias": "core.search",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "placeholder": "搜索工具设置",
+                "style": {
+                  "width": "100%"
+                }
+              },
+              "children": []
+            },
             {
               "id": "settings-header",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 0
+                "order": 2,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -1788,7 +2773,8 @@
                       "fontSize": "34rpx",
                       "fontWeight": "bold",
                       "color": "#fff"
-                    }
+                    },
+                    "variant": "heading"
                   },
                   "children": []
                 }
@@ -1799,7 +2785,8 @@
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 1
+                "order": 3,
+                "width": "100%"
               },
               "props": {
                 "style": {
@@ -1837,7 +2824,8 @@
                         "text": "小数位数",
                         "style": {
                           "fontSize": "28rpx"
-                        }
+                        },
+                        "variant": "body"
                       },
                       "children": []
                     },
@@ -1853,7 +2841,8 @@
                         "style": {
                           "fontSize": "26rpx",
                           "color": "var(--color-text-secondary)"
-                        }
+                        },
+                        "variant": "body"
                       },
                       "children": []
                     }
@@ -1886,7 +2875,8 @@
                         "text": "保存历史",
                         "style": {
                           "fontSize": "28rpx"
-                        }
+                        },
+                        "variant": "body"
                       },
                       "children": []
                     },
@@ -1957,7 +2947,8 @@
                         "text": "按键震动",
                         "style": {
                           "fontSize": "28rpx"
-                        }
+                        },
+                        "variant": "body"
                       },
                       "children": []
                     },
@@ -2003,6 +2994,63 @@
                   ]
                 }
               ]
+            },
+            {
+              "id": "page-settings-primary-action",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 4,
+                "width": "100%"
+              },
+              "props": {
+                "variant": "primary",
+                "label": "立即使用",
+                "style": {
+                  "width": "100%"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "page-settings-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "工具首页",
+                  "工具详情",
+                  "历史结果",
+                  "工具设置"
+                ],
+                "activeTab": "工具设置"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "工具首页": {
+                    "type": "navigate",
+                    "targetPageId": "page-home"
+                  },
+                  "工具详情": {
+                    "type": "navigate",
+                    "targetPageId": "page-detail"
+                  },
+                  "历史结果": {
+                    "type": "navigate",
+                    "targetPageId": "page-history"
+                  },
+                  "工具设置": {
+                    "type": "navigate",
+                    "targetPageId": "page-settings"
+                  }
+                }
+              },
+              "children": []
             }
           ]
         }
@@ -2016,54 +3064,95 @@
         "order": 0
       },
       "props": {
-        "title": "工具首页"
+        "title": "工具首页",
+        "style": {
+          "background": "#eef2f7"
+        }
       },
       "children": [
         {
-          "id": "tools-header",
+          "id": "tools-smart-panel",
           "alias": "core.panel",
           "layout": {
             "mode": "flow",
-            "order": 0
+            "order": 0,
+            "width": "100%"
           },
           "props": {
             "style": {
-              "padding": "40rpx 32rpx",
-              "background": "linear-gradient(135deg, #475569, #334155)",
-              "borderRadius": "0 0 32rpx 32rpx"
+              "margin": "20rpx",
+              "padding": "28rpx",
+              "borderRadius": "32rpx",
+              "background": "linear-gradient(135deg,#334155,#0f172a)",
+              "color": "#fff"
             }
           },
           "children": [
             {
-              "id": "tools-title",
-              "alias": "core.text",
+              "id": "tools-smart-top",
+              "alias": "core.row",
               "layout": {
                 "mode": "flow",
-                "order": 0
+                "order": 0,
+                "width": "100%"
               },
               "props": {
-                "text": "实用工具",
                 "style": {
-                  "fontSize": "40rpx",
-                  "fontWeight": "bold",
-                  "color": "#fff"
+                  "justifyContent": "space-between",
+                  "alignItems": "center"
                 }
               },
-              "children": []
+              "children": [
+                {
+                  "id": "tools-smart-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "快捷工具台",
+                    "variant": "display",
+                    "style": {
+                      "color": "#fff"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "tools-smart-tag",
+                  "alias": "core.tag",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "label": "常用 6 个",
+                    "tone": "info",
+                    "style": {
+                      "background": "rgba(255,255,255,0.16)",
+                      "color": "#fff"
+                    }
+                  },
+                  "children": []
+                }
+              ]
             },
             {
-              "id": "tools-subtitle",
-              "alias": "core.text",
+              "id": "tools-smart-search",
+              "alias": "core.search",
               "layout": {
                 "mode": "flow",
-                "order": 1
+                "order": 1,
+                "width": "100%"
               },
               "props": {
-                "text": "让生活更便捷",
+                "placeholder": "搜索计算、换算、记事",
                 "style": {
-                  "fontSize": "24rpx",
-                  "color": "rgba(255,255,255,0.7)",
-                  "marginTop": "8rpx"
+                  "width": "100%",
+                  "marginTop": "22rpx",
+                  "background": "rgba(255,255,255,0.14)",
+                  "color": "#fff"
                 }
               },
               "children": []
@@ -2071,89 +3160,70 @@
           ]
         },
         {
-          "id": "tools-grid",
+          "id": "tools-quick-grid",
           "alias": "core.grid",
           "layout": {
             "mode": "flow",
-            "order": 1
+            "order": 1,
+            "width": "100%"
           },
           "props": {
-            "columns": 3,
+            "columns": 4,
             "style": {
-              "padding": "32rpx",
-              "gap": "24rpx",
-              "marginTop": "-24rpx",
-              "position": "relative",
-              "zIndex": 1
+              "padding": "0 20rpx",
+              "gap": "14rpx"
             }
           },
           "children": [
             {
-              "id": "tool-calc",
+              "id": "tools-quick-tile-0",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 0
+                "order": 0,
+                "width": "100%"
               },
               "props": {
                 "style": {
-                  "padding": "24rpx",
-                  "borderRadius": "16rpx",
+                  "padding": "20rpx 8rpx",
+                  "borderRadius": "20rpx",
                   "background": "#fff",
-                  "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
                   "textAlign": "center"
                 }
               },
               "children": [
                 {
-                  "id": "calc-icon-bg",
-                  "alias": "core.panel",
+                  "id": "tools-quick-tile-icon-0",
+                  "alias": "core.image",
                   "layout": {
                     "mode": "flow",
                     "order": 0
                   },
                   "props": {
+                    "alt": "计算图标",
+                    "title": "计算图标",
+                    "iconColor": "#6366f1",
+                    "objectFit": "contain",
                     "style": {
-                      "width": "80rpx",
-                      "height": "80rpx",
-                      "borderRadius": "50%",
-                      "background": "rgba(99,102,241,0.1)",
-                      "margin": "0 auto 12rpx",
-                      "display": "flex",
-                      "alignItems": "center",
-                      "justifyContent": "center"
+                      "width": "58rpx",
+                      "height": "58rpx",
+                      "margin": "0 auto 10rpx"
                     }
                   },
-                  "children": [
-                    {
-                      "id": "calc-icon",
-                      "alias": "core.image",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "alt": "图标",
-                        "title": "图标",
-                        "objectFit": "contain",
-                        "iconColor": "#6366f1"
-                      },
-                      "children": []
-                    }
-                  ]
+                  "children": []
                 },
                 {
-                  "id": "calc-text",
+                  "id": "tools-quick-tile-text-0",
                   "alias": "core.text",
                   "layout": {
                     "mode": "flow",
                     "order": 1
                   },
                   "props": {
-                    "text": "计算器",
+                    "text": "计算",
+                    "variant": "caption",
                     "style": {
-                      "fontSize": "24rpx",
-                      "color": "var(--color-text-primary)"
+                      "fontWeight": 700
                     }
                   },
                   "children": []
@@ -2161,349 +3231,44 @@
               ]
             },
             {
-              "id": "tool-convert",
+              "id": "tools-quick-tile-1",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 1
+                "order": 1,
+                "width": "100%"
               },
               "props": {
                 "style": {
-                  "padding": "24rpx",
-                  "borderRadius": "16rpx",
+                  "padding": "20rpx 8rpx",
+                  "borderRadius": "20rpx",
                   "background": "#fff",
-                  "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
                   "textAlign": "center"
                 }
               },
               "children": [
                 {
-                  "id": "convert-icon-bg",
-                  "alias": "core.panel",
+                  "id": "tools-quick-tile-icon-1",
+                  "alias": "core.image",
                   "layout": {
                     "mode": "flow",
                     "order": 0
                   },
                   "props": {
+                    "alt": "天气图标",
+                    "title": "天气图标",
+                    "iconColor": "#0ea5e9",
+                    "objectFit": "contain",
                     "style": {
-                      "width": "80rpx",
-                      "height": "80rpx",
-                      "borderRadius": "50%",
-                      "background": "rgba(34,197,94,0.1)",
-                      "margin": "0 auto 12rpx",
-                      "display": "flex",
-                      "alignItems": "center",
-                      "justifyContent": "center"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "convert-icon",
-                      "alias": "core.image",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "alt": "图标",
-                        "title": "图标",
-                        "objectFit": "contain",
-                        "iconColor": "#22c55e"
-                      },
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "convert-text",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1
-                  },
-                  "props": {
-                    "text": "单位转换",
-                    "style": {
-                      "fontSize": "24rpx",
-                      "color": "var(--color-text-primary)"
+                      "width": "58rpx",
+                      "height": "58rpx",
+                      "margin": "0 auto 10rpx"
                     }
                   },
                   "children": []
-                }
-              ]
-            },
-            {
-              "id": "tool-qr",
-              "alias": "core.panel",
-              "layout": {
-                "mode": "flow",
-                "order": 2
-              },
-              "props": {
-                "style": {
-                  "padding": "24rpx",
-                  "borderRadius": "16rpx",
-                  "background": "#fff",
-                  "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
-                  "textAlign": "center"
-                }
-              },
-              "children": [
-                {
-                  "id": "qr-icon-bg",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "style": {
-                      "width": "80rpx",
-                      "height": "80rpx",
-                      "borderRadius": "50%",
-                      "background": "rgba(249,115,22,0.1)",
-                      "margin": "0 auto 12rpx",
-                      "display": "flex",
-                      "alignItems": "center",
-                      "justifyContent": "center"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "qr-icon",
-                      "alias": "core.image",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "alt": "图标",
-                        "title": "图标",
-                        "objectFit": "contain",
-                        "iconColor": "#f97316"
-                      },
-                      "children": []
-                    }
-                  ]
                 },
                 {
-                  "id": "qr-text",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1
-                  },
-                  "props": {
-                    "text": "二维码",
-                    "style": {
-                      "fontSize": "24rpx",
-                      "color": "var(--color-text-primary)"
-                    }
-                  },
-                  "children": []
-                }
-              ]
-            },
-            {
-              "id": "tool-timer",
-              "alias": "core.panel",
-              "layout": {
-                "mode": "flow",
-                "order": 3
-              },
-              "props": {
-                "style": {
-                  "padding": "24rpx",
-                  "borderRadius": "16rpx",
-                  "background": "#fff",
-                  "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
-                  "textAlign": "center"
-                }
-              },
-              "children": [
-                {
-                  "id": "timer-icon-bg",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "style": {
-                      "width": "80rpx",
-                      "height": "80rpx",
-                      "borderRadius": "50%",
-                      "background": "rgba(239,68,68,0.1)",
-                      "margin": "0 auto 12rpx",
-                      "display": "flex",
-                      "alignItems": "center",
-                      "justifyContent": "center"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "timer-icon",
-                      "alias": "core.image",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "alt": "图标",
-                        "title": "图标",
-                        "objectFit": "contain",
-                        "iconColor": "#ef4444"
-                      },
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "timer-text",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1
-                  },
-                  "props": {
-                    "text": "计时器",
-                    "style": {
-                      "fontSize": "24rpx",
-                      "color": "var(--color-text-primary)"
-                    }
-                  },
-                  "children": []
-                }
-              ]
-            },
-            {
-              "id": "tool-notes",
-              "alias": "core.panel",
-              "layout": {
-                "mode": "flow",
-                "order": 4
-              },
-              "props": {
-                "style": {
-                  "padding": "24rpx",
-                  "borderRadius": "16rpx",
-                  "background": "#fff",
-                  "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
-                  "textAlign": "center"
-                }
-              },
-              "children": [
-                {
-                  "id": "notes-icon-bg",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "style": {
-                      "width": "80rpx",
-                      "height": "80rpx",
-                      "borderRadius": "50%",
-                      "background": "rgba(245,158,11,0.1)",
-                      "margin": "0 auto 12rpx",
-                      "display": "flex",
-                      "alignItems": "center",
-                      "justifyContent": "center"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "notes-icon",
-                      "alias": "core.image",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "alt": "图标",
-                        "title": "图标",
-                        "objectFit": "contain",
-                        "iconColor": "#f59e0b"
-                      },
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "notes-text",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1
-                  },
-                  "props": {
-                    "text": "记事本",
-                    "style": {
-                      "fontSize": "24rpx",
-                      "color": "var(--color-text-primary)"
-                    }
-                  },
-                  "children": []
-                }
-              ]
-            },
-            {
-              "id": "tool-weather",
-              "alias": "core.panel",
-              "layout": {
-                "mode": "flow",
-                "order": 5
-              },
-              "props": {
-                "style": {
-                  "padding": "24rpx",
-                  "borderRadius": "16rpx",
-                  "background": "#fff",
-                  "boxShadow": "0 4rpx 16rpx rgba(0,0,0,0.08)",
-                  "textAlign": "center"
-                }
-              },
-              "children": [
-                {
-                  "id": "weather-icon-bg",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "style": {
-                      "width": "80rpx",
-                      "height": "80rpx",
-                      "borderRadius": "50%",
-                      "background": "rgba(14,165,233,0.1)",
-                      "margin": "0 auto 12rpx",
-                      "display": "flex",
-                      "alignItems": "center",
-                      "justifyContent": "center"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "weather-icon",
-                      "alias": "core.image",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "alt": "图标",
-                        "title": "图标",
-                        "objectFit": "contain",
-                        "iconColor": "#0ea5e9"
-                      },
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "weather-text",
+                  "id": "tools-quick-tile-text-1",
                   "alias": "core.text",
                   "layout": {
                     "mode": "flow",
@@ -2511,9 +3276,339 @@
                   },
                   "props": {
                     "text": "天气",
+                    "variant": "caption",
                     "style": {
-                      "fontSize": "24rpx",
-                      "color": "var(--color-text-primary)"
+                      "fontWeight": 700
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "tools-quick-tile-2",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "20rpx 8rpx",
+                  "borderRadius": "20rpx",
+                  "background": "#fff",
+                  "textAlign": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "tools-quick-tile-icon-2",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "alt": "汇率图标",
+                    "title": "汇率图标",
+                    "iconColor": "#22c55e",
+                    "objectFit": "contain",
+                    "style": {
+                      "width": "58rpx",
+                      "height": "58rpx",
+                      "margin": "0 auto 10rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "tools-quick-tile-text-2",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "汇率",
+                    "variant": "caption",
+                    "style": {
+                      "fontWeight": 700
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "tools-quick-tile-3",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 3,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "20rpx 8rpx",
+                  "borderRadius": "20rpx",
+                  "background": "#fff",
+                  "textAlign": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "tools-quick-tile-icon-3",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "alt": "便签图标",
+                    "title": "便签图标",
+                    "iconColor": "#f59e0b",
+                    "objectFit": "contain",
+                    "style": {
+                      "width": "58rpx",
+                      "height": "58rpx",
+                      "margin": "0 auto 10rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "tools-quick-tile-text-3",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "便签",
+                    "variant": "caption",
+                    "style": {
+                      "fontWeight": 700
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "tools-quick-tile-4",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 4,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "20rpx 8rpx",
+                  "borderRadius": "20rpx",
+                  "background": "#fff",
+                  "textAlign": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "tools-quick-tile-icon-4",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "alt": "计时图标",
+                    "title": "计时图标",
+                    "iconColor": "#ef4444",
+                    "objectFit": "contain",
+                    "style": {
+                      "width": "58rpx",
+                      "height": "58rpx",
+                      "margin": "0 auto 10rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "tools-quick-tile-text-4",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "计时",
+                    "variant": "caption",
+                    "style": {
+                      "fontWeight": 700
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "tools-quick-tile-5",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 5,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "20rpx 8rpx",
+                  "borderRadius": "20rpx",
+                  "background": "#fff",
+                  "textAlign": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "tools-quick-tile-icon-5",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "alt": "扫码图标",
+                    "title": "扫码图标",
+                    "iconColor": "#14b8a6",
+                    "objectFit": "contain",
+                    "style": {
+                      "width": "58rpx",
+                      "height": "58rpx",
+                      "margin": "0 auto 10rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "tools-quick-tile-text-5",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "扫码",
+                    "variant": "caption",
+                    "style": {
+                      "fontWeight": 700
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "tools-quick-tile-6",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 6,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "20rpx 8rpx",
+                  "borderRadius": "20rpx",
+                  "background": "#fff",
+                  "textAlign": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "tools-quick-tile-icon-6",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "alt": "日历图标",
+                    "title": "日历图标",
+                    "iconColor": "#8b5cf6",
+                    "objectFit": "contain",
+                    "style": {
+                      "width": "58rpx",
+                      "height": "58rpx",
+                      "margin": "0 auto 10rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "tools-quick-tile-text-6",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "日历",
+                    "variant": "caption",
+                    "style": {
+                      "fontWeight": 700
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "tools-quick-tile-7",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 7,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "20rpx 8rpx",
+                  "borderRadius": "20rpx",
+                  "background": "#fff",
+                  "textAlign": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "tools-quick-tile-icon-7",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "alt": "单位图标",
+                    "title": "单位图标",
+                    "iconColor": "#64748b",
+                    "objectFit": "contain",
+                    "style": {
+                      "width": "58rpx",
+                      "height": "58rpx",
+                      "margin": "0 auto 10rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "tools-quick-tile-text-7",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "单位",
+                    "variant": "caption",
+                    "style": {
+                      "fontWeight": 700
                     }
                   },
                   "children": []
@@ -2523,108 +3618,347 @@
           ]
         },
         {
-          "id": "recent-tools",
+          "id": "tools-calculator-widget",
           "alias": "core.panel",
           "layout": {
             "mode": "flow",
-            "order": 2
+            "order": 2,
+            "width": "100%"
           },
           "props": {
             "style": {
-              "padding": "24rpx 32rpx"
+              "margin": "20rpx",
+              "padding": "20rpx",
+              "borderRadius": "26rpx",
+              "background": "#1e293b",
+              "color": "#fff"
             }
           },
           "children": [
             {
-              "id": "recent-title",
+              "id": "tools-calc-expression",
               "alias": "core.text",
               "layout": {
                 "mode": "flow",
                 "order": 0
               },
               "props": {
-                "text": "最近使用",
+                "text": "123 + 456",
+                "variant": "caption",
                 "style": {
-                  "fontSize": "28rpx",
-                  "fontWeight": "bold",
-                  "marginBottom": "16rpx"
+                  "color": "rgba(255,255,255,0.6)",
+                  "textAlign": "right"
                 }
               },
               "children": []
             },
             {
-              "id": "recent-list",
-              "alias": "core.stack",
+              "id": "tools-calc-result",
+              "alias": "core.text",
               "layout": {
                 "mode": "flow",
                 "order": 1
               },
               "props": {
+                "text": "579",
+                "variant": "display",
                 "style": {
-                  "gap": "12rpx"
+                  "color": "#fff",
+                  "textAlign": "right"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "tools-calc-mini-grid",
+              "alias": "core.grid",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "columns": 4,
+                "style": {
+                  "gap": "10rpx",
+                  "marginTop": "18rpx"
                 }
               },
               "children": [
                 {
-                  "id": "recent-calc",
-                  "alias": "core.row",
+                  "id": "tools-calc-key-0",
+                  "alias": "core.panel",
                   "layout": {
                     "mode": "flow",
-                    "order": 0
+                    "order": 0,
+                    "width": "100%"
                   },
                   "props": {
                     "style": {
-                      "padding": "16rpx 20rpx",
-                      "borderRadius": "12rpx",
-                      "background": "#fff",
-                      "alignItems": "center",
-                      "gap": "16rpx"
+                      "padding": "16rpx 0",
+                      "borderRadius": "14rpx",
+                      "background": "#334155",
+                      "textAlign": "center"
                     }
                   },
                   "children": [
                     {
-                      "id": "rc-icon",
-                      "alias": "core.image",
+                      "id": "tools-calc-key-text-0",
+                      "alias": "core.text",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
-                        "alt": "图标",
-                        "title": "图标",
-                        "objectFit": "contain",
-                        "iconColor": "#6366f1"
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "rc-name",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "计算器",
+                        "text": "7",
+                        "variant": "subheading",
                         "style": {
-                          "fontSize": "26rpx",
-                          "flex": 1
+                          "color": "#fff"
                         }
                       },
                       "children": []
-                    },
+                    }
+                  ]
+                },
+                {
+                  "id": "tools-calc-key-1",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "16rpx 0",
+                      "borderRadius": "14rpx",
+                      "background": "#334155",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
                     {
-                      "id": "rc-time",
+                      "id": "tools-calc-key-text-1",
                       "alias": "core.text",
                       "layout": {
                         "mode": "flow",
-                        "order": 2
+                        "order": 0
                       },
                       "props": {
-                        "text": "5分钟前",
+                        "text": "8",
+                        "variant": "subheading",
                         "style": {
-                          "fontSize": "22rpx",
-                          "color": "var(--color-text-secondary)"
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "tools-calc-key-2",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "16rpx 0",
+                      "borderRadius": "14rpx",
+                      "background": "#334155",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "tools-calc-key-text-2",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "9",
+                        "variant": "subheading",
+                        "style": {
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "tools-calc-key-3",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "16rpx 0",
+                      "borderRadius": "14rpx",
+                      "background": "#f59e0b",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "tools-calc-key-text-3",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "除",
+                        "variant": "subheading",
+                        "style": {
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "tools-calc-key-4",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 4,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "16rpx 0",
+                      "borderRadius": "14rpx",
+                      "background": "#334155",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "tools-calc-key-text-4",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "4",
+                        "variant": "subheading",
+                        "style": {
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "tools-calc-key-5",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 5,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "16rpx 0",
+                      "borderRadius": "14rpx",
+                      "background": "#334155",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "tools-calc-key-text-5",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "5",
+                        "variant": "subheading",
+                        "style": {
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "tools-calc-key-6",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 6,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "16rpx 0",
+                      "borderRadius": "14rpx",
+                      "background": "#334155",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "tools-calc-key-text-6",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "6",
+                        "variant": "subheading",
+                        "style": {
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "tools-calc-key-7",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 7,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "16rpx 0",
+                      "borderRadius": "14rpx",
+                      "background": "#f59e0b",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "tools-calc-key-text-7",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "乘",
+                        "variant": "subheading",
+                        "style": {
+                          "color": "#fff"
                         }
                       },
                       "children": []
@@ -2634,10 +3968,217 @@
               ]
             }
           ]
+        },
+        {
+          "id": "tools-automation-card",
+          "alias": "core.panel",
+          "layout": {
+            "mode": "flow",
+            "order": 3,
+            "width": "100%"
+          },
+          "props": {
+            "style": {
+              "margin": "0 20rpx 20rpx",
+              "padding": "24rpx",
+              "borderRadius": "24rpx",
+              "background": "#fff"
+            }
+          },
+          "children": [
+            {
+              "id": "tools-auto-row",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "justifyContent": "space-between",
+                  "alignItems": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "tools-auto-copy",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "auto"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "6rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "tools-auto-title",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "一键组合工具",
+                        "variant": "heading",
+                        "style": {}
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "tools-auto-desc",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "扫码后自动记账并生成提醒",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#64748b"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "tools-auto-action",
+                  "alias": "core.button",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "label": "创建",
+                    "variant": "primary",
+                    "style": {}
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "page-home-bottom-tabs",
+          "alias": "core.tabs",
+          "slot": "footer",
+          "layout": {
+            "mode": "flow",
+            "order": 999,
+            "width": "100%"
+          },
+          "props": {
+            "tabs": [
+              "工具首页",
+              "工具详情",
+              "历史结果",
+              "工具设置"
+            ],
+            "activeTab": "工具首页"
+          },
+          "interactions": {
+            "onTabClick": {
+              "工具首页": {
+                "type": "navigate",
+                "targetPageId": "page-home"
+              },
+              "工具详情": {
+                "type": "navigate",
+                "targetPageId": "page-detail"
+              },
+              "历史结果": {
+                "type": "navigate",
+                "targetPageId": "page-history"
+              },
+              "工具设置": {
+                "type": "navigate",
+                "targetPageId": "page-settings"
+              }
+            }
+          },
+          "children": []
         }
       ]
     },
-    "componentTemplates": {},
+    "componentTemplates": {
+      "biz-hero-banner": {
+        "root": {
+          "alias": "core.panel",
+          "props": {
+            "tone": "accent",
+            "gap": 12,
+            "style": {
+              "width": "100%",
+              "padding": "28px 24px",
+              "color": "#fff",
+              "borderRadius": "0 0 28px 28px",
+              "background": "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark, var(--color-primary)))",
+              "boxShadow": "0 16px 36px rgba(15,23,42,0.18)"
+            }
+          },
+          "children": [
+            {
+              "alias": "core.tag",
+              "props": {
+                "label": {
+                  "$bind": "badge"
+                },
+                "tone": "member",
+                "style": {
+                  "alignSelf": "flex-start",
+                  "background": "rgba(255,255,255,0.22)",
+                  "color": "#fff"
+                }
+              }
+            },
+            {
+              "alias": "core.text",
+              "props": {
+                "text": {
+                  "$bind": "title"
+                },
+                "variant": "display",
+                "style": {
+                  "color": "#fff"
+                }
+              }
+            },
+            {
+              "alias": "core.text",
+              "props": {
+                "text": {
+                  "$bind": "subtitle"
+                },
+                "variant": "body",
+                "style": {
+                  "color": "rgba(255,255,255,0.86)"
+                }
+              }
+            },
+            {
+              "alias": "core.button",
+              "props": {
+                "label": {
+                  "$bind": "actionLabel"
+                },
+                "variant": "secondary",
+                "style": {
+                  "width": "100%",
+                  "marginTop": "8px"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
     "cssVars": {
       "--color-primary": "#64748b",
       "--color-primary-dark": "#475569",
@@ -2740,5 +4281,76 @@
     "--color-background": "#f8fafc",
     "--color-surface": "#ffffff"
   },
-  "componentTemplates": {}
+  "componentTemplates": {
+    "biz-hero-banner": {
+      "root": {
+        "alias": "core.panel",
+        "props": {
+          "tone": "accent",
+          "gap": 12,
+          "style": {
+            "width": "100%",
+            "padding": "28px 24px",
+            "color": "#fff",
+            "borderRadius": "0 0 28px 28px",
+            "background": "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark, var(--color-primary)))",
+            "boxShadow": "0 16px 36px rgba(15,23,42,0.18)"
+          }
+        },
+        "children": [
+          {
+            "alias": "core.tag",
+            "props": {
+              "label": {
+                "$bind": "badge"
+              },
+              "tone": "member",
+              "style": {
+                "alignSelf": "flex-start",
+                "background": "rgba(255,255,255,0.22)",
+                "color": "#fff"
+              }
+            }
+          },
+          {
+            "alias": "core.text",
+            "props": {
+              "text": {
+                "$bind": "title"
+              },
+              "variant": "display",
+              "style": {
+                "color": "#fff"
+              }
+            }
+          },
+          {
+            "alias": "core.text",
+            "props": {
+              "text": {
+                "$bind": "subtitle"
+              },
+              "variant": "body",
+              "style": {
+                "color": "rgba(255,255,255,0.86)"
+              }
+            }
+          },
+          {
+            "alias": "core.button",
+            "props": {
+              "label": {
+                "$bind": "actionLabel"
+              },
+              "variant": "secondary",
+              "style": {
+                "width": "100%",
+                "marginTop": "8px"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
 }

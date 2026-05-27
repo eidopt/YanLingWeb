@@ -87,7 +87,15 @@ templates_json/<templateId>/
   "cssVars": {
     "--color-primary": "#8b5cf6"
   },
-  "componentTemplates": {},
+  "componentTemplates": {
+    "biz-hero-banner": {
+      "root": {
+        "id": "hero-root",
+        "alias": "core.panel",
+        "props": {}
+      }
+    }
+  },
   "layoutDocument": {}
 }
 ```
@@ -106,8 +114,10 @@ templates_json/<templateId>/
 `templates_json` 会作为启动导入源进入公共模板库，所以这里的模板必须满足比普通用户
 手工编辑更严格的规则：
 
-- 默认只使用 `core.*` 组件，`componentTemplates` 必须为 `{}`。不要生成 `com-icon`、
-  `com-badge` 等自定义 alias；图标类视觉可用 `core.image` 的占位态或已有 core 组件近似。
+- `core.*` 是基础组件库，不是模板能力上限。优先用 `core.*` 表达通用结构；当业务需要更强
+  视觉识别或更完整的模块时，可以定义 `componentTemplates` 自定义组件。
+- 自定义组件必须是声明式、可编辑、可渲染的模板组件：alias 要稳定，props 要有中文 `label`，
+  结构要能被 renderer 解释，不能依赖任意运行时代码、远程脚本或不受控 widget。
 - `core.image.props.src` 如果存在，必须是合法 HTTPS URL；没有可靠图片地址时不要写
   `src`，保留 `alt` / `title` / `iconColor`，让渲染器显示内置占位符。
 - 用户可见文案必须使用简体中文，并且页面内容要围绕同一个业务场景组织，不要混入
@@ -117,6 +127,249 @@ templates_json/<templateId>/
   会优先展示这个 `label`。
 - 页面结构保持“头部、主内容、辅助区块、动作/导航”的顺序；避免堆叠过多装饰节点导致
   小程序预览排版混乱。
+- 不要生成“全白背景 + 白色卡片 + 文本列表”的低信息量 UI。模板必须有明确主题色、操作按钮、
+  状态标签、图片/图标、输入/搜索或业务专属组件参与界面表达。
+
+## 统一 UI 设计规范
+
+这部分是给 AI 生成模板 schema 时优先读取的设计约束。生成模板时不要自由发挥一套新的
+视觉系统，而是为同一个模板建立一套稳定的页面结构、组件组合、文字层级和视觉 token。
+
+### 1. 模板整体设计目标
+
+每个模板必须像一个完整产品，而不是互不相关页面的集合：
+
+- 所有页面必须服务于同一个业务场景，例如餐饮点单、预约预订、内容阅读、健康管理。
+- 同一模板内页面必须共享同一套颜色、字号、间距、圆角、按钮样式、卡片样式和导航结构。
+- 每个页面都要有明确用户目标，避免只堆砌展示型模块。
+- 每个页面都必须有至少一个明确的用户行动或状态反馈，例如下单、预约、收藏、发布、筛选、
+  查看详情、继续学习、提交表单、联系客服、查看进度。
+- 页面之间应该形成可解释的信息架构，例如首页 -> 列表/分类 -> 详情/订单 -> 个人中心。
+- 不要把多个行业的内容混在一个模板里，例如餐饮模板里不要出现健身课程、金融收益等无关内容。
+- 模板必须有可识别的行业视觉特征。例如餐饮要有菜单/价格/购物车/口味标签，预约要有时间段/
+  服务人员/确认动作，教育要有课程进度/课时/讲师，不能只换文字。
+
+### 2. 设备与布局规则
+
+模板的 `platformCategories` 决定布局边界：
+
+- `mini-program` / `mobile-app`：
+  - 默认按手机窄屏设计，页面内容单列为主。
+  - section 级大组件必须默认占满可用宽度，例如主内容 `core.panel`、列表容器、
+    banner、表单区、订单卡片容器通常应设置为 `width: "100%"` 或等效全宽布局。
+- 不要生成桌面式侧边栏、复杂多栏表格、宽屏 dashboard。
+- `core.grid.props.columns` 默认不超过 `2`，功能宫格最多可用 `4` 列，但每个 item 必须短小。
+- 页面底部可以使用 `core.tabs` 作为主导航，并且每个页面的 tabs 内容必须一致。
+- 小程序首页不能只是把网页 hero、搜索框、卡片列表改成手机宽度。应优先使用小程序常见业务
+  结构，例如横向频道/故事圈、日期或时间段条、功能宫格、双栏点餐、签到/进度面板、优惠券横滑、
+  订单状态入口、底部结算栏、浮动发布区、工具面板等。
+- 同一批模板的首页不能复用同一个 `hero + search + grid/list + button` 骨架。每个行业模板的
+  首屏结构必须能一眼看出业务差异，例如餐饮是左分类右菜品，社交是故事圈和发布框，健康是
+  指标环和计划卡，预约是日期条和时段选择。
+- `tablet-app`：
+  - 可以使用更宽的内容区和 2 列布局。
+  - 不要生成 desktop 管理后台式密集数据表。
+  - 同一模板内 tablet 页面应保持相同内容宽度、卡片密度和导航位置。
+- `web`：
+  - 可以使用更宽布局，但仍要保持清晰的信息层级。
+  - dashboard 类模板可以使用多栏卡片和数据区，但移动类模板不能伪装成 web。
+
+如果模板只声明 `mini-program` 或 `mobile-app`，不要在页面结构、文案或 props 中暗示桌面端能力。
+
+### 3. 页面结构规则
+
+每个页面都应按稳定骨架组织：
+
+```text
+core.screen
+  header / title area
+  main content sections
+  supporting section or secondary actions
+  footer tabs or primary action
+```
+
+具体要求：
+
+- 每个页面必须有一个清晰的页面标题或 header，不要只放卡片列表。
+- 首页和关键详情页必须有一个有视觉识别度的 header/业务入口区域，不能只用普通白色 panel + 文本。
+  这个区域不一定是网页式大 banner；小程序模板更应该按业务选择签到卡、状态卡、横滑封面、
+  时间选择器、会员卡、发布框、菜单区等原生移动结构。
+- 每个页面最多使用一个 `core.text.variant = "display"`，通常只用于首页或主页面。
+- 普通页面优先使用 `heading` / `subheading` / `body` / `caption`，不要滥用大标题。
+- 主内容区域应由 2-5 个稳定 section 构成，避免十几个无关 panel 堆叠。
+- 每个页面至少要混合使用 3 类以上 UI 元素，例如文本、图片/图标、按钮、标签、搜索、输入、
+  进度、tabs、列表 pattern 或自定义业务组件。不要只使用容器 + 文本。
+- 非纯阅读页面至少要有一个明显主按钮或主操作区；列表页至少要有筛选/搜索/详情入口之一。
+- 同类页面要保持相似结构，例如订单类页面都使用同一种订单卡片 pattern。
+- 空状态、提示、表单说明可以使用 `core.notice`，不要用多个大段文本模拟提示系统。
+
+推荐页面类型：
+
+| 页面类型 | 推荐 pageKind | 结构重点 |
+| --- | --- | --- |
+| 首页 | `home` | 业务入口、核心推荐、主行动 |
+| 分类/列表 | `category` / `list` | 筛选、列表、卡片 pattern |
+| 详情 | `detail` | 标题、关键图片/信息、价格/状态、主按钮 |
+| 订单/记录 | `order` | 状态筛选、记录卡片、操作按钮 |
+| 表单 | `form` | 输入项、说明、提交按钮 |
+| 个人中心 | `profile` | 用户摘要、功能入口、设置/服务 |
+| 仪表盘 | `dashboard` | 指标卡、趋势区、任务/提醒 |
+
+### 4. 跨页面风格一致性规则
+
+同一个模板内，不同页面必须满足以下一致性：
+
+- 页面根节点 `core.screen` 的背景、标题风格、状态栏风格要一致。
+- 同等级标题使用同一个 `variant`，不要某页用 `display`，另一页用多个 `heading` 模拟 display。
+- 主要按钮只保留一种 primary 样式；次级按钮用 `secondary` 或 `link`，不要每页换一套。
+- 主题色必须贯穿关键页面：header/hero、主按钮、选中状态、重点 tag、进度/价格/状态等至少
+  3 类元素要体现主色或辅助强调色。
+- 不要让 80% 以上的可见 UI 都是白色卡片。可以使用浅色背景、主题色 header、渐变块、
+  色带、状态底色、图标底色或业务插画来形成层次。
+- `core.panel.props.tone` 不要超过 3-4 种，且同一业务含义使用同一个 tone。
+- `core.tag.props.tone` 必须语义稳定，例如成功状态统一用 `success`，风险/提醒统一用 `warning`。
+- 卡片内字段顺序一致，例如商品卡片始终为图片/标题/描述/价格/操作。
+- 同类列表页面的卡片密度、gap、按钮位置、tag 位置要一致。
+- 底部导航 tabs 的顺序、label、icon/占位表现和跳转目标在所有页面保持一致。
+
+如果必须出现视觉变化，只能服务于业务状态变化，例如选中态、促销态、警告态，而不是随机换颜色。
+
+### 5. 颜色、字号和间距规则
+
+模板必须通过 `cssVars` 建立稳定设计 token：
+
+- 至少提供主色、背景色、前景文字色、弱文字色、边框/分隔色。
+- 同一模板内不要使用超过 1 个主色和 1 个辅助强调色。
+- 避免整套模板被单一色相淹没；卡片、背景、文字、强调色要有层次。
+- 主色不能只写在 `accent` 或 `cssVars` 里不用；必须实际出现在 header、按钮、tag、进度、
+  图标底色、价格或重要状态中。
+- 背景不能只使用纯白。移动端小程序建议使用浅灰/浅彩背景承托白色内容区，或使用主题色
+  header + 浅色内容背景。
+- 不要在节点 props 里随机写十几个独立颜色值；优先复用 `cssVars`。
+- 字号层级控制在 4-6 档：display、heading、body、caption、price 等。
+- 同一类 section 的 `gap`、`columns`、卡片间距要一致。
+- 不要通过大量 `core.spacer` 堆出布局；优先通过容器 `gap` 控制节奏。
+
+### 6. 组件使用与多样性规则
+
+优先使用这些稳定组合，但不要被它们限制：
+
+- 页面容器：`core.screen`
+- 分区卡片：`core.panel`
+- 垂直布局：`core.stack`
+- 水平信息行：`core.row`
+- 宫格/卡片列表：`core.grid`
+- 标题/正文/价格：`core.text`
+- 主操作：`core.button`
+- 状态：`core.tag`
+- 图片或图标占位：`core.image`
+- 搜索：`core.search`
+- 输入：`core.input`
+- 提示：`core.notice`
+- 导航：`core.tabs`
+
+限制：
+
+- 不要使用未知 alias。
+- 不要使用 `core.html` 模拟复杂 UI，除非明确需要静态富文本。
+- 不要使用 `core.widget`，它不适合可靠模板库和 hosted runtime。
+- 不要用多个嵌套 panel 做装饰外框；panel 只用于真实内容分组。
+- 不要用空 text、无意义 spacer 或重复 divider 制造视觉复杂度。
+
+组件多样性要求：
+
+- 每个模板必须至少包含 5 类以上视觉/交互元素，例如 button、tag、image、search、input、
+  tabs、progress、notice、自定义业务卡片、自定义状态组件。
+- 不能让 `core.panel` + `core.text` 占据绝大多数界面。容器只负责结构，不应成为视觉主体。
+- 卡片容器要服务于业务实体，例如商品、订单、课程、医生、活动、工具；不要把每两行文字都
+  包成一个 panel。
+- 每个核心业务流至少要有一个主行动按钮，例如“立即预约”“加入购物车”“开始学习”“发布动态”。
+- 列表/卡片必须包含状态、价格、图片、标签、操作或进度中的至少两类信息，避免纯文本列表。
+
+### 7. 自定义组件规则
+
+当 `core.*` 组件无法表达模板的业务识别度时，应该使用 `componentTemplates` 定义自定义组件。
+
+适合自定义的场景：
+
+- 行业专属卡片：商品卡、订单卡、课程卡、医生卡、活动卡、工具卡。
+- 复合状态组件：进度卡、配送轨迹、预约时间段、会员权益、优惠券、排行榜。
+- 品牌化入口：带主题色背景、图标、数字、状态和行动按钮的组合模块。
+- 稳定复用 section：首页 hero、分类入口、业务摘要、个人中心菜单组。
+
+自定义组件要求：
+
+- alias 使用英文 slug，例如 `biz-product-card`、`biz-order-card`、`biz-hero-banner`。
+- 必须在 `layoutDocument.components` 中声明 alias、中文 name、kind、description 和 props。
+- 每个可编辑 prop 必须有中文 `label`。
+- 组件内部仍应使用可解释的结构和字段，不要把整块 UI 藏成不可编辑黑盒。
+- 同一个模板内同类自定义组件必须复用同一 alias 和字段结构。
+- 自定义组件不能绕过安全限制，不能加载远程脚本，不能使用任意 JS 运行时能力。
+
+### 8. 图片与图标规则
+
+- 有可靠 HTTPS 图片时，`core.image.props.src` 必须是合法 HTTPS URL。
+- 没有可靠图片时不要写假 URL，保留 `alt` / `title` / `iconColor` 使用内置占位。
+- 同一类图片必须保持相同 `objectFit`，商品/封面一般用 `cover`，图标/徽章一般用 `contain`。
+- 图片文案必须和业务场景一致，不要复用无关行业的 alt/title。
+- 图标类视觉可用 `core.image` 的占位态表达，不要发明 icon 组件 alias。
+- 不要只用通用“图片”“图标”作为所有 alt/title；应该写业务语义，例如“招牌菜图片”、
+  “课程封面”、“预约服务图标”。
+
+### 9. TemplateProfile 语义规则
+
+为了让后续 agent 能稳定编辑模板，新模板必须有可推断或可覆盖的语义结构：
+
+- 页面名称和 id 应能推断 `pageKind`，例如 `home`、`order`、`profile`、`category`、`detail`。
+- 关键 section 的节点 id 应有语义，例如 `home-hero`、`order-list`、`profile-actions`。
+- 重复卡片区域要结构一致，方便生成 `patternKey`。
+- 关键可编辑文案、图片、按钮应能映射成 `slotKey`。
+- 如果自动生成的 profile 不够准确，必须在 `templates_json/configs/<templateId>.override.json`
+  中补充或修正 `pages`、`regions`、`slots`、`patterns`。
+
+推荐语义命名：
+
+```text
+pageKey: home | category | detail | order | profile | form | dashboard
+regionKey: home.hero | home.featureGrid | order.list | profile.actions
+slotKey: home.hero.title | home.hero.subtitle | order.card.status
+patternKey: product.card | order.card | feature.gridItem
+```
+
+### 10. AI 生成模板 schema 的工作流
+
+让 AI 生成一批模板时，必须按这个顺序工作：
+
+1. 先确定业务场景、目标用户、平台类型和页面清单。
+2. 定义统一视觉方向：主色、辅助色、背景、文字层级、卡片风格、按钮风格。
+3. 定义组件策略：哪些用 `core.*`，哪些需要 `componentTemplates` 自定义业务组件。
+4. 先设计页面结构和跨页面共享 pattern，再写 JSON。
+5. 每个模板只围绕一个业务场景生成内容。
+6. 每个页面都复用同一套导航、卡片、按钮、tag、标题层级。
+7. 写完模板 JSON 后，为需要稳定编辑的模板补 `configs/<templateId>.generated.json`
+   或 `configs/<templateId>.override.json`。
+8. 运行 `pnpm templates:validate`，修复所有 error，再人工检查 warning。
+9. 对多页面模板额外检查：页面密度、卡片结构、颜色和导航是否一致。
+10. 检查最终 UI 是否只是白卡片和文字；如果是，必须增加主题色区域、业务组件、按钮、标签、
+    图片/图标或进度/状态组件。
+
+### 11. 人工审查清单
+
+导入前至少检查：
+
+- 是否所有页面都像同一个产品。
+- 是否每个页面都有清晰用户任务。
+- 是否每个非阅读页面都有明确主按钮或主操作。
+- 是否主题色真实参与了关键 UI，而不是只存在于 token。
+- 是否避免了全白背景、白色卡片、文本堆叠的廉价感。
+- 是否有足够组件多样性，而不是 `core.panel` + `core.text` 占据绝大多数界面。
+- 是否在 core 不够表达业务时使用了可编辑的 `componentTemplates` 自定义组件。
+- 是否存在明显文字溢出或过密卡片。
+- 是否颜色、按钮、tag、panel tone 在页面之间保持一致。
+- 是否 bottom tabs 在所有页面一致。
+- 是否重复结构可以被识别为 pattern。
+- 是否模板没有混入无关行业内容。
+- 是否没有假图片 URL、未知 alias 或自定义组件。
 
 ## 校验
 

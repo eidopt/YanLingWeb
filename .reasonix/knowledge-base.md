@@ -3,7 +3,7 @@
 > **项目名**: AI App（YanLingWeb） — AI 驱动的主题/模板编辑器 + 网站生成器
 > **技术栈**: Next.js 15 (React 19) + NestJS 10 + TypeORM + SQLite (better-sqlite3)
 > **运行方式**: `npm run dev:all`（前后端同时启动）
-> **最后更新**: 2026-06-17
+> **最后更新**: 2026-05-27
 
 ---
 
@@ -33,10 +33,13 @@
                │ TypeORM + better-sqlite3
 ┌──────────────┴───────────────────────────────────────┐
 │    SQLite 单文件 (backend/data/*.db) + WAL mode       │
-│    8 张表:                                            │
+│    13 张表:                                           │
 │      users | templates | themes | export_records      │
 │      editor_ai_conversations | ai_token_usage_events  │
 │      published_sites | published_site_revisions       │
+│      template_profile_generated | template_profile_overrides │
+│      template_asset_manifests | template_agent_permissions   │
+│      template_evaluation_specs                         │
 └──────────────────────────────────────────────────────┘
 ```
 
@@ -61,7 +64,7 @@ backend/src/
 │   ├── core/compact/          # 对话压缩 (autoCompact)
 │   ├── core/utils/            # 共享工具
 │   ├── tools/                 # AI function tools 注册
-│   │   ├── editor-edit.tool.ts        # apply_editor_edits (12 种操作)
+│   │   ├── editor-edit.tool.ts        # 编辑器语义工具 + 低级编辑工具
 │   │   └── generate-template.tool.ts  # generate_template
 │   ├── semantic-targets.config.ts     # 8 个语义目标 (底部栏/顶部栏/搜索框...)
 │   └── entities/
@@ -76,10 +79,16 @@ backend/src/
 │   ├── database.module.ts
 │   ├── database-options.factory.ts
 │   └── database-flush.service.ts
-├── templates/                 # 模板 CRUD
+├── templates/                 # 模板 CRUD + Agent profile/config
 │   ├── templates.service.ts
 │   ├── templates.controller.ts
 │   ├── entities/template.entity.ts
+│   ├── entities/template-profile-generated.entity.ts
+│   ├── entities/template-profile-override.entity.ts
+│   ├── entities/template-asset-manifest.entity.ts
+│   ├── entities/template-agent-permissions.entity.ts
+│   ├── entities/template-evaluation-spec.entity.ts
+│   ├── template-category-registry.service.ts
 │   └── seed/                  # 初始种子数据
 ├── themes/                    # 主题 CRUD (结构与 templates 相同)
 ├── users/                     # 用户模块 (本地登录 + 微信/QQ OAuth)
@@ -145,6 +154,8 @@ backend/src/
 | `POST` | `/api/export/save-json` | — | 前端侧: 保存 layout JSON 到本地文件 |
 | `POST` | `/api/export/build-project` | — | 前端侧: 编译导出 React/Vite 项目并 build |
 | `POST` | `/api/export/open-folder` | — | 前端侧: 在 Finder/Explorer 中打开目录 |
+
+模板列表接口支持 `category` 和 `functionalCategory` query；后端会用英文 slug 过滤，并返回 `categoryLabel`、`platformCategoryLabels`、`functionalCategoryLabels` 供前端展示中文文案。
 
 **前端代理层**:
 - `/api/proxy/*` → Next.js Route Handler → `http://localhost:4000/api/*`（通用 REST 代理）
@@ -229,16 +240,54 @@ createdAt
 索引: (siteId, createdAt), (templateId)
 ```
 
+### 9. `template_profile_generated` — 自动生成的模板语义 Profile
+```
+id (uuid PK), templateId (unique),
+templateVersion, profileVersion,
+profile (simple-json: TemplateProfile),
+createdAt, updatedAt
+```
+
+### 10. `template_profile_overrides` — 人工覆盖的模板语义 Profile
+```
+id (uuid PK), templateId (unique),
+profileVersion,
+override (simple-json: TemplateProfileOverride),
+createdAt, updatedAt
+```
+
+### 11. `template_asset_manifests` — 模板素材清单
+```
+id (uuid PK), templateId (unique),
+manifest (simple-json),
+createdAt, updatedAt
+```
+
+### 12. `template_agent_permissions` — 模板级 Agent 权限
+```
+id (uuid PK), templateId (unique),
+permissions (simple-json),
+createdAt, updatedAt
+```
+
+### 13. `template_evaluation_specs` — 模板级评测配置
+```
+id (uuid PK), templateId (unique),
+evaluation (simple-json),
+createdAt, updatedAt
+```
+
 **关键设计决策**:
 - SQLite 单文件，用 TypeORM 的 `better-sqlite3` 驱动 + WAL 模式（journal_mode=WAL），**极简部署**且支持并发读
 - 模板/Template 内容全存 `simple-json` 列；写入 owned template 和 hosted site revision 前会执行迁移、`validateThemeLayoutDocument(failOnUnknownProps:true)` 和 render smoke，但数据库层本身无约束
+- 模板 Agent 配置拆到独立表：generated profile、profile override、assets、permissions、evaluation 都按 `templateId` 唯一存储；`TemplatesService` 返回 `agentConfig.effectiveProfile` 给前端和 agent 使用。
 - `themes` 表仍直接保存 DTO，没有走 template layout validator；`templates` 和 `themes` 有代码冗余，themes 像历史遗留
 
 ---
 
 ## 五、前端 UI 渲染核心
 
-### 模板 DSL 系统 (18 个 core.* 组件)
+### 模板 DSL 系统 (18 个 core.* 组件 + 声明式自定义组件)
 
 ```
 容器类:
@@ -308,6 +357,7 @@ DynamicThemeRenderer.tsx (useInjectAnimations → useDependencyLoader)
 renderThemeNodeTree(runtime, state) — 递归遍历 ThemeLayoutNode
   ├── resolveNodeStyle(node, parentAlias) — 计算 CSS
   ├── node.alias.startsWith("core.") → renderCoreAlias() → 18 个 React 组件
+  │     └── coreAliases.tsx 会把安全的 props.style 合并进布局样式
   └── else → templateInterpreter.renderComponentTemplate() → $bind 绑定
 ```
 
@@ -338,7 +388,7 @@ componentTemplates: {
 TemplateAiService.generate()
   ├── planUiIntent(prompt) → intent_plan (UI 意图分类)
   ├── QueryLoop (最多 10 次迭代)
-  │     ├── 系统提示词: 18 个 core.* DSL 规范
+  │     ├── 系统提示词: 18 个 core.* DSL 规范 + componentTemplates 业务组件规则
   │     └── 最终调用 generate_template tool
   │           └── { templateId, layoutDocument, componentTemplates, cssVars, ... }
   ↓
@@ -360,17 +410,58 @@ POST /api/ai/templates → templates 表 (templates 表, isPublic: true)
   ↓
 EditorAiService.editCanvas()
   ├── intentPlan → QueryLoop (最多 96 次迭代, 通过 EDITOR_AGENT_MAX_ITERATIONS 环境变量配置)
-  ├── LLM 调用 apply_editor_edits tool
-  │     └── operations: [{ type, nodeId?, alias?, props?, parentId?, ... }]
+  ├── LLM 优先调用语义工具
+  │     ├── editor_submit_page_spec
+  │     ├── editor_update_slot
+  │     ├── editor_fill_pattern
+  │     ├── editor_create_page_from_page_kind
+  │     └── editor_replace_section
+  ├── semanticInstructionCompiler
+  │     └── TemplateProfile -> resolve pageKind/slotKey/patternKey/regionKey
+  ├── 编译为低级 editor operations
   └── 前端 applyInstructions() 执行 DOM 树变换
 ```
 
-### 12 种编辑器操作
+### 语义低代码 MVP 链路
+
+```
+自然语言
+  → PageSpec / EditSpec
+  → TemplateProfile / TemplateProfileOverride
+  → semanticInstructionCompiler
+  → EditorAiEditInstruction[]
+  → applyEditorAiEditInstructions()
+```
+
+关键文件:
+
+```
+shared/agent/template/templateProfile.ts          # TemplateProfile / TemplateStyleProfile 类型
+shared/agent/template/buildTemplateProfile.ts     # 从 ThemeLayoutDocument 扫描 page/region/slot/pattern
+shared/agent/template/validateTemplateProfile.ts  # 校验 slot/node/component/prop/pattern
+shared/agent/template/templateProfileResolver.ts  # resolvePageByKind/Slot/Pattern/Region
+shared/agent/template/templateProfileOverride.ts  # 合并人工 override
+shared/agent/specs/pageSpec.ts                    # create_page/update_page 高层 spec
+shared/agent/specs/editSpec.ts                    # update_slot/fill_pattern/replace_section spec
+shared/agent/compiler/semanticInstructionCompiler.ts
+shared/agent/errors/agentErrors.ts                # 结构化 recoverable error
+```
+
+### 编辑器语义工具和低级操作
+
+语义工具:
+
+```
+editor_submit_page_spec / editor_update_slot / editor_fill_pattern /
+editor_create_page_from_page_kind / editor_replace_section
+```
+
+低级操作:
 
 ```
 create_page_from_reference / create_page / delete_page / insert_node / update_props / set_layout /
 set_frame / move_node / delete_node / update_interactions /
-sync_page_navigation / sync_footer_tabs
+sync_page_navigation / sync_footer_tabs / clone_pattern_items
 ```
 
 ### 8 个语义目标 (Semantic Targets)
@@ -415,7 +506,7 @@ TemplatesPage/  → 模板市场/列表
 ```
 DynamicThemeRenderer.tsx     → 顶层渲染器 (注入动画 + 依赖加载)
 renderTree.tsx               → 递归节点渲染 (resolveNodeStyle → renderCoreAlias)
-coreAliases.tsx              → 18 个 core.* → React 组件映射
+coreAliases.tsx              → 18 个 core.* → React 组件映射，并合并安全 props.style
 templateInterpreter.tsx      → ComponentTemplate 解释器 ($bind 绑定)
 state.ts                     → 渲染状态管理 (页面切换/导航)
 styleResolvers.ts            → CSS 样式计算 (layout + frame → CSSProperties)
@@ -458,10 +549,15 @@ tools/                       → 前端工具定义
 types.ts                     → Agent / ThemeLayout 共享类型
 prompts/                     → templateDesignerPrompt / editorCopilotPrompt
 validation/                  → ThemeLayoutDocument validator、semantic assertions、widget safety
-editor/                      → editor operations 定义与 applyEditorInstructions() (含 applyCreatePageFromReference、CORE_PROP_ALIASES、CORE_IMAGE_PROP_FALLBACKS)
-context/                     → editor/context plan 生成工具
+compiler/                    → semanticInstructionCompiler (语义工具 -> 低级编辑操作)
+specs/                       → PageSpec / EditSpec
+template/                    → TemplateProfile、扫描器、resolver、override、profile cache、安全过滤
+errors/                      → AgentEditError / AgentEditResult / MVP retry config
+editor/                      → editor operations 定义与 applyEditorInstructions()，含 create_page_from_reference、clone_pattern_items、atomic/concurrency helpers
+context/                     → editor/context plan 生成工具，包含 profile capabilities
 fixtures/                    → blank/seed documents
 testing/mockProvider.ts      → Agent eval mock provider
+testing/semantic-lowcode/    → semantic low-code smoke test 数据
 ```
 
 ---
@@ -491,7 +587,19 @@ LLM 生成 operations → 前端应用前:
   5. 应用操作 → 返回错误列表 (不中断整体流程)
 ```
 
-### 3. 模板的"市场 + 个人副本"模式
+### 3. 语义 Profile + 编译器模式
+```
+LLM 不应直接猜真实 nodeId。
+  1. 模板导入/读取时生成 TemplateProfile
+  2. 优先使用 generated profile；人工 override 只用于少量明确维护的模板，不要保留批量生成模板的陈旧 override
+  3. agent 通过 pageKind/slotKey/patternKey/regionKey 表达目标
+  4. semanticInstructionCompiler 编译为 update_props/create_page_from_reference/clone_pattern_items
+  5. apply 层再做节点、组件、prop、文档 validator 校验
+```
+
+`AgentEditError` 使用结构化错误码，例如 `slot_not_found`、`pattern_not_found`、`page_kind_not_found`、`invalid_props`、`version_conflict`，可恢复错误会携带候选项供 agent 重试。
+
+### 4. 模板的"市场 + 个人副本"模式
 ```
 Template 表通过 ownerUserId 区分:
   - ownerUserId = null  → 市场模板 (isPublic: true, 只读)
@@ -500,7 +608,9 @@ Template 表通过 ownerUserId 区分:
 工作流: 用户从市场选择模板 → POST /duplicate → 生成副本 (sourceTemplateId 记录来源)
 ```
 
-### 4. 前端 BFF 代理模式
+复制模板时也会复制对应的 Agent config：generated profile、override、assets、permissions、evaluation，并把内部 `templateId` 更新为副本 ID。
+
+### 5. 前端 BFF 代理模式
 ```
 浏览器 → Next.js /api/proxy/* → Route Handler → NestJS /api/*
              ↑                        ↑
@@ -598,11 +708,13 @@ applyInstructions() → layoutDocument 变换 → canvases 更新
 2. **数据库驱动变更**: 已从 sqljs（内存）迁移至 better-sqlite3（文件 + WAL），配置文件需使用 `sqlite` 作为 `DATABASE_DRIVER` 值。支持 `sqlite` / `postgres` / `mysql` 三种驱动。
 3. **JSON 列数据库层无约束**: owned template 更新和 hosted site 发布前有应用层校验与 render smoke；themes 仍直接保存 DTO，旧数据或绕过写路径的数据可能不符合 schema。
 4. **Token 消耗高**: 编辑器 AI 调用每次注入完整 Canvas Outline (最大 80 节点)，单次请求 4-8K token。
-5. **18 个组件天花板**: 所有设计必须用这 18 个 core.* 组件表达，能力有限。
-6. **语义目标概率性**: `semanticTarget` 的 `resolveSemanticTargetNodeId()` 只做关键字匹配，LLM 猜错概率存在。
+5. **自定义组件边界**: 设计不再要求 core-only；可以用声明式 `componentTemplates`
+   做业务组件，但 alias 必须声明、props 要可编辑且有中文标签，内部仍应展开为安全 core.* 结构。
+6. **语义目标仍有低级兜底风险**: 新页面/列表/槽位修改应优先走 TemplateProfile 语义工具；旧的 `semanticTarget` 和低级 nodeId 工具仍存在，只适合精确修补。
 7. **前端-后端 QueryLoop 代码重复**: `query-loop.ts` 在两个位置存在相同代码，后端是 TypeScript，前端也是 TypeScript。
 8. **themes 表 vs templates 表**: 结构高度重复，themes 像是未清理的技术债。
 9. **编辑器 Agent 迭代数**: 默认 96 次迭代（环境变量 `EDITOR_AGENT_MAX_ITERATIONS` 可覆盖），Token 消耗可能很高。
+10. **TemplateProfile 自动扫描不是最终真相**: 自动扫描只能生成基础 page/region/slot/pattern，关键模板需要 override 文件或数据库 override 修正。
 
 ---
 
@@ -622,6 +734,7 @@ npm run test:integration    # 需要后端已启动，跑主要 API 集成链路
 npm run test:source-export  # React 源码导出 smoke test
 npm run agent:evaluate      # Agent mock/live 场景评估
 npm run agent:cache-test    # Agent cache hit regression
+npm run templates:validate  # 校验 templates_json 根目录模板 schema
 ```
 
 ### 后端脚本
@@ -632,6 +745,9 @@ npm run start:dev           # nest watch --flavor=dev
 npm run start:prod          # node dist/backend/src/main --flavor=prod
 npm run db:init:dev         # 初始化 dev 数据库文件
 npm run db:init:prod        # 初始化 prod 数据库文件
+npm run migration:run:dev   # TypeORM CLI 跑 dev migration，使用 --flavor=dev
+npm run migration:run:prod  # TypeORM CLI 跑 prod migration，使用 --flavor=prod
+npm run migration:generate:dev -- src/database/migrations/Name
 npm run lint                # backend ESLint --fix
 npm run test                # Jest 入口，当前仓库测试覆盖较少
 ```
@@ -796,6 +912,23 @@ backend/src/ai/agent-eval.controller.ts # /api/ai/agent-eval/mock|live
 
 生产环境默认禁用 agent eval endpoint，除非显式设置 `ENABLE_AGENT_EVAL_ENDPOINT=true`。
 
+### Semantic Low-Code Smoke
+`scripts/semantic-lowcode-smoke.mjs` 会临时编译共享 agent 模块，验证:
+
+- `buildTemplateProfile()` 能从 fixture 文档生成 pages/slots/patterns。
+- `validateTemplateProfile()` 能通过基础 profile。
+- `editor_update_slot` 能编译并应用为 `update_props`。
+- `editor_create_page_from_page_kind` 能生成新页面。
+- `editor_fill_pattern` 能编译并应用为 `clone_pattern_items`。
+- `TemplateProfileOverride`、`profileCache`、`concurrencyControl`、`atomicOperationManager` 基础行为可用。
+
+### 模板 JSON 导入校验
+`templates_json/` 是后端启动时的临时模板导入目录；根目录放 `<templateId>.json`，`templates_json/configs/` 放 `<templateId>.generated.json`，可选 `.assets.json` / `.permissions.json` / `.evaluation.json`。后端启动会读取、校验、写入模板和 Agent 配置表；`TEMPLATE_JSON_DELETE_AFTER_IMPORT=true` 时成功导入后删除对应文件。当前批量 JSON 模板不保留 `.override.json`，避免旧 slot/node 语义覆盖新首页结构。
+
+`templates_json/README.md` 是后续让 AI 批量生成模板 schema 时应优先读取的统一说明文件，包含目录规范、分类规则、生成质量规则、跨页面 UI 风格一致性、设备布局边界、手机端 section 级大组件默认全宽、组件多样性、主题色参与 UI、允许声明式 `componentTemplates` 自定义业务组件、TemplateProfile 语义命名和人工审查清单。不要再按 core-only、全白卡片、容器+文本堆叠的方式生成模板。
+
+`pnpm templates:validate` 只扫描 `templates_json` 根目录模板 schema，不会把 `configs` 下的配置文件当模板。分类 key 必须是英文 slug，中文展示写入 `categoryLabel` / `functionalCategoryLabels`，并同步到 `backend/data/template-category-labels.json`。
+
 ---
 
 ## 十七、配置加载规则
@@ -844,6 +977,9 @@ AI_PROVIDER=openai-compatible
 | 新增后端 API | `backend/src/*/*.controller.ts`, `*.service.ts`, `app.module.ts` |
 | 新增数据库字段 | `backend/src/*/entities/*.entity.ts`, 对应 service, `database-options.factory.ts` |
 | 改模板市场 | `backend/src/templates/*`, `src/views/TemplatesPage/*`, `src/services/TemplateService.ts` |
+| 改模板分类/中文标签 | `backend/src/templates/template-category-registry.service.ts`, `backend/data/template-category-labels.json`, `templates_json/README.md` |
+| 改模板 Agent Profile | `shared/agent/template/*`, `backend/src/templates/entities/template-profile-*.entity.ts`, `templates_json/configs/*.generated.json`；只有人工精修模板才新增 `*.override.json` |
+| 改语义低代码编译 | `shared/agent/compiler/semanticInstructionCompiler.ts`, `shared/agent/specs/*`, `shared/agent/errors/agentErrors.ts` |
 | 改编辑器画布行为 | `src/ui/editor/controllers/*`, `layoutBuilderService.ts`, `ThemeLayoutBuilder.tsx` |
 | 改 AI 编辑能力 | `backend/src/ai/tools/editor-edit.tool.ts`, `src/ai/tools/editor-edit.tool.ts`, `shared/agent/editor/*`, `shared/agent/tools/editorEditTools.ts` |
 | 改 AI 迭代参数 | `backend/src/ai/ai.service.ts` (EDITOR_AGENT_MAX_ITERATIONS, DEFAULT_EDITOR_AGENT_MAX_ITERATIONS=96) |
@@ -853,6 +989,7 @@ AI_PROVIDER=openai-compatible
 | 改发布站点 | `backend/src/sites/*`, `src/app/sites/[subdomain]/*`, `backend/src/templates/template-layout-validation.ts` |
 | 改源码导出 | `src/exporters/react-source/*`, `src/services/ExportService.ts`, `scripts/source-export-smoke.cjs` |
 | 改登录注册 | `src/lib/hash-password.ts`, `src/services/AuthService.ts`, `backend/src/users/*`, `jwt-auth.guard.ts` |
+| 改模板 JSON 导入 | `backend/src/templates/templates.service.ts`, `templates_json/`, `scripts/validate-template-json.mjs` |
 
 ---
 

@@ -92,9 +92,10 @@ Generated-template quality rules:
 - User-facing copy, page names, titles, labels, placeholders, and mock data must
   be coherent Simplified Chinese unless the user explicitly asks for another
   language.
-- Compose with core.* aliases by default. Leave componentTemplates as {} unless
-  the user explicitly asks for a reusable custom alias and it can be fully
-  represented by core.* nodes.
+- Compose generic UI with core.* aliases. Use componentTemplates for reusable
+  business modules when they improve visual identity, consistency, or editing
+  ergonomics; each custom alias must be declared in layoutDocument.components
+  and expand only to safe core.* template nodes.
 - core.image props.src must be a valid HTTPS URL. If no reliable image URL is
   available, omit src and use alt/title/iconColor so the renderer shows the
   built-in placeholder.

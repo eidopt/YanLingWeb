@@ -292,16 +292,6 @@ function validateComponents(document, componentTemplates, filePath, issues) {
       );
     }
 
-    if (!component.alias.startsWith('core.')) {
-      addIssue(
-        issues,
-        filePath,
-        'error',
-        `${pathName}.alias`,
-        `Generated templates must use core.* aliases only: ${component.alias}`,
-      );
-    }
-
     if (!component.alias.startsWith('core.') && !componentTemplates[component.alias]) {
       addIssue(
         issues,
@@ -337,13 +327,6 @@ function validateComponents(document, componentTemplates, filePath, issues) {
   });
 
   for (const alias of Object.keys(componentTemplates)) {
-    addIssue(
-      issues,
-      filePath,
-      'error',
-      `componentTemplates.${alias}`,
-      'Generated template JSON must keep componentTemplates empty and compose UI with core.* aliases.',
-    );
     if (alias.startsWith('core.')) {
       addIssue(
         issues,
