@@ -591,7 +591,7 @@
                 },
                 {
                   "id": "mini-booking-date-strip",
-                  "alias": "core.row",
+                  "alias": "core.grid",
                   "layout": {
                     "mode": "flow",
                     "order": 1,
@@ -600,9 +600,9 @@
                   "props": {
                     "style": {
                       "marginTop": "24rpx",
-                      "gap": "12rpx",
-                      "overflowX": "auto"
-                    }
+                      "gap": "12rpx"
+                    },
+                    "columns": 4
                   },
                   "children": [
                     {
@@ -2640,7 +2640,7 @@
             },
             {
               "id": "mini-booking-date-strip",
-              "alias": "core.row",
+              "alias": "core.grid",
               "layout": {
                 "mode": "flow",
                 "order": 1,
@@ -2649,9 +2649,9 @@
               "props": {
                 "style": {
                   "marginTop": "24rpx",
-                  "gap": "12rpx",
-                  "overflowX": "auto"
-                }
+                  "gap": "12rpx"
+                },
+                "columns": 4
               },
               "children": [
                 {

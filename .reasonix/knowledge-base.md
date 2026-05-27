@@ -3,7 +3,7 @@
 > **项目名**: AI App（YanLingWeb） — AI 驱动的主题/模板编辑器 + 网站生成器
 > **技术栈**: Next.js 15 (React 19) + NestJS 10 + TypeORM + SQLite (better-sqlite3)
 > **运行方式**: `npm run dev:all`（前后端同时启动）
-> **最后更新**: 2026-05-27
+> **最后更新**: 2026-05-27 (全面审计更新)
 
 ---
 
@@ -29,6 +29,7 @@
 │              /api/exports /api/sites /api/users ...   │
 │  3. Swagger 文档: /api/docs                           │
 │  4. OpenAPI 导出: shared/openapi.json                 │
+│  5. ThrottlerModule: 全局速率限制 120 req/min         │
 └──────────────┬───────────────────────────────────────┘
                │ TypeORM + better-sqlite3
 ┌──────────────┴───────────────────────────────────────┐
@@ -52,14 +53,14 @@
 ```
 backend/src/
 ├── main.ts                    # 启动入口，CORS / Swagger / OpenAPI 导出
-├── app.module.ts              # 根模块，8 个本地模块 + Nest ConfigModule
+├── app.module.ts              # 根模块，9 个本地模块 + Nest ConfigModule + ThrottlerModule
 ├── ai/                        # AI 代理 & 编辑器 Copilot
 │   ├── ai.service.ts          # QueryLoop + 流式代理 + 速率限制
 │   ├── ai.controller.ts       # /api/ai/* 路由
 │   ├── agent-eval.controller.ts   # /api/ai/agent-eval/* (mock + live)
 │   ├── agent-runner.service.ts    # Agent 评估运行器
 │   ├── editor-clarification.ts    # 编辑器澄清逻辑
-│   ├── core/query-loop.ts     # 通用 Agent 循环 (max 20 次迭代)
+│   ├── core/query-loop.ts     # 从 @shared/agent/runtime/queryLoop 重导出
 │   ├── core/providers/        # OpenAI / OpenAI-Compatible 适配器
 │   ├── core/compact/          # 对话压缩 (autoCompact)
 │   ├── core/utils/            # 共享工具
@@ -70,15 +71,19 @@ backend/src/
 │   └── entities/
 │       ├── editor-ai-conversation.entity.ts
 │       └── ai-token-usage.entity.ts   # Token 用量埋点
-├── auth/                      # JWT 鉴权守卫
-│   └── jwt-auth.guard.ts
+├── auth/                      # 登录注册 / OAuth / JWT 鉴权
+│   ├── auth.controller.ts     # /api/users/auth/*, register, login, oauth/*
+│   ├── auth.service.ts
+│   ├── jwt-auth.guard.ts
+│   └── dto/
 ├── config/                    # 环境配置 (.env.dev / .env.prod)
 │   ├── config.factory.ts
 │   └── config.module.ts
 ├── database/                  # 数据库模块 (better-sqlite3)
 │   ├── database.module.ts
 │   ├── database-options.factory.ts
-│   └── database-flush.service.ts
+│   ├── data-source.ts
+│   └── migrations/
 ├── templates/                 # 模板 CRUD + Agent profile/config
 │   ├── templates.service.ts
 │   ├── templates.controller.ts
@@ -93,17 +98,20 @@ backend/src/
 ├── themes/                    # 主题 CRUD (结构与 templates 相同)
 ├── users/                     # 用户模块 (本地登录 + 微信/QQ OAuth)
 │   ├── users.service.ts
-│   ├── users.controller.ts    # auth/challenge, register, login, oauth/*, token-usage
+│   ├── users.controller.ts    # me, token-usage, 用户资料 CRUD
 │   └── entities/user.entity.ts
 ├── exports/                   # 导出模块
 │   ├── exports.service.ts
 │   ├── exports.controller.ts
 │   └── entities/export-record.entity.ts
-└── sites/                     # 站点模块 (发布 + 修订 + 公开访问)
-    ├── sites.controller.ts
-    └── entities/
-        ├── published-site.entity.ts
-        └── published-site-revision.entity.ts
+├── sites/                     # 站点模块 (发布 + 修订 + 公开访问)
+│   ├── sites.controller.ts
+│   └── entities/
+│       ├── published-site.entity.ts
+│       └── published-site-revision.entity.ts
+└── shared/                    # 后端共享工具 (非 NestJS 模块)
+    ├── derive-tags.ts
+    └── type-guards.ts
 ```
 
 ---
@@ -125,10 +133,10 @@ backend/src/
 | `GET` | `/api/templates/recent` | JWT | 最近使用的模板 (6 条) |
 | `POST` | `/api/templates/:templateId/duplicate` | JWT | 复制市场模板到我的 |
 | `GET` | `/api/users/me` | JWT | 当前用户信息 |
-| `POST` | `/api/users/auth/challenge` | — | 登录 challenge |
+| `GET` | `/api/users/auth/challenge` | — | 登录 challenge |
 | `POST` | `/api/users/register` | — | 注册 |
 | `POST` | `/api/users/login` | — | 本地登录 |
-| `POST` | `/api/users/oauth/qrcode` | — | 微信/QQ OAuth 二维码 |
+| `GET` | `/api/users/oauth/qrcode` | — | 微信/QQ OAuth 二维码 |
 | `POST` | `/api/users/oauth/callback` | — | OAuth 回调 |
 | `GET` | `/api/users/:id/token-usage` | JWT | 用户 token 用量 |
 | `GET/PUT/DELETE` | `/api/users/:id` | JWT | 用户 CRUD |
@@ -312,7 +320,7 @@ createdAt, updatedAt
 
 特殊:
   core.html    ── 原始 HTML 注入
-  core.widget  ── 第三方库动态内容 (ESM 沙箱, 默认禁用)
+  core.widget  ── 第三方库动态内容 (依赖/renderer allowlist；除非 NEXT_PUBLIC_ENABLE_AI_WIDGETS=false，否则运行时启用)
 ```
 
 ### layoutDocument JSON 结构
@@ -502,6 +510,25 @@ EditorPage/     → 编辑器页面 (ThemeLayoutBuilder 容器)
 TemplatesPage/  → 模板市场/列表
 ```
 
+### `src/base/` — 基础工具
+```
+classname/index.ts           → CSS 类名工具
+preconditions/precondition.ts → 前置条件校验
+```
+
+### `src/exporters/` — 源码导出引擎
+```
+react-source/
+  ├── compileDocumentToReactProject.ts → 文档 → React/Vite 项目编译入口
+  ├── compilePage.ts                   → 页面级编译
+  ├── compileNode.ts                   → 节点级编译 (core.* → React JSX)
+  ├── componentNamer.ts                → 组件命名工具
+  ├── styleCompiler.ts                 → 样式编译 (DSL → CSS)
+  └── templates/
+      ├── project.ts                   → 项目脚手架模板 (package.json, vite.config, index.html)
+      └── components.ts                → 组件模板
+```
+
 ### `src/ui/renderer/` — 渲染引擎
 ```
 DynamicThemeRenderer.tsx     → 顶层渲染器 (注入动画 + 依赖加载)
@@ -534,28 +561,32 @@ services/                    → 编辑器业务逻辑
 ```
 template-ai.service.ts       → 模板生成 (TemplateAiService)
 editor-ai.service.ts         → 编辑器 Copilot (EditorAiService)
+agents/                      → Agent 实现 (templateGenerationAgent, editorEditAgent, agentEventRecorder)
 core/                        → 与 backend/ai/core/ 共享的循环引擎
   ├── query-loop.ts          → Agent 循环 (同后端等价逻辑)
-  ├── compact/               → 对话压缩
-  └── providers/             → LLM 提供者适配
+  ├── compact/               → 对话压缩 (microCompact, autoCompact)
+  └── providers/             → LLM 提供者适配 (backend-proxy.provider)
 planning/ui-intent-router.ts → UI 意图分类 (用户 prompt → intent plan)
 tools/                       → 前端工具定义
   ├── editor-edit.tool.ts
   └── generate-template.tool.ts
+adapters/                    → 适配器 (browserTemplateStore, browserEditorApplyAdapter)
 ```
 
 ### `shared/agent/` — 共享 Agent 合约
 ```
 types.ts                     → Agent / ThemeLayout 共享类型
 prompts/                     → templateDesignerPrompt / editorCopilotPrompt
-validation/                  → ThemeLayoutDocument validator、semantic assertions、widget safety
+validation/                  → ThemeLayoutDocument validator、semantic assertions、widget safety、templateDiff
 compiler/                    → semanticInstructionCompiler (语义工具 -> 低级编辑操作)
 specs/                       → PageSpec / EditSpec
 template/                    → TemplateProfile、扫描器、resolver、override、profile cache、安全过滤
+runtime/                     → QueryLoop 类、provider 类型定义 (前后端共享)
 errors/                      → AgentEditError / AgentEditResult / MVP retry config
 editor/                      → editor operations 定义与 applyEditorInstructions()，含 create_page_from_reference、clone_pattern_items、atomic/concurrency helpers
 context/                     → editor/context plan 生成工具，包含 profile capabilities
 fixtures/                    → blank/seed documents
+tools/                       → editorEditTools 工具定义
 testing/mockProvider.ts      → Agent eval mock provider
 testing/semantic-lowcode/    → semantic low-code smoke test 数据
 ```
@@ -566,7 +597,7 @@ testing/semantic-lowcode/    → semantic low-code smoke test 数据
 
 ### 1. Agent QueryLoop 模式
 ```
-后端 + 前端都用同一个 QueryLoop 类：
+后端 + 前端共用 shared/agent/runtime/queryLoop.ts 中的 QueryLoop 类：
   messages → provider.stream()
     → text_delta? → 推送文本
     → tool_call?  → 执行工具 → tool_result 塞回 messages
@@ -705,15 +736,15 @@ applyInstructions() → layoutDocument 变换 → canvases 更新
 ## 十二、已知问题与注意事项
 
 1. **SQLite 并发限制**: 使用 better-sqlite3 + WAL 模式，支持并发读，但写入仍需串行化。适合单用户和小团队场景。
-2. **数据库驱动变更**: 已从 sqljs（内存）迁移至 better-sqlite3（文件 + WAL），配置文件需使用 `sqlite` 作为 `DATABASE_DRIVER` 值。支持 `sqlite` / `postgres` / `mysql` 三种驱动。
+2. **数据库驱动变更**: 已从 sqljs（内存）迁移至 better-sqlite3（文件 + WAL），配置文件需使用 `sqlite` 作为 `DATABASE_DRIVER` 值。配置类型保留 `postgres` / `mysql`，但当前会直接抛出 not implemented。
 3. **JSON 列数据库层无约束**: owned template 更新和 hosted site 发布前有应用层校验与 render smoke；themes 仍直接保存 DTO，旧数据或绕过写路径的数据可能不符合 schema。
 4. **Token 消耗高**: 编辑器 AI 调用每次注入完整 Canvas Outline (最大 80 节点)，单次请求 4-8K token。
 5. **自定义组件边界**: 设计不再要求 core-only；可以用声明式 `componentTemplates`
    做业务组件，但 alias 必须声明、props 要可编辑且有中文标签，内部仍应展开为安全 core.* 结构。
 6. **语义目标仍有低级兜底风险**: 新页面/列表/槽位修改应优先走 TemplateProfile 语义工具；旧的 `semanticTarget` 和低级 nodeId 工具仍存在，只适合精确修补。
-7. **前端-后端 QueryLoop 代码重复**: `query-loop.ts` 在两个位置存在相同代码，后端是 TypeScript，前端也是 TypeScript。
+7. **QueryLoop 已共享**: `query-loop.ts` 现在位于 `shared/agent/runtime/queryLoop.ts`，后端通过 `@shared/agent/runtime/queryLoop` 重导出，前端直接导入共享版本。代码重复问题已解决。
 8. **themes 表 vs templates 表**: 结构高度重复，themes 像是未清理的技术债。
-9. **编辑器 Agent 迭代数**: 默认 96 次迭代（环境变量 `EDITOR_AGENT_MAX_ITERATIONS` 可覆盖），Token 消耗可能很高。
+9. **编辑器 Agent 迭代数**: 默认 96 次迭代（环境变量 `EDITOR_AGENT_MAX_ITERATIONS` 可覆盖，最低 32），Token 消耗可能很高。
 10. **TemplateProfile 自动扫描不是最终真相**: 自动扫描只能生成基础 page/region/slot/pattern，关键模板需要 override 文件或数据库 override 修正。
 
 ---
@@ -772,7 +803,7 @@ src/lib/hash-password.ts → SHA256(rawPassword)
   ↓
 POST /api/users/register { username, password: sha256 }
   ↓
-users.passwordHash 保存该 hash
+users.passwordHash 保存 bcrypt(SHA256(rawPassword))
   ↓
 返回 { accessToken, user }
 ```
@@ -783,11 +814,11 @@ GET /api/users/auth/challenge
   ↓
 后端生成 32-byte nonce，内存保存 5 分钟，单次使用
   ↓
-浏览器计算 SHA256(nonce + SHA256(rawPassword))
+浏览器发送 SHA256(rawPassword)，nonce 仅用于服务端 anti-replay
   ↓
-POST /api/users/login { identifier, password: computed, nonce }
+POST /api/users/login { identifier, password: sha256, nonce }
   ↓
-后端消费 nonce，比较 SHA256(nonce + storedPasswordHash)
+后端消费 nonce，bcrypt.compare(password, storedPasswordHash)；旧 SHA256 存量会静默升级为 bcrypt
   ↓
 返回 JWT
 ```
@@ -801,7 +832,7 @@ Authorization: Bearer <accessToken>
 
 ### OAuth 流程
 ```
-POST /api/users/oauth/qrcode { provider: "wechat"|"qq" }
+GET /api/users/oauth/qrcode?provider=wechat|qq
   ↓
 返回 qrUrl + state
   ↓
@@ -862,7 +893,7 @@ SitesService.findOwnedTemplate()
   ↓
 prepareTemplateLayoutForPersistence()
   ↓
-拒绝包含 core.widget 的模板
+通过共享 validator 校验 core.widget 的依赖、library 与 renderer allowlist
   ↓
 写 published_sites + published_site_revisions
   ↓
@@ -982,13 +1013,14 @@ AI_PROVIDER=openai-compatible
 | 改语义低代码编译 | `shared/agent/compiler/semanticInstructionCompiler.ts`, `shared/agent/specs/*`, `shared/agent/errors/agentErrors.ts` |
 | 改编辑器画布行为 | `src/ui/editor/controllers/*`, `layoutBuilderService.ts`, `ThemeLayoutBuilder.tsx` |
 | 改 AI 编辑能力 | `backend/src/ai/tools/editor-edit.tool.ts`, `src/ai/tools/editor-edit.tool.ts`, `shared/agent/editor/*`, `shared/agent/tools/editorEditTools.ts` |
-| 改 AI 迭代参数 | `backend/src/ai/ai.service.ts` (EDITOR_AGENT_MAX_ITERATIONS, DEFAULT_EDITOR_AGENT_MAX_ITERATIONS=96) |
+| 改 AI 迭代参数 | `backend/src/ai/ai.service.ts` (EDITOR_AGENT_MAX_ITERATIONS, DEFAULT_EDITOR_AGENT_MAX_ITERATIONS=96, 最低 32) |
+| 改共享 Agent 运行时 | `shared/agent/runtime/queryLoop.ts`, `shared/agent/runtime/providerTypes.ts` |
 | React 源码导出 | `src/exporters/react-source/compileNode.ts`, `src/exporters/react-source/templates/project.ts` (CSS + 内联 style) |
 | 改 AI 生成模板 | `generate-template.tool.ts`, `shared/agent/prompts/templateDesignerPrompt.ts`, `template-ai.service.ts` |
 | 新增 core 组件 | `src/ui/renderer/components/*`, `coreAliases.tsx`, 组件 descriptor / prompt / validator, compileNode.ts, project.ts CSS |
 | 改发布站点 | `backend/src/sites/*`, `src/app/sites/[subdomain]/*`, `backend/src/templates/template-layout-validation.ts` |
 | 改源码导出 | `src/exporters/react-source/*`, `src/services/ExportService.ts`, `scripts/source-export-smoke.cjs` |
-| 改登录注册 | `src/lib/hash-password.ts`, `src/services/AuthService.ts`, `backend/src/users/*`, `jwt-auth.guard.ts` |
+| 改登录注册 | `src/lib/hash-password.ts`, `src/services/AuthService.ts`, `backend/src/auth/*`, `backend/src/users/*` |
 | 改模板 JSON 导入 | `backend/src/templates/templates.service.ts`, `templates_json/`, `scripts/validate-template-json.mjs` |
 
 ---
@@ -1002,7 +1034,7 @@ AI_PROVIDER=openai-compatible
    后端启动时才写 `shared/openapi.json`。重启 `backend`，确认启动 cwd 是 `backend/`，否则输出路径可能不同。
 
 3. **登录总是 401**  
-   检查是否先调用 challenge；nonce 只能使用一次且 5 分钟过期。也要确认前端发送的是 `SHA256(nonce + SHA256(rawPassword))`。
+   检查是否先调用 challenge；nonce 只能使用一次且 5 分钟过期。前端登录发送 `SHA256(rawPassword)`，nonce 不再参与密码哈希。
 
 4. **JWT 重启后失效**  
    开发环境如果没固定 `JWT_SECRET` 会使用 fallback；生产必须配置稳定 `JWT_SECRET`。修改 secret 会让旧 token 失效。
@@ -1010,8 +1042,8 @@ AI_PROVIDER=openai-compatible
 5. **AI SSE 没有流式输出**  
    通用代理走 `/api/ai/stream`，编辑器走 `/api/ai/editor`；不要经由普通 `/api/proxy/ai/*` 处理 SSE。
 
-6. **发布失败: hosted_runtime_widget_disabled**  
-   Hosted Runtime 禁止 `core.widget`。删除 widget 或改成 renderer 原生支持的 `core.*` 组件。
+6. **Widget 校验/渲染失败**  
+   `core.widget` 需要声明在 `layoutDocument.dependencies` 中的安全依赖，并使用 validator 允许的 library/renderer。运行时可通过 `NEXT_PUBLIC_ENABLE_AI_WIDGETS=false` 禁用。
 
 7. **源码导出失败**  
    先看 validator 报错路径；导出前会执行迁移、schema 校验和 render smoke。常见原因是 unknown props、缺失 `layout` 或非法页面结构。
@@ -1022,38 +1054,3 @@ AI_PROVIDER=openai-compatible
 9. **生产启动报 JWT secret 错误**  
    生产 flavor 下未设置 `JWT_SECRET` 或 `PROD_JWT_SECRET` 会直接拒绝启动。
 
----
-
-## 二十、Reasonix 本地 Agent 知识
-
-`.reasonix/skills/` 是 Reasonix 侧的本地 agent 工作流知识，不等同于 Codex `.codex/skills/`。当前新增/维护的技能包括:
-
-| Skill | 用途 |
-|-------|------|
-| `brainstorming` | 实现前先探索需求、方案与设计，要求设计获批后再进入实现 |
-| `writing-plans` | 将已批准设计拆成可验证的 TDD 实施计划 |
-| `subagent-driven-development` | 对独立任务按子 agent 执行，并做规格/质量双阶段 review |
-| `parallel-agents` | 多个互不依赖的问题域并行分派子 agent |
-| `systematic-debugging` | 遇到 bug/test failure 时先查根因，再改代码 |
-| `test-driven-development` | 新功能/修复先写失败测试，再实现、重构 |
-| `code-review` | 完成任务后请求 review，或处理 human review 反馈 |
-| `verification-before-completion` | 声称完成、通过、修复前必须 fresh verification |
-| `finishing-development` | 实现和测试完成后选择 merge/PR/保留/丢弃 |
-| `auto-update-memory` | 运行 Reasonix classifier，建议更新 `yanlingweb-*` memories |
-| `auto-update-knowledge-base` | 🧬 架构/API/模块变更后自动更新 `.reasonix/knowledge-base.md` |
-
-Reasonix classifier 命令:
-
-```bash
-python3 .reasonix/skills/auto-update-memory/scripts/classify_memory_update.py --repo . --pretty
-```
-
-当 `.reasonix/skills/*.md` 变化时，Reasonix classifier 会把它们归类为 `agent-knowledge`，通常建议更新 `yanlingweb-caveats`。如果当前环境没有 Reasonix `remember/forget` 工具，则至少把稳定约定同步到本文件，并在最终回复中说明未能写入 Reasonix memory store。
-
-### 知识库自动更新机制
-
-每次对话结束时，如果本次对话修改了架构/API/模块相关代码，应当执行 `auto-update-knowledge-base` skill。该 skill 会自动:
-1. 通过 `git diff` 检测当前变更
-2. 映射到知识库对应章节
-3. 执行精确的增量 SEARCH/REPLACE 更新
-4. 更新最后更新日期

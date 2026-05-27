@@ -1,6 +1,6 @@
 {
   "templateId": "food-ordering",
-  "templateVersion": "1",
+  "templateVersion": "1.0.0",
   "profileVersion": "1.0.0",
   "devices": [
     "miniapp",
@@ -12,14 +12,14 @@
       "pageId": "page-menu",
       "pageKind": "home",
       "name": "点餐首页",
-      "description": "美味餐厅",
+      "description": "点餐首页",
       "rootNodeId": "page-menu-screen",
       "isDefault": true
     },
     {
       "pageKey": "page-cart",
       "pageId": "page-cart",
-      "pageKind": "unknown",
+      "pageKind": "form",
       "name": "购物车",
       "description": "购物车",
       "rootNodeId": "page-cart-screen",
@@ -28,7 +28,7 @@
     {
       "pageKey": "page-confirm",
       "pageId": "page-confirm",
-      "pageKind": "order",
+      "pageKind": "list",
       "name": "确认订单",
       "description": "确认订单",
       "rootNodeId": "page-confirm-screen",
@@ -37,7 +37,7 @@
     {
       "pageKey": "page-tracking",
       "pageId": "page-tracking",
-      "pageKind": "order",
+      "pageKind": "detail",
       "name": "配送追踪",
       "description": "配送追踪",
       "rootNodeId": "page-tracking-screen",
@@ -46,2184 +46,1143 @@
   ],
   "regions": [
     {
-      "regionKey": "page-menu.item",
+      "regionKey": "page-menu.store-0",
       "pageKey": "page-menu",
-      "nodeId": "food-store-status",
-      "name": "店铺标识",
+      "nodeId": "store-0",
+      "name": "core.panel",
       "sectionKind": "panel",
       "replaceable": true
     },
     {
-      "regionKey": "page-menu.item-2",
+      "regionKey": "page-menu.store-meta-0",
       "pageKey": "page-menu",
-      "nodeId": "food-order-layout",
-      "name": "热销",
+      "nodeId": "store-meta-0",
+      "name": "core.row",
       "sectionKind": "row",
       "replaceable": true
     },
     {
-      "regionKey": "page-menu.k-3-76",
+      "regionKey": "page-menu.menu-card-1",
       "pageKey": "page-menu",
-      "nodeId": "food-cart-dock",
-      "name": "已选 3 件 · ¥76",
+      "nodeId": "menu-card-1",
+      "name": "core.panel",
       "sectionKind": "panel",
       "replaceable": true
     },
     {
-      "regionKey": "page-cart.item",
+      "regionKey": "page-menu.menu-layout-1",
+      "pageKey": "page-menu",
+      "nodeId": "menu-layout-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-menu.bottom-tabs",
+      "pageKey": "page-menu",
+      "nodeId": "page-menu-bottom-tabs",
+      "name": "core.tabs",
+      "sectionKind": "tabs",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-cart.cart-0",
       "pageKey": "page-cart",
-      "nodeId": "page-cart-hero-banner",
-      "name": "购物车",
-      "sectionKind": "biz-hero-banner",
-      "replaceable": false
+      "nodeId": "cart-0",
+      "name": "core.panel",
+      "sectionKind": "panel",
+      "replaceable": true
     },
     {
-      "regionKey": "page-cart.item-2",
+      "regionKey": "page-cart.cart-0-0",
       "pageKey": "page-cart",
-      "nodeId": "cart-header",
-      "name": "购物车",
-      "sectionKind": "panel",
+      "nodeId": "cart-0-0",
+      "name": "core.row",
+      "sectionKind": "row",
       "replaceable": true
     },
     {
-      "regionKey": "page-cart.item-3",
+      "regionKey": "page-cart.cart-1-0",
       "pageKey": "page-cart",
-      "nodeId": "cart-items",
-      "name": "业务视觉元素",
-      "sectionKind": "stack",
+      "nodeId": "cart-1-0",
+      "name": "core.row",
+      "sectionKind": "row",
       "replaceable": true
     },
     {
-      "regionKey": "page-cart.item-4",
+      "regionKey": "page-cart.cart-2-0",
       "pageKey": "page-cart",
-      "nodeId": "cart-summary",
-      "name": "商品小计",
-      "sectionKind": "panel",
+      "nodeId": "cart-2-0",
+      "name": "core.row",
+      "sectionKind": "row",
       "replaceable": true
     },
     {
-      "regionKey": "page-cart.item-5",
+      "regionKey": "page-cart.price-1",
       "pageKey": "page-cart",
-      "nodeId": "checkout-btn",
-      "name": "提交订单",
-      "sectionKind": "button",
-      "replaceable": false
+      "nodeId": "price-1",
+      "name": "core.panel",
+      "sectionKind": "panel",
+      "replaceable": true
     },
     {
-      "regionKey": "page-confirm.item",
+      "regionKey": "page-cart.price-0-1",
+      "pageKey": "page-cart",
+      "nodeId": "price-0-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-cart.price-1-1",
+      "pageKey": "page-cart",
+      "nodeId": "price-1-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-cart.price-2-1",
+      "pageKey": "page-cart",
+      "nodeId": "price-2-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-cart.price-total-1",
+      "pageKey": "page-cart",
+      "nodeId": "price-total-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-cart.action-bar-2",
+      "pageKey": "page-cart",
+      "nodeId": "action-bar-2",
+      "name": "core.panel",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-cart.action-row-inner-2",
+      "pageKey": "page-cart",
+      "nodeId": "action-row-inner-2",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-cart.bottom-tabs",
+      "pageKey": "page-cart",
+      "nodeId": "page-cart-bottom-tabs",
+      "name": "core.tabs",
+      "sectionKind": "tabs",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-confirm.delivery-0",
       "pageKey": "page-confirm",
-      "nodeId": "page-confirm-hero-banner",
-      "name": "确认订单",
-      "sectionKind": "biz-hero-banner",
-      "replaceable": false
+      "nodeId": "delivery-0",
+      "name": "core.panel",
+      "sectionKind": "panel",
+      "replaceable": true
     },
     {
-      "regionKey": "page-confirm.item-2",
+      "regionKey": "page-confirm.del-addr-0",
       "pageKey": "page-confirm",
-      "nodeId": "confirm-header",
-      "name": "确认订单",
-      "sectionKind": "panel",
+      "nodeId": "del-addr-0",
+      "name": "core.row",
+      "sectionKind": "row",
       "replaceable": true
     },
     {
-      "regionKey": "page-confirm.item-3",
+      "regionKey": "page-confirm.del-time-0",
       "pageKey": "page-confirm",
-      "nodeId": "delivery-address",
-      "name": "图标",
-      "sectionKind": "panel",
+      "nodeId": "del-time-0",
+      "name": "core.row",
+      "sectionKind": "row",
       "replaceable": true
     },
     {
-      "regionKey": "page-confirm.item-4",
+      "regionKey": "page-confirm.order-sum-1",
       "pageKey": "page-confirm",
-      "nodeId": "order-items",
-      "name": "美味餐厅",
+      "nodeId": "order-sum-1",
+      "name": "core.panel",
       "sectionKind": "panel",
       "replaceable": true
     },
     {
-      "regionKey": "page-confirm.item-5",
+      "regionKey": "page-confirm.inputs-2",
       "pageKey": "page-confirm",
-      "nodeId": "order-remark",
-      "name": "备注",
+      "nodeId": "inputs-2",
+      "name": "core.panel",
       "sectionKind": "panel",
       "replaceable": true
     },
     {
-      "regionKey": "page-confirm.k-60",
+      "regionKey": "page-confirm.input-0-2",
       "pageKey": "page-confirm",
-      "nodeId": "order-submit",
-      "name": "提交订单 ¥60",
-      "sectionKind": "button",
-      "replaceable": false
-    },
-    {
-      "regionKey": "page-tracking.item",
-      "pageKey": "page-tracking",
-      "nodeId": "page-tracking-hero-banner",
-      "name": "配送追踪",
-      "sectionKind": "biz-hero-banner",
-      "replaceable": false
-    },
-    {
-      "regionKey": "page-tracking.item-2",
-      "pageKey": "page-tracking",
-      "nodeId": "tracking-header",
-      "name": "配送追踪",
+      "nodeId": "input-0-2",
+      "name": "core.panel",
       "sectionKind": "panel",
       "replaceable": true
     },
     {
-      "regionKey": "page-tracking.item-3",
-      "pageKey": "page-tracking",
-      "nodeId": "tracking-map",
-      "name": "地图区域",
+      "regionKey": "page-confirm.action-bar-3",
+      "pageKey": "page-confirm",
+      "nodeId": "action-bar-3",
+      "name": "core.panel",
       "sectionKind": "panel",
       "replaceable": true
     },
     {
-      "regionKey": "page-tracking.item-4",
+      "regionKey": "page-confirm.action-row-inner-3",
+      "pageKey": "page-confirm",
+      "nodeId": "action-row-inner-3",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-confirm.bottom-tabs",
+      "pageKey": "page-confirm",
+      "nodeId": "page-confirm-bottom-tabs",
+      "name": "core.tabs",
+      "sectionKind": "tabs",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-tracking.tracking-0",
       "pageKey": "page-tracking",
-      "nodeId": "tracking-status",
-      "name": "骑手正在赶往商家",
+      "nodeId": "tracking-0",
+      "name": "core.panel",
       "sectionKind": "panel",
       "replaceable": true
     },
     {
-      "regionKey": "page-tracking.item-5",
+      "regionKey": "page-tracking.steps-1",
       "pageKey": "page-tracking",
-      "nodeId": "tracking-timeline",
-      "name": "订单状态",
+      "nodeId": "steps-1",
+      "name": "core.panel",
       "sectionKind": "panel",
       "replaceable": true
     },
     {
-      "regionKey": "page-tracking.item-6",
+      "regionKey": "page-tracking.step-0-1",
       "pageKey": "page-tracking",
-      "nodeId": "page-tracking-primary-action",
-      "name": "继续下单",
-      "sectionKind": "button",
-      "replaceable": false
+      "nodeId": "step-0-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-tracking.step-1-1",
+      "pageKey": "page-tracking",
+      "nodeId": "step-1-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-tracking.step-2-1",
+      "pageKey": "page-tracking",
+      "nodeId": "step-2-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-tracking.step-3-1",
+      "pageKey": "page-tracking",
+      "nodeId": "step-3-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-tracking.action-bar-2-2",
+      "pageKey": "page-tracking",
+      "nodeId": "action-bar-2-2",
+      "name": "core.panel",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-tracking.action-row-inner-2-2",
+      "pageKey": "page-tracking",
+      "nodeId": "action-row-inner-2-2",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-tracking.bottom-tabs",
+      "pageKey": "page-tracking",
+      "nodeId": "page-tracking-bottom-tabs",
+      "name": "core.tabs",
+      "sectionKind": "tabs",
+      "replaceable": true
     }
   ],
   "slots": [
     {
-      "slotKey": "page-menu.page-menu-screen.screen",
+      "slotKey": "page-menu.store-name-0",
       "pageKey": "page-menu",
-      "nodeId": "page-menu-screen",
-      "component": "core.screen",
-      "editableProps": [
-        "title",
-        "statusTime",
-        "headerActionLabel"
-      ],
-      "label": "点餐首页"
-    },
-    {
-      "slotKey": "page-menu.food-store-status.panel",
-      "pageKey": "page-menu",
-      "regionKey": "page-menu.item",
-      "nodeId": "food-store-status",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "店铺标识"
-    },
-    {
-      "slotKey": "page-menu.food-store-top.row",
-      "pageKey": "page-menu",
-      "regionKey": "page-menu.item",
-      "nodeId": "food-store-top",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "店铺标识"
-    },
-    {
-      "slotKey": "page-menu.food-store-logo.image",
-      "pageKey": "page-menu",
-      "nodeId": "food-store-logo",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "店铺标识"
-    },
-    {
-      "slotKey": "page-menu.food-store-copy.stack",
-      "pageKey": "page-menu",
-      "nodeId": "food-store-copy",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "巷口热食铺"
-    },
-    {
-      "slotKey": "page-menu.food-store-name.text",
-      "pageKey": "page-menu",
-      "nodeId": "food-store-name",
+      "regionKey": "page-menu.store-0",
+      "nodeId": "store-name-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "巷口热食铺"
+      "label": "文本"
     },
     {
-      "slotKey": "page-menu.food-store-meta.text",
+      "slotKey": "page-menu.store-rating-0",
       "pageKey": "page-menu",
-      "nodeId": "food-store-meta",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "30 分钟送达 · 月售 2480"
-    },
-    {
-      "slotKey": "page-menu.food-store-open.tag",
-      "pageKey": "page-menu",
-      "nodeId": "food-store-open",
+      "regionKey": "page-menu.store-meta-0",
+      "nodeId": "store-rating-0",
       "component": "core.tag",
       "editableProps": [
-        "label",
-        "tone"
+        "label"
       ],
-      "label": "营业中"
+      "label": "标签"
     },
     {
-      "slotKey": "page-menu.food-promo-row.row",
+      "slotKey": "page-menu.store-delivery-0",
       "pageKey": "page-menu",
-      "regionKey": "page-menu.item",
-      "nodeId": "food-promo-row",
-      "component": "core.row",
+      "regionKey": "page-menu.store-meta-0",
+      "nodeId": "store-delivery-0",
+      "component": "core.text",
       "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
+        "text"
       ],
-      "label": "满 60 减 12"
+      "label": "文本"
     },
     {
-      "slotKey": "page-menu.food-promo-1.tag",
+      "slotKey": "page-menu.store-min-0",
       "pageKey": "page-menu",
-      "nodeId": "food-promo-1",
+      "regionKey": "page-menu.store-meta-0",
+      "nodeId": "store-min-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-menu.cat-0-1",
+      "pageKey": "page-menu",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "cat-0-1",
+      "component": "core.button",
+      "editableProps": [
+        "label"
+      ],
+      "label": "按钮"
+    },
+    {
+      "slotKey": "page-menu.cat-1-1",
+      "pageKey": "page-menu",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "cat-1-1",
+      "component": "core.button",
+      "editableProps": [
+        "label"
+      ],
+      "label": "按钮"
+    },
+    {
+      "slotKey": "page-menu.cat-2-1",
+      "pageKey": "page-menu",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "cat-2-1",
+      "component": "core.button",
+      "editableProps": [
+        "label"
+      ],
+      "label": "按钮"
+    },
+    {
+      "slotKey": "page-menu.cat-3-1",
+      "pageKey": "page-menu",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "cat-3-1",
+      "component": "core.button",
+      "editableProps": [
+        "label"
+      ],
+      "label": "按钮"
+    },
+    {
+      "slotKey": "page-menu.menu-img-0-1",
+      "pageKey": "page-menu",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "menu-img-0-1",
+      "component": "core.image",
+      "editableProps": [
+        "alt",
+        "title",
+        "iconColor"
+      ],
+      "label": "图片"
+    },
+    {
+      "slotKey": "page-menu.menu-name-0-1",
+      "pageKey": "page-menu",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "menu-name-0-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-menu.menu-desc-0-1",
+      "pageKey": "page-menu",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "menu-desc-0-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-menu.menu-price-0-1",
+      "pageKey": "page-menu",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "menu-price-0-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-menu.menu-tag-0-1",
+      "pageKey": "page-menu",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "menu-tag-0-1",
       "component": "core.tag",
       "editableProps": [
-        "label",
-        "tone"
+        "label"
       ],
-      "label": "满 60 减 12"
+      "label": "标签"
     },
     {
-      "slotKey": "page-menu.food-promo-2.tag",
+      "slotKey": "page-menu.menu-add-0-1",
       "pageKey": "page-menu",
-      "nodeId": "food-promo-2",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "menu-add-0-1",
+      "component": "core.button",
+      "editableProps": [
+        "label"
+      ],
+      "label": "按钮"
+    },
+    {
+      "slotKey": "page-menu.menu-img-1-1",
+      "pageKey": "page-menu",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "menu-img-1-1",
+      "component": "core.image",
+      "editableProps": [
+        "alt",
+        "title",
+        "iconColor"
+      ],
+      "label": "图片"
+    },
+    {
+      "slotKey": "page-menu.menu-name-1-1",
+      "pageKey": "page-menu",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "menu-name-1-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-menu.menu-desc-1-1",
+      "pageKey": "page-menu",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "menu-desc-1-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-menu.menu-price-1-1",
+      "pageKey": "page-menu",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "menu-price-1-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-menu.menu-add-1-1",
+      "pageKey": "page-menu",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "menu-add-1-1",
+      "component": "core.button",
+      "editableProps": [
+        "label"
+      ],
+      "label": "按钮"
+    },
+    {
+      "slotKey": "page-menu.menu-img-2-1",
+      "pageKey": "page-menu",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "menu-img-2-1",
+      "component": "core.image",
+      "editableProps": [
+        "alt",
+        "title",
+        "iconColor"
+      ],
+      "label": "图片"
+    },
+    {
+      "slotKey": "page-menu.menu-name-2-1",
+      "pageKey": "page-menu",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "menu-name-2-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-menu.menu-desc-2-1",
+      "pageKey": "page-menu",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "menu-desc-2-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-menu.menu-price-2-1",
+      "pageKey": "page-menu",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "menu-price-2-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-menu.menu-tag-2-1",
+      "pageKey": "page-menu",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "menu-tag-2-1",
       "component": "core.tag",
       "editableProps": [
-        "label",
-        "tone"
+        "label"
       ],
-      "label": "招牌套餐 8 折"
+      "label": "标签"
     },
     {
-      "slotKey": "page-menu.food-order-layout.row",
+      "slotKey": "page-menu.menu-add-2-1",
       "pageKey": "page-menu",
-      "regionKey": "page-menu.item-2",
-      "nodeId": "food-order-layout",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "热销"
-    },
-    {
-      "slotKey": "page-menu.food-category-rail.stack",
-      "pageKey": "page-menu",
-      "regionKey": "page-menu.item-2",
-      "nodeId": "food-category-rail",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "热销"
-    },
-    {
-      "slotKey": "page-menu.food-cat-0.panel",
-      "pageKey": "page-menu",
-      "nodeId": "food-cat-0",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "热销"
-    },
-    {
-      "slotKey": "page-menu.food-cat-text-0.text",
-      "pageKey": "page-menu",
-      "nodeId": "food-cat-text-0",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "热销"
-    },
-    {
-      "slotKey": "page-menu.food-cat-1.panel",
-      "pageKey": "page-menu",
-      "nodeId": "food-cat-1",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "套餐"
-    },
-    {
-      "slotKey": "page-menu.food-cat-text-1.text",
-      "pageKey": "page-menu",
-      "nodeId": "food-cat-text-1",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "套餐"
-    },
-    {
-      "slotKey": "page-menu.food-cat-2.panel",
-      "pageKey": "page-menu",
-      "nodeId": "food-cat-2",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "主食"
-    },
-    {
-      "slotKey": "page-menu.food-cat-text-2.text",
-      "pageKey": "page-menu",
-      "nodeId": "food-cat-text-2",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "主食"
-    },
-    {
-      "slotKey": "page-menu.food-cat-3.panel",
-      "pageKey": "page-menu",
-      "nodeId": "food-cat-3",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "饮品"
-    },
-    {
-      "slotKey": "page-menu.food-cat-text-3.text",
-      "pageKey": "page-menu",
-      "nodeId": "food-cat-text-3",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "饮品"
-    },
-    {
-      "slotKey": "page-menu.food-cat-4.panel",
-      "pageKey": "page-menu",
-      "nodeId": "food-cat-4",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "甜点"
-    },
-    {
-      "slotKey": "page-menu.food-cat-text-4.text",
-      "pageKey": "page-menu",
-      "nodeId": "food-cat-text-4",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "甜点"
-    },
-    {
-      "slotKey": "page-menu.food-dish-list.stack",
-      "pageKey": "page-menu",
-      "regionKey": "page-menu.item-2",
-      "nodeId": "food-dish-list",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "招牌牛肉饭图片"
-    },
-    {
-      "slotKey": "page-menu.food-dish-0.row",
-      "pageKey": "page-menu",
-      "nodeId": "food-dish-0",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "招牌牛肉饭图片"
-    },
-    {
-      "slotKey": "page-menu.food-dish-img-0.image",
-      "pageKey": "page-menu",
-      "nodeId": "food-dish-img-0",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "招牌牛肉饭图片"
-    },
-    {
-      "slotKey": "page-menu.food-dish-copy-0.stack",
-      "pageKey": "page-menu",
-      "nodeId": "food-dish-copy-0",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "招牌牛肉饭"
-    },
-    {
-      "slotKey": "page-menu.food-dish-name-0.text",
-      "pageKey": "page-menu",
-      "nodeId": "food-dish-name-0",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "招牌牛肉饭"
-    },
-    {
-      "slotKey": "page-menu.food-dish-sales-0.text",
-      "pageKey": "page-menu",
-      "nodeId": "food-dish-sales-0",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "月售 300"
-    },
-    {
-      "slotKey": "page-menu.food-dish-price-row-0.row",
-      "pageKey": "page-menu",
-      "nodeId": "food-dish-price-row-0",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "¥28"
-    },
-    {
-      "slotKey": "page-menu.food-dish-price-0.text",
-      "pageKey": "page-menu",
-      "nodeId": "food-dish-price-0",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "¥28"
-    },
-    {
-      "slotKey": "page-menu.food-add-0.button",
-      "pageKey": "page-menu",
-      "nodeId": "food-add-0",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "menu-add-2-1",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "+"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-menu.food-dish-1.row",
+      "slotKey": "page-menu.menu-img-3-1",
       "pageKey": "page-menu",
-      "nodeId": "food-dish-1",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "双拼小食盒图片"
-    },
-    {
-      "slotKey": "page-menu.food-dish-img-1.image",
-      "pageKey": "page-menu",
-      "nodeId": "food-dish-img-1",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "menu-img-3-1",
       "component": "core.image",
       "editableProps": [
-        "src",
         "alt",
         "title",
-        "iconColor",
-        "objectFit"
+        "iconColor"
       ],
-      "label": "双拼小食盒图片"
+      "label": "图片"
     },
     {
-      "slotKey": "page-menu.food-dish-copy-1.stack",
+      "slotKey": "page-menu.menu-name-3-1",
       "pageKey": "page-menu",
-      "nodeId": "food-dish-copy-1",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "双拼小食盒"
-    },
-    {
-      "slotKey": "page-menu.food-dish-name-1.text",
-      "pageKey": "page-menu",
-      "nodeId": "food-dish-name-1",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "menu-name-3-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "双拼小食盒"
+      "label": "文本"
     },
     {
-      "slotKey": "page-menu.food-dish-sales-1.text",
+      "slotKey": "page-menu.menu-desc-3-1",
       "pageKey": "page-menu",
-      "nodeId": "food-dish-sales-1",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "menu-desc-3-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "月售 240"
+      "label": "文本"
     },
     {
-      "slotKey": "page-menu.food-dish-price-row-1.row",
+      "slotKey": "page-menu.menu-price-3-1",
       "pageKey": "page-menu",
-      "nodeId": "food-dish-price-row-1",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "¥34"
-    },
-    {
-      "slotKey": "page-menu.food-dish-price-1.text",
-      "pageKey": "page-menu",
-      "nodeId": "food-dish-price-1",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "menu-price-3-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "¥34"
+      "label": "文本"
     },
     {
-      "slotKey": "page-menu.food-add-1.button",
+      "slotKey": "page-menu.menu-add-3-1",
       "pageKey": "page-menu",
-      "nodeId": "food-add-1",
+      "regionKey": "page-menu.menu-layout-1",
+      "nodeId": "menu-add-3-1",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "+"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-menu.food-dish-2.row",
-      "pageKey": "page-menu",
-      "nodeId": "food-dish-2",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "鲜榨柠檬茶图片"
-    },
-    {
-      "slotKey": "page-menu.food-dish-img-2.image",
-      "pageKey": "page-menu",
-      "nodeId": "food-dish-img-2",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "鲜榨柠檬茶图片"
-    },
-    {
-      "slotKey": "page-menu.food-dish-copy-2.stack",
-      "pageKey": "page-menu",
-      "nodeId": "food-dish-copy-2",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "鲜榨柠檬茶"
-    },
-    {
-      "slotKey": "page-menu.food-dish-name-2.text",
-      "pageKey": "page-menu",
-      "nodeId": "food-dish-name-2",
+      "slotKey": "page-cart.cart-title-0",
+      "pageKey": "page-cart",
+      "regionKey": "page-cart.cart-0",
+      "nodeId": "cart-title-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "鲜榨柠檬茶"
+      "label": "文本"
     },
     {
-      "slotKey": "page-menu.food-dish-sales-2.text",
-      "pageKey": "page-menu",
-      "nodeId": "food-dish-sales-2",
+      "slotKey": "page-cart.cart-name-0-0",
+      "pageKey": "page-cart",
+      "regionKey": "page-cart.cart-0-0",
+      "nodeId": "cart-name-0-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "月售 180"
+      "label": "文本"
     },
     {
-      "slotKey": "page-menu.food-dish-price-row-2.row",
-      "pageKey": "page-menu",
-      "nodeId": "food-dish-price-row-2",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "¥40"
-    },
-    {
-      "slotKey": "page-menu.food-dish-price-2.text",
-      "pageKey": "page-menu",
-      "nodeId": "food-dish-price-2",
+      "slotKey": "page-cart.cart-qty-0-0",
+      "pageKey": "page-cart",
+      "regionKey": "page-cart.cart-0-0",
+      "nodeId": "cart-qty-0-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "¥40"
+      "label": "文本"
     },
     {
-      "slotKey": "page-menu.food-add-2.button",
-      "pageKey": "page-menu",
-      "nodeId": "food-add-2",
+      "slotKey": "page-cart.cart-price-0-0",
+      "pageKey": "page-cart",
+      "regionKey": "page-cart.cart-0-0",
+      "nodeId": "cart-price-0-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-cart.cart-name-1-0",
+      "pageKey": "page-cart",
+      "regionKey": "page-cart.cart-1-0",
+      "nodeId": "cart-name-1-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-cart.cart-qty-1-0",
+      "pageKey": "page-cart",
+      "regionKey": "page-cart.cart-1-0",
+      "nodeId": "cart-qty-1-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-cart.cart-price-1-0",
+      "pageKey": "page-cart",
+      "regionKey": "page-cart.cart-1-0",
+      "nodeId": "cart-price-1-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-cart.cart-name-2-0",
+      "pageKey": "page-cart",
+      "regionKey": "page-cart.cart-2-0",
+      "nodeId": "cart-name-2-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-cart.cart-qty-2-0",
+      "pageKey": "page-cart",
+      "regionKey": "page-cart.cart-2-0",
+      "nodeId": "cart-qty-2-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-cart.cart-price-2-0",
+      "pageKey": "page-cart",
+      "regionKey": "page-cart.cart-2-0",
+      "nodeId": "cart-price-2-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-cart.price-label-0-1",
+      "pageKey": "page-cart",
+      "regionKey": "page-cart.price-0-1",
+      "nodeId": "price-label-0-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-cart.price-val-0-1",
+      "pageKey": "page-cart",
+      "regionKey": "page-cart.price-0-1",
+      "nodeId": "price-val-0-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-cart.price-label-1-1",
+      "pageKey": "page-cart",
+      "regionKey": "page-cart.price-1-1",
+      "nodeId": "price-label-1-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-cart.price-val-1-1",
+      "pageKey": "page-cart",
+      "regionKey": "page-cart.price-1-1",
+      "nodeId": "price-val-1-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-cart.price-label-2-1",
+      "pageKey": "page-cart",
+      "regionKey": "page-cart.price-2-1",
+      "nodeId": "price-label-2-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-cart.price-val-2-1",
+      "pageKey": "page-cart",
+      "regionKey": "page-cart.price-2-1",
+      "nodeId": "price-val-2-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-cart.total-label-1",
+      "pageKey": "page-cart",
+      "regionKey": "page-cart.price-total-1",
+      "nodeId": "total-label-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-cart.total-val-1",
+      "pageKey": "page-cart",
+      "regionKey": "page-cart.price-total-1",
+      "nodeId": "total-val-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-cart.abtn-0-2",
+      "pageKey": "page-cart",
+      "regionKey": "page-cart.action-row-inner-2",
+      "nodeId": "abtn-0-2",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "+"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-menu.food-cart-dock.panel",
-      "pageKey": "page-menu",
-      "regionKey": "page-menu.k-3-76",
-      "nodeId": "food-cart-dock",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "已选 3 件 · ¥76"
-    },
-    {
-      "slotKey": "page-menu.food-cart-dock-row.row",
-      "pageKey": "page-menu",
-      "regionKey": "page-menu.k-3-76",
-      "nodeId": "food-cart-dock-row",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "已选 3 件 · ¥76"
-    },
-    {
-      "slotKey": "page-menu.food-cart-summary.text",
-      "pageKey": "page-menu",
-      "nodeId": "food-cart-summary",
+      "slotKey": "page-confirm.del-title-0",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.delivery-0",
+      "nodeId": "del-title-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "已选 3 件 · ¥76"
+      "label": "文本"
     },
     {
-      "slotKey": "page-menu.food-cart-submit.button",
-      "pageKey": "page-menu",
-      "nodeId": "food-cart-submit",
+      "slotKey": "page-confirm.del-addr-label-0",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.del-addr-0",
+      "nodeId": "del-addr-label-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-confirm.del-addr-val-0",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.del-addr-0",
+      "nodeId": "del-addr-val-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-confirm.del-time-label-0",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.del-time-0",
+      "nodeId": "del-time-label-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-confirm.del-time-val-0",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.del-time-0",
+      "nodeId": "del-time-val-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-confirm.order-sum-title-1",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.order-sum-1",
+      "nodeId": "order-sum-title-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-confirm.order-sum-0-1",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.order-sum-1",
+      "nodeId": "order-sum-0-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-confirm.order-sum-1-1",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.order-sum-1",
+      "nodeId": "order-sum-1-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-confirm.order-sum-2-1",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.order-sum-1",
+      "nodeId": "order-sum-2-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-confirm.input-title-2",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.inputs-2",
+      "nodeId": "input-title-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-confirm.input-label-0-2",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.inputs-2",
+      "nodeId": "input-label-0-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-confirm.input-placeholder-0-2",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.input-0-2",
+      "nodeId": "input-placeholder-0-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-confirm.abtn-0-3",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.action-row-inner-3",
+      "nodeId": "abtn-0-3",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "去结算"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-menu.page-menu-bottom-tabs.tabs",
-      "pageKey": "page-menu",
-      "nodeId": "page-menu-bottom-tabs",
-      "component": "core.tabs",
+      "slotKey": "page-tracking.track-status-0",
+      "pageKey": "page-tracking",
+      "regionKey": "page-tracking.tracking-0",
+      "nodeId": "track-status-0",
+      "component": "core.tag",
       "editableProps": [
-        "tabs",
-        "activeTab"
+        "label"
       ],
-      "label": "page-menu-bottom-tabs"
+      "label": "标签"
     },
     {
-      "slotKey": "page-cart.page-cart-screen.screen",
-      "pageKey": "page-cart",
-      "nodeId": "page-cart-screen",
-      "component": "core.screen",
-      "editableProps": [
-        "title",
-        "statusTime",
-        "headerActionLabel"
-      ],
-      "label": "购物车"
-    },
-    {
-      "slotKey": "page-cart.cart-header.panel",
-      "pageKey": "page-cart",
-      "regionKey": "page-cart.item-2",
-      "nodeId": "cart-header",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "购物车"
-    },
-    {
-      "slotKey": "page-cart.cart-title.text",
-      "pageKey": "page-cart",
-      "regionKey": "page-cart.item-2",
-      "nodeId": "cart-title",
+      "slotKey": "page-tracking.track-rider-0",
+      "pageKey": "page-tracking",
+      "regionKey": "page-tracking.tracking-0",
+      "nodeId": "track-rider-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "购物车"
+      "label": "文本"
     },
     {
-      "slotKey": "page-cart.cart-items.stack",
-      "pageKey": "page-cart",
-      "regionKey": "page-cart.item-3",
-      "nodeId": "cart-items",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-cart.cart-item-1.row",
-      "pageKey": "page-cart",
-      "regionKey": "page-cart.item-3",
-      "nodeId": "cart-item-1",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-cart.ci1-img.image",
-      "pageKey": "page-cart",
-      "nodeId": "ci1-img",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-cart.ci1-info.stack",
-      "pageKey": "page-cart",
-      "nodeId": "ci1-info",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "招牌红烧肉饭"
-    },
-    {
-      "slotKey": "page-cart.ci1-name.text",
-      "pageKey": "page-cart",
-      "nodeId": "ci1-name",
+      "slotKey": "page-tracking.track-eta-0",
+      "pageKey": "page-tracking",
+      "regionKey": "page-tracking.tracking-0",
+      "nodeId": "track-eta-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "招牌红烧肉饭"
+      "label": "文本"
     },
     {
-      "slotKey": "page-cart.ci1-price.text",
-      "pageKey": "page-cart",
-      "nodeId": "ci1-price",
+      "slotKey": "page-tracking.steps-title-1",
+      "pageKey": "page-tracking",
+      "regionKey": "page-tracking.steps-1",
+      "nodeId": "steps-title-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "¥28"
+      "label": "文本"
     },
     {
-      "slotKey": "page-cart.ci1-qty.row",
-      "pageKey": "page-cart",
-      "nodeId": "ci1-qty",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "图标"
-    },
-    {
-      "slotKey": "page-cart.ci1-minus.panel",
-      "pageKey": "page-cart",
-      "nodeId": "ci1-minus",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "图标"
-    },
-    {
-      "slotKey": "page-cart.minus-icon.image",
-      "pageKey": "page-cart",
-      "nodeId": "minus-icon",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "图标"
-    },
-    {
-      "slotKey": "page-cart.ci1-num.text",
-      "pageKey": "page-cart",
-      "nodeId": "ci1-num",
+      "slotKey": "page-tracking.step-text-0-1",
+      "pageKey": "page-tracking",
+      "regionKey": "page-tracking.step-0-1",
+      "nodeId": "step-text-0-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "1"
+      "label": "文本"
     },
     {
-      "slotKey": "page-cart.ci1-plus.panel",
-      "pageKey": "page-cart",
-      "nodeId": "ci1-plus",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "图标"
-    },
-    {
-      "slotKey": "page-cart.plus-icon.image",
-      "pageKey": "page-cart",
-      "nodeId": "plus-icon",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "图标"
-    },
-    {
-      "slotKey": "page-cart.cart-summary.panel",
-      "pageKey": "page-cart",
-      "regionKey": "page-cart.item-4",
-      "nodeId": "cart-summary",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "商品小计"
-    },
-    {
-      "slotKey": "page-cart.summary-row1.row",
-      "pageKey": "page-cart",
-      "regionKey": "page-cart.item-4",
-      "nodeId": "summary-row1",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "商品小计"
-    },
-    {
-      "slotKey": "page-cart.s1-label.text",
-      "pageKey": "page-cart",
-      "nodeId": "s1-label",
+      "slotKey": "page-tracking.step-text-1-1",
+      "pageKey": "page-tracking",
+      "regionKey": "page-tracking.step-1-1",
+      "nodeId": "step-text-1-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "商品小计"
+      "label": "文本"
     },
     {
-      "slotKey": "page-cart.s1-value.text",
-      "pageKey": "page-cart",
-      "nodeId": "s1-value",
+      "slotKey": "page-tracking.step-text-2-1",
+      "pageKey": "page-tracking",
+      "regionKey": "page-tracking.step-2-1",
+      "nodeId": "step-text-2-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "¥56"
+      "label": "文本"
     },
     {
-      "slotKey": "page-cart.summary-row2.row",
-      "pageKey": "page-cart",
-      "regionKey": "page-cart.item-4",
-      "nodeId": "summary-row2",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "配送费"
-    },
-    {
-      "slotKey": "page-cart.s2-label.text",
-      "pageKey": "page-cart",
-      "nodeId": "s2-label",
+      "slotKey": "page-tracking.step-text-3-1",
+      "pageKey": "page-tracking",
+      "regionKey": "page-tracking.step-3-1",
+      "nodeId": "step-text-3-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "配送费"
+      "label": "文本"
     },
     {
-      "slotKey": "page-cart.s2-value.text",
-      "pageKey": "page-cart",
-      "nodeId": "s2-value",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "¥4"
-    },
-    {
-      "slotKey": "page-cart.summary-total.row",
-      "pageKey": "page-cart",
-      "regionKey": "page-cart.item-4",
-      "nodeId": "summary-total",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "合计"
-    },
-    {
-      "slotKey": "page-cart.total-label.text",
-      "pageKey": "page-cart",
-      "nodeId": "total-label",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "合计"
-    },
-    {
-      "slotKey": "page-cart.total-value.text",
-      "pageKey": "page-cart",
-      "nodeId": "total-value",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "¥60"
-    },
-    {
-      "slotKey": "page-cart.checkout-btn.button",
-      "pageKey": "page-cart",
-      "regionKey": "page-cart.item-5",
-      "nodeId": "checkout-btn",
+      "slotKey": "page-tracking.abtn-0-2-2",
+      "pageKey": "page-tracking",
+      "regionKey": "page-tracking.action-row-inner-2-2",
+      "nodeId": "abtn-0-2-2",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "提交订单"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-cart.page-cart-bottom-tabs.tabs",
-      "pageKey": "page-cart",
-      "nodeId": "page-cart-bottom-tabs",
-      "component": "core.tabs",
-      "editableProps": [
-        "tabs",
-        "activeTab"
-      ],
-      "label": "page-cart-bottom-tabs"
-    },
-    {
-      "slotKey": "page-confirm.page-confirm-screen.screen",
-      "pageKey": "page-confirm",
-      "nodeId": "page-confirm-screen",
-      "component": "core.screen",
-      "editableProps": [
-        "title",
-        "statusTime",
-        "headerActionLabel"
-      ],
-      "label": "确认订单"
-    },
-    {
-      "slotKey": "page-confirm.confirm-header.panel",
-      "pageKey": "page-confirm",
-      "regionKey": "page-confirm.item-2",
-      "nodeId": "confirm-header",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "确认订单"
-    },
-    {
-      "slotKey": "page-confirm.confirm-title.text",
-      "pageKey": "page-confirm",
-      "regionKey": "page-confirm.item-2",
-      "nodeId": "confirm-title",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "确认订单"
-    },
-    {
-      "slotKey": "page-confirm.delivery-address.panel",
-      "pageKey": "page-confirm",
-      "regionKey": "page-confirm.item-3",
-      "nodeId": "delivery-address",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "图标"
-    },
-    {
-      "slotKey": "page-confirm.addr-row.row",
-      "pageKey": "page-confirm",
-      "regionKey": "page-confirm.item-3",
-      "nodeId": "addr-row",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "图标"
-    },
-    {
-      "slotKey": "page-confirm.addr-icon.image",
-      "pageKey": "page-confirm",
-      "nodeId": "addr-icon",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "图标"
-    },
-    {
-      "slotKey": "page-confirm.addr-info.stack",
-      "pageKey": "page-confirm",
-      "nodeId": "addr-info",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "张三 138****8888"
-    },
-    {
-      "slotKey": "page-confirm.addr-name.text",
-      "pageKey": "page-confirm",
-      "nodeId": "addr-name",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "张三 138****8888"
-    },
-    {
-      "slotKey": "page-confirm.addr-detail.text",
-      "pageKey": "page-confirm",
-      "nodeId": "addr-detail",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "北京市朝阳区示例路示例号"
-    },
-    {
-      "slotKey": "page-confirm.addr-arrow.text",
-      "pageKey": "page-confirm",
-      "nodeId": "addr-arrow",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": ">"
-    },
-    {
-      "slotKey": "page-confirm.order-items.panel",
-      "pageKey": "page-confirm",
-      "regionKey": "page-confirm.item-4",
-      "nodeId": "order-items",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "美味餐厅"
-    },
-    {
-      "slotKey": "page-confirm.order-shop.text",
-      "pageKey": "page-confirm",
-      "regionKey": "page-confirm.item-4",
-      "nodeId": "order-shop",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "美味餐厅"
-    },
-    {
-      "slotKey": "page-confirm.order-item.row",
-      "pageKey": "page-confirm",
-      "regionKey": "page-confirm.item-4",
-      "nodeId": "order-item",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-confirm.oi-img.image",
-      "pageKey": "page-confirm",
-      "nodeId": "oi-img",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-confirm.oi-info.stack",
-      "pageKey": "page-confirm",
-      "nodeId": "oi-info",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "招牌红烧肉饭 ×1"
-    },
-    {
-      "slotKey": "page-confirm.oi-name.text",
-      "pageKey": "page-confirm",
-      "nodeId": "oi-name",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "招牌红烧肉饭 ×1"
-    },
-    {
-      "slotKey": "page-confirm.oi-price.text",
-      "pageKey": "page-confirm",
-      "nodeId": "oi-price",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "¥28"
-    },
-    {
-      "slotKey": "page-confirm.order-remark.panel",
-      "pageKey": "page-confirm",
-      "regionKey": "page-confirm.item-5",
-      "nodeId": "order-remark",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "备注"
-    },
-    {
-      "slotKey": "page-confirm.remark-label.text",
-      "pageKey": "page-confirm",
-      "regionKey": "page-confirm.item-5",
-      "nodeId": "remark-label",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "备注"
-    },
-    {
-      "slotKey": "page-confirm.remark-input.text",
-      "pageKey": "page-confirm",
-      "regionKey": "page-confirm.item-5",
-      "nodeId": "remark-input",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "请填写备注信息..."
-    },
-    {
-      "slotKey": "page-confirm.order-submit.button",
-      "pageKey": "page-confirm",
-      "regionKey": "page-confirm.k-60",
-      "nodeId": "order-submit",
+      "slotKey": "page-tracking.abtn-1-2",
+      "pageKey": "page-tracking",
+      "regionKey": "page-tracking.action-row-inner-2-2",
+      "nodeId": "abtn-1-2",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "提交订单 ¥60"
-    },
-    {
-      "slotKey": "page-confirm.page-confirm-bottom-tabs.tabs",
-      "pageKey": "page-confirm",
-      "nodeId": "page-confirm-bottom-tabs",
-      "component": "core.tabs",
-      "editableProps": [
-        "tabs",
-        "activeTab"
-      ],
-      "label": "page-confirm-bottom-tabs"
-    },
-    {
-      "slotKey": "page-tracking.page-tracking-screen.screen",
-      "pageKey": "page-tracking",
-      "nodeId": "page-tracking-screen",
-      "component": "core.screen",
-      "editableProps": [
-        "title",
-        "statusTime",
-        "headerActionLabel"
-      ],
-      "label": "配送追踪"
-    },
-    {
-      "slotKey": "page-tracking.tracking-header.panel",
-      "pageKey": "page-tracking",
-      "regionKey": "page-tracking.item-2",
-      "nodeId": "tracking-header",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "配送追踪"
-    },
-    {
-      "slotKey": "page-tracking.tracking-title.text",
-      "pageKey": "page-tracking",
-      "regionKey": "page-tracking.item-2",
-      "nodeId": "tracking-title",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "配送追踪"
-    },
-    {
-      "slotKey": "page-tracking.tracking-map.panel",
-      "pageKey": "page-tracking",
-      "regionKey": "page-tracking.item-3",
-      "nodeId": "tracking-map",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "地图区域"
-    },
-    {
-      "slotKey": "page-tracking.map-text.text",
-      "pageKey": "page-tracking",
-      "regionKey": "page-tracking.item-3",
-      "nodeId": "map-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "地图区域"
-    },
-    {
-      "slotKey": "page-tracking.tracking-status.panel",
-      "pageKey": "page-tracking",
-      "regionKey": "page-tracking.item-4",
-      "nodeId": "tracking-status",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "骑手正在赶往商家"
-    },
-    {
-      "slotKey": "page-tracking.status-title.text",
-      "pageKey": "page-tracking",
-      "regionKey": "page-tracking.item-4",
-      "nodeId": "status-title",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "骑手正在赶往商家"
-    },
-    {
-      "slotKey": "page-tracking.rider-info.row",
-      "pageKey": "page-tracking",
-      "regionKey": "page-tracking.item-4",
-      "nodeId": "rider-info",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-tracking.rider-avatar.image",
-      "pageKey": "page-tracking",
-      "nodeId": "rider-avatar",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-tracking.rider-name.text",
-      "pageKey": "page-tracking",
-      "nodeId": "rider-name",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "骑手 王师傅"
-    },
-    {
-      "slotKey": "page-tracking.rider-call.image",
-      "pageKey": "page-tracking",
-      "nodeId": "rider-call",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "图标"
-    },
-    {
-      "slotKey": "page-tracking.tracking-timeline.panel",
-      "pageKey": "page-tracking",
-      "regionKey": "page-tracking.item-5",
-      "nodeId": "tracking-timeline",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "订单状态"
-    },
-    {
-      "slotKey": "page-tracking.timeline-title.text",
-      "pageKey": "page-tracking",
-      "regionKey": "page-tracking.item-5",
-      "nodeId": "timeline-title",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "订单状态"
-    },
-    {
-      "slotKey": "page-tracking.timeline-1.row",
-      "pageKey": "page-tracking",
-      "regionKey": "page-tracking.item-5",
-      "nodeId": "timeline-1",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "骑手已接单"
-    },
-    {
-      "slotKey": "page-tracking.t1-dot.panel",
-      "pageKey": "page-tracking",
-      "nodeId": "t1-dot",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "t1-dot"
-    },
-    {
-      "slotKey": "page-tracking.t1-content.stack",
-      "pageKey": "page-tracking",
-      "nodeId": "t1-content",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "骑手已接单"
-    },
-    {
-      "slotKey": "page-tracking.t1-text.text",
-      "pageKey": "page-tracking",
-      "nodeId": "t1-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "骑手已接单"
-    },
-    {
-      "slotKey": "page-tracking.t1-time.text",
-      "pageKey": "page-tracking",
-      "nodeId": "t1-time",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "14:30"
-    },
-    {
-      "slotKey": "page-tracking.timeline-2.row",
-      "pageKey": "page-tracking",
-      "regionKey": "page-tracking.item-5",
-      "nodeId": "timeline-2",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "订单已送达"
-    },
-    {
-      "slotKey": "page-tracking.t2-dot.panel",
-      "pageKey": "page-tracking",
-      "nodeId": "t2-dot",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "t2-dot"
-    },
-    {
-      "slotKey": "page-tracking.t2-content.stack",
-      "pageKey": "page-tracking",
-      "nodeId": "t2-content",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "订单已送达"
-    },
-    {
-      "slotKey": "page-tracking.t2-text.text",
-      "pageKey": "page-tracking",
-      "nodeId": "t2-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "订单已送达"
-    },
-    {
-      "slotKey": "page-tracking.page-tracking-primary-action.button",
-      "pageKey": "page-tracking",
-      "regionKey": "page-tracking.item-6",
-      "nodeId": "page-tracking-primary-action",
-      "component": "core.button",
-      "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
-      ],
-      "label": "继续下单"
-    },
-    {
-      "slotKey": "page-tracking.page-tracking-bottom-tabs.tabs",
-      "pageKey": "page-tracking",
-      "nodeId": "page-tracking-bottom-tabs",
-      "component": "core.tabs",
-      "editableProps": [
-        "tabs",
-        "activeTab"
-      ],
-      "label": "page-tracking-bottom-tabs"
+      "label": "按钮"
     }
   ],
   "patterns": [
     {
-      "patternKey": "page-menu.item.pattern",
+      "patternKey": "page-menu.cat-list-1.item",
       "pageKey": "page-menu",
-      "regionKey": "page-menu.item",
-      "sourceRootNodeId": "food-store-top",
-      "parentNodeId": "food-store-status",
-      "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-menu.food-store-logo.image",
-          "prop": "alt"
-        },
-        {
-          "fieldKey": "food-store-name",
-          "slotKey": "page-menu.food-store-name.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "food-store-meta",
-          "slotKey": "page-menu.food-store-meta.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "label",
-          "slotKey": "page-menu.food-store-open.tag",
-          "prop": "label"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
+      "regionKey": "page-menu.menu-layout-1",
+      "sourceRootNodeId": "cat-0-1",
+      "parentNodeId": "cat-list-1",
+      "itemAlias": "core.button",
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
     },
     {
-      "patternKey": "page-menu.item.pattern-2",
+      "patternKey": "page-menu.menu-list-1.item",
       "pageKey": "page-menu",
-      "regionKey": "page-menu.item-2",
-      "sourceRootNodeId": "food-category-rail",
-      "parentNodeId": "food-order-layout",
-      "itemAlias": "core.stack",
-      "fields": [
-        {
-          "fieldKey": "food-cat-text-0",
-          "slotKey": "page-menu.food-cat-text-0.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "food-cat-text-1",
-          "slotKey": "page-menu.food-cat-text-1.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "food-cat-text-2",
-          "slotKey": "page-menu.food-cat-text-2.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "food-cat-text-3",
-          "slotKey": "page-menu.food-cat-text-3.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "food-cat-text-4",
-          "slotKey": "page-menu.food-cat-text-4.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-menu.k-3-76.pattern",
-      "pageKey": "page-menu",
-      "regionKey": "page-menu.k-3-76",
-      "sourceRootNodeId": "food-cart-dock-row",
-      "parentNodeId": "food-cart-dock",
+      "regionKey": "page-menu.menu-layout-1",
+      "sourceRootNodeId": "menu-0-1",
+      "parentNodeId": "menu-list-1",
       "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "food-cart-summary",
-          "slotKey": "page-menu.food-cart-summary.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "label",
-          "slotKey": "page-menu.food-cart-submit.button",
-          "prop": "label"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-cart.item.pattern",
-      "pageKey": "page-cart",
-      "regionKey": "page-cart.item-2",
-      "sourceRootNodeId": "cart-title",
-      "parentNodeId": "cart-header",
-      "itemAlias": "core.text",
-      "fields": [
-        {
-          "fieldKey": "cart-title",
-          "slotKey": "page-cart.cart-title.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-cart.item.pattern-2",
-      "pageKey": "page-cart",
-      "regionKey": "page-cart.item-3",
-      "sourceRootNodeId": "cart-item-1",
-      "parentNodeId": "cart-items",
-      "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-cart.ci1-img.image",
-          "prop": "alt"
-        },
-        {
-          "fieldKey": "ci1-name",
-          "slotKey": "page-cart.ci1-name.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "ci1-price",
-          "slotKey": "page-cart.ci1-price.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-cart.minus-icon.image",
-          "prop": "alt"
-        },
-        {
-          "fieldKey": "ci1-num",
-          "slotKey": "page-cart.ci1-num.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-cart.plus-icon.image",
-          "prop": "alt"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-cart.item.pattern-3",
-      "pageKey": "page-cart",
-      "regionKey": "page-cart.item-4",
-      "sourceRootNodeId": "summary-row1",
-      "parentNodeId": "cart-summary",
-      "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "s1-label",
-          "slotKey": "page-cart.s1-label.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "s1-value",
-          "slotKey": "page-cart.s1-value.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-confirm.item.pattern",
-      "pageKey": "page-confirm",
-      "regionKey": "page-confirm.item-2",
-      "sourceRootNodeId": "confirm-title",
-      "parentNodeId": "confirm-header",
-      "itemAlias": "core.text",
-      "fields": [
-        {
-          "fieldKey": "confirm-title",
-          "slotKey": "page-confirm.confirm-title.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-confirm.item.pattern-2",
-      "pageKey": "page-confirm",
-      "regionKey": "page-confirm.item-3",
-      "sourceRootNodeId": "addr-row",
-      "parentNodeId": "delivery-address",
-      "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-confirm.addr-icon.image",
-          "prop": "alt"
-        },
-        {
-          "fieldKey": "addr-name",
-          "slotKey": "page-confirm.addr-name.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "addr-detail",
-          "slotKey": "page-confirm.addr-detail.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "addr-arrow",
-          "slotKey": "page-confirm.addr-arrow.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-confirm.item.pattern-3",
-      "pageKey": "page-confirm",
-      "regionKey": "page-confirm.item-4",
-      "sourceRootNodeId": "order-item",
-      "parentNodeId": "order-items",
-      "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-confirm.oi-img.image",
-          "prop": "alt"
-        },
-        {
-          "fieldKey": "oi-name",
-          "slotKey": "page-confirm.oi-name.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "oi-price",
-          "slotKey": "page-confirm.oi-price.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-confirm.item.pattern-4",
-      "pageKey": "page-confirm",
-      "regionKey": "page-confirm.item-5",
-      "sourceRootNodeId": "remark-label",
-      "parentNodeId": "order-remark",
-      "itemAlias": "core.text",
-      "fields": [
-        {
-          "fieldKey": "remark-label",
-          "slotKey": "page-confirm.remark-label.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-tracking.item.pattern",
-      "pageKey": "page-tracking",
-      "regionKey": "page-tracking.item-2",
-      "sourceRootNodeId": "tracking-title",
-      "parentNodeId": "tracking-header",
-      "itemAlias": "core.text",
-      "fields": [
-        {
-          "fieldKey": "tracking-title",
-          "slotKey": "page-tracking.tracking-title.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-tracking.item.pattern-2",
-      "pageKey": "page-tracking",
-      "regionKey": "page-tracking.item-3",
-      "sourceRootNodeId": "map-text",
-      "parentNodeId": "tracking-map",
-      "itemAlias": "core.text",
-      "fields": [
-        {
-          "fieldKey": "map-text",
-          "slotKey": "page-tracking.map-text.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-tracking.item.pattern-3",
-      "pageKey": "page-tracking",
-      "regionKey": "page-tracking.item-4",
-      "sourceRootNodeId": "rider-info",
-      "parentNodeId": "tracking-status",
-      "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-tracking.rider-avatar.image",
-          "prop": "alt"
-        },
-        {
-          "fieldKey": "rider-name",
-          "slotKey": "page-tracking.rider-name.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-tracking.rider-call.image",
-          "prop": "alt"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-tracking.item.pattern-4",
-      "pageKey": "page-tracking",
-      "regionKey": "page-tracking.item-5",
-      "sourceRootNodeId": "timeline-1",
-      "parentNodeId": "tracking-timeline",
-      "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "t1-text",
-          "slotKey": "page-tracking.t1-text.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "t1-time",
-          "slotKey": "page-tracking.t1-time.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
     }
   ],
   "navigation": {
     "type": "bottom_tabs",
     "items": [
       {
-        "key": "page-menu",
         "label": "点餐首页",
-        "pageKey": "page-menu",
-        "pageId": "page-menu"
+        "targetPageId": "page-menu"
       },
       {
-        "key": "page-cart",
         "label": "购物车",
-        "pageKey": "page-cart",
-        "pageId": "page-cart"
+        "targetPageId": "page-cart"
       },
       {
-        "key": "page-confirm",
         "label": "确认订单",
-        "pageKey": "page-confirm",
-        "pageId": "page-confirm"
+        "targetPageId": "page-confirm"
       },
       {
-        "key": "page-tracking",
         "label": "配送追踪",
-        "pageKey": "page-tracking",
-        "pageId": "page-tracking"
+        "targetPageId": "page-tracking"
       }
     ]
   },
   "constraints": {
-    "devices": [
-      "miniapp",
-      "mobile"
-    ]
+    "maxWidth": "100%"
   },
   "styleProfile": {
-    "colors": [
-      "#ef4444",
-      "#dc2626",
-      "#f87171",
-      "#1e293b",
-      "#64748b",
-      "#e2e8f0",
-      "#f8fafc",
-      "#ffffff"
-    ],
+    "colors": [],
     "fontSizes": [],
     "fontWeights": [],
     "spacing": [],
     "radius": [],
     "shadows": [],
-    "commonLayoutPatterns": [
-      "panel",
-      "row",
-      "biz-hero-banner",
-      "stack",
-      "button"
-    ]
+    "commonLayoutPatterns": []
   }
 }

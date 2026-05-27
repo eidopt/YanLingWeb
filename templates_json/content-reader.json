@@ -1,7 +1,7 @@
 {
   "templateId": "content-reader",
   "name": "内容阅读",
-  "description": "适用于文章阅读、博客详情、新闻资讯等场景的小程序模板，包含文章列表、文章详情、评论区页面",
+  "description": "适用于文章阅读、博客详情、新闻资讯等场景的小程序模板",
   "accent": "#0ea5e9",
   "thumbnail": "",
   "platformCategories": [
@@ -13,92 +13,60 @@
     "reading"
   ],
   "category": "content-reader",
+  "categoryLabel": "内容阅读",
+  "functionalCategoryLabels": {
+    "content-reader": "内容阅读",
+    "content": "内容",
+    "reading": "阅读"
+  },
+  "traits": [
+    "杂志排版",
+    "阅读体验",
+    "文字层级"
+  ],
   "tags": [
     "文章",
     "阅读",
     "博客",
-    "资讯",
-    "评论"
+    "资讯"
   ],
+  "cssVars": {
+    "--color-primary": "#0ea5e9",
+    "--color-primary-dark": "#0ea5e9cc",
+    "--color-primary-light": "#0ea5e922",
+    "--color-text-primary": "#1a1a1a",
+    "--color-text-secondary": "#78716c",
+    "--color-border": "#e5e7eb",
+    "--color-background": "#faf8f5",
+    "--color-surface": "#ffffff",
+    "--color-surface-alt": "#f9fafb",
+    "--color-success": "#22c55e",
+    "--color-warning": "#f59e0b",
+    "--radius-card": "4px",
+    "--shadow-card": "none"
+  },
+  "componentTemplates": {},
   "layoutDocument": {
     "version": 1,
     "themeId": "content-reader",
     "themeName": "内容阅读",
-    "description": "适用于文章阅读、博客详情、新闻资讯等场景的小程序模板，包含文章列表、文章详情、评论区页面",
+    "description": "适用于文章阅读、博客详情、新闻资讯等场景的小程序模板",
     "components": [
       {
-        "alias": "core.button",
-        "name": "按钮",
-        "kind": "component",
-        "description": "按钮组件",
+        "alias": "core.screen",
+        "name": "页面画布",
+        "kind": "layout",
+        "description": "页面画布组件",
         "props": [
-          {
-            "name": "label",
-            "type": "string",
-            "label": "显示文字"
-          },
-          {
-            "name": "style",
-            "type": "object",
-            "label": "样式"
-          },
-          {
-            "name": "variant",
-            "type": "string",
-            "label": "文字层级"
-          },
-          {
-            "name": "active",
-            "type": "string",
-            "label": "选中"
-          },
-          {
-            "name": "disabled",
-            "type": "string",
-            "label": "禁用"
-          },
-          {
-            "name": "icon",
-            "type": "string",
-            "label": "图标"
-          }
-        ]
-      },
-      {
-        "alias": "core.image",
-        "name": "图片",
-        "kind": "component",
-        "description": "图片组件",
-        "props": [
-          {
-            "name": "alt",
-            "type": "string",
-            "label": "替代文本"
-          },
-          {
-            "name": "iconColor",
-            "type": "string",
-            "label": "图标颜色"
-          },
-          {
-            "name": "objectFit",
-            "type": "string",
-            "label": "图片填充方式"
-          },
-          {
-            "name": "src",
-            "type": "string",
-            "label": "图片地址"
-          },
-          {
-            "name": "style",
-            "type": "object",
-            "label": "样式"
-          },
           {
             "name": "title",
             "type": "string",
             "label": "标题"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
           }
         ]
       },
@@ -122,6 +90,80 @@
             "name": "gap",
             "type": "string",
             "label": "间距"
+          }
+        ]
+      },
+      {
+        "alias": "core.tag",
+        "name": "标签",
+        "kind": "component",
+        "description": "标签组件",
+        "props": [
+          {
+            "name": "label",
+            "type": "string",
+            "label": "显示文字"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.text",
+        "name": "文本",
+        "kind": "component",
+        "description": "文本组件",
+        "props": [
+          {
+            "name": "text",
+            "type": "string",
+            "label": "显示内容"
+          },
+          {
+            "name": "variant",
+            "type": "string",
+            "label": "文字层级"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.button",
+        "name": "按钮",
+        "kind": "component",
+        "description": "按钮组件",
+        "props": [
+          {
+            "name": "label",
+            "type": "string",
+            "label": "显示文字"
+          },
+          {
+            "name": "variant",
+            "type": "string",
+            "label": "文字层级"
+          },
+          {
+            "name": "disabled",
+            "type": "string",
+            "label": "禁用"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
           }
         ]
       },
@@ -164,19 +206,6 @@
         ]
       },
       {
-        "alias": "core.screen",
-        "name": "页面画布",
-        "kind": "layout",
-        "description": "页面画布组件",
-        "props": [
-          {
-            "name": "title",
-            "type": "string",
-            "label": "标题"
-          }
-        ]
-      },
-      {
         "alias": "core.stack",
         "name": "纵向容器",
         "kind": "layout",
@@ -200,71 +229,35 @@
         ]
       },
       {
-        "alias": "core.text",
-        "name": "文本",
+        "alias": "core.image",
+        "name": "图片",
         "kind": "component",
-        "description": "文本组件",
+        "description": "图片组件",
         "props": [
           {
-            "name": "style",
-            "type": "object",
-            "label": "样式"
+            "name": "alt",
+            "type": "string",
+            "label": "替代文本"
           },
           {
-            "name": "text",
+            "name": "iconColor",
             "type": "string",
-            "label": "显示内容"
+            "label": "图标颜色"
           },
           {
-            "name": "variant",
+            "name": "objectFit",
             "type": "string",
-            "label": "文字层级"
+            "label": "图片填充方式"
           },
           {
-            "name": "as",
+            "name": "src",
             "type": "string",
-            "label": "标签"
-          }
-        ]
-      },
-      {
-        "alias": "core.grid",
-        "name": "网格容器",
-        "kind": "layout",
-        "description": "网格容器 组件",
-        "props": [
-          {
-            "name": "gap",
-            "type": "string",
-            "label": "间距"
+            "label": "图片地址"
           },
           {
-            "name": "columns",
-            "type": "number",
-            "label": "列数"
-          },
-          {
-            "name": "style",
-            "type": "object",
-            "label": "样式"
-          }
-        ]
-      },
-      {
-        "alias": "core.tag",
-        "name": "标签",
-        "kind": "component",
-        "description": "标签 组件",
-        "props": [
-          {
-            "name": "label",
+            "name": "title",
             "type": "string",
-            "label": "显示文字"
-          },
-          {
-            "name": "tone",
-            "type": "string",
-            "label": "风格"
+            "label": "标题"
           },
           {
             "name": "style",
@@ -277,7 +270,7 @@
         "alias": "core.tabs",
         "name": "标签导航",
         "kind": "component",
-        "description": "标签导航 组件",
+        "description": "标签导航组件",
         "props": [
           {
             "name": "tabs",
@@ -297,185 +290,27 @@
         ]
       },
       {
-        "alias": "core.search",
-        "name": "搜索框",
-        "kind": "component",
-        "description": "搜索框 组件",
-        "props": [
-          {
-            "name": "placeholder",
-            "type": "string",
-            "label": "占位文本"
-          },
-          {
-            "name": "value",
-            "type": "number",
-            "label": "值"
-          },
-          {
-            "name": "style",
-            "type": "object",
-            "label": "样式"
-          }
-        ]
-      },
-      {
-        "alias": "core.input",
-        "name": "输入框",
-        "kind": "component",
-        "description": "输入框 组件",
-        "props": [
-          {
-            "name": "placeholder",
-            "type": "string",
-            "label": "占位文本"
-          },
-          {
-            "name": "label",
-            "type": "string",
-            "label": "显示文字"
-          },
-          {
-            "name": "type",
-            "type": "string",
-            "label": "类型"
-          },
-          {
-            "name": "value",
-            "type": "number",
-            "label": "值"
-          },
-          {
-            "name": "disabled",
-            "type": "string",
-            "label": "禁用"
-          },
-          {
-            "name": "style",
-            "type": "object",
-            "label": "样式"
-          }
-        ]
-      },
-      {
-        "alias": "core.notice",
-        "name": "提示",
-        "kind": "component",
-        "description": "提示 组件",
-        "props": [
-          {
-            "name": "text",
-            "type": "string",
-            "label": "显示内容"
-          },
-          {
-            "name": "tone",
-            "type": "string",
-            "label": "风格"
-          },
-          {
-            "name": "style",
-            "type": "object",
-            "label": "样式"
-          }
-        ]
-      },
-      {
-        "alias": "core.progress",
-        "name": "进度条",
-        "kind": "component",
-        "description": "进度条 组件",
-        "props": [
-          {
-            "name": "value",
-            "type": "number",
-            "label": "值"
-          },
-          {
-            "name": "max",
-            "type": "number",
-            "label": "最大值"
-          },
-          {
-            "name": "tone",
-            "type": "string",
-            "label": "风格"
-          },
-          {
-            "name": "style",
-            "type": "object",
-            "label": "样式"
-          }
-        ]
-      },
-      {
         "alias": "core.divider",
         "name": "分隔线",
         "kind": "component",
-        "description": "分隔线 组件",
+        "description": "分隔线组件",
         "props": [
           {
             "name": "style",
             "type": "object",
             "label": "样式"
-          }
-        ]
-      },
-      {
-        "alias": "core.spacer",
-        "name": "空白",
-        "kind": "component",
-        "description": "空白 组件",
-        "props": [
-          {
-            "name": "size",
-            "type": "string",
-            "label": "尺寸"
-          },
-          {
-            "name": "style",
-            "type": "object",
-            "label": "样式"
-          }
-        ]
-      },
-      {
-        "alias": "biz-hero-banner",
-        "name": "业务头图",
-        "kind": "component",
-        "description": "业务头图组件",
-        "props": [
-          {
-            "name": "badge",
-            "type": "string",
-            "label": "徽标"
-          },
-          {
-            "name": "title",
-            "type": "string",
-            "label": "标题"
-          },
-          {
-            "name": "subtitle",
-            "type": "string",
-            "label": "副标题"
-          },
-          {
-            "name": "actionLabel",
-            "type": "string",
-            "label": "行动按钮文案"
           }
         ]
       }
     ],
-    "defaultPageId": "page-list",
+    "defaultPageId": "page-home",
     "pages": [
       {
-        "id": "page-list",
+        "id": "page-home",
         "name": "阅读首页",
-        "description": "今日阅读与书架",
+        "description": "阅读首页",
         "layout": {
-          "id": "page-list-screen",
+          "id": "page-home-screen",
           "alias": "core.screen",
           "layout": {
             "mode": "flow",
@@ -484,12 +319,12 @@
           "props": {
             "title": "阅读首页",
             "style": {
-              "background": "#f7f4ef"
+              "background": "#faf8f5"
             }
           },
           "children": [
             {
-              "id": "reader-daily-cover",
+              "id": "cover-0",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
@@ -498,17 +333,17 @@
               },
               "props": {
                 "style": {
-                  "margin": "20rpx 24rpx 0",
-                  "padding": "32rpx 28rpx",
-                  "borderRadius": "32rpx",
-                  "minHeight": "300rpx",
-                  "background": "linear-gradient(160deg,#111827,#334155)",
-                  "color": "#fff"
+                  "padding": "28px 20px",
+                  "borderRadius": "0",
+                  "background": "#1a1a1a",
+                  "color": "#fff",
+                  "margin": "20px",
+                  "minHeight": "160px"
                 }
               },
               "children": [
                 {
-                  "id": "reader-daily-tag",
+                  "id": "cover-badge-0",
                   "alias": "core.tag",
                   "layout": {
                     "mode": "flow",
@@ -518,60 +353,62 @@
                     "label": "今日精选",
                     "tone": "new",
                     "style": {
-                      "alignSelf": "flex-start",
                       "background": "#facc15",
-                      "color": "#1f2937"
+                      "color": "#1f2937",
+                      "alignSelf": "flex-start"
                     }
                   },
                   "children": []
                 },
                 {
-                  "id": "reader-daily-title",
+                  "id": "cover-title-0",
                   "alias": "core.text",
                   "layout": {
                     "mode": "flow",
-                    "order": 1
+                    "order": 0
                   },
                   "props": {
                     "text": "把碎片时间变成一本杂志",
                     "variant": "display",
                     "style": {
                       "color": "#fff",
-                      "marginTop": "40rpx"
+                      "marginTop": "20px"
                     }
                   },
                   "children": []
                 },
                 {
-                  "id": "reader-daily-desc",
+                  "id": "cover-sub-0",
                   "alias": "core.text",
                   "layout": {
                     "mode": "flow",
-                    "order": 2
+                    "order": 0
                   },
                   "props": {
                     "text": "三篇深度长文 · 预计阅读 18 分钟",
                     "variant": "body",
                     "style": {
-                      "color": "rgba(255,255,255,0.78)"
+                      "color": "rgba(255,255,255,0.78)",
+                      "marginTop": "10px"
                     }
                   },
                   "children": []
                 },
                 {
-                  "id": "reader-daily-action",
+                  "id": "cover-btn-0",
                   "alias": "core.button",
                   "layout": {
                     "mode": "flow",
-                    "order": 3
+                    "order": 0
                   },
                   "props": {
                     "label": "开始阅读",
                     "variant": "primary",
                     "style": {
-                      "marginTop": "24rpx",
+                      "marginTop": "16px",
                       "background": "#facc15",
-                      "color": "#111827"
+                      "color": "#111827",
+                      "borderRadius": "8px"
                     }
                   },
                   "children": []
@@ -579,7 +416,7 @@
               ]
             },
             {
-              "id": "reader-chip-row",
+              "id": "chip-row-1",
               "alias": "core.row",
               "layout": {
                 "mode": "flow",
@@ -588,14 +425,14 @@
               },
               "props": {
                 "style": {
-                  "padding": "20rpx 24rpx 0",
-                  "gap": "12rpx",
+                  "gap": "8px",
+                  "padding": "20px 0",
                   "overflowX": "auto"
                 }
               },
               "children": [
                 {
-                  "id": "reader-chip-0",
+                  "id": "chip-0-1",
                   "alias": "core.button",
                   "layout": {
                     "mode": "flow",
@@ -605,71 +442,83 @@
                     "label": "推荐",
                     "variant": "primary",
                     "style": {
-                      "minWidth": "112rpx"
+                      "minWidth": "56px",
+                      "fontSize": "13px",
+                      "background": "#0ea5e9",
+                      "color": "#fff",
+                      "flexShrink": "0"
                     }
                   },
                   "children": []
                 },
                 {
-                  "id": "reader-chip-1",
+                  "id": "chip-1-1",
                   "alias": "core.button",
                   "layout": {
                     "mode": "flow",
-                    "order": 1
+                    "order": 0
                   },
                   "props": {
                     "label": "商业",
                     "variant": "pill",
                     "style": {
-                      "minWidth": "112rpx"
+                      "minWidth": "56px",
+                      "fontSize": "13px",
+                      "flexShrink": "0"
                     }
                   },
                   "children": []
                 },
                 {
-                  "id": "reader-chip-2",
+                  "id": "chip-2-1",
                   "alias": "core.button",
                   "layout": {
                     "mode": "flow",
-                    "order": 2
+                    "order": 0
                   },
                   "props": {
                     "label": "科技",
                     "variant": "pill",
                     "style": {
-                      "minWidth": "112rpx"
+                      "minWidth": "56px",
+                      "fontSize": "13px",
+                      "flexShrink": "0"
                     }
                   },
                   "children": []
                 },
                 {
-                  "id": "reader-chip-3",
+                  "id": "chip-3-1",
                   "alias": "core.button",
                   "layout": {
                     "mode": "flow",
-                    "order": 3
+                    "order": 0
                   },
                   "props": {
                     "label": "生活",
                     "variant": "pill",
                     "style": {
-                      "minWidth": "112rpx"
+                      "minWidth": "56px",
+                      "fontSize": "13px",
+                      "flexShrink": "0"
                     }
                   },
                   "children": []
                 },
                 {
-                  "id": "reader-chip-4",
+                  "id": "chip-4-1",
                   "alias": "core.button",
                   "layout": {
                     "mode": "flow",
-                    "order": 4
+                    "order": 0
                   },
                   "props": {
                     "label": "设计",
                     "variant": "pill",
                     "style": {
-                      "minWidth": "112rpx"
+                      "minWidth": "56px",
+                      "fontSize": "13px",
+                      "flexShrink": "0"
                     }
                   },
                   "children": []
@@ -677,8 +526,8 @@
               ]
             },
             {
-              "id": "reader-book-shelf",
-              "alias": "core.panel",
+              "id": "mag-list-2",
+              "alias": "core.stack",
               "layout": {
                 "mode": "flow",
                 "order": 2,
@@ -686,15 +535,12 @@
               },
               "props": {
                 "style": {
-                  "margin": "20rpx 24rpx 0",
-                  "padding": "24rpx",
-                  "borderRadius": "24rpx",
-                  "background": "#fff"
+                  "padding": "0 20px"
                 }
               },
               "children": [
                 {
-                  "id": "reader-shelf-head",
+                  "id": "mag-0-2",
                   "alias": "core.row",
                   "layout": {
                     "mode": "flow",
@@ -703,270 +549,78 @@
                   },
                   "props": {
                     "style": {
-                      "justifyContent": "space-between"
+                      "gap": "14px",
+                      "alignItems": "center",
+                      "padding": "14px 0",
+                      "borderBottom": "1px solid #e5e7eb"
                     }
                   },
                   "children": [
                     {
-                      "id": "reader-shelf-title",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "text": "书架式阅读",
-                        "variant": "heading",
-                        "style": {}
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "reader-shelf-count",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "12 篇",
-                        "variant": "caption",
-                        "style": {
-                          "color": "#64748b"
-                        }
-                      },
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "reader-shelf-row",
-                  "alias": "core.row",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1,
-                    "width": "100%"
-                  },
-                  "props": {
-                    "style": {
-                      "gap": "16rpx",
-                      "marginTop": "18rpx",
-                      "overflowX": "auto"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "reader-book-0",
-                      "alias": "core.panel",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0,
-                        "width": "auto"
-                      },
-                      "props": {
-                        "style": {
-                          "minWidth": "168rpx",
-                          "height": "220rpx",
-                          "padding": "18rpx",
-                          "borderRadius": "20rpx",
-                          "background": "#fde68a",
-                          "display": "flex",
-                          "alignItems": "flex-end"
-                        }
-                      },
-                      "children": [
-                        {
-                          "id": "reader-book-title-0",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "text": "城市更新",
-                            "variant": "subheading",
-                            "style": {
-                              "color": "#111827"
-                            }
-                          },
-                          "children": []
-                        }
-                      ]
-                    },
-                    {
-                      "id": "reader-book-1",
-                      "alias": "core.panel",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1,
-                        "width": "auto"
-                      },
-                      "props": {
-                        "style": {
-                          "minWidth": "168rpx",
-                          "height": "220rpx",
-                          "padding": "18rpx",
-                          "borderRadius": "20rpx",
-                          "background": "#bfdbfe",
-                          "display": "flex",
-                          "alignItems": "flex-end"
-                        }
-                      },
-                      "children": [
-                        {
-                          "id": "reader-book-title-1",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "text": "产品增长",
-                            "variant": "subheading",
-                            "style": {
-                              "color": "#111827"
-                            }
-                          },
-                          "children": []
-                        }
-                      ]
-                    },
-                    {
-                      "id": "reader-book-2",
-                      "alias": "core.panel",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 2,
-                        "width": "auto"
-                      },
-                      "props": {
-                        "style": {
-                          "minWidth": "168rpx",
-                          "height": "220rpx",
-                          "padding": "18rpx",
-                          "borderRadius": "20rpx",
-                          "background": "#fecdd3",
-                          "display": "flex",
-                          "alignItems": "flex-end"
-                        }
-                      },
-                      "children": [
-                        {
-                          "id": "reader-book-title-2",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "text": "长期主义",
-                            "variant": "subheading",
-                            "style": {
-                              "color": "#111827"
-                            }
-                          },
-                          "children": []
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "id": "reader-news-list",
-              "alias": "core.stack",
-              "layout": {
-                "mode": "flow",
-                "order": 3,
-                "width": "100%"
-              },
-              "props": {
-                "style": {
-                  "padding": "20rpx 24rpx",
-                  "gap": "14rpx"
-                }
-              },
-              "children": [
-                {
-                  "id": "reader-article-0",
-                  "alias": "core.row",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0,
-                    "width": "100%"
-                  },
-                  "props": {
-                    "style": {
-                      "padding": "18rpx",
-                      "borderRadius": "20rpx",
-                      "background": "#fff",
-                      "gap": "16rpx",
-                      "alignItems": "center"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "reader-article-img-0",
+                      "id": "mag-img-0-2",
                       "alias": "core.image",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
-                        "alt": "文章封面",
-                        "title": "文章封面",
-                        "iconColor": "#0f172a",
+                        "alt": "消费品牌的新渠道",
+                        "title": "消费品牌的新渠道",
+                        "iconColor": "#facc15",
                         "objectFit": "contain",
                         "style": {
-                          "width": "96rpx",
-                          "height": "96rpx",
-                          "borderRadius": "18rpx"
+                          "width": "72px",
+                          "height": "72px",
+                          "borderRadius": "8px",
+                          "background": "#facc1533",
+                          "flexShrink": "0"
                         }
                       },
                       "children": []
                     },
                     {
-                      "id": "reader-article-copy-0",
+                      "id": "mag-info-0-2",
                       "alias": "core.stack",
                       "layout": {
                         "mode": "flow",
-                        "order": 1,
-                        "width": "auto"
+                        "order": 0,
+                        "width": "100%"
                       },
                       "props": {
                         "style": {
-                          "flex": 1,
-                          "gap": "6rpx"
+                          "gap": "4px",
+                          "flex": "1"
                         }
                       },
                       "children": [
                         {
-                          "id": "reader-article-title-0",
+                          "id": "mag-title-0-2",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 0
                           },
                           "props": {
-                            "text": "早报：消费品牌的新渠道",
+                            "text": "消费品牌的新渠道",
                             "variant": "subheading",
-                            "style": {}
+                            "style": {
+                              "color": "#1a1a1a"
+                            }
                           },
                           "children": []
                         },
                         {
-                          "id": "reader-article-meta-0",
+                          "id": "mag-meta-0-2",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
-                            "order": 1
+                            "order": 0
                           },
                           "props": {
                             "text": "8 分钟 · 2 个章节",
                             "variant": "caption",
                             "style": {
-                              "color": "#64748b"
+                              "color": "#78716c"
                             }
                           },
                           "children": []
@@ -976,7 +630,7 @@
                   ]
                 },
                 {
-                  "id": "reader-article-1",
+                  "id": "mag-1-2",
                   "alias": "core.row",
                   "layout": {
                     "mode": "flow",
@@ -985,75 +639,78 @@
                   },
                   "props": {
                     "style": {
-                      "padding": "18rpx",
-                      "borderRadius": "20rpx",
-                      "background": "#fff",
-                      "gap": "16rpx",
-                      "alignItems": "center"
+                      "gap": "14px",
+                      "alignItems": "center",
+                      "padding": "14px 0",
+                      "borderBottom": "1px solid #e5e7eb"
                     }
                   },
                   "children": [
                     {
-                      "id": "reader-article-img-1",
+                      "id": "mag-img-1-2",
                       "alias": "core.image",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
-                        "alt": "文章封面",
-                        "title": "文章封面",
-                        "iconColor": "#2563eb",
+                        "alt": "从编辑视角看内容产品",
+                        "title": "从编辑视角看内容产品",
+                        "iconColor": "#bfdbfe",
                         "objectFit": "contain",
                         "style": {
-                          "width": "96rpx",
-                          "height": "96rpx",
-                          "borderRadius": "18rpx"
+                          "width": "72px",
+                          "height": "72px",
+                          "borderRadius": "8px",
+                          "background": "#bfdbfe33",
+                          "flexShrink": "0"
                         }
                       },
                       "children": []
                     },
                     {
-                      "id": "reader-article-copy-1",
+                      "id": "mag-info-1-2",
                       "alias": "core.stack",
                       "layout": {
                         "mode": "flow",
-                        "order": 1,
-                        "width": "auto"
+                        "order": 0,
+                        "width": "100%"
                       },
                       "props": {
                         "style": {
-                          "flex": 1,
-                          "gap": "6rpx"
+                          "gap": "4px",
+                          "flex": "1"
                         }
                       },
                       "children": [
                         {
-                          "id": "reader-article-title-1",
+                          "id": "mag-title-1-2",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 0
                           },
                           "props": {
-                            "text": "访谈：从编辑视角看内容产品",
+                            "text": "从编辑视角看内容产品",
                             "variant": "subheading",
-                            "style": {}
+                            "style": {
+                              "color": "#1a1a1a"
+                            }
                           },
                           "children": []
                         },
                         {
-                          "id": "reader-article-meta-1",
+                          "id": "mag-meta-1-2",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
-                            "order": 1
+                            "order": 0
                           },
                           "props": {
                             "text": "11 分钟 · 3 个章节",
                             "variant": "caption",
                             "style": {
-                              "color": "#64748b"
+                              "color": "#78716c"
                             }
                           },
                           "children": []
@@ -1063,7 +720,7 @@
                   ]
                 },
                 {
-                  "id": "reader-article-2",
+                  "id": "mag-2-2",
                   "alias": "core.row",
                   "layout": {
                     "mode": "flow",
@@ -1072,75 +729,78 @@
                   },
                   "props": {
                     "style": {
-                      "padding": "18rpx",
-                      "borderRadius": "20rpx",
-                      "background": "#fff",
-                      "gap": "16rpx",
-                      "alignItems": "center"
+                      "gap": "14px",
+                      "alignItems": "center",
+                      "padding": "14px 0",
+                      "borderBottom": "none"
                     }
                   },
                   "children": [
                     {
-                      "id": "reader-article-img-2",
+                      "id": "mag-img-2-2",
                       "alias": "core.image",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
-                        "alt": "文章封面",
-                        "title": "文章封面",
-                        "iconColor": "#db2777",
+                        "alt": "适合通勤阅读的专题",
+                        "title": "适合通勤阅读的专题",
+                        "iconColor": "#fecdd3",
                         "objectFit": "contain",
                         "style": {
-                          "width": "96rpx",
-                          "height": "96rpx",
-                          "borderRadius": "18rpx"
+                          "width": "72px",
+                          "height": "72px",
+                          "borderRadius": "8px",
+                          "background": "#fecdd333",
+                          "flexShrink": "0"
                         }
                       },
                       "children": []
                     },
                     {
-                      "id": "reader-article-copy-2",
+                      "id": "mag-info-2-2",
                       "alias": "core.stack",
                       "layout": {
                         "mode": "flow",
-                        "order": 1,
-                        "width": "auto"
+                        "order": 0,
+                        "width": "100%"
                       },
                       "props": {
                         "style": {
-                          "flex": 1,
-                          "gap": "6rpx"
+                          "gap": "4px",
+                          "flex": "1"
                         }
                       },
                       "children": [
                         {
-                          "id": "reader-article-title-2",
+                          "id": "mag-title-2-2",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 0
                           },
                           "props": {
-                            "text": "收藏：适合通勤阅读的专题",
+                            "text": "适合通勤阅读的专题",
                             "variant": "subheading",
-                            "style": {}
+                            "style": {
+                              "color": "#1a1a1a"
+                            }
                           },
                           "children": []
                         },
                         {
-                          "id": "reader-article-meta-2",
+                          "id": "mag-meta-2-2",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
-                            "order": 1
+                            "order": 0
                           },
                           "props": {
                             "text": "14 分钟 · 4 个章节",
                             "variant": "caption",
                             "style": {
-                              "color": "#64748b"
+                              "color": "#78716c"
                             }
                           },
                           "children": []
@@ -1152,7 +812,7 @@
               ]
             },
             {
-              "id": "page-list-bottom-tabs",
+              "id": "page-home-bottom-tabs",
               "alias": "core.tabs",
               "slot": "footer",
               "layout": {
@@ -1162,17 +822,17 @@
               },
               "props": {
                 "tabs": [
-                  "文章列表",
+                  "阅读首页",
                   "文章详情",
                   "评论区"
                 ],
-                "activeTab": "文章列表"
+                "activeTab": "阅读首页"
               },
               "interactions": {
                 "onTabClick": {
-                  "文章列表": {
+                  "阅读首页": {
                     "type": "navigate",
-                    "targetPageId": "page-list"
+                    "targetPageId": "page-home"
                   },
                   "文章详情": {
                     "type": "navigate",
@@ -1192,121 +852,106 @@
       {
         "id": "page-detail",
         "name": "文章详情",
-        "description": "2024年最值得关注的技术趋势",
+        "description": "文章详情",
         "layout": {
           "id": "page-detail-screen",
           "alias": "core.screen",
           "layout": {
             "mode": "flow",
-            "order": 1
+            "order": 0
           },
           "props": {
             "title": "文章详情",
             "style": {
-              "background": "var(--color-background, #f6f7fb)"
+              "background": "#faf8f5"
             }
           },
           "children": [
             {
-              "id": "page-detail-hero-banner",
-              "alias": "biz-hero-banner",
+              "id": "art-header-0",
+              "alias": "core.stack",
               "layout": {
                 "mode": "flow",
                 "order": 0,
                 "width": "100%"
               },
               "props": {
-                "badge": "内容阅读",
-                "title": "文章详情",
-                "subtitle": "2024年最值得关注的技术趋势",
-                "actionLabel": "继续阅读"
-              },
-              "children": []
-            },
-            {
-              "id": "detail-header",
-              "alias": "core.panel",
-              "layout": {
-                "mode": "flow",
-                "order": 1,
-                "width": "100%"
-              },
-              "props": {
                 "style": {
-                  "padding": "24rpx 32rpx",
-                  "background": "#fff"
+                  "gap": "12px",
+                  "padding": "20px 20px 0"
                 }
               },
               "children": [
                 {
-                  "id": "detail-title",
+                  "id": "art-title-0",
                   "alias": "core.text",
                   "layout": {
                     "mode": "flow",
                     "order": 0
                   },
                   "props": {
-                    "text": "2024年最值得关注的技术趋势",
+                    "text": "消费品牌的新渠道",
+                    "variant": "display",
                     "style": {
-                      "fontSize": "40rpx",
-                      "fontWeight": "bold",
-                      "color": "var(--color-text-primary)",
-                      "lineHeight": "1.5"
-                    },
-                    "variant": "heading"
+                      "color": "#1a1a1a",
+                      "lineHeight": "1.3"
+                    }
                   },
                   "children": []
                 },
                 {
-                  "id": "detail-meta",
+                  "id": "art-meta-0",
                   "alias": "core.row",
                   "layout": {
                     "mode": "flow",
-                    "order": 1
+                    "order": 0,
+                    "width": "100%"
                   },
                   "props": {
                     "style": {
-                      "marginTop": "20rpx",
-                      "gap": "24rpx",
+                      "gap": "16px",
                       "alignItems": "center"
                     }
                   },
                   "children": [
                     {
-                      "id": "detail-avatar",
+                      "id": "art-avatar-0",
                       "alias": "core.image",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
-                        "style": {
-                          "width": "56rpx",
-                          "height": "56rpx",
-                          "borderRadius": "50%"
-                        },
-                        "alt": "业务视觉元素",
-                        "title": "业务视觉元素",
+                        "alt": "科技观察",
+                        "title": "科技观察",
                         "iconColor": "#0ea5e9",
-                        "objectFit": "cover"
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "28px",
+                          "height": "28px",
+                          "borderRadius": "50%",
+                          "background": "#0ea5e922",
+                          "flexShrink": "0"
+                        }
                       },
                       "children": []
                     },
                     {
-                      "id": "detail-author-info",
+                      "id": "art-author-info-0",
                       "alias": "core.stack",
                       "layout": {
                         "mode": "flow",
-                        "order": 1
+                        "order": 0,
+                        "width": "100%"
                       },
                       "props": {
                         "style": {
-                          "gap": "4rpx"
+                          "gap": "2px"
                         }
                       },
                       "children": [
                         {
-                          "id": "detail-author",
+                          "id": "art-author-0",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
@@ -1314,41 +959,103 @@
                           },
                           "props": {
                             "text": "科技观察",
+                            "variant": "caption",
                             "style": {
-                              "fontSize": "26rpx",
-                              "fontWeight": "bold",
-                              "color": "var(--color-text-primary)"
-                            },
-                            "variant": "heading"
+                              "color": "#1a1a1a",
+                              "fontWeight": 600
+                            }
                           },
                           "children": []
                         },
                         {
-                          "id": "detail-date",
+                          "id": "art-date-0",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
-                            "order": 1
+                            "order": 0
                           },
                           "props": {
-                            "text": "2024-01-15 阅读 1.2k",
+                            "text": "2024-01-15 · 8 分钟",
+                            "variant": "caption",
                             "style": {
-                              "fontSize": "22rpx",
-                              "color": "var(--color-text-secondary)"
-                            },
-                            "variant": "caption"
+                              "color": "#78716c"
+                            }
                           },
                           "children": []
                         }
                       ]
                     }
                   ]
+                },
+                {
+                  "id": "art-divider-0",
+                  "alias": "core.divider",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {}
+                  },
+                  "children": []
                 }
               ]
             },
             {
-              "id": "detail-cover",
-              "alias": "core.image",
+              "id": "art-body-1",
+              "alias": "core.stack",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "0 20px"
+                }
+              },
+              "children": [
+                {
+                  "id": "p-0-1",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "在快速发展的消费领域，品牌们正在寻找新的渠道来触达用户。从社交媒体到短视频平台，从私域流量到直播带货，每一个新渠道都带来了新的机遇和挑战。",
+                    "variant": "body",
+                    "style": {
+                      "color": "#1a1a1a",
+                      "lineHeight": "1.8",
+                      "marginBottom": "16px"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "p-1-1",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "传统渠道的红利逐渐消退，新兴渠道的崛起正在重塑消费市场的格局。品牌需要在保持核心价值的同时，灵活适应新的渠道生态。",
+                    "variant": "body",
+                    "style": {
+                      "color": "#1a1a1a",
+                      "lineHeight": "1.8",
+                      "marginBottom": "16px"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "art-tags-2",
+              "alias": "core.row",
               "layout": {
                 "mode": "flow",
                 "order": 2,
@@ -1356,249 +1063,66 @@
               },
               "props": {
                 "style": {
-                  "width": "100%",
-                  "height": "400rpx"
-                },
-                "alt": "业务视觉元素",
-                "title": "业务视觉元素",
-                "iconColor": "#0ea5e9",
-                "objectFit": "cover"
-              },
-              "children": []
-            },
-            {
-              "id": "detail-content",
-              "alias": "core.panel",
-              "layout": {
-                "mode": "flow",
-                "order": 3,
-                "width": "100%"
-              },
-              "props": {
-                "style": {
-                  "padding": "32rpx"
+                  "gap": "8px",
+                  "padding": "20px"
                 }
               },
               "children": [
                 {
-                  "id": "detail-p1",
-                  "alias": "core.text",
+                  "id": "atag-0-2",
+                  "alias": "core.tag",
                   "layout": {
                     "mode": "flow",
                     "order": 0
                   },
                   "props": {
-                    "text": "在快速发展的科技领域，每年都会出现新的技术趋势和创新。2024年，我们见证了人工智能、边缘计算、第三代互联网等技术的快速发展，这些技术正在深刻改变着我们的生活方式和工作模式。",
+                    "label": "消费",
+                    "tone": "neutral",
                     "style": {
-                      "fontSize": "28rpx",
-                      "color": "var(--color-text-primary)",
-                      "lineHeight": "1.8",
-                      "marginBottom": "24rpx"
-                    },
-                    "variant": "body"
+                      "fontSize": "12px",
+                      "whiteSpace": "nowrap",
+                      "flexShrink": "0"
+                    }
                   },
                   "children": []
                 },
                 {
-                  "id": "detail-p2",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1
-                  },
-                  "props": {
-                    "text": "人工智能已经从实验室走向了实际应用。从智能助手到自动驾驶，从医疗诊断到金融风控，智能正在各个领域展现出巨大的潜力。特别是大语言模型的突破，让智能的理解和生成能力达到了新的高度。",
-                    "style": {
-                      "fontSize": "28rpx",
-                      "color": "var(--color-text-primary)",
-                      "lineHeight": "1.8",
-                      "marginBottom": "24rpx"
-                    },
-                    "variant": "body"
-                  },
-                  "children": []
-                }
-              ]
-            },
-            {
-              "id": "detail-actions",
-              "alias": "core.row",
-              "layout": {
-                "mode": "flow",
-                "order": 4,
-                "width": "100%"
-              },
-              "props": {
-                "style": {
-                  "justifyContent": "space-around",
-                  "padding": "24rpx 32rpx",
-                  "background": "#fff",
-                  "borderTop": "1rpx solid var(--color-border)"
-                }
-              },
-              "children": [
-                {
-                  "id": "action-like",
-                  "alias": "core.row",
+                  "id": "atag-1-2",
+                  "alias": "core.tag",
                   "layout": {
                     "mode": "flow",
                     "order": 0
                   },
                   "props": {
+                    "label": "品牌",
+                    "tone": "neutral",
                     "style": {
-                      "alignItems": "center",
-                      "gap": "8rpx"
+                      "fontSize": "12px",
+                      "whiteSpace": "nowrap",
+                      "flexShrink": "0"
                     }
                   },
-                  "children": [
-                    {
-                      "id": "like-icon",
-                      "alias": "core.image",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "alt": "图标",
-                        "title": "图标",
-                        "objectFit": "contain",
-                        "iconColor": "var(--color-text-secondary)"
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "like-text",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "点赞",
-                        "style": {
-                          "fontSize": "24rpx",
-                          "color": "var(--color-text-secondary)"
-                        },
-                        "variant": "caption"
-                      },
-                      "children": []
-                    }
-                  ]
+                  "children": []
                 },
                 {
-                  "id": "action-fav",
-                  "alias": "core.row",
+                  "id": "atag-2-2",
+                  "alias": "core.tag",
                   "layout": {
                     "mode": "flow",
-                    "order": 1
+                    "order": 0
                   },
                   "props": {
+                    "label": "渠道",
+                    "tone": "neutral",
                     "style": {
-                      "alignItems": "center",
-                      "gap": "8rpx"
+                      "fontSize": "12px",
+                      "whiteSpace": "nowrap",
+                      "flexShrink": "0"
                     }
                   },
-                  "children": [
-                    {
-                      "id": "fav-icon",
-                      "alias": "core.image",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "alt": "图标",
-                        "title": "图标",
-                        "objectFit": "contain",
-                        "iconColor": "var(--color-text-secondary)"
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "fav-text",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "收藏",
-                        "style": {
-                          "fontSize": "24rpx",
-                          "color": "var(--color-text-secondary)"
-                        },
-                        "variant": "caption"
-                      },
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "action-share",
-                  "alias": "core.row",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 2
-                  },
-                  "props": {
-                    "style": {
-                      "alignItems": "center",
-                      "gap": "8rpx"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "share-icon",
-                      "alias": "core.image",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "alt": "图标",
-                        "title": "图标",
-                        "objectFit": "contain",
-                        "iconColor": "var(--color-text-secondary)"
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "share-text",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "分享",
-                        "style": {
-                          "fontSize": "24rpx",
-                          "color": "var(--color-text-secondary)"
-                        },
-                        "variant": "caption"
-                      },
-                      "children": []
-                    }
-                  ]
+                  "children": []
                 }
               ]
-            },
-            {
-              "id": "page-detail-primary-action",
-              "alias": "core.button",
-              "layout": {
-                "mode": "flow",
-                "order": 5,
-                "width": "100%"
-              },
-              "props": {
-                "variant": "primary",
-                "label": "继续阅读",
-                "style": {
-                  "width": "100%"
-                }
-              },
-              "children": []
             },
             {
               "id": "page-detail-bottom-tabs",
@@ -1611,7 +1135,7 @@
               },
               "props": {
                 "tabs": [
-                  "文章列表",
+                  "阅读首页",
                   "文章详情",
                   "评论区"
                 ],
@@ -1619,9 +1143,9 @@
               },
               "interactions": {
                 "onTabClick": {
-                  "文章列表": {
+                  "阅读首页": {
                     "type": "navigate",
-                    "targetPageId": "page-list"
+                    "targetPageId": "page-home"
                   },
                   "文章详情": {
                     "type": "navigate",
@@ -1641,39 +1165,224 @@
       {
         "id": "page-comments",
         "name": "评论区",
-        "description": "评论 (128)",
+        "description": "评论区",
         "layout": {
           "id": "page-comments-screen",
           "alias": "core.screen",
           "layout": {
             "mode": "flow",
-            "order": 2
+            "order": 0
           },
           "props": {
             "title": "评论区",
             "style": {
-              "background": "var(--color-background, #f6f7fb)"
+              "background": "#faf8f5"
             }
           },
           "children": [
             {
-              "id": "page-comments-hero-banner",
-              "alias": "biz-hero-banner",
+              "id": "sec-head-0",
+              "alias": "core.row",
               "layout": {
                 "mode": "flow",
                 "order": 0,
                 "width": "100%"
               },
               "props": {
-                "badge": "内容阅读",
-                "title": "评论区",
-                "subtitle": "评论 (128)",
-                "actionLabel": "继续阅读"
+                "style": {
+                  "justifyContent": "space-between",
+                  "alignItems": "center",
+                  "padding": "20px 20px 0"
+                }
               },
-              "children": []
+              "children": [
+                {
+                  "id": "sec-title-0",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "评论 (23)",
+                    "variant": "subheading",
+                    "style": {
+                      "color": "#1a1a1a"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "sec-action-0",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "写评论",
+                    "variant": "caption",
+                    "style": {
+                      "color": "#0ea5e9",
+                      "whiteSpace": "nowrap",
+                      "flexShrink": "0"
+                    }
+                  },
+                  "children": []
+                }
+              ]
             },
             {
-              "id": "comment-header",
+              "id": "comment-0-1",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "0",
+                  "borderRadius": "4px",
+                  "background": "transparent",
+                  "border": "none",
+                  "boxShadow": "none"
+                }
+              },
+              "children": [
+                {
+                  "id": "comment-head-0-1",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "8px",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "comment-avatar-0-1",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "读书人小王",
+                        "title": "读书人小王",
+                        "iconColor": "#0ea5e9",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "28px",
+                          "height": "28px",
+                          "borderRadius": "50%",
+                          "background": "#0ea5e922",
+                          "flexShrink": "0"
+                        },
+                        "src": "https://placehold.co/200x200/78716c/fff?text=%E8%AF%BB%E8%80%85"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "comment-user-0-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "读书人小王",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#1a1a1a",
+                          "fontWeight": 600,
+                          "whiteSpace": "nowrap",
+                          "flexShrink": "0"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "comment-time-0-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "2 小时前",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#78716c",
+                          "whiteSpace": "nowrap",
+                          "flexShrink": "0"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "comment-body-0-1",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "这篇文章很有深度，特别是关于私域流量的分析。",
+                    "variant": "body",
+                    "style": {
+                      "color": "#1a1a1a",
+                      "marginTop": "8px"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "comment-actions-0-1",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "16px",
+                      "marginTop": "8px"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "comment-likes-0-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "👍 12",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#78716c",
+                          "whiteSpace": "nowrap",
+                          "flexShrink": "0"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "comment-1-1",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
@@ -1682,341 +1391,141 @@
               },
               "props": {
                 "style": {
-                  "padding": "24rpx 32rpx",
-                  "background": "#fff",
-                  "borderBottom": "1rpx solid var(--color-border)"
+                  "padding": "0",
+                  "borderRadius": "4px",
+                  "background": "transparent",
+                  "border": "none",
+                  "boxShadow": "none"
                 }
               },
               "children": [
                 {
-                  "id": "comment-title",
+                  "id": "comment-head-1-1",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "8px",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "comment-avatar-1-1",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "产品经理Lisa",
+                        "title": "产品爱好者小丽",
+                        "iconColor": "#0ea5e9",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "28px",
+                          "height": "28px",
+                          "borderRadius": "50%",
+                          "background": "#0ea5e922",
+                          "flexShrink": "0"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "comment-user-1-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "产品爱好者小丽",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#1a1a1a",
+                          "fontWeight": 600,
+                          "whiteSpace": "nowrap",
+                          "flexShrink": "0"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "comment-time-1-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "5 小时前",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#78716c",
+                          "whiteSpace": "nowrap",
+                          "flexShrink": "0"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "comment-body-1-1",
                   "alias": "core.text",
                   "layout": {
                     "mode": "flow",
                     "order": 0
                   },
                   "props": {
-                    "text": "评论 (128)",
+                    "text": "同意！短视频渠道确实是下一个增长点。",
+                    "variant": "body",
                     "style": {
-                      "fontSize": "32rpx",
-                      "fontWeight": "bold",
-                      "color": "var(--color-text-primary)"
-                    },
-                    "variant": "heading"
+                      "color": "#1a1a1a",
+                      "marginTop": "8px"
+                    }
                   },
                   "children": []
-                }
-              ]
-            },
-            {
-              "id": "comment-list",
-              "alias": "core.stack",
-              "layout": {
-                "mode": "flow",
-                "order": 2,
-                "width": "100%"
-              },
-              "props": {
-                "style": {
-                  "padding": "24rpx 32rpx",
-                  "gap": "24rpx"
-                }
-              },
-              "children": [
-                {
-                  "id": "comment-1",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "style": {
-                      "padding": "20rpx",
-                      "borderRadius": "12rpx",
-                      "background": "var(--color-background)"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "c1-header",
-                      "alias": "core.row",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "style": {
-                          "gap": "12rpx",
-                          "alignItems": "center",
-                          "marginBottom": "12rpx"
-                        }
-                      },
-                      "children": [
-                        {
-                          "id": "c1-avatar",
-                          "alias": "core.image",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "style": {
-                              "width": "56rpx",
-                              "height": "56rpx",
-                              "borderRadius": "50%"
-                            },
-                            "alt": "业务视觉元素",
-                            "title": "业务视觉元素",
-                            "iconColor": "#0ea5e9",
-                            "objectFit": "cover"
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "c1-name",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 1
-                          },
-                          "props": {
-                            "text": "热心网友",
-                            "style": {
-                              "fontSize": "26rpx",
-                              "fontWeight": "bold"
-                            },
-                            "variant": "heading"
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "c1-time",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 2
-                          },
-                          "props": {
-                            "text": "30分钟前",
-                            "style": {
-                              "fontSize": "22rpx",
-                              "color": "var(--color-text-secondary)"
-                            },
-                            "variant": "caption"
-                          },
-                          "children": []
-                        }
-                      ]
-                    },
-                    {
-                      "id": "c1-content",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "写得非常详细，对技术趋势的分析很到位！",
-                        "style": {
-                          "fontSize": "26rpx",
-                          "color": "var(--color-text-primary)",
-                          "lineHeight": "1.6"
-                        },
-                        "variant": "body"
-                      },
-                      "children": []
-                    }
-                  ]
                 },
                 {
-                  "id": "comment-2",
-                  "alias": "core.panel",
+                  "id": "comment-actions-1-1",
+                  "alias": "core.row",
                   "layout": {
                     "mode": "flow",
-                    "order": 1
-                  },
-                  "props": {
-                    "style": {
-                      "padding": "20rpx",
-                      "borderRadius": "12rpx",
-                      "background": "var(--color-background)"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "c2-header",
-                      "alias": "core.row",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "style": {
-                          "gap": "12rpx",
-                          "alignItems": "center",
-                          "marginBottom": "12rpx"
-                        }
-                      },
-                      "children": [
-                        {
-                          "id": "c2-avatar",
-                          "alias": "core.image",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "style": {
-                              "width": "56rpx",
-                              "height": "56rpx",
-                              "borderRadius": "50%"
-                            },
-                            "alt": "业务视觉元素",
-                            "title": "业务视觉元素",
-                            "iconColor": "#0ea5e9",
-                            "objectFit": "cover"
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "c2-name",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 1
-                          },
-                          "props": {
-                            "text": "技术爱好者",
-                            "style": {
-                              "fontSize": "26rpx",
-                              "fontWeight": "bold"
-                            },
-                            "variant": "heading"
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "c2-time",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 2
-                          },
-                          "props": {
-                            "text": "1小时前",
-                            "style": {
-                              "fontSize": "22rpx",
-                              "color": "var(--color-text-secondary)"
-                            },
-                            "variant": "caption"
-                          },
-                          "children": []
-                        }
-                      ]
-                    },
-                    {
-                      "id": "c2-content",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "期待更多关于智能应用的深度文章！",
-                        "style": {
-                          "fontSize": "26rpx",
-                          "color": "var(--color-text-primary)",
-                          "lineHeight": "1.6"
-                        },
-                        "variant": "body"
-                      },
-                      "children": []
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "id": "comment-input",
-              "alias": "core.panel",
-              "layout": {
-                "mode": "flow",
-                "order": 3,
-                "width": "100%"
-              },
-              "props": {
-                "style": {
-                  "position": "fixed",
-                  "bottom": 0,
-                  "left": 0,
-                  "right": 0,
-                  "padding": "16rpx 32rpx",
-                  "background": "#fff",
-                  "borderTop": "1rpx solid var(--color-border)",
-                  "display": "flex",
-                  "alignItems": "center",
-                  "gap": "16rpx"
-                }
-              },
-              "children": [
-                {
-                  "id": "input-box",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "style": {
-                      "flex": 1,
-                      "padding": "16rpx 24rpx",
-                      "borderRadius": "36rpx",
-                      "background": "var(--color-background)",
-                      "fontSize": "26rpx",
-                      "color": "var(--color-text-secondary)"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "input-placeholder",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "text": "写下你的评论...",
-                        "style": {
-                          "fontSize": "26rpx",
-                          "color": "var(--color-text-secondary)"
-                        },
-                        "variant": "body"
-                      },
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "send-btn",
-                  "alias": "core.button",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1,
+                    "order": 0,
                     "width": "100%"
                   },
                   "props": {
-                    "variant": "primary",
                     "style": {
-                      "padding": "16rpx 32rpx",
-                      "borderRadius": "36rpx",
-                      "background": "var(--color-primary)",
-                      "color": "#fff",
-                      "fontSize": "26rpx"
-                    },
-                    "label": "发送"
+                      "gap": "16px",
+                      "marginTop": "8px"
+                    }
                   },
-                  "children": []
+                  "children": [
+                    {
+                      "id": "comment-likes-1-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "👍 8",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#78716c",
+                          "whiteSpace": "nowrap",
+                          "flexShrink": "0"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
                 }
               ]
             },
@@ -2031,7 +1540,7 @@
               },
               "props": {
                 "tabs": [
-                  "文章列表",
+                  "阅读首页",
                   "文章详情",
                   "评论区"
                 ],
@@ -2039,9 +1548,9 @@
               },
               "interactions": {
                 "onTabClick": {
-                  "文章列表": {
+                  "阅读首页": {
                     "type": "navigate",
-                    "targetPageId": "page-list"
+                    "targetPageId": "page-home"
                   },
                   "文章详情": {
                     "type": "navigate",
@@ -2059,8 +1568,23 @@
         }
       }
     ],
+    "cssVars": {
+      "--color-primary": "#0ea5e9",
+      "--color-primary-dark": "#0ea5e9cc",
+      "--color-primary-light": "#0ea5e922",
+      "--color-text-primary": "#1a1a1a",
+      "--color-text-secondary": "#78716c",
+      "--color-border": "#e5e7eb",
+      "--color-background": "#faf8f5",
+      "--color-surface": "#ffffff",
+      "--color-surface-alt": "#f9fafb",
+      "--color-success": "#22c55e",
+      "--color-warning": "#f59e0b",
+      "--radius-card": "4px",
+      "--shadow-card": "none"
+    },
     "layout": {
-      "id": "page-list-screen",
+      "id": "page-home-screen",
       "alias": "core.screen",
       "layout": {
         "mode": "flow",
@@ -2069,12 +1593,12 @@
       "props": {
         "title": "阅读首页",
         "style": {
-          "background": "#f7f4ef"
+          "background": "#faf8f5"
         }
       },
       "children": [
         {
-          "id": "reader-daily-cover",
+          "id": "cover-0",
           "alias": "core.panel",
           "layout": {
             "mode": "flow",
@@ -2083,17 +1607,17 @@
           },
           "props": {
             "style": {
-              "margin": "20rpx 24rpx 0",
-              "padding": "32rpx 28rpx",
-              "borderRadius": "32rpx",
-              "minHeight": "300rpx",
-              "background": "linear-gradient(160deg,#111827,#334155)",
-              "color": "#fff"
+              "padding": "28px 20px",
+              "borderRadius": "0",
+              "background": "#1a1a1a",
+              "color": "#fff",
+              "margin": "20px",
+              "minHeight": "160px"
             }
           },
           "children": [
             {
-              "id": "reader-daily-tag",
+              "id": "cover-badge-0",
               "alias": "core.tag",
               "layout": {
                 "mode": "flow",
@@ -2103,60 +1627,62 @@
                 "label": "今日精选",
                 "tone": "new",
                 "style": {
-                  "alignSelf": "flex-start",
                   "background": "#facc15",
-                  "color": "#1f2937"
+                  "color": "#1f2937",
+                  "alignSelf": "flex-start"
                 }
               },
               "children": []
             },
             {
-              "id": "reader-daily-title",
+              "id": "cover-title-0",
               "alias": "core.text",
               "layout": {
                 "mode": "flow",
-                "order": 1
+                "order": 0
               },
               "props": {
                 "text": "把碎片时间变成一本杂志",
                 "variant": "display",
                 "style": {
                   "color": "#fff",
-                  "marginTop": "40rpx"
+                  "marginTop": "20px"
                 }
               },
               "children": []
             },
             {
-              "id": "reader-daily-desc",
+              "id": "cover-sub-0",
               "alias": "core.text",
               "layout": {
                 "mode": "flow",
-                "order": 2
+                "order": 0
               },
               "props": {
                 "text": "三篇深度长文 · 预计阅读 18 分钟",
                 "variant": "body",
                 "style": {
-                  "color": "rgba(255,255,255,0.78)"
+                  "color": "rgba(255,255,255,0.78)",
+                  "marginTop": "10px"
                 }
               },
               "children": []
             },
             {
-              "id": "reader-daily-action",
+              "id": "cover-btn-0",
               "alias": "core.button",
               "layout": {
                 "mode": "flow",
-                "order": 3
+                "order": 0
               },
               "props": {
                 "label": "开始阅读",
                 "variant": "primary",
                 "style": {
-                  "marginTop": "24rpx",
+                  "marginTop": "16px",
                   "background": "#facc15",
-                  "color": "#111827"
+                  "color": "#111827",
+                  "borderRadius": "8px"
                 }
               },
               "children": []
@@ -2164,7 +1690,7 @@
           ]
         },
         {
-          "id": "reader-chip-row",
+          "id": "chip-row-1",
           "alias": "core.row",
           "layout": {
             "mode": "flow",
@@ -2173,14 +1699,14 @@
           },
           "props": {
             "style": {
-              "padding": "20rpx 24rpx 0",
-              "gap": "12rpx",
+              "gap": "8px",
+              "padding": "20px 0",
               "overflowX": "auto"
             }
           },
           "children": [
             {
-              "id": "reader-chip-0",
+              "id": "chip-0-1",
               "alias": "core.button",
               "layout": {
                 "mode": "flow",
@@ -2190,71 +1716,83 @@
                 "label": "推荐",
                 "variant": "primary",
                 "style": {
-                  "minWidth": "112rpx"
+                  "minWidth": "56px",
+                  "fontSize": "13px",
+                  "background": "#0ea5e9",
+                  "color": "#fff",
+                  "flexShrink": "0"
                 }
               },
               "children": []
             },
             {
-              "id": "reader-chip-1",
+              "id": "chip-1-1",
               "alias": "core.button",
               "layout": {
                 "mode": "flow",
-                "order": 1
+                "order": 0
               },
               "props": {
                 "label": "商业",
                 "variant": "pill",
                 "style": {
-                  "minWidth": "112rpx"
+                  "minWidth": "56px",
+                  "fontSize": "13px",
+                  "flexShrink": "0"
                 }
               },
               "children": []
             },
             {
-              "id": "reader-chip-2",
+              "id": "chip-2-1",
               "alias": "core.button",
               "layout": {
                 "mode": "flow",
-                "order": 2
+                "order": 0
               },
               "props": {
                 "label": "科技",
                 "variant": "pill",
                 "style": {
-                  "minWidth": "112rpx"
+                  "minWidth": "56px",
+                  "fontSize": "13px",
+                  "flexShrink": "0"
                 }
               },
               "children": []
             },
             {
-              "id": "reader-chip-3",
+              "id": "chip-3-1",
               "alias": "core.button",
               "layout": {
                 "mode": "flow",
-                "order": 3
+                "order": 0
               },
               "props": {
                 "label": "生活",
                 "variant": "pill",
                 "style": {
-                  "minWidth": "112rpx"
+                  "minWidth": "56px",
+                  "fontSize": "13px",
+                  "flexShrink": "0"
                 }
               },
               "children": []
             },
             {
-              "id": "reader-chip-4",
+              "id": "chip-4-1",
               "alias": "core.button",
               "layout": {
                 "mode": "flow",
-                "order": 4
+                "order": 0
               },
               "props": {
                 "label": "设计",
                 "variant": "pill",
                 "style": {
-                  "minWidth": "112rpx"
+                  "minWidth": "56px",
+                  "fontSize": "13px",
+                  "flexShrink": "0"
                 }
               },
               "children": []
@@ -2262,8 +1800,8 @@
           ]
         },
         {
-          "id": "reader-book-shelf",
-          "alias": "core.panel",
+          "id": "mag-list-2",
+          "alias": "core.stack",
           "layout": {
             "mode": "flow",
             "order": 2,
@@ -2271,15 +1809,12 @@
           },
           "props": {
             "style": {
-              "margin": "20rpx 24rpx 0",
-              "padding": "24rpx",
-              "borderRadius": "24rpx",
-              "background": "#fff"
+              "padding": "0 20px"
             }
           },
           "children": [
             {
-              "id": "reader-shelf-head",
+              "id": "mag-0-2",
               "alias": "core.row",
               "layout": {
                 "mode": "flow",
@@ -2288,270 +1823,78 @@
               },
               "props": {
                 "style": {
-                  "justifyContent": "space-between"
+                  "gap": "14px",
+                  "alignItems": "center",
+                  "padding": "14px 0",
+                  "borderBottom": "1px solid #e5e7eb"
                 }
               },
               "children": [
                 {
-                  "id": "reader-shelf-title",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "text": "书架式阅读",
-                    "variant": "heading",
-                    "style": {}
-                  },
-                  "children": []
-                },
-                {
-                  "id": "reader-shelf-count",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1
-                  },
-                  "props": {
-                    "text": "12 篇",
-                    "variant": "caption",
-                    "style": {
-                      "color": "#64748b"
-                    }
-                  },
-                  "children": []
-                }
-              ]
-            },
-            {
-              "id": "reader-shelf-row",
-              "alias": "core.row",
-              "layout": {
-                "mode": "flow",
-                "order": 1,
-                "width": "100%"
-              },
-              "props": {
-                "style": {
-                  "gap": "16rpx",
-                  "marginTop": "18rpx",
-                  "overflowX": "auto"
-                }
-              },
-              "children": [
-                {
-                  "id": "reader-book-0",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0,
-                    "width": "auto"
-                  },
-                  "props": {
-                    "style": {
-                      "minWidth": "168rpx",
-                      "height": "220rpx",
-                      "padding": "18rpx",
-                      "borderRadius": "20rpx",
-                      "background": "#fde68a",
-                      "display": "flex",
-                      "alignItems": "flex-end"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "reader-book-title-0",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "text": "城市更新",
-                        "variant": "subheading",
-                        "style": {
-                          "color": "#111827"
-                        }
-                      },
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "reader-book-1",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1,
-                    "width": "auto"
-                  },
-                  "props": {
-                    "style": {
-                      "minWidth": "168rpx",
-                      "height": "220rpx",
-                      "padding": "18rpx",
-                      "borderRadius": "20rpx",
-                      "background": "#bfdbfe",
-                      "display": "flex",
-                      "alignItems": "flex-end"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "reader-book-title-1",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "text": "产品增长",
-                        "variant": "subheading",
-                        "style": {
-                          "color": "#111827"
-                        }
-                      },
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "reader-book-2",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 2,
-                    "width": "auto"
-                  },
-                  "props": {
-                    "style": {
-                      "minWidth": "168rpx",
-                      "height": "220rpx",
-                      "padding": "18rpx",
-                      "borderRadius": "20rpx",
-                      "background": "#fecdd3",
-                      "display": "flex",
-                      "alignItems": "flex-end"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "reader-book-title-2",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "text": "长期主义",
-                        "variant": "subheading",
-                        "style": {
-                          "color": "#111827"
-                        }
-                      },
-                      "children": []
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "id": "reader-news-list",
-          "alias": "core.stack",
-          "layout": {
-            "mode": "flow",
-            "order": 3,
-            "width": "100%"
-          },
-          "props": {
-            "style": {
-              "padding": "20rpx 24rpx",
-              "gap": "14rpx"
-            }
-          },
-          "children": [
-            {
-              "id": "reader-article-0",
-              "alias": "core.row",
-              "layout": {
-                "mode": "flow",
-                "order": 0,
-                "width": "100%"
-              },
-              "props": {
-                "style": {
-                  "padding": "18rpx",
-                  "borderRadius": "20rpx",
-                  "background": "#fff",
-                  "gap": "16rpx",
-                  "alignItems": "center"
-                }
-              },
-              "children": [
-                {
-                  "id": "reader-article-img-0",
+                  "id": "mag-img-0-2",
                   "alias": "core.image",
                   "layout": {
                     "mode": "flow",
                     "order": 0
                   },
                   "props": {
-                    "alt": "文章封面",
-                    "title": "文章封面",
-                    "iconColor": "#0f172a",
+                    "alt": "消费品牌的新渠道",
+                    "title": "消费品牌的新渠道",
+                    "iconColor": "#facc15",
                     "objectFit": "contain",
                     "style": {
-                      "width": "96rpx",
-                      "height": "96rpx",
-                      "borderRadius": "18rpx"
+                      "width": "72px",
+                      "height": "72px",
+                      "borderRadius": "8px",
+                      "background": "#facc1533",
+                      "flexShrink": "0"
                     }
                   },
                   "children": []
                 },
                 {
-                  "id": "reader-article-copy-0",
+                  "id": "mag-info-0-2",
                   "alias": "core.stack",
                   "layout": {
                     "mode": "flow",
-                    "order": 1,
-                    "width": "auto"
+                    "order": 0,
+                    "width": "100%"
                   },
                   "props": {
                     "style": {
-                      "flex": 1,
-                      "gap": "6rpx"
+                      "gap": "4px",
+                      "flex": "1"
                     }
                   },
                   "children": [
                     {
-                      "id": "reader-article-title-0",
+                      "id": "mag-title-0-2",
                       "alias": "core.text",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
-                        "text": "早报：消费品牌的新渠道",
+                        "text": "消费品牌的新渠道",
                         "variant": "subheading",
-                        "style": {}
+                        "style": {
+                          "color": "#1a1a1a"
+                        }
                       },
                       "children": []
                     },
                     {
-                      "id": "reader-article-meta-0",
+                      "id": "mag-meta-0-2",
                       "alias": "core.text",
                       "layout": {
                         "mode": "flow",
-                        "order": 1
+                        "order": 0
                       },
                       "props": {
                         "text": "8 分钟 · 2 个章节",
                         "variant": "caption",
                         "style": {
-                          "color": "#64748b"
+                          "color": "#78716c"
                         }
                       },
                       "children": []
@@ -2561,7 +1904,7 @@
               ]
             },
             {
-              "id": "reader-article-1",
+              "id": "mag-1-2",
               "alias": "core.row",
               "layout": {
                 "mode": "flow",
@@ -2570,75 +1913,78 @@
               },
               "props": {
                 "style": {
-                  "padding": "18rpx",
-                  "borderRadius": "20rpx",
-                  "background": "#fff",
-                  "gap": "16rpx",
-                  "alignItems": "center"
+                  "gap": "14px",
+                  "alignItems": "center",
+                  "padding": "14px 0",
+                  "borderBottom": "1px solid #e5e7eb"
                 }
               },
               "children": [
                 {
-                  "id": "reader-article-img-1",
+                  "id": "mag-img-1-2",
                   "alias": "core.image",
                   "layout": {
                     "mode": "flow",
                     "order": 0
                   },
                   "props": {
-                    "alt": "文章封面",
-                    "title": "文章封面",
-                    "iconColor": "#2563eb",
+                    "alt": "从编辑视角看内容产品",
+                    "title": "从编辑视角看内容产品",
+                    "iconColor": "#bfdbfe",
                     "objectFit": "contain",
                     "style": {
-                      "width": "96rpx",
-                      "height": "96rpx",
-                      "borderRadius": "18rpx"
+                      "width": "72px",
+                      "height": "72px",
+                      "borderRadius": "8px",
+                      "background": "#bfdbfe33",
+                      "flexShrink": "0"
                     }
                   },
                   "children": []
                 },
                 {
-                  "id": "reader-article-copy-1",
+                  "id": "mag-info-1-2",
                   "alias": "core.stack",
                   "layout": {
                     "mode": "flow",
-                    "order": 1,
-                    "width": "auto"
+                    "order": 0,
+                    "width": "100%"
                   },
                   "props": {
                     "style": {
-                      "flex": 1,
-                      "gap": "6rpx"
+                      "gap": "4px",
+                      "flex": "1"
                     }
                   },
                   "children": [
                     {
-                      "id": "reader-article-title-1",
+                      "id": "mag-title-1-2",
                       "alias": "core.text",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
-                        "text": "访谈：从编辑视角看内容产品",
+                        "text": "从编辑视角看内容产品",
                         "variant": "subheading",
-                        "style": {}
+                        "style": {
+                          "color": "#1a1a1a"
+                        }
                       },
                       "children": []
                     },
                     {
-                      "id": "reader-article-meta-1",
+                      "id": "mag-meta-1-2",
                       "alias": "core.text",
                       "layout": {
                         "mode": "flow",
-                        "order": 1
+                        "order": 0
                       },
                       "props": {
                         "text": "11 分钟 · 3 个章节",
                         "variant": "caption",
                         "style": {
-                          "color": "#64748b"
+                          "color": "#78716c"
                         }
                       },
                       "children": []
@@ -2648,7 +1994,7 @@
               ]
             },
             {
-              "id": "reader-article-2",
+              "id": "mag-2-2",
               "alias": "core.row",
               "layout": {
                 "mode": "flow",
@@ -2657,75 +2003,78 @@
               },
               "props": {
                 "style": {
-                  "padding": "18rpx",
-                  "borderRadius": "20rpx",
-                  "background": "#fff",
-                  "gap": "16rpx",
-                  "alignItems": "center"
+                  "gap": "14px",
+                  "alignItems": "center",
+                  "padding": "14px 0",
+                  "borderBottom": "none"
                 }
               },
               "children": [
                 {
-                  "id": "reader-article-img-2",
+                  "id": "mag-img-2-2",
                   "alias": "core.image",
                   "layout": {
                     "mode": "flow",
                     "order": 0
                   },
                   "props": {
-                    "alt": "文章封面",
-                    "title": "文章封面",
-                    "iconColor": "#db2777",
+                    "alt": "适合通勤阅读的专题",
+                    "title": "适合通勤阅读的专题",
+                    "iconColor": "#fecdd3",
                     "objectFit": "contain",
                     "style": {
-                      "width": "96rpx",
-                      "height": "96rpx",
-                      "borderRadius": "18rpx"
+                      "width": "72px",
+                      "height": "72px",
+                      "borderRadius": "8px",
+                      "background": "#fecdd333",
+                      "flexShrink": "0"
                     }
                   },
                   "children": []
                 },
                 {
-                  "id": "reader-article-copy-2",
+                  "id": "mag-info-2-2",
                   "alias": "core.stack",
                   "layout": {
                     "mode": "flow",
-                    "order": 1,
-                    "width": "auto"
+                    "order": 0,
+                    "width": "100%"
                   },
                   "props": {
                     "style": {
-                      "flex": 1,
-                      "gap": "6rpx"
+                      "gap": "4px",
+                      "flex": "1"
                     }
                   },
                   "children": [
                     {
-                      "id": "reader-article-title-2",
+                      "id": "mag-title-2-2",
                       "alias": "core.text",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
-                        "text": "收藏：适合通勤阅读的专题",
+                        "text": "适合通勤阅读的专题",
                         "variant": "subheading",
-                        "style": {}
+                        "style": {
+                          "color": "#1a1a1a"
+                        }
                       },
                       "children": []
                     },
                     {
-                      "id": "reader-article-meta-2",
+                      "id": "mag-meta-2-2",
                       "alias": "core.text",
                       "layout": {
                         "mode": "flow",
-                        "order": 1
+                        "order": 0
                       },
                       "props": {
                         "text": "14 分钟 · 4 个章节",
                         "variant": "caption",
                         "style": {
-                          "color": "#64748b"
+                          "color": "#78716c"
                         }
                       },
                       "children": []
@@ -2737,7 +2086,7 @@
           ]
         },
         {
-          "id": "page-list-bottom-tabs",
+          "id": "page-home-bottom-tabs",
           "alias": "core.tabs",
           "slot": "footer",
           "layout": {
@@ -2747,17 +2096,17 @@
           },
           "props": {
             "tabs": [
-              "文章列表",
+              "阅读首页",
               "文章详情",
               "评论区"
             ],
-            "activeTab": "文章列表"
+            "activeTab": "阅读首页"
           },
           "interactions": {
             "onTabClick": {
-              "文章列表": {
+              "阅读首页": {
                 "type": "navigate",
-                "targetPageId": "page-list"
+                "targetPageId": "page-home"
               },
               "文章详情": {
                 "type": "navigate",
@@ -2772,270 +2121,7 @@
           "children": []
         }
       ]
-    },
-    "componentTemplates": {
-      "biz-hero-banner": {
-        "root": {
-          "alias": "core.panel",
-          "props": {
-            "tone": "accent",
-            "gap": 12,
-            "style": {
-              "width": "100%",
-              "padding": "28px 24px",
-              "color": "#fff",
-              "borderRadius": "0 0 28px 28px",
-              "background": "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark, var(--color-primary)))",
-              "boxShadow": "0 16px 36px rgba(15,23,42,0.18)"
-            }
-          },
-          "children": [
-            {
-              "alias": "core.tag",
-              "props": {
-                "label": {
-                  "$bind": "badge"
-                },
-                "tone": "member",
-                "style": {
-                  "alignSelf": "flex-start",
-                  "background": "rgba(255,255,255,0.22)",
-                  "color": "#fff"
-                }
-              }
-            },
-            {
-              "alias": "core.text",
-              "props": {
-                "text": {
-                  "$bind": "title"
-                },
-                "variant": "display",
-                "style": {
-                  "color": "#fff"
-                }
-              }
-            },
-            {
-              "alias": "core.text",
-              "props": {
-                "text": {
-                  "$bind": "subtitle"
-                },
-                "variant": "body",
-                "style": {
-                  "color": "rgba(255,255,255,0.86)"
-                }
-              }
-            },
-            {
-              "alias": "core.button",
-              "props": {
-                "label": {
-                  "$bind": "actionLabel"
-                },
-                "variant": "secondary",
-                "style": {
-                  "width": "100%",
-                  "marginTop": "8px"
-                }
-              }
-            }
-          ]
-        }
-      }
-    },
-    "cssVars": {
-      "--color-primary": "#0ea5e9",
-      "--color-primary-dark": "#0284c7",
-      "--color-primary-light": "#38bdf8",
-      "--color-text-primary": "#0f172a",
-      "--color-text-secondary": "#64748b",
-      "--color-border": "#e2e8f0",
-      "--color-background": "#f1f5f9",
-      "--color-surface": "#ffffff"
-    },
-    "style": {
-      "cssVars": {
-        "--color-primary": "#0ea5e9",
-        "--color-primary-dark": "#0284c7",
-        "--color-primary-light": "#38bdf8",
-        "--color-text-primary": "#0f172a",
-        "--color-text-secondary": "#64748b",
-        "--color-border": "#e2e8f0",
-        "--color-background": "#f1f5f9",
-        "--color-surface": "#ffffff"
-      }
     }
   },
-  "semanticConfig": {
-    "pages": [
-      {
-        "id": "page-list",
-        "key": "articles.list",
-        "name": "文章列表",
-        "description": "展示文章列表，支持分类筛选"
-      },
-      {
-        "id": "page-detail",
-        "key": "articles.detail",
-        "name": "文章详情",
-        "description": "展示文章完整内容、作者信息和互动按钮"
-      },
-      {
-        "id": "page-comments",
-        "key": "articles.comments",
-        "name": "评论区",
-        "description": "展示文章评论列表和评论输入框"
-      }
-    ],
-    "regions": [
-      {
-        "id": "list-header",
-        "key": "articles.list.header",
-        "name": "列表头部",
-        "description": "标题和副标题"
-      },
-      {
-        "id": "category-tabs",
-        "key": "articles.list.tabs",
-        "name": "分类标签",
-        "description": "内容分类切换"
-      },
-      {
-        "id": "article-list",
-        "key": "articles.list.content",
-        "name": "文章列表",
-        "description": "文章卡片列表"
-      },
-      {
-        "id": "detail-content",
-        "key": "articles.detail.content",
-        "name": "文章内容",
-        "description": "文章正文内容"
-      }
-    ],
-    "slots": [
-      {
-        "id": "art1-title",
-        "key": "articles.list.item.title",
-        "name": "文章标题",
-        "description": "文章标题文本"
-      },
-      {
-        "id": "art1-desc",
-        "key": "articles.list.item.description",
-        "name": "文章摘要",
-        "description": "文章简介文本"
-      },
-      {
-        "id": "art1-img",
-        "key": "articles.list.item.image",
-        "name": "文章封面",
-        "description": "文章封面图片"
-      },
-      {
-        "id": "detail-title",
-        "key": "articles.detail.title",
-        "name": "详情标题",
-        "description": "文章详情标题"
-      }
-    ]
-  },
-  "categoryLabel": "内容阅读",
-  "functionalCategoryLabels": {
-    "content-reader": "内容阅读",
-    "content": "内容资讯",
-    "reading": "阅读"
-  },
-  "tagline": "适用于文章阅读、博客详情、新闻资讯等场景的小程序模板，包含文章列表、文章详情、评论区页面",
-  "traits": [
-    "文章",
-    "阅读",
-    "博客",
-    "资讯",
-    "评论"
-  ],
-  "cssVars": {
-    "--color-primary": "#0ea5e9",
-    "--color-primary-dark": "#0284c7",
-    "--color-primary-light": "#38bdf8",
-    "--color-text-primary": "#0f172a",
-    "--color-text-secondary": "#64748b",
-    "--color-border": "#e2e8f0",
-    "--color-background": "#f1f5f9",
-    "--color-surface": "#ffffff"
-  },
-  "componentTemplates": {
-    "biz-hero-banner": {
-      "root": {
-        "alias": "core.panel",
-        "props": {
-          "tone": "accent",
-          "gap": 12,
-          "style": {
-            "width": "100%",
-            "padding": "28px 24px",
-            "color": "#fff",
-            "borderRadius": "0 0 28px 28px",
-            "background": "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark, var(--color-primary)))",
-            "boxShadow": "0 16px 36px rgba(15,23,42,0.18)"
-          }
-        },
-        "children": [
-          {
-            "alias": "core.tag",
-            "props": {
-              "label": {
-                "$bind": "badge"
-              },
-              "tone": "member",
-              "style": {
-                "alignSelf": "flex-start",
-                "background": "rgba(255,255,255,0.22)",
-                "color": "#fff"
-              }
-            }
-          },
-          {
-            "alias": "core.text",
-            "props": {
-              "text": {
-                "$bind": "title"
-              },
-              "variant": "display",
-              "style": {
-                "color": "#fff"
-              }
-            }
-          },
-          {
-            "alias": "core.text",
-            "props": {
-              "text": {
-                "$bind": "subtitle"
-              },
-              "variant": "body",
-              "style": {
-                "color": "rgba(255,255,255,0.86)"
-              }
-            }
-          },
-          {
-            "alias": "core.button",
-            "props": {
-              "label": {
-                "$bind": "actionLabel"
-              },
-              "variant": "secondary",
-              "style": {
-                "width": "100%",
-                "marginTop": "8px"
-              }
-            }
-          }
-        ]
-      }
-    }
-  }
+  "tagline": "适用于文章阅读、博客详情、新闻资讯等场景的小程序模板"
 }

@@ -1,7 +1,7 @@
 {
   "templateId": "health-wellness",
   "name": "健康管理",
-  "description": "适用于健康数据、运动记录、医疗咨询等场景的小程序模板，包含健康首页、趋势详情、运动计划、健康咨询页面",
+  "description": "适用于健康数据追踪、运动计划、医疗咨询等场景的小程序模板",
   "accent": "#22c55e",
   "thumbnail": "",
   "platformCategories": [
@@ -10,118 +10,63 @@
   "functionalCategories": [
     "health-wellness",
     "health",
-    "fitness"
+    "wellness"
   ],
   "category": "health-wellness",
+  "categoryLabel": "健康管理",
+  "functionalCategoryLabels": {
+    "health-wellness": "健康管理",
+    "health": "健康",
+    "wellness": " wellness"
+  },
+  "traits": [
+    "数据可视化",
+    "深色主题",
+    "指标追踪"
+  ],
   "tags": [
     "健康",
     "运动",
-    "医疗",
-    "健身",
-    "养生"
+    "数据",
+    "医疗"
   ],
+  "cssVars": {
+    "--color-primary": "#22c55e",
+    "--color-primary-dark": "#22c55ecc",
+    "--color-primary-light": "#22c55e22",
+    "--color-text-primary": "#e2e8f0",
+    "--color-text-secondary": "#94a3b8",
+    "--color-border": "rgba(255,255,255,0.08)",
+    "--color-background": "#0f0f1a",
+    "--color-surface": "#1a1a2e",
+    "--color-surface-alt": "#16213e",
+    "--color-success": "#22c55e",
+    "--color-warning": "#f59e0b",
+    "--radius-card": "14px",
+    "--shadow-card": "0 4px 24px rgba(0,0,0,0.4)"
+  },
+  "componentTemplates": {},
   "layoutDocument": {
     "version": 1,
     "themeId": "health-wellness",
     "themeName": "健康管理",
-    "description": "适用于健康数据、运动记录、医疗咨询等场景的小程序模板，包含健康首页、趋势详情、运动计划、健康咨询页面",
+    "description": "适用于健康数据追踪、运动计划、医疗咨询等场景的小程序模板",
     "components": [
       {
-        "alias": "core.button",
-        "name": "按钮",
-        "kind": "component",
-        "description": "按钮组件",
-        "props": [
-          {
-            "name": "label",
-            "type": "string",
-            "label": "显示文字"
-          },
-          {
-            "name": "style",
-            "type": "object",
-            "label": "样式"
-          },
-          {
-            "name": "variant",
-            "type": "string",
-            "label": "文字层级"
-          },
-          {
-            "name": "active",
-            "type": "string",
-            "label": "选中"
-          },
-          {
-            "name": "disabled",
-            "type": "string",
-            "label": "禁用"
-          },
-          {
-            "name": "icon",
-            "type": "string",
-            "label": "图标"
-          }
-        ]
-      },
-      {
-        "alias": "core.grid",
-        "name": "网格容器",
+        "alias": "core.screen",
+        "name": "页面画布",
         "kind": "layout",
-        "description": "网格容器组件",
+        "description": "页面画布组件",
         "props": [
-          {
-            "name": "columns",
-            "type": "number",
-            "label": "列数"
-          },
-          {
-            "name": "style",
-            "type": "object",
-            "label": "样式"
-          },
-          {
-            "name": "gap",
-            "type": "string",
-            "label": "间距"
-          }
-        ]
-      },
-      {
-        "alias": "core.image",
-        "name": "图片",
-        "kind": "component",
-        "description": "图片组件",
-        "props": [
-          {
-            "name": "alt",
-            "type": "string",
-            "label": "替代文本"
-          },
-          {
-            "name": "iconColor",
-            "type": "string",
-            "label": "图标颜色"
-          },
-          {
-            "name": "objectFit",
-            "type": "string",
-            "label": "图片填充方式"
-          },
-          {
-            "name": "src",
-            "type": "string",
-            "label": "图片地址"
-          },
-          {
-            "name": "style",
-            "type": "object",
-            "label": "样式"
-          },
           {
             "name": "title",
             "type": "string",
             "label": "标题"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
           }
         ]
       },
@@ -187,19 +132,6 @@
         ]
       },
       {
-        "alias": "core.screen",
-        "name": "页面画布",
-        "kind": "layout",
-        "description": "页面画布组件",
-        "props": [
-          {
-            "name": "title",
-            "type": "string",
-            "label": "标题"
-          }
-        ]
-      },
-      {
         "alias": "core.stack",
         "name": "纵向容器",
         "kind": "layout",
@@ -229,11 +161,6 @@
         "description": "文本组件",
         "props": [
           {
-            "name": "style",
-            "type": "object",
-            "label": "样式"
-          },
-          {
             "name": "text",
             "type": "string",
             "label": "显示内容"
@@ -244,29 +171,6 @@
             "label": "文字层级"
           },
           {
-            "name": "as",
-            "type": "string",
-            "label": "标签"
-          }
-        ]
-      },
-      {
-        "alias": "core.tag",
-        "name": "标签",
-        "kind": "component",
-        "description": "标签 组件",
-        "props": [
-          {
-            "name": "label",
-            "type": "string",
-            "label": "显示文字"
-          },
-          {
-            "name": "tone",
-            "type": "string",
-            "label": "风格"
-          },
-          {
             "name": "style",
             "type": "object",
             "label": "样式"
@@ -274,104 +178,35 @@
         ]
       },
       {
-        "alias": "core.tabs",
-        "name": "标签导航",
+        "alias": "core.image",
+        "name": "图片",
         "kind": "component",
-        "description": "标签导航 组件",
+        "description": "图片组件",
         "props": [
           {
-            "name": "tabs",
+            "name": "alt",
             "type": "string",
-            "label": "标签项"
+            "label": "替代文本"
           },
           {
-            "name": "activeTab",
+            "name": "iconColor",
             "type": "string",
-            "label": "当前标签"
+            "label": "图标颜色"
           },
           {
-            "name": "style",
-            "type": "object",
-            "label": "样式"
-          }
-        ]
-      },
-      {
-        "alias": "core.search",
-        "name": "搜索框",
-        "kind": "component",
-        "description": "搜索框 组件",
-        "props": [
-          {
-            "name": "placeholder",
+            "name": "objectFit",
             "type": "string",
-            "label": "占位文本"
+            "label": "图片填充方式"
           },
           {
-            "name": "value",
-            "type": "number",
-            "label": "值"
-          },
-          {
-            "name": "style",
-            "type": "object",
-            "label": "样式"
-          }
-        ]
-      },
-      {
-        "alias": "core.input",
-        "name": "输入框",
-        "kind": "component",
-        "description": "输入框 组件",
-        "props": [
-          {
-            "name": "placeholder",
+            "name": "src",
             "type": "string",
-            "label": "占位文本"
+            "label": "图片地址"
           },
           {
-            "name": "label",
+            "name": "title",
             "type": "string",
-            "label": "显示文字"
-          },
-          {
-            "name": "type",
-            "type": "string",
-            "label": "类型"
-          },
-          {
-            "name": "value",
-            "type": "number",
-            "label": "值"
-          },
-          {
-            "name": "disabled",
-            "type": "string",
-            "label": "禁用"
-          },
-          {
-            "name": "style",
-            "type": "object",
-            "label": "样式"
-          }
-        ]
-      },
-      {
-        "alias": "core.notice",
-        "name": "提示",
-        "kind": "component",
-        "description": "提示 组件",
-        "props": [
-          {
-            "name": "text",
-            "type": "string",
-            "label": "显示内容"
-          },
-          {
-            "name": "tone",
-            "type": "string",
-            "label": "风格"
+            "label": "标题"
           },
           {
             "name": "style",
@@ -384,7 +219,7 @@
         "alias": "core.progress",
         "name": "进度条",
         "kind": "component",
-        "description": "进度条 组件",
+        "description": "进度条组件",
         "props": [
           {
             "name": "value",
@@ -409,28 +244,20 @@
         ]
       },
       {
-        "alias": "core.divider",
-        "name": "分隔线",
+        "alias": "core.tag",
+        "name": "标签",
         "kind": "component",
-        "description": "分隔线 组件",
+        "description": "标签组件",
         "props": [
           {
-            "name": "style",
-            "type": "object",
-            "label": "样式"
-          }
-        ]
-      },
-      {
-        "alias": "core.spacer",
-        "name": "空白",
-        "kind": "component",
-        "description": "空白 组件",
-        "props": [
-          {
-            "name": "size",
+            "name": "label",
             "type": "string",
-            "label": "尺寸"
+            "label": "显示文字"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
           },
           {
             "name": "style",
@@ -440,30 +267,76 @@
         ]
       },
       {
-        "alias": "biz-hero-banner",
-        "name": "业务头图",
+        "alias": "core.tabs",
+        "name": "标签导航",
         "kind": "component",
-        "description": "业务头图组件",
+        "description": "标签导航组件",
         "props": [
           {
-            "name": "badge",
+            "name": "tabs",
             "type": "string",
-            "label": "徽标"
+            "label": "标签项"
           },
           {
-            "name": "title",
+            "name": "activeTab",
             "type": "string",
-            "label": "标题"
+            "label": "当前标签"
           },
           {
-            "name": "subtitle",
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.button",
+        "name": "按钮",
+        "kind": "component",
+        "description": "按钮组件",
+        "props": [
+          {
+            "name": "label",
             "type": "string",
-            "label": "副标题"
+            "label": "显示文字"
           },
           {
-            "name": "actionLabel",
+            "name": "variant",
             "type": "string",
-            "label": "行动按钮文案"
+            "label": "文字层级"
+          },
+          {
+            "name": "disabled",
+            "type": "string",
+            "label": "禁用"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.search",
+        "name": "搜索框",
+        "kind": "component",
+        "description": "搜索框组件",
+        "props": [
+          {
+            "name": "placeholder",
+            "type": "string",
+            "label": "占位文本"
+          },
+          {
+            "name": "value",
+            "type": "string",
+            "label": "值"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
           }
         ]
       }
@@ -473,7 +346,7 @@
       {
         "id": "page-home",
         "name": "健康首页",
-        "description": "健康中心",
+        "description": "健康首页",
         "layout": {
           "id": "page-home-screen",
           "alias": "core.screen",
@@ -484,12 +357,12 @@
           "props": {
             "title": "健康首页",
             "style": {
-              "background": "#effaf6"
+              "background": "#0f0f1a"
             }
           },
           "children": [
             {
-              "id": "health-ring-summary",
+              "id": "rings-0",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
@@ -498,16 +371,16 @@
               },
               "props": {
                 "style": {
-                  "margin": "24rpx",
-                  "padding": "28rpx",
-                  "borderRadius": "32rpx",
-                  "background": "linear-gradient(135deg,#10b981,#0f766e)",
-                  "color": "#fff"
+                  "padding": "16px",
+                  "borderRadius": "14px",
+                  "background": "#1a1a2e",
+                  "border": "1px solid rgba(255,255,255,0.06)",
+                  "boxShadow": "0 4px 24px rgba(0,0,0,0.4)"
                 }
               },
               "children": [
                 {
-                  "id": "health-ring-top",
+                  "id": "rings-row-0",
                   "alias": "core.row",
                   "layout": {
                     "mode": "flow",
@@ -516,65 +389,13 @@
                   },
                   "props": {
                     "style": {
-                      "justifyContent": "space-between",
-                      "alignItems": "center"
+                      "gap": "12px"
                     }
                   },
                   "children": [
                     {
-                      "id": "health-ring-title",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "text": "今日健康环",
-                        "variant": "display",
-                        "style": {
-                          "color": "#fff"
-                        }
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "health-ring-tag",
-                      "alias": "core.tag",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "label": "良好",
-                        "tone": "success",
-                        "style": {
-                          "background": "rgba(255,255,255,0.2)",
-                          "color": "#fff"
-                        }
-                      },
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "health-ring-grid",
-                  "alias": "core.grid",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1,
-                    "width": "100%"
-                  },
-                  "props": {
-                    "columns": 3,
-                    "style": {
-                      "gap": "14rpx",
-                      "marginTop": "24rpx"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "health-ring-0",
-                      "alias": "core.panel",
+                      "id": "ring-0-0",
+                      "alias": "core.stack",
                       "layout": {
                         "mode": "flow",
                         "order": 0,
@@ -582,41 +403,63 @@
                       },
                       "props": {
                         "style": {
-                          "padding": "18rpx 8rpx",
-                          "borderRadius": "20rpx",
-                          "background": "rgba(255,255,255,0.16)",
-                          "textAlign": "center"
+                          "gap": "8px",
+                          "alignItems": "center",
+                          "flex": "1"
                         }
                       },
                       "children": [
                         {
-                          "id": "health-ring-num-0",
+                          "id": "ring-circle-0-0",
+                          "alias": "core.panel",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0,
+                            "width": "100%"
+                          },
+                          "props": {
+                            "style": {
+                              "width": "64px",
+                              "height": "64px",
+                              "borderRadius": "50%",
+                              "background": "conic-gradient(#22c55e 82%, rgba(255,255,255,0.08) 0)",
+                              "display": "flex",
+                              "alignItems": "center",
+                              "justifyContent": "center"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "ring-val-0-0",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "text": "8,234",
+                                "variant": "caption",
+                                "style": {
+                                  "color": "#fff",
+                                  "fontWeight": 700
+                                }
+                              },
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "id": "ring-label-0-0",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 0
-                          },
-                          "props": {
-                            "text": "8420",
-                            "variant": "heading",
-                            "style": {
-                              "color": "#fff"
-                            }
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "health-ring-label-0",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 1
                           },
                           "props": {
                             "text": "步数",
                             "variant": "caption",
                             "style": {
-                              "color": "rgba(255,255,255,0.78)"
+                              "color": "#94a3b8"
                             }
                           },
                           "children": []
@@ -624,50 +467,72 @@
                       ]
                     },
                     {
-                      "id": "health-ring-1",
-                      "alias": "core.panel",
+                      "id": "ring-1-0",
+                      "alias": "core.stack",
                       "layout": {
                         "mode": "flow",
-                        "order": 1,
+                        "order": 0,
                         "width": "100%"
                       },
                       "props": {
                         "style": {
-                          "padding": "18rpx 8rpx",
-                          "borderRadius": "20rpx",
-                          "background": "rgba(255,255,255,0.16)",
-                          "textAlign": "center"
+                          "gap": "8px",
+                          "alignItems": "center",
+                          "flex": "1"
                         }
                       },
                       "children": [
                         {
-                          "id": "health-ring-num-1",
+                          "id": "ring-circle-1-0",
+                          "alias": "core.panel",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0,
+                            "width": "100%"
+                          },
+                          "props": {
+                            "style": {
+                              "width": "64px",
+                              "height": "64px",
+                              "borderRadius": "50%",
+                              "background": "conic-gradient(#f43f5e 72%, rgba(255,255,255,0.08) 0)",
+                              "display": "flex",
+                              "alignItems": "center",
+                              "justifyContent": "center"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "ring-val-1-0",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "text": "72",
+                                "variant": "caption",
+                                "style": {
+                                  "color": "#fff",
+                                  "fontWeight": 700
+                                }
+                              },
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "id": "ring-label-1-0",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 0
                           },
                           "props": {
-                            "text": "6杯",
-                            "variant": "heading",
-                            "style": {
-                              "color": "#fff"
-                            }
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "health-ring-label-1",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 1
-                          },
-                          "props": {
-                            "text": "饮水",
+                            "text": "心率",
                             "variant": "caption",
                             "style": {
-                              "color": "rgba(255,255,255,0.78)"
+                              "color": "#94a3b8"
                             }
                           },
                           "children": []
@@ -675,50 +540,72 @@
                       ]
                     },
                     {
-                      "id": "health-ring-2",
-                      "alias": "core.panel",
+                      "id": "ring-2-0",
+                      "alias": "core.stack",
                       "layout": {
                         "mode": "flow",
-                        "order": 2,
+                        "order": 0,
                         "width": "100%"
                       },
                       "props": {
                         "style": {
-                          "padding": "18rpx 8rpx",
-                          "borderRadius": "20rpx",
-                          "background": "rgba(255,255,255,0.16)",
-                          "textAlign": "center"
+                          "gap": "8px",
+                          "alignItems": "center",
+                          "flex": "1"
                         }
                       },
                       "children": [
                         {
-                          "id": "health-ring-num-2",
+                          "id": "ring-circle-2-0",
+                          "alias": "core.panel",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0,
+                            "width": "100%"
+                          },
+                          "props": {
+                            "style": {
+                              "width": "64px",
+                              "height": "64px",
+                              "borderRadius": "50%",
+                              "background": "conic-gradient(#8b5cf6 94%, rgba(255,255,255,0.08) 0)",
+                              "display": "flex",
+                              "alignItems": "center",
+                              "justifyContent": "center"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "ring-val-2-0",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "text": "7.5h",
+                                "variant": "caption",
+                                "style": {
+                                  "color": "#fff",
+                                  "fontWeight": 700
+                                }
+                              },
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "id": "ring-label-2-0",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 0
-                          },
-                          "props": {
-                            "text": "7.5时",
-                            "variant": "heading",
-                            "style": {
-                              "color": "#fff"
-                            }
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "health-ring-label-2",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 1
                           },
                           "props": {
                             "text": "睡眠",
                             "variant": "caption",
                             "style": {
-                              "color": "rgba(255,255,255,0.78)"
+                              "color": "#94a3b8"
                             }
                           },
                           "children": []
@@ -730,7 +617,184 @@
               ]
             },
             {
-              "id": "health-plan-card",
+              "id": "list-title-1",
+              "alias": "core.text",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "text": "今日任务",
+                "variant": "subheading",
+                "style": {
+                  "color": "#e2e8f0",
+                  "padding": "0 12px",
+                  "marginBottom": "8px"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "item-0-1",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "16px",
+                  "borderRadius": "14px",
+                  "background": "#1a1a2e",
+                  "border": "1px solid rgba(255,255,255,0.06)",
+                  "boxShadow": "0 4px 24px rgba(0,0,0,0.4)"
+                }
+              },
+              "children": [
+                {
+                  "id": "item-row-0-1",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "12px",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "item-img-0-1",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "晨跑 3 公里",
+                        "title": "晨跑 3 公里",
+                        "iconColor": "#22c55e",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "56px",
+                          "height": "56px",
+                          "borderRadius": "10px",
+                          "background": "#22c55e12",
+                          "flexShrink": "0"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "item-info-0-1",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "gap": "4px",
+                          "flex": "1"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "item-title-0-1",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "晨跑 3 公里",
+                            "variant": "subheading",
+                            "style": {
+                              "color": "#e2e8f0"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "item-desc-0-1",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "已完成 · 消耗 280 卡",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#94a3b8"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "item-prog-0-1",
+                          "alias": "core.progress",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "value": 100,
+                            "max": 100,
+                            "tone": "accent",
+                            "style": {
+                              "marginTop": "4px",
+                              "height": "4px"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "item-right-0-1",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "gap": "4px",
+                          "alignItems": "flex-end"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "item-tag-0-1",
+                          "alias": "core.tag",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "label": "完成",
+                            "tone": "success",
+                            "style": {
+                              "fontSize": "11px"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "item-1-1",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
@@ -739,15 +803,16 @@
               },
               "props": {
                 "style": {
-                  "margin": "0 24rpx",
-                  "padding": "24rpx",
-                  "borderRadius": "26rpx",
-                  "background": "#fff"
+                  "padding": "16px",
+                  "borderRadius": "14px",
+                  "background": "#1a1a2e",
+                  "border": "1px solid rgba(255,255,255,0.06)",
+                  "boxShadow": "0 4px 24px rgba(0,0,0,0.4)"
                 }
               },
               "children": [
                 {
-                  "id": "health-plan-head",
+                  "id": "item-row-1-1",
                   "alias": "core.row",
                   "layout": {
                     "mode": "flow",
@@ -756,79 +821,36 @@
                   },
                   "props": {
                     "style": {
-                      "justifyContent": "space-between",
+                      "gap": "12px",
                       "alignItems": "center"
                     }
                   },
                   "children": [
                     {
-                      "id": "health-plan-title",
-                      "alias": "core.text",
+                      "id": "item-img-1-1",
+                      "alias": "core.image",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
-                        "text": "今天的计划",
-                        "variant": "heading",
-                        "style": {}
+                        "alt": "喝水 8 杯",
+                        "title": "喝水 8 杯",
+                        "iconColor": "#22c55e",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "56px",
+                          "height": "56px",
+                          "borderRadius": "10px",
+                          "background": "#22c55e12",
+                          "flexShrink": "0"
+                        }
                       },
                       "children": []
                     },
                     {
-                      "id": "health-plan-count",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "2/4 完成",
-                        "variant": "caption",
-                        "style": {
-                          "color": "#10b981"
-                        }
-                      },
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "health-plan-progress",
-                  "alias": "core.progress",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1
-                  },
-                  "props": {
-                    "value": 50,
-                    "max": 100,
-                    "tone": "success",
-                    "style": {
-                      "marginTop": "16rpx"
-                    }
-                  },
-                  "children": []
-                },
-                {
-                  "id": "health-plan-grid",
-                  "alias": "core.grid",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 2,
-                    "width": "100%"
-                  },
-                  "props": {
-                    "columns": 2,
-                    "style": {
-                      "gap": "14rpx",
-                      "marginTop": "18rpx"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "health-plan-0",
-                      "alias": "core.panel",
+                      "id": "item-info-1-1",
+                      "alias": "core.stack",
                       "layout": {
                         "mode": "flow",
                         "order": 0,
@@ -836,25 +858,57 @@
                       },
                       "props": {
                         "style": {
-                          "padding": "20rpx",
-                          "borderRadius": "20rpx",
-                          "background": "#ecfdf5"
+                          "gap": "4px",
+                          "flex": "1"
                         }
                       },
                       "children": [
                         {
-                          "id": "health-plan-text-0",
+                          "id": "item-title-1-1",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 0
                           },
                           "props": {
-                            "text": "晨间拉伸",
+                            "text": "喝水 8 杯",
+                            "variant": "subheading",
+                            "style": {
+                              "color": "#e2e8f0"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "item-desc-1-1",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "已完成 5/8 杯",
                             "variant": "caption",
                             "style": {
-                              "color": "#047857",
-                              "fontWeight": 700
+                              "color": "#94a3b8"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "item-prog-1-1",
+                          "alias": "core.progress",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "value": 62,
+                            "max": 100,
+                            "tone": "accent",
+                            "style": {
+                              "marginTop": "4px",
+                              "height": "4px"
                             }
                           },
                           "children": []
@@ -862,104 +916,32 @@
                       ]
                     },
                     {
-                      "id": "health-plan-1",
-                      "alias": "core.panel",
+                      "id": "item-right-1-1",
+                      "alias": "core.stack",
                       "layout": {
                         "mode": "flow",
-                        "order": 1,
+                        "order": 0,
                         "width": "100%"
                       },
                       "props": {
                         "style": {
-                          "padding": "20rpx",
-                          "borderRadius": "20rpx",
-                          "background": "#ecfdf5"
+                          "gap": "4px",
+                          "alignItems": "flex-end"
                         }
                       },
                       "children": [
                         {
-                          "id": "health-plan-text-1",
-                          "alias": "core.text",
+                          "id": "item-tag-1-1",
+                          "alias": "core.tag",
                           "layout": {
                             "mode": "flow",
                             "order": 0
                           },
                           "props": {
-                            "text": "低糖午餐",
-                            "variant": "caption",
+                            "label": "进行中",
+                            "tone": "warning",
                             "style": {
-                              "color": "#047857",
-                              "fontWeight": 700
-                            }
-                          },
-                          "children": []
-                        }
-                      ]
-                    },
-                    {
-                      "id": "health-plan-2",
-                      "alias": "core.panel",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 2,
-                        "width": "100%"
-                      },
-                      "props": {
-                        "style": {
-                          "padding": "20rpx",
-                          "borderRadius": "20rpx",
-                          "background": "#f8fafc"
-                        }
-                      },
-                      "children": [
-                        {
-                          "id": "health-plan-text-2",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "text": "冥想 10 分钟",
-                            "variant": "caption",
-                            "style": {
-                              "color": "#334155",
-                              "fontWeight": 700
-                            }
-                          },
-                          "children": []
-                        }
-                      ]
-                    },
-                    {
-                      "id": "health-plan-3",
-                      "alias": "core.panel",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 3,
-                        "width": "100%"
-                      },
-                      "props": {
-                        "style": {
-                          "padding": "20rpx",
-                          "borderRadius": "20rpx",
-                          "background": "#f8fafc"
-                        }
-                      },
-                      "children": [
-                        {
-                          "id": "health-plan-text-3",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "text": "晚间快走",
-                            "variant": "caption",
-                            "style": {
-                              "color": "#334155",
-                              "fontWeight": 700
+                              "fontSize": "11px"
                             }
                           },
                           "children": []
@@ -969,176 +951,6 @@
                   ]
                 }
               ]
-            },
-            {
-              "id": "health-consult-row",
-              "alias": "core.row",
-              "layout": {
-                "mode": "flow",
-                "order": 2,
-                "width": "100%"
-              },
-              "props": {
-                "style": {
-                  "padding": "20rpx 24rpx",
-                  "gap": "16rpx"
-                }
-              },
-              "children": [
-                {
-                  "id": "health-doctor-card",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0,
-                    "width": "auto"
-                  },
-                  "props": {
-                    "style": {
-                      "flex": 1,
-                      "padding": "22rpx",
-                      "borderRadius": "24rpx",
-                      "background": "#fff"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "health-doctor-img",
-                      "alias": "core.image",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "alt": "医生头像",
-                        "title": "医生头像",
-                        "iconColor": "#14b8a6",
-                        "objectFit": "contain",
-                        "style": {
-                          "width": "72rpx",
-                          "height": "72rpx"
-                        }
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "health-doctor-title",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "医生问诊",
-                        "variant": "subheading",
-                        "style": {}
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "health-doctor-desc",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 2
-                      },
-                      "props": {
-                        "text": "3 位在线",
-                        "variant": "caption",
-                        "style": {
-                          "color": "#64748b"
-                        }
-                      },
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "health-report-card",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1,
-                    "width": "auto"
-                  },
-                  "props": {
-                    "style": {
-                      "flex": 1,
-                      "padding": "22rpx",
-                      "borderRadius": "24rpx",
-                      "background": "#fff"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "health-report-img",
-                      "alias": "core.image",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "alt": "报告图标",
-                        "title": "报告图标",
-                        "iconColor": "#0ea5e9",
-                        "objectFit": "contain",
-                        "style": {
-                          "width": "72rpx",
-                          "height": "72rpx"
-                        }
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "health-report-title",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "健康报告",
-                        "variant": "subheading",
-                        "style": {}
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "health-report-desc",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 2
-                      },
-                      "props": {
-                        "text": "本周已更新",
-                        "variant": "caption",
-                        "style": {
-                          "color": "#64748b"
-                        }
-                      },
-                      "children": []
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "id": "health-main-action",
-              "alias": "core.button",
-              "layout": {
-                "mode": "flow",
-                "order": 3
-              },
-              "props": {
-                "label": "开始今日计划",
-                "variant": "primary",
-                "style": {
-                  "margin": "0 24rpx 24rpx",
-                  "width": "calc(100% - 48rpx)"
-                }
-              },
-              "children": []
             },
             {
               "id": "page-home-bottom-tabs",
@@ -1186,39 +998,142 @@
       {
         "id": "page-trends",
         "name": "趋势详情",
-        "description": "健康趋势",
+        "description": "趋势详情",
         "layout": {
           "id": "page-trends-screen",
           "alias": "core.screen",
           "layout": {
             "mode": "flow",
-            "order": 1
+            "order": 0
           },
           "props": {
             "title": "趋势详情",
             "style": {
-              "background": "var(--color-background, #f6f7fb)"
+              "background": "#0f0f1a"
             }
           },
           "children": [
             {
-              "id": "page-trends-hero-banner",
-              "alias": "biz-hero-banner",
+              "id": "trend-head-0",
+              "alias": "core.stack",
               "layout": {
                 "mode": "flow",
                 "order": 0,
                 "width": "100%"
               },
               "props": {
-                "badge": "健康管理",
-                "title": "趋势详情",
-                "subtitle": "健康趋势",
-                "actionLabel": "查看计划"
+                "style": {
+                  "gap": "6px",
+                  "padding": "12px 12px 0"
+                }
               },
-              "children": []
+              "children": [
+                {
+                  "id": "trend-title-0",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "本周趋势",
+                    "variant": "heading",
+                    "style": {
+                      "color": "#e2e8f0"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "trend-period-0",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "5.20 - 5.26",
+                    "variant": "caption",
+                    "style": {
+                      "color": "#94a3b8"
+                    }
+                  },
+                  "children": []
+                }
+              ]
             },
             {
-              "id": "trends-header",
+              "id": "stat-0-1",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "16px",
+                  "borderRadius": "14px",
+                  "background": "#1a1a2e",
+                  "border": "1px solid rgba(255,255,255,0.06)",
+                  "boxShadow": "0 4px 24px rgba(0,0,0,0.4)"
+                }
+              },
+              "children": [
+                {
+                  "id": "stat-label-0-1",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "平均步数",
+                    "variant": "caption",
+                    "style": {
+                      "color": "#94a3b8"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "stat-val-0-1",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "7,856",
+                    "variant": "heading",
+                    "style": {
+                      "color": "#e2e8f0",
+                      "marginTop": "6px"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "stat-trend-0-1",
+                  "alias": "core.tag",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "label": "+12%",
+                    "tone": "success",
+                    "style": {
+                      "fontSize": "11px",
+                      "marginTop": "6px"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "stat-1-1",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
@@ -1227,34 +1142,69 @@
               },
               "props": {
                 "style": {
-                  "padding": "24rpx 32rpx",
-                  "background": "var(--color-primary)"
+                  "padding": "16px",
+                  "borderRadius": "14px",
+                  "background": "#1a1a2e",
+                  "border": "1px solid rgba(255,255,255,0.06)",
+                  "boxShadow": "0 4px 24px rgba(0,0,0,0.4)"
                 }
               },
               "children": [
                 {
-                  "id": "trends-title",
+                  "id": "stat-label-1-1",
                   "alias": "core.text",
                   "layout": {
                     "mode": "flow",
                     "order": 0
                   },
                   "props": {
-                    "text": "健康趋势",
+                    "text": "平均心率",
+                    "variant": "caption",
                     "style": {
-                      "fontSize": "34rpx",
-                      "fontWeight": "bold",
-                      "color": "#fff"
-                    },
-                    "variant": "heading"
+                      "color": "#94a3b8"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "stat-val-1-1",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "71 次/分",
+                    "variant": "heading",
+                    "style": {
+                      "color": "#e2e8f0",
+                      "marginTop": "6px"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "stat-trend-1-1",
+                  "alias": "core.tag",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "label": "-3%",
+                    "tone": "warning",
+                    "style": {
+                      "fontSize": "11px",
+                      "marginTop": "6px"
+                    }
                   },
                   "children": []
                 }
               ]
             },
             {
-              "id": "trends-tabs",
-              "alias": "core.row",
+              "id": "stat-2-1",
+              "alias": "core.panel",
               "layout": {
                 "mode": "flow",
                 "order": 2,
@@ -1262,333 +1212,140 @@
               },
               "props": {
                 "style": {
-                  "padding": "16rpx 32rpx",
-                  "gap": "24rpx",
-                  "background": "#fff",
-                  "borderBottom": "1rpx solid var(--color-border)"
+                  "padding": "16px",
+                  "borderRadius": "14px",
+                  "background": "#1a1a2e",
+                  "border": "1px solid rgba(255,255,255,0.06)",
+                  "boxShadow": "0 4px 24px rgba(0,0,0,0.4)"
                 }
               },
               "children": [
                 {
-                  "id": "tab-week",
+                  "id": "stat-label-2-1",
                   "alias": "core.text",
                   "layout": {
                     "mode": "flow",
                     "order": 0
                   },
                   "props": {
-                    "text": "本周",
+                    "text": "平均睡眠",
+                    "variant": "caption",
                     "style": {
-                      "fontSize": "28rpx",
-                      "color": "var(--color-primary)",
-                      "fontWeight": "bold"
-                    },
-                    "variant": "heading"
+                      "color": "#94a3b8"
+                    }
                   },
                   "children": []
                 },
                 {
-                  "id": "tab-month",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1
-                  },
-                  "props": {
-                    "text": "本月",
-                    "style": {
-                      "fontSize": "28rpx",
-                      "color": "var(--color-text-secondary)"
-                    },
-                    "variant": "body"
-                  },
-                  "children": []
-                },
-                {
-                  "id": "tab-year",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 2
-                  },
-                  "props": {
-                    "text": "本年",
-                    "style": {
-                      "fontSize": "28rpx",
-                      "color": "var(--color-text-secondary)"
-                    },
-                    "variant": "body"
-                  },
-                  "children": []
-                }
-              ]
-            },
-            {
-              "id": "trends-chart",
-              "alias": "core.panel",
-              "layout": {
-                "mode": "flow",
-                "order": 3,
-                "width": "100%"
-              },
-              "props": {
-                "style": {
-                  "padding": "24rpx 32rpx",
-                  "background": "#fff",
-                  "marginTop": "16rpx"
-                }
-              },
-              "children": [
-                {
-                  "id": "chart-title",
+                  "id": "stat-val-2-1",
                   "alias": "core.text",
                   "layout": {
                     "mode": "flow",
                     "order": 0
                   },
                   "props": {
-                    "text": "步数趋势",
+                    "text": "7.2h",
+                    "variant": "heading",
                     "style": {
-                      "fontSize": "28rpx",
-                      "fontWeight": "bold",
-                      "marginBottom": "16rpx"
-                    },
-                    "variant": "heading"
+                      "color": "#e2e8f0",
+                      "marginTop": "6px"
+                    }
                   },
                   "children": []
                 },
                 {
-                  "id": "chart-placeholder",
-                  "alias": "core.panel",
+                  "id": "stat-trend-2-1",
+                  "alias": "core.tag",
                   "layout": {
                     "mode": "flow",
-                    "order": 1
+                    "order": 0
                   },
                   "props": {
+                    "label": "+5%",
+                    "tone": "success",
                     "style": {
-                      "height": "300rpx",
-                      "borderRadius": "12rpx",
-                      "background": "var(--color-background)",
-                      "display": "flex",
-                      "alignItems": "center",
-                      "justifyContent": "center"
+                      "fontSize": "11px",
+                      "marginTop": "6px"
                     }
                   },
-                  "children": [
-                    {
-                      "id": "chart-text",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "text": "图表区域",
-                        "style": {
-                          "fontSize": "26rpx",
-                          "color": "var(--color-text-secondary)"
-                        },
-                        "variant": "body"
-                      },
-                      "children": []
-                    }
-                  ]
+                  "children": []
                 }
               ]
             },
             {
-              "id": "trends-summary",
-              "alias": "core.grid",
+              "id": "ftabs-4",
+              "alias": "core.row",
               "layout": {
                 "mode": "flow",
                 "order": 4,
                 "width": "100%"
               },
               "props": {
-                "columns": 3,
                 "style": {
-                  "padding": "24rpx 32rpx",
-                  "gap": "16rpx"
+                  "gap": "8px",
+                  "padding": "12px",
+                  "overflowX": "auto"
                 }
               },
               "children": [
                 {
-                  "id": "summary-avg",
-                  "alias": "core.panel",
+                  "id": "ftab-0-4",
+                  "alias": "core.button",
                   "layout": {
                     "mode": "flow",
                     "order": 0
                   },
                   "props": {
+                    "label": "本周",
+                    "variant": "primary",
                     "style": {
-                      "padding": "16rpx",
-                      "borderRadius": "12rpx",
-                      "background": "#fff",
-                      "textAlign": "center"
+                      "minWidth": "56px",
+                      "fontSize": "13px",
+                      "background": "#22c55e",
+                      "color": "#fff",
+                      "borderRadius": "12px",
+                      "flexShrink": "0"
                     }
                   },
-                  "children": [
-                    {
-                      "id": "avg-num",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "text": "7,856",
-                        "style": {
-                          "fontSize": "28rpx",
-                          "fontWeight": "bold",
-                          "color": "var(--color-primary)"
-                        },
-                        "variant": "heading"
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "avg-label",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "日均步数",
-                        "style": {
-                          "fontSize": "22rpx",
-                          "color": "var(--color-text-secondary)"
-                        },
-                        "variant": "caption"
-                      },
-                      "children": []
-                    }
-                  ]
+                  "children": []
                 },
                 {
-                  "id": "summary-max",
-                  "alias": "core.panel",
+                  "id": "ftab-1-4",
+                  "alias": "core.button",
                   "layout": {
                     "mode": "flow",
-                    "order": 1
+                    "order": 0
                   },
                   "props": {
+                    "label": "本月",
+                    "variant": "pill",
                     "style": {
-                      "padding": "16rpx",
-                      "borderRadius": "12rpx",
-                      "background": "#fff",
-                      "textAlign": "center"
+                      "minWidth": "56px",
+                      "fontSize": "13px",
+                      "flexShrink": "0"
                     }
                   },
-                  "children": [
-                    {
-                      "id": "max-num",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "text": "12,340",
-                        "style": {
-                          "fontSize": "28rpx",
-                          "fontWeight": "bold",
-                          "color": "var(--color-primary)"
-                        },
-                        "variant": "heading"
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "max-label",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "最高步数",
-                        "style": {
-                          "fontSize": "22rpx",
-                          "color": "var(--color-text-secondary)"
-                        },
-                        "variant": "caption"
-                      },
-                      "children": []
-                    }
-                  ]
+                  "children": []
                 },
                 {
-                  "id": "summary-goal",
-                  "alias": "core.panel",
+                  "id": "ftab-2-4",
+                  "alias": "core.button",
                   "layout": {
                     "mode": "flow",
-                    "order": 2
+                    "order": 0
                   },
                   "props": {
+                    "label": "本年",
+                    "variant": "pill",
                     "style": {
-                      "padding": "16rpx",
-                      "borderRadius": "12rpx",
-                      "background": "#fff",
-                      "textAlign": "center"
+                      "minWidth": "56px",
+                      "fontSize": "13px",
+                      "flexShrink": "0"
                     }
                   },
-                  "children": [
-                    {
-                      "id": "goal-num",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "text": "5/7",
-                        "style": {
-                          "fontSize": "28rpx",
-                          "fontWeight": "bold",
-                          "color": "var(--color-primary)"
-                        },
-                        "variant": "heading"
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "goal-label",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "达标天数",
-                        "style": {
-                          "fontSize": "22rpx",
-                          "color": "var(--color-text-secondary)"
-                        },
-                        "variant": "caption"
-                      },
-                      "children": []
-                    }
-                  ]
+                  "children": []
                 }
               ]
-            },
-            {
-              "id": "page-trends-primary-action",
-              "alias": "core.button",
-              "layout": {
-                "mode": "flow",
-                "order": 5,
-                "width": "100%"
-              },
-              "props": {
-                "variant": "primary",
-                "label": "查看计划",
-                "style": {
-                  "width": "100%"
-                }
-              },
-              "children": []
             },
             {
               "id": "page-trends-bottom-tabs",
@@ -1642,235 +1399,79 @@
           "alias": "core.screen",
           "layout": {
             "mode": "flow",
-            "order": 2
+            "order": 0
           },
           "props": {
             "title": "运动计划",
             "style": {
-              "background": "var(--color-background, #f6f7fb)"
+              "background": "#0f0f1a"
             }
           },
           "children": [
             {
-              "id": "page-exercise-hero-banner",
-              "alias": "biz-hero-banner",
+              "id": "plan-head-0",
+              "alias": "core.panel",
               "layout": {
                 "mode": "flow",
                 "order": 0,
                 "width": "100%"
               },
               "props": {
-                "badge": "健康管理",
-                "title": "运动计划",
-                "subtitle": "运动计划",
-                "actionLabel": "查看计划"
-              },
-              "children": []
-            },
-            {
-              "id": "exercise-header",
-              "alias": "core.panel",
-              "layout": {
-                "mode": "flow",
-                "order": 1,
-                "width": "100%"
-              },
-              "props": {
                 "style": {
-                  "padding": "24rpx 32rpx",
-                  "background": "var(--color-primary)"
+                  "padding": "16px",
+                  "borderRadius": "14px",
+                  "background": "#1a1a2e",
+                  "border": "1px solid rgba(255,255,255,0.06)",
+                  "boxShadow": "0 4px 24px rgba(0,0,0,0.4)"
                 }
               },
               "children": [
                 {
-                  "id": "exercise-title",
-                  "alias": "core.text",
+                  "id": "plan-row-0",
+                  "alias": "core.row",
                   "layout": {
                     "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "text": "运动计划",
-                    "style": {
-                      "fontSize": "34rpx",
-                      "fontWeight": "bold",
-                      "color": "#fff"
-                    },
-                    "variant": "heading"
-                  },
-                  "children": []
-                }
-              ]
-            },
-            {
-              "id": "exercise-today",
-              "alias": "core.panel",
-              "layout": {
-                "mode": "flow",
-                "order": 2,
-                "width": "100%"
-              },
-              "props": {
-                "style": {
-                  "padding": "24rpx 32rpx",
-                  "background": "#fff",
-                  "marginTop": "16rpx"
-                }
-              },
-              "children": [
-                {
-                  "id": "today-title",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "text": "今日计划",
-                    "style": {
-                      "fontSize": "28rpx",
-                      "fontWeight": "bold",
-                      "marginBottom": "16rpx"
-                    },
-                    "variant": "heading"
-                  },
-                  "children": []
-                },
-                {
-                  "id": "exercise-card",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1
+                    "order": 0,
+                    "width": "100%"
                   },
                   "props": {
                     "style": {
-                      "padding": "20rpx",
-                      "borderRadius": "12rpx",
-                      "background": "var(--color-background)"
+                      "justifyContent": "space-between",
+                      "alignItems": "center"
                     }
                   },
                   "children": [
                     {
-                      "id": "ec-header",
-                      "alias": "core.row",
+                      "id": "plan-title-0",
+                      "alias": "core.text",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
+                        "text": "本周计划",
+                        "variant": "heading",
                         "style": {
-                          "justifyContent": "space-between",
-                          "alignItems": "center"
+                          "color": "#e2e8f0"
                         }
                       },
-                      "children": [
-                        {
-                          "id": "ec-name",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "text": "晨跑",
-                            "style": {
-                              "fontSize": "28rpx",
-                              "fontWeight": "bold"
-                            },
-                            "variant": "heading"
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "ec-duration",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 1
-                          },
-                          "props": {
-                            "text": "30分钟",
-                            "style": {
-                              "fontSize": "24rpx",
-                              "color": "var(--color-primary)"
-                            },
-                            "variant": "caption"
-                          },
-                          "children": []
-                        }
-                      ]
+                      "children": []
                     },
                     {
-                      "id": "ec-meta",
-                      "alias": "core.row",
+                      "id": "plan-progress-0",
+                      "alias": "core.tag",
                       "layout": {
                         "mode": "flow",
-                        "order": 1
+                        "order": 0
                       },
                       "props": {
+                        "label": "3/5 完成",
+                        "tone": "info",
                         "style": {
-                          "marginTop": "12rpx",
-                          "gap": "16rpx"
+                          "fontSize": "11px",
+                          "whiteSpace": "nowrap",
+                          "flexShrink": "0"
                         }
-                      },
-                      "children": [
-                        {
-                          "id": "ec-cal",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 0
-                          },
-                          "props": {
-                            "text": "消耗 280千卡",
-                            "style": {
-                              "fontSize": "22rpx",
-                              "color": "var(--color-text-secondary)"
-                            },
-                            "variant": "caption"
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "ec-time",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 1
-                          },
-                          "props": {
-                            "text": "07:00-07:30",
-                            "style": {
-                              "fontSize": "22rpx",
-                              "color": "var(--color-text-secondary)"
-                            },
-                            "variant": "caption"
-                          },
-                          "children": []
-                        }
-                      ]
-                    },
-                    {
-                      "id": "ec-btn",
-                      "alias": "core.button",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 2,
-                        "width": "100%"
-                      },
-                      "props": {
-                        "variant": "primary",
-                        "style": {
-                          "marginTop": "16rpx",
-                          "padding": "12rpx",
-                          "borderRadius": "24rpx",
-                          "background": "var(--color-primary)",
-                          "color": "#fff",
-                          "fontSize": "26rpx",
-                          "textAlign": "center"
-                        },
-                        "label": "开始运动"
                       },
                       "children": []
                     }
@@ -1879,390 +1480,556 @@
               ]
             },
             {
-              "id": "exercise-weekly",
+              "id": "ex-list-1",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
-                "order": 3,
+                "order": 1,
                 "width": "100%"
               },
               "props": {
                 "style": {
-                  "padding": "24rpx 32rpx",
-                  "background": "#fff",
-                  "marginTop": "16rpx"
+                  "padding": "16px",
+                  "borderRadius": "14px",
+                  "background": "#1a1a2e",
+                  "border": "1px solid rgba(255,255,255,0.06)",
+                  "boxShadow": "0 4px 24px rgba(0,0,0,0.4)"
                 }
               },
               "children": [
                 {
-                  "id": "weekly-title",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "text": "本周运动",
-                    "style": {
-                      "fontSize": "28rpx",
-                      "fontWeight": "bold",
-                      "marginBottom": "16rpx"
-                    },
-                    "variant": "heading"
-                  },
-                  "children": []
-                },
-                {
-                  "id": "weekly-row",
+                  "id": "ex-0-1",
                   "alias": "core.row",
                   "layout": {
                     "mode": "flow",
-                    "order": 1
+                    "order": 0,
+                    "width": "100%"
                   },
                   "props": {
                     "style": {
-                      "justifyContent": "space-around"
+                      "gap": "12px",
+                      "alignItems": "center",
+                      "padding": "10px 0",
+                      "borderBottom": "1px solid rgba(255,255,255,0.06)"
                     }
                   },
                   "children": [
                     {
-                      "id": "day-mon",
-                      "alias": "core.stack",
+                      "id": "ex-icon-0-1",
+                      "alias": "core.panel",
                       "layout": {
                         "mode": "flow",
-                        "order": 0
+                        "order": 0,
+                        "width": "100%"
                       },
                       "props": {
                         "style": {
+                          "width": "32px",
+                          "height": "32px",
+                          "borderRadius": "8px",
+                          "background": "#22c55e22",
+                          "display": "flex",
                           "alignItems": "center",
-                          "gap": "8rpx"
+                          "justifyContent": "center",
+                          "flexShrink": "0"
                         }
                       },
                       "children": [
                         {
-                          "id": "mon-dot",
-                          "alias": "core.panel",
+                          "id": "ex-check-0-1",
+                          "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 0
                           },
                           "props": {
+                            "text": "✓",
+                            "variant": "caption",
                             "style": {
-                              "width": "40rpx",
-                              "height": "40rpx",
-                              "borderRadius": "50%",
-                              "background": "var(--color-primary)"
+                              "color": "#22c55e"
                             }
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "mon-text",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 1
-                          },
-                          "props": {
-                            "text": "一",
-                            "style": {
-                              "fontSize": "22rpx"
-                            },
-                            "variant": "caption"
                           },
                           "children": []
                         }
                       ]
                     },
                     {
-                      "id": "day-tue",
+                      "id": "ex-info-0-1",
                       "alias": "core.stack",
                       "layout": {
                         "mode": "flow",
-                        "order": 1
+                        "order": 0,
+                        "width": "100%"
                       },
                       "props": {
                         "style": {
-                          "alignItems": "center",
-                          "gap": "8rpx"
+                          "gap": "2px",
+                          "flex": "1"
                         }
                       },
                       "children": [
                         {
-                          "id": "tue-dot",
-                          "alias": "core.panel",
+                          "id": "ex-name-0-1",
+                          "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 0
                           },
                           "props": {
+                            "text": "晨跑",
+                            "variant": "subheading",
                             "style": {
-                              "width": "40rpx",
-                              "height": "40rpx",
-                              "borderRadius": "50%",
-                              "background": "var(--color-primary)"
+                              "color": "#e2e8f0",
+                              "textDecoration": "line-through"
                             }
                           },
                           "children": []
                         },
                         {
-                          "id": "tue-text",
+                          "id": "ex-time-0-1",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
-                            "order": 1
+                            "order": 0
                           },
                           "props": {
-                            "text": "二",
+                            "text": "07:00 · 30分钟",
+                            "variant": "caption",
                             "style": {
-                              "fontSize": "22rpx"
-                            },
-                            "variant": "caption"
+                              "color": "#94a3b8"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "ex-1-1",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "12px",
+                      "alignItems": "center",
+                      "padding": "10px 0",
+                      "borderBottom": "1px solid rgba(255,255,255,0.06)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "ex-icon-1-1",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "width": "32px",
+                          "height": "32px",
+                          "borderRadius": "8px",
+                          "background": "#22c55e22",
+                          "display": "flex",
+                          "alignItems": "center",
+                          "justifyContent": "center",
+                          "flexShrink": "0"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "ex-check-1-1",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "✓",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#22c55e"
+                            }
                           },
                           "children": []
                         }
                       ]
                     },
                     {
-                      "id": "day-wed",
+                      "id": "ex-info-1-1",
                       "alias": "core.stack",
                       "layout": {
                         "mode": "flow",
-                        "order": 2
+                        "order": 0,
+                        "width": "100%"
                       },
                       "props": {
                         "style": {
-                          "alignItems": "center",
-                          "gap": "8rpx"
+                          "gap": "2px",
+                          "flex": "1"
                         }
                       },
                       "children": [
                         {
-                          "id": "wed-dot",
-                          "alias": "core.panel",
+                          "id": "ex-name-1-1",
+                          "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 0
                           },
                           "props": {
+                            "text": "瑜伽",
+                            "variant": "subheading",
                             "style": {
-                              "width": "40rpx",
-                              "height": "40rpx",
-                              "borderRadius": "50%",
-                              "background": "var(--color-border)"
+                              "color": "#e2e8f0",
+                              "textDecoration": "line-through"
                             }
                           },
                           "children": []
                         },
                         {
-                          "id": "wed-text",
+                          "id": "ex-time-1-1",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
-                            "order": 1
+                            "order": 0
                           },
                           "props": {
-                            "text": "三",
+                            "text": "12:00 · 45分钟",
+                            "variant": "caption",
                             "style": {
-                              "fontSize": "22rpx"
-                            },
-                            "variant": "caption"
+                              "color": "#94a3b8"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "ex-2-1",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "12px",
+                      "alignItems": "center",
+                      "padding": "10px 0",
+                      "borderBottom": "1px solid rgba(255,255,255,0.06)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "ex-icon-2-1",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "width": "32px",
+                          "height": "32px",
+                          "borderRadius": "8px",
+                          "background": "#22c55e22",
+                          "display": "flex",
+                          "alignItems": "center",
+                          "justifyContent": "center",
+                          "flexShrink": "0"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "ex-check-2-1",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "✓",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#22c55e"
+                            }
                           },
                           "children": []
                         }
                       ]
                     },
                     {
-                      "id": "day-thu",
+                      "id": "ex-info-2-1",
                       "alias": "core.stack",
                       "layout": {
                         "mode": "flow",
-                        "order": 3
+                        "order": 0,
+                        "width": "100%"
                       },
                       "props": {
                         "style": {
-                          "alignItems": "center",
-                          "gap": "8rpx"
+                          "gap": "2px",
+                          "flex": "1"
                         }
                       },
                       "children": [
                         {
-                          "id": "thu-dot",
-                          "alias": "core.panel",
+                          "id": "ex-name-2-1",
+                          "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 0
                           },
                           "props": {
+                            "text": "力量训练",
+                            "variant": "subheading",
                             "style": {
-                              "width": "40rpx",
-                              "height": "40rpx",
-                              "borderRadius": "50%",
-                              "background": "var(--color-primary)"
+                              "color": "#e2e8f0",
+                              "textDecoration": "line-through"
                             }
                           },
                           "children": []
                         },
                         {
-                          "id": "thu-text",
+                          "id": "ex-time-2-1",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
-                            "order": 1
+                            "order": 0
                           },
                           "props": {
-                            "text": "四",
+                            "text": "18:00 · 40分钟",
+                            "variant": "caption",
                             "style": {
-                              "fontSize": "22rpx"
-                            },
-                            "variant": "caption"
+                              "color": "#94a3b8"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "ex-3-1",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "12px",
+                      "alignItems": "center",
+                      "padding": "10px 0",
+                      "borderBottom": "1px solid rgba(255,255,255,0.06)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "ex-icon-3-1",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "width": "32px",
+                          "height": "32px",
+                          "borderRadius": "8px",
+                          "background": "rgba(255,255,255,0.06)",
+                          "display": "flex",
+                          "alignItems": "center",
+                          "justifyContent": "center",
+                          "flexShrink": "0"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "ex-check-3-1",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "○",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#94a3b8"
+                            }
                           },
                           "children": []
                         }
                       ]
                     },
                     {
-                      "id": "day-fri",
+                      "id": "ex-info-3-1",
                       "alias": "core.stack",
                       "layout": {
                         "mode": "flow",
-                        "order": 4
+                        "order": 0,
+                        "width": "100%"
                       },
                       "props": {
                         "style": {
-                          "alignItems": "center",
-                          "gap": "8rpx"
+                          "gap": "2px",
+                          "flex": "1"
                         }
                       },
                       "children": [
                         {
-                          "id": "fri-dot",
-                          "alias": "core.panel",
+                          "id": "ex-name-3-1",
+                          "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 0
                           },
                           "props": {
+                            "text": "游泳",
+                            "variant": "subheading",
                             "style": {
-                              "width": "40rpx",
-                              "height": "40rpx",
-                              "borderRadius": "50%",
-                              "background": "var(--color-primary)"
+                              "color": "#e2e8f0",
+                              "textDecoration": "none"
                             }
                           },
                           "children": []
                         },
                         {
-                          "id": "fri-text",
+                          "id": "ex-time-3-1",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
-                            "order": 1
+                            "order": 0
                           },
                           "props": {
-                            "text": "五",
+                            "text": "明天 08:00 · 45分钟",
+                            "variant": "caption",
                             "style": {
-                              "fontSize": "22rpx"
-                            },
-                            "variant": "caption"
+                              "color": "#94a3b8"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "ex-4-1",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 4,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "12px",
+                      "alignItems": "center",
+                      "padding": "10px 0",
+                      "borderBottom": "1px solid rgba(255,255,255,0.06)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "ex-icon-4-1",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "width": "32px",
+                          "height": "32px",
+                          "borderRadius": "8px",
+                          "background": "rgba(255,255,255,0.06)",
+                          "display": "flex",
+                          "alignItems": "center",
+                          "justifyContent": "center",
+                          "flexShrink": "0"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "ex-check-4-1",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "○",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#94a3b8"
+                            }
                           },
                           "children": []
                         }
                       ]
                     },
                     {
-                      "id": "day-sat",
+                      "id": "ex-info-4-1",
                       "alias": "core.stack",
                       "layout": {
                         "mode": "flow",
-                        "order": 5
+                        "order": 0,
+                        "width": "100%"
                       },
                       "props": {
                         "style": {
-                          "alignItems": "center",
-                          "gap": "8rpx"
+                          "gap": "2px",
+                          "flex": "1"
                         }
                       },
                       "children": [
                         {
-                          "id": "sat-dot",
-                          "alias": "core.panel",
+                          "id": "ex-name-4-1",
+                          "alias": "core.text",
                           "layout": {
                             "mode": "flow",
                             "order": 0
                           },
                           "props": {
+                            "text": "拉伸",
+                            "variant": "subheading",
                             "style": {
-                              "width": "40rpx",
-                              "height": "40rpx",
-                              "borderRadius": "50%",
-                              "background": "var(--color-border)"
+                              "color": "#e2e8f0",
+                              "textDecoration": "none"
                             }
                           },
                           "children": []
                         },
                         {
-                          "id": "sat-text",
+                          "id": "ex-time-4-1",
                           "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 1
-                          },
-                          "props": {
-                            "text": "六",
-                            "style": {
-                              "fontSize": "22rpx"
-                            },
-                            "variant": "caption"
-                          },
-                          "children": []
-                        }
-                      ]
-                    },
-                    {
-                      "id": "day-sun",
-                      "alias": "core.stack",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 6
-                      },
-                      "props": {
-                        "style": {
-                          "alignItems": "center",
-                          "gap": "8rpx"
-                        }
-                      },
-                      "children": [
-                        {
-                          "id": "sun-dot",
-                          "alias": "core.panel",
                           "layout": {
                             "mode": "flow",
                             "order": 0
                           },
                           "props": {
+                            "text": "明天 20:00 · 15分钟",
+                            "variant": "caption",
                             "style": {
-                              "width": "40rpx",
-                              "height": "40rpx",
-                              "borderRadius": "50%",
-                              "background": "var(--color-border)"
+                              "color": "#94a3b8"
                             }
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "sun-text",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 1
-                          },
-                          "props": {
-                            "text": "日",
-                            "style": {
-                              "fontSize": "22rpx"
-                            },
-                            "variant": "caption"
                           },
                           "children": []
                         }
@@ -2324,33 +2091,326 @@
           "alias": "core.screen",
           "layout": {
             "mode": "flow",
-            "order": 3
+            "order": 0
           },
           "props": {
             "title": "健康咨询",
             "style": {
-              "background": "var(--color-background, #f6f7fb)"
+              "background": "#0f0f1a"
             }
           },
           "children": [
             {
-              "id": "page-consult-hero-banner",
-              "alias": "biz-hero-banner",
+              "id": "search-stack-0",
+              "alias": "core.stack",
               "layout": {
                 "mode": "flow",
                 "order": 0,
                 "width": "100%"
               },
               "props": {
-                "badge": "健康管理",
-                "title": "健康咨询",
-                "subtitle": "健康咨询",
-                "actionLabel": "查看计划"
+                "style": {
+                  "gap": "10px",
+                  "padding": "0 12px",
+                  "marginBottom": "8px"
+                }
               },
-              "children": []
+              "children": [
+                {
+                  "id": "search-0",
+                  "alias": "core.search",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "placeholder": "搜索症状、科室、医生",
+                    "style": {
+                      "width": "100%"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "filter-row-0",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "8px",
+                      "overflowX": "auto"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "filter-0-0",
+                      "alias": "core.button",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "label": "全部",
+                        "variant": "primary",
+                        "style": {
+                          "minWidth": "56px",
+                          "fontSize": "13px",
+                          "background": "#22c55e",
+                          "color": "#fff",
+                          "borderRadius": "12px",
+                          "flexShrink": "0"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "filter-1-0",
+                      "alias": "core.button",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "label": "内科",
+                        "variant": "pill",
+                        "style": {
+                          "minWidth": "56px",
+                          "fontSize": "13px",
+                          "flexShrink": "0"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "filter-2-0",
+                      "alias": "core.button",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "label": "外科",
+                        "variant": "pill",
+                        "style": {
+                          "minWidth": "56px",
+                          "fontSize": "13px",
+                          "flexShrink": "0"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "filter-3-0",
+                      "alias": "core.button",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "label": "心理",
+                        "variant": "pill",
+                        "style": {
+                          "minWidth": "56px",
+                          "fontSize": "13px",
+                          "flexShrink": "0"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
             },
             {
-              "id": "consult-header",
+              "id": "doc-0-1",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "16px",
+                  "borderRadius": "14px",
+                  "background": "#1a1a2e",
+                  "border": "1px solid rgba(255,255,255,0.06)",
+                  "boxShadow": "0 4px 24px rgba(0,0,0,0.4)"
+                }
+              },
+              "children": [
+                {
+                  "id": "doc-row-0-1",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "12px",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "doc-avatar-0-1",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "王医生",
+                        "title": "王医生",
+                        "iconColor": "#22c55e",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "48px",
+                          "height": "48px",
+                          "borderRadius": "50%",
+                          "background": "#22c55e22",
+                          "flexShrink": "0"
+                        },
+                        "src": "https://placehold.co/200x200/22c55e/fff?text=%E7%8E%8B%E5%8C%BB%E7%94%9F"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "doc-info-0-1",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "gap": "4px",
+                          "flex": "1"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "doc-name-0-1",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "王医生",
+                            "variant": "subheading",
+                            "style": {
+                              "color": "#e2e8f0"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "doc-meta-0-1",
+                          "alias": "core.row",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0,
+                            "width": "100%"
+                          },
+                          "props": {
+                            "style": {
+                              "gap": "8px"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "doc-dept-0-1",
+                              "alias": "core.tag",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "label": "内科",
+                                "tone": "info",
+                                "style": {
+                                  "fontSize": "10px",
+                                  "whiteSpace": "nowrap",
+                                  "flexShrink": "0"
+                                }
+                              },
+                              "children": []
+                            },
+                            {
+                              "id": "doc-rating-0-1",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "text": "⭐ 4.9",
+                                "variant": "caption",
+                                "style": {
+                                  "color": "#94a3b8",
+                                  "whiteSpace": "nowrap",
+                                  "flexShrink": "0"
+                                }
+                              },
+                              "children": []
+                            },
+                            {
+                              "id": "doc-consults-0-1",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "text": "1.2k 次咨询",
+                                "variant": "caption",
+                                "style": {
+                                  "color": "#94a3b8",
+                                  "whiteSpace": "nowrap",
+                                  "flexShrink": "0"
+                                }
+                              },
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "doc-btn-0-1",
+                      "alias": "core.button",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "label": "咨询",
+                        "variant": "primary",
+                        "style": {
+                          "fontSize": "12px",
+                          "background": "#22c55e",
+                          "color": "#fff",
+                          "borderRadius": "16px",
+                          "padding": "6px 14px",
+                          "flexShrink": "0"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "doc-1-1",
               "alias": "core.panel",
               "layout": {
                 "mode": "flow",
@@ -2359,287 +2419,69 @@
               },
               "props": {
                 "style": {
-                  "padding": "24rpx 32rpx",
-                  "background": "var(--color-primary)"
+                  "padding": "16px",
+                  "borderRadius": "14px",
+                  "background": "#1a1a2e",
+                  "border": "1px solid rgba(255,255,255,0.06)",
+                  "boxShadow": "0 4px 24px rgba(0,0,0,0.4)"
                 }
               },
               "children": [
                 {
-                  "id": "consult-title",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "text": "健康咨询",
-                    "style": {
-                      "fontSize": "34rpx",
-                      "fontWeight": "bold",
-                      "color": "#fff"
-                    },
-                    "variant": "heading"
-                  },
-                  "children": []
-                }
-              ]
-            },
-            {
-              "id": "consult-categories",
-              "alias": "core.grid",
-              "layout": {
-                "mode": "flow",
-                "order": 2,
-                "width": "100%"
-              },
-              "props": {
-                "columns": 3,
-                "style": {
-                  "padding": "24rpx 32rpx",
-                  "gap": "16rpx"
-                }
-              },
-              "children": [
-                {
-                  "id": "cat-general",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "style": {
-                      "padding": "24rpx",
-                      "borderRadius": "16rpx",
-                      "background": "#fff",
-                      "textAlign": "center",
-                      "boxShadow": "0 2rpx 8rpx rgba(0,0,0,0.06)"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "general-icon",
-                      "alias": "core.image",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "alt": "图标",
-                        "title": "图标",
-                        "objectFit": "contain",
-                        "iconColor": "var(--color-primary)"
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "general-text",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "全科",
-                        "style": {
-                          "fontSize": "24rpx",
-                          "marginTop": "8rpx"
-                        },
-                        "variant": "caption"
-                      },
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "cat-dental",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1
-                  },
-                  "props": {
-                    "style": {
-                      "padding": "24rpx",
-                      "borderRadius": "16rpx",
-                      "background": "#fff",
-                      "textAlign": "center",
-                      "boxShadow": "0 2rpx 8rpx rgba(0,0,0,0.06)"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "dental-icon",
-                      "alias": "core.image",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "alt": "图标",
-                        "title": "图标",
-                        "objectFit": "contain",
-                        "iconColor": "#3b82f6"
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "dental-text",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "口腔",
-                        "style": {
-                          "fontSize": "24rpx",
-                          "marginTop": "8rpx"
-                        },
-                        "variant": "caption"
-                      },
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "cat-skin",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 2
-                  },
-                  "props": {
-                    "style": {
-                      "padding": "24rpx",
-                      "borderRadius": "16rpx",
-                      "background": "#fff",
-                      "textAlign": "center",
-                      "boxShadow": "0 2rpx 8rpx rgba(0,0,0,0.06)"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "skin-icon",
-                      "alias": "core.image",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "alt": "图标",
-                        "title": "图标",
-                        "objectFit": "contain",
-                        "iconColor": "#ec4899"
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "skin-text",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "皮肤",
-                        "style": {
-                          "fontSize": "24rpx",
-                          "marginTop": "8rpx"
-                        },
-                        "variant": "caption"
-                      },
-                      "children": []
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "id": "consult-doctors",
-              "alias": "core.panel",
-              "layout": {
-                "mode": "flow",
-                "order": 3,
-                "width": "100%"
-              },
-              "props": {
-                "style": {
-                  "padding": "24rpx 32rpx"
-                }
-              },
-              "children": [
-                {
-                  "id": "doctors-title",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "text": "推荐医生",
-                    "style": {
-                      "fontSize": "28rpx",
-                      "fontWeight": "bold",
-                      "marginBottom": "16rpx"
-                    },
-                    "variant": "heading"
-                  },
-                  "children": []
-                },
-                {
-                  "id": "doctor-card",
+                  "id": "doc-row-1-1",
                   "alias": "core.row",
                   "layout": {
                     "mode": "flow",
-                    "order": 1
+                    "order": 0,
+                    "width": "100%"
                   },
                   "props": {
                     "style": {
-                      "padding": "20rpx",
-                      "borderRadius": "12rpx",
-                      "background": "#fff",
-                      "boxShadow": "0 2rpx 8rpx rgba(0,0,0,0.06)",
-                      "gap": "16rpx"
+                      "gap": "12px",
+                      "alignItems": "center"
                     }
                   },
                   "children": [
                     {
-                      "id": "doctor-avatar",
+                      "id": "doc-avatar-1-1",
                       "alias": "core.image",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
-                        "style": {
-                          "width": "100rpx",
-                          "height": "100rpx",
-                          "borderRadius": "50%"
-                        },
-                        "alt": "业务视觉元素",
-                        "title": "业务视觉元素",
+                        "alt": "李医生",
+                        "title": "李医生",
                         "iconColor": "#22c55e",
-                        "objectFit": "cover"
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "48px",
+                          "height": "48px",
+                          "borderRadius": "50%",
+                          "background": "#22c55e22",
+                          "flexShrink": "0"
+                        },
+                        "src": "https://placehold.co/200x200/16a34a/fff?text=%E6%9D%8E%E5%8C%BB%E7%94%9F"
                       },
                       "children": []
                     },
                     {
-                      "id": "doctor-info",
+                      "id": "doc-info-1-1",
                       "alias": "core.stack",
                       "layout": {
                         "mode": "flow",
-                        "order": 1
+                        "order": 0,
+                        "width": "100%"
                       },
                       "props": {
                         "style": {
-                          "flex": 1,
-                          "gap": "6rpx"
+                          "gap": "4px",
+                          "flex": "1"
                         }
                       },
                       "children": [
                         {
-                          "id": "doctor-name",
+                          "id": "doc-name-1-1",
                           "alias": "core.text",
                           "layout": {
                             "mode": "flow",
@@ -2647,69 +2489,103 @@
                           },
                           "props": {
                             "text": "李医生",
+                            "variant": "subheading",
                             "style": {
-                              "fontSize": "28rpx",
-                              "fontWeight": "bold"
-                            },
-                            "variant": "heading"
+                              "color": "#e2e8f0"
+                            }
                           },
                           "children": []
                         },
                         {
-                          "id": "doctor-title",
-                          "alias": "core.text",
+                          "id": "doc-meta-1-1",
+                          "alias": "core.row",
                           "layout": {
                             "mode": "flow",
-                            "order": 1
+                            "order": 0,
+                            "width": "100%"
                           },
                           "props": {
-                            "text": "主任医师 · 全科",
                             "style": {
-                              "fontSize": "24rpx",
-                              "color": "var(--color-text-secondary)"
+                              "gap": "8px"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "doc-dept-1-1",
+                              "alias": "core.tag",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "label": "心理",
+                                "tone": "info",
+                                "style": {
+                                  "fontSize": "10px",
+                                  "whiteSpace": "nowrap",
+                                  "flexShrink": "0"
+                                }
+                              },
+                              "children": []
                             },
-                            "variant": "heading"
-                          },
-                          "children": []
-                        },
-                        {
-                          "id": "doctor-rating",
-                          "alias": "core.text",
-                          "layout": {
-                            "mode": "flow",
-                            "order": 2
-                          },
-                          "props": {
-                            "text": "4.9分 · 1.2万次咨询",
-                            "style": {
-                              "fontSize": "22rpx",
-                              "color": "#f59e0b"
+                            {
+                              "id": "doc-rating-1-1",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "text": "⭐ 4.8",
+                                "variant": "caption",
+                                "style": {
+                                  "color": "#94a3b8",
+                                  "whiteSpace": "nowrap",
+                                  "flexShrink": "0"
+                                }
+                              },
+                              "children": []
                             },
-                            "variant": "caption"
-                          },
-                          "children": []
+                            {
+                              "id": "doc-consults-1-1",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "text": "856 次咨询",
+                                "variant": "caption",
+                                "style": {
+                                  "color": "#94a3b8",
+                                  "whiteSpace": "nowrap",
+                                  "flexShrink": "0"
+                                }
+                              },
+                              "children": []
+                            }
+                          ]
                         }
                       ]
                     },
                     {
-                      "id": "consult-btn",
+                      "id": "doc-btn-1-1",
                       "alias": "core.button",
                       "layout": {
                         "mode": "flow",
-                        "order": 2,
-                        "width": "100%"
+                        "order": 0
                       },
                       "props": {
+                        "label": "咨询",
                         "variant": "primary",
                         "style": {
-                          "padding": "12rpx 24rpx",
-                          "borderRadius": "24rpx",
-                          "background": "var(--color-primary)",
+                          "fontSize": "12px",
+                          "background": "#22c55e",
                           "color": "#fff",
-                          "fontSize": "24rpx",
-                          "alignSelf": "center"
-                        },
-                        "label": "咨询"
+                          "borderRadius": "16px",
+                          "padding": "6px 14px",
+                          "flexShrink": "0"
+                        }
                       },
                       "children": []
                     }
@@ -2761,6 +2637,21 @@
         }
       }
     ],
+    "cssVars": {
+      "--color-primary": "#22c55e",
+      "--color-primary-dark": "#22c55ecc",
+      "--color-primary-light": "#22c55e22",
+      "--color-text-primary": "#e2e8f0",
+      "--color-text-secondary": "#94a3b8",
+      "--color-border": "rgba(255,255,255,0.08)",
+      "--color-background": "#0f0f1a",
+      "--color-surface": "#1a1a2e",
+      "--color-surface-alt": "#16213e",
+      "--color-success": "#22c55e",
+      "--color-warning": "#f59e0b",
+      "--radius-card": "14px",
+      "--shadow-card": "0 4px 24px rgba(0,0,0,0.4)"
+    },
     "layout": {
       "id": "page-home-screen",
       "alias": "core.screen",
@@ -2771,12 +2662,12 @@
       "props": {
         "title": "健康首页",
         "style": {
-          "background": "#effaf6"
+          "background": "#0f0f1a"
         }
       },
       "children": [
         {
-          "id": "health-ring-summary",
+          "id": "rings-0",
           "alias": "core.panel",
           "layout": {
             "mode": "flow",
@@ -2785,16 +2676,16 @@
           },
           "props": {
             "style": {
-              "margin": "24rpx",
-              "padding": "28rpx",
-              "borderRadius": "32rpx",
-              "background": "linear-gradient(135deg,#10b981,#0f766e)",
-              "color": "#fff"
+              "padding": "16px",
+              "borderRadius": "14px",
+              "background": "#1a1a2e",
+              "border": "1px solid rgba(255,255,255,0.06)",
+              "boxShadow": "0 4px 24px rgba(0,0,0,0.4)"
             }
           },
           "children": [
             {
-              "id": "health-ring-top",
+              "id": "rings-row-0",
               "alias": "core.row",
               "layout": {
                 "mode": "flow",
@@ -2803,65 +2694,13 @@
               },
               "props": {
                 "style": {
-                  "justifyContent": "space-between",
-                  "alignItems": "center"
+                  "gap": "12px"
                 }
               },
               "children": [
                 {
-                  "id": "health-ring-title",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "text": "今日健康环",
-                    "variant": "display",
-                    "style": {
-                      "color": "#fff"
-                    }
-                  },
-                  "children": []
-                },
-                {
-                  "id": "health-ring-tag",
-                  "alias": "core.tag",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1
-                  },
-                  "props": {
-                    "label": "良好",
-                    "tone": "success",
-                    "style": {
-                      "background": "rgba(255,255,255,0.2)",
-                      "color": "#fff"
-                    }
-                  },
-                  "children": []
-                }
-              ]
-            },
-            {
-              "id": "health-ring-grid",
-              "alias": "core.grid",
-              "layout": {
-                "mode": "flow",
-                "order": 1,
-                "width": "100%"
-              },
-              "props": {
-                "columns": 3,
-                "style": {
-                  "gap": "14rpx",
-                  "marginTop": "24rpx"
-                }
-              },
-              "children": [
-                {
-                  "id": "health-ring-0",
-                  "alias": "core.panel",
+                  "id": "ring-0-0",
+                  "alias": "core.stack",
                   "layout": {
                     "mode": "flow",
                     "order": 0,
@@ -2869,41 +2708,63 @@
                   },
                   "props": {
                     "style": {
-                      "padding": "18rpx 8rpx",
-                      "borderRadius": "20rpx",
-                      "background": "rgba(255,255,255,0.16)",
-                      "textAlign": "center"
+                      "gap": "8px",
+                      "alignItems": "center",
+                      "flex": "1"
                     }
                   },
                   "children": [
                     {
-                      "id": "health-ring-num-0",
+                      "id": "ring-circle-0-0",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "width": "64px",
+                          "height": "64px",
+                          "borderRadius": "50%",
+                          "background": "conic-gradient(#22c55e 82%, rgba(255,255,255,0.08) 0)",
+                          "display": "flex",
+                          "alignItems": "center",
+                          "justifyContent": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "ring-val-0-0",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "8,234",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#fff",
+                              "fontWeight": 700
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "ring-label-0-0",
                       "alias": "core.text",
                       "layout": {
                         "mode": "flow",
                         "order": 0
-                      },
-                      "props": {
-                        "text": "8420",
-                        "variant": "heading",
-                        "style": {
-                          "color": "#fff"
-                        }
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "health-ring-label-0",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
                       },
                       "props": {
                         "text": "步数",
                         "variant": "caption",
                         "style": {
-                          "color": "rgba(255,255,255,0.78)"
+                          "color": "#94a3b8"
                         }
                       },
                       "children": []
@@ -2911,50 +2772,72 @@
                   ]
                 },
                 {
-                  "id": "health-ring-1",
-                  "alias": "core.panel",
+                  "id": "ring-1-0",
+                  "alias": "core.stack",
                   "layout": {
                     "mode": "flow",
-                    "order": 1,
+                    "order": 0,
                     "width": "100%"
                   },
                   "props": {
                     "style": {
-                      "padding": "18rpx 8rpx",
-                      "borderRadius": "20rpx",
-                      "background": "rgba(255,255,255,0.16)",
-                      "textAlign": "center"
+                      "gap": "8px",
+                      "alignItems": "center",
+                      "flex": "1"
                     }
                   },
                   "children": [
                     {
-                      "id": "health-ring-num-1",
+                      "id": "ring-circle-1-0",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "width": "64px",
+                          "height": "64px",
+                          "borderRadius": "50%",
+                          "background": "conic-gradient(#f43f5e 72%, rgba(255,255,255,0.08) 0)",
+                          "display": "flex",
+                          "alignItems": "center",
+                          "justifyContent": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "ring-val-1-0",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "72",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#fff",
+                              "fontWeight": 700
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "ring-label-1-0",
                       "alias": "core.text",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
-                        "text": "6杯",
-                        "variant": "heading",
-                        "style": {
-                          "color": "#fff"
-                        }
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "health-ring-label-1",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
-                      },
-                      "props": {
-                        "text": "饮水",
+                        "text": "心率",
                         "variant": "caption",
                         "style": {
-                          "color": "rgba(255,255,255,0.78)"
+                          "color": "#94a3b8"
                         }
                       },
                       "children": []
@@ -2962,50 +2845,72 @@
                   ]
                 },
                 {
-                  "id": "health-ring-2",
-                  "alias": "core.panel",
+                  "id": "ring-2-0",
+                  "alias": "core.stack",
                   "layout": {
                     "mode": "flow",
-                    "order": 2,
+                    "order": 0,
                     "width": "100%"
                   },
                   "props": {
                     "style": {
-                      "padding": "18rpx 8rpx",
-                      "borderRadius": "20rpx",
-                      "background": "rgba(255,255,255,0.16)",
-                      "textAlign": "center"
+                      "gap": "8px",
+                      "alignItems": "center",
+                      "flex": "1"
                     }
                   },
                   "children": [
                     {
-                      "id": "health-ring-num-2",
+                      "id": "ring-circle-2-0",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "width": "64px",
+                          "height": "64px",
+                          "borderRadius": "50%",
+                          "background": "conic-gradient(#8b5cf6 94%, rgba(255,255,255,0.08) 0)",
+                          "display": "flex",
+                          "alignItems": "center",
+                          "justifyContent": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "ring-val-2-0",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "7.5h",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#fff",
+                              "fontWeight": 700
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "ring-label-2-0",
                       "alias": "core.text",
                       "layout": {
                         "mode": "flow",
                         "order": 0
-                      },
-                      "props": {
-                        "text": "7.5时",
-                        "variant": "heading",
-                        "style": {
-                          "color": "#fff"
-                        }
-                      },
-                      "children": []
-                    },
-                    {
-                      "id": "health-ring-label-2",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 1
                       },
                       "props": {
                         "text": "睡眠",
                         "variant": "caption",
                         "style": {
-                          "color": "rgba(255,255,255,0.78)"
+                          "color": "#94a3b8"
                         }
                       },
                       "children": []
@@ -3017,7 +2922,184 @@
           ]
         },
         {
-          "id": "health-plan-card",
+          "id": "list-title-1",
+          "alias": "core.text",
+          "layout": {
+            "mode": "flow",
+            "order": 0
+          },
+          "props": {
+            "text": "今日任务",
+            "variant": "subheading",
+            "style": {
+              "color": "#e2e8f0",
+              "padding": "0 12px",
+              "marginBottom": "8px"
+            }
+          },
+          "children": []
+        },
+        {
+          "id": "item-0-1",
+          "alias": "core.panel",
+          "layout": {
+            "mode": "flow",
+            "order": 0,
+            "width": "100%"
+          },
+          "props": {
+            "style": {
+              "padding": "16px",
+              "borderRadius": "14px",
+              "background": "#1a1a2e",
+              "border": "1px solid rgba(255,255,255,0.06)",
+              "boxShadow": "0 4px 24px rgba(0,0,0,0.4)"
+            }
+          },
+          "children": [
+            {
+              "id": "item-row-0-1",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "gap": "12px",
+                  "alignItems": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "item-img-0-1",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "alt": "晨跑 3 公里",
+                    "title": "晨跑 3 公里",
+                    "iconColor": "#22c55e",
+                    "objectFit": "contain",
+                    "style": {
+                      "width": "56px",
+                      "height": "56px",
+                      "borderRadius": "10px",
+                      "background": "#22c55e12",
+                      "flexShrink": "0"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "item-info-0-1",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "4px",
+                      "flex": "1"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "item-title-0-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "晨跑 3 公里",
+                        "variant": "subheading",
+                        "style": {
+                          "color": "#e2e8f0"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "item-desc-0-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "已完成 · 消耗 280 卡",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#94a3b8"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "item-prog-0-1",
+                      "alias": "core.progress",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "value": 100,
+                        "max": 100,
+                        "tone": "accent",
+                        "style": {
+                          "marginTop": "4px",
+                          "height": "4px"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "item-right-0-1",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "4px",
+                      "alignItems": "flex-end"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "item-tag-0-1",
+                      "alias": "core.tag",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "label": "完成",
+                        "tone": "success",
+                        "style": {
+                          "fontSize": "11px"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "item-1-1",
           "alias": "core.panel",
           "layout": {
             "mode": "flow",
@@ -3026,15 +3108,16 @@
           },
           "props": {
             "style": {
-              "margin": "0 24rpx",
-              "padding": "24rpx",
-              "borderRadius": "26rpx",
-              "background": "#fff"
+              "padding": "16px",
+              "borderRadius": "14px",
+              "background": "#1a1a2e",
+              "border": "1px solid rgba(255,255,255,0.06)",
+              "boxShadow": "0 4px 24px rgba(0,0,0,0.4)"
             }
           },
           "children": [
             {
-              "id": "health-plan-head",
+              "id": "item-row-1-1",
               "alias": "core.row",
               "layout": {
                 "mode": "flow",
@@ -3043,79 +3126,36 @@
               },
               "props": {
                 "style": {
-                  "justifyContent": "space-between",
+                  "gap": "12px",
                   "alignItems": "center"
                 }
               },
               "children": [
                 {
-                  "id": "health-plan-title",
-                  "alias": "core.text",
+                  "id": "item-img-1-1",
+                  "alias": "core.image",
                   "layout": {
                     "mode": "flow",
                     "order": 0
                   },
                   "props": {
-                    "text": "今天的计划",
-                    "variant": "heading",
-                    "style": {}
+                    "alt": "喝水 8 杯",
+                    "title": "喝水 8 杯",
+                    "iconColor": "#22c55e",
+                    "objectFit": "contain",
+                    "style": {
+                      "width": "56px",
+                      "height": "56px",
+                      "borderRadius": "10px",
+                      "background": "#22c55e12",
+                      "flexShrink": "0"
+                    }
                   },
                   "children": []
                 },
                 {
-                  "id": "health-plan-count",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1
-                  },
-                  "props": {
-                    "text": "2/4 完成",
-                    "variant": "caption",
-                    "style": {
-                      "color": "#10b981"
-                    }
-                  },
-                  "children": []
-                }
-              ]
-            },
-            {
-              "id": "health-plan-progress",
-              "alias": "core.progress",
-              "layout": {
-                "mode": "flow",
-                "order": 1
-              },
-              "props": {
-                "value": 50,
-                "max": 100,
-                "tone": "success",
-                "style": {
-                  "marginTop": "16rpx"
-                }
-              },
-              "children": []
-            },
-            {
-              "id": "health-plan-grid",
-              "alias": "core.grid",
-              "layout": {
-                "mode": "flow",
-                "order": 2,
-                "width": "100%"
-              },
-              "props": {
-                "columns": 2,
-                "style": {
-                  "gap": "14rpx",
-                  "marginTop": "18rpx"
-                }
-              },
-              "children": [
-                {
-                  "id": "health-plan-0",
-                  "alias": "core.panel",
+                  "id": "item-info-1-1",
+                  "alias": "core.stack",
                   "layout": {
                     "mode": "flow",
                     "order": 0,
@@ -3123,25 +3163,57 @@
                   },
                   "props": {
                     "style": {
-                      "padding": "20rpx",
-                      "borderRadius": "20rpx",
-                      "background": "#ecfdf5"
+                      "gap": "4px",
+                      "flex": "1"
                     }
                   },
                   "children": [
                     {
-                      "id": "health-plan-text-0",
+                      "id": "item-title-1-1",
                       "alias": "core.text",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
-                        "text": "晨间拉伸",
+                        "text": "喝水 8 杯",
+                        "variant": "subheading",
+                        "style": {
+                          "color": "#e2e8f0"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "item-desc-1-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "已完成 5/8 杯",
                         "variant": "caption",
                         "style": {
-                          "color": "#047857",
-                          "fontWeight": 700
+                          "color": "#94a3b8"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "item-prog-1-1",
+                      "alias": "core.progress",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "value": 62,
+                        "max": 100,
+                        "tone": "accent",
+                        "style": {
+                          "marginTop": "4px",
+                          "height": "4px"
                         }
                       },
                       "children": []
@@ -3149,104 +3221,32 @@
                   ]
                 },
                 {
-                  "id": "health-plan-1",
-                  "alias": "core.panel",
+                  "id": "item-right-1-1",
+                  "alias": "core.stack",
                   "layout": {
                     "mode": "flow",
-                    "order": 1,
+                    "order": 0,
                     "width": "100%"
                   },
                   "props": {
                     "style": {
-                      "padding": "20rpx",
-                      "borderRadius": "20rpx",
-                      "background": "#ecfdf5"
+                      "gap": "4px",
+                      "alignItems": "flex-end"
                     }
                   },
                   "children": [
                     {
-                      "id": "health-plan-text-1",
-                      "alias": "core.text",
+                      "id": "item-tag-1-1",
+                      "alias": "core.tag",
                       "layout": {
                         "mode": "flow",
                         "order": 0
                       },
                       "props": {
-                        "text": "低糖午餐",
-                        "variant": "caption",
+                        "label": "进行中",
+                        "tone": "warning",
                         "style": {
-                          "color": "#047857",
-                          "fontWeight": 700
-                        }
-                      },
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "health-plan-2",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 2,
-                    "width": "100%"
-                  },
-                  "props": {
-                    "style": {
-                      "padding": "20rpx",
-                      "borderRadius": "20rpx",
-                      "background": "#f8fafc"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "health-plan-text-2",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "text": "冥想 10 分钟",
-                        "variant": "caption",
-                        "style": {
-                          "color": "#334155",
-                          "fontWeight": 700
-                        }
-                      },
-                      "children": []
-                    }
-                  ]
-                },
-                {
-                  "id": "health-plan-3",
-                  "alias": "core.panel",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 3,
-                    "width": "100%"
-                  },
-                  "props": {
-                    "style": {
-                      "padding": "20rpx",
-                      "borderRadius": "20rpx",
-                      "background": "#f8fafc"
-                    }
-                  },
-                  "children": [
-                    {
-                      "id": "health-plan-text-3",
-                      "alias": "core.text",
-                      "layout": {
-                        "mode": "flow",
-                        "order": 0
-                      },
-                      "props": {
-                        "text": "晚间快走",
-                        "variant": "caption",
-                        "style": {
-                          "color": "#334155",
-                          "fontWeight": 700
+                          "fontSize": "11px"
                         }
                       },
                       "children": []
@@ -3256,176 +3256,6 @@
               ]
             }
           ]
-        },
-        {
-          "id": "health-consult-row",
-          "alias": "core.row",
-          "layout": {
-            "mode": "flow",
-            "order": 2,
-            "width": "100%"
-          },
-          "props": {
-            "style": {
-              "padding": "20rpx 24rpx",
-              "gap": "16rpx"
-            }
-          },
-          "children": [
-            {
-              "id": "health-doctor-card",
-              "alias": "core.panel",
-              "layout": {
-                "mode": "flow",
-                "order": 0,
-                "width": "auto"
-              },
-              "props": {
-                "style": {
-                  "flex": 1,
-                  "padding": "22rpx",
-                  "borderRadius": "24rpx",
-                  "background": "#fff"
-                }
-              },
-              "children": [
-                {
-                  "id": "health-doctor-img",
-                  "alias": "core.image",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "alt": "医生头像",
-                    "title": "医生头像",
-                    "iconColor": "#14b8a6",
-                    "objectFit": "contain",
-                    "style": {
-                      "width": "72rpx",
-                      "height": "72rpx"
-                    }
-                  },
-                  "children": []
-                },
-                {
-                  "id": "health-doctor-title",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1
-                  },
-                  "props": {
-                    "text": "医生问诊",
-                    "variant": "subheading",
-                    "style": {}
-                  },
-                  "children": []
-                },
-                {
-                  "id": "health-doctor-desc",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 2
-                  },
-                  "props": {
-                    "text": "3 位在线",
-                    "variant": "caption",
-                    "style": {
-                      "color": "#64748b"
-                    }
-                  },
-                  "children": []
-                }
-              ]
-            },
-            {
-              "id": "health-report-card",
-              "alias": "core.panel",
-              "layout": {
-                "mode": "flow",
-                "order": 1,
-                "width": "auto"
-              },
-              "props": {
-                "style": {
-                  "flex": 1,
-                  "padding": "22rpx",
-                  "borderRadius": "24rpx",
-                  "background": "#fff"
-                }
-              },
-              "children": [
-                {
-                  "id": "health-report-img",
-                  "alias": "core.image",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 0
-                  },
-                  "props": {
-                    "alt": "报告图标",
-                    "title": "报告图标",
-                    "iconColor": "#0ea5e9",
-                    "objectFit": "contain",
-                    "style": {
-                      "width": "72rpx",
-                      "height": "72rpx"
-                    }
-                  },
-                  "children": []
-                },
-                {
-                  "id": "health-report-title",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 1
-                  },
-                  "props": {
-                    "text": "健康报告",
-                    "variant": "subheading",
-                    "style": {}
-                  },
-                  "children": []
-                },
-                {
-                  "id": "health-report-desc",
-                  "alias": "core.text",
-                  "layout": {
-                    "mode": "flow",
-                    "order": 2
-                  },
-                  "props": {
-                    "text": "本周已更新",
-                    "variant": "caption",
-                    "style": {
-                      "color": "#64748b"
-                    }
-                  },
-                  "children": []
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "id": "health-main-action",
-          "alias": "core.button",
-          "layout": {
-            "mode": "flow",
-            "order": 3
-          },
-          "props": {
-            "label": "开始今日计划",
-            "variant": "primary",
-            "style": {
-              "margin": "0 24rpx 24rpx",
-              "width": "calc(100% - 48rpx)"
-            }
-          },
-          "children": []
         },
         {
           "id": "page-home-bottom-tabs",
@@ -3468,264 +3298,7 @@
           "children": []
         }
       ]
-    },
-    "componentTemplates": {
-      "biz-hero-banner": {
-        "root": {
-          "alias": "core.panel",
-          "props": {
-            "tone": "accent",
-            "gap": 12,
-            "style": {
-              "width": "100%",
-              "padding": "28px 24px",
-              "color": "#fff",
-              "borderRadius": "0 0 28px 28px",
-              "background": "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark, var(--color-primary)))",
-              "boxShadow": "0 16px 36px rgba(15,23,42,0.18)"
-            }
-          },
-          "children": [
-            {
-              "alias": "core.tag",
-              "props": {
-                "label": {
-                  "$bind": "badge"
-                },
-                "tone": "member",
-                "style": {
-                  "alignSelf": "flex-start",
-                  "background": "rgba(255,255,255,0.22)",
-                  "color": "#fff"
-                }
-              }
-            },
-            {
-              "alias": "core.text",
-              "props": {
-                "text": {
-                  "$bind": "title"
-                },
-                "variant": "display",
-                "style": {
-                  "color": "#fff"
-                }
-              }
-            },
-            {
-              "alias": "core.text",
-              "props": {
-                "text": {
-                  "$bind": "subtitle"
-                },
-                "variant": "body",
-                "style": {
-                  "color": "rgba(255,255,255,0.86)"
-                }
-              }
-            },
-            {
-              "alias": "core.button",
-              "props": {
-                "label": {
-                  "$bind": "actionLabel"
-                },
-                "variant": "secondary",
-                "style": {
-                  "width": "100%",
-                  "marginTop": "8px"
-                }
-              }
-            }
-          ]
-        }
-      }
-    },
-    "cssVars": {
-      "--color-primary": "#22c55e",
-      "--color-primary-dark": "#16a34a",
-      "--color-primary-light": "#4ade80",
-      "--color-text-primary": "#1e293b",
-      "--color-text-secondary": "#64748b",
-      "--color-border": "#e2e8f0",
-      "--color-background": "#f8fafc",
-      "--color-surface": "#ffffff"
-    },
-    "style": {
-      "cssVars": {
-        "--color-primary": "#22c55e",
-        "--color-primary-dark": "#16a34a",
-        "--color-primary-light": "#4ade80",
-        "--color-text-primary": "#1e293b",
-        "--color-text-secondary": "#64748b",
-        "--color-border": "#e2e8f0",
-        "--color-background": "#f8fafc",
-        "--color-surface": "#ffffff"
-      }
     }
   },
-  "semanticConfig": {
-    "pages": [
-      {
-        "id": "page-home",
-        "key": "health.home",
-        "name": "健康首页",
-        "description": "健康数据概览和指标"
-      },
-      {
-        "id": "page-trends",
-        "key": "health.trends",
-        "name": "趋势详情",
-        "description": "健康数据趋势图表"
-      },
-      {
-        "id": "page-exercise",
-        "key": "health.exercise",
-        "name": "运动计划",
-        "description": "运动计划和记录"
-      },
-      {
-        "id": "page-consult",
-        "key": "health.consult",
-        "name": "健康咨询",
-        "description": "医生咨询"
-      }
-    ],
-    "regions": [
-      {
-        "id": "health-header",
-        "key": "health.home.header",
-        "name": "健康头部",
-        "description": "评分和步数概览"
-      },
-      {
-        "id": "health-metrics",
-        "key": "health.home.metrics",
-        "name": "健康指标",
-        "description": "心率、睡眠、血压、卡路里"
-      },
-      {
-        "id": "health-tips",
-        "key": "health.home.tips",
-        "name": "健康贴士",
-        "description": "健康建议"
-      }
-    ],
-    "slots": [
-      {
-        "id": "score-num",
-        "key": "health.home.score",
-        "name": "健康评分",
-        "description": "健康评分数字"
-      },
-      {
-        "id": "steps-num",
-        "key": "health.home.steps",
-        "name": "今日步数",
-        "description": "今日步数"
-      },
-      {
-        "id": "heart-value",
-        "key": "health.home.heart",
-        "name": "心率",
-        "description": "心率数值"
-      }
-    ]
-  },
-  "categoryLabel": "健康管理",
-  "functionalCategoryLabels": {
-    "health-wellness": "健康管理",
-    "health": "医疗健康",
-    "fitness": "运动"
-  },
-  "tagline": "适用于健康数据、运动记录、医疗咨询等场景的小程序模板，包含健康首页、趋势详情、运动计划、健康咨询页面",
-  "traits": [
-    "健康",
-    "运动",
-    "医疗",
-    "健身",
-    "养生"
-  ],
-  "cssVars": {
-    "--color-primary": "#22c55e",
-    "--color-primary-dark": "#16a34a",
-    "--color-primary-light": "#4ade80",
-    "--color-text-primary": "#1e293b",
-    "--color-text-secondary": "#64748b",
-    "--color-border": "#e2e8f0",
-    "--color-background": "#f8fafc",
-    "--color-surface": "#ffffff"
-  },
-  "componentTemplates": {
-    "biz-hero-banner": {
-      "root": {
-        "alias": "core.panel",
-        "props": {
-          "tone": "accent",
-          "gap": 12,
-          "style": {
-            "width": "100%",
-            "padding": "28px 24px",
-            "color": "#fff",
-            "borderRadius": "0 0 28px 28px",
-            "background": "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark, var(--color-primary)))",
-            "boxShadow": "0 16px 36px rgba(15,23,42,0.18)"
-          }
-        },
-        "children": [
-          {
-            "alias": "core.tag",
-            "props": {
-              "label": {
-                "$bind": "badge"
-              },
-              "tone": "member",
-              "style": {
-                "alignSelf": "flex-start",
-                "background": "rgba(255,255,255,0.22)",
-                "color": "#fff"
-              }
-            }
-          },
-          {
-            "alias": "core.text",
-            "props": {
-              "text": {
-                "$bind": "title"
-              },
-              "variant": "display",
-              "style": {
-                "color": "#fff"
-              }
-            }
-          },
-          {
-            "alias": "core.text",
-            "props": {
-              "text": {
-                "$bind": "subtitle"
-              },
-              "variant": "body",
-              "style": {
-                "color": "rgba(255,255,255,0.86)"
-              }
-            }
-          },
-          {
-            "alias": "core.button",
-            "props": {
-              "label": {
-                "$bind": "actionLabel"
-              },
-              "variant": "secondary",
-              "style": {
-                "width": "100%",
-                "marginTop": "8px"
-              }
-            }
-          }
-        ]
-      }
-    }
-  }
+  "tagline": "适用于健康数据追踪、运动计划、医疗咨询等场景的小程序模板"
 }

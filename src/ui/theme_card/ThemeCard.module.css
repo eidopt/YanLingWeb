@@ -136,12 +136,16 @@
 .cardName,
 .cardTagline {
   min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .cardName {
   color: var(--theme-card-name, var(--app-text-primary));
+  line-height: 1.35;
 }
 
 .cardTagline {
   color: var(--theme-card-tagline, var(--app-text-muted));
+  line-height: 1.35;
 }

@@ -490,7 +490,7 @@
           "children": [
             {
               "id": "social-story-row",
-              "alias": "core.row",
+              "alias": "core.grid",
               "layout": {
                 "mode": "flow",
                 "order": 0,
@@ -499,9 +499,9 @@
               "props": {
                 "style": {
                   "padding": "20rpx",
-                  "gap": "16rpx",
-                  "overflowX": "auto"
-                }
+                  "gap": "16rpx"
+                },
+                "columns": 5
               },
               "children": [
                 {
@@ -3233,7 +3233,7 @@
       "children": [
         {
           "id": "social-story-row",
-          "alias": "core.row",
+          "alias": "core.grid",
           "layout": {
             "mode": "flow",
             "order": 0,
@@ -3242,9 +3242,9 @@
           "props": {
             "style": {
               "padding": "20rpx",
-              "gap": "16rpx",
-              "overflowX": "auto"
-            }
+              "gap": "16rpx"
+            },
+            "columns": 5
           },
           "children": [
             {

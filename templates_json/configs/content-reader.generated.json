@@ -1,6 +1,6 @@
 {
   "templateId": "content-reader",
-  "templateVersion": "1",
+  "templateVersion": "1.0.0",
   "profileVersion": "1.0.0",
   "devices": [
     "miniapp",
@@ -8,12 +8,12 @@
   ],
   "pages": [
     {
-      "pageKey": "page-list",
-      "pageId": "page-list",
+      "pageKey": "page-home",
+      "pageId": "page-home",
       "pageKind": "home",
       "name": "阅读首页",
-      "description": "今日阅读与书架",
-      "rootNodeId": "page-list-screen",
+      "description": "阅读首页",
+      "rootNodeId": "page-home-screen",
       "isDefault": true
     },
     {
@@ -21,1515 +21,720 @@
       "pageId": "page-detail",
       "pageKind": "detail",
       "name": "文章详情",
-      "description": "2024年最值得关注的技术趋势",
+      "description": "文章详情",
       "rootNodeId": "page-detail-screen",
       "isDefault": false
     },
     {
       "pageKey": "page-comments",
       "pageId": "page-comments",
-      "pageKind": "unknown",
+      "pageKind": "list",
       "name": "评论区",
-      "description": "评论 (128)",
+      "description": "评论区",
       "rootNodeId": "page-comments-screen",
       "isDefault": false
     }
   ],
   "regions": [
     {
-      "regionKey": "page-list.item",
-      "pageKey": "page-list",
-      "nodeId": "reader-daily-cover",
-      "name": "今日精选",
+      "regionKey": "page-home.cover-0",
+      "pageKey": "page-home",
+      "nodeId": "cover-0",
+      "name": "core.panel",
       "sectionKind": "panel",
       "replaceable": true
     },
     {
-      "regionKey": "page-list.item-2",
-      "pageKey": "page-list",
-      "nodeId": "reader-chip-row",
-      "name": "推荐",
+      "regionKey": "page-home.chip-row-1",
+      "pageKey": "page-home",
+      "nodeId": "chip-row-1",
+      "name": "core.row",
       "sectionKind": "row",
       "replaceable": true
     },
     {
-      "regionKey": "page-list.item-3",
-      "pageKey": "page-list",
-      "nodeId": "reader-book-shelf",
-      "name": "书架式阅读",
-      "sectionKind": "panel",
-      "replaceable": true
-    },
-    {
-      "regionKey": "page-list.item-4",
-      "pageKey": "page-list",
-      "nodeId": "reader-news-list",
-      "name": "文章封面",
+      "regionKey": "page-home.mag-list-2",
+      "pageKey": "page-home",
+      "nodeId": "mag-list-2",
+      "name": "core.stack",
       "sectionKind": "stack",
       "replaceable": true
     },
     {
-      "regionKey": "page-detail.item",
-      "pageKey": "page-detail",
-      "nodeId": "page-detail-hero-banner",
-      "name": "文章详情",
-      "sectionKind": "biz-hero-banner",
-      "replaceable": false
-    },
-    {
-      "regionKey": "page-detail.k-2024",
-      "pageKey": "page-detail",
-      "nodeId": "detail-header",
-      "name": "2024年最值得关注的技术趋势",
-      "sectionKind": "panel",
-      "replaceable": true
-    },
-    {
-      "regionKey": "page-detail.item-2",
-      "pageKey": "page-detail",
-      "nodeId": "detail-cover",
-      "name": "业务视觉元素",
-      "sectionKind": "image",
-      "replaceable": false
-    },
-    {
-      "regionKey": "page-detail.k-2024-2",
-      "pageKey": "page-detail",
-      "nodeId": "detail-content",
-      "name": "在快速发展的科技领域，每年都会出现新的技术趋势和创新。2024年，我们见证了人工智能、边缘计算、第三代互联网等技术的快速发展，这些技术正在深刻改变着我们的生活方",
-      "sectionKind": "panel",
-      "replaceable": true
-    },
-    {
-      "regionKey": "page-detail.item-3",
-      "pageKey": "page-detail",
-      "nodeId": "detail-actions",
-      "name": "图标",
+      "regionKey": "page-home.mag-0-2",
+      "pageKey": "page-home",
+      "nodeId": "mag-0-2",
+      "name": "core.row",
       "sectionKind": "row",
       "replaceable": true
     },
     {
-      "regionKey": "page-detail.item-4",
-      "pageKey": "page-detail",
-      "nodeId": "page-detail-primary-action",
-      "name": "继续阅读",
-      "sectionKind": "button",
-      "replaceable": false
-    },
-    {
-      "regionKey": "page-comments.item",
-      "pageKey": "page-comments",
-      "nodeId": "page-comments-hero-banner",
-      "name": "评论区",
-      "sectionKind": "biz-hero-banner",
-      "replaceable": false
-    },
-    {
-      "regionKey": "page-comments.k-128",
-      "pageKey": "page-comments",
-      "nodeId": "comment-header",
-      "name": "评论 (128)",
-      "sectionKind": "panel",
+      "regionKey": "page-home.mag-1-2",
+      "pageKey": "page-home",
+      "nodeId": "mag-1-2",
+      "name": "core.row",
+      "sectionKind": "row",
       "replaceable": true
     },
     {
-      "regionKey": "page-comments.item-2",
-      "pageKey": "page-comments",
-      "nodeId": "comment-list",
-      "name": "业务视觉元素",
+      "regionKey": "page-home.mag-2-2",
+      "pageKey": "page-home",
+      "nodeId": "mag-2-2",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-home.bottom-tabs",
+      "pageKey": "page-home",
+      "nodeId": "page-home-bottom-tabs",
+      "name": "core.tabs",
+      "sectionKind": "tabs",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.art-header-0",
+      "pageKey": "page-detail",
+      "nodeId": "art-header-0",
+      "name": "core.stack",
       "sectionKind": "stack",
       "replaceable": true
     },
     {
-      "regionKey": "page-comments.item-3",
+      "regionKey": "page-detail.art-meta-0",
+      "pageKey": "page-detail",
+      "nodeId": "art-meta-0",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.art-body-1",
+      "pageKey": "page-detail",
+      "nodeId": "art-body-1",
+      "name": "core.stack",
+      "sectionKind": "stack",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.art-tags-2",
+      "pageKey": "page-detail",
+      "nodeId": "art-tags-2",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.bottom-tabs",
+      "pageKey": "page-detail",
+      "nodeId": "page-detail-bottom-tabs",
+      "name": "core.tabs",
+      "sectionKind": "tabs",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-comments.sec-head-0",
       "pageKey": "page-comments",
-      "nodeId": "comment-input",
-      "name": "写下你的评论...",
+      "nodeId": "sec-head-0",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-comments.comment-0-1",
+      "pageKey": "page-comments",
+      "nodeId": "comment-0-1",
+      "name": "core.panel",
       "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-comments.comment-head-0-1",
+      "pageKey": "page-comments",
+      "nodeId": "comment-head-0-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-comments.comment-actions-0-1",
+      "pageKey": "page-comments",
+      "nodeId": "comment-actions-0-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-comments.comment-1-1",
+      "pageKey": "page-comments",
+      "nodeId": "comment-1-1",
+      "name": "core.panel",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-comments.comment-head-1-1",
+      "pageKey": "page-comments",
+      "nodeId": "comment-head-1-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-comments.comment-actions-1-1",
+      "pageKey": "page-comments",
+      "nodeId": "comment-actions-1-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-comments.bottom-tabs",
+      "pageKey": "page-comments",
+      "nodeId": "page-comments-bottom-tabs",
+      "name": "core.tabs",
+      "sectionKind": "tabs",
       "replaceable": true
     }
   ],
   "slots": [
     {
-      "slotKey": "page-list.page-list-screen.screen",
-      "pageKey": "page-list",
-      "nodeId": "page-list-screen",
-      "component": "core.screen",
-      "editableProps": [
-        "title",
-        "statusTime",
-        "headerActionLabel"
-      ],
-      "label": "阅读首页"
-    },
-    {
-      "slotKey": "page-list.reader-daily-cover.panel",
-      "pageKey": "page-list",
-      "regionKey": "page-list.item",
-      "nodeId": "reader-daily-cover",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "今日精选"
-    },
-    {
-      "slotKey": "page-list.reader-daily-tag.tag",
-      "pageKey": "page-list",
-      "regionKey": "page-list.item",
-      "nodeId": "reader-daily-tag",
+      "slotKey": "page-home.cover-badge-0",
+      "pageKey": "page-home",
+      "regionKey": "page-home.cover-0",
+      "nodeId": "cover-badge-0",
       "component": "core.tag",
       "editableProps": [
-        "label",
-        "tone"
+        "label"
       ],
-      "label": "今日精选"
+      "label": "标签"
     },
     {
-      "slotKey": "page-list.reader-daily-title.text",
-      "pageKey": "page-list",
-      "regionKey": "page-list.item",
-      "nodeId": "reader-daily-title",
+      "slotKey": "page-home.cover-title-0",
+      "pageKey": "page-home",
+      "regionKey": "page-home.cover-0",
+      "nodeId": "cover-title-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "把碎片时间变成一本杂志"
+      "label": "文本"
     },
     {
-      "slotKey": "page-list.reader-daily-desc.text",
-      "pageKey": "page-list",
-      "regionKey": "page-list.item",
-      "nodeId": "reader-daily-desc",
+      "slotKey": "page-home.cover-sub-0",
+      "pageKey": "page-home",
+      "regionKey": "page-home.cover-0",
+      "nodeId": "cover-sub-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "三篇深度长文 · 预计阅读 18 分钟"
+      "label": "文本"
     },
     {
-      "slotKey": "page-list.reader-daily-action.button",
-      "pageKey": "page-list",
-      "regionKey": "page-list.item",
-      "nodeId": "reader-daily-action",
+      "slotKey": "page-home.cover-btn-0",
+      "pageKey": "page-home",
+      "regionKey": "page-home.cover-0",
+      "nodeId": "cover-btn-0",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "开始阅读"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-list.reader-chip-row.row",
-      "pageKey": "page-list",
-      "regionKey": "page-list.item-2",
-      "nodeId": "reader-chip-row",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "推荐"
-    },
-    {
-      "slotKey": "page-list.reader-chip-0.button",
-      "pageKey": "page-list",
-      "regionKey": "page-list.item-2",
-      "nodeId": "reader-chip-0",
+      "slotKey": "page-home.chip-0-1",
+      "pageKey": "page-home",
+      "regionKey": "page-home.chip-row-1",
+      "nodeId": "chip-0-1",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "推荐"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-list.reader-chip-1.button",
-      "pageKey": "page-list",
-      "regionKey": "page-list.item-2",
-      "nodeId": "reader-chip-1",
+      "slotKey": "page-home.chip-1-1",
+      "pageKey": "page-home",
+      "regionKey": "page-home.chip-row-1",
+      "nodeId": "chip-1-1",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "商业"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-list.reader-chip-2.button",
-      "pageKey": "page-list",
-      "regionKey": "page-list.item-2",
-      "nodeId": "reader-chip-2",
+      "slotKey": "page-home.chip-2-1",
+      "pageKey": "page-home",
+      "regionKey": "page-home.chip-row-1",
+      "nodeId": "chip-2-1",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "科技"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-list.reader-chip-3.button",
-      "pageKey": "page-list",
-      "regionKey": "page-list.item-2",
-      "nodeId": "reader-chip-3",
+      "slotKey": "page-home.chip-3-1",
+      "pageKey": "page-home",
+      "regionKey": "page-home.chip-row-1",
+      "nodeId": "chip-3-1",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "生活"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-list.reader-chip-4.button",
-      "pageKey": "page-list",
-      "regionKey": "page-list.item-2",
-      "nodeId": "reader-chip-4",
+      "slotKey": "page-home.chip-4-1",
+      "pageKey": "page-home",
+      "regionKey": "page-home.chip-row-1",
+      "nodeId": "chip-4-1",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "设计"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-list.reader-book-shelf.panel",
-      "pageKey": "page-list",
-      "regionKey": "page-list.item-3",
-      "nodeId": "reader-book-shelf",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "书架式阅读"
-    },
-    {
-      "slotKey": "page-list.reader-shelf-head.row",
-      "pageKey": "page-list",
-      "regionKey": "page-list.item-3",
-      "nodeId": "reader-shelf-head",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "书架式阅读"
-    },
-    {
-      "slotKey": "page-list.reader-shelf-title.text",
-      "pageKey": "page-list",
-      "nodeId": "reader-shelf-title",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "书架式阅读"
-    },
-    {
-      "slotKey": "page-list.reader-shelf-count.text",
-      "pageKey": "page-list",
-      "nodeId": "reader-shelf-count",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "12 篇"
-    },
-    {
-      "slotKey": "page-list.reader-shelf-row.row",
-      "pageKey": "page-list",
-      "regionKey": "page-list.item-3",
-      "nodeId": "reader-shelf-row",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "城市更新"
-    },
-    {
-      "slotKey": "page-list.reader-book-0.panel",
-      "pageKey": "page-list",
-      "nodeId": "reader-book-0",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "城市更新"
-    },
-    {
-      "slotKey": "page-list.reader-book-title-0.text",
-      "pageKey": "page-list",
-      "nodeId": "reader-book-title-0",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "城市更新"
-    },
-    {
-      "slotKey": "page-list.reader-book-1.panel",
-      "pageKey": "page-list",
-      "nodeId": "reader-book-1",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "产品增长"
-    },
-    {
-      "slotKey": "page-list.reader-book-title-1.text",
-      "pageKey": "page-list",
-      "nodeId": "reader-book-title-1",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "产品增长"
-    },
-    {
-      "slotKey": "page-list.reader-book-2.panel",
-      "pageKey": "page-list",
-      "nodeId": "reader-book-2",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "长期主义"
-    },
-    {
-      "slotKey": "page-list.reader-book-title-2.text",
-      "pageKey": "page-list",
-      "nodeId": "reader-book-title-2",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "长期主义"
-    },
-    {
-      "slotKey": "page-list.reader-news-list.stack",
-      "pageKey": "page-list",
-      "regionKey": "page-list.item-4",
-      "nodeId": "reader-news-list",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "文章封面"
-    },
-    {
-      "slotKey": "page-list.reader-article-0.row",
-      "pageKey": "page-list",
-      "regionKey": "page-list.item-4",
-      "nodeId": "reader-article-0",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "文章封面"
-    },
-    {
-      "slotKey": "page-list.reader-article-img-0.image",
-      "pageKey": "page-list",
-      "nodeId": "reader-article-img-0",
+      "slotKey": "page-home.mag-img-0-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.mag-0-2",
+      "nodeId": "mag-img-0-2",
       "component": "core.image",
       "editableProps": [
-        "src",
         "alt",
         "title",
-        "iconColor",
-        "objectFit"
+        "iconColor"
       ],
-      "label": "文章封面"
+      "label": "图片"
     },
     {
-      "slotKey": "page-list.reader-article-copy-0.stack",
-      "pageKey": "page-list",
-      "nodeId": "reader-article-copy-0",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "早报：消费品牌的新渠道"
-    },
-    {
-      "slotKey": "page-list.reader-article-title-0.text",
-      "pageKey": "page-list",
-      "nodeId": "reader-article-title-0",
+      "slotKey": "page-home.mag-title-0-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.mag-0-2",
+      "nodeId": "mag-title-0-2",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "早报：消费品牌的新渠道"
+      "label": "文本"
     },
     {
-      "slotKey": "page-list.reader-article-meta-0.text",
-      "pageKey": "page-list",
-      "nodeId": "reader-article-meta-0",
+      "slotKey": "page-home.mag-meta-0-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.mag-0-2",
+      "nodeId": "mag-meta-0-2",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "8 分钟 · 2 个章节"
+      "label": "文本"
     },
     {
-      "slotKey": "page-list.reader-article-1.row",
-      "pageKey": "page-list",
-      "regionKey": "page-list.item-4",
-      "nodeId": "reader-article-1",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "文章封面"
-    },
-    {
-      "slotKey": "page-list.reader-article-img-1.image",
-      "pageKey": "page-list",
-      "nodeId": "reader-article-img-1",
+      "slotKey": "page-home.mag-img-1-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.mag-1-2",
+      "nodeId": "mag-img-1-2",
       "component": "core.image",
       "editableProps": [
-        "src",
         "alt",
         "title",
-        "iconColor",
-        "objectFit"
+        "iconColor"
       ],
-      "label": "文章封面"
+      "label": "图片"
     },
     {
-      "slotKey": "page-list.reader-article-copy-1.stack",
-      "pageKey": "page-list",
-      "nodeId": "reader-article-copy-1",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "访谈：从编辑视角看内容产品"
-    },
-    {
-      "slotKey": "page-list.reader-article-title-1.text",
-      "pageKey": "page-list",
-      "nodeId": "reader-article-title-1",
+      "slotKey": "page-home.mag-title-1-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.mag-1-2",
+      "nodeId": "mag-title-1-2",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "访谈：从编辑视角看内容产品"
+      "label": "文本"
     },
     {
-      "slotKey": "page-list.reader-article-meta-1.text",
-      "pageKey": "page-list",
-      "nodeId": "reader-article-meta-1",
+      "slotKey": "page-home.mag-meta-1-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.mag-1-2",
+      "nodeId": "mag-meta-1-2",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "11 分钟 · 3 个章节"
+      "label": "文本"
     },
     {
-      "slotKey": "page-list.reader-article-2.row",
-      "pageKey": "page-list",
-      "regionKey": "page-list.item-4",
-      "nodeId": "reader-article-2",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "文章封面"
-    },
-    {
-      "slotKey": "page-list.reader-article-img-2.image",
-      "pageKey": "page-list",
-      "nodeId": "reader-article-img-2",
+      "slotKey": "page-home.mag-img-2-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.mag-2-2",
+      "nodeId": "mag-img-2-2",
       "component": "core.image",
       "editableProps": [
-        "src",
         "alt",
         "title",
-        "iconColor",
-        "objectFit"
+        "iconColor"
       ],
-      "label": "文章封面"
+      "label": "图片"
     },
     {
-      "slotKey": "page-list.reader-article-copy-2.stack",
-      "pageKey": "page-list",
-      "nodeId": "reader-article-copy-2",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "收藏：适合通勤阅读的专题"
-    },
-    {
-      "slotKey": "page-list.reader-article-title-2.text",
-      "pageKey": "page-list",
-      "nodeId": "reader-article-title-2",
+      "slotKey": "page-home.mag-title-2-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.mag-2-2",
+      "nodeId": "mag-title-2-2",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "收藏：适合通勤阅读的专题"
+      "label": "文本"
     },
     {
-      "slotKey": "page-list.reader-article-meta-2.text",
-      "pageKey": "page-list",
-      "nodeId": "reader-article-meta-2",
+      "slotKey": "page-home.mag-meta-2-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.mag-2-2",
+      "nodeId": "mag-meta-2-2",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "14 分钟 · 4 个章节"
+      "label": "文本"
     },
     {
-      "slotKey": "page-list.page-list-bottom-tabs.tabs",
-      "pageKey": "page-list",
-      "nodeId": "page-list-bottom-tabs",
-      "component": "core.tabs",
-      "editableProps": [
-        "tabs",
-        "activeTab"
-      ],
-      "label": "page-list-bottom-tabs"
-    },
-    {
-      "slotKey": "page-detail.page-detail-screen.screen",
+      "slotKey": "page-detail.art-title-0",
       "pageKey": "page-detail",
-      "nodeId": "page-detail-screen",
-      "component": "core.screen",
-      "editableProps": [
-        "title",
-        "statusTime",
-        "headerActionLabel"
-      ],
-      "label": "文章详情"
-    },
-    {
-      "slotKey": "page-detail.detail-header.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.k-2024",
-      "nodeId": "detail-header",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "2024年最值得关注的技术趋势"
-    },
-    {
-      "slotKey": "page-detail.detail-title.text",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.k-2024",
-      "nodeId": "detail-title",
+      "regionKey": "page-detail.art-header-0",
+      "nodeId": "art-title-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "2024年最值得关注的技术趋势"
+      "label": "文本"
     },
     {
-      "slotKey": "page-detail.detail-meta.row",
+      "slotKey": "page-detail.art-avatar-0",
       "pageKey": "page-detail",
-      "regionKey": "page-detail.k-2024",
-      "nodeId": "detail-meta",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-detail.detail-avatar.image",
-      "pageKey": "page-detail",
-      "nodeId": "detail-avatar",
+      "regionKey": "page-detail.art-meta-0",
+      "nodeId": "art-avatar-0",
       "component": "core.image",
       "editableProps": [
-        "src",
         "alt",
         "title",
-        "iconColor",
-        "objectFit"
+        "iconColor"
       ],
-      "label": "业务视觉元素"
+      "label": "图片"
     },
     {
-      "slotKey": "page-detail.detail-author-info.stack",
+      "slotKey": "page-detail.art-author-0",
       "pageKey": "page-detail",
-      "nodeId": "detail-author-info",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "科技观察"
-    },
-    {
-      "slotKey": "page-detail.detail-author.text",
-      "pageKey": "page-detail",
-      "nodeId": "detail-author",
+      "regionKey": "page-detail.art-meta-0",
+      "nodeId": "art-author-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "科技观察"
+      "label": "文本"
     },
     {
-      "slotKey": "page-detail.detail-date.text",
+      "slotKey": "page-detail.art-date-0",
       "pageKey": "page-detail",
-      "nodeId": "detail-date",
+      "regionKey": "page-detail.art-meta-0",
+      "nodeId": "art-date-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "2024-01-15 阅读 1.2k"
+      "label": "文本"
     },
     {
-      "slotKey": "page-detail.detail-cover.image",
+      "slotKey": "page-detail.p-0-1",
       "pageKey": "page-detail",
-      "regionKey": "page-detail.item-2",
-      "nodeId": "detail-cover",
+      "regionKey": "page-detail.art-body-1",
+      "nodeId": "p-0-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-detail.p-1-1",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.art-body-1",
+      "nodeId": "p-1-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-detail.atag-0-2",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.art-tags-2",
+      "nodeId": "atag-0-2",
+      "component": "core.tag",
+      "editableProps": [
+        "label"
+      ],
+      "label": "标签"
+    },
+    {
+      "slotKey": "page-detail.atag-1-2",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.art-tags-2",
+      "nodeId": "atag-1-2",
+      "component": "core.tag",
+      "editableProps": [
+        "label"
+      ],
+      "label": "标签"
+    },
+    {
+      "slotKey": "page-detail.atag-2-2",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.art-tags-2",
+      "nodeId": "atag-2-2",
+      "component": "core.tag",
+      "editableProps": [
+        "label"
+      ],
+      "label": "标签"
+    },
+    {
+      "slotKey": "page-comments.sec-title-0",
+      "pageKey": "page-comments",
+      "regionKey": "page-comments.sec-head-0",
+      "nodeId": "sec-title-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-comments.sec-action-0",
+      "pageKey": "page-comments",
+      "regionKey": "page-comments.sec-head-0",
+      "nodeId": "sec-action-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-comments.comment-avatar-0-1",
+      "pageKey": "page-comments",
+      "regionKey": "page-comments.comment-head-0-1",
+      "nodeId": "comment-avatar-0-1",
       "component": "core.image",
       "editableProps": [
-        "src",
         "alt",
         "title",
-        "iconColor",
-        "objectFit"
+        "iconColor"
       ],
-      "label": "业务视觉元素"
+      "label": "图片"
     },
     {
-      "slotKey": "page-detail.detail-content.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.k-2024-2",
-      "nodeId": "detail-content",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "在快速发展的科技领域，每年都会出现新的技术趋势和创新。2024年，我们见证了人工智能、边缘计算、第三代互联网等技术的快速发展，这些技术正在深刻改变着我们的生活方"
-    },
-    {
-      "slotKey": "page-detail.detail-p1.text",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.k-2024-2",
-      "nodeId": "detail-p1",
+      "slotKey": "page-comments.comment-user-0-1",
+      "pageKey": "page-comments",
+      "regionKey": "page-comments.comment-head-0-1",
+      "nodeId": "comment-user-0-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "在快速发展的科技领域，每年都会出现新的技术趋势和创新。2024年，我们见证了人工智能、边缘计算、第三代互联网等技术的快速发展，这些技术正在深刻改变着我们的生活方"
+      "label": "文本"
     },
     {
-      "slotKey": "page-detail.detail-p2.text",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.k-2024-2",
-      "nodeId": "detail-p2",
+      "slotKey": "page-comments.comment-time-0-1",
+      "pageKey": "page-comments",
+      "regionKey": "page-comments.comment-head-0-1",
+      "nodeId": "comment-time-0-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "人工智能已经从实验室走向了实际应用。从智能助手到自动驾驶，从医疗诊断到金融风控，智能正在各个领域展现出巨大的潜力。特别是大语言模型的突破，让智能的理解和生成能力"
+      "label": "文本"
     },
     {
-      "slotKey": "page-detail.detail-actions.row",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-3",
-      "nodeId": "detail-actions",
-      "component": "core.row",
+      "slotKey": "page-comments.comment-body-0-1",
+      "pageKey": "page-comments",
+      "regionKey": "page-comments.comment-0-1",
+      "nodeId": "comment-body-0-1",
+      "component": "core.text",
       "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
+        "text"
       ],
-      "label": "图标"
+      "label": "文本"
     },
     {
-      "slotKey": "page-detail.action-like.row",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-3",
-      "nodeId": "action-like",
-      "component": "core.row",
+      "slotKey": "page-comments.comment-likes-0-1",
+      "pageKey": "page-comments",
+      "regionKey": "page-comments.comment-actions-0-1",
+      "nodeId": "comment-likes-0-1",
+      "component": "core.text",
       "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
+        "text"
       ],
-      "label": "图标"
+      "label": "文本"
     },
     {
-      "slotKey": "page-detail.like-icon.image",
-      "pageKey": "page-detail",
-      "nodeId": "like-icon",
+      "slotKey": "page-comments.comment-avatar-1-1",
+      "pageKey": "page-comments",
+      "regionKey": "page-comments.comment-head-1-1",
+      "nodeId": "comment-avatar-1-1",
       "component": "core.image",
       "editableProps": [
-        "src",
         "alt",
         "title",
-        "iconColor",
-        "objectFit"
+        "iconColor"
       ],
-      "label": "图标"
+      "label": "图片"
     },
     {
-      "slotKey": "page-detail.like-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "like-text",
+      "slotKey": "page-comments.comment-user-1-1",
+      "pageKey": "page-comments",
+      "regionKey": "page-comments.comment-head-1-1",
+      "nodeId": "comment-user-1-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "点赞"
+      "label": "文本"
     },
     {
-      "slotKey": "page-detail.action-fav.row",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-3",
-      "nodeId": "action-fav",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "图标"
-    },
-    {
-      "slotKey": "page-detail.fav-icon.image",
-      "pageKey": "page-detail",
-      "nodeId": "fav-icon",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "图标"
-    },
-    {
-      "slotKey": "page-detail.fav-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "fav-text",
+      "slotKey": "page-comments.comment-time-1-1",
+      "pageKey": "page-comments",
+      "regionKey": "page-comments.comment-head-1-1",
+      "nodeId": "comment-time-1-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "收藏"
+      "label": "文本"
     },
     {
-      "slotKey": "page-detail.action-share.row",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-3",
-      "nodeId": "action-share",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "图标"
-    },
-    {
-      "slotKey": "page-detail.share-icon.image",
-      "pageKey": "page-detail",
-      "nodeId": "share-icon",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "图标"
-    },
-    {
-      "slotKey": "page-detail.share-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "share-text",
+      "slotKey": "page-comments.comment-body-1-1",
+      "pageKey": "page-comments",
+      "regionKey": "page-comments.comment-1-1",
+      "nodeId": "comment-body-1-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "分享"
+      "label": "文本"
     },
     {
-      "slotKey": "page-detail.page-detail-primary-action.button",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "nodeId": "page-detail-primary-action",
-      "component": "core.button",
-      "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
-      ],
-      "label": "继续阅读"
-    },
-    {
-      "slotKey": "page-detail.page-detail-bottom-tabs.tabs",
-      "pageKey": "page-detail",
-      "nodeId": "page-detail-bottom-tabs",
-      "component": "core.tabs",
-      "editableProps": [
-        "tabs",
-        "activeTab"
-      ],
-      "label": "page-detail-bottom-tabs"
-    },
-    {
-      "slotKey": "page-comments.page-comments-screen.screen",
+      "slotKey": "page-comments.comment-likes-1-1",
       "pageKey": "page-comments",
-      "nodeId": "page-comments-screen",
-      "component": "core.screen",
-      "editableProps": [
-        "title",
-        "statusTime",
-        "headerActionLabel"
-      ],
-      "label": "评论区"
-    },
-    {
-      "slotKey": "page-comments.comment-header.panel",
-      "pageKey": "page-comments",
-      "regionKey": "page-comments.k-128",
-      "nodeId": "comment-header",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "评论 (128)"
-    },
-    {
-      "slotKey": "page-comments.comment-title.text",
-      "pageKey": "page-comments",
-      "regionKey": "page-comments.k-128",
-      "nodeId": "comment-title",
+      "regionKey": "page-comments.comment-actions-1-1",
+      "nodeId": "comment-likes-1-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "评论 (128)"
-    },
-    {
-      "slotKey": "page-comments.comment-list.stack",
-      "pageKey": "page-comments",
-      "regionKey": "page-comments.item-2",
-      "nodeId": "comment-list",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-comments.comment-1.panel",
-      "pageKey": "page-comments",
-      "regionKey": "page-comments.item-2",
-      "nodeId": "comment-1",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-comments.c1-header.row",
-      "pageKey": "page-comments",
-      "nodeId": "c1-header",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-comments.c1-avatar.image",
-      "pageKey": "page-comments",
-      "nodeId": "c1-avatar",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-comments.c1-name.text",
-      "pageKey": "page-comments",
-      "nodeId": "c1-name",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "热心网友"
-    },
-    {
-      "slotKey": "page-comments.c1-time.text",
-      "pageKey": "page-comments",
-      "nodeId": "c1-time",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "30分钟前"
-    },
-    {
-      "slotKey": "page-comments.c1-content.text",
-      "pageKey": "page-comments",
-      "nodeId": "c1-content",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "写得非常详细，对技术趋势的分析很到位！"
-    },
-    {
-      "slotKey": "page-comments.comment-2.panel",
-      "pageKey": "page-comments",
-      "regionKey": "page-comments.item-2",
-      "nodeId": "comment-2",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-comments.c2-header.row",
-      "pageKey": "page-comments",
-      "nodeId": "c2-header",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-comments.c2-avatar.image",
-      "pageKey": "page-comments",
-      "nodeId": "c2-avatar",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-comments.c2-name.text",
-      "pageKey": "page-comments",
-      "nodeId": "c2-name",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "技术爱好者"
-    },
-    {
-      "slotKey": "page-comments.c2-time.text",
-      "pageKey": "page-comments",
-      "nodeId": "c2-time",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "1小时前"
-    },
-    {
-      "slotKey": "page-comments.c2-content.text",
-      "pageKey": "page-comments",
-      "nodeId": "c2-content",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "期待更多关于智能应用的深度文章！"
-    },
-    {
-      "slotKey": "page-comments.comment-input.panel",
-      "pageKey": "page-comments",
-      "regionKey": "page-comments.item-3",
-      "nodeId": "comment-input",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "写下你的评论..."
-    },
-    {
-      "slotKey": "page-comments.input-box.panel",
-      "pageKey": "page-comments",
-      "regionKey": "page-comments.item-3",
-      "nodeId": "input-box",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "写下你的评论..."
-    },
-    {
-      "slotKey": "page-comments.input-placeholder.text",
-      "pageKey": "page-comments",
-      "nodeId": "input-placeholder",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "写下你的评论..."
-    },
-    {
-      "slotKey": "page-comments.send-btn.button",
-      "pageKey": "page-comments",
-      "regionKey": "page-comments.item-3",
-      "nodeId": "send-btn",
-      "component": "core.button",
-      "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
-      ],
-      "label": "发送"
-    },
-    {
-      "slotKey": "page-comments.page-comments-bottom-tabs.tabs",
-      "pageKey": "page-comments",
-      "nodeId": "page-comments-bottom-tabs",
-      "component": "core.tabs",
-      "editableProps": [
-        "tabs",
-        "activeTab"
-      ],
-      "label": "page-comments-bottom-tabs"
+      "label": "文本"
     }
   ],
   "patterns": [
     {
-      "patternKey": "page-list.item.pattern",
-      "pageKey": "page-list",
-      "regionKey": "page-list.item",
-      "sourceRootNodeId": "reader-daily-tag",
-      "parentNodeId": "reader-daily-cover",
-      "itemAlias": "core.tag",
-      "fields": [
-        {
-          "fieldKey": "label",
-          "slotKey": "page-list.reader-daily-tag.tag",
-          "prop": "label"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-list.item.pattern-2",
-      "pageKey": "page-list",
-      "regionKey": "page-list.item-2",
-      "sourceRootNodeId": "reader-chip-0",
-      "parentNodeId": "reader-chip-row",
-      "itemAlias": "core.button",
-      "fields": [
-        {
-          "fieldKey": "label",
-          "slotKey": "page-list.reader-chip-0.button",
-          "prop": "label"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-list.item.pattern-3",
-      "pageKey": "page-list",
-      "regionKey": "page-list.item-3",
-      "sourceRootNodeId": "reader-shelf-head",
-      "parentNodeId": "reader-book-shelf",
+      "patternKey": "page-home.mag-list-2.item",
+      "pageKey": "page-home",
+      "regionKey": "page-home.mag-list-2",
+      "sourceRootNodeId": "mag-0-2",
+      "parentNodeId": "mag-list-2",
       "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "reader-shelf-title",
-          "slotKey": "page-list.reader-shelf-title.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "reader-shelf-count",
-          "slotKey": "page-list.reader-shelf-count.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
     },
     {
-      "patternKey": "page-list.item.pattern-4",
-      "pageKey": "page-list",
-      "regionKey": "page-list.item-4",
-      "sourceRootNodeId": "reader-article-0",
-      "parentNodeId": "reader-news-list",
-      "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-list.reader-article-img-0.image",
-          "prop": "alt"
-        },
-        {
-          "fieldKey": "reader-article-title-0",
-          "slotKey": "page-list.reader-article-title-0.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "reader-article-meta-0",
-          "slotKey": "page-list.reader-article-meta-0.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-detail.k-2024.pattern",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.k-2024",
-      "sourceRootNodeId": "detail-meta",
-      "parentNodeId": "detail-header",
-      "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-detail.detail-avatar.image",
-          "prop": "alt"
-        },
-        {
-          "fieldKey": "detail-author",
-          "slotKey": "page-detail.detail-author.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "detail-date",
-          "slotKey": "page-detail.detail-date.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-detail.k-2024.pattern-2",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.k-2024-2",
-      "sourceRootNodeId": "detail-p1",
-      "parentNodeId": "detail-content",
+      "patternKey": "page-home.mag-info-0-2.item",
+      "pageKey": "page-home",
+      "regionKey": "page-home.mag-0-2",
+      "sourceRootNodeId": "mag-title-0-2",
+      "parentNodeId": "mag-info-0-2",
       "itemAlias": "core.text",
-      "fields": [
-        {
-          "fieldKey": "detail-p1",
-          "slotKey": "page-detail.detail-p1.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
     },
     {
-      "patternKey": "page-detail.item.pattern",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-3",
-      "sourceRootNodeId": "action-like",
-      "parentNodeId": "detail-actions",
-      "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-detail.like-icon.image",
-          "prop": "alt"
-        },
-        {
-          "fieldKey": "like-text",
-          "slotKey": "page-detail.like-text.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-comments.k-128.pattern",
-      "pageKey": "page-comments",
-      "regionKey": "page-comments.k-128",
-      "sourceRootNodeId": "comment-title",
-      "parentNodeId": "comment-header",
+      "patternKey": "page-home.mag-info-1-2.item",
+      "pageKey": "page-home",
+      "regionKey": "page-home.mag-1-2",
+      "sourceRootNodeId": "mag-title-1-2",
+      "parentNodeId": "mag-info-1-2",
       "itemAlias": "core.text",
-      "fields": [
-        {
-          "fieldKey": "comment-title",
-          "slotKey": "page-comments.comment-title.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
     },
     {
-      "patternKey": "page-comments.item.pattern",
-      "pageKey": "page-comments",
-      "regionKey": "page-comments.item-2",
-      "sourceRootNodeId": "comment-1",
-      "parentNodeId": "comment-list",
-      "itemAlias": "core.panel",
-      "fields": [
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-comments.c1-avatar.image",
-          "prop": "alt"
-        },
-        {
-          "fieldKey": "c1-name",
-          "slotKey": "page-comments.c1-name.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "c1-time",
-          "slotKey": "page-comments.c1-time.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "c1-content",
-          "slotKey": "page-comments.c1-content.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
+      "patternKey": "page-home.mag-info-2-2.item",
+      "pageKey": "page-home",
+      "regionKey": "page-home.mag-2-2",
+      "sourceRootNodeId": "mag-title-2-2",
+      "parentNodeId": "mag-info-2-2",
+      "itemAlias": "core.text",
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
     },
     {
-      "patternKey": "page-comments.item.pattern-2",
-      "pageKey": "page-comments",
-      "regionKey": "page-comments.item-3",
-      "sourceRootNodeId": "input-box",
-      "parentNodeId": "comment-input",
-      "itemAlias": "core.panel",
-      "fields": [
-        {
-          "fieldKey": "input-placeholder",
-          "slotKey": "page-comments.input-placeholder.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
+      "patternKey": "page-detail.art-author-info-0.item",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.art-meta-0",
+      "sourceRootNodeId": "art-author-0",
+      "parentNodeId": "art-author-info-0",
+      "itemAlias": "core.text",
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
+    },
+    {
+      "patternKey": "page-detail.art-body-1.item",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.art-body-1",
+      "sourceRootNodeId": "p-0-1",
+      "parentNodeId": "art-body-1",
+      "itemAlias": "core.text",
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
     }
   ],
   "navigation": {
     "type": "bottom_tabs",
     "items": [
       {
-        "key": "page-list",
         "label": "阅读首页",
-        "pageKey": "page-list",
-        "pageId": "page-list"
+        "targetPageId": "page-home"
       },
       {
-        "key": "page-detail",
         "label": "文章详情",
-        "pageKey": "page-detail",
-        "pageId": "page-detail"
+        "targetPageId": "page-detail"
       },
       {
-        "key": "page-comments",
         "label": "评论区",
-        "pageKey": "page-comments",
-        "pageId": "page-comments"
+        "targetPageId": "page-comments"
       }
     ]
   },
   "constraints": {
-    "devices": [
-      "miniapp",
-      "mobile"
-    ]
+    "maxWidth": "100%"
   },
   "styleProfile": {
-    "colors": [
-      "#0ea5e9",
-      "#0284c7",
-      "#38bdf8",
-      "#0f172a",
-      "#64748b",
-      "#e2e8f0",
-      "#f1f5f9",
-      "#ffffff"
-    ],
+    "colors": [],
     "fontSizes": [],
     "fontWeights": [],
     "spacing": [],
     "radius": [],
     "shadows": [],
-    "commonLayoutPatterns": [
-      "panel",
-      "row",
-      "stack",
-      "biz-hero-banner",
-      "image",
-      "button"
-    ]
+    "commonLayoutPatterns": []
   }
 }

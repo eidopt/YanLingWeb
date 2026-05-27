@@ -1,6 +1,6 @@
 {
   "templateId": "utility-tools",
-  "templateVersion": "1",
+  "templateVersion": "1.0.0",
   "profileVersion": "1.0.0",
   "devices": [
     "miniapp",
@@ -12,7 +12,7 @@
       "pageId": "page-home",
       "pageKind": "home",
       "name": "工具首页",
-      "description": "实用工具",
+      "description": "工具首页",
       "rootNodeId": "page-home-screen",
       "isDefault": true
     },
@@ -21,2238 +21,1122 @@
       "pageId": "page-detail",
       "pageKind": "detail",
       "name": "工具详情",
-      "description": "计算器",
+      "description": "工具详情",
       "rootNodeId": "page-detail-screen",
       "isDefault": false
     },
     {
       "pageKey": "page-history",
       "pageId": "page-history",
-      "pageKind": "unknown",
-      "name": "历史结果",
-      "description": "计算历史",
+      "pageKind": "list",
+      "name": "历史记录",
+      "description": "历史记录",
       "rootNodeId": "page-history-screen",
       "isDefault": false
     },
     {
       "pageKey": "page-settings",
       "pageId": "page-settings",
-      "pageKind": "unknown",
+      "pageKind": "detail",
       "name": "工具设置",
-      "description": "设置",
+      "description": "工具设置",
       "rootNodeId": "page-settings-screen",
       "isDefault": false
     }
   ],
   "regions": [
     {
-      "regionKey": "page-home.item",
+      "regionKey": "page-home.home-search-0",
       "pageKey": "page-home",
-      "nodeId": "tools-smart-panel",
-      "name": "快捷工具台",
-      "sectionKind": "panel",
-      "replaceable": true
-    },
-    {
-      "regionKey": "page-home.item-2",
-      "pageKey": "page-home",
-      "nodeId": "tools-quick-grid",
-      "name": "计算图标",
-      "sectionKind": "grid",
-      "replaceable": true
-    },
-    {
-      "regionKey": "page-home.k-123-456",
-      "pageKey": "page-home",
-      "nodeId": "tools-calculator-widget",
-      "name": "123 + 456",
-      "sectionKind": "panel",
-      "replaceable": true
-    },
-    {
-      "regionKey": "page-home.item-3",
-      "pageKey": "page-home",
-      "nodeId": "tools-automation-card",
-      "name": "一键组合工具",
-      "sectionKind": "panel",
-      "replaceable": true
-    },
-    {
-      "regionKey": "page-detail.item",
-      "pageKey": "page-detail",
-      "nodeId": "page-detail-hero-banner",
-      "name": "工具详情",
-      "sectionKind": "biz-hero-banner",
-      "replaceable": false
-    },
-    {
-      "regionKey": "page-detail.item-2",
-      "pageKey": "page-detail",
-      "nodeId": "page-detail-quick-search",
-      "name": "搜索工具",
+      "nodeId": "home-search-0",
+      "name": "搜索工具...",
       "sectionKind": "search",
-      "replaceable": false
+      "replaceable": true
     },
     {
-      "regionKey": "page-detail.item-3",
-      "pageKey": "page-detail",
-      "nodeId": "tool-header",
-      "name": "计算器",
+      "regionKey": "page-home.grid-card-1",
+      "pageKey": "page-home",
+      "nodeId": "grid-card-1",
+      "name": "core.panel",
       "sectionKind": "panel",
       "replaceable": true
     },
     {
-      "regionKey": "page-detail.k-123-456",
-      "pageKey": "page-detail",
-      "nodeId": "calc-display",
-      "name": "123 + 456",
-      "sectionKind": "panel",
-      "replaceable": true
-    },
-    {
-      "regionKey": "page-detail.item-4",
-      "pageKey": "page-detail",
-      "nodeId": "calc-buttons",
-      "name": "清除",
+      "regionKey": "page-home.grid-1",
+      "pageKey": "page-home",
+      "nodeId": "grid-1",
+      "name": "core.grid",
       "sectionKind": "grid",
       "replaceable": true
     },
     {
-      "regionKey": "page-detail.item-5",
-      "pageKey": "page-detail",
-      "nodeId": "page-detail-primary-action",
-      "name": "立即使用",
-      "sectionKind": "button",
-      "replaceable": false
-    },
-    {
-      "regionKey": "page-history.item",
-      "pageKey": "page-history",
-      "nodeId": "page-history-hero-banner",
-      "name": "历史结果",
-      "sectionKind": "biz-hero-banner",
-      "replaceable": false
-    },
-    {
-      "regionKey": "page-history.item-2",
-      "pageKey": "page-history",
-      "nodeId": "history-header",
-      "name": "计算历史",
+      "regionKey": "page-home.grid-card-2",
+      "pageKey": "page-home",
+      "nodeId": "grid-card-2",
+      "name": "core.panel",
       "sectionKind": "panel",
       "replaceable": true
     },
     {
-      "regionKey": "page-history.k-123-456",
+      "regionKey": "page-home.grid-2",
+      "pageKey": "page-home",
+      "nodeId": "grid-2",
+      "name": "core.grid",
+      "sectionKind": "grid",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-home.bottom-tabs",
+      "pageKey": "page-home",
+      "nodeId": "page-home-bottom-tabs",
+      "name": "core.tabs",
+      "sectionKind": "tabs",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.converter-0",
+      "pageKey": "page-detail",
+      "nodeId": "converter-0",
+      "name": "core.panel",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.conv-from-row-0",
+      "pageKey": "page-detail",
+      "nodeId": "conv-from-row-0",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.conv-to-row-0",
+      "pageKey": "page-detail",
+      "nodeId": "conv-to-row-0",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.rates-1",
+      "pageKey": "page-detail",
+      "nodeId": "rates-1",
+      "name": "core.panel",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.rate-0-1",
+      "pageKey": "page-detail",
+      "nodeId": "rate-0-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.rate-1-1",
+      "pageKey": "page-detail",
+      "nodeId": "rate-1-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.rate-2-1",
+      "pageKey": "page-detail",
+      "nodeId": "rate-2-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.bottom-tabs",
+      "pageKey": "page-detail",
+      "nodeId": "page-detail-bottom-tabs",
+      "name": "core.tabs",
+      "sectionKind": "tabs",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-history.ftabs-0",
       "pageKey": "page-history",
-      "nodeId": "history-list",
-      "name": "123 + 456",
+      "nodeId": "ftabs-0",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-history.hist-0-1",
+      "pageKey": "page-history",
+      "nodeId": "hist-0-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-history.hist-info-0-1",
+      "pageKey": "page-history",
+      "nodeId": "hist-info-0-1",
+      "name": "core.stack",
       "sectionKind": "stack",
       "replaceable": true
     },
     {
-      "regionKey": "page-history.item-3",
+      "regionKey": "page-history.hist-1-1",
       "pageKey": "page-history",
-      "nodeId": "page-history-primary-action",
-      "name": "立即使用",
-      "sectionKind": "button",
-      "replaceable": false
+      "nodeId": "hist-1-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
     },
     {
-      "regionKey": "page-settings.item",
-      "pageKey": "page-settings",
-      "nodeId": "page-settings-hero-banner",
-      "name": "工具设置",
-      "sectionKind": "biz-hero-banner",
-      "replaceable": false
+      "regionKey": "page-history.hist-info-1-1",
+      "pageKey": "page-history",
+      "nodeId": "hist-info-1-1",
+      "name": "core.stack",
+      "sectionKind": "stack",
+      "replaceable": true
     },
     {
-      "regionKey": "page-settings.item-2",
-      "pageKey": "page-settings",
-      "nodeId": "page-settings-quick-search",
-      "name": "搜索工具设置",
-      "sectionKind": "search",
-      "replaceable": false
+      "regionKey": "page-history.hist-2-1",
+      "pageKey": "page-history",
+      "nodeId": "hist-2-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
     },
     {
-      "regionKey": "page-settings.item-3",
+      "regionKey": "page-history.hist-info-2-1",
+      "pageKey": "page-history",
+      "nodeId": "hist-info-2-1",
+      "name": "core.stack",
+      "sectionKind": "stack",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-history.bottom-tabs",
+      "pageKey": "page-history",
+      "nodeId": "page-history-bottom-tabs",
+      "name": "core.tabs",
+      "sectionKind": "tabs",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-settings.settings-0",
       "pageKey": "page-settings",
-      "nodeId": "settings-header",
-      "name": "设置",
+      "nodeId": "settings-通用设置-0",
+      "name": "core.panel",
       "sectionKind": "panel",
       "replaceable": true
     },
     {
-      "regionKey": "page-settings.item-4",
+      "regionKey": "page-settings.setting-0-0",
       "pageKey": "page-settings",
-      "nodeId": "settings-list",
-      "name": "小数位数",
+      "nodeId": "setting-通用设置-0-0",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-settings.setting-1-0",
+      "pageKey": "page-settings",
+      "nodeId": "setting-通用设置-1-0",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-settings.setting-2-0",
+      "pageKey": "page-settings",
+      "nodeId": "setting-通用设置-2-0",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-settings.settings-2",
+      "pageKey": "page-settings",
+      "nodeId": "settings-个性化-2",
+      "name": "core.panel",
       "sectionKind": "panel",
       "replaceable": true
     },
     {
-      "regionKey": "page-settings.item-5",
+      "regionKey": "page-settings.setting-0-2",
       "pageKey": "page-settings",
-      "nodeId": "page-settings-primary-action",
-      "name": "立即使用",
-      "sectionKind": "button",
-      "replaceable": false
+      "nodeId": "setting-个性化-0-2",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-settings.setting-1-2",
+      "pageKey": "page-settings",
+      "nodeId": "setting-个性化-1-2",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-settings.setting-2-2",
+      "pageKey": "page-settings",
+      "nodeId": "setting-个性化-2-2",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-settings.action-bar-4",
+      "pageKey": "page-settings",
+      "nodeId": "action-bar-4",
+      "name": "core.panel",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-settings.action-row-inner-4",
+      "pageKey": "page-settings",
+      "nodeId": "action-row-inner-4",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-settings.bottom-tabs",
+      "pageKey": "page-settings",
+      "nodeId": "page-settings-bottom-tabs",
+      "name": "core.tabs",
+      "sectionKind": "tabs",
+      "replaceable": true
     }
   ],
   "slots": [
     {
-      "slotKey": "page-home.page-home-screen.screen",
+      "slotKey": "page-home.grid-title-1",
       "pageKey": "page-home",
-      "nodeId": "page-home-screen",
-      "component": "core.screen",
-      "editableProps": [
-        "title",
-        "statusTime",
-        "headerActionLabel"
-      ],
-      "label": "工具首页"
-    },
-    {
-      "slotKey": "page-home.tools-smart-panel.panel",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item",
-      "nodeId": "tools-smart-panel",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "快捷工具台"
-    },
-    {
-      "slotKey": "page-home.tools-smart-top.row",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item",
-      "nodeId": "tools-smart-top",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "快捷工具台"
-    },
-    {
-      "slotKey": "page-home.tools-smart-title.text",
-      "pageKey": "page-home",
-      "nodeId": "tools-smart-title",
+      "regionKey": "page-home.grid-card-1",
+      "nodeId": "grid-title-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "快捷工具台"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.tools-smart-tag.tag",
+      "slotKey": "page-home.tile-icon-0-1",
       "pageKey": "page-home",
-      "nodeId": "tools-smart-tag",
+      "regionKey": "page-home.grid-1",
+      "nodeId": "tile-icon-0-1",
+      "component": "core.image",
+      "editableProps": [
+        "alt",
+        "title",
+        "iconColor"
+      ],
+      "label": "图片"
+    },
+    {
+      "slotKey": "page-home.tile-t-0-1",
+      "pageKey": "page-home",
+      "regionKey": "page-home.grid-1",
+      "nodeId": "tile-t-0-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-home.tile-icon-1-1",
+      "pageKey": "page-home",
+      "regionKey": "page-home.grid-1",
+      "nodeId": "tile-icon-1-1",
+      "component": "core.image",
+      "editableProps": [
+        "alt",
+        "title",
+        "iconColor"
+      ],
+      "label": "图片"
+    },
+    {
+      "slotKey": "page-home.tile-t-1-1",
+      "pageKey": "page-home",
+      "regionKey": "page-home.grid-1",
+      "nodeId": "tile-t-1-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-home.tile-icon-2-1",
+      "pageKey": "page-home",
+      "regionKey": "page-home.grid-1",
+      "nodeId": "tile-icon-2-1",
+      "component": "core.image",
+      "editableProps": [
+        "alt",
+        "title",
+        "iconColor"
+      ],
+      "label": "图片"
+    },
+    {
+      "slotKey": "page-home.tile-t-2-1",
+      "pageKey": "page-home",
+      "regionKey": "page-home.grid-1",
+      "nodeId": "tile-t-2-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-home.tile-icon-3-1",
+      "pageKey": "page-home",
+      "regionKey": "page-home.grid-1",
+      "nodeId": "tile-icon-3-1",
+      "component": "core.image",
+      "editableProps": [
+        "alt",
+        "title",
+        "iconColor"
+      ],
+      "label": "图片"
+    },
+    {
+      "slotKey": "page-home.tile-t-3-1",
+      "pageKey": "page-home",
+      "regionKey": "page-home.grid-1",
+      "nodeId": "tile-t-3-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-home.grid-title-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.grid-card-2",
+      "nodeId": "grid-title-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-home.tile-icon-0-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.grid-2",
+      "nodeId": "tile-icon-0-2",
+      "component": "core.image",
+      "editableProps": [
+        "alt",
+        "title",
+        "iconColor"
+      ],
+      "label": "图片"
+    },
+    {
+      "slotKey": "page-home.tile-t-0-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.grid-2",
+      "nodeId": "tile-t-0-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-home.tile-icon-1-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.grid-2",
+      "nodeId": "tile-icon-1-2",
+      "component": "core.image",
+      "editableProps": [
+        "alt",
+        "title",
+        "iconColor"
+      ],
+      "label": "图片"
+    },
+    {
+      "slotKey": "page-home.tile-t-1-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.grid-2",
+      "nodeId": "tile-t-1-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-home.tile-icon-2-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.grid-2",
+      "nodeId": "tile-icon-2-2",
+      "component": "core.image",
+      "editableProps": [
+        "alt",
+        "title",
+        "iconColor"
+      ],
+      "label": "图片"
+    },
+    {
+      "slotKey": "page-home.tile-t-2-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.grid-2",
+      "nodeId": "tile-t-2-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-home.tile-icon-3-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.grid-2",
+      "nodeId": "tile-icon-3-2",
+      "component": "core.image",
+      "editableProps": [
+        "alt",
+        "title",
+        "iconColor"
+      ],
+      "label": "图片"
+    },
+    {
+      "slotKey": "page-home.tile-t-3-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.grid-2",
+      "nodeId": "tile-t-3-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-detail.conv-from-label-0",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.converter-0",
+      "nodeId": "conv-from-label-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-detail.conv-from-0",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.conv-from-row-0",
+      "nodeId": "conv-from-0",
       "component": "core.tag",
       "editableProps": [
-        "label",
-        "tone"
+        "label"
       ],
-      "label": "常用 6 个"
+      "label": "标签"
     },
     {
-      "slotKey": "page-home.tools-smart-search.search",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item",
-      "nodeId": "tools-smart-search",
-      "component": "core.search",
-      "editableProps": [
-        "placeholder",
-        "value"
-      ],
-      "label": "搜索计算、换算、记事"
-    },
-    {
-      "slotKey": "page-home.tools-quick-grid.grid",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-2",
-      "nodeId": "tools-quick-grid",
-      "component": "core.grid",
-      "editableProps": [
-        "gap",
-        "columns"
-      ],
-      "label": "计算图标"
-    },
-    {
-      "slotKey": "page-home.tools-quick-tile-0.panel",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-2",
-      "nodeId": "tools-quick-tile-0",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "计算图标"
-    },
-    {
-      "slotKey": "page-home.tools-quick-tile-icon-0.image",
-      "pageKey": "page-home",
-      "nodeId": "tools-quick-tile-icon-0",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "计算图标"
-    },
-    {
-      "slotKey": "page-home.tools-quick-tile-text-0.text",
-      "pageKey": "page-home",
-      "nodeId": "tools-quick-tile-text-0",
+      "slotKey": "page-detail.conv-input-val-0",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.conv-from-row-0",
+      "nodeId": "conv-input-val-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "计算"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.tools-quick-tile-1.panel",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-2",
-      "nodeId": "tools-quick-tile-1",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "天气图标"
-    },
-    {
-      "slotKey": "page-home.tools-quick-tile-icon-1.image",
-      "pageKey": "page-home",
-      "nodeId": "tools-quick-tile-icon-1",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "天气图标"
-    },
-    {
-      "slotKey": "page-home.tools-quick-tile-text-1.text",
-      "pageKey": "page-home",
-      "nodeId": "tools-quick-tile-text-1",
+      "slotKey": "page-detail.conv-rate-0",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.converter-0",
+      "nodeId": "conv-rate-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "天气"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.tools-quick-tile-2.panel",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-2",
-      "nodeId": "tools-quick-tile-2",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "汇率图标"
-    },
-    {
-      "slotKey": "page-home.tools-quick-tile-icon-2.image",
-      "pageKey": "page-home",
-      "nodeId": "tools-quick-tile-icon-2",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "汇率图标"
-    },
-    {
-      "slotKey": "page-home.tools-quick-tile-text-2.text",
-      "pageKey": "page-home",
-      "nodeId": "tools-quick-tile-text-2",
+      "slotKey": "page-detail.conv-to-label-0",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.converter-0",
+      "nodeId": "conv-to-label-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "汇率"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.tools-quick-tile-3.panel",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-2",
-      "nodeId": "tools-quick-tile-3",
-      "component": "core.panel",
+      "slotKey": "page-detail.conv-to-0",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.conv-to-row-0",
+      "nodeId": "conv-to-0",
+      "component": "core.tag",
       "editableProps": [
-        "tone",
-        "gap",
-        "title"
+        "label"
       ],
-      "label": "便签图标"
+      "label": "标签"
     },
     {
-      "slotKey": "page-home.tools-quick-tile-icon-3.image",
-      "pageKey": "page-home",
-      "nodeId": "tools-quick-tile-icon-3",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "便签图标"
-    },
-    {
-      "slotKey": "page-home.tools-quick-tile-text-3.text",
-      "pageKey": "page-home",
-      "nodeId": "tools-quick-tile-text-3",
+      "slotKey": "page-detail.conv-output-val-0",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.conv-to-row-0",
+      "nodeId": "conv-output-val-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "便签"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.tools-quick-tile-4.panel",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-2",
-      "nodeId": "tools-quick-tile-4",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "计时图标"
-    },
-    {
-      "slotKey": "page-home.tools-quick-tile-icon-4.image",
-      "pageKey": "page-home",
-      "nodeId": "tools-quick-tile-icon-4",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "计时图标"
-    },
-    {
-      "slotKey": "page-home.tools-quick-tile-text-4.text",
-      "pageKey": "page-home",
-      "nodeId": "tools-quick-tile-text-4",
+      "slotKey": "page-detail.rates-title-1",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.rates-1",
+      "nodeId": "rates-title-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "计时"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.tools-quick-tile-5.panel",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-2",
-      "nodeId": "tools-quick-tile-5",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "扫码图标"
-    },
-    {
-      "slotKey": "page-home.tools-quick-tile-icon-5.image",
-      "pageKey": "page-home",
-      "nodeId": "tools-quick-tile-icon-5",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "扫码图标"
-    },
-    {
-      "slotKey": "page-home.tools-quick-tile-text-5.text",
-      "pageKey": "page-home",
-      "nodeId": "tools-quick-tile-text-5",
+      "slotKey": "page-detail.rate-currency-0-1",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.rate-0-1",
+      "nodeId": "rate-currency-0-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "扫码"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.tools-quick-tile-6.panel",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-2",
-      "nodeId": "tools-quick-tile-6",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "日历图标"
-    },
-    {
-      "slotKey": "page-home.tools-quick-tile-icon-6.image",
-      "pageKey": "page-home",
-      "nodeId": "tools-quick-tile-icon-6",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "日历图标"
-    },
-    {
-      "slotKey": "page-home.tools-quick-tile-text-6.text",
-      "pageKey": "page-home",
-      "nodeId": "tools-quick-tile-text-6",
+      "slotKey": "page-detail.rate-val-0-1",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.rate-0-1",
+      "nodeId": "rate-val-0-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "日历"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.tools-quick-tile-7.panel",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-2",
-      "nodeId": "tools-quick-tile-7",
-      "component": "core.panel",
+      "slotKey": "page-detail.rate-trend-0-1",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.rate-0-1",
+      "nodeId": "rate-trend-0-1",
+      "component": "core.tag",
       "editableProps": [
-        "tone",
-        "gap",
-        "title"
+        "label"
       ],
-      "label": "单位图标"
+      "label": "标签"
     },
     {
-      "slotKey": "page-home.tools-quick-tile-icon-7.image",
-      "pageKey": "page-home",
-      "nodeId": "tools-quick-tile-icon-7",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "单位图标"
-    },
-    {
-      "slotKey": "page-home.tools-quick-tile-text-7.text",
-      "pageKey": "page-home",
-      "nodeId": "tools-quick-tile-text-7",
+      "slotKey": "page-detail.rate-currency-1-1",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.rate-1-1",
+      "nodeId": "rate-currency-1-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "单位"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.tools-calculator-widget.panel",
-      "pageKey": "page-home",
-      "regionKey": "page-home.k-123-456",
-      "nodeId": "tools-calculator-widget",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "123 + 456"
-    },
-    {
-      "slotKey": "page-home.tools-calc-expression.text",
-      "pageKey": "page-home",
-      "regionKey": "page-home.k-123-456",
-      "nodeId": "tools-calc-expression",
+      "slotKey": "page-detail.rate-val-1-1",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.rate-1-1",
+      "nodeId": "rate-val-1-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "123 + 456"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.tools-calc-result.text",
-      "pageKey": "page-home",
-      "regionKey": "page-home.k-123-456",
-      "nodeId": "tools-calc-result",
+      "slotKey": "page-detail.rate-trend-1-1",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.rate-1-1",
+      "nodeId": "rate-trend-1-1",
+      "component": "core.tag",
+      "editableProps": [
+        "label"
+      ],
+      "label": "标签"
+    },
+    {
+      "slotKey": "page-detail.rate-currency-2-1",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.rate-2-1",
+      "nodeId": "rate-currency-2-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "579"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.tools-calc-mini-grid.grid",
-      "pageKey": "page-home",
-      "regionKey": "page-home.k-123-456",
-      "nodeId": "tools-calc-mini-grid",
-      "component": "core.grid",
-      "editableProps": [
-        "gap",
-        "columns"
-      ],
-      "label": "7"
-    },
-    {
-      "slotKey": "page-home.tools-calc-key-0.panel",
-      "pageKey": "page-home",
-      "nodeId": "tools-calc-key-0",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "7"
-    },
-    {
-      "slotKey": "page-home.tools-calc-key-text-0.text",
-      "pageKey": "page-home",
-      "nodeId": "tools-calc-key-text-0",
+      "slotKey": "page-detail.rate-val-2-1",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.rate-2-1",
+      "nodeId": "rate-val-2-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "7"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.tools-calc-key-1.panel",
-      "pageKey": "page-home",
-      "nodeId": "tools-calc-key-1",
-      "component": "core.panel",
+      "slotKey": "page-detail.rate-trend-2-1",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.rate-2-1",
+      "nodeId": "rate-trend-2-1",
+      "component": "core.tag",
       "editableProps": [
-        "tone",
-        "gap",
-        "title"
+        "label"
       ],
-      "label": "8"
+      "label": "标签"
     },
     {
-      "slotKey": "page-home.tools-calc-key-text-1.text",
-      "pageKey": "page-home",
-      "nodeId": "tools-calc-key-text-1",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "8"
-    },
-    {
-      "slotKey": "page-home.tools-calc-key-2.panel",
-      "pageKey": "page-home",
-      "nodeId": "tools-calc-key-2",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "9"
-    },
-    {
-      "slotKey": "page-home.tools-calc-key-text-2.text",
-      "pageKey": "page-home",
-      "nodeId": "tools-calc-key-text-2",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "9"
-    },
-    {
-      "slotKey": "page-home.tools-calc-key-3.panel",
-      "pageKey": "page-home",
-      "nodeId": "tools-calc-key-3",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "除"
-    },
-    {
-      "slotKey": "page-home.tools-calc-key-text-3.text",
-      "pageKey": "page-home",
-      "nodeId": "tools-calc-key-text-3",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "除"
-    },
-    {
-      "slotKey": "page-home.tools-calc-key-4.panel",
-      "pageKey": "page-home",
-      "nodeId": "tools-calc-key-4",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "4"
-    },
-    {
-      "slotKey": "page-home.tools-calc-key-text-4.text",
-      "pageKey": "page-home",
-      "nodeId": "tools-calc-key-text-4",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "4"
-    },
-    {
-      "slotKey": "page-home.tools-calc-key-5.panel",
-      "pageKey": "page-home",
-      "nodeId": "tools-calc-key-5",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "5"
-    },
-    {
-      "slotKey": "page-home.tools-calc-key-text-5.text",
-      "pageKey": "page-home",
-      "nodeId": "tools-calc-key-text-5",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "5"
-    },
-    {
-      "slotKey": "page-home.tools-calc-key-6.panel",
-      "pageKey": "page-home",
-      "nodeId": "tools-calc-key-6",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "6"
-    },
-    {
-      "slotKey": "page-home.tools-calc-key-text-6.text",
-      "pageKey": "page-home",
-      "nodeId": "tools-calc-key-text-6",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "6"
-    },
-    {
-      "slotKey": "page-home.tools-calc-key-7.panel",
-      "pageKey": "page-home",
-      "nodeId": "tools-calc-key-7",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "乘"
-    },
-    {
-      "slotKey": "page-home.tools-calc-key-text-7.text",
-      "pageKey": "page-home",
-      "nodeId": "tools-calc-key-text-7",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "乘"
-    },
-    {
-      "slotKey": "page-home.tools-automation-card.panel",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-3",
-      "nodeId": "tools-automation-card",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "一键组合工具"
-    },
-    {
-      "slotKey": "page-home.tools-auto-row.row",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-3",
-      "nodeId": "tools-auto-row",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "一键组合工具"
-    },
-    {
-      "slotKey": "page-home.tools-auto-copy.stack",
-      "pageKey": "page-home",
-      "nodeId": "tools-auto-copy",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "一键组合工具"
-    },
-    {
-      "slotKey": "page-home.tools-auto-title.text",
-      "pageKey": "page-home",
-      "nodeId": "tools-auto-title",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "一键组合工具"
-    },
-    {
-      "slotKey": "page-home.tools-auto-desc.text",
-      "pageKey": "page-home",
-      "nodeId": "tools-auto-desc",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "扫码后自动记账并生成提醒"
-    },
-    {
-      "slotKey": "page-home.tools-auto-action.button",
-      "pageKey": "page-home",
-      "nodeId": "tools-auto-action",
+      "slotKey": "page-history.ftab-0-0",
+      "pageKey": "page-history",
+      "regionKey": "page-history.ftabs-0",
+      "nodeId": "ftab-0-0",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "创建"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-home.page-home-bottom-tabs.tabs",
-      "pageKey": "page-home",
-      "nodeId": "page-home-bottom-tabs",
-      "component": "core.tabs",
-      "editableProps": [
-        "tabs",
-        "activeTab"
-      ],
-      "label": "page-home-bottom-tabs"
-    },
-    {
-      "slotKey": "page-detail.page-detail-screen.screen",
-      "pageKey": "page-detail",
-      "nodeId": "page-detail-screen",
-      "component": "core.screen",
-      "editableProps": [
-        "title",
-        "statusTime",
-        "headerActionLabel"
-      ],
-      "label": "工具详情"
-    },
-    {
-      "slotKey": "page-detail.page-detail-quick-search.search",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-2",
-      "nodeId": "page-detail-quick-search",
-      "component": "core.search",
-      "editableProps": [
-        "placeholder",
-        "value"
-      ],
-      "label": "搜索工具"
-    },
-    {
-      "slotKey": "page-detail.tool-header.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-3",
-      "nodeId": "tool-header",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "计算器"
-    },
-    {
-      "slotKey": "page-detail.tool-name.text",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-3",
-      "nodeId": "tool-name",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "计算器"
-    },
-    {
-      "slotKey": "page-detail.calc-display.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.k-123-456",
-      "nodeId": "calc-display",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "123 + 456"
-    },
-    {
-      "slotKey": "page-detail.calc-expression.text",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.k-123-456",
-      "nodeId": "calc-expression",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "123 + 456"
-    },
-    {
-      "slotKey": "page-detail.calc-result.text",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.k-123-456",
-      "nodeId": "calc-result",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "579"
-    },
-    {
-      "slotKey": "page-detail.calc-buttons.grid",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "nodeId": "calc-buttons",
-      "component": "core.grid",
-      "editableProps": [
-        "gap",
-        "columns"
-      ],
-      "label": "清除"
-    },
-    {
-      "slotKey": "page-detail.btn-c.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "nodeId": "btn-c",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "清除"
-    },
-    {
-      "slotKey": "page-detail.c-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "c-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "清除"
-    },
-    {
-      "slotKey": "page-detail.btn-del.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "nodeId": "btn-del",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "⌫"
-    },
-    {
-      "slotKey": "page-detail.del-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "del-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "⌫"
-    },
-    {
-      "slotKey": "page-detail.btn-percent.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "nodeId": "btn-percent",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "%"
-    },
-    {
-      "slotKey": "page-detail.percent-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "percent-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "%"
-    },
-    {
-      "slotKey": "page-detail.btn-div.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "nodeId": "btn-div",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "÷"
-    },
-    {
-      "slotKey": "page-detail.div-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "div-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "÷"
-    },
-    {
-      "slotKey": "page-detail.btn-7.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "nodeId": "btn-7",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "7"
-    },
-    {
-      "slotKey": "page-detail.n7-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "n7-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "7"
-    },
-    {
-      "slotKey": "page-detail.btn-8.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "nodeId": "btn-8",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "8"
-    },
-    {
-      "slotKey": "page-detail.n8-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "n8-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "8"
-    },
-    {
-      "slotKey": "page-detail.btn-9.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "nodeId": "btn-9",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "9"
-    },
-    {
-      "slotKey": "page-detail.n9-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "n9-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "9"
-    },
-    {
-      "slotKey": "page-detail.btn-mul.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "nodeId": "btn-mul",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "×"
-    },
-    {
-      "slotKey": "page-detail.mul-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "mul-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "×"
-    },
-    {
-      "slotKey": "page-detail.btn-4.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "nodeId": "btn-4",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "4"
-    },
-    {
-      "slotKey": "page-detail.n4-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "n4-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "4"
-    },
-    {
-      "slotKey": "page-detail.btn-5.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "nodeId": "btn-5",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "5"
-    },
-    {
-      "slotKey": "page-detail.n5-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "n5-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "5"
-    },
-    {
-      "slotKey": "page-detail.btn-6.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "nodeId": "btn-6",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "6"
-    },
-    {
-      "slotKey": "page-detail.n6-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "n6-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "6"
-    },
-    {
-      "slotKey": "page-detail.btn-sub.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "nodeId": "btn-sub",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "-"
-    },
-    {
-      "slotKey": "page-detail.sub-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "sub-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "-"
-    },
-    {
-      "slotKey": "page-detail.btn-1.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "nodeId": "btn-1",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "1"
-    },
-    {
-      "slotKey": "page-detail.n1-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "n1-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "1"
-    },
-    {
-      "slotKey": "page-detail.btn-2.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "nodeId": "btn-2",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "2"
-    },
-    {
-      "slotKey": "page-detail.n2-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "n2-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "2"
-    },
-    {
-      "slotKey": "page-detail.btn-3.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "nodeId": "btn-3",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "3"
-    },
-    {
-      "slotKey": "page-detail.n3-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "n3-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "3"
-    },
-    {
-      "slotKey": "page-detail.btn-add.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "nodeId": "btn-add",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "+"
-    },
-    {
-      "slotKey": "page-detail.add-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "add-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "+"
-    },
-    {
-      "slotKey": "page-detail.btn-0.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "nodeId": "btn-0",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "0"
-    },
-    {
-      "slotKey": "page-detail.n0-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "n0-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "0"
-    },
-    {
-      "slotKey": "page-detail.btn-dot.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "nodeId": "btn-dot",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "."
-    },
-    {
-      "slotKey": "page-detail.dot-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "dot-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "."
-    },
-    {
-      "slotKey": "page-detail.btn-equal.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "nodeId": "btn-equal",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "="
-    },
-    {
-      "slotKey": "page-detail.equal-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "equal-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "="
-    },
-    {
-      "slotKey": "page-detail.page-detail-primary-action.button",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-5",
-      "nodeId": "page-detail-primary-action",
+      "slotKey": "page-history.ftab-1-0",
+      "pageKey": "page-history",
+      "regionKey": "page-history.ftabs-0",
+      "nodeId": "ftab-1-0",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "立即使用"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-detail.page-detail-bottom-tabs.tabs",
-      "pageKey": "page-detail",
-      "nodeId": "page-detail-bottom-tabs",
-      "component": "core.tabs",
-      "editableProps": [
-        "tabs",
-        "activeTab"
-      ],
-      "label": "page-detail-bottom-tabs"
-    },
-    {
-      "slotKey": "page-history.page-history-screen.screen",
+      "slotKey": "page-history.ftab-2-0",
       "pageKey": "page-history",
-      "nodeId": "page-history-screen",
-      "component": "core.screen",
-      "editableProps": [
-        "title",
-        "statusTime",
-        "headerActionLabel"
-      ],
-      "label": "历史结果"
-    },
-    {
-      "slotKey": "page-history.history-header.panel",
-      "pageKey": "page-history",
-      "regionKey": "page-history.item-2",
-      "nodeId": "history-header",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "计算历史"
-    },
-    {
-      "slotKey": "page-history.history-title.text",
-      "pageKey": "page-history",
-      "regionKey": "page-history.item-2",
-      "nodeId": "history-title",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "计算历史"
-    },
-    {
-      "slotKey": "page-history.history-list.stack",
-      "pageKey": "page-history",
-      "regionKey": "page-history.k-123-456",
-      "nodeId": "history-list",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "123 + 456"
-    },
-    {
-      "slotKey": "page-history.history-1.panel",
-      "pageKey": "page-history",
-      "regionKey": "page-history.k-123-456",
-      "nodeId": "history-1",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "123 + 456"
-    },
-    {
-      "slotKey": "page-history.h1-expr.text",
-      "pageKey": "page-history",
-      "nodeId": "h1-expr",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "123 + 456"
-    },
-    {
-      "slotKey": "page-history.h1-result.text",
-      "pageKey": "page-history",
-      "nodeId": "h1-result",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "= 579"
-    },
-    {
-      "slotKey": "page-history.h1-time.text",
-      "pageKey": "page-history",
-      "nodeId": "h1-time",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "今天 14:30"
-    },
-    {
-      "slotKey": "page-history.history-2.panel",
-      "pageKey": "page-history",
-      "regionKey": "page-history.k-123-456",
-      "nodeId": "history-2",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "100 × 0.85"
-    },
-    {
-      "slotKey": "page-history.h2-expr.text",
-      "pageKey": "page-history",
-      "nodeId": "h2-expr",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "100 × 0.85"
-    },
-    {
-      "slotKey": "page-history.h2-result.text",
-      "pageKey": "page-history",
-      "nodeId": "h2-result",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "= 85"
-    },
-    {
-      "slotKey": "page-history.h2-time.text",
-      "pageKey": "page-history",
-      "nodeId": "h2-time",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "今天 10:15"
-    },
-    {
-      "slotKey": "page-history.page-history-primary-action.button",
-      "pageKey": "page-history",
-      "regionKey": "page-history.item-3",
-      "nodeId": "page-history-primary-action",
+      "regionKey": "page-history.ftabs-0",
+      "nodeId": "ftab-2-0",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "立即使用"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-history.page-history-bottom-tabs.tabs",
+      "slotKey": "page-history.hist-icon-0-1",
       "pageKey": "page-history",
-      "nodeId": "page-history-bottom-tabs",
-      "component": "core.tabs",
+      "regionKey": "page-history.hist-0-1",
+      "nodeId": "hist-icon-0-1",
+      "component": "core.image",
       "editableProps": [
-        "tabs",
-        "activeTab"
-      ],
-      "label": "page-history-bottom-tabs"
-    },
-    {
-      "slotKey": "page-settings.page-settings-screen.screen",
-      "pageKey": "page-settings",
-      "nodeId": "page-settings-screen",
-      "component": "core.screen",
-      "editableProps": [
+        "alt",
         "title",
-        "statusTime",
-        "headerActionLabel"
+        "iconColor"
       ],
-      "label": "工具设置"
+      "label": "图片"
     },
     {
-      "slotKey": "page-settings.page-settings-quick-search.search",
-      "pageKey": "page-settings",
-      "regionKey": "page-settings.item-2",
-      "nodeId": "page-settings-quick-search",
-      "component": "core.search",
-      "editableProps": [
-        "placeholder",
-        "value"
-      ],
-      "label": "搜索工具设置"
-    },
-    {
-      "slotKey": "page-settings.settings-header.panel",
-      "pageKey": "page-settings",
-      "regionKey": "page-settings.item-3",
-      "nodeId": "settings-header",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "设置"
-    },
-    {
-      "slotKey": "page-settings.settings-title.text",
-      "pageKey": "page-settings",
-      "regionKey": "page-settings.item-3",
-      "nodeId": "settings-title",
+      "slotKey": "page-history.hist-tool-0-1",
+      "pageKey": "page-history",
+      "regionKey": "page-history.hist-info-0-1",
+      "nodeId": "hist-tool-0-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "设置"
+      "label": "文本"
     },
     {
-      "slotKey": "page-settings.settings-list.panel",
-      "pageKey": "page-settings",
-      "regionKey": "page-settings.item-4",
-      "nodeId": "settings-list",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "小数位数"
-    },
-    {
-      "slotKey": "page-settings.set-decimal.row",
-      "pageKey": "page-settings",
-      "regionKey": "page-settings.item-4",
-      "nodeId": "set-decimal",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "小数位数"
-    },
-    {
-      "slotKey": "page-settings.decimal-text.text",
-      "pageKey": "page-settings",
-      "nodeId": "decimal-text",
+      "slotKey": "page-history.hist-detail-0-1",
+      "pageKey": "page-history",
+      "regionKey": "page-history.hist-info-0-1",
+      "nodeId": "hist-detail-0-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "小数位数"
+      "label": "文本"
     },
     {
-      "slotKey": "page-settings.decimal-value.text",
-      "pageKey": "page-settings",
-      "nodeId": "decimal-value",
+      "slotKey": "page-history.hist-time-0-1",
+      "pageKey": "page-history",
+      "regionKey": "page-history.hist-0-1",
+      "nodeId": "hist-time-0-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "2位"
+      "label": "文本"
     },
     {
-      "slotKey": "page-settings.set-history.row",
-      "pageKey": "page-settings",
-      "regionKey": "page-settings.item-4",
-      "nodeId": "set-history",
-      "component": "core.row",
+      "slotKey": "page-history.hist-icon-1-1",
+      "pageKey": "page-history",
+      "regionKey": "page-history.hist-1-1",
+      "nodeId": "hist-icon-1-1",
+      "component": "core.image",
       "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
+        "alt",
+        "title",
+        "iconColor"
       ],
-      "label": "保存历史"
+      "label": "图片"
     },
     {
-      "slotKey": "page-settings.history-text.text",
-      "pageKey": "page-settings",
-      "nodeId": "history-text",
+      "slotKey": "page-history.hist-tool-1-1",
+      "pageKey": "page-history",
+      "regionKey": "page-history.hist-info-1-1",
+      "nodeId": "hist-tool-1-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "保存历史"
+      "label": "文本"
     },
     {
-      "slotKey": "page-settings.history-switch.panel",
-      "pageKey": "page-settings",
-      "nodeId": "history-switch",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "history-switch"
-    },
-    {
-      "slotKey": "page-settings.switch-dot.panel",
-      "pageKey": "page-settings",
-      "nodeId": "switch-dot",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "switch-dot"
-    },
-    {
-      "slotKey": "page-settings.set-vibrate.row",
-      "pageKey": "page-settings",
-      "regionKey": "page-settings.item-4",
-      "nodeId": "set-vibrate",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "按键震动"
-    },
-    {
-      "slotKey": "page-settings.vibrate-text.text",
-      "pageKey": "page-settings",
-      "nodeId": "vibrate-text",
+      "slotKey": "page-history.hist-detail-1-1",
+      "pageKey": "page-history",
+      "regionKey": "page-history.hist-info-1-1",
+      "nodeId": "hist-detail-1-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "按键震动"
+      "label": "文本"
     },
     {
-      "slotKey": "page-settings.vibrate-switch.panel",
-      "pageKey": "page-settings",
-      "nodeId": "vibrate-switch",
-      "component": "core.panel",
+      "slotKey": "page-history.hist-time-1-1",
+      "pageKey": "page-history",
+      "regionKey": "page-history.hist-1-1",
+      "nodeId": "hist-time-1-1",
+      "component": "core.text",
       "editableProps": [
-        "tone",
-        "gap",
-        "title"
+        "text"
       ],
-      "label": "vibrate-switch"
+      "label": "文本"
     },
     {
-      "slotKey": "page-settings.vibrate-dot.panel",
-      "pageKey": "page-settings",
-      "nodeId": "vibrate-dot",
-      "component": "core.panel",
+      "slotKey": "page-history.hist-icon-2-1",
+      "pageKey": "page-history",
+      "regionKey": "page-history.hist-2-1",
+      "nodeId": "hist-icon-2-1",
+      "component": "core.image",
       "editableProps": [
-        "tone",
-        "gap",
-        "title"
+        "alt",
+        "title",
+        "iconColor"
       ],
-      "label": "vibrate-dot"
+      "label": "图片"
     },
     {
-      "slotKey": "page-settings.page-settings-primary-action.button",
+      "slotKey": "page-history.hist-tool-2-1",
+      "pageKey": "page-history",
+      "regionKey": "page-history.hist-info-2-1",
+      "nodeId": "hist-tool-2-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-history.hist-detail-2-1",
+      "pageKey": "page-history",
+      "regionKey": "page-history.hist-info-2-1",
+      "nodeId": "hist-detail-2-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-history.hist-time-2-1",
+      "pageKey": "page-history",
+      "regionKey": "page-history.hist-2-1",
+      "nodeId": "hist-time-2-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.settings-title-0",
       "pageKey": "page-settings",
-      "regionKey": "page-settings.item-5",
-      "nodeId": "page-settings-primary-action",
+      "regionKey": "page-settings",
+      "nodeId": "settings-title-通用设置-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-label-0-0",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-0-0",
+      "nodeId": "setting-label-通用设置-0-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-arrow-0-0",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-0-0",
+      "nodeId": "setting-arrow-通用设置-0-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-label-1-0",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-1-0",
+      "nodeId": "setting-label-通用设置-1-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-arrow-1-0",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-1-0",
+      "nodeId": "setting-arrow-通用设置-1-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-label-2-0",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-2-0",
+      "nodeId": "setting-label-通用设置-2-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-arrow-2-0",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-2-0",
+      "nodeId": "setting-arrow-通用设置-2-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.settings-title-2",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings",
+      "nodeId": "settings-title-个性化-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-label-0-2",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-0-2",
+      "nodeId": "setting-label-个性化-0-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-arrow-0-2",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-0-2",
+      "nodeId": "setting-arrow-个性化-0-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-label-1-2",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-1-2",
+      "nodeId": "setting-label-个性化-1-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-arrow-1-2",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-1-2",
+      "nodeId": "setting-arrow-个性化-1-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-label-2-2",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-2-2",
+      "nodeId": "setting-label-个性化-2-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-arrow-2-2",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-2-2",
+      "nodeId": "setting-arrow-个性化-2-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.abtn-0-4",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.action-row-inner-4",
+      "nodeId": "abtn-0-4",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "立即使用"
-    },
-    {
-      "slotKey": "page-settings.page-settings-bottom-tabs.tabs",
-      "pageKey": "page-settings",
-      "nodeId": "page-settings-bottom-tabs",
-      "component": "core.tabs",
-      "editableProps": [
-        "tabs",
-        "activeTab"
-      ],
-      "label": "page-settings-bottom-tabs"
+      "label": "按钮"
     }
   ],
   "patterns": [
     {
-      "patternKey": "page-home.item.pattern",
+      "patternKey": "page-home.grid-1.item",
       "pageKey": "page-home",
-      "regionKey": "page-home.item",
-      "sourceRootNodeId": "tools-smart-top",
-      "parentNodeId": "tools-smart-panel",
-      "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "tools-smart-title",
-          "slotKey": "page-home.tools-smart-title.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "label",
-          "slotKey": "page-home.tools-smart-tag.tag",
-          "prop": "label"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-home.item.pattern-2",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-2",
-      "sourceRootNodeId": "tools-quick-tile-0",
-      "parentNodeId": "tools-quick-grid",
+      "regionKey": "page-home.grid-1",
+      "sourceRootNodeId": "tile-0-1",
+      "parentNodeId": "grid-1",
       "itemAlias": "core.panel",
-      "fields": [
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-home.tools-quick-tile-icon-0.image",
-          "prop": "alt"
-        },
-        {
-          "fieldKey": "tools-quick-tile-text-0",
-          "slotKey": "page-home.tools-quick-tile-text-0.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
     },
     {
-      "patternKey": "page-home.k-123-456.pattern",
+      "patternKey": "page-home.grid-2.item",
       "pageKey": "page-home",
-      "regionKey": "page-home.k-123-456",
-      "sourceRootNodeId": "tools-calc-mini-grid",
-      "parentNodeId": "tools-calculator-widget",
-      "itemAlias": "core.grid",
-      "fields": [
-        {
-          "fieldKey": "tools-calc-key-text-0",
-          "slotKey": "page-home.tools-calc-key-text-0.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "tools-calc-key-text-1",
-          "slotKey": "page-home.tools-calc-key-text-1.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "tools-calc-key-text-2",
-          "slotKey": "page-home.tools-calc-key-text-2.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "tools-calc-key-text-3",
-          "slotKey": "page-home.tools-calc-key-text-3.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "tools-calc-key-text-4",
-          "slotKey": "page-home.tools-calc-key-text-4.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "tools-calc-key-text-5",
-          "slotKey": "page-home.tools-calc-key-text-5.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "tools-calc-key-text-6",
-          "slotKey": "page-home.tools-calc-key-text-6.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "tools-calc-key-text-7",
-          "slotKey": "page-home.tools-calc-key-text-7.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-home.item.pattern-3",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-3",
-      "sourceRootNodeId": "tools-auto-row",
-      "parentNodeId": "tools-automation-card",
-      "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "tools-auto-title",
-          "slotKey": "page-home.tools-auto-title.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "tools-auto-desc",
-          "slotKey": "page-home.tools-auto-desc.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "label",
-          "slotKey": "page-home.tools-auto-action.button",
-          "prop": "label"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-detail.item.pattern",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-3",
-      "sourceRootNodeId": "tool-name",
-      "parentNodeId": "tool-header",
-      "itemAlias": "core.text",
-      "fields": [
-        {
-          "fieldKey": "tool-name",
-          "slotKey": "page-detail.tool-name.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-detail.k-123-456.pattern",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.k-123-456",
-      "sourceRootNodeId": "calc-expression",
-      "parentNodeId": "calc-display",
-      "itemAlias": "core.text",
-      "fields": [
-        {
-          "fieldKey": "calc-expression",
-          "slotKey": "page-detail.calc-expression.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-detail.item.pattern-2",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "sourceRootNodeId": "btn-c",
-      "parentNodeId": "calc-buttons",
+      "regionKey": "page-home.grid-2",
+      "sourceRootNodeId": "tile-0-2",
+      "parentNodeId": "grid-2",
       "itemAlias": "core.panel",
-      "fields": [
-        {
-          "fieldKey": "c-text",
-          "slotKey": "page-detail.c-text.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
     },
     {
-      "patternKey": "page-history.item.pattern",
+      "patternKey": "page-history.hist-info-0-1.item",
       "pageKey": "page-history",
-      "regionKey": "page-history.item-2",
-      "sourceRootNodeId": "history-title",
-      "parentNodeId": "history-header",
+      "regionKey": "page-history.hist-info-0-1",
+      "sourceRootNodeId": "hist-tool-0-1",
+      "parentNodeId": "hist-info-0-1",
       "itemAlias": "core.text",
-      "fields": [
-        {
-          "fieldKey": "history-title",
-          "slotKey": "page-history.history-title.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
     },
     {
-      "patternKey": "page-history.k-123-456.pattern",
+      "patternKey": "page-history.hist-info-1-1.item",
       "pageKey": "page-history",
-      "regionKey": "page-history.k-123-456",
-      "sourceRootNodeId": "history-1",
-      "parentNodeId": "history-list",
-      "itemAlias": "core.panel",
-      "fields": [
-        {
-          "fieldKey": "h1-expr",
-          "slotKey": "page-history.h1-expr.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "h1-result",
-          "slotKey": "page-history.h1-result.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "h1-time",
-          "slotKey": "page-history.h1-time.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-settings.item.pattern",
-      "pageKey": "page-settings",
-      "regionKey": "page-settings.item-3",
-      "sourceRootNodeId": "settings-title",
-      "parentNodeId": "settings-header",
+      "regionKey": "page-history.hist-info-1-1",
+      "sourceRootNodeId": "hist-tool-1-1",
+      "parentNodeId": "hist-info-1-1",
       "itemAlias": "core.text",
-      "fields": [
-        {
-          "fieldKey": "settings-title",
-          "slotKey": "page-settings.settings-title.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
     },
     {
-      "patternKey": "page-settings.item.pattern-2",
-      "pageKey": "page-settings",
-      "regionKey": "page-settings.item-4",
-      "sourceRootNodeId": "set-decimal",
-      "parentNodeId": "settings-list",
-      "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "decimal-text",
-          "slotKey": "page-settings.decimal-text.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "decimal-value",
-          "slotKey": "page-settings.decimal-value.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
+      "patternKey": "page-history.hist-info-2-1.item",
+      "pageKey": "page-history",
+      "regionKey": "page-history.hist-info-2-1",
+      "sourceRootNodeId": "hist-tool-2-1",
+      "parentNodeId": "hist-info-2-1",
+      "itemAlias": "core.text",
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
     }
   ],
   "navigation": {
     "type": "bottom_tabs",
     "items": [
       {
-        "key": "page-home",
         "label": "工具首页",
-        "pageKey": "page-home",
-        "pageId": "page-home"
+        "targetPageId": "page-home"
       },
       {
-        "key": "page-detail",
         "label": "工具详情",
-        "pageKey": "page-detail",
-        "pageId": "page-detail"
+        "targetPageId": "page-detail"
       },
       {
-        "key": "page-history",
-        "label": "历史结果",
-        "pageKey": "page-history",
-        "pageId": "page-history"
+        "label": "历史记录",
+        "targetPageId": "page-history"
       },
       {
-        "key": "page-settings",
         "label": "工具设置",
-        "pageKey": "page-settings",
-        "pageId": "page-settings"
+        "targetPageId": "page-settings"
       }
     ]
   },
   "constraints": {
-    "devices": [
-      "miniapp",
-      "mobile"
-    ]
+    "maxWidth": "100%"
   },
   "styleProfile": {
-    "colors": [
-      "#64748b",
-      "#475569",
-      "#94a3b8",
-      "#1e293b",
-      "#64748b",
-      "#e2e8f0",
-      "#f8fafc",
-      "#ffffff"
-    ],
+    "colors": [],
     "fontSizes": [],
     "fontWeights": [],
     "spacing": [],
     "radius": [],
     "shadows": [],
-    "commonLayoutPatterns": [
-      "panel",
-      "grid",
-      "biz-hero-banner",
-      "search",
-      "button",
-      "stack"
-    ]
+    "commonLayoutPatterns": []
   }
 }

@@ -161,6 +161,7 @@ export class TemplateService {
   async fetchAll(params?: {
     search?: string;
     category?: string;
+    platformCategory?: string;
   }): Promise<ThemeSpec[]> {
     const { data } = await this.request<{
       data: TemplateRecord[];
@@ -172,6 +173,7 @@ export class TemplateService {
   async fetchMine(params?: {
     search?: string;
     category?: string;
+    platformCategory?: string;
   }): Promise<ThemeSpec[]> {
     const { data } = await this.request<{
       data: TemplateRecord[];

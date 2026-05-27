@@ -28,9 +28,15 @@ export class TemplatesController {
   findAll(
     @Query('search') search?: string,
     @Query('category') category?: string,
+    @Query('platformCategory') platformCategory?: string,
     @Query('functionalCategory') functionalCategory?: string,
   ) {
-    return this.service.findMarketplace({ search, category, functionalCategory });
+    return this.service.findMarketplace({
+      search,
+      category,
+      platformCategory,
+      functionalCategory,
+    });
   }
 
   @Get('mine')
@@ -40,9 +46,15 @@ export class TemplatesController {
     @Req() req: AuthenticatedRequest,
     @Query('search') search?: string,
     @Query('category') category?: string,
+    @Query('platformCategory') platformCategory?: string,
     @Query('functionalCategory') functionalCategory?: string,
   ) {
-    return this.service.findOwned(req.user.sub, { search, category, functionalCategory });
+    return this.service.findOwned(req.user.sub, {
+      search,
+      category,
+      platformCategory,
+      functionalCategory,
+    });
   }
 
   @Get('recent')

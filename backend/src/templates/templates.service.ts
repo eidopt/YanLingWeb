@@ -32,6 +32,7 @@ import { prepareTemplateLayoutForPersistence } from './template-layout-validatio
 interface TemplateListOptions {
   category?: string;
   functionalCategory?: string;
+  platformCategory?: string;
   search?: string;
 }
 
@@ -175,11 +176,14 @@ export class TemplatesService implements OnModuleInit {
     }
 
     qb.orderBy('t.createdAt', 'ASC');
-    const [data, total] = await qb.getManyAndCount();
+    const data = this.filterByPlatformCategory(
+      await qb.getMany(),
+      options.platformCategory,
+    );
     return {
       data: await Promise.all(data.map((template) =>
         this.categoryRegistry.decorateTemplate(template))),
-      total,
+      total: data.length,
     };
   }
 
@@ -205,12 +209,27 @@ export class TemplatesService implements OnModuleInit {
     }
 
     qb.orderBy('t.updatedAt', 'DESC');
-    const [data, total] = await qb.getManyAndCount();
+    const data = this.filterByPlatformCategory(
+      await qb.getMany(),
+      options.platformCategory,
+    );
     return {
       data: await Promise.all(data.map((template) =>
         this.categoryRegistry.decorateTemplate(template))),
-      total,
+      total: data.length,
     };
+  }
+
+  private filterByPlatformCategory(
+    templates: Template[],
+    platformCategory?: string,
+  ): Template[] {
+    const normalizedCategory = platformCategory?.trim();
+    if (!normalizedCategory) {
+      return templates;
+    }
+    return templates.filter((template) =>
+      template.platformCategories.includes(normalizedCategory));
   }
 
   async findRecentOwned(

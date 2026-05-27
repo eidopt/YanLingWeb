@@ -16,17 +16,28 @@ interface ThemeCardProps {
   className?: string;
 }
 
+const DISPLAY_TITLE_MAX_LENGTH = 12;
+
+function truncateTitle(title: string) {
+  return title.length > DISPLAY_TITLE_MAX_LENGTH
+    ? `${title.slice(0, DISPLAY_TITLE_MAX_LENGTH)}…`
+    : title;
+}
+
 export function ThemeCard({
   theme,
   onClick,
   hoverLabel,
   className,
 }: ThemeCardProps) {
+  const displayName = truncateTitle(theme.categoryLabel ?? theme.name);
+
   return (
     <Box
       role="button"
       tabIndex={0}
       aria-label={theme.name}
+      title={theme.name}
       className={cx(styles.card, className)}
       onClick={onClick}
       onKeyDown={(e) => {
@@ -56,7 +67,7 @@ export function ThemeCard({
         <Box className={styles.cardText}>
           <Box className={styles.cardName}>
             <Text as="span" size="sm" truncate weight="bold">
-              {theme.name}
+              {displayName}
             </Text>
           </Box>
           <Box className={styles.cardTagline}>

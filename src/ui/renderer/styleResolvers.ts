@@ -41,6 +41,18 @@ export function resolveLayoutStyle(
     };
   }
 
+  // In a flex row, children with explicit width or height should not shrink.
+  // Also set minWidth: 0 on flex children so they can shrink below content size.
+  if (parentAlias === 'core.row' && layout.mode !== 'absolute') {
+    const hasExplicitWidth = layout.width != null;
+    const hasExplicitHeight = layout.height != null;
+    return {
+      ...baseStyle,
+      ...(hasExplicitWidth || hasExplicitHeight ? { flexShrink: 0 } : {}),
+      minWidth: baseStyle.minWidth ?? 0,
+    };
+  }
+
   return baseStyle;
 }
 

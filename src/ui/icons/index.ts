@@ -2,6 +2,7 @@ export { CalendarIcon } from './CalendarIcon';
 export { CartIcon } from './CartIcon';
 export { DashboardIcon } from './DashboardIcon';
 export { EditorIcon } from './EditorIcon';
+export { HomeIcon } from './HomeIcon';
 export type { IconProps } from './IconProps';
 export { MarketplaceIcon } from './MarketplaceIcon';
 export { MineIcon } from './MineIcon';

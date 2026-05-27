@@ -1,6 +1,6 @@
 {
   "templateId": "profile-center",
-  "templateVersion": "1",
+  "templateVersion": "1.0.0",
   "profileVersion": "1.0.0",
   "devices": [
     "miniapp",
@@ -12,23 +12,23 @@
       "pageId": "page-home",
       "pageKind": "home",
       "name": "个人中心",
-      "description": "用户昵称",
+      "description": "个人中心",
       "rootNodeId": "page-home-screen",
       "isDefault": true
     },
     {
       "pageKey": "page-orders",
       "pageId": "page-orders",
-      "pageKind": "order",
+      "pageKind": "list",
       "name": "订单列表",
-      "description": "我的订单",
+      "description": "订单列表",
       "rootNodeId": "page-orders-screen",
       "isDefault": false
     },
     {
       "pageKey": "page-favorites",
       "pageId": "page-favorites",
-      "pageKind": "profile",
+      "pageKind": "list",
       "name": "我的收藏",
       "description": "我的收藏",
       "rootNodeId": "page-favorites-screen",
@@ -37,7 +37,7 @@
     {
       "pageKey": "page-settings",
       "pageId": "page-settings",
-      "pageKind": "unknown",
+      "pageKind": "detail",
       "name": "设置",
       "description": "设置",
       "rootNodeId": "page-settings-screen",
@@ -46,1917 +46,1261 @@
   ],
   "regions": [
     {
-      "regionKey": "page-home.item",
+      "regionKey": "page-home.profile-0",
       "pageKey": "page-home",
-      "nodeId": "profile-member-card",
-      "name": "用户头像",
+      "nodeId": "profile-0",
+      "name": "core.panel",
       "sectionKind": "panel",
       "replaceable": true
     },
     {
-      "regionKey": "page-home.item-2",
+      "regionKey": "page-home.profile-row-0",
       "pageKey": "page-home",
-      "nodeId": "profile-order-strip",
-      "name": "我的订单",
-      "sectionKind": "panel",
-      "replaceable": true
-    },
-    {
-      "regionKey": "page-home.item-3",
-      "pageKey": "page-home",
-      "nodeId": "profile-service-grid",
-      "name": "会员权益图标",
-      "sectionKind": "grid",
-      "replaceable": true
-    },
-    {
-      "regionKey": "page-home.item-4",
-      "pageKey": "page-home",
-      "nodeId": "profile-growth-card",
-      "name": "本月成长值",
-      "sectionKind": "panel",
-      "replaceable": true
-    },
-    {
-      "regionKey": "page-orders.item",
-      "pageKey": "page-orders",
-      "nodeId": "page-orders-hero-banner",
-      "name": "订单列表",
-      "sectionKind": "biz-hero-banner",
-      "replaceable": false
-    },
-    {
-      "regionKey": "page-orders.item-2",
-      "pageKey": "page-orders",
-      "nodeId": "page-orders-quick-search",
-      "name": "搜索订单",
-      "sectionKind": "search",
-      "replaceable": false
-    },
-    {
-      "regionKey": "page-orders.item-3",
-      "pageKey": "page-orders",
-      "nodeId": "orders-header",
-      "name": "我的订单",
-      "sectionKind": "panel",
-      "replaceable": true
-    },
-    {
-      "regionKey": "page-orders.item-4",
-      "pageKey": "page-orders",
-      "nodeId": "order-tabs",
-      "name": "全部",
+      "nodeId": "profile-row-0",
+      "name": "core.row",
       "sectionKind": "row",
       "replaceable": true
     },
     {
-      "regionKey": "page-orders.item-5",
-      "pageKey": "page-orders",
-      "nodeId": "order-list",
-      "name": "品牌旗舰店",
+      "regionKey": "page-home.pstat-row-1",
+      "pageKey": "page-home",
+      "nodeId": "pstat-row-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-home.pstat-0-1",
+      "pageKey": "page-home",
+      "nodeId": "pstat-0-1",
+      "name": "core.stack",
       "sectionKind": "stack",
       "replaceable": true
     },
     {
-      "regionKey": "page-orders.item-6",
-      "pageKey": "page-orders",
-      "nodeId": "page-orders-primary-action",
-      "name": "继续下单",
-      "sectionKind": "button",
-      "replaceable": false
+      "regionKey": "page-home.pstat-1-1",
+      "pageKey": "page-home",
+      "nodeId": "pstat-1-1",
+      "name": "core.stack",
+      "sectionKind": "stack",
+      "replaceable": true
     },
     {
-      "regionKey": "page-favorites.item",
-      "pageKey": "page-favorites",
-      "nodeId": "page-favorites-hero-banner",
-      "name": "我的收藏",
-      "sectionKind": "biz-hero-banner",
-      "replaceable": false
+      "regionKey": "page-home.pstat-2-1",
+      "pageKey": "page-home",
+      "nodeId": "pstat-2-1",
+      "name": "core.stack",
+      "sectionKind": "stack",
+      "replaceable": true
     },
     {
-      "regionKey": "page-favorites.item-2",
-      "pageKey": "page-favorites",
-      "nodeId": "fav-header",
-      "name": "我的收藏",
+      "regionKey": "page-home.grid-card-2",
+      "pageKey": "page-home",
+      "nodeId": "grid-card-2",
+      "name": "core.panel",
       "sectionKind": "panel",
       "replaceable": true
     },
     {
-      "regionKey": "page-favorites.item-3",
-      "pageKey": "page-favorites",
-      "nodeId": "fav-grid",
-      "name": "业务视觉元素",
+      "regionKey": "page-home.grid-2",
+      "pageKey": "page-home",
+      "nodeId": "grid-2",
+      "name": "core.grid",
       "sectionKind": "grid",
       "replaceable": true
     },
     {
-      "regionKey": "page-favorites.item-4",
+      "regionKey": "page-home.menu-list-card-3",
+      "pageKey": "page-home",
+      "nodeId": "menu-list-card-3",
+      "name": "core.panel",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-home.menu-item-0-3",
+      "pageKey": "page-home",
+      "nodeId": "menu-item-0-3",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-home.menu-item-1-3",
+      "pageKey": "page-home",
+      "nodeId": "menu-item-1-3",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-home.menu-item-2-3",
+      "pageKey": "page-home",
+      "nodeId": "menu-item-2-3",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-home.menu-item-3-3",
+      "pageKey": "page-home",
+      "nodeId": "menu-item-3-3",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-home.menu-item-4-3",
+      "pageKey": "page-home",
+      "nodeId": "menu-item-4-3",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-home.bottom-tabs",
+      "pageKey": "page-home",
+      "nodeId": "page-home-bottom-tabs",
+      "name": "core.tabs",
+      "sectionKind": "tabs",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-orders.ftabs-0",
+      "pageKey": "page-orders",
+      "nodeId": "ftabs-0",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-orders.order-0-1",
+      "pageKey": "page-orders",
+      "nodeId": "order-0-1",
+      "name": "core.panel",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-orders.order-head-0-1",
+      "pageKey": "page-orders",
+      "nodeId": "order-head-0-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-orders.order-foot-0-1",
+      "pageKey": "page-orders",
+      "nodeId": "order-foot-0-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-orders.order-1-1",
+      "pageKey": "page-orders",
+      "nodeId": "order-1-1",
+      "name": "core.panel",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-orders.order-head-1-1",
+      "pageKey": "page-orders",
+      "nodeId": "order-head-1-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-orders.order-foot-1-1",
+      "pageKey": "page-orders",
+      "nodeId": "order-foot-1-1",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-orders.bottom-tabs",
+      "pageKey": "page-orders",
+      "nodeId": "page-orders-bottom-tabs",
+      "name": "core.tabs",
+      "sectionKind": "tabs",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-favorites.search-stack-0",
       "pageKey": "page-favorites",
-      "nodeId": "page-favorites-primary-action",
-      "name": "管理收藏",
-      "sectionKind": "button",
-      "replaceable": false
+      "nodeId": "search-stack-0",
+      "name": "core.stack",
+      "sectionKind": "stack",
+      "replaceable": true
     },
     {
-      "regionKey": "page-settings.item",
-      "pageKey": "page-settings",
-      "nodeId": "page-settings-hero-banner",
-      "name": "设置",
-      "sectionKind": "biz-hero-banner",
-      "replaceable": false
+      "regionKey": "page-favorites.search-0",
+      "pageKey": "page-favorites",
+      "nodeId": "search-0",
+      "name": "搜索收藏",
+      "sectionKind": "search",
+      "replaceable": true
     },
     {
-      "regionKey": "page-settings.item-2",
-      "pageKey": "page-settings",
-      "nodeId": "set-header",
-      "name": "设置",
+      "regionKey": "page-favorites.filter-row-0",
+      "pageKey": "page-favorites",
+      "nodeId": "filter-row-0",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-favorites.fav-grid-1",
+      "pageKey": "page-favorites",
+      "nodeId": "fav-grid-1",
+      "name": "core.grid",
+      "sectionKind": "grid",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-favorites.fav-g-0-1",
+      "pageKey": "page-favorites",
+      "nodeId": "fav-g-0-1",
+      "name": "core.panel",
       "sectionKind": "panel",
       "replaceable": true
     },
     {
-      "regionKey": "page-settings.item-3",
-      "pageKey": "page-settings",
-      "nodeId": "set-list",
-      "name": "个人资料",
+      "regionKey": "page-favorites.fav-g-1-1",
+      "pageKey": "page-favorites",
+      "nodeId": "fav-g-1-1",
+      "name": "core.panel",
       "sectionKind": "panel",
       "replaceable": true
     },
     {
-      "regionKey": "page-settings.item-4",
+      "regionKey": "page-favorites.fav-g-2-1",
+      "pageKey": "page-favorites",
+      "nodeId": "fav-g-2-1",
+      "name": "core.panel",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-favorites.fav-g-3-1",
+      "pageKey": "page-favorites",
+      "nodeId": "fav-g-3-1",
+      "name": "core.panel",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-favorites.bottom-tabs",
+      "pageKey": "page-favorites",
+      "nodeId": "page-favorites-bottom-tabs",
+      "name": "core.tabs",
+      "sectionKind": "tabs",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-settings.settings-0",
       "pageKey": "page-settings",
-      "nodeId": "logout-btn",
-      "name": "退出登录",
-      "sectionKind": "button",
-      "replaceable": false
+      "nodeId": "settings-账号设置-0",
+      "name": "core.panel",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-settings.setting-0-0",
+      "pageKey": "page-settings",
+      "nodeId": "setting-账号设置-0-0",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-settings.setting-1-0",
+      "pageKey": "page-settings",
+      "nodeId": "setting-账号设置-1-0",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-settings.setting-2-0",
+      "pageKey": "page-settings",
+      "nodeId": "setting-账号设置-2-0",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-settings.settings-2",
+      "pageKey": "page-settings",
+      "nodeId": "settings-通用设置-2",
+      "name": "core.panel",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-settings.setting-0-2",
+      "pageKey": "page-settings",
+      "nodeId": "setting-通用设置-0-2",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-settings.setting-1-2",
+      "pageKey": "page-settings",
+      "nodeId": "setting-通用设置-1-2",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-settings.setting-2-2",
+      "pageKey": "page-settings",
+      "nodeId": "setting-通用设置-2-2",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-settings.action-bar-4",
+      "pageKey": "page-settings",
+      "nodeId": "action-bar-4",
+      "name": "core.panel",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-settings.action-row-inner-4",
+      "pageKey": "page-settings",
+      "nodeId": "action-row-inner-4",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-settings.bottom-tabs",
+      "pageKey": "page-settings",
+      "nodeId": "page-settings-bottom-tabs",
+      "name": "core.tabs",
+      "sectionKind": "tabs",
+      "replaceable": true
     }
   ],
   "slots": [
     {
-      "slotKey": "page-home.page-home-screen.screen",
+      "slotKey": "page-home.profile-avatar-0",
       "pageKey": "page-home",
-      "nodeId": "page-home-screen",
-      "component": "core.screen",
-      "editableProps": [
-        "title",
-        "statusTime",
-        "headerActionLabel"
-      ],
-      "label": "个人中心"
-    },
-    {
-      "slotKey": "page-home.profile-member-card.panel",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item",
-      "nodeId": "profile-member-card",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "用户头像"
-    },
-    {
-      "slotKey": "page-home.profile-member-row.row",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item",
-      "nodeId": "profile-member-row",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "用户头像"
-    },
-    {
-      "slotKey": "page-home.profile-avatar.image",
-      "pageKey": "page-home",
-      "nodeId": "profile-avatar",
+      "regionKey": "page-home.profile-row-0",
+      "nodeId": "profile-avatar-0",
       "component": "core.image",
       "editableProps": [
-        "src",
         "alt",
         "title",
-        "iconColor",
-        "objectFit"
+        "iconColor"
       ],
-      "label": "用户头像"
+      "label": "图片"
     },
     {
-      "slotKey": "page-home.profile-user-copy.stack",
+      "slotKey": "page-home.profile-name-0",
       "pageKey": "page-home",
-      "nodeId": "profile-user-copy",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "林小满"
-    },
-    {
-      "slotKey": "page-home.profile-user-name.text",
-      "pageKey": "page-home",
-      "nodeId": "profile-user-name",
+      "regionKey": "page-home.profile-row-0",
+      "nodeId": "profile-name-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "林小满"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.profile-user-level.text",
+      "slotKey": "page-home.profile-level-0",
       "pageKey": "page-home",
-      "nodeId": "profile-user-level",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "黑金会员 · 编号 100001"
-    },
-    {
-      "slotKey": "page-home.profile-member-tag.tag",
-      "pageKey": "page-home",
-      "nodeId": "profile-member-tag",
+      "regionKey": "page-home.profile-row-0",
+      "nodeId": "profile-level-0",
       "component": "core.tag",
       "editableProps": [
-        "label",
-        "tone"
+        "label"
       ],
-      "label": "会员中心"
+      "label": "标签"
     },
     {
-      "slotKey": "page-home.profile-stat-grid.grid",
+      "slotKey": "page-home.pstat-val-0-1",
       "pageKey": "page-home",
-      "regionKey": "page-home.item",
-      "nodeId": "profile-stat-grid",
-      "component": "core.grid",
-      "editableProps": [
-        "gap",
-        "columns"
-      ],
-      "label": "8"
-    },
-    {
-      "slotKey": "page-home.profile-stat-0.panel",
-      "pageKey": "page-home",
-      "nodeId": "profile-stat-0",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "8"
-    },
-    {
-      "slotKey": "page-home.profile-stat-num-0.text",
-      "pageKey": "page-home",
-      "nodeId": "profile-stat-num-0",
+      "regionKey": "page-home.pstat-0-1",
+      "nodeId": "pstat-val-0-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "8"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.profile-stat-label-0.text",
+      "slotKey": "page-home.pstat-label-0-1",
       "pageKey": "page-home",
-      "nodeId": "profile-stat-label-0",
+      "regionKey": "page-home.pstat-0-1",
+      "nodeId": "pstat-label-0-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "订单"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.profile-stat-1.panel",
+      "slotKey": "page-home.pstat-val-1-1",
       "pageKey": "page-home",
-      "nodeId": "profile-stat-1",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "12"
-    },
-    {
-      "slotKey": "page-home.profile-stat-num-1.text",
-      "pageKey": "page-home",
-      "nodeId": "profile-stat-num-1",
+      "regionKey": "page-home.pstat-1-1",
+      "nodeId": "pstat-val-1-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "12"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.profile-stat-label-1.text",
+      "slotKey": "page-home.pstat-label-1-1",
       "pageKey": "page-home",
-      "nodeId": "profile-stat-label-1",
+      "regionKey": "page-home.pstat-1-1",
+      "nodeId": "pstat-label-1-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "收藏"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.profile-stat-2.panel",
+      "slotKey": "page-home.pstat-val-2-1",
       "pageKey": "page-home",
-      "nodeId": "profile-stat-2",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "3"
-    },
-    {
-      "slotKey": "page-home.profile-stat-num-2.text",
-      "pageKey": "page-home",
-      "nodeId": "profile-stat-num-2",
+      "regionKey": "page-home.pstat-2-1",
+      "nodeId": "pstat-val-2-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "3"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.profile-stat-label-2.text",
+      "slotKey": "page-home.pstat-label-2-1",
       "pageKey": "page-home",
-      "nodeId": "profile-stat-label-2",
+      "regionKey": "page-home.pstat-2-1",
+      "nodeId": "pstat-label-2-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "优惠券"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.profile-stat-3.panel",
+      "slotKey": "page-home.grid-title-2",
       "pageKey": "page-home",
-      "nodeId": "profile-stat-3",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "680"
-    },
-    {
-      "slotKey": "page-home.profile-stat-num-3.text",
-      "pageKey": "page-home",
-      "nodeId": "profile-stat-num-3",
+      "regionKey": "page-home.grid-card-2",
+      "nodeId": "grid-title-2",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "680"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.profile-stat-label-3.text",
+      "slotKey": "page-home.tile-icon-0-2",
       "pageKey": "page-home",
-      "nodeId": "profile-stat-label-3",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "积分"
-    },
-    {
-      "slotKey": "page-home.profile-order-strip.panel",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-2",
-      "nodeId": "profile-order-strip",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "我的订单"
-    },
-    {
-      "slotKey": "page-home.profile-order-head.row",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-2",
-      "nodeId": "profile-order-head",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "我的订单"
-    },
-    {
-      "slotKey": "page-home.profile-order-title.text",
-      "pageKey": "page-home",
-      "nodeId": "profile-order-title",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "我的订单"
-    },
-    {
-      "slotKey": "page-home.profile-order-all.text",
-      "pageKey": "page-home",
-      "nodeId": "profile-order-all",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "查看全部"
-    },
-    {
-      "slotKey": "page-home.profile-order-grid.grid",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-2",
-      "nodeId": "profile-order-grid",
-      "component": "core.grid",
-      "editableProps": [
-        "gap",
-        "columns"
-      ],
-      "label": "待付款图标"
-    },
-    {
-      "slotKey": "page-home.profile-order-0.stack",
-      "pageKey": "page-home",
-      "nodeId": "profile-order-0",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "待付款图标"
-    },
-    {
-      "slotKey": "page-home.profile-order-icon-0.image",
-      "pageKey": "page-home",
-      "nodeId": "profile-order-icon-0",
+      "regionKey": "page-home.grid-2",
+      "nodeId": "tile-icon-0-2",
       "component": "core.image",
       "editableProps": [
-        "src",
         "alt",
         "title",
-        "iconColor",
-        "objectFit"
+        "iconColor"
       ],
-      "label": "待付款图标"
+      "label": "图片"
     },
     {
-      "slotKey": "page-home.profile-order-text-0.text",
+      "slotKey": "page-home.tile-t-0-2",
       "pageKey": "page-home",
-      "nodeId": "profile-order-text-0",
+      "regionKey": "page-home.grid-2",
+      "nodeId": "tile-t-0-2",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "待付款"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.profile-order-1.stack",
+      "slotKey": "page-home.tile-icon-1-2",
       "pageKey": "page-home",
-      "nodeId": "profile-order-1",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "待发货图标"
-    },
-    {
-      "slotKey": "page-home.profile-order-icon-1.image",
-      "pageKey": "page-home",
-      "nodeId": "profile-order-icon-1",
+      "regionKey": "page-home.grid-2",
+      "nodeId": "tile-icon-1-2",
       "component": "core.image",
       "editableProps": [
-        "src",
         "alt",
         "title",
-        "iconColor",
-        "objectFit"
+        "iconColor"
       ],
-      "label": "待发货图标"
+      "label": "图片"
     },
     {
-      "slotKey": "page-home.profile-order-text-1.text",
+      "slotKey": "page-home.tile-t-1-2",
       "pageKey": "page-home",
-      "nodeId": "profile-order-text-1",
+      "regionKey": "page-home.grid-2",
+      "nodeId": "tile-t-1-2",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "待发货"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.profile-order-2.stack",
+      "slotKey": "page-home.tile-icon-2-2",
       "pageKey": "page-home",
-      "nodeId": "profile-order-2",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "待收货图标"
-    },
-    {
-      "slotKey": "page-home.profile-order-icon-2.image",
-      "pageKey": "page-home",
-      "nodeId": "profile-order-icon-2",
+      "regionKey": "page-home.grid-2",
+      "nodeId": "tile-icon-2-2",
       "component": "core.image",
       "editableProps": [
-        "src",
         "alt",
         "title",
-        "iconColor",
-        "objectFit"
+        "iconColor"
       ],
-      "label": "待收货图标"
+      "label": "图片"
     },
     {
-      "slotKey": "page-home.profile-order-text-2.text",
+      "slotKey": "page-home.tile-t-2-2",
       "pageKey": "page-home",
-      "nodeId": "profile-order-text-2",
+      "regionKey": "page-home.grid-2",
+      "nodeId": "tile-t-2-2",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "待收货"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.profile-order-3.stack",
+      "slotKey": "page-home.tile-icon-3-2",
       "pageKey": "page-home",
-      "nodeId": "profile-order-3",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "售后图标"
-    },
-    {
-      "slotKey": "page-home.profile-order-icon-3.image",
-      "pageKey": "page-home",
-      "nodeId": "profile-order-icon-3",
+      "regionKey": "page-home.grid-2",
+      "nodeId": "tile-icon-3-2",
       "component": "core.image",
       "editableProps": [
-        "src",
         "alt",
         "title",
-        "iconColor",
-        "objectFit"
+        "iconColor"
       ],
-      "label": "售后图标"
+      "label": "图片"
     },
     {
-      "slotKey": "page-home.profile-order-text-3.text",
+      "slotKey": "page-home.tile-t-3-2",
       "pageKey": "page-home",
-      "nodeId": "profile-order-text-3",
+      "regionKey": "page-home.grid-2",
+      "nodeId": "tile-t-3-2",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "售后"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.profile-service-grid.grid",
+      "slotKey": "page-home.menu-label-0-3",
       "pageKey": "page-home",
-      "regionKey": "page-home.item-3",
-      "nodeId": "profile-service-grid",
-      "component": "core.grid",
-      "editableProps": [
-        "gap",
-        "columns"
-      ],
-      "label": "会员权益图标"
-    },
-    {
-      "slotKey": "page-home.profile-service-0.panel",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-3",
-      "nodeId": "profile-service-0",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "会员权益图标"
-    },
-    {
-      "slotKey": "page-home.profile-service-row-0.row",
-      "pageKey": "page-home",
-      "nodeId": "profile-service-row-0",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "会员权益图标"
-    },
-    {
-      "slotKey": "page-home.profile-service-icon-0.image",
-      "pageKey": "page-home",
-      "nodeId": "profile-service-icon-0",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "会员权益图标"
-    },
-    {
-      "slotKey": "page-home.profile-service-title-0.text",
-      "pageKey": "page-home",
-      "nodeId": "profile-service-title-0",
+      "regionKey": "page-home.menu-item-0-3",
+      "nodeId": "menu-label-0-3",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "会员权益"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.profile-service-1.panel",
+      "slotKey": "page-home.menu-arrow-0-3",
       "pageKey": "page-home",
-      "regionKey": "page-home.item-3",
-      "nodeId": "profile-service-1",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "地址管理图标"
-    },
-    {
-      "slotKey": "page-home.profile-service-row-1.row",
-      "pageKey": "page-home",
-      "nodeId": "profile-service-row-1",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "地址管理图标"
-    },
-    {
-      "slotKey": "page-home.profile-service-icon-1.image",
-      "pageKey": "page-home",
-      "nodeId": "profile-service-icon-1",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "地址管理图标"
-    },
-    {
-      "slotKey": "page-home.profile-service-title-1.text",
-      "pageKey": "page-home",
-      "nodeId": "profile-service-title-1",
+      "regionKey": "page-home.menu-item-0-3",
+      "nodeId": "menu-arrow-0-3",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "地址管理"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.profile-service-2.panel",
+      "slotKey": "page-home.menu-label-1-3",
       "pageKey": "page-home",
-      "regionKey": "page-home.item-3",
-      "nodeId": "profile-service-2",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "优惠券包图标"
-    },
-    {
-      "slotKey": "page-home.profile-service-row-2.row",
-      "pageKey": "page-home",
-      "nodeId": "profile-service-row-2",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "优惠券包图标"
-    },
-    {
-      "slotKey": "page-home.profile-service-icon-2.image",
-      "pageKey": "page-home",
-      "nodeId": "profile-service-icon-2",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "优惠券包图标"
-    },
-    {
-      "slotKey": "page-home.profile-service-title-2.text",
-      "pageKey": "page-home",
-      "nodeId": "profile-service-title-2",
+      "regionKey": "page-home.menu-item-1-3",
+      "nodeId": "menu-label-1-3",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "优惠券包"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.profile-service-3.panel",
+      "slotKey": "page-home.menu-arrow-1-3",
       "pageKey": "page-home",
-      "regionKey": "page-home.item-3",
-      "nodeId": "profile-service-3",
-      "component": "core.panel",
+      "regionKey": "page-home.menu-item-1-3",
+      "nodeId": "menu-arrow-1-3",
+      "component": "core.text",
       "editableProps": [
-        "tone",
-        "gap",
-        "title"
+        "text"
       ],
-      "label": "客服中心图标"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.profile-service-row-3.row",
+      "slotKey": "page-home.menu-label-2-3",
       "pageKey": "page-home",
-      "nodeId": "profile-service-row-3",
-      "component": "core.row",
+      "regionKey": "page-home.menu-item-2-3",
+      "nodeId": "menu-label-2-3",
+      "component": "core.text",
       "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
+        "text"
       ],
-      "label": "客服中心图标"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.profile-service-icon-3.image",
+      "slotKey": "page-home.menu-arrow-2-3",
       "pageKey": "page-home",
-      "nodeId": "profile-service-icon-3",
-      "component": "core.image",
+      "regionKey": "page-home.menu-item-2-3",
+      "nodeId": "menu-arrow-2-3",
+      "component": "core.text",
       "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
+        "text"
       ],
-      "label": "客服中心图标"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.profile-service-title-3.text",
+      "slotKey": "page-home.menu-label-3-3",
       "pageKey": "page-home",
-      "nodeId": "profile-service-title-3",
+      "regionKey": "page-home.menu-item-3-3",
+      "nodeId": "menu-label-3-3",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "客服中心"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.profile-growth-card.panel",
+      "slotKey": "page-home.menu-arrow-3-3",
       "pageKey": "page-home",
-      "regionKey": "page-home.item-4",
-      "nodeId": "profile-growth-card",
-      "component": "core.panel",
+      "regionKey": "page-home.menu-item-3-3",
+      "nodeId": "menu-arrow-3-3",
+      "component": "core.text",
       "editableProps": [
-        "tone",
-        "gap",
-        "title"
+        "text"
       ],
-      "label": "本月成长值"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.profile-growth-title.text",
+      "slotKey": "page-home.menu-label-4-3",
       "pageKey": "page-home",
-      "regionKey": "page-home.item-4",
-      "nodeId": "profile-growth-title",
+      "regionKey": "page-home.menu-item-4-3",
+      "nodeId": "menu-label-4-3",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "本月成长值"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.profile-growth-progress.progress",
+      "slotKey": "page-home.menu-arrow-4-3",
       "pageKey": "page-home",
-      "regionKey": "page-home.item-4",
-      "nodeId": "profile-growth-progress",
-      "component": "core.progress",
-      "editableProps": [
-        "value",
-        "max",
-        "tone"
-      ],
-      "label": "profile-growth-progress"
-    },
-    {
-      "slotKey": "page-home.profile-growth-desc.text",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-4",
-      "nodeId": "profile-growth-desc",
+      "regionKey": "page-home.menu-item-4-3",
+      "nodeId": "menu-arrow-4-3",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "再完成 2 个任务升级"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.page-home-bottom-tabs.tabs",
-      "pageKey": "page-home",
-      "nodeId": "page-home-bottom-tabs",
-      "component": "core.tabs",
-      "editableProps": [
-        "tabs",
-        "activeTab"
-      ],
-      "label": "page-home-bottom-tabs"
-    },
-    {
-      "slotKey": "page-orders.page-orders-screen.screen",
+      "slotKey": "page-orders.ftab-0-0",
       "pageKey": "page-orders",
-      "nodeId": "page-orders-screen",
-      "component": "core.screen",
-      "editableProps": [
-        "title",
-        "statusTime",
-        "headerActionLabel"
-      ],
-      "label": "订单列表"
-    },
-    {
-      "slotKey": "page-orders.page-orders-quick-search.search",
-      "pageKey": "page-orders",
-      "regionKey": "page-orders.item-2",
-      "nodeId": "page-orders-quick-search",
-      "component": "core.search",
-      "editableProps": [
-        "placeholder",
-        "value"
-      ],
-      "label": "搜索订单"
-    },
-    {
-      "slotKey": "page-orders.orders-header.panel",
-      "pageKey": "page-orders",
-      "regionKey": "page-orders.item-3",
-      "nodeId": "orders-header",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "我的订单"
-    },
-    {
-      "slotKey": "page-orders.orders-title.text",
-      "pageKey": "page-orders",
-      "regionKey": "page-orders.item-3",
-      "nodeId": "orders-title",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "我的订单"
-    },
-    {
-      "slotKey": "page-orders.order-tabs.row",
-      "pageKey": "page-orders",
-      "regionKey": "page-orders.item-4",
-      "nodeId": "order-tabs",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "全部"
-    },
-    {
-      "slotKey": "page-orders.tab-all.text",
-      "pageKey": "page-orders",
-      "regionKey": "page-orders.item-4",
-      "nodeId": "tab-all",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "全部"
-    },
-    {
-      "slotKey": "page-orders.tab-pending.text",
-      "pageKey": "page-orders",
-      "regionKey": "page-orders.item-4",
-      "nodeId": "tab-pending",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "待付款"
-    },
-    {
-      "slotKey": "page-orders.tab-shipped.text",
-      "pageKey": "page-orders",
-      "regionKey": "page-orders.item-4",
-      "nodeId": "tab-shipped",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "待发货"
-    },
-    {
-      "slotKey": "page-orders.tab-receive.text",
-      "pageKey": "page-orders",
-      "regionKey": "page-orders.item-4",
-      "nodeId": "tab-receive",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "待收货"
-    },
-    {
-      "slotKey": "page-orders.order-list.stack",
-      "pageKey": "page-orders",
-      "regionKey": "page-orders.item-5",
-      "nodeId": "order-list",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "品牌旗舰店"
-    },
-    {
-      "slotKey": "page-orders.order-card-1.panel",
-      "pageKey": "page-orders",
-      "regionKey": "page-orders.item-5",
-      "nodeId": "order-card-1",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "品牌旗舰店"
-    },
-    {
-      "slotKey": "page-orders.card1-header.row",
-      "pageKey": "page-orders",
-      "nodeId": "card1-header",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "品牌旗舰店"
-    },
-    {
-      "slotKey": "page-orders.card1-shop.text",
-      "pageKey": "page-orders",
-      "nodeId": "card1-shop",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "品牌旗舰店"
-    },
-    {
-      "slotKey": "page-orders.card1-status.text",
-      "pageKey": "page-orders",
-      "nodeId": "card1-status",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "待付款"
-    },
-    {
-      "slotKey": "page-orders.card1-body.row",
-      "pageKey": "page-orders",
-      "nodeId": "card1-body",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-orders.card1-img.image",
-      "pageKey": "page-orders",
-      "nodeId": "card1-img",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-orders.card1-info.stack",
-      "pageKey": "page-orders",
-      "nodeId": "card1-info",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "经典款纯棉T恤 白色 L码"
-    },
-    {
-      "slotKey": "page-orders.card1-name.text",
-      "pageKey": "page-orders",
-      "nodeId": "card1-name",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "经典款纯棉T恤 白色 L码"
-    },
-    {
-      "slotKey": "page-orders.card1-price.text",
-      "pageKey": "page-orders",
-      "nodeId": "card1-price",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "¥99.00"
-    },
-    {
-      "slotKey": "page-orders.page-orders-primary-action.button",
-      "pageKey": "page-orders",
-      "regionKey": "page-orders.item-6",
-      "nodeId": "page-orders-primary-action",
+      "regionKey": "page-orders.ftabs-0",
+      "nodeId": "ftab-0-0",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "继续下单"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-orders.page-orders-bottom-tabs.tabs",
+      "slotKey": "page-orders.ftab-1-0",
       "pageKey": "page-orders",
-      "nodeId": "page-orders-bottom-tabs",
-      "component": "core.tabs",
-      "editableProps": [
-        "tabs",
-        "activeTab"
-      ],
-      "label": "page-orders-bottom-tabs"
-    },
-    {
-      "slotKey": "page-favorites.page-favorites-screen.screen",
-      "pageKey": "page-favorites",
-      "nodeId": "page-favorites-screen",
-      "component": "core.screen",
-      "editableProps": [
-        "title",
-        "statusTime",
-        "headerActionLabel"
-      ],
-      "label": "我的收藏"
-    },
-    {
-      "slotKey": "page-favorites.fav-header.panel",
-      "pageKey": "page-favorites",
-      "regionKey": "page-favorites.item-2",
-      "nodeId": "fav-header",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "我的收藏"
-    },
-    {
-      "slotKey": "page-favorites.fav-page-title.text",
-      "pageKey": "page-favorites",
-      "regionKey": "page-favorites.item-2",
-      "nodeId": "fav-page-title",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "我的收藏"
-    },
-    {
-      "slotKey": "page-favorites.fav-grid.grid",
-      "pageKey": "page-favorites",
-      "regionKey": "page-favorites.item-3",
-      "nodeId": "fav-grid",
-      "component": "core.grid",
-      "editableProps": [
-        "gap",
-        "columns"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-favorites.fav-item-1.panel",
-      "pageKey": "page-favorites",
-      "regionKey": "page-favorites.item-3",
-      "nodeId": "fav-item-1",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-favorites.fav-img-1.image",
-      "pageKey": "page-favorites",
-      "nodeId": "fav-img-1",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-favorites.fav-info-1.stack",
-      "pageKey": "page-favorites",
-      "nodeId": "fav-info-1",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "热销商品名称"
-    },
-    {
-      "slotKey": "page-favorites.fav-name-1.text",
-      "pageKey": "page-favorites",
-      "nodeId": "fav-name-1",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "热销商品名称"
-    },
-    {
-      "slotKey": "page-favorites.fav-price-1.text",
-      "pageKey": "page-favorites",
-      "nodeId": "fav-price-1",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "¥199.00"
-    },
-    {
-      "slotKey": "page-favorites.fav-item-2.panel",
-      "pageKey": "page-favorites",
-      "regionKey": "page-favorites.item-3",
-      "nodeId": "fav-item-2",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-favorites.fav-img-2.image",
-      "pageKey": "page-favorites",
-      "nodeId": "fav-img-2",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-favorites.fav-info-2.stack",
-      "pageKey": "page-favorites",
-      "nodeId": "fav-info-2",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "精选好物推荐"
-    },
-    {
-      "slotKey": "page-favorites.fav-name-2.text",
-      "pageKey": "page-favorites",
-      "nodeId": "fav-name-2",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "精选好物推荐"
-    },
-    {
-      "slotKey": "page-favorites.fav-price-2.text",
-      "pageKey": "page-favorites",
-      "nodeId": "fav-price-2",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "¥299.00"
-    },
-    {
-      "slotKey": "page-favorites.page-favorites-primary-action.button",
-      "pageKey": "page-favorites",
-      "regionKey": "page-favorites.item-4",
-      "nodeId": "page-favorites-primary-action",
+      "regionKey": "page-orders.ftabs-0",
+      "nodeId": "ftab-1-0",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "管理收藏"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-favorites.page-favorites-bottom-tabs.tabs",
-      "pageKey": "page-favorites",
-      "nodeId": "page-favorites-bottom-tabs",
-      "component": "core.tabs",
-      "editableProps": [
-        "tabs",
-        "activeTab"
-      ],
-      "label": "page-favorites-bottom-tabs"
-    },
-    {
-      "slotKey": "page-settings.page-settings-screen.screen",
-      "pageKey": "page-settings",
-      "nodeId": "page-settings-screen",
-      "component": "core.screen",
-      "editableProps": [
-        "title",
-        "statusTime",
-        "headerActionLabel"
-      ],
-      "label": "设置"
-    },
-    {
-      "slotKey": "page-settings.set-header.panel",
-      "pageKey": "page-settings",
-      "regionKey": "page-settings.item-2",
-      "nodeId": "set-header",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "设置"
-    },
-    {
-      "slotKey": "page-settings.set-page-title.text",
-      "pageKey": "page-settings",
-      "regionKey": "page-settings.item-2",
-      "nodeId": "set-page-title",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "设置"
-    },
-    {
-      "slotKey": "page-settings.set-list.panel",
-      "pageKey": "page-settings",
-      "regionKey": "page-settings.item-3",
-      "nodeId": "set-list",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "个人资料"
-    },
-    {
-      "slotKey": "page-settings.set-profile.row",
-      "pageKey": "page-settings",
-      "regionKey": "page-settings.item-3",
-      "nodeId": "set-profile",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "个人资料"
-    },
-    {
-      "slotKey": "page-settings.set-profile-text.text",
-      "pageKey": "page-settings",
-      "nodeId": "set-profile-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "个人资料"
-    },
-    {
-      "slotKey": "page-settings.set-profile-arrow.text",
-      "pageKey": "page-settings",
-      "nodeId": "set-profile-arrow",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": ">"
-    },
-    {
-      "slotKey": "page-settings.set-account.row",
-      "pageKey": "page-settings",
-      "regionKey": "page-settings.item-3",
-      "nodeId": "set-account",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "账户安全"
-    },
-    {
-      "slotKey": "page-settings.set-account-text.text",
-      "pageKey": "page-settings",
-      "nodeId": "set-account-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "账户安全"
-    },
-    {
-      "slotKey": "page-settings.set-account-arrow.text",
-      "pageKey": "page-settings",
-      "nodeId": "set-account-arrow",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": ">"
-    },
-    {
-      "slotKey": "page-settings.set-notify.row",
-      "pageKey": "page-settings",
-      "regionKey": "page-settings.item-3",
-      "nodeId": "set-notify",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "消息通知"
-    },
-    {
-      "slotKey": "page-settings.set-notify-text.text",
-      "pageKey": "page-settings",
-      "nodeId": "set-notify-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "消息通知"
-    },
-    {
-      "slotKey": "page-settings.set-notify-arrow.text",
-      "pageKey": "page-settings",
-      "nodeId": "set-notify-arrow",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": ">"
-    },
-    {
-      "slotKey": "page-settings.set-about.row",
-      "pageKey": "page-settings",
-      "regionKey": "page-settings.item-3",
-      "nodeId": "set-about",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "关于我们"
-    },
-    {
-      "slotKey": "page-settings.set-about-text.text",
-      "pageKey": "page-settings",
-      "nodeId": "set-about-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "关于我们"
-    },
-    {
-      "slotKey": "page-settings.set-about-arrow.text",
-      "pageKey": "page-settings",
-      "nodeId": "set-about-arrow",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": ">"
-    },
-    {
-      "slotKey": "page-settings.logout-btn.button",
-      "pageKey": "page-settings",
-      "regionKey": "page-settings.item-4",
-      "nodeId": "logout-btn",
+      "slotKey": "page-orders.ftab-2-0",
+      "pageKey": "page-orders",
+      "regionKey": "page-orders.ftabs-0",
+      "nodeId": "ftab-2-0",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "退出登录"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-settings.page-settings-bottom-tabs.tabs",
-      "pageKey": "page-settings",
-      "nodeId": "page-settings-bottom-tabs",
-      "component": "core.tabs",
+      "slotKey": "page-orders.ftab-3-0",
+      "pageKey": "page-orders",
+      "regionKey": "page-orders.ftabs-0",
+      "nodeId": "ftab-3-0",
+      "component": "core.button",
       "editableProps": [
-        "tabs",
-        "activeTab"
+        "label"
       ],
-      "label": "page-settings-bottom-tabs"
+      "label": "按钮"
+    },
+    {
+      "slotKey": "page-orders.order-id-0-1",
+      "pageKey": "page-orders",
+      "regionKey": "page-orders.order-head-0-1",
+      "nodeId": "order-id-0-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-orders.order-status-0-1",
+      "pageKey": "page-orders",
+      "regionKey": "page-orders.order-head-0-1",
+      "nodeId": "order-status-0-1",
+      "component": "core.tag",
+      "editableProps": [
+        "label"
+      ],
+      "label": "标签"
+    },
+    {
+      "slotKey": "page-orders.order-items-0-1",
+      "pageKey": "page-orders",
+      "regionKey": "page-orders.order-0-1",
+      "nodeId": "order-items-0-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-orders.order-time-0-1",
+      "pageKey": "page-orders",
+      "regionKey": "page-orders.order-foot-0-1",
+      "nodeId": "order-time-0-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-orders.order-total-0-1",
+      "pageKey": "page-orders",
+      "regionKey": "page-orders.order-foot-0-1",
+      "nodeId": "order-total-0-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-orders.order-id-1-1",
+      "pageKey": "page-orders",
+      "regionKey": "page-orders.order-head-1-1",
+      "nodeId": "order-id-1-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-orders.order-status-1-1",
+      "pageKey": "page-orders",
+      "regionKey": "page-orders.order-head-1-1",
+      "nodeId": "order-status-1-1",
+      "component": "core.tag",
+      "editableProps": [
+        "label"
+      ],
+      "label": "标签"
+    },
+    {
+      "slotKey": "page-orders.order-items-1-1",
+      "pageKey": "page-orders",
+      "regionKey": "page-orders.order-1-1",
+      "nodeId": "order-items-1-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-orders.order-time-1-1",
+      "pageKey": "page-orders",
+      "regionKey": "page-orders.order-foot-1-1",
+      "nodeId": "order-time-1-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-orders.order-total-1-1",
+      "pageKey": "page-orders",
+      "regionKey": "page-orders.order-foot-1-1",
+      "nodeId": "order-total-1-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-favorites.filter-0-0",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.filter-row-0",
+      "nodeId": "filter-0-0",
+      "component": "core.button",
+      "editableProps": [
+        "label"
+      ],
+      "label": "按钮"
+    },
+    {
+      "slotKey": "page-favorites.filter-1-0",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.filter-row-0",
+      "nodeId": "filter-1-0",
+      "component": "core.button",
+      "editableProps": [
+        "label"
+      ],
+      "label": "按钮"
+    },
+    {
+      "slotKey": "page-favorites.filter-2-0",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.filter-row-0",
+      "nodeId": "filter-2-0",
+      "component": "core.button",
+      "editableProps": [
+        "label"
+      ],
+      "label": "按钮"
+    },
+    {
+      "slotKey": "page-favorites.filter-3-0",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.filter-row-0",
+      "nodeId": "filter-3-0",
+      "component": "core.button",
+      "editableProps": [
+        "label"
+      ],
+      "label": "按钮"
+    },
+    {
+      "slotKey": "page-favorites.fav-g-img-0-1",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.fav-g-0-1",
+      "nodeId": "fav-g-img-0-1",
+      "component": "core.image",
+      "editableProps": [
+        "alt",
+        "title",
+        "iconColor"
+      ],
+      "label": "图片"
+    },
+    {
+      "slotKey": "page-favorites.fav-g-title-0-1",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.fav-g-0-1",
+      "nodeId": "fav-g-title-0-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-favorites.fav-g-price-0-1",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.fav-g-0-1",
+      "nodeId": "fav-g-price-0-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-favorites.fav-g-img-1-1",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.fav-g-1-1",
+      "nodeId": "fav-g-img-1-1",
+      "component": "core.image",
+      "editableProps": [
+        "alt",
+        "title",
+        "iconColor"
+      ],
+      "label": "图片"
+    },
+    {
+      "slotKey": "page-favorites.fav-g-title-1-1",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.fav-g-1-1",
+      "nodeId": "fav-g-title-1-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-favorites.fav-g-price-1-1",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.fav-g-1-1",
+      "nodeId": "fav-g-price-1-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-favorites.fav-g-img-2-1",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.fav-g-2-1",
+      "nodeId": "fav-g-img-2-1",
+      "component": "core.image",
+      "editableProps": [
+        "alt",
+        "title",
+        "iconColor"
+      ],
+      "label": "图片"
+    },
+    {
+      "slotKey": "page-favorites.fav-g-title-2-1",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.fav-g-2-1",
+      "nodeId": "fav-g-title-2-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-favorites.fav-g-price-2-1",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.fav-g-2-1",
+      "nodeId": "fav-g-price-2-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-favorites.fav-g-img-3-1",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.fav-g-3-1",
+      "nodeId": "fav-g-img-3-1",
+      "component": "core.image",
+      "editableProps": [
+        "alt",
+        "title",
+        "iconColor"
+      ],
+      "label": "图片"
+    },
+    {
+      "slotKey": "page-favorites.fav-g-title-3-1",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.fav-g-3-1",
+      "nodeId": "fav-g-title-3-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-favorites.fav-g-price-3-1",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.fav-g-3-1",
+      "nodeId": "fav-g-price-3-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.settings-title-0",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings",
+      "nodeId": "settings-title-账号设置-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-label-0-0",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-0-0",
+      "nodeId": "setting-label-账号设置-0-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-arrow-0-0",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-0-0",
+      "nodeId": "setting-arrow-账号设置-0-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-label-1-0",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-1-0",
+      "nodeId": "setting-label-账号设置-1-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-arrow-1-0",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-1-0",
+      "nodeId": "setting-arrow-账号设置-1-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-label-2-0",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-2-0",
+      "nodeId": "setting-label-账号设置-2-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-arrow-2-0",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-2-0",
+      "nodeId": "setting-arrow-账号设置-2-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.settings-title-2",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings",
+      "nodeId": "settings-title-通用设置-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-label-0-2",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-0-2",
+      "nodeId": "setting-label-通用设置-0-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-arrow-0-2",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-0-2",
+      "nodeId": "setting-arrow-通用设置-0-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-label-1-2",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-1-2",
+      "nodeId": "setting-label-通用设置-1-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-arrow-1-2",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-1-2",
+      "nodeId": "setting-arrow-通用设置-1-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-label-2-2",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-2-2",
+      "nodeId": "setting-label-通用设置-2-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.setting-arrow-2-2",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.setting-2-2",
+      "nodeId": "setting-arrow-通用设置-2-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-settings.abtn-0-4",
+      "pageKey": "page-settings",
+      "regionKey": "page-settings.action-row-inner-4",
+      "nodeId": "abtn-0-4",
+      "component": "core.button",
+      "editableProps": [
+        "label"
+      ],
+      "label": "按钮"
     }
   ],
   "patterns": [
     {
-      "patternKey": "page-home.item.pattern",
+      "patternKey": "page-home.pstat-0-1.item",
       "pageKey": "page-home",
-      "regionKey": "page-home.item",
-      "sourceRootNodeId": "profile-member-row",
-      "parentNodeId": "profile-member-card",
-      "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-home.profile-avatar.image",
-          "prop": "alt"
-        },
-        {
-          "fieldKey": "profile-user-name",
-          "slotKey": "page-home.profile-user-name.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "profile-user-level",
-          "slotKey": "page-home.profile-user-level.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "label",
-          "slotKey": "page-home.profile-member-tag.tag",
-          "prop": "label"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
+      "regionKey": "page-home.pstat-0-1",
+      "sourceRootNodeId": "pstat-val-0-1",
+      "parentNodeId": "pstat-0-1",
+      "itemAlias": "core.text",
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
     },
     {
-      "patternKey": "page-home.item.pattern-2",
+      "patternKey": "page-home.pstat-1-1.item",
       "pageKey": "page-home",
-      "regionKey": "page-home.item-2",
-      "sourceRootNodeId": "profile-order-head",
-      "parentNodeId": "profile-order-strip",
-      "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "profile-order-title",
-          "slotKey": "page-home.profile-order-title.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "profile-order-all",
-          "slotKey": "page-home.profile-order-all.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
+      "regionKey": "page-home.pstat-1-1",
+      "sourceRootNodeId": "pstat-val-1-1",
+      "parentNodeId": "pstat-1-1",
+      "itemAlias": "core.text",
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
     },
     {
-      "patternKey": "page-home.item.pattern-3",
+      "patternKey": "page-home.pstat-2-1.item",
       "pageKey": "page-home",
-      "regionKey": "page-home.item-3",
-      "sourceRootNodeId": "profile-service-0",
-      "parentNodeId": "profile-service-grid",
+      "regionKey": "page-home.pstat-2-1",
+      "sourceRootNodeId": "pstat-val-2-1",
+      "parentNodeId": "pstat-2-1",
+      "itemAlias": "core.text",
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
+    },
+    {
+      "patternKey": "page-home.grid-2.item",
+      "pageKey": "page-home",
+      "regionKey": "page-home.grid-2",
+      "sourceRootNodeId": "tile-0-2",
+      "parentNodeId": "grid-2",
       "itemAlias": "core.panel",
-      "fields": [
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-home.profile-service-icon-0.image",
-          "prop": "alt"
-        },
-        {
-          "fieldKey": "profile-service-title-0",
-          "slotKey": "page-home.profile-service-title-0.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
     },
     {
-      "patternKey": "page-home.item.pattern-4",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-4",
-      "sourceRootNodeId": "profile-growth-title",
-      "parentNodeId": "profile-growth-card",
-      "itemAlias": "core.text",
-      "fields": [
-        {
-          "fieldKey": "profile-growth-title",
-          "slotKey": "page-home.profile-growth-title.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-orders.item.pattern",
-      "pageKey": "page-orders",
-      "regionKey": "page-orders.item-3",
-      "sourceRootNodeId": "orders-title",
-      "parentNodeId": "orders-header",
-      "itemAlias": "core.text",
-      "fields": [
-        {
-          "fieldKey": "orders-title",
-          "slotKey": "page-orders.orders-title.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-orders.item.pattern-2",
-      "pageKey": "page-orders",
-      "regionKey": "page-orders.item-4",
-      "sourceRootNodeId": "tab-all",
-      "parentNodeId": "order-tabs",
-      "itemAlias": "core.text",
-      "fields": [
-        {
-          "fieldKey": "tab-all",
-          "slotKey": "page-orders.tab-all.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-orders.item.pattern-3",
-      "pageKey": "page-orders",
-      "regionKey": "page-orders.item-5",
-      "sourceRootNodeId": "order-card-1",
-      "parentNodeId": "order-list",
-      "itemAlias": "core.panel",
-      "fields": [
-        {
-          "fieldKey": "card1-shop",
-          "slotKey": "page-orders.card1-shop.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "card1-status",
-          "slotKey": "page-orders.card1-status.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-orders.card1-img.image",
-          "prop": "alt"
-        },
-        {
-          "fieldKey": "card1-name",
-          "slotKey": "page-orders.card1-name.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "card1-price",
-          "slotKey": "page-orders.card1-price.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-favorites.item.pattern",
+      "patternKey": "page-favorites.fav-grid-1.item",
       "pageKey": "page-favorites",
-      "regionKey": "page-favorites.item-2",
-      "sourceRootNodeId": "fav-page-title",
-      "parentNodeId": "fav-header",
-      "itemAlias": "core.text",
-      "fields": [
-        {
-          "fieldKey": "fav-page-title",
-          "slotKey": "page-favorites.fav-page-title.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-favorites.item.pattern-2",
-      "pageKey": "page-favorites",
-      "regionKey": "page-favorites.item-3",
-      "sourceRootNodeId": "fav-item-1",
-      "parentNodeId": "fav-grid",
+      "regionKey": "page-favorites.fav-grid-1",
+      "sourceRootNodeId": "fav-g-0-1",
+      "parentNodeId": "fav-grid-1",
       "itemAlias": "core.panel",
-      "fields": [
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-favorites.fav-img-1.image",
-          "prop": "alt"
-        },
-        {
-          "fieldKey": "fav-name-1",
-          "slotKey": "page-favorites.fav-name-1.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "fav-price-1",
-          "slotKey": "page-favorites.fav-price-1.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-settings.item.pattern",
-      "pageKey": "page-settings",
-      "regionKey": "page-settings.item-2",
-      "sourceRootNodeId": "set-page-title",
-      "parentNodeId": "set-header",
-      "itemAlias": "core.text",
-      "fields": [
-        {
-          "fieldKey": "set-page-title",
-          "slotKey": "page-settings.set-page-title.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-settings.item.pattern-2",
-      "pageKey": "page-settings",
-      "regionKey": "page-settings.item-3",
-      "sourceRootNodeId": "set-profile",
-      "parentNodeId": "set-list",
-      "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "set-profile-text",
-          "slotKey": "page-settings.set-profile-text.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "set-profile-arrow",
-          "slotKey": "page-settings.set-profile-arrow.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
     }
   ],
   "navigation": {
     "type": "bottom_tabs",
     "items": [
       {
-        "key": "page-home",
         "label": "个人中心",
-        "pageKey": "page-home",
-        "pageId": "page-home"
+        "targetPageId": "page-home"
       },
       {
-        "key": "page-orders",
         "label": "订单列表",
-        "pageKey": "page-orders",
-        "pageId": "page-orders"
+        "targetPageId": "page-orders"
       },
       {
-        "key": "page-favorites",
         "label": "我的收藏",
-        "pageKey": "page-favorites",
-        "pageId": "page-favorites"
+        "targetPageId": "page-favorites"
       },
       {
-        "key": "page-settings",
         "label": "设置",
-        "pageKey": "page-settings",
-        "pageId": "page-settings"
+        "targetPageId": "page-settings"
       }
     ]
   },
   "constraints": {
-    "devices": [
-      "miniapp",
-      "mobile"
-    ]
+    "maxWidth": "100%"
   },
   "styleProfile": {
-    "colors": [
-      "#6366f1",
-      "#4f46e5",
-      "#818cf8",
-      "#1e293b",
-      "#64748b",
-      "#e2e8f0",
-      "#f8fafc",
-      "#ffffff"
-    ],
+    "colors": [],
     "fontSizes": [],
     "fontWeights": [],
     "spacing": [],
     "radius": [],
     "shadows": [],
-    "commonLayoutPatterns": [
-      "panel",
-      "grid",
-      "biz-hero-banner",
-      "search",
-      "row",
-      "stack",
-      "button"
-    ]
+    "commonLayoutPatterns": []
   }
 }

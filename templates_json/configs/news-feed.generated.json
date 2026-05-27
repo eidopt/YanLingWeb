@@ -1,6 +1,6 @@
 {
   "templateId": "news-feed",
-  "templateVersion": "1",
+  "templateVersion": "1.0.0",
   "profileVersion": "1.0.0",
   "devices": [
     "miniapp",
@@ -12,7 +12,7 @@
       "pageId": "page-home",
       "pageKind": "home",
       "name": "资讯首页",
-      "description": "新闻资讯",
+      "description": "资讯首页",
       "rootNodeId": "page-home-screen",
       "isDefault": true
     },
@@ -21,14 +21,14 @@
       "pageId": "page-detail",
       "pageKind": "detail",
       "name": "新闻详情",
-      "description": "2024年科技发展新趋势：智能将如何改变我们的生活",
+      "description": "新闻详情",
       "rootNodeId": "page-detail-screen",
       "isDefault": false
     },
     {
       "pageKey": "page-topic",
       "pageId": "page-topic",
-      "pageKind": "unknown",
+      "pageKind": "list",
       "name": "专题频道",
       "description": "专题频道",
       "rootNodeId": "page-topic-screen",
@@ -37,1951 +37,850 @@
     {
       "pageKey": "page-favorites",
       "pageId": "page-favorites",
-      "pageKind": "unknown",
-      "name": "评论收藏",
-      "description": "我的收藏",
+      "pageKind": "list",
+      "name": "收藏评论",
+      "description": "收藏评论",
       "rootNodeId": "page-favorites-screen",
       "isDefault": false
     }
   ],
   "regions": [
     {
-      "regionKey": "page-home.item",
+      "regionKey": "page-home.breaking-0",
       "pageKey": "page-home",
-      "nodeId": "news-flash-card",
-      "name": "快讯",
+      "nodeId": "breaking-0",
+      "name": "core.panel",
       "sectionKind": "panel",
       "replaceable": true
     },
     {
-      "regionKey": "page-home.item-2",
+      "regionKey": "page-home.chip-row-1",
       "pageKey": "page-home",
-      "nodeId": "news-channel-row",
-      "name": "关注",
+      "nodeId": "chip-row-1",
+      "name": "core.row",
       "sectionKind": "row",
       "replaceable": true
     },
     {
-      "regionKey": "page-home.item-3",
+      "regionKey": "page-home.news-list-2",
       "pageKey": "page-home",
-      "nodeId": "news-topic-grid",
-      "name": "热点追踪图标",
+      "nodeId": "news-list-2",
+      "name": "core.stack",
+      "sectionKind": "stack",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-home.news-0-2",
+      "pageKey": "page-home",
+      "nodeId": "news-0-2",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-home.news-1-2",
+      "pageKey": "page-home",
+      "nodeId": "news-1-2",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-home.news-2-2",
+      "pageKey": "page-home",
+      "nodeId": "news-2-2",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-home.bottom-tabs",
+      "pageKey": "page-home",
+      "nodeId": "page-home-bottom-tabs",
+      "name": "core.tabs",
+      "sectionKind": "tabs",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.art-header-0",
+      "pageKey": "page-detail",
+      "nodeId": "art-header-0",
+      "name": "core.stack",
+      "sectionKind": "stack",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.art-meta-0",
+      "pageKey": "page-detail",
+      "nodeId": "art-meta-0",
+      "name": "core.row",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.art-body-1",
+      "pageKey": "page-detail",
+      "nodeId": "art-body-1",
+      "name": "core.stack",
+      "sectionKind": "stack",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.related-0-2",
+      "pageKey": "page-detail",
+      "nodeId": "related-0-2",
+      "name": "core.panel",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.related-1-2",
+      "pageKey": "page-detail",
+      "nodeId": "related-1-2",
+      "name": "core.panel",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.bottom-tabs",
+      "pageKey": "page-detail",
+      "nodeId": "page-detail-bottom-tabs",
+      "name": "core.tabs",
+      "sectionKind": "tabs",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-topic.topic-head-0",
+      "pageKey": "page-topic",
+      "nodeId": "topic-head-0",
+      "name": "core.stack",
+      "sectionKind": "stack",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-topic.topics-grid-1",
+      "pageKey": "page-topic",
+      "nodeId": "topics-grid-1",
+      "name": "core.grid",
       "sectionKind": "grid",
       "replaceable": true
     },
     {
-      "regionKey": "page-home.item-4",
-      "pageKey": "page-home",
-      "nodeId": "news-waterfall-list",
-      "name": "社区商业街完成改造",
-      "sectionKind": "stack",
-      "replaceable": true
-    },
-    {
-      "regionKey": "page-detail.item",
-      "pageKey": "page-detail",
-      "nodeId": "page-detail-hero-banner",
-      "name": "新闻详情",
-      "sectionKind": "biz-hero-banner",
-      "replaceable": false
-    },
-    {
-      "regionKey": "page-detail.item-2",
-      "pageKey": "page-detail",
-      "nodeId": "detail-cover",
-      "name": "业务视觉元素",
-      "sectionKind": "image",
-      "replaceable": false
-    },
-    {
-      "regionKey": "page-detail.k-2024",
-      "pageKey": "page-detail",
-      "nodeId": "detail-header",
-      "name": "2024年科技发展新趋势：智能将如何改变我们的生活",
+      "regionKey": "page-topic.topic-0-1",
+      "pageKey": "page-topic",
+      "nodeId": "topic-0-1",
+      "name": "core.panel",
       "sectionKind": "panel",
       "replaceable": true
     },
     {
-      "regionKey": "page-detail.k-2024-2",
-      "pageKey": "page-detail",
-      "nodeId": "detail-content",
-      "name": "在快速发展的科技领域，2024年注定是不平凡的一年。人工智能技术的突破性进展正在深刻改变着我们的生活方式和工作模式。",
+      "regionKey": "page-topic.topic-1-1",
+      "pageKey": "page-topic",
+      "nodeId": "topic-1-1",
+      "name": "core.panel",
       "sectionKind": "panel",
       "replaceable": true
     },
     {
-      "regionKey": "page-detail.item-3",
-      "pageKey": "page-detail",
-      "nodeId": "detail-actions",
-      "name": "图标",
+      "regionKey": "page-topic.topic-2-1",
+      "pageKey": "page-topic",
+      "nodeId": "topic-2-1",
+      "name": "core.panel",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-topic.topic-3-1",
+      "pageKey": "page-topic",
+      "nodeId": "topic-3-1",
+      "name": "core.panel",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-topic.bottom-tabs",
+      "pageKey": "page-topic",
+      "nodeId": "page-topic-bottom-tabs",
+      "name": "core.tabs",
+      "sectionKind": "tabs",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-favorites.ftabs-0",
+      "pageKey": "page-favorites",
+      "nodeId": "ftabs-0",
+      "name": "core.row",
       "sectionKind": "row",
       "replaceable": true
     },
     {
-      "regionKey": "page-detail.item-4",
-      "pageKey": "page-detail",
-      "nodeId": "page-detail-primary-action",
-      "name": "继续阅读",
-      "sectionKind": "button",
-      "replaceable": false
-    },
-    {
-      "regionKey": "page-topic.item",
-      "pageKey": "page-topic",
-      "nodeId": "page-topic-hero-banner",
-      "name": "专题频道",
-      "sectionKind": "biz-hero-banner",
-      "replaceable": false
-    },
-    {
-      "regionKey": "page-topic.item-2",
-      "pageKey": "page-topic",
-      "nodeId": "topic-header",
-      "name": "专题频道",
-      "sectionKind": "panel",
-      "replaceable": true
-    },
-    {
-      "regionKey": "page-topic.item-3",
-      "pageKey": "page-topic",
-      "nodeId": "featured-topic",
-      "name": "业务视觉元素",
-      "sectionKind": "panel",
-      "replaceable": true
-    },
-    {
-      "regionKey": "page-topic.item-4",
-      "pageKey": "page-topic",
-      "nodeId": "topic-list",
-      "name": "业务视觉元素",
+      "regionKey": "page-favorites.fav-list-1",
+      "pageKey": "page-favorites",
+      "nodeId": "fav-list-1",
+      "name": "core.stack",
       "sectionKind": "stack",
       "replaceable": true
     },
     {
-      "regionKey": "page-topic.item-5",
-      "pageKey": "page-topic",
-      "nodeId": "page-topic-primary-action",
-      "name": "继续阅读",
-      "sectionKind": "button",
-      "replaceable": false
-    },
-    {
-      "regionKey": "page-favorites.item",
+      "regionKey": "page-favorites.fav-0-1",
       "pageKey": "page-favorites",
-      "nodeId": "page-favorites-hero-banner",
-      "name": "评论收藏",
-      "sectionKind": "biz-hero-banner",
-      "replaceable": false
-    },
-    {
-      "regionKey": "page-favorites.item-2",
-      "pageKey": "page-favorites",
-      "nodeId": "fav-header",
-      "name": "我的收藏",
-      "sectionKind": "panel",
-      "replaceable": true
-    },
-    {
-      "regionKey": "page-favorites.item-3",
-      "pageKey": "page-favorites",
-      "nodeId": "fav-tabs",
-      "name": "收藏文章",
+      "nodeId": "fav-0-1",
+      "name": "core.row",
       "sectionKind": "row",
       "replaceable": true
     },
     {
-      "regionKey": "page-favorites.item-4",
+      "regionKey": "page-favorites.fav-1-1",
       "pageKey": "page-favorites",
-      "nodeId": "fav-list",
-      "name": "智能技术发展新趋势分析",
-      "sectionKind": "stack",
+      "nodeId": "fav-1-1",
+      "name": "core.row",
+      "sectionKind": "row",
       "replaceable": true
     },
     {
-      "regionKey": "page-favorites.item-5",
+      "regionKey": "page-favorites.bottom-tabs",
       "pageKey": "page-favorites",
-      "nodeId": "page-favorites-primary-action",
-      "name": "查看最新资讯",
-      "sectionKind": "button",
-      "replaceable": false
+      "nodeId": "page-favorites-bottom-tabs",
+      "name": "core.tabs",
+      "sectionKind": "tabs",
+      "replaceable": true
     }
   ],
   "slots": [
     {
-      "slotKey": "page-home.page-home-screen.screen",
+      "slotKey": "page-home.breaking-tag-0",
       "pageKey": "page-home",
-      "nodeId": "page-home-screen",
-      "component": "core.screen",
-      "editableProps": [
-        "title",
-        "statusTime",
-        "headerActionLabel"
-      ],
-      "label": "资讯首页"
-    },
-    {
-      "slotKey": "page-home.news-flash-card.panel",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item",
-      "nodeId": "news-flash-card",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "快讯"
-    },
-    {
-      "slotKey": "page-home.news-flash-top.row",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item",
-      "nodeId": "news-flash-top",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "快讯"
-    },
-    {
-      "slotKey": "page-home.news-flash-tag.tag",
-      "pageKey": "page-home",
-      "nodeId": "news-flash-tag",
+      "regionKey": "page-home.breaking-0",
+      "nodeId": "breaking-tag-0",
       "component": "core.tag",
       "editableProps": [
-        "label",
-        "tone"
+        "label"
       ],
-      "label": "快讯"
+      "label": "标签"
     },
     {
-      "slotKey": "page-home.news-flash-time.text",
+      "slotKey": "page-home.breaking-title-0",
       "pageKey": "page-home",
-      "nodeId": "news-flash-time",
+      "regionKey": "page-home.breaking-0",
+      "nodeId": "breaking-title-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "刚刚"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.news-flash-title.text",
+      "slotKey": "page-home.breaking-time-0",
       "pageKey": "page-home",
-      "regionKey": "page-home.item",
-      "nodeId": "news-flash-title",
+      "regionKey": "page-home.breaking-0",
+      "nodeId": "breaking-time-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "城市低空航线试运行，首批站点公布"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.news-flash-desc.text",
+      "slotKey": "page-home.chip-0-1",
       "pageKey": "page-home",
-      "regionKey": "page-home.item",
-      "nodeId": "news-flash-desc",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "滚动更新 · 12 条相关报道"
-    },
-    {
-      "slotKey": "page-home.news-channel-row.row",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-2",
-      "nodeId": "news-channel-row",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "关注"
-    },
-    {
-      "slotKey": "page-home.news-channel-0.button",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-2",
-      "nodeId": "news-channel-0",
+      "regionKey": "page-home.chip-row-1",
+      "nodeId": "chip-0-1",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "关注"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-home.news-channel-1.button",
+      "slotKey": "page-home.chip-1-1",
       "pageKey": "page-home",
-      "regionKey": "page-home.item-2",
-      "nodeId": "news-channel-1",
+      "regionKey": "page-home.chip-row-1",
+      "nodeId": "chip-1-1",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "本地"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-home.news-channel-2.button",
+      "slotKey": "page-home.chip-2-1",
       "pageKey": "page-home",
-      "regionKey": "page-home.item-2",
-      "nodeId": "news-channel-2",
+      "regionKey": "page-home.chip-row-1",
+      "nodeId": "chip-2-1",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "科技"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-home.news-channel-3.button",
+      "slotKey": "page-home.chip-3-1",
       "pageKey": "page-home",
-      "regionKey": "page-home.item-2",
-      "nodeId": "news-channel-3",
+      "regionKey": "page-home.chip-row-1",
+      "nodeId": "chip-3-1",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "财经"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-home.news-channel-4.button",
+      "slotKey": "page-home.chip-4-1",
       "pageKey": "page-home",
-      "regionKey": "page-home.item-2",
-      "nodeId": "news-channel-4",
+      "regionKey": "page-home.chip-row-1",
+      "nodeId": "chip-4-1",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "生活"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-home.news-channel-5.button",
+      "slotKey": "page-home.chip-5-1",
       "pageKey": "page-home",
-      "regionKey": "page-home.item-2",
-      "nodeId": "news-channel-5",
+      "regionKey": "page-home.chip-row-1",
+      "nodeId": "chip-5-1",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "视频"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-home.news-topic-grid.grid",
+      "slotKey": "page-home.news-title-0-2",
       "pageKey": "page-home",
-      "regionKey": "page-home.item-3",
-      "nodeId": "news-topic-grid",
-      "component": "core.grid",
+      "regionKey": "page-home.news-0-2",
+      "nodeId": "news-title-0-2",
+      "component": "core.text",
       "editableProps": [
-        "gap",
-        "columns"
+        "text"
       ],
-      "label": "热点追踪图标"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.news-topic-0.panel",
+      "slotKey": "page-home.news-src-0-2",
       "pageKey": "page-home",
-      "regionKey": "page-home.item-3",
-      "nodeId": "news-topic-0",
-      "component": "core.panel",
+      "regionKey": "page-home.news-0-2",
+      "nodeId": "news-src-0-2",
+      "component": "core.text",
       "editableProps": [
-        "tone",
-        "gap",
-        "title"
+        "text"
       ],
-      "label": "热点追踪图标"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.news-topic-icon-0.image",
+      "slotKey": "page-home.news-time-0-2",
       "pageKey": "page-home",
-      "nodeId": "news-topic-icon-0",
+      "regionKey": "page-home.news-0-2",
+      "nodeId": "news-time-0-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-home.news-hot-0-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.news-0-2",
+      "nodeId": "news-hot-0-2",
+      "component": "core.tag",
+      "editableProps": [
+        "label"
+      ],
+      "label": "标签"
+    },
+    {
+      "slotKey": "page-home.news-title-1-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.news-1-2",
+      "nodeId": "news-title-1-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-home.news-src-1-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.news-1-2",
+      "nodeId": "news-src-1-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-home.news-time-1-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.news-1-2",
+      "nodeId": "news-time-1-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-home.news-title-2-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.news-2-2",
+      "nodeId": "news-title-2-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-home.news-src-2-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.news-2-2",
+      "nodeId": "news-src-2-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-home.news-time-2-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.news-2-2",
+      "nodeId": "news-time-2-2",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-detail.art-title-0",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.art-header-0",
+      "nodeId": "art-title-0",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-detail.art-avatar-0",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.art-meta-0",
+      "nodeId": "art-avatar-0",
       "component": "core.image",
       "editableProps": [
-        "src",
         "alt",
         "title",
-        "iconColor",
-        "objectFit"
+        "iconColor"
       ],
-      "label": "热点追踪图标"
+      "label": "图片"
     },
     {
-      "slotKey": "page-home.news-topic-title-0.text",
-      "pageKey": "page-home",
-      "nodeId": "news-topic-title-0",
+      "slotKey": "page-detail.art-author-0",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.art-meta-0",
+      "nodeId": "art-author-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "热点追踪"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.news-topic-1.panel",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-3",
-      "nodeId": "news-topic-1",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "深度专题图标"
-    },
-    {
-      "slotKey": "page-home.news-topic-icon-1.image",
-      "pageKey": "page-home",
-      "nodeId": "news-topic-icon-1",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "深度专题图标"
-    },
-    {
-      "slotKey": "page-home.news-topic-title-1.text",
-      "pageKey": "page-home",
-      "nodeId": "news-topic-title-1",
+      "slotKey": "page-detail.art-date-0",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.art-meta-0",
+      "nodeId": "art-date-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "深度专题"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.news-topic-2.panel",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-3",
-      "nodeId": "news-topic-2",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "视频新闻图标"
-    },
-    {
-      "slotKey": "page-home.news-topic-icon-2.image",
-      "pageKey": "page-home",
-      "nodeId": "news-topic-icon-2",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "视频新闻图标"
-    },
-    {
-      "slotKey": "page-home.news-topic-title-2.text",
-      "pageKey": "page-home",
-      "nodeId": "news-topic-title-2",
+      "slotKey": "page-detail.p-0-1",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.art-body-1",
+      "nodeId": "p-0-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "视频新闻"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.news-topic-3.panel",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-3",
-      "nodeId": "news-topic-3",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "早晚报图标"
-    },
-    {
-      "slotKey": "page-home.news-topic-icon-3.image",
-      "pageKey": "page-home",
-      "nodeId": "news-topic-icon-3",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "早晚报图标"
-    },
-    {
-      "slotKey": "page-home.news-topic-title-3.text",
-      "pageKey": "page-home",
-      "nodeId": "news-topic-title-3",
+      "slotKey": "page-detail.p-1-1",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.art-body-1",
+      "nodeId": "p-1-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "早晚报"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.news-waterfall-list.stack",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-4",
-      "nodeId": "news-waterfall-list",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "社区商业街完成改造"
-    },
-    {
-      "slotKey": "page-home.news-item-0.row",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-4",
-      "nodeId": "news-item-0",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "社区商业街完成改造"
-    },
-    {
-      "slotKey": "page-home.news-item-copy-0.stack",
-      "pageKey": "page-home",
-      "nodeId": "news-item-copy-0",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "社区商业街完成改造"
-    },
-    {
-      "slotKey": "page-home.news-item-title-0.text",
-      "pageKey": "page-home",
-      "nodeId": "news-item-title-0",
+      "slotKey": "page-detail.related-title-2",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail",
+      "nodeId": "related-title-2",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "社区商业街完成改造"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.news-item-meta-0.text",
-      "pageKey": "page-home",
-      "nodeId": "news-item-meta-0",
+      "slotKey": "page-detail.related-t-0-2",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.related-0-2",
+      "nodeId": "related-t-0-2",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "1小时前 · 1200 阅读"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.news-item-img-0.image",
-      "pageKey": "page-home",
-      "nodeId": "news-item-img-0",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "新闻缩略图"
-    },
-    {
-      "slotKey": "page-home.news-item-1.row",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-4",
-      "nodeId": "news-item-1",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "新能源车补能地图上线"
-    },
-    {
-      "slotKey": "page-home.news-item-copy-1.stack",
-      "pageKey": "page-home",
-      "nodeId": "news-item-copy-1",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "新能源车补能地图上线"
-    },
-    {
-      "slotKey": "page-home.news-item-title-1.text",
-      "pageKey": "page-home",
-      "nodeId": "news-item-title-1",
+      "slotKey": "page-detail.related-t-1-2",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.related-1-2",
+      "nodeId": "related-t-1-2",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "新能源车补能地图上线"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.news-item-meta-1.text",
-      "pageKey": "page-home",
-      "nodeId": "news-item-meta-1",
+      "slotKey": "page-topic.topic-title-0",
+      "pageKey": "page-topic",
+      "regionKey": "page-topic.topic-head-0",
+      "nodeId": "topic-title-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "2小时前 · 1560 阅读"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.news-item-img-1.image",
-      "pageKey": "page-home",
-      "nodeId": "news-item-img-1",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "新闻缩略图"
-    },
-    {
-      "slotKey": "page-home.news-item-2.row",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-4",
-      "nodeId": "news-item-2",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "青年夜校新增 20 门课程"
-    },
-    {
-      "slotKey": "page-home.news-item-copy-2.stack",
-      "pageKey": "page-home",
-      "nodeId": "news-item-copy-2",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "青年夜校新增 20 门课程"
-    },
-    {
-      "slotKey": "page-home.news-item-title-2.text",
-      "pageKey": "page-home",
-      "nodeId": "news-item-title-2",
+      "slotKey": "page-topic.topic-count-0",
+      "pageKey": "page-topic",
+      "regionKey": "page-topic.topic-head-0",
+      "nodeId": "topic-count-0",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "青年夜校新增 20 门课程"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.news-item-meta-2.text",
-      "pageKey": "page-home",
-      "nodeId": "news-item-meta-2",
+      "slotKey": "page-topic.topic-name-0-1",
+      "pageKey": "page-topic",
+      "regionKey": "page-topic.topic-0-1",
+      "nodeId": "topic-name-0-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "3小时前 · 1920 阅读"
+      "label": "文本"
     },
     {
-      "slotKey": "page-home.news-item-img-2.image",
-      "pageKey": "page-home",
-      "nodeId": "news-item-img-2",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "新闻缩略图"
-    },
-    {
-      "slotKey": "page-home.page-home-bottom-tabs.tabs",
-      "pageKey": "page-home",
-      "nodeId": "page-home-bottom-tabs",
-      "component": "core.tabs",
-      "editableProps": [
-        "tabs",
-        "activeTab"
-      ],
-      "label": "page-home-bottom-tabs"
-    },
-    {
-      "slotKey": "page-detail.page-detail-screen.screen",
-      "pageKey": "page-detail",
-      "nodeId": "page-detail-screen",
-      "component": "core.screen",
-      "editableProps": [
-        "title",
-        "statusTime",
-        "headerActionLabel"
-      ],
-      "label": "新闻详情"
-    },
-    {
-      "slotKey": "page-detail.detail-cover.image",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-2",
-      "nodeId": "detail-cover",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-detail.detail-header.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.k-2024",
-      "nodeId": "detail-header",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "2024年科技发展新趋势：智能将如何改变我们的生活"
-    },
-    {
-      "slotKey": "page-detail.detail-title.text",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.k-2024",
-      "nodeId": "detail-title",
+      "slotKey": "page-topic.topic-count-0-1",
+      "pageKey": "page-topic",
+      "regionKey": "page-topic.topic-0-1",
+      "nodeId": "topic-count-0-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "2024年科技发展新趋势：智能将如何改变我们的生活"
+      "label": "文本"
     },
     {
-      "slotKey": "page-detail.detail-meta.row",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.k-2024",
-      "nodeId": "detail-meta",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-detail.detail-source.row",
-      "pageKey": "page-detail",
-      "nodeId": "detail-source",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-detail.source-avatar.image",
-      "pageKey": "page-detail",
-      "nodeId": "source-avatar",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-detail.source-name.text",
-      "pageKey": "page-detail",
-      "nodeId": "source-name",
+      "slotKey": "page-topic.topic-name-1-1",
+      "pageKey": "page-topic",
+      "regionKey": "page-topic.topic-1-1",
+      "nodeId": "topic-name-1-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "科技日报"
+      "label": "文本"
     },
     {
-      "slotKey": "page-detail.detail-time.text",
-      "pageKey": "page-detail",
-      "nodeId": "detail-time",
+      "slotKey": "page-topic.topic-count-1-1",
+      "pageKey": "page-topic",
+      "regionKey": "page-topic.topic-1-1",
+      "nodeId": "topic-count-1-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "2小时前"
+      "label": "文本"
     },
     {
-      "slotKey": "page-detail.detail-views.text",
-      "pageKey": "page-detail",
-      "nodeId": "detail-views",
+      "slotKey": "page-topic.topic-name-2-1",
+      "pageKey": "page-topic",
+      "regionKey": "page-topic.topic-2-1",
+      "nodeId": "topic-name-2-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "3.2万阅读"
+      "label": "文本"
     },
     {
-      "slotKey": "page-detail.detail-content.panel",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.k-2024-2",
-      "nodeId": "detail-content",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "在快速发展的科技领域，2024年注定是不平凡的一年。人工智能技术的突破性进展正在深刻改变着我们的生活方式和工作模式。"
-    },
-    {
-      "slotKey": "page-detail.content-p1.text",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.k-2024-2",
-      "nodeId": "content-p1",
+      "slotKey": "page-topic.topic-count-2-1",
+      "pageKey": "page-topic",
+      "regionKey": "page-topic.topic-2-1",
+      "nodeId": "topic-count-2-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "在快速发展的科技领域，2024年注定是不平凡的一年。人工智能技术的突破性进展正在深刻改变着我们的生活方式和工作模式。"
+      "label": "文本"
     },
     {
-      "slotKey": "page-detail.content-p2.text",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.k-2024-2",
-      "nodeId": "content-p2",
+      "slotKey": "page-topic.topic-name-3-1",
+      "pageKey": "page-topic",
+      "regionKey": "page-topic.topic-3-1",
+      "nodeId": "topic-name-3-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "从智能家居到自动驾驶，从医疗诊断到金融风控，智能技术的应用场景正在不断扩展。专家预测，未来五年内，智能将在更多领域实现商业化落地。"
+      "label": "文本"
     },
     {
-      "slotKey": "page-detail.content-img.image",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.k-2024-2",
-      "nodeId": "content-img",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-detail.content-p3.text",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.k-2024-2",
-      "nodeId": "content-p3",
+      "slotKey": "page-topic.topic-count-3-1",
+      "pageKey": "page-topic",
+      "regionKey": "page-topic.topic-3-1",
+      "nodeId": "topic-count-3-1",
       "component": "core.text",
       "editableProps": [
-        "text",
-        "variant",
-        "as"
+        "text"
       ],
-      "label": "然而，智能技术的快速发展也带来了一系列挑战。数据隐私、算法偏见、就业替代等问题引发了广泛讨论。如何在推动技术进步的同时保障社会公平，成为各国政府和企业面临的重要"
+      "label": "文本"
     },
     {
-      "slotKey": "page-detail.detail-actions.row",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-3",
-      "nodeId": "detail-actions",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "图标"
-    },
-    {
-      "slotKey": "page-detail.action-like.row",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-3",
-      "nodeId": "action-like",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "图标"
-    },
-    {
-      "slotKey": "page-detail.like-icon.image",
-      "pageKey": "page-detail",
-      "nodeId": "like-icon",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "图标"
-    },
-    {
-      "slotKey": "page-detail.like-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "like-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "1.2k"
-    },
-    {
-      "slotKey": "page-detail.action-comment.row",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-3",
-      "nodeId": "action-comment",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "图标"
-    },
-    {
-      "slotKey": "page-detail.comment-icon.image",
-      "pageKey": "page-detail",
-      "nodeId": "comment-icon",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "图标"
-    },
-    {
-      "slotKey": "page-detail.comment-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "comment-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "328"
-    },
-    {
-      "slotKey": "page-detail.action-fav.row",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-3",
-      "nodeId": "action-fav",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "图标"
-    },
-    {
-      "slotKey": "page-detail.fav-icon.image",
-      "pageKey": "page-detail",
-      "nodeId": "fav-icon",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "图标"
-    },
-    {
-      "slotKey": "page-detail.fav-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "fav-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "收藏"
-    },
-    {
-      "slotKey": "page-detail.action-share.row",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-3",
-      "nodeId": "action-share",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "图标"
-    },
-    {
-      "slotKey": "page-detail.share-icon.image",
-      "pageKey": "page-detail",
-      "nodeId": "share-icon",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "图标"
-    },
-    {
-      "slotKey": "page-detail.share-text.text",
-      "pageKey": "page-detail",
-      "nodeId": "share-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "分享"
-    },
-    {
-      "slotKey": "page-detail.page-detail-primary-action.button",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-4",
-      "nodeId": "page-detail-primary-action",
+      "slotKey": "page-favorites.ftab-0-0",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.ftabs-0",
+      "nodeId": "ftab-0-0",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "继续阅读"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-detail.page-detail-bottom-tabs.tabs",
-      "pageKey": "page-detail",
-      "nodeId": "page-detail-bottom-tabs",
-      "component": "core.tabs",
-      "editableProps": [
-        "tabs",
-        "activeTab"
-      ],
-      "label": "page-detail-bottom-tabs"
-    },
-    {
-      "slotKey": "page-topic.page-topic-screen.screen",
-      "pageKey": "page-topic",
-      "nodeId": "page-topic-screen",
-      "component": "core.screen",
-      "editableProps": [
-        "title",
-        "statusTime",
-        "headerActionLabel"
-      ],
-      "label": "专题频道"
-    },
-    {
-      "slotKey": "page-topic.topic-header.panel",
-      "pageKey": "page-topic",
-      "regionKey": "page-topic.item-2",
-      "nodeId": "topic-header",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "专题频道"
-    },
-    {
-      "slotKey": "page-topic.topic-title.text",
-      "pageKey": "page-topic",
-      "regionKey": "page-topic.item-2",
-      "nodeId": "topic-title",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "专题频道"
-    },
-    {
-      "slotKey": "page-topic.featured-topic.panel",
-      "pageKey": "page-topic",
-      "regionKey": "page-topic.item-3",
-      "nodeId": "featured-topic",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-topic.ft-img.image",
-      "pageKey": "page-topic",
-      "regionKey": "page-topic.item-3",
-      "nodeId": "ft-img",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-topic.ft-overlay.panel",
-      "pageKey": "page-topic",
-      "regionKey": "page-topic.item-3",
-      "nodeId": "ft-overlay",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "精选专题"
-    },
-    {
-      "slotKey": "page-topic.ft-tag.panel",
-      "pageKey": "page-topic",
-      "nodeId": "ft-tag",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "精选专题"
-    },
-    {
-      "slotKey": "page-topic.ft-tag-text.text",
-      "pageKey": "page-topic",
-      "nodeId": "ft-tag-text",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "精选专题"
-    },
-    {
-      "slotKey": "page-topic.ft-title.text",
-      "pageKey": "page-topic",
-      "nodeId": "ft-title",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "2024科技趋势深度解读"
-    },
-    {
-      "slotKey": "page-topic.ft-desc.text",
-      "pageKey": "page-topic",
-      "nodeId": "ft-desc",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "12篇文章 · 5.6万阅读"
-    },
-    {
-      "slotKey": "page-topic.topic-list.stack",
-      "pageKey": "page-topic",
-      "regionKey": "page-topic.item-4",
-      "nodeId": "topic-list",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-topic.topic-item.row",
-      "pageKey": "page-topic",
-      "regionKey": "page-topic.item-4",
-      "nodeId": "topic-item",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-topic.ti-img.image",
-      "pageKey": "page-topic",
-      "nodeId": "ti-img",
-      "component": "core.image",
-      "editableProps": [
-        "src",
-        "alt",
-        "title",
-        "iconColor",
-        "objectFit"
-      ],
-      "label": "业务视觉元素"
-    },
-    {
-      "slotKey": "page-topic.ti-info.stack",
-      "pageKey": "page-topic",
-      "nodeId": "ti-info",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "人工智能应用专题"
-    },
-    {
-      "slotKey": "page-topic.ti-title.text",
-      "pageKey": "page-topic",
-      "nodeId": "ti-title",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "人工智能应用专题"
-    },
-    {
-      "slotKey": "page-topic.ti-desc.text",
-      "pageKey": "page-topic",
-      "nodeId": "ti-desc",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "8篇文章 · 2.3万阅读"
-    },
-    {
-      "slotKey": "page-topic.page-topic-primary-action.button",
-      "pageKey": "page-topic",
-      "regionKey": "page-topic.item-5",
-      "nodeId": "page-topic-primary-action",
+      "slotKey": "page-favorites.ftab-1-0",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.ftabs-0",
+      "nodeId": "ftab-1-0",
       "component": "core.button",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "label"
       ],
-      "label": "继续阅读"
+      "label": "按钮"
     },
     {
-      "slotKey": "page-topic.page-topic-bottom-tabs.tabs",
-      "pageKey": "page-topic",
-      "nodeId": "page-topic-bottom-tabs",
-      "component": "core.tabs",
-      "editableProps": [
-        "tabs",
-        "activeTab"
-      ],
-      "label": "page-topic-bottom-tabs"
-    },
-    {
-      "slotKey": "page-favorites.page-favorites-screen.screen",
+      "slotKey": "page-favorites.fav-img-0-1",
       "pageKey": "page-favorites",
-      "nodeId": "page-favorites-screen",
-      "component": "core.screen",
-      "editableProps": [
-        "title",
-        "statusTime",
-        "headerActionLabel"
-      ],
-      "label": "评论收藏"
-    },
-    {
-      "slotKey": "page-favorites.fav-header.panel",
-      "pageKey": "page-favorites",
-      "regionKey": "page-favorites.item-2",
-      "nodeId": "fav-header",
-      "component": "core.panel",
-      "editableProps": [
-        "tone",
-        "gap",
-        "title"
-      ],
-      "label": "我的收藏"
-    },
-    {
-      "slotKey": "page-favorites.fav-title.text",
-      "pageKey": "page-favorites",
-      "regionKey": "page-favorites.item-2",
-      "nodeId": "fav-title",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "我的收藏"
-    },
-    {
-      "slotKey": "page-favorites.fav-tabs.row",
-      "pageKey": "page-favorites",
-      "regionKey": "page-favorites.item-3",
-      "nodeId": "fav-tabs",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "收藏文章"
-    },
-    {
-      "slotKey": "page-favorites.tab-fav-article.text",
-      "pageKey": "page-favorites",
-      "regionKey": "page-favorites.item-3",
-      "nodeId": "tab-fav-article",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "收藏文章"
-    },
-    {
-      "slotKey": "page-favorites.tab-fav-comment.text",
-      "pageKey": "page-favorites",
-      "regionKey": "page-favorites.item-3",
-      "nodeId": "tab-fav-comment",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "我的评论"
-    },
-    {
-      "slotKey": "page-favorites.fav-list.stack",
-      "pageKey": "page-favorites",
-      "regionKey": "page-favorites.item-4",
-      "nodeId": "fav-list",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "智能技术发展新趋势分析"
-    },
-    {
-      "slotKey": "page-favorites.fav-item-1.row",
-      "pageKey": "page-favorites",
-      "regionKey": "page-favorites.item-4",
-      "nodeId": "fav-item-1",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "智能技术发展新趋势分析"
-    },
-    {
-      "slotKey": "page-favorites.fi1-content.stack",
-      "pageKey": "page-favorites",
-      "nodeId": "fi1-content",
-      "component": "core.stack",
-      "editableProps": [
-        "gap",
-        "alignItems"
-      ],
-      "label": "智能技术发展新趋势分析"
-    },
-    {
-      "slotKey": "page-favorites.fi1-title.text",
-      "pageKey": "page-favorites",
-      "nodeId": "fi1-title",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "智能技术发展新趋势分析"
-    },
-    {
-      "slotKey": "page-favorites.fi1-meta.row",
-      "pageKey": "page-favorites",
-      "nodeId": "fi1-meta",
-      "component": "core.row",
-      "editableProps": [
-        "gap",
-        "wrap",
-        "justify",
-        "align",
-        "tone"
-      ],
-      "label": "科技日报"
-    },
-    {
-      "slotKey": "page-favorites.fi1-source.text",
-      "pageKey": "page-favorites",
-      "nodeId": "fi1-source",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "科技日报"
-    },
-    {
-      "slotKey": "page-favorites.fi1-time.text",
-      "pageKey": "page-favorites",
-      "nodeId": "fi1-time",
-      "component": "core.text",
-      "editableProps": [
-        "text",
-        "variant",
-        "as"
-      ],
-      "label": "收藏于 2天前"
-    },
-    {
-      "slotKey": "page-favorites.fi1-img.image",
-      "pageKey": "page-favorites",
-      "nodeId": "fi1-img",
+      "regionKey": "page-favorites.fav-0-1",
+      "nodeId": "fav-img-0-1",
       "component": "core.image",
       "editableProps": [
-        "src",
         "alt",
         "title",
-        "iconColor",
-        "objectFit"
+        "iconColor"
       ],
-      "label": "业务视觉元素"
+      "label": "图片"
     },
     {
-      "slotKey": "page-favorites.page-favorites-primary-action.button",
+      "slotKey": "page-favorites.fav-title-0-1",
       "pageKey": "page-favorites",
-      "regionKey": "page-favorites.item-5",
-      "nodeId": "page-favorites-primary-action",
-      "component": "core.button",
+      "regionKey": "page-favorites.fav-0-1",
+      "nodeId": "fav-title-0-1",
+      "component": "core.text",
       "editableProps": [
-        "label",
-        "variant",
-        "active",
-        "disabled",
-        "icon"
+        "text"
       ],
-      "label": "查看最新资讯"
+      "label": "文本"
     },
     {
-      "slotKey": "page-favorites.page-favorites-bottom-tabs.tabs",
+      "slotKey": "page-favorites.fav-time-0-1",
       "pageKey": "page-favorites",
-      "nodeId": "page-favorites-bottom-tabs",
-      "component": "core.tabs",
+      "regionKey": "page-favorites.fav-0-1",
+      "nodeId": "fav-time-0-1",
+      "component": "core.text",
       "editableProps": [
-        "tabs",
-        "activeTab"
+        "text"
       ],
-      "label": "page-favorites-bottom-tabs"
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-favorites.fav-img-1-1",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.fav-1-1",
+      "nodeId": "fav-img-1-1",
+      "component": "core.image",
+      "editableProps": [
+        "alt",
+        "title",
+        "iconColor"
+      ],
+      "label": "图片"
+    },
+    {
+      "slotKey": "page-favorites.fav-title-1-1",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.fav-1-1",
+      "nodeId": "fav-title-1-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
+    },
+    {
+      "slotKey": "page-favorites.fav-time-1-1",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.fav-1-1",
+      "nodeId": "fav-time-1-1",
+      "component": "core.text",
+      "editableProps": [
+        "text"
+      ],
+      "label": "文本"
     }
   ],
   "patterns": [
     {
-      "patternKey": "page-home.item.pattern",
+      "patternKey": "page-home.news-list-2.item",
       "pageKey": "page-home",
-      "regionKey": "page-home.item",
-      "sourceRootNodeId": "news-flash-top",
-      "parentNodeId": "news-flash-card",
+      "regionKey": "page-home.news-list-2",
+      "sourceRootNodeId": "news-0-2",
+      "parentNodeId": "news-list-2",
       "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "label",
-          "slotKey": "page-home.news-flash-tag.tag",
-          "prop": "label"
-        },
-        {
-          "fieldKey": "news-flash-time",
-          "slotKey": "page-home.news-flash-time.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
     },
     {
-      "patternKey": "page-home.item.pattern-2",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-2",
-      "sourceRootNodeId": "news-channel-0",
-      "parentNodeId": "news-channel-row",
-      "itemAlias": "core.button",
-      "fields": [
-        {
-          "fieldKey": "label",
-          "slotKey": "page-home.news-channel-0.button",
-          "prop": "label"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
+      "patternKey": "page-detail.art-author-info-0.item",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.art-meta-0",
+      "sourceRootNodeId": "art-author-0",
+      "parentNodeId": "art-author-info-0",
+      "itemAlias": "core.text",
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
     },
     {
-      "patternKey": "page-home.item.pattern-3",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-3",
-      "sourceRootNodeId": "news-topic-0",
-      "parentNodeId": "news-topic-grid",
+      "patternKey": "page-detail.art-body-1.item",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.art-body-1",
+      "sourceRootNodeId": "p-0-1",
+      "parentNodeId": "art-body-1",
+      "itemAlias": "core.text",
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
+    },
+    {
+      "patternKey": "page-topic.topic-head-0.item",
+      "pageKey": "page-topic",
+      "regionKey": "page-topic.topic-head-0",
+      "sourceRootNodeId": "topic-title-0",
+      "parentNodeId": "topic-head-0",
+      "itemAlias": "core.text",
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
+    },
+    {
+      "patternKey": "page-topic.topics-grid-1.item",
+      "pageKey": "page-topic",
+      "regionKey": "page-topic.topics-grid-1",
+      "sourceRootNodeId": "topic-0-1",
+      "parentNodeId": "topics-grid-1",
       "itemAlias": "core.panel",
-      "fields": [
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-home.news-topic-icon-0.image",
-          "prop": "alt"
-        },
-        {
-          "fieldKey": "news-topic-title-0",
-          "slotKey": "page-home.news-topic-title-0.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
     },
     {
-      "patternKey": "page-home.item.pattern-4",
-      "pageKey": "page-home",
-      "regionKey": "page-home.item-4",
-      "sourceRootNodeId": "news-item-0",
-      "parentNodeId": "news-waterfall-list",
-      "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "news-item-title-0",
-          "slotKey": "page-home.news-item-title-0.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "news-item-meta-0",
-          "slotKey": "page-home.news-item-meta-0.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-home.news-item-img-0.image",
-          "prop": "alt"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-detail.k-2024.pattern",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.k-2024",
-      "sourceRootNodeId": "detail-meta",
-      "parentNodeId": "detail-header",
-      "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-detail.source-avatar.image",
-          "prop": "alt"
-        },
-        {
-          "fieldKey": "source-name",
-          "slotKey": "page-detail.source-name.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "detail-time",
-          "slotKey": "page-detail.detail-time.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "detail-views",
-          "slotKey": "page-detail.detail-views.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-detail.k-2024.pattern-2",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.k-2024-2",
-      "sourceRootNodeId": "content-p1",
-      "parentNodeId": "detail-content",
-      "itemAlias": "core.text",
-      "fields": [
-        {
-          "fieldKey": "content-p1",
-          "slotKey": "page-detail.content-p1.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-detail.item.pattern",
-      "pageKey": "page-detail",
-      "regionKey": "page-detail.item-3",
-      "sourceRootNodeId": "action-like",
-      "parentNodeId": "detail-actions",
-      "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-detail.like-icon.image",
-          "prop": "alt"
-        },
-        {
-          "fieldKey": "like-text",
-          "slotKey": "page-detail.like-text.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-topic.item.pattern",
-      "pageKey": "page-topic",
-      "regionKey": "page-topic.item-2",
-      "sourceRootNodeId": "topic-title",
-      "parentNodeId": "topic-header",
-      "itemAlias": "core.text",
-      "fields": [
-        {
-          "fieldKey": "topic-title",
-          "slotKey": "page-topic.topic-title.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-topic.item.pattern-2",
-      "pageKey": "page-topic",
-      "regionKey": "page-topic.item-3",
-      "sourceRootNodeId": "ft-overlay",
-      "parentNodeId": "featured-topic",
-      "itemAlias": "core.panel",
-      "fields": [
-        {
-          "fieldKey": "ft-tag-text",
-          "slotKey": "page-topic.ft-tag-text.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "ft-title",
-          "slotKey": "page-topic.ft-title.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "ft-desc",
-          "slotKey": "page-topic.ft-desc.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-topic.item.pattern-3",
-      "pageKey": "page-topic",
-      "regionKey": "page-topic.item-4",
-      "sourceRootNodeId": "topic-item",
-      "parentNodeId": "topic-list",
-      "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-topic.ti-img.image",
-          "prop": "alt"
-        },
-        {
-          "fieldKey": "ti-title",
-          "slotKey": "page-topic.ti-title.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "ti-desc",
-          "slotKey": "page-topic.ti-desc.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-favorites.item.pattern",
+      "patternKey": "page-favorites.fav-list-1.item",
       "pageKey": "page-favorites",
-      "regionKey": "page-favorites.item-2",
-      "sourceRootNodeId": "fav-title",
-      "parentNodeId": "fav-header",
-      "itemAlias": "core.text",
-      "fields": [
-        {
-          "fieldKey": "fav-title",
-          "slotKey": "page-favorites.fav-title.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-favorites.item.pattern-2",
-      "pageKey": "page-favorites",
-      "regionKey": "page-favorites.item-3",
-      "sourceRootNodeId": "tab-fav-article",
-      "parentNodeId": "fav-tabs",
-      "itemAlias": "core.text",
-      "fields": [
-        {
-          "fieldKey": "tab-fav-article",
-          "slotKey": "page-favorites.tab-fav-article.text",
-          "prop": "text"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
-    },
-    {
-      "patternKey": "page-favorites.item.pattern-3",
-      "pageKey": "page-favorites",
-      "regionKey": "page-favorites.item-4",
-      "sourceRootNodeId": "fav-item-1",
-      "parentNodeId": "fav-list",
+      "regionKey": "page-favorites.fav-list-1",
+      "sourceRootNodeId": "fav-0-1",
+      "parentNodeId": "fav-list-1",
       "itemAlias": "core.row",
-      "fields": [
-        {
-          "fieldKey": "fi1-title",
-          "slotKey": "page-favorites.fi1-title.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "fi1-source",
-          "slotKey": "page-favorites.fi1-source.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "fi1-time",
-          "slotKey": "page-favorites.fi1-time.text",
-          "prop": "text"
-        },
-        {
-          "fieldKey": "alt",
-          "slotKey": "page-favorites.fi1-img.image",
-          "prop": "alt"
-        }
-      ],
-      "minItems": 0,
-      "maxItems": 50
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
+    },
+    {
+      "patternKey": "page-favorites.fav-info-0-1.item",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.fav-0-1",
+      "sourceRootNodeId": "fav-title-0-1",
+      "parentNodeId": "fav-info-0-1",
+      "itemAlias": "core.text",
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
+    },
+    {
+      "patternKey": "page-favorites.fav-info-1-1.item",
+      "pageKey": "page-favorites",
+      "regionKey": "page-favorites.fav-1-1",
+      "sourceRootNodeId": "fav-title-1-1",
+      "parentNodeId": "fav-info-1-1",
+      "itemAlias": "core.text",
+      "fields": [],
+      "minItems": 1,
+      "maxItems": 10
     }
   ],
   "navigation": {
     "type": "bottom_tabs",
     "items": [
       {
-        "key": "page-home",
         "label": "资讯首页",
-        "pageKey": "page-home",
-        "pageId": "page-home"
+        "targetPageId": "page-home"
       },
       {
-        "key": "page-detail",
         "label": "新闻详情",
-        "pageKey": "page-detail",
-        "pageId": "page-detail"
+        "targetPageId": "page-detail"
       },
       {
-        "key": "page-topic",
         "label": "专题频道",
-        "pageKey": "page-topic",
-        "pageId": "page-topic"
+        "targetPageId": "page-topic"
       },
       {
-        "key": "page-favorites",
-        "label": "评论收藏",
-        "pageKey": "page-favorites",
-        "pageId": "page-favorites"
+        "label": "收藏评论",
+        "targetPageId": "page-favorites"
       }
     ]
   },
   "constraints": {
-    "devices": [
-      "miniapp",
-      "mobile"
-    ]
+    "maxWidth": "100%"
   },
   "styleProfile": {
-    "colors": [
-      "#dc2626",
-      "#b91c1c",
-      "#ef4444",
-      "#1e293b",
-      "#64748b",
-      "#e2e8f0",
-      "#f8fafc",
-      "#ffffff"
-    ],
+    "colors": [],
     "fontSizes": [],
     "fontWeights": [],
     "spacing": [],
     "radius": [],
     "shadows": [],
-    "commonLayoutPatterns": [
-      "panel",
-      "row",
-      "grid",
-      "stack",
-      "biz-hero-banner",
-      "image",
-      "button"
-    ]
+    "commonLayoutPatterns": []
   }
 }

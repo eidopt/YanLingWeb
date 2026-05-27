@@ -3,7 +3,6 @@
 import { homeWorkspaceContent as c } from './HomeWorkspace.content';
 import styles from './HomeWorkspace.module.css';
 import { homePageThemeVars } from './theme';
-import { WelcomeBanner } from './WelcomeBanner';
 import { WorkspaceSkeleton } from './WorkspaceSkeleton';
 import { useAppServices } from 'hooks/useAppServices';
 import { useRouter } from 'next/navigation';
@@ -18,6 +17,7 @@ import {
   CartIcon,
   DashboardIcon,
   EditorIcon,
+  HomeIcon,
   type IconProps,
   MarketplaceIcon,
   MineIcon,
@@ -39,10 +39,22 @@ import { UserSettingsDialog } from 'ui/user_settings';
 
 interface HomeWorkspaceProps {
   user: AuthUser;
+  mode?: 'home' | 'templates';
 }
 
 type QuickActionIcon = ComponentType<IconProps>;
 type TemplateView = 'marketplace' | 'mine';
+
+interface CategorySummary {
+  key: string;
+  label: string;
+  count: number;
+}
+
+interface FilterCard {
+  key: string;
+  label: string;
+}
 
 function getTemplateViewFromUrl(): TemplateView {
   if (typeof window === 'undefined') {
@@ -55,12 +67,36 @@ function getTemplateViewFromUrl(): TemplateView {
 }
 
 function groupByCategory(themes: ThemeSpec[]) {
-  const groups = new Map<string, ThemeSpec[]>();
+  const groups = new Map<string, CategorySummary>();
   themes.forEach((theme) => {
-    const key = (theme.categoryLabel ?? theme.category).trim() || '通用';
-    groups.set(key, [...(groups.get(key) ?? []), theme]);
+    const key = theme.category.trim();
+    if (!key) {
+      return;
+    }
+    const current = groups.get(key);
+    groups.set(key, {
+      key,
+      label: (theme.categoryLabel ?? theme.category).trim() || '通用',
+      count: (current?.count ?? 0) + 1,
+    });
   });
-  return [...groups.entries()];
+  return [...groups.values()];
+}
+
+function getCategoryFromUrl() {
+  if (typeof window === 'undefined') {
+    return '';
+  }
+
+  return new URLSearchParams(window.location.search).get('category')?.trim() ?? '';
+}
+
+function getPlatformCategoryFromUrl() {
+  if (typeof window === 'undefined') {
+    return '';
+  }
+
+  return new URLSearchParams(window.location.search).get('platformCategory')?.trim() ?? '';
 }
 
 function getCategoryIcon(category: string): QuickActionIcon {
@@ -83,7 +119,42 @@ function getCategoryIcon(category: string): QuickActionIcon {
   return TagIcon;
 }
 
+function getPlatformIcon(platformCategory: string): QuickActionIcon {
+  if (platformCategory === 'web') {
+    return WebIcon;
+  }
+  if (
+    platformCategory === 'mini-program' ||
+    platformCategory === 'mobile-app' ||
+    platformCategory === 'tablet-app'
+  ) {
+    return MobileIcon;
+  }
+  return MarketplaceIcon;
+}
+
+function buildTemplateUrl(params: {
+  category?: string;
+  platformCategory?: string;
+}) {
+  const query = new URLSearchParams();
+  if (params.platformCategory) {
+    query.set('platformCategory', params.platformCategory);
+  }
+  if (params.category) {
+    query.set('category', params.category);
+  }
+  const serialized = query.toString();
+  return serialized ? `/templates?${serialized}` : '/templates';
+}
+
 function getSidebarIcon(id: string): QuickActionIcon {
+  if (id === 'home') {
+    return HomeIcon;
+  }
+  if (id === 'templates') {
+    return MarketplaceIcon;
+  }
   if (id === 'mine') {
     return MineIcon;
   }
@@ -107,6 +178,20 @@ function sortTemplatesByRecent(themes: ThemeSpec[]) {
   return [...themes].sort((a, b) => getTemplateTime(b) - getTemplateTime(a));
 }
 
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 6) {
+    return '夜深好';
+  }
+  if (hour < 12) {
+    return '早上好';
+  }
+  if (hour < 18) {
+    return '下午好';
+  }
+  return '晚上好';
+}
+
 async function openMarketplaceTemplate(
   templateService: TemplateService,
   router: ReturnType<typeof useRouter>,
@@ -116,16 +201,21 @@ async function openMarketplaceTemplate(
   router.push(`/editor?templateId=${encodeURIComponent(copy.id)}`);
 }
 
-export function HomeWorkspace({ user }: HomeWorkspaceProps) {
+export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
   const router = useRouter();
-  const { templateService } = useAppServices();
+  const { searchService, templateService } = useAppServices();
   const topRef = useRef<HTMLElement | null>(null);
   const templateRef = useRef<HTMLElement | null>(null);
   const [marketTemplates, setMarketTemplates] = useState<ThemeSpec[]>([]);
+  const [categoryTemplates, setCategoryTemplates] = useState<ThemeSpec[]>([]);
   const [myTemplates, setMyTemplates] = useState<ThemeSpec[]>([]);
-  const [templateView, setTemplateView] = useState<TemplateView>(() => getTemplateViewFromUrl());
+  const [templateView, setTemplateView] = useState<TemplateView>(() =>
+    mode === 'templates' ? 'marketplace' : getTemplateViewFromUrl());
   const [searchDraft, setSearchDraft] = useState('');
   const [submittedSearch, setSubmittedSearch] = useState('');
+  const [submittedCategory, setSubmittedCategory] = useState(() => getCategoryFromUrl());
+  const [submittedPlatformCategory, setSubmittedPlatformCategory] = useState(() =>
+    getPlatformCategoryFromUrl());
   const [searchRevision, setSearchRevision] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -133,10 +223,41 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
 
   useEffect(() => {
     let cancelled = false;
-    const params = submittedSearch ? { search: submittedSearch } : undefined;
+    void templateService.fetchAll()
+      .then((templates) => {
+        if (!cancelled) {
+          setCategoryTemplates(templates);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCategoryTemplates([]);
+        }
+      });
+
+    return () => { cancelled = true; };
+  }, [templateService]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const params = {
+      ...(submittedSearch ? { search: submittedSearch } : {}),
+      ...(submittedCategory ? { category: submittedCategory } : {}),
+      ...(submittedPlatformCategory ? { platformCategory: submittedPlatformCategory } : {}),
+    };
+    const hasParams = Boolean(
+      submittedSearch ||
+      submittedCategory ||
+      submittedPlatformCategory,
+    );
+    const listParams = hasParams ? params : undefined;
+    const mineRequest = mode === 'home'
+      ? templateService.fetchMine(listParams)
+      : Promise.resolve([]);
+
     void Promise.all([
-      templateService.fetchAll(params),
-      templateService.fetchMine(params),
+      templateService.fetchAll(listParams),
+      mineRequest,
     ])
       .then(([market, mine]) => {
         if (cancelled) {
@@ -158,11 +279,20 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
       });
 
     return () => { cancelled = true; };
-  }, [templateService, submittedSearch, searchRevision]);
+  }, [
+    mode,
+    templateService,
+    submittedSearch,
+    submittedCategory,
+    submittedPlatformCategory,
+    searchRevision,
+  ]);
 
   useEffect(() => {
     const syncTemplateView = () => {
-      setTemplateView(getTemplateViewFromUrl());
+      setTemplateView(mode === 'templates' ? 'marketplace' : getTemplateViewFromUrl());
+      setSubmittedCategory(getCategoryFromUrl());
+      setSubmittedPlatformCategory(getPlatformCategoryFromUrl());
     };
 
     syncTemplateView();
@@ -170,38 +300,47 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
     return () => {
       window.removeEventListener('popstate', syncTemplateView);
     };
-  }, []);
+  }, [mode]);
 
   const marketCategories = useMemo(
-    () => groupByCategory(marketTemplates)
-      .map(([category, themes]) => ({ category, count: themes.length }))
+    () => groupByCategory(categoryTemplates)
       .filter((item) => item.count > 0),
-    [marketTemplates],
+    [categoryTemplates],
   );
   const recentMineTemplates = useMemo(
     () => sortTemplatesByRecent(myTemplates).slice(0, 4),
     [myTemplates],
   );
-  const templateSectionThemes = templateView === 'mine' ? myTemplates : marketTemplates;
-  const templateGroups = useMemo(
-    () => groupByCategory(templateSectionThemes),
-    [templateSectionThemes],
+  const templateSectionThemes = templateView === 'mine' && mode === 'home'
+    ? myTemplates
+    : marketTemplates;
+  const activeCategoryLabel = useMemo(
+    () => marketCategories.find((item) => item.key === submittedCategory)?.label,
+    [marketCategories, submittedCategory],
   );
   const templateSectionTitle = templateView === 'mine'
     ? c.mine.title
-    : c.marketplace.title;
-  const templateSectionEmpty = templateView === 'mine'
+    : activeCategoryLabel ?? c.marketplace.title;
+  const templateSectionEmpty = templateView === 'mine' && mode === 'home'
     ? c.mine.empty
     : c.marketplace.empty;
+  const greeting = useMemo(() => getGreeting(), []);
 
   function scrollTo(ref: RefObject<HTMLElement | null>) {
     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   function submitSearch(nextSearch = searchDraft) {
+    const trimmedSearch = nextSearch.trim();
     setLoading(true);
-    setSubmittedSearch(nextSearch.trim());
+    setSubmittedSearch(trimmedSearch);
     setSearchRevision((current) => current + 1);
+
+    if (trimmedSearch) {
+      void searchService.submit(trimmedSearch).catch((err: unknown) => {
+        setError(err instanceof Error ? err.message : String(err));
+      });
+    }
   }
 
   function handleSearchKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
@@ -216,9 +355,15 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
 
   function showTemplateView(nextView: TemplateView) {
     setSearchDraft('');
+    setSubmittedCategory('');
+    setSubmittedPlatformCategory('');
     submitSearch('');
     setTemplateView(nextView);
-    router.push(nextView === 'mine' ? '/?view=mine' : '/', { scroll: false });
+    if (nextView === 'mine') {
+      router.push('/?view=mine', { scroll: false });
+    } else {
+      router.push(mode === 'templates' ? '/templates' : '/', { scroll: false });
+    }
     window.requestAnimationFrame(() => scrollTo(templateRef));
   }
 
@@ -233,6 +378,14 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
   }
 
   function handleSidebarAction(id: string) {
+    if (id === 'home') {
+      router.push('/');
+      return;
+    }
+    if (id === 'templates') {
+      router.push('/templates');
+      return;
+    }
     if (id === 'mine') {
       showTemplateView('mine');
       return;
@@ -245,49 +398,47 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
     showTemplateView('marketplace');
   }
 
-  const quickActions = [
-    {
-      id: 'marketplace',
-      label: c.actions.market,
-      icon: MarketplaceIcon,
-      tone: 'indigo',
-    },
-    {
-      id: 'mine',
-      label: c.actions.mine,
-      icon: MineIcon,
-      tone: 'violet',
-    },
-    ...marketCategories.slice(0, 6).map((item, index) => ({
-      id: `category-${item.category}`,
-      label: item.category,
-      icon: getCategoryIcon(item.category),
-      tone: ['amber', 'orange', 'teal', 'slate', 'gray', 'indigo'][index] ?? 'indigo',
-    })),
-  ];
+  function browseCategory(category: FilterCard | null) {
+    const nextCategory = category?.key ?? '';
+    setTemplateView('marketplace');
+    setSubmittedCategory(nextCategory);
+    setLoading(true);
+    setSearchRevision((current) => current + 1);
+    router.push(buildTemplateUrl({
+      category: nextCategory,
+      platformCategory: submittedPlatformCategory,
+    }), { scroll: false });
+    window.requestAnimationFrame(() => scrollTo(templateRef));
+  }
 
-  function handleQuickAction(id: string, label: string) {
-    if (id === 'marketplace') {
-      showTemplateView('marketplace');
-      return;
-    }
-    if (id === 'mine') {
-      showTemplateView('mine');
-      return;
-    }
-    if (id.startsWith('category-')) {
-      setTemplateView('marketplace');
-      setSearchDraft(label);
-      submitSearch(label);
-      router.push('/', { scroll: false });
-      window.requestAnimationFrame(() => scrollTo(templateRef));
-    }
+  function browsePlatformCategory(platformCategory: FilterCard | null) {
+    const nextPlatformCategory = platformCategory?.key ?? '';
+    setTemplateView('marketplace');
+    setSubmittedPlatformCategory(nextPlatformCategory);
+    setLoading(true);
+    setSearchRevision((current) => current + 1);
+    router.push(buildTemplateUrl({
+      category: submittedCategory,
+      platformCategory: nextPlatformCategory,
+    }), { scroll: false });
+    window.requestAnimationFrame(() => scrollTo(templateRef));
   }
 
   const sidebarItems = [
     ...c.sidebar.items,
     { id: 'editor', label: '编辑器' },
   ];
+  const categoryCards = [
+    { key: '', label: c.category.all, count: categoryTemplates.length },
+    ...marketCategories.slice(0, 7),
+  ];
+  const platformCards = [
+    { key: '', label: c.platform.all },
+    ...c.platform.items,
+  ];
+  const categoryTones = ['indigo', 'amber', 'orange', 'teal', 'slate', 'gray', 'violet', 'green'];
+  const platformTones = ['indigo', 'green', 'teal', 'violet', 'slate'];
+  const showMineOverview = mode === 'home' && templateView === 'marketplace';
 
   return (
     <PageRoot className={styles.page} style={homePageThemeVars}>
@@ -296,9 +447,11 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
           <Box as="nav" className={styles.nav} aria-label={c.sidebar.workspace}>
             {sidebarItems.map((item) => {
               const Icon = getSidebarIcon(item.id);
-              const active = item.id === 'mine'
-                ? templateView === 'mine'
-                : item.id === 'marketplace' && templateView === 'marketplace';
+              const active = item.id === 'home'
+                ? mode === 'home' && templateView !== 'mine'
+                : item.id === 'templates'
+                  ? mode === 'templates'
+                  : item.id === 'mine' && mode === 'home' && templateView === 'mine';
               return (
                 <button
                   key={item.id}
@@ -330,51 +483,19 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
         </Box>
 
         <Box as="section" className={styles.main}>
-          <WelcomeBanner
-            userName={user.username}
-            totalTemplates={marketTemplates.length + myTemplates.length}
-            myTemplatesCount={myTemplates.length}
-            marketTemplatesCount={marketTemplates.length}
-          />
-
           <Box as="header" ref={topRef} className={styles.searchBand}>
-            <Box className={styles.searchGrid}>
-              <Box className={styles.searchCopy}>
-                <Text
-                  as="span"
-                  size="xs"
-                  transform="uppercase"
-                  variant="accent"
-                  weight="bold"
-                >
-                  {c.search.eyebrow}
-                </Text>
-                <Heading
-                  as="h1"
-                  size="display"
-                  variant="primary"
-                  weight="heavy"
-                >
-                  {c.search.title}
-                </Heading>
-                <Text size="base" variant="muted">{c.search.subtitle}</Text>
-              </Box>
-              <Box className={styles.productionPanel} aria-hidden="true">
-                <Box className={styles.panelHeader}>
-                  <Text as="span" size="xs" transform="uppercase" variant="muted" weight="bold">
-                    AI Pipeline
-                  </Text>
-                  <Text as="strong" size="sm" variant="success" weight="bold">Ready</Text>
+            <Box className={styles.searchCopy}>
+              <Heading
+                as="h1"
+                size="display"
+                variant="primary"
+                weight="heavy"
+              >
+                <Box as="span" className={styles.greetingLine}>
+                  {greeting}，{user.username}
                 </Box>
-                <Box className={styles.pipelineList}>
-                  {c.search.chips.map((chip, index) => (
-                    <Box key={chip} className={styles.pipelineItem}>
-                      <Box as="span">{String(index + 1).padStart(2, '0')}</Box>
-                      <Text as="strong" size="sm" variant="primary" weight="bold">{chip}</Text>
-                    </Box>
-                  ))}
-                </Box>
-              </Box>
+                <Box as="span" className={styles.titleLine}>{c.search.title}</Box>
+              </Heading>
             </Box>
             <Label className={styles.searchBox}>
               <Box as="span" className={styles.searchIcon} aria-hidden="true" />
@@ -388,26 +509,70 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
                 variant="quiet"
               />
             </Label>
-            <Box className={styles.quickStartRow}>
-              {quickActions.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className={styles.quickStart}
-                    data-tone={item.tone}
-                    onClick={() => handleQuickAction(item.id, item.label)}
-                  >
-                    <Box as="span" className={styles.quickIcon}>
-                      <Icon />
-                    </Box>
-                    <Box as="span" className={styles.quickLabel}>{item.label}</Box>
-                  </button>
-                );
-              })}
-            </Box>
           </Box>
+
+          {templateView === 'marketplace' ? (
+            <Box as="section" className={styles.filterStack} aria-label="模板筛选">
+              <Box className={styles.filterGroup}>
+                <Heading as="h2" size="label" variant="secondary" weight="heavy">
+                  {c.platform.heading}
+                </Heading>
+                <Box className={styles.categoryStrip} aria-label={c.platform.heading}>
+                  {platformCards.map((item, index) => {
+                    const Icon = getPlatformIcon(item.key);
+                    const active = item.key === submittedPlatformCategory;
+                    return (
+                      <button
+                        key={item.key || 'all-platforms'}
+                        type="button"
+                        className={`${styles.categoryCard} ${active ? styles.categoryCardActive : ''}`}
+                        data-tone={platformTones[index] ?? 'indigo'}
+                        aria-current={active ? 'true' : undefined}
+                        onClick={() => browsePlatformCategory(item.key ? item : null)}
+                      >
+                        <Box as="span" className={styles.categoryIcon}>
+                          <Icon />
+                        </Box>
+                        <Box as="span" className={styles.categoryText}>
+                          <Box as="span" className={styles.categoryName}>{item.label}</Box>
+                        </Box>
+                      </button>
+                    );
+                  })}
+                </Box>
+              </Box>
+              <Box className={styles.filterGroup}>
+                <Heading as="h2" size="label" variant="secondary" weight="heavy">
+                  {c.category.heading}
+                </Heading>
+                <Box className={styles.categoryStrip} aria-label={c.category.heading}>
+                  {categoryCards.map((item, index) => {
+                    const Icon = item.key
+                      ? getCategoryIcon(item.label)
+                      : MarketplaceIcon;
+                    const active = item.key === submittedCategory;
+                    return (
+                      <button
+                        key={item.key || 'all-categories'}
+                        type="button"
+                        className={`${styles.categoryCard} ${active ? styles.categoryCardActive : ''}`}
+                        data-tone={categoryTones[index] ?? 'indigo'}
+                        aria-current={active ? 'true' : undefined}
+                        onClick={() => browseCategory(item.key ? item : null)}
+                      >
+                        <Box as="span" className={styles.categoryIcon}>
+                          <Icon />
+                        </Box>
+                        <Box as="span" className={styles.categoryText}>
+                          <Box as="span" className={styles.categoryName}>{item.label}</Box>
+                        </Box>
+                      </button>
+                    );
+                  })}
+                </Box>
+              </Box>
+            </Box>
+          ) : null}
 
           {loading ? (
             <WorkspaceSkeleton />
@@ -418,9 +583,9 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
             </Box>
           ) : null}
 
-          {templateView === 'marketplace' ? (
+          {showMineOverview ? (
             <ScrollReveal variant="fadeUp" duration="base">
-              <Box as="section" className={styles.section}>
+              <Box as="section" className={`${styles.section} ${styles.mineOverviewSection}`}>
               <Box className={styles.sectionHeader}>
                 <Heading
                   as="h2"
@@ -470,34 +635,23 @@ export function HomeWorkspace({ user }: HomeWorkspaceProps) {
             {!loading && templateSectionThemes.length === 0 ? (
               <Text size="base" variant="muted">{templateSectionEmpty}</Text>
             ) : null}
-            {templateGroups.map(([category, themes]) => (
-              <Box key={category} className={styles.categoryGroup}>
-                <Heading
-                  as="h3"
-                  size="label"
-                  variant="secondary"
-                  weight="heavy"
-                >
-                  {category}
-                </Heading>
-                <Box className={styles.templateGrid}>
-                  {themes.map((theme) => (
-                    <ThemeCard
-                      key={theme.id}
-                      theme={theme}
-                      className={styles.workspaceThemeCard}
-                      onClick={() => {
-                        if (templateView === 'mine') {
-                          openOwned(theme);
-                          return;
-                        }
-                        previewMarketplaceTemplate(theme);
-                      }}
-                    />
-                  ))}
+            <Box className={styles.masonryGrid}>
+              {templateSectionThemes.map((theme) => (
+                <Box key={theme.id} className={styles.masonryItem}>
+                  <ThemeCard
+                    theme={theme}
+                    className={styles.workspaceThemeCard}
+                    onClick={() => {
+                      if (templateView === 'mine' && mode === 'home') {
+                        openOwned(theme);
+                        return;
+                      }
+                      previewMarketplaceTemplate(theme);
+                    }}
+                  />
                 </Box>
-              </Box>
-            ))}
+              ))}
+            </Box>
           </Box>
           </ScrollReveal>
           {settingsOpen ? (

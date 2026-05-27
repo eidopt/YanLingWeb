@@ -24,10 +24,11 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null | undefined>(undefined);
   const isHome = pathname === '/' || pathname === '/builder';
   const isPublicSite = pathname.startsWith('/sites/');
-  const isAuthCheckingHome = pathname === '/' && user === undefined;
-  const isLoggedInHome = pathname === '/' && Boolean(user);
-  const showGlobalNav = !isPublicSite && !isLoggedInHome && !isAuthCheckingHome;
-  const useOverlayViewport = isHome && !isLoggedInHome && !isAuthCheckingHome;
+  const isWorkspaceRoute = pathname === '/' || pathname === '/templates';
+  const isAuthCheckingWorkspace = isWorkspaceRoute && user === undefined;
+  const isLoggedInWorkspace = isWorkspaceRoute && Boolean(user);
+  const showGlobalNav = !isPublicSite && !isLoggedInWorkspace && !isAuthCheckingWorkspace;
+  const useOverlayViewport = isHome && !isLoggedInWorkspace && !isAuthCheckingWorkspace;
 
   useEffect(() => {
     const syncUser = () => {

@@ -8,12 +8,14 @@ import {
   useMemo,
 } from 'react';
 import { AuthService } from 'services/AuthService';
+import { SearchService } from 'services/SearchService';
 import { TemplateService } from 'services/TemplateService';
 import { UserService } from 'services/UserService';
 
 interface AppServices {
   authService: AuthService;
   userService: UserService;
+  searchService: SearchService;
   templateService: TemplateService;
   templateAiService: TemplateAiService;
   editorAiService: EditorAiService;
@@ -33,6 +35,7 @@ export function AppServicesProvider({ children }: { children: ReactNode }) {
     return {
       authService,
       userService: new UserService(() => authService.getToken()),
+      searchService: new SearchService(() => authService.getToken()),
       templateService: new TemplateService(() => authService.getToken()),
       templateAiService: new TemplateAiService(
         () => authService.getToken(),

@@ -3,16 +3,14 @@ export const homeWorkspaceContent = {
     workspace: '工作台',
     userSettings: '用户设置',
     items: [
-      { id: 'marketplace', label: '模板' },
+      { id: 'home', label: '首页' },
+      { id: 'templates', label: '模板' },
       { id: 'mine', label: '我的' },
     ],
   },
   search: {
-    eyebrow: 'AI Production Console',
-    title: '今天要生产什么应用？',
-    subtitle: '描述目标用户、业务场景或要上线的平台，系统会帮你匹配模板、拆页面结构并进入可编辑生产流。',
-    placeholder: '例如：给本地咖啡店生成一个可预约、可领券、能发布到微信的小程序首页',
-    chips: ['需求拆解', '模板匹配', '页面生成', '发布准备'],
+    title: '今天要生产什么应用',
+    placeholder: '搜索模板广场里的小程序、官网、后台、活动页模板；也可以直接写需求，例如：给本地咖啡店做一个可预约、可领券、可发布到微信的小程序首页',
   },
   actions: {
     market: '模板市场',
@@ -28,10 +26,24 @@ export const homeWorkspaceContent = {
     empty: '当前关键词下没有匹配的我的模板。',
   },
   marketplace: {
-    title: '模板市场',
+    title: '模板广场',
     empty: '没有找到匹配的市场模板。',
     start: '开始编辑',
     preview: '预览',
+  },
+  category: {
+    heading: '应用类别',
+    all: '全部模板',
+  },
+  platform: {
+    heading: '平台类型',
+    all: '全部平台',
+    items: [
+      { key: 'mini-program', label: '微信小程序' },
+      { key: 'mobile-app', label: '手机 App' },
+      { key: 'tablet-app', label: '平板 App' },
+      { key: 'web', label: '网页' },
+    ],
   },
   meta: {
     templateId: '模板 ID',

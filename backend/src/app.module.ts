@@ -9,6 +9,7 @@ import { ConfigFactory } from './config/config.factory';
 import { ConfigModule } from './config/config.module';
 import { DatabaseModule } from './database/database.module';
 import { ExportsModule } from './exports/exports.module';
+import { SearchModule } from './search/search.module';
 import { SitesModule } from './sites/sites.module';
 import { TemplatesModule } from './templates/templates.module';
 import { ThemesModule } from './themes/themes.module';
@@ -32,6 +33,7 @@ const startupServerFlavor = ConfigFactory.applyStartupFlavor();
     AuthModule,
     ThemesModule,
     TemplatesModule,
+    SearchModule,
     SitesModule,
     ExportsModule,
     UsersModule,
