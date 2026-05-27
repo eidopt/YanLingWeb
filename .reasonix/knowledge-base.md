@@ -54,6 +54,10 @@
 backend/src/
 ├── main.ts                    # 启动入口，CORS / Swagger / OpenAPI 导出
 ├── app.module.ts              # 根模块，9 个本地模块 + Nest ConfigModule + ThrottlerModule
+├── search/                    # 搜索意图路由 (关键词搜索 + 空白模板创建)
+│   ├── search.module.ts
+│   ├── search.controller.ts   # POST /api/search
+│   └── search.service.ts
 ├── ai/                        # AI 代理 & 编辑器 Copilot
 │   ├── ai.service.ts          # QueryLoop + 流式代理 + 速率限制
 │   ├── ai.controller.ts       # /api/ai/* 路由
@@ -125,6 +129,7 @@ backend/src/
 | `GET` | `/api/themes/:id` | — | 按 id 获取主题 |
 | `PUT` | `/api/themes/:id` | — | 更新主题 |
 | `DELETE` | `/api/themes/:id` | — | 删除主题 |
+| `POST` | `/api/search` | JWT | 搜索意图路由（关键词搜索/空白模板创建） |
 | `GET` | `/api/templates` | — | 市场模板列表 (公开) |
 | `GET` | `/api/templates/:templateId` | — | 获取市场模板详情 |
 | `GET` | `/api/templates/mine` | JWT | 我的模板列表 |
@@ -656,6 +661,7 @@ Template 表通过 ownerUserId 区分:
 |------|------|------|
 | `AuthService` | `src/services/AuthService.ts` | JWT token 管理, 登录/注册/微信OAuth |
 | `TemplateService` | `src/services/TemplateService.ts` | 模板 CRUD API 封装 |
+| `SearchService` | `src/services/SearchService.ts` | 搜索意图路由（关键词搜索/空白模板创建） |
 | `ExportService` | `src/services/ExportService.ts` | 导出 API |
 | `UserService` | `src/services/UserService.ts` | 用户信息 |
 | `TemplateAiService` | `src/ai/template-ai.service.ts` | AI 模板生成 (前端侧) |
@@ -1021,6 +1027,7 @@ AI_PROVIDER=openai-compatible
 | 改发布站点 | `backend/src/sites/*`, `src/app/sites/[subdomain]/*`, `backend/src/templates/template-layout-validation.ts` |
 | 改源码导出 | `src/exporters/react-source/*`, `src/services/ExportService.ts`, `scripts/source-export-smoke.cjs` |
 | 改登录注册 | `src/lib/hash-password.ts`, `src/services/AuthService.ts`, `backend/src/auth/*`, `backend/src/users/*` |
+| 改搜索意图路由 | `backend/src/search/*`, `src/services/SearchService.ts` |
 | 改模板 JSON 导入 | `backend/src/templates/templates.service.ts`, `templates_json/`, `scripts/validate-template-json.mjs` |
 
 ---

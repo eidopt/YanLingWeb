@@ -7,7 +7,7 @@ AI 驱动的全平台可视化 UI 搭建平台。用户通过自然语言对话�
 | 层 | 技术 |
 |------|------|
 | 前端 | Next.js 15 (App Router) + React 19 + TypeScript 6 |
-| 后端 | NestJS 10 + TypeORM + SQLite (sql.js) |
+| 后端 | NestJS 10 + TypeORM + SQLite (better-sqlite3) |
 | 共享 | TypeScript 类型和验证逻辑 |
 | 桌面 | Electron 36 + electron-builder |
 | AI | OpenAI SDK v6 (Responses API) / OpenAI 兼容 (Chat Completions) |
@@ -43,12 +43,12 @@ YanLingWeb/
 │   │   ├── styleResolvers.ts         # 布局 → CSS 解析
 │   │   ├── templateInterpreter.tsx   # 组件模板解释器
 │   │   ├── useDependencyLoader.ts    # ESM 依赖动态加载
-│   │   └── components/              # 17 个核心组件节点
+│   │   └── components/              # 18 个核心组件节点
 │   ├── components/          # 共享 UI 组件
 │   ├── views/               # 页面视图
 │   ├── hooks/               # 自定义 Hooks（含 useTheme 暗色/亮色主题切换）
 │   ├── lib/                 # 工具库
-│   ├── services/            # 业务服务
+│   ├── services/            # 业务服务 (Auth, Template, Search, Export...)
 │   ├── stores/              # 状态管理
 │   └── types/               # 类型定义
 ├── backend/                # NestJS 后端
@@ -56,6 +56,7 @@ YanLingWeb/
 │   │   ├── main.ts              # 入口点
 │   │   ├── app.module.ts        # 根模块
 │   │   ├── ai/                  # AI 模块 (控制器, 服务, 工具, 核心引擎)
+│   │   ├── search/              # 搜索意图路由
 │   │   ├── templates/           # 模板 CRUD
 │   │   ├── themes/              # 主题管理
 │   │   ├── sites/               # 发布站点管理
@@ -63,7 +64,7 @@ YanLingWeb/
 │   │   ├── exports/             # 项目导出记录
 │   │   ├── auth/                # JWT 守卫
 │   │   ├── config/              # 环境配置工厂
-│   │   └── database/            # 数据库模块 (sql.js)
+│   │   └── database/            # 数据库模块 (better-sqlite3)
 │   └── data/                    # SQLite 数据库文件 (运行时)
 ├── shared/                 # 前后端共享代码
 │   ├── agent/                   # AI 代理共享
@@ -118,7 +119,7 @@ YanLingWeb/
 - 10 个精确工具：`editor_create_page`, `editor_delete_page`, `editor_insert_node`, `editor_update_props`, `editor_delete_node`, `editor_set_layout`, `editor_set_frame`, `editor_move_node`, `editor_update_interactions`, `editor_sync_navigation`
 - 运行位置：前端或后端均可
 
-### 17 个 core.* UI 组件
+### 18 个 core.* UI 组件
 
 | 别名 | 组件 | 关键 Props |
 |-------|-----------|------------|
@@ -130,6 +131,7 @@ YanLingWeb/
 | `core.text` | 文本 | text, variant (display/heading/subheading/body/caption/price/overline/eyebrow/title/subtitle) |
 | `core.button` | 按钮 | label, variant (primary/secondary/link), disabled |
 | `core.image` | 图片占位符 | — |
+| `core.progress` | 进度条 | value, max, tone (neutral/accent/success/warning/info) |
 | `core.tag` | 状态徽章 | label, tone (neutral/success/warning/info/hot/new/deal/member) |
 | `core.divider` | 分隔线 | — |
 | `core.spacer` | 空白间距 | size |
@@ -174,7 +176,7 @@ YanLingWeb/
 ### 数据持久化
 
 - **前端侧** — `BrowserTemplateStore` 适配器调用后端 API
-- **后端** — TypeORM + SQLite（通过 sql.js wasm），实体：`Template`, `Theme`, `PublishedSite`, `PublishedSiteRevision`, `User`, `ExportRecord`, `EditorAiConversation`, `AiTokenUsage`
+- **后端** — TypeORM + SQLite（通过 better-sqlite3 + WAL 模式），实体：`Template`, `Theme`, `PublishedSite`, `PublishedSiteRevision`, `User`, `ExportRecord`, `EditorAiConversation`, `AiTokenUsage`
 - **API 代理** — Next.js 路由处理器将 `/api/proxy/*` → `http://localhost:4000/api/*`
 
 ### 前端 ↔ 后端通信
@@ -184,6 +186,7 @@ YanLingWeb/
          /api/proxy/[...path]  →  通用 CRUD
          /api/ai/stream        →  AI 流式 (SSE)
          /api/ai/editor        →  AI 编辑器流式
+         /api/search           →  搜索意图路由
 ```
 
 前端永远看不到 API 密钥 — 它们只存在于后端。
