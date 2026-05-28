@@ -1,8 +1,8 @@
 import react from "@vitejs/plugin-react";
 import fs from "fs";
 import path from "path";
-import { defineConfig } from "vite";
 import type { Connect } from "vite";
+import { defineConfig } from "vite";
 
 const ROOT = path.resolve(__dirname, "../..");
 const TEMPLATES_JSON_DIR = path.resolve(ROOT, "templates_json");
@@ -28,7 +28,7 @@ function serveTemplatesJsonPlugin() {
     configureServer(server: { middlewares: Connect.Server }) {
       server.middlewares.use((req, res, next) => {
         const prefix = "/templates_json/";
-        if (!req.url || !req.url.startsWith(prefix)) { next(); return; }
+        if (!req.url?.startsWith(prefix)) { next(); return; }
         if (req.url === prefix.slice(0, -1)) { next(); return; }
         const pathname = new URL(req.url, "http://template-preview.local").pathname;
         const relative = pathname.slice(prefix.length);
@@ -69,7 +69,7 @@ function serveTemplatesJsonPlugin() {
       });
       server.middlewares.use((req, res, next) => {
         const prefix = "/template-assets/";
-        if (!req.url || !req.url.startsWith(prefix)) { next(); return; }
+        if (!req.url?.startsWith(prefix)) { next(); return; }
         const pathname = new URL(req.url, "http://template-preview.local").pathname;
         const relative = pathname.slice(prefix.length);
         let decoded: string;

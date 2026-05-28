@@ -2,6 +2,7 @@
 
 import styles from './AIFeaturesSection.module.css';
 import { homePageContent as c } from './HomePage.content';
+import { Box } from 'ui/base';
 import {
   CardGrid,
   PageButton,
@@ -10,7 +11,6 @@ import {
   SectionHeader,
   SurfaceCard,
 } from 'ui/pages';
-import { Box } from 'ui/base';
 
 interface AIFeaturesSectionProps {
   onCtaClick: () => void;

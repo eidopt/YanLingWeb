@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+ 
 import type { ThemeLayoutNode } from '../types';
 
 export type TemplateDevice = 'mobile' | 'miniapp' | 'tablet' | 'desktop';

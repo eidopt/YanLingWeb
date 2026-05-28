@@ -57,7 +57,7 @@ interface VisualAssetLayoutNode {
 }
 
 interface VisualAssetLayoutDocument {
-  pages?: Array<{ layout?: VisualAssetLayoutNode }>;
+  pages?: { layout?: VisualAssetLayoutNode }[];
   layout?: VisualAssetLayoutNode;
 }
 
@@ -133,8 +133,8 @@ export function normalizeVisualAssets(value: unknown): VisualAsset[] {
     if (isRecord(asset.placeholder)) {
       const title = asNonEmptyString(asset.placeholder.title);
       const iconColor = asNonEmptyString(asset.placeholder.iconColor);
-      if (title) placeholder.title = title;
-      if (iconColor) placeholder.iconColor = iconColor;
+      if (title) {placeholder.title = title;}
+      if (iconColor) {placeholder.iconColor = iconColor;}
     }
 
     const normalized: VisualAsset = { id };
@@ -152,20 +152,20 @@ export function normalizeVisualAssets(value: unknown): VisualAsset[] {
     const storageKey = asNonEmptyString(asset.storageKey);
     const fallbackReason = asNonEmptyString(asset.fallbackReason);
 
-    if (nodeId) normalized.nodeId = nodeId;
-    if (pageId) normalized.pageId = pageId;
-    if (role) normalized.role = role;
-    if (prompt) normalized.prompt = prompt;
-    if (alt) normalized.alt = alt;
-    if (aspectRatio) normalized.aspectRatio = aspectRatio;
-    if (width) normalized.width = width;
-    if (height) normalized.height = height;
-    if (status) normalized.status = status;
-    if (provider) normalized.provider = provider;
-    if (url) normalized.url = url;
-    if (storageKey) normalized.storageKey = storageKey;
-    if (fallbackReason) normalized.fallbackReason = fallbackReason;
-    if (Object.keys(placeholder).length > 0) normalized.placeholder = placeholder;
+    if (nodeId) {normalized.nodeId = nodeId;}
+    if (pageId) {normalized.pageId = pageId;}
+    if (role) {normalized.role = role;}
+    if (prompt) {normalized.prompt = prompt;}
+    if (alt) {normalized.alt = alt;}
+    if (aspectRatio) {normalized.aspectRatio = aspectRatio;}
+    if (width) {normalized.width = width;}
+    if (height) {normalized.height = height;}
+    if (status) {normalized.status = status;}
+    if (provider) {normalized.provider = provider;}
+    if (url) {normalized.url = url;}
+    if (storageKey) {normalized.storageKey = storageKey;}
+    if (fallbackReason) {normalized.fallbackReason = fallbackReason;}
+    if (Object.keys(placeholder).length > 0) {normalized.placeholder = placeholder;}
 
     return [normalized];
   });
@@ -230,7 +230,7 @@ export function applyVisualAssetsToLayoutDocument<T extends Record<string, unkno
   const byNodeId = new Map(
     visualAssets
       .filter((asset) => asset.nodeId)
-      .map((asset) => [asset.nodeId as string, asset]),
+      .map((asset) => [asset.nodeId!, asset]),
   );
 
   const patchImageNode = (node: VisualAssetLayoutNode) => {

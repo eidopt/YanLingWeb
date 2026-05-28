@@ -10,10 +10,6 @@ import {
   serializeCanvases,
 } from 'services/ExportService';
 import type { ExportState } from 'types/export.types';
-import type {
-  BuilderCanvas,
-  LayoutBuilderTheme,
-} from 'ui/editor/types';
 import {
   Box,
   Button,
@@ -24,6 +20,10 @@ import {
   Stack,
   Text,
 } from 'ui/base';
+import type {
+  BuilderCanvas,
+  LayoutBuilderTheme,
+} from 'ui/editor/types';
 
 interface ExportDialogProps {
   canvases: BuilderCanvas[];

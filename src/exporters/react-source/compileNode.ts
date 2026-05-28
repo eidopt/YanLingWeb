@@ -587,14 +587,14 @@ function compileNodeInternal(
       const arrow = Boolean(props.arrow);
       const thumb = propString(props.thumb);
       const parts: string[] = [];
-      if (thumb) parts.push(`${indent(context.depth + 1)}<img className="list-item-thumb" src=${JSON.stringify(thumb)} alt="" />`);
+      if (thumb) {parts.push(`${indent(context.depth + 1)}<img className="list-item-thumb" src=${JSON.stringify(thumb)} alt="" />`);}
       parts.push(`${indent(context.depth + 1)}<div className="list-item-content">`);
-      if (title) parts.push(`${indent(context.depth + 2)}<span className="list-item-title">{${JSON.stringify(title)}}</span>`);
-      if (desc) parts.push(`${indent(context.depth + 2)}<span className="list-item-desc">{${JSON.stringify(desc)}}</span>`);
+      if (title) {parts.push(`${indent(context.depth + 2)}<span className="list-item-title">{${JSON.stringify(title)}}</span>`);}
+      if (desc) {parts.push(`${indent(context.depth + 2)}<span className="list-item-desc">{${JSON.stringify(desc)}}</span>`);}
       parts.push(`${indent(context.depth + 1)}</div>`);
-      if (note) parts.push(`${indent(context.depth + 1)}<span className="list-item-note">{${JSON.stringify(note)}}</span>`);
-      if (arrow) parts.push(`${indent(context.depth + 1)}<span className="list-item-arrow" aria-hidden="true">›</span>`);
-      if (children) parts.push(children);
+      if (note) {parts.push(`${indent(context.depth + 1)}<span className="list-item-note">{${JSON.stringify(note)}}</span>`);}
+      if (arrow) {parts.push(`${indent(context.depth + 1)}<span className="list-item-arrow" aria-hidden="true">›</span>`);}
+      if (children) {parts.push(children);}
       return { ...nextContext, code: wrap('div', className, node, parts.join('\n'), context) };
     }
     case 'core.statistic': {
@@ -606,11 +606,11 @@ function compileNodeInternal(
       const tone = propString(props.tone, 'neutral');
       const style = styleAttr(node);
       const parts: string[] = [];
-      if (title) parts.push(`${indent(context.depth + 1)}<span className="stat-title">{${JSON.stringify(title)}}</span>`);
+      if (title) {parts.push(`${indent(context.depth + 1)}<span className="stat-title">{${JSON.stringify(title)}}</span>`);}
       parts.push(`${indent(context.depth + 1)}<span className="stat-value" data-tone="${tone}" data-trend="${trend}">`);
-      if (prefix) parts.push(`${indent(context.depth + 2)}<span className="stat-prefix">{${JSON.stringify(prefix)}}</span>`);
+      if (prefix) {parts.push(`${indent(context.depth + 2)}<span className="stat-prefix">{${JSON.stringify(prefix)}}</span>`);}
       parts.push(`${indent(context.depth + 2)}{${JSON.stringify(value)}}`);
-      if (suffix) parts.push(`${indent(context.depth + 2)}<span className="stat-suffix">{${JSON.stringify(suffix)}}</span>`);
+      if (suffix) {parts.push(`${indent(context.depth + 2)}<span className="stat-suffix">{${JSON.stringify(suffix)}}</span>`);}
       parts.push(`${indent(context.depth + 1)}</span>`);
       return { ...nextContext, code: `${indent(context.depth)}<div className="${className}"${style ? ` ${style}` : ''}>\n${parts.join('\n')}\n${indent(context.depth)}</div>` };
     }
@@ -636,9 +636,9 @@ function compileNodeInternal(
       const actionLabel = propString(props.actionLabel);
       const style = styleAttr(node);
       const parts: string[] = [];
-      if (image) parts.push(`${indent(context.depth + 1)}<img className="empty-image" src=${JSON.stringify(image)} alt="" />`);
+      if (image) {parts.push(`${indent(context.depth + 1)}<img className="empty-image" src=${JSON.stringify(image)} alt="" />`);}
       parts.push(`${indent(context.depth + 1)}<p className="empty-text">{${JSON.stringify(text)}}</p>`);
-      if (actionLabel) parts.push(`${indent(context.depth + 1)}<button type="button" className="empty-action">{${JSON.stringify(actionLabel)}}</button>`);
+      if (actionLabel) {parts.push(`${indent(context.depth + 1)}<button type="button" className="empty-action">{${JSON.stringify(actionLabel)}}</button>`);}
       return { ...nextContext, code: `${indent(context.depth)}<div className="${className}"${style ? ` ${style}` : ''}>\n${parts.join('\n')}\n${indent(context.depth)}</div>` };
     }
     case 'core.skeleton': {
@@ -660,7 +660,7 @@ function compileNodeInternal(
       const style = styleAttr(node);
       const opts = options.map((o) => `${indent(context.depth + 2)}<option value=${JSON.stringify(o)}>{${JSON.stringify(o)}}</option>`).join('\n');
       const select = `<select className="core-select" defaultValue=${JSON.stringify(value)} aria-label=${JSON.stringify(label || placeholder || 'Select')}>\n${placeholder ? `${indent(context.depth + 1)}<option value="" disabled>{${JSON.stringify(placeholder)}}</option>\n` : ''}${opts}\n${indent(context.depth + 1)}</select>`;
-      if (!label) return { ...nextContext, code: `${indent(context.depth)}${select}` };
+      if (!label) {return { ...nextContext, code: `${indent(context.depth)}${select}` };}
       return { ...nextContext, code: `${indent(context.depth)}<label className="core-field"${style ? ` ${style}` : ''}>\n${indent(context.depth + 1)}<span className="core-field-label">{${JSON.stringify(label)}}</span>\n${indent(context.depth + 1)}${select}\n${indent(context.depth)}</label>` };
     }
     case 'core.checkbox': {
@@ -732,7 +732,7 @@ function compileNodeInternal(
       const visible = Boolean(props.visible);
       const confirmText = propString(props.confirmText, '确定');
       const cancelText = propString(props.cancelText, '取消');
-      if (!visible) return { ...nextContext, code: '' };
+      if (!visible) {return { ...nextContext, code: '' };}
       return { ...nextContext, code: [
         `${indent(context.depth)}<div className="dialog-overlay">`,
         `${indent(context.depth + 1)}<div className="${className}">`,
@@ -775,7 +775,7 @@ function compileNodeInternal(
       const title = propString(props.title);
       const visible = Boolean(props.visible);
       const placement = propString(props.placement, 'right');
-      if (!visible) return { ...nextContext, code: '' };
+      if (!visible) {return { ...nextContext, code: '' };}
       return { ...nextContext, code: [
         `${indent(context.depth)}<div className="drawer-overlay">`,
         `${indent(context.depth + 1)}<div className="${className}" data-placement="${placement}">`,
@@ -807,8 +807,8 @@ function compileNodeInternal(
     case 'core.toolbar': {
       const title = propString(props.title);
       const parts: string[] = [];
-      if (title) parts.push(`${indent(context.depth + 1)}<span className="toolbar-title">{${JSON.stringify(title)}}</span>`);
-      if (children) parts.push(children);
+      if (title) {parts.push(`${indent(context.depth + 1)}<span className="toolbar-title">{${JSON.stringify(title)}}</span>`);}
+      if (children) {parts.push(children);}
       return { ...nextContext, code: wrap('div', className, node, parts.join('\n'), context, [
         `data-fixed={${JSON.stringify(Boolean(props.fixed))}}`,
       ]) };
@@ -833,8 +833,8 @@ function compileNodeInternal(
         `data-expand-all={${JSON.stringify(Boolean(props.expandAll))}}`,
       ]) };
     case 'core.table': {
-      const columns = Array.isArray(props.columns) ? props.columns as Array<Record<string, unknown>> : [];
-      const data = Array.isArray(props.data) ? props.data as Array<Record<string, unknown>> : [];
+      const columns = Array.isArray(props.columns) ? props.columns as Record<string, unknown>[] : [];
+      const data = Array.isArray(props.data) ? props.data as Record<string, unknown>[] : [];
       const bordered = Boolean(props.bordered);
       const stripe = Boolean(props.stripe);
       const style = styleAttr(node);

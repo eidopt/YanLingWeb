@@ -7,7 +7,6 @@ import type {
   TemplatesPageController,
 } from './useTemplatesPageController';
 import { useCallback, useEffect, useRef } from 'react';
-import { ScrollReveal, StaggerChildren } from 'ui/pages';
 import {
   Box,
   Button,
@@ -17,6 +16,7 @@ import {
   Stack,
   Text,
 } from 'ui/base';
+import { ScrollReveal, StaggerChildren } from 'ui/pages';
 import { ThemeCard } from 'ui/theme_card';
 
 /* ── Sort dropdown ── */

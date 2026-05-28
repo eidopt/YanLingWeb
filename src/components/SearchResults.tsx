@@ -1,32 +1,32 @@
 'use client';
 
-import { useState, useCallback } from 'react';
 import {
-  SearchService,
+  type CreateWithAiResult,
   type SearchIntentResponse,
-  type TemplateSummary,
+  SearchService,
   type SearchTemplatesResult,
-  type CreateBlankTemplateResult,
+  type TemplateSummary,
 } from '../services/SearchService';
+import { useCallback,useState } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────
 
 interface SearchResultsProps {
   token?: string | null;
   onSelectTemplate?: (templateId: string) => void;
-  onCreateFromSchema?: (schema: Record<string, unknown>) => void;
+  onCreateWithAi?: (query: string) => void;
 }
 
 type SearchState =
   | { status: 'idle' }
   | { status: 'loading' }
   | { status: 'results'; results: SearchTemplatesResult }
-  | { status: 'created'; result: CreateBlankTemplateResult }
+  | { status: 'created'; result: CreateWithAiResult }
   | { status: 'error'; message: string };
 
 // ─── Component ────────────────────────────────────────────────────
 
-export function SearchResults({ token, onSelectTemplate, onCreateFromSchema }: SearchResultsProps) {
+export function SearchResults({ token, onSelectTemplate, onCreateWithAi }: SearchResultsProps) {
   const [query, setQuery] = useState('');
   const [state, setState] = useState<SearchState>({ status: 'idle' });
 
@@ -34,7 +34,7 @@ export function SearchResults({ token, onSelectTemplate, onCreateFromSchema }: S
 
   const handleSearch = useCallback(async () => {
     const trimmed = query.trim();
-    if (!trimmed) return;
+    if (!trimmed) {return;}
 
     setState({ status: 'loading' });
 
@@ -45,7 +45,7 @@ export function SearchResults({ token, onSelectTemplate, onCreateFromSchema }: S
         setState({ status: 'results', results: result });
       } else if (service.isCreateResult(result)) {
         setState({ status: 'created', result });
-        onCreateFromSchema?.(result.schema);
+        onCreateWithAi?.(result.query);
       }
     } catch (err) {
       setState({
@@ -53,7 +53,7 @@ export function SearchResults({ token, onSelectTemplate, onCreateFromSchema }: S
         message: err instanceof Error ? err.message : '搜索失败',
       });
     }
-  }, [query, token, onCreateFromSchema]);
+  }, [query, token, onCreateWithAi]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -173,21 +173,16 @@ function TemplateCard({
 
 // ─── Create Result Card ───────────────────────────────────────────
 
-function CreateResultCard({ result }: { result: CreateBlankTemplateResult }) {
+function CreateResultCard({ result }: { result: CreateWithAiResult }) {
   return (
     <div className="create-result">
       <div className="create-result-header">
         <span className="create-result-icon">✨</span>
-        <span>已为你生成模板骨架</span>
+        <span>正在跳转到编辑器，AI 将为你生成模板…</span>
       </div>
       <p className="create-result-desc">
-        基于你的描述 &ldquo;{result.query}&rdquo; 生成了一个空白模板结构，
-        你可以在编辑器中进一步完善。
+        基于你的描述 &ldquo;{result.query}&rdquo;
       </p>
-      <div className="create-result-meta">
-        <span>模板 ID: {String(result.schema.themeId ?? '')}</span>
-        <span>页面数: {Array.isArray(result.schema.pages) ? result.schema.pages.length : 0}</span>
-      </div>
     </div>
   );
 }

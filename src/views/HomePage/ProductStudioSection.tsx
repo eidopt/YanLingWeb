@@ -3,15 +3,15 @@
 import { homePageContent as c } from './HomePage.content';
 import styles from './ProductStudioSection.module.css';
 import {
+  Box,
+  Text,
+} from 'ui/base';
+import {
   PageButton,
   PageSection,
   ScrollReveal,
   SectionHeader,
 } from 'ui/pages';
-import {
-  Box,
-  Text,
-} from 'ui/base';
 
 interface ProductStudioSectionProps {
   onCtaClick: () => void;

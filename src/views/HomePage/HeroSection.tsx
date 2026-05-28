@@ -3,12 +3,12 @@
 import styles from './HeroSection.module.css';
 import { homePageContent as c } from './HomePage.content';
 import { useCallback } from 'react';
-import { PageButton } from 'ui/pages';
 import {
   Box,
   Heading,
   Text,
 } from 'ui/base';
+import { PageButton } from 'ui/pages';
 
 interface HeroSectionProps {
   onCtaPrimary: () => void;

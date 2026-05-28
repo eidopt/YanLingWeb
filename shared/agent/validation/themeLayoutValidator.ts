@@ -1,3 +1,4 @@
+import { isAllowedTemplateImageSrc } from '../../theme-layout/visualAssets';
 import type {
   RenderSmokeResult,
   ThemeComponentDescriptor,
@@ -16,7 +17,6 @@ import {
   resolveSafeWidgetRenderer,
   SUPPORTED_WIDGET_RENDERERS,
 } from './widgetSafety';
-import { isAllowedTemplateImageSrc } from '../../theme-layout/visualAssets';
 
 export interface ThemeLayoutValidatorOptions {
   failOnUnknownProps?: boolean;

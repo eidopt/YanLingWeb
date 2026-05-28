@@ -2,8 +2,8 @@
  * Generate templates-index.json from templates_json/*.json
  * Output: public/templates-index.json
  */
-import { readdirSync, writeFileSync, readFileSync } from 'fs';
-import { resolve, dirname, basename } from 'path';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'fs';
+import { basename, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -152,5 +152,9 @@ const result = {
     })),
 };
 
+const outputDir = dirname(OUTPUT);
+if (!existsSync(outputDir)) {
+  mkdirSync(outputDir, { recursive: true });
+}
 writeFileSync(OUTPUT, JSON.stringify(result, null, 2), 'utf8');
 console.log(`Generated index: ${result.total} templates in ${result.categories.length + result.extraCategories.length} categories → ${OUTPUT}`);

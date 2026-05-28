@@ -14,6 +14,7 @@ import {
   summarizeTemplateAgentKnowledge,
 } from '@shared/agent/context/editorContext';
 import { EDITOR_COPILOT_SYSTEM_PROMPT } from '@shared/agent/prompts/editorCopilotPrompt';
+import { QueryLoop, type ToolResult } from '@shared/agent/runtime/queryLoop';
 import {
   formatUiDesignSkillContextForPrompt,
   inferUiDesignSkillContext,
@@ -54,7 +55,6 @@ import type {
   ProviderStreamEvent,
   ProviderTool,
 } from './core/providers/types';
-import { QueryLoop, type ToolResult } from './core/query-loop';
 import { tokenCountWithEstimation } from './core/utils/tokens';
 import { buildEditorClarification } from './editor-clarification';
 import {
@@ -402,6 +402,23 @@ export class AiService {
 
   getProviderForAgentEval(): AIProvider {
     return this.provider;
+  }
+
+  /**
+   * Public accessor used by the multi-stage template pipeline (`AiTemplatesModule`).
+   * Returns the shared provider + the configured "pro" model, plus a flag indicating
+   * whether the API key is configured (the pipeline aborts gracefully if not).
+   */
+  getProviderForTemplatePipeline(): {
+    provider: AIProvider;
+    model: string;
+    apiKeyConfigured: boolean;
+  } {
+    return {
+      provider: this.provider,
+      model: this.aiConfig.models.pro,
+      apiKeyConfigured: this.apiKeyConfigured,
+    };
   }
 
   private resolveConfiguredModel(requestedModel?: string): string {

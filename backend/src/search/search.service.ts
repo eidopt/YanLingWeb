@@ -1,7 +1,5 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CORE_COMPONENTS } from '@shared/agent/fixtures/blankDocument';
-import type { ThemeLayoutDocument } from '@shared/agent/types';
 import { Repository } from 'typeorm';
 
 import { Template } from '../templates/entities/template.entity';
@@ -28,14 +26,13 @@ export interface SearchTemplatesResult {
   total: number;
 }
 
-export interface CreateBlankTemplateResult {
+export interface CreateWithAiResult {
   status: 'ok';
-  mode: 'create_blank_template';
+  mode: 'create_with_ai';
   query: string;
-  schema: ThemeLayoutDocument;
 }
 
-export type SearchIntentResult = SearchTemplatesResult | CreateBlankTemplateResult;
+export type SearchIntentResult = SearchTemplatesResult | CreateWithAiResult;
 
 // ─── Intent Classification ────────────────────────────────────────
 
@@ -64,10 +61,11 @@ function classifyIntent(query: string): IntentMode {
     if (lower.includes(kw)) {createScore++;}
   }
 
-  // If query mentions specific template-like nouns, lean toward search
+  // If query mentions template-like nouns AND no create keywords, lean toward search.
+  // "生成一个营销类的模板" has createScore>0 so "模板" won't boost search here.
   const templateNouns = ['模板', '模板库', '案例', '示例', '参考', 'template'];
   for (const noun of templateNouns) {
-    if (lower.includes(noun)) {searchScore += 2;}
+    if (lower.includes(noun) && createScore === 0) {searchScore += 2;}
   }
 
   // If query mentions specific app types, lean toward create
@@ -130,52 +128,6 @@ function extractSearchKeywords(query: string): string[] {
     .filter((w) => w.length > 0 && !stopWords.has(w));
 }
 
-// ─── Blank Template Generator ─────────────────────────────────────
-
-function generateBlankTemplate(query: string, _categories: string[]): ThemeLayoutDocument {
-  const themeId = `user-${Date.now()}`;
-  const pageTitle = query.slice(0, 30);
-
-  const layout: ThemeLayoutDocument['pages'][0]['layout'] = {
-    id: `${themeId}-screen`,
-    alias: 'core.screen',
-    layout: { mode: 'flow', width: '100%' },
-    props: { title: pageTitle },
-    children: [
-      {
-        id: `${themeId}-search`,
-        alias: 'core.search',
-        layout: { mode: 'flow', order: 1, width: '100%' },
-        props: { placeholder: '搜索' },
-      },
-      {
-        id: `${themeId}-title`,
-        alias: 'core.text',
-        layout: { mode: 'flow', order: 2, width: '100%' },
-        props: { text: pageTitle, variant: 'heading' },
-      },
-      {
-        id: `${themeId}-desc`,
-        alias: 'core.text',
-        layout: { mode: 'flow', order: 3, width: '100%' },
-        props: { text: '开始编辑此模板', variant: 'body' },
-      },
-    ],
-  };
-
-  return {
-    version: 1,
-    themeId,
-    themeName: pageTitle,
-    pageName: pageTitle,
-    description: `由搜索 "${query}" 创建的空白模板`,
-    components: CORE_COMPONENTS,
-    defaultPageId: 'home',
-    pages: [{ id: 'home', name: pageTitle, layout }],
-    layout,
-  };
-}
-
 // ─── Search Service ───────────────────────────────────────────────
 
 @Injectable()
@@ -200,13 +152,10 @@ export class SearchService {
     this.logger.log(`Search intent: mode=${mode}, query="${normalizedQuery}"`);
 
     if (mode === 'create_blank_template') {
-      const categories = extractCategories(normalizedQuery);
-      const schema = generateBlankTemplate(normalizedQuery, categories);
       return {
         status: 'ok',
-        mode: 'create_blank_template',
+        mode: 'create_with_ai' as const,
         query: normalizedQuery,
-        schema,
       };
     }
 

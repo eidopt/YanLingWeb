@@ -3,7 +3,7 @@
  * Output: templates_json/configs/<templateId>.generated.json
  */
 
-import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from 'node:fs';
+import { existsSync,mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 // ─── Types ────────────────────────────────────────────────────────
@@ -183,16 +183,16 @@ const COMPONENT_LABELS: Record<string, string> = {
 
 function detectPageKind(pageId: string, pageName: string): string {
   const lower = (pageId + ' ' + pageName).toLowerCase();
-  if (lower.includes('home') || lower.includes('首页') || lower.includes('主页')) return 'home';
-  if (lower.includes('detail') || lower.includes('详情')) return 'detail';
-  if (lower.includes('profile') || lower.includes('我的') || lower.includes('个人')) return 'profile';
-  if (lower.includes('cart') || lower.includes('购物车')) return 'cart';
-  if (lower.includes('order') || lower.includes('订单')) return 'order';
-  if (lower.includes('search') || lower.includes('搜索')) return 'search';
-  if (lower.includes('list') || lower.includes('分类') || lower.includes('列表')) return 'list';
-  if (lower.includes('setting') || lower.includes('设置')) return 'settings';
-  if (lower.includes('message') || lower.includes('消息')) return 'message';
-  if (lower.includes('login') || lower.includes('登录')) return 'auth';
+  if (lower.includes('home') || lower.includes('首页') || lower.includes('主页')) {return 'home';}
+  if (lower.includes('detail') || lower.includes('详情')) {return 'detail';}
+  if (lower.includes('profile') || lower.includes('我的') || lower.includes('个人')) {return 'profile';}
+  if (lower.includes('cart') || lower.includes('购物车')) {return 'cart';}
+  if (lower.includes('order') || lower.includes('订单')) {return 'order';}
+  if (lower.includes('search') || lower.includes('搜索')) {return 'search';}
+  if (lower.includes('list') || lower.includes('分类') || lower.includes('列表')) {return 'list';}
+  if (lower.includes('setting') || lower.includes('设置')) {return 'settings';}
+  if (lower.includes('message') || lower.includes('消息')) {return 'message';}
+  if (lower.includes('login') || lower.includes('登录')) {return 'auth';}
   return 'content';
 }
 
@@ -229,7 +229,7 @@ function generateConfig(doc: ThemeLayoutDocument): TemplateProfile {
 
     // Collect navigation items from footer tabs
     const footerTabs = findFooterTabs(page.layout);
-    if (footerTabs && footerTabs.interactions?.onTabClick) {
+    if (footerTabs?.interactions?.onTabClick) {
       const tabClick = footerTabs.interactions.onTabClick;
       const tabs = Array.isArray(footerTabs.props?.tabs) ? footerTabs.props.tabs as string[] : [];
       for (const tab of tabs) {
@@ -244,7 +244,7 @@ function generateConfig(doc: ThemeLayoutDocument): TemplateProfile {
   // Deduplicate nav items
   const seenNavTargets = new Set<string>();
   const uniqueNav = navItems.filter((item) => {
-    if (seenNavTargets.has(item.targetPageId)) return false;
+    if (seenNavTargets.has(item.targetPageId)) {return false;}
     seenNavTargets.add(item.targetPageId);
     return true;
   });
@@ -282,9 +282,9 @@ function detectDevices(doc: ThemeLayoutDocument): string[] {
   const devices = new Set<string>();
   for (const page of doc.pages) {
     const surface = page.layout.props?.surface as string | undefined;
-    if (surface === 'mini-program') devices.add('miniapp');
-    else if (surface === 'mobile-app') devices.add('mobile');
-    else if (surface === 'web') devices.add('desktop');
+    if (surface === 'mini-program') {devices.add('miniapp');}
+    else if (surface === 'mobile-app') {devices.add('mobile');}
+    else if (surface === 'web') {devices.add('desktop');}
   }
   if (devices.size === 0) {
     devices.add('miniapp');
@@ -374,11 +374,11 @@ function walkNode(
 }
 
 function findFooterTabs(node: ThemeLayoutNode): ThemeLayoutNode | null {
-  if (node.slot === 'footer' && node.alias === 'core.tabs') return node;
+  if (node.slot === 'footer' && node.alias === 'core.tabs') {return node;}
   if (node.children) {
     for (const child of node.children) {
       const found = findFooterTabs(child);
-      if (found) return found;
+      if (found) {return found;}
     }
   }
   return null;

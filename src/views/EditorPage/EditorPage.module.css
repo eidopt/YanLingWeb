@@ -7,3 +7,19 @@
     radial-gradient(ellipse 32% 28% at 84% 74%, rgba(34, 211, 238, 0.04), transparent 62%),
     var(--app-editor-bg);
 }
+
+.statusScreen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statusText {
+  font-size: 14px;
+  color: var(--app-text-2);
+}
+
+.errorText {
+  font-size: 14px;
+  color: var(--app-danger);
+}

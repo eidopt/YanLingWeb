@@ -1,7 +1,8 @@
 'use client';
 
+import { editorPageContent as c } from './EditorPage.content';
 import { useAppServices } from 'hooks/useAppServices';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   useCallback,
   useEffect,
@@ -16,6 +17,8 @@ import type { ThemeLayoutDocument } from 'ui/layout/types';
 
 export interface EditorPageController {
   loading: boolean;
+  generating: boolean;
+  generateError: string | null;
   templates: ThemeSpec[];
   libraryTemplates: ThemeSpec[];
   initialThemeId: string | undefined;
@@ -28,12 +31,17 @@ export interface EditorPageController {
 
 export function useEditorPageController(): EditorPageController {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const themeId = searchParams.get('themeId') ?? undefined;
   const ownedTemplateId = searchParams.get('templateId') ?? undefined;
-  const { templateService } = useAppServices();
+  const autoGenerate = searchParams.get('autoGenerate') === 'true';
+  const promptParam = searchParams.get('prompt') ?? '';
+  const { templateService, templateAiService } = useAppServices();
   const [marketTemplates, setMarketTemplates] = useState<ThemeSpec[]>([]);
   const [ownedTemplate, setOwnedTemplate] = useState<ThemeSpec | null>(null);
   const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(autoGenerate && !!promptParam);
+  const [generateError, setGenerateError] = useState<string | null>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSavedRef = useRef('');
   const pendingSaveRef = useRef('');
@@ -70,6 +78,45 @@ export function useEditorPageController(): EditorPageController {
       requestState.cancelled = true;
     };
   }, [ownedTemplateId, templateService]);
+
+  useEffect(() => {
+    if (!autoGenerate || !promptParam) {return;}
+
+    const abort = new AbortController();
+    let savedTemplateId: string | null = null;
+
+    void templateAiService.generate({
+      prompt: promptParam,
+      signal: abort.signal,
+      onEvent: (event) => {
+        if (event.type === 'template_saved') {
+          try {
+            const data = JSON.parse(event.data) as { templateId?: string };
+            if (data.templateId) {
+              savedTemplateId = data.templateId;
+            }
+          } catch {
+            // ignore parse error
+          }
+        }
+        if (event.type === 'done') {
+          setGenerating(false);
+          if (savedTemplateId) {
+            router.replace(`/editor?templateId=${encodeURIComponent(savedTemplateId)}`);
+          }
+        }
+        if (event.type === 'error') {
+          setGenerating(false);
+          setGenerateError(event.data || c.generateDefaultError);
+        }
+      },
+    });
+
+    return () => {
+      abort.abort();
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // run once on mount
 
   useEffect(() => () => {
     if (saveTimerRef.current) {
@@ -146,6 +193,8 @@ export function useEditorPageController(): EditorPageController {
 
   return {
     loading,
+    generating,
+    generateError,
     templates,
     libraryTemplates: marketTemplates,
     initialThemeId: ownedTemplateId ?? themeId,

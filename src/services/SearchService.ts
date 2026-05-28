@@ -20,14 +20,13 @@ export interface SearchTemplatesResult {
   total: number;
 }
 
-export interface CreateBlankTemplateResult {
+export interface CreateWithAiResult {
   status: 'ok';
-  mode: 'create_blank_template';
+  mode: 'create_with_ai';
   query: string;
-  schema: Record<string, unknown>;
 }
 
-export type SearchIntentResponse = SearchTemplatesResult | CreateBlankTemplateResult;
+export type SearchIntentResponse = SearchTemplatesResult | CreateWithAiResult;
 
 // ─── Service ──────────────────────────────────────────────────────
 
@@ -61,7 +60,7 @@ export class SearchService {
   }
 
   /** Type guard: check if response is a create result */
-  isCreateResult(response: SearchIntentResponse): response is CreateBlankTemplateResult {
-    return response.mode === 'create_blank_template';
+  isCreateResult(response: SearchIntentResponse): response is CreateWithAiResult {
+    return response.mode === 'create_with_ai';
   }
 }

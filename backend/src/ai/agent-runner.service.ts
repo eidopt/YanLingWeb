@@ -14,6 +14,7 @@ import {
 import { CORE_COMPONENTS } from '@shared/agent/fixtures/blankDocument';
 import { getSeedDocument } from '@shared/agent/fixtures/seedDocuments';
 import { EDITOR_COPILOT_SYSTEM_PROMPT } from '@shared/agent/prompts/editorCopilotPrompt';
+import { QueryLoop } from '@shared/agent/runtime/queryLoop';
 import {
   formatUiDesignSkillContextForPrompt,
   inferUiDesignSkillContext,
@@ -39,7 +40,6 @@ import { withThemeLayoutStyleManifest } from '@shared/theme-layout/styleManifest
 
 import { AiService } from './ai.service';
 import type { ProviderMessage } from './core/providers/types';
-import { QueryLoop } from './core/query-loop';
 import { tokenCountWithEstimation } from './core/utils/tokens';
 import { buildEditorClarification } from './editor-clarification';
 import {
@@ -469,7 +469,7 @@ export class AgentRunnerService {
                 ? { componentTemplates: input.componentTemplates }
                 : {}),
               ...(isRecord(input.cssAnimations)
-                ? { cssAnimations: input.cssAnimations as Record<string, string> }
+                ? { cssAnimations: input.cssAnimations }
                 : {}),
             },
             isRecord(input.cssVars)

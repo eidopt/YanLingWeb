@@ -2,8 +2,8 @@
 
 import { homePageContent as c } from './HomePage.content';
 import { useEffect, useRef, useState } from 'react';
-import { MetricStrip } from 'ui/pages';
 import { Box } from 'ui/base';
+import { MetricStrip } from 'ui/pages';
 
 function CountUpValue({ value }: { value: string }) {
   const ref = useRef<HTMLSpanElement | null>(null);

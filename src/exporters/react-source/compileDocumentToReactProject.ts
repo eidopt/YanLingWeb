@@ -89,7 +89,7 @@ export function compileDocumentToReactProject(
   );
   const cssAnimations = {
     ...(options.runtimeCssAnimations ?? {}),
-    ...((document.cssAnimations ?? {}) as Record<string, string>),
+    ...((document.cssAnimations ?? {})),
   };
   const appImports = compiledPages
     .map((page) => [

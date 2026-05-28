@@ -11,6 +11,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { AuthUser } from 'services/AuthService';
 import type { TemplateService } from 'services/TemplateService';
 import type { ThemeSpec } from 'types/theme.types';
+import {
+  Box,
+  Heading,
+  Label,
+  Text,
+  TextArea,
+} from 'ui/base';
 import { ThemeToggleButton } from 'ui/global_nav';
 import {
   CalendarIcon,
@@ -26,13 +33,6 @@ import {
   WebIcon,
 } from 'ui/icons';
 import { PageRoot, ScrollReveal } from 'ui/pages';
-import {
-  Box,
-  Heading,
-  Label,
-  Text,
-  TextArea,
-} from 'ui/base';
 import { ThemeCard } from 'ui/theme_card';
 import { showThemePreviewModal } from 'ui/theme_preview_modal';
 import { UserSettingsDialog } from 'ui/user_settings';
@@ -332,14 +332,23 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
 
   function submitSearch(nextSearch = searchDraft) {
     const trimmedSearch = nextSearch.trim();
-    setLoading(true);
-    setSubmittedSearch(trimmedSearch);
-    setSearchRevision((current) => current + 1);
 
     if (trimmedSearch) {
-      void searchService.submit(trimmedSearch).catch((err: unknown) => {
+      void searchService.submit(trimmedSearch).then((result) => {
+        if (searchService.isCreateResult(result)) {
+          router.push(`/editor?prompt=${encodeURIComponent(result.query)}&autoGenerate=true`);
+          return;
+        }
+        setLoading(true);
+        setSubmittedSearch(trimmedSearch);
+        setSearchRevision((current) => current + 1);
+      }).catch((err: unknown) => {
         setError(err instanceof Error ? err.message : String(err));
       });
+    } else {
+      setLoading(true);
+      setSubmittedSearch('');
+      setSearchRevision((current) => current + 1);
     }
   }
 

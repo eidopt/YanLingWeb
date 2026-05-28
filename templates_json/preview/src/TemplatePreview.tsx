@@ -1,6 +1,7 @@
+import { applyVisualAssetsToLayoutDocument } from '@shared/theme-layout/visualAssets';
+import { type CSSProperties, useEffect, useMemo, useState } from 'react';
 import type { ThemeLayoutDocument, ThemeLayoutDocumentSource } from 'ui/layout/types';
 import { normalizeThemeLayoutDocument } from 'ui/layout/types';
-import { applyVisualAssetsToLayoutDocument } from '@shared/theme-layout/visualAssets';
 import {
   DynamicThemeRenderer,
   type DynamicThemeScreenPreset,
@@ -8,7 +9,6 @@ import {
 } from 'ui/renderer';
 import type { ComponentTemplateMap } from 'ui/renderer/templateTypes';
 import type { ThemeRuntime } from 'ui/renderer/types';
-import { type CSSProperties, useEffect, useMemo, useState } from 'react';
 
 const TEMPLATES_API = '/templates_json';
 
@@ -123,7 +123,7 @@ function TemplatePreviewRenderer({
 
   return (
     <div
-      style={template.runtime.cssVars as CSSProperties}
+      style={template.runtime.cssVars}
       data-template-preview-renderer="true"
     >
       <DynamicThemeRenderer controller={controller} />

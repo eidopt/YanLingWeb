@@ -14,7 +14,6 @@ import {
 @Index(['category'])
 @Index(['displayCategory'])
 @Index(['primaryFunctionalCategory'])
-@Index(['name'])
 @Index(['isPublic', 'category'])
 @Index(['isPublic', 'displayCategory'])
 @Index(['isPublic', 'primaryFunctionalCategory'])

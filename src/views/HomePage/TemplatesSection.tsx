@@ -4,16 +4,16 @@ import { homePageContent as c } from './HomePage.content';
 import styles from './TemplatesSection.module.css';
 import { useTemplates } from 'hooks/useTemplates';
 import {
+  Box,
+  Text,
+} from 'ui/base';
+import {
   CardGrid,
   PageButton,
   PageSection,
   ScrollReveal,
   SectionHeader,
 } from 'ui/pages';
-import {
-  Box,
-  Text,
-} from 'ui/base';
 import { ThemeCard } from 'ui/theme_card';
 
 interface TemplatesSectionProps {

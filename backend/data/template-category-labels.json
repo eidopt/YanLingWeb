@@ -24,6 +24,21 @@
     "social-feed": "社交动态",
     "utility-tools": "工具应用"
   },
+  "displayCategories": {
+    "general": "通用",
+    "commerce": "电商零售",
+    "service": "本地服务",
+    "content": "内容资讯",
+    "education": "教育学习",
+    "health": "健康医疗",
+    "social": "社交社区",
+    "finance": "金融理财",
+    "marketing": "营销活动",
+    "utility": "工具效率",
+    "dashboard": "数据看板",
+    "profile": "个人中心",
+    "other": "其他"
+  },
   "platformCategories": {
     "mini-program": "小程序",
     "mobile-app": "移动应用",
@@ -72,20 +87,5 @@
     "information": "资讯",
     "account": "账户",
     "tools": "工具"
-  },
-  "displayCategories": {
-    "general": "通用",
-    "commerce": "电商零售",
-    "service": "本地服务",
-    "content": "内容资讯",
-    "education": "教育学习",
-    "health": "健康医疗",
-    "social": "社交社区",
-    "finance": "金融理财",
-    "marketing": "营销活动",
-    "utility": "工具效率",
-    "dashboard": "数据看板",
-    "profile": "个人中心",
-    "other": "其他"
   }
 }

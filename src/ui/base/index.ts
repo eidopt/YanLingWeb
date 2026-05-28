@@ -1,4 +1,3 @@
-export * from './Tooltip';
 export type { BoxProps } from './Box';
 export { Box } from './Box';
 export type {
@@ -100,5 +99,6 @@ export type {
 export { Text } from './Text';
 export type { TextAreaProps } from './TextArea';
 export { TextArea } from './TextArea';
+export * from './Tooltip';
 export type { VisuallyHiddenProps } from './VisuallyHidden';
 export { VisuallyHidden } from './VisuallyHidden';

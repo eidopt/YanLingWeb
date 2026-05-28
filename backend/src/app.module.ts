@@ -4,6 +4,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { AiModule } from './ai/ai.module';
+import { AiTemplatesModule } from './ai-templates/ai-templates.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigFactory } from './config/config.factory';
 import { ConfigModule } from './config/config.module';
@@ -38,6 +39,7 @@ const startupServerFlavor = ConfigFactory.applyStartupFlavor();
     ExportsModule,
     UsersModule,
     AiModule,
+    AiTemplatesModule,
   ],
   providers: [
     {

@@ -164,7 +164,7 @@ export class TemplateAssetService {
       n: 1,
       size: DEFAULT_IMAGE_SIZE,
     });
-    const data = (response as { data?: Array<{ b64_json?: string; url?: string; }>; }).data;
+    const data = (response as { data?: { b64_json?: string; url?: string; }[]; }).data;
     const image = data?.[0];
 
     if (image?.b64_json) {

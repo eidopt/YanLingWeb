@@ -1,21 +1,4 @@
 {
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "jq -r '.tool_input.file_path // .tool_response.filePath' | { read -r f; echo \"$f\" | grep -qE '\\.(ts|tsx)$' && cd /Users/shaunxiao/Documents/projects/ai-app && pnpm lint --fix \"$f\" 2>&1 || true; }",
-            "statusMessage": "ESLint --fix",
-            "asyncRewake": true,
-            "rewakeMessage": "ESLint found issues that could not be auto-fixed:",
-            "timeout": 60
-          }
-        ]
-      }
-    ]
-  },
   "permissions": {
     "allow": [
       "Bash(mkdir:*)",
@@ -96,7 +79,39 @@
       "Bash(sed -i '' 's|from '\\''./services/export.types'\\''|from '\\''./types/export.types'\\''|g' /Users/shaunxiao/Documents/projects/ai-app/src/electron.d.ts)",
       "Bash(sed -n '1,6p' /Users/shaunxiao/Documents/projects/ai-app/src/services/exportService.ts)",
       "Bash(sed -n '14,18p' /Users/shaunxiao/Documents/projects/ai-app/src/ui/export_dialog/ExportDialog.tsx)",
-      "Bash(git ls-tree:*)"
+      "Bash(git ls-tree:*)",
+      "Bash(tree -L 3 -d /Users/shaunxiao/Documents/projects/ai-app/src --ignore node_modules)",
+      "Bash(python3 -m json.tool .claude/settings.local.json)"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /Users/shaunxiao/Documents/projects/ai-app && gitstatus=$(git status --porcelain 2>/dev/null | grep -v '.claude/'); changed=$(echo \"$gitstatus\" | grep -c . | tr -d ' '); if [ \"$changed\" -gt 0 ]; then currhash=$(echo \"$gitstatus\" | md5); hashfile=\"/tmp/ai-app-kb-check.hash\"; prevhash=$(cat \"$hashfile\" 2>/dev/null); if [ \"$currhash\" != \"$prevhash\" ]; then echo \"$currhash\" > \"$hashfile\"; echo \"检测到 $changed 个项目文件变更，请用 /update-knowledge-base 判断是否需要更新项目知识库\"; exit 2; fi; fi",
+            "timeout": 10,
+            "asyncRewake": true,
+            "rewakeMessage": "知识库自动检查："
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // .tool_response.filePath' | { read -r f; echo \"$f\" | grep -qE '\\.(ts|tsx)$' && cd /Users/shaunxiao/Documents/projects/ai-app && pnpm lint --fix \"$f\" 2>&1 || true; }",
+            "timeout": 60,
+            "statusMessage": "ESLint --fix",
+            "asyncRewake": true,
+            "rewakeMessage": "ESLint found issues that could not be auto-fixed:"
+          }
+        ]
+      }
     ]
   }
 }

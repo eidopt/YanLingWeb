@@ -1,5 +1,5 @@
-import type { TemplateAgentConfig, ThemeSpec } from 'types/theme.types';
 import { normalizeVisualAssets } from '@shared/theme-layout/visualAssets';
+import type { TemplateAgentConfig, ThemeSpec } from 'types/theme.types';
 import type {
   ThemeLayoutDocument,
   ThemeLayoutDocumentSource,

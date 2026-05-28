@@ -1,0 +1,236 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { STAGE_DIVERSITY_CRITIC_SYSTEM_PROMPT } from '@shared/agent/prompts/templates';
+
+import { AiService } from '../../ai/ai.service';
+import type {
+  CriticVerdict,
+  DesignerOutput,
+  DiversityConflict,
+  ExistingTemplateSummary,
+  PipelineStageRecord,
+} from '../orchestrator/pipeline.types';
+import { runStructuredStage } from '../orchestrator/run-stage';
+import { SUBMIT_DIVERSITY_VERDICT_TOOL } from '../tools/submit-diversity-verdict.tool';
+
+const VALID_DIMENSIONS = new Set<DiversityConflict['dimension']>([
+  'archetype', 'heroMode', 'componentTemplate', 'color-hue', 'signature',
+]);
+
+/**
+ * Stage 2 — Diversity Critic
+ *
+ * 两层防御：
+ *  1. 程序化硬规则（archetype/heroMode/componentTemplate 重复上限）— 免费、快
+ *  2. LLM 语义检查（diversitySignature 语义雷同）— 只在硬规则通过时调用
+ *
+ * 任意一层触发冲突就 verdict=revise，把"明确的换什么"建议传回 Designer。
+ */
+@Injectable()
+export class DiversityCriticAgent {
+  private readonly logger = new Logger(DiversityCriticAgent.name);
+
+  constructor(private readonly aiService: AiService) {}
+
+  async run(
+    candidate: DesignerOutput,
+    existing: ExistingTemplateSummary[],
+    attempt: number,
+  ): Promise<PipelineStageRecord<CriticVerdict>> {
+    const start = Date.now();
+    this.logger.debug(
+      `critic attempt=${attempt} candidate=${candidate.templateId}`
+        + ` existing=${existing.length}`,
+    );
+
+    const hardConflicts = this.findHardConflicts(candidate, existing);
+    if (hardConflicts.length > 0) {
+      const verdict: CriticVerdict = {
+        verdict: 'revise',
+        conflicts: hardConflicts,
+        suggestion: this.buildSuggestion(candidate, existing),
+      };
+      return {
+        attempt,
+        durationMs: Date.now() - start,
+        inputTokens: 0,
+        outputTokens: 0,
+        cacheHitTokens: 0,
+        output: verdict,
+      };
+    }
+
+    // 没有硬冲突，跑 LLM 语义检查
+    if (existing.length === 0) {
+      const verdict: CriticVerdict = { verdict: 'pass', conflicts: [] };
+      return {
+        attempt,
+        durationMs: Date.now() - start,
+        inputTokens: 0,
+        outputTokens: 0,
+        cacheHitTokens: 0,
+        output: verdict,
+      };
+    }
+
+    const { provider, model, apiKeyConfigured } =
+      this.aiService.getProviderForTemplatePipeline();
+    if (!apiKeyConfigured) {
+      // API key 未配置，退化为只看硬规则的判断
+      this.logger.warn('AI_API_KEY 未配置，Critic 跳过 LLM 语义检查');
+      return {
+        attempt,
+        durationMs: Date.now() - start,
+        inputTokens: 0,
+        outputTokens: 0,
+        cacheHitTokens: 0,
+        output: { verdict: 'pass', conflicts: [] },
+      };
+    }
+
+    const userMessage = this.buildUserMessage(candidate, existing);
+    const result = await runStructuredStage<CriticVerdict>({
+      provider,
+      model,
+      systemPrompt: STAGE_DIVERSITY_CRITIC_SYSTEM_PROMPT,
+      userMessage,
+      tool: SUBMIT_DIVERSITY_VERDICT_TOOL,
+      parse: (args) => this.parseVerdict(args),
+    });
+
+    return {
+      attempt,
+      durationMs: Date.now() - start,
+      inputTokens: result.usage.inputTokens,
+      outputTokens: result.usage.outputTokens,
+      cacheHitTokens: result.usage.cacheHitTokens,
+      output: result.output,
+    };
+  }
+
+  private findHardConflicts(
+    candidate: DesignerOutput,
+    existing: ExistingTemplateSummary[],
+  ): DiversityConflict[] {
+    const conflicts: DiversityConflict[] = [];
+
+    const sameArchetype = existing.filter(
+      (e) => e.archetype === candidate.archetype
+        && e.displayCategory === candidate.displayCategory,
+    );
+    if (sameArchetype.length >= 2) {
+      for (const e of sameArchetype) {
+        conflicts.push({
+          templateId: e.templateId,
+          dimension: 'archetype',
+          description:
+            `同 archetype "${candidate.archetype}"`
+            + ` 在 displayCategory "${candidate.displayCategory}"`
+            + ` 下已有 ${sameArchetype.length} 个`,
+        });
+      }
+    }
+
+    const sameHero = existing.filter(
+      (e) => e.heroMode === candidate.heroMode
+        && e.displayCategory === candidate.displayCategory,
+    );
+    if (sameHero.length >= 1) {
+      for (const e of sameHero) {
+        conflicts.push({
+          templateId: e.templateId,
+          dimension: 'heroMode',
+          description:
+            `同 heroMode "${candidate.heroMode}"`
+            + ` 在 displayCategory "${candidate.displayCategory}"`
+            + ` 下已被 ${e.templateId} 使用`,
+        });
+      }
+    }
+
+    const candidateAliases = new Set(candidate.componentTemplatesDraft.map((c) => c.alias));
+    for (const e of existing) {
+      for (const alias of e.componentTemplateAliases) {
+        if (candidateAliases.has(alias)) {
+          conflicts.push({
+            templateId: e.templateId,
+            dimension: 'componentTemplate',
+            description: `componentTemplate alias "${alias}" 已被 ${e.templateId} 使用`,
+          });
+        }
+      }
+    }
+
+    return conflicts;
+  }
+
+  private buildSuggestion(
+    candidate: DesignerOutput,
+    existing: ExistingTemplateSummary[],
+  ): string {
+    const digest = existing
+      .map((e) => `${e.templateId}(${e.archetype}/${e.heroMode})`)
+      .join(', ');
+    return `请换一个 archetype 或 heroMode；当前 displayCategory`
+      + ` "${candidate.displayCategory}" 下已有: ${digest}`;
+  }
+
+  private buildUserMessage(
+    candidate: DesignerOutput,
+    existing: ExistingTemplateSummary[],
+  ): string {
+    const candidateSummary = {
+      templateId: candidate.templateId,
+      archetype: candidate.archetype,
+      heroMode: candidate.heroMode,
+      displayCategory: candidate.displayCategory,
+      diversitySignature: candidate.diversitySignature,
+      componentTemplateAliases: candidate.componentTemplatesDraft.map((c) => c.alias),
+      primaryHue: candidate.cssVars['--color-primary'] ?? '#000000',
+    };
+    return [
+      '判断候选 brief 是否与已生成模板雷同。重点对比 diversitySignature 的'
+        + '语义相似度。',
+      '只要语义雷同就 verdict=revise，并通过 suggestion 给出明确的换什么。',
+      '',
+      '候选：',
+      '```json',
+      JSON.stringify(candidateSummary, null, 2),
+      '```',
+      '',
+      '已生成模板摘要：',
+      '```json',
+      JSON.stringify(existing, null, 2),
+      '```',
+    ].join('\n');
+  }
+
+  private parseVerdict(args: Record<string, unknown>): CriticVerdict {
+    const verdict = args.verdict;
+    if (verdict !== 'pass' && verdict !== 'revise') {
+      throw new Error(`Critic verdict 字段必须是 "pass" 或 "revise"`);
+    }
+    const conflictsRaw = Array.isArray(args.conflicts) ? args.conflicts : [];
+    const conflicts: DiversityConflict[] = conflictsRaw.map((c, i) => {
+      if (!c || typeof c !== 'object') {
+        throw new Error(`Critic conflicts[${i}] 必须是对象`);
+      }
+      const item = c as Record<string, unknown>;
+      const str = (key: string): string =>
+        typeof item[key] === 'string' ? (item[key]) : '';
+      const dim = str('dimension');
+      if (!VALID_DIMENSIONS.has(dim as DiversityConflict['dimension'])) {
+        throw new Error(`Critic conflicts[${i}].dimension "${dim}" 不在合法枚举内`);
+      }
+      return {
+        templateId: str('templateId'),
+        dimension: dim as DiversityConflict['dimension'],
+        description: str('description'),
+      };
+    });
+    return {
+      verdict,
+      conflicts,
+      suggestion: typeof args.suggestion === 'string' ? args.suggestion : undefined,
+    };
+  }
+}

@@ -1,15 +1,15 @@
 import { homePageContent as c } from './HomePage.content';
 import styles from './PublishFlowSection.module.css';
 import {
-  PageSection,
-  ScrollReveal,
-  SectionHeader,
-} from 'ui/pages';
-import {
   Box,
   Heading,
   Text,
 } from 'ui/base';
+import {
+  PageSection,
+  ScrollReveal,
+  SectionHeader,
+} from 'ui/pages';
 
 export function PublishFlowSection() {
   return (

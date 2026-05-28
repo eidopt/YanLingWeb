@@ -33,7 +33,8 @@
     "test:source-export": "node scripts/source-export-smoke.cjs",
     "agent:evaluate": "node scripts/agent-eval/run-agent-eval.js",
     "agent:cache-test": "node scripts/agent-eval/run-cache-hitrate.js",
-    "templates:validate": "node scripts/validate-template-json.mjs"
+    "templates:validate": "node scripts/validate-template-json.mjs",
+    "templates:generate": "cd backend && ts-node -r tsconfig-paths/register scripts/generate-templates-cli.ts"
   },
   "dependencies": {
     "next": "15",
@@ -55,6 +56,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-simple-import-sort": "^13.0.0",
     "globals": "^17.0.0",
+    "tsx": "^4.22.3",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.0",
     "vite": "^8.0.8",
