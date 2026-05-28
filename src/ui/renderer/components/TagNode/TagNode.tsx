@@ -1,6 +1,7 @@
 'use client';
 
 import { asString } from '../../valueResolvers';
+import type { TagProps } from '../propsTypes';
 import type { CoreNodeProps } from '../types';
 import styles from './TagNode.module.css';
 import { cx } from 'base/classname';
@@ -16,7 +17,7 @@ const toneClassMap: Record<string, string> = {
   member: styles.tagMember,
 };
 
-export function TagNode({ props, nodeLayoutStyle }: CoreNodeProps) {
+export function TagNode({ props, nodeLayoutStyle }: CoreNodeProps<TagProps>) {
   const tone = asString(props.tone, 'neutral');
   const label = asString(props.label);
   return (

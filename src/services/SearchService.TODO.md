@@ -80,21 +80,22 @@ Response (创建模式):
 
 ### 后端
 
-- [ ] 创建 `SearchModule`（NestJS module + controller + service）
-- [ ] 实现 LLM 意图识别逻辑（prompt + 调用 AI service）
-- [ ] 实现关键词提取 + 模板数据库搜索
-- [ ] 实现空白模板 schema 生成（可复用 template generation agent 的部分逻辑）
-- [ ] 统一返回格式，错误处理
+- [x] 创建 `SearchModule`（NestJS module + controller + service）— `backend/src/search/` 已实现
+- [x] 实现意图识别逻辑 — 关键词评分系统（含 LLM 兜底扩展点）
+- [x] 实现关键词提取 + 模板数据库搜索 — `searchText` 反规范化字段 + 分类加权
+- [x] 实现空白模板 schema 生成 — `generateBlankTemplate()` 基于 core.* 组件
+- [x] 统一返回格式，错误处理 — `SearchIntentResult` 联合类型
 
 ### 前端
 
-- [ ] `SearchService.submit()` 调用 `/api/search` 端点
-- [ ] 更新 `SearchIntentResponse` 类型，支持两种 mode 的返回结构
-- [ ] 搜索结果列表 UI 组件
-- [ ] 创建模式：接收 schema 后跳转编辑器 or 模板预览
+- [x] `SearchService.submit()` 调用 `/api/search` 端点 — `src/services/SearchService.ts` 已实现
+- [x] 更新 `SearchIntentResponse` 类型，支持两种 mode 的返回结构 — `SearchTemplatesResult` | `CreateBlankTemplateResult`
+- [x] 搜索结果列表 UI 组件 — `src/components/SearchResults.tsx`
+- [x] 创建模式：接收 schema 后跳转编辑器 or 模板预览 — `onCreateFromSchema` 回调
 
 ### 集成
 
+- [x] SearchResults 组件已创建，支持 onSelectTemplate 和 onCreateFromSchema 回调
 - [ ] 与 HomeWorkspace 搜索栏对接（当前搜索栏 → SearchService）
 - [ ] 与 TemplatesPage 搜索功能对接（可选）
 - [ ] 搜索结果点击后的页面跳转逻辑

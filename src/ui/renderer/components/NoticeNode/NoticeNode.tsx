@@ -1,6 +1,7 @@
 'use client';
 
 import { asString } from '../../valueResolvers';
+import type { NoticeProps } from '../propsTypes';
 import type { CoreNodeProps } from '../types';
 import styles from './NoticeNode.module.css';
 
@@ -12,7 +13,7 @@ const toneClassMap: Record<string, string> = {
   success: styles.noticeSuccess,
 };
 
-export function NoticeNode({ props, nodeLayoutStyle }: CoreNodeProps) {
+export function NoticeNode({ props, nodeLayoutStyle }: CoreNodeProps<NoticeProps>) {
   const tone = asString(props.tone ?? props.variant, 'info');
   return (
     <div

@@ -1,6 +1,7 @@
 'use client';
 
 import { asString } from '../../valueResolvers';
+import type { TextProps } from '../propsTypes';
 import type { CoreNodeProps } from '../types';
 import styles from './TextNode.module.css';
 import { cx } from 'base/classname';
@@ -32,7 +33,7 @@ const tagMap: Record<string, string> = {
   subtitle: 'h3',
 };
 
-export function TextNode({ props, nodeLayoutStyle }: CoreNodeProps) {
+export function TextNode({ props, nodeLayoutStyle }: CoreNodeProps<TextProps>) {
   const variant = asString(props.variant, 'body');
   const text = asString(props.text);
   const tagName = tagMap[variant] ?? 'p';

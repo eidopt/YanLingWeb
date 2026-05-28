@@ -1,11 +1,12 @@
 'use client';
 
 import { asString, asStringArray } from '../../valueResolvers';
+import type { TabsProps } from '../propsTypes';
 import type { CoreNodeProps } from '../types';
 import styles from './TabsNode.module.css';
 import { cx } from 'base/classname';
 
-export function TabsNode({ props, nodeLayoutStyle }: CoreNodeProps) {
+export function TabsNode({ props, nodeLayoutStyle }: CoreNodeProps<TabsProps>) {
   const tabs = asStringArray(props.tabs);
   const activeTab = asString(props.activeTab, tabs[0] ?? '');
   const onTabClick =

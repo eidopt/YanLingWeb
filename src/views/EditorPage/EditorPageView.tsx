@@ -3,7 +3,7 @@
 import styles from './EditorPage.module.css';
 import type { EditorPageController } from './useEditorPageController';
 import { ThemeLayoutBuilder } from 'ui/editor/ThemeLayoutBuilder';
-import { Box } from 'ui/system';
+import { Box } from 'ui/base';
 
 export function EditorPageView({
   loading,

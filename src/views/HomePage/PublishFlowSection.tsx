@@ -9,7 +9,7 @@ import {
   Box,
   Heading,
   Text,
-} from 'ui/system';
+} from 'ui/base';
 
 export function PublishFlowSection() {
   return (

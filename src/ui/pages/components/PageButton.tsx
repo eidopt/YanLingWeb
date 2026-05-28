@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import {
   Button,
   type ButtonProps,
-} from 'ui/system';
+} from 'ui/base';
 
 export interface PageButtonProps extends Omit<ButtonProps, 'size' | 'trailingIcon' | 'variant'> {
   children: ReactNode;

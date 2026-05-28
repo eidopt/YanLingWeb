@@ -17,7 +17,7 @@ import {
   Inline,
   Stack,
   Text,
-} from 'ui/system';
+} from 'ui/base';
 import { UserSettingsDialog } from 'ui/user_settings';
 
 export interface NavItem {

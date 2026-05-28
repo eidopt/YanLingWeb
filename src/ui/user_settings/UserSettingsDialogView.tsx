@@ -10,7 +10,7 @@ import {
   Input,
   Label,
   Text,
-} from 'ui/system';
+} from 'ui/base';
 
 export function UserSettingsDialogView({
   avatarLetter,

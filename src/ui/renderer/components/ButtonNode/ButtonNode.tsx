@@ -1,11 +1,12 @@
 'use client';
 
 import { asBoolean, asString } from '../../valueResolvers';
+import type { ButtonProps } from '../propsTypes';
 import type { CoreNodeProps } from '../types';
 import styles from './ButtonNode.module.css';
 import { cx } from 'base/classname';
 
-export function ButtonNode({ props, nodeLayoutStyle }: CoreNodeProps) {
+export function ButtonNode({ props, nodeLayoutStyle }: CoreNodeProps<ButtonProps>) {
   const variant = asString(props.variant, 'primary');
   const label = asString(props.label) || asString(props.text);
   const icon = asString(props.icon);

@@ -117,10 +117,10 @@ import { EditorAiConversation } from '../ai/entities/editor-ai-conversation.enti
 import { ExportRecord } from '../exports/entities/export-record.entity';
 import { PublishedSite } from '../sites/entities/published-site.entity';
 import { PublishedSiteRevision } from '../sites/entities/published-site-revision.entity';
+import { Template } from '../templates/entities/template.entity';
 import { TemplateAgentPermissions } from '../templates/entities/template-agent-permissions.entity';
 import { TemplateAssetManifest } from '../templates/entities/template-asset-manifest.entity';
 import { TemplateEvaluationSpec } from '../templates/entities/template-evaluation-spec.entity';
-import { Template } from '../templates/entities/template.entity';
 import { TemplateProfileGenerated } from '../templates/entities/template-profile-generated.entity';
 import { TemplateProfileOverrideEntity } from '../templates/entities/template-profile-override.entity';
 import { Theme } from '../themes/entities/theme.entity';

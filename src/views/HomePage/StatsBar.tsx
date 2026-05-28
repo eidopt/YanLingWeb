@@ -3,7 +3,7 @@
 import { homePageContent as c } from './HomePage.content';
 import { useEffect, useRef, useState } from 'react';
 import { MetricStrip } from 'ui/pages';
-import { Box } from 'ui/system';
+import { Box } from 'ui/base';
 
 function CountUpValue({ value }: { value: string }) {
   const ref = useRef<HTMLSpanElement | null>(null);

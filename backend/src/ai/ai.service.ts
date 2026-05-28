@@ -1,6 +1,11 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  compileSemanticEditorInstruction,
+  isSemanticEditorInstruction,
+  type SemanticEditorInstruction,
+} from '@shared/agent/compiler/semanticInstructionCompiler';
+import {
   type AgentTemplateKnowledgeContext,
   buildConversationContextMessages,
   buildEditorMinimalVolatileContext,
@@ -8,15 +13,14 @@ import {
   buildEditorTrimmedVolatileContext,
   summarizeTemplateAgentKnowledge,
 } from '@shared/agent/context/editorContext';
-import {
-  compileSemanticEditorInstruction,
-  isSemanticEditorInstruction,
-  type SemanticEditorInstruction,
-} from '@shared/agent/compiler/semanticInstructionCompiler';
 import { EDITOR_COPILOT_SYSTEM_PROMPT } from '@shared/agent/prompts/editorCopilotPrompt';
+import {
+  formatUiDesignSkillContextForPrompt,
+  inferUiDesignSkillContext,
+} from '@shared/agent/skills/uiDesignSkillRegistry';
 import { buildTemplateProfile } from '@shared/agent/template/buildTemplateProfile';
-import { applyTemplateProfileOverride } from '@shared/agent/template/templateProfileOverride';
 import type { TemplateProfile } from '@shared/agent/template/templateProfile';
+import { applyTemplateProfileOverride } from '@shared/agent/template/templateProfileOverride';
 import type {
   AgentConversationMessage,
   AgentPageContext,
@@ -25,17 +29,19 @@ import type {
   ThemeLayoutNode,
 } from '@shared/agent/types';
 import { withThemeLayoutStyleManifest } from '@shared/theme-layout/styleManifest';
+import { buildVisualAssetManifest } from '@shared/theme-layout/visualAssets';
 import { Observable, Subject } from 'rxjs';
 import { IsNull, Not, Repository } from 'typeorm';
 
 import { ConfigService } from '../config/config.service';
 import { deriveTags } from '../shared/derive-tags';
+import { Template } from '../templates/entities/template.entity';
 import { TemplateAgentPermissions } from '../templates/entities/template-agent-permissions.entity';
 import { TemplateAssetManifest } from '../templates/entities/template-asset-manifest.entity';
 import { TemplateEvaluationSpec } from '../templates/entities/template-evaluation-spec.entity';
-import { Template } from '../templates/entities/template.entity';
 import { TemplateProfileGenerated } from '../templates/entities/template-profile-generated.entity';
 import { TemplateProfileOverrideEntity } from '../templates/entities/template-profile-override.entity';
+import { TemplateAssetService } from '../templates/template-asset.service';
 import { TemplateCategoryRegistryService } from '../templates/template-category-registry.service';
 import { assertValidTemplateLayout } from '../templates/template-layout-validation';
 import { User } from '../users/entities/user.entity';
@@ -64,9 +70,9 @@ import {
   AI_SEMANTIC_TARGETS,
   type AiSemanticTargetConfig,
 } from './semantic-targets.config';
-import { EditorConversationService, type EditorAiConversationDto, type SaveEditorAiConversationInput } from './services/editor-conversation.service';
+import { type EditorAiConversationDto, EditorConversationService, type SaveEditorAiConversationInput } from './services/editor-conversation.service';
 import { ProviderLogCompactionService } from './services/provider-log-compaction.service';
-import { TokenUsageService, type AiCacheStatsDto } from './services/token-usage.service';
+import { type AiCacheStatsDto,TokenUsageService } from './services/token-usage.service';
 import {
   EDITOR_EDIT_TOOL_NAMES,
   EDITOR_EDIT_TOOLS,
@@ -81,6 +87,7 @@ export interface AiConfigDto {
   models: {
     pro: string;
     lite?: string;
+    image?: string;
   };
   semanticTargets: AiSemanticTargetConfig[];
 }
@@ -342,6 +349,7 @@ export class AiService {
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
     private readonly config: ConfigService,
+    private readonly templateAssetService: TemplateAssetService,
     private readonly categoryRegistry: TemplateCategoryRegistryService,
   ) {
     const apiKey = this.config.ai.apiKey ?? '';
@@ -848,7 +856,7 @@ export class AiService {
     });
   }
 
-  private async findTemplateAgentRecord<T extends { templateId: string }>(
+  private async findTemplateAgentRecord<T extends { templateId: string; }>(
     repo: Repository<T>,
     templateId: string,
     fallbackTemplateId?: string,
@@ -923,7 +931,7 @@ export class AiService {
       try {
         effectiveProfile = applyTemplateProfileOverride(
           generatedProfile as unknown as TemplateProfile,
-          profileOverrideRecord as never,
+          profileOverrideRecord,
         ) as unknown as Record<string, unknown>;
       } catch (error) {
         this.logger.warn(
@@ -1047,6 +1055,7 @@ export class AiService {
     }
 
     const prompt = req.prompt.trim();
+    const skillContext = inferUiDesignSkillContext(prompt);
     const clarification = buildEditorClarification({
       prompt,
       document: req.document,
@@ -1115,6 +1124,8 @@ export class AiService {
         role: 'user',
         content: [
           'Current turn context:',
+          '',
+          formatUiDesignSkillContextForPrompt(skillContext),
           '',
           selectedChoiceText
             ? buildEditorMinimalVolatileContext(
@@ -1254,7 +1265,7 @@ export class AiService {
     edit: EditorToolInput,
     document: ThemeLayoutDocument | undefined,
     profile: TemplateProfile | undefined,
-  ): EditorToolInput & { warnings?: string[] } {
+  ): EditorToolInput & { warnings?: string[]; } {
     if (!Array.isArray(edit.operations) || !document) {
       return edit;
     }
@@ -1265,8 +1276,8 @@ export class AiService {
       if (
         operation &&
         typeof operation === 'object' &&
-        typeof (operation as { type?: unknown }).type === 'string' &&
-        isSemanticEditorInstruction(operation as { type: string })
+        typeof (operation as { type?: unknown; }).type === 'string' &&
+        isSemanticEditorInstruction(operation as { type: string; })
       ) {
         const compiled = compileSemanticEditorInstruction(
           document,
@@ -1383,35 +1394,76 @@ export class AiService {
       requireGeneratedTemplateQuality: true,
     });
     this.assertTemplateCategoryKeys(input);
+
+    const existing = await this.templateRepo.findOne({ where: { templateId: input.templateId } });
+    const targetTemplateId = existing
+      ? existing.ownerUserId === ownerUserId
+        ? existing.templateId
+        : await this.createAvailableUserTemplateId(input.templateId, ownerUserId)
+      : input.templateId;
+    const assetResolution = await this.templateAssetService.resolveVisualAssetsForTemplate(
+      targetTemplateId,
+      input.layoutDocument,
+      input.visualAssets,
+    );
+    const preparedInput: TemplateToolInput = {
+      ...input,
+      templateId: targetTemplateId,
+      layoutDocument: assetResolution.layoutDocument,
+      ...(assetResolution.visualAssets.length > 0
+        ? { visualAssets: assetResolution.visualAssets }
+        : {}),
+    };
+    assertValidTemplateLayout({
+      layoutDocument: preparedInput.layoutDocument,
+      componentTemplates: preparedInput.componentTemplates,
+      requireGeneratedTemplateQuality: true,
+    });
     await this.categoryRegistry.ensureTemplateCategories(
-      input,
+      preparedInput,
       { requireLabelsForUnknown: true },
     );
 
-    const existing = await this.templateRepo.findOne({ where: { templateId: input.templateId } });
-
     if (existing?.ownerUserId === ownerUserId) {
-      this.applyGeneratedTemplateInput(existing, input);
+      this.applyGeneratedTemplateInput(existing, preparedInput);
       existing.ownerUserId = ownerUserId;
       existing.sourceTemplateId = null;
       existing.isPublic = false;
       await this.templateRepo.save(existing);
+      await this.saveGeneratedVisualAssets(existing.templateId, assetResolution.visualAssets);
       this.logger.log(`Template updated: ${existing.templateId}`);
       return { templateId: existing.templateId, action: 'updated' };
     }
 
     const template = this.templateRepo.create({
-      templateId: existing
-        ? await this.createAvailableUserTemplateId(input.templateId, ownerUserId)
-        : input.templateId,
+      templateId: targetTemplateId,
       ownerUserId,
       sourceTemplateId: null,
       isPublic: false,
     });
-    this.applyGeneratedTemplateInput(template, input);
+    this.applyGeneratedTemplateInput(template, preparedInput);
     await this.templateRepo.save(template);
+    await this.saveGeneratedVisualAssets(template.templateId, assetResolution.visualAssets);
     this.logger.log(`Template created: ${template.templateId}`);
     return { templateId: template.templateId, action: 'created' };
+  }
+
+  private async saveGeneratedVisualAssets(
+    templateId: string,
+    visualAssets: unknown,
+  ): Promise<void> {
+    const manifest = buildVisualAssetManifest(templateId, visualAssets);
+    if (!manifest) {
+      return;
+    }
+
+    await this.assetManifestRepo.upsert(
+      this.assetManifestRepo.create({
+        templateId,
+        manifest: manifest as unknown as Record<string, unknown>,
+      }) as never,
+      { conflictPaths: ['templateId'], skipUpdateIfNoValuesChanged: true },
+    );
   }
 
   private applyGeneratedTemplateInput(
@@ -1422,6 +1474,7 @@ export class AiService {
     template.tagline = input.tagline;
     template.description = input.description;
     template.category = input.category;
+    template.displayCategory = input.displayCategory || input.category;
     template.platformCategories = [...(input.platformCategories ?? [])];
     template.functionalCategories = input.functionalCategories?.length
       ? [...input.functionalCategories]
@@ -1432,7 +1485,18 @@ export class AiService {
     template.tags = deriveTags({
       ...input,
       templateId: template.templateId,
+      displayCategory: template.displayCategory,
     });
+    template.searchText = [
+      template.name,
+      template.tagline,
+      template.description,
+      template.category,
+      template.displayCategory,
+      ...template.functionalCategories,
+      ...template.traits,
+      ...template.tags,
+    ].filter(Boolean).join(' ').toLowerCase();
     template.cssVars = input.cssVars;
     template.cssAnimations = input.cssAnimations ?? null;
     template.componentTemplates = input.componentTemplates;
@@ -1444,6 +1508,9 @@ export class AiService {
 
   private assertTemplateCategoryKeys(input: TemplateToolInput): void {
     assertTemplateCategoryKey(input.category, 'category');
+    if (input.displayCategory) {
+      assertTemplateCategoryKey(input.displayCategory, 'displayCategory');
+    }
     input.platformCategories?.forEach((category) =>
       assertTemplateCategoryKey(category, 'platformCategories'));
     input.functionalCategories?.forEach((category) =>

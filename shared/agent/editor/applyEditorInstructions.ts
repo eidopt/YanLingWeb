@@ -664,6 +664,22 @@ function coercePropValue(
     }
     return { error: `Property "${name}" must be an object` };
   }
+  if (prop.type === 'array') {
+    if (Array.isArray(value)) {
+      return { value };
+    }
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed)
+          ? { value: parsed }
+          : { error: `Property "${name}" must be an array` };
+      } catch {
+        return { error: `Property "${name}" must be a valid JSON array` };
+      }
+    }
+    return { error: `Property "${name}" must be an array` };
+  }
   const stringValue = stringifyPrimitive(value);
   if (prop.enum?.length && !prop.enum.includes(stringValue)) {
     return { error: `Property "${name}" must be one of: ${prop.enum.join(', ')}` };

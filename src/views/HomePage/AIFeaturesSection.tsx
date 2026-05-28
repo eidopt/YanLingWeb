@@ -10,7 +10,7 @@ import {
   SectionHeader,
   SurfaceCard,
 } from 'ui/pages';
-import { Box } from 'ui/system';
+import { Box } from 'ui/base';
 
 interface AIFeaturesSectionProps {
   onCtaClick: () => void;

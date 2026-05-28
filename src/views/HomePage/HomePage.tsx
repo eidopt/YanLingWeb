@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import type { AuthUser } from 'services/AuthService';
 import { AUTH_CHANGED_EVENT } from 'services/AuthService';
 import { showDialog } from 'ui/authenticating';
-import { Box } from 'ui/system';
+import { Box } from 'ui/base';
 
 export function HomePage() {
   const router = useRouter();

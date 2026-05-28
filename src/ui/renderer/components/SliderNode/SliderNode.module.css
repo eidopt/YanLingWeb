@@ -1,0 +1,105 @@
+.field {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: var(--app-unit-1-5) 0;
+}
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: var(--app-unit-1);
+  border-radius: var(--app-unit-0-5);
+  background: var(--panel-border, var(--app-neutral-200));
+  outline: none;
+  cursor: pointer;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: var(--app-unit-4);
+  height: var(--app-unit-4);
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 var(--app-unit-0-25) var(--app-unit-0-75) color-mix(in srgb, var(--accent) 30%, transparent);
+  cursor: pointer;
+  transition: transform 160ms ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.slider::-moz-range-thumb {
+  width: var(--app-unit-4);
+  height: var(--app-unit-4);
+  border: none;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 var(--app-unit-0-25) var(--app-unit-0-75) color-mix(in srgb, var(--accent) 30%, transparent);
+  cursor: pointer;
+}
+
+.slider::-moz-range-track {
+  height: var(--app-unit-1);
+  border-radius: var(--app-unit-0-5);
+  background: var(--panel-border, var(--app-neutral-200));
+}
+
+.slider:focus::-webkit-slider-thumb {
+  box-shadow:
+    0 0 0 var(--app-unit-0-5) color-mix(in srgb, var(--accent) 20%, transparent),
+    0 var(--app-unit-0-25) var(--app-unit-0-75) color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.rangeWrap {
+  position: relative;
+  width: 100%;
+  height: var(--app-unit-4);
+}
+
+.rangeTrack {
+  position: absolute;
+  top: calc(50% - var(--app-unit-0-5));
+  left: 0;
+  right: 0;
+  height: var(--app-unit-1);
+  border-radius: var(--app-unit-0-5);
+  background:
+    linear-gradient(
+      to right,
+      var(--panel-border, var(--app-neutral-200)) 0 var(--range-start),
+      var(--accent) var(--range-start) var(--range-end),
+      var(--panel-border, var(--app-neutral-200)) var(--range-end) 100%
+    );
+}
+
+.rangeInput {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  background: transparent;
+  pointer-events: none;
+}
+
+.rangeInput::-webkit-slider-thumb {
+  pointer-events: auto;
+}
+
+.rangeInput::-moz-range-thumb {
+  pointer-events: auto;
+}
+
+.rangeInput::-moz-range-track {
+  background: transparent;
+}
+
+.rangeInputStart {
+  z-index: 2;
+}
+
+.rangeInputEnd {
+  z-index: 3;
+}

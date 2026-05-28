@@ -14,6 +14,10 @@ import {
 import { CORE_COMPONENTS } from '@shared/agent/fixtures/blankDocument';
 import { getSeedDocument } from '@shared/agent/fixtures/seedDocuments';
 import { EDITOR_COPILOT_SYSTEM_PROMPT } from '@shared/agent/prompts/editorCopilotPrompt';
+import {
+  formatUiDesignSkillContextForPrompt,
+  inferUiDesignSkillContext,
+} from '@shared/agent/skills/uiDesignSkillRegistry';
 import { createMockToolCallForScenario } from '@shared/agent/testing/mockProvider';
 import type {
   AgentClarificationOption,
@@ -419,6 +423,7 @@ export class AgentRunnerService {
 
     if (scenario.mode === 'template_generation') {
       const expectedToolName = GENERATE_TEMPLATE_TOOL.name;
+      const skillContext = inferUiDesignSkillContext(scenario.prompt);
       const loop = new QueryLoop({
         provider: this.aiService.getProviderForAgentEval(),
         model: this.aiService.getConfig().model,
@@ -463,6 +468,9 @@ export class AgentRunnerService {
               ...(isRecord(input.componentTemplates)
                 ? { componentTemplates: input.componentTemplates }
                 : {}),
+              ...(isRecord(input.cssAnimations)
+                ? { cssAnimations: input.cssAnimations as Record<string, string> }
+                : {}),
             },
             isRecord(input.cssVars)
               ? input.cssVars
@@ -505,6 +513,7 @@ export class AgentRunnerService {
       const fallbackConversation = buildConversationContextMessages(scenario.conversation);
       const result = await loop.run([
         ...prefixMessages,
+        { role: 'system', content: formatUiDesignSkillContextForPrompt(skillContext) },
         ...fallbackConversation,
         { role: 'user', content: scenario.prompt },
       ]);
@@ -649,6 +658,7 @@ export class AgentRunnerService {
     const providerLog = scenario.conversationBatchId
       ? this.evalProviderLogs.get(scenario.conversationBatchId) ?? []
       : normalizeProviderMessages(scenario.providerMessages);
+    const skillContext = inferUiDesignSkillContext(scenario.prompt);
     const fallbackConversation = providerLog.length > 0
       ? []
       : buildConversationContextMessages(scenario.conversation);
@@ -675,6 +685,9 @@ export class AgentRunnerService {
         role: 'user',
         content: [
           'Current turn context:',
+          '',
+          formatUiDesignSkillContextForPrompt(skillContext),
+          '',
           initialDocument
             ? scenario.clarificationChoice?.value
               ? buildEditorMinimalVolatileContext(

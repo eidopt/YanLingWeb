@@ -1,0 +1,35 @@
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--app-unit-0-5);
+  font-size: var(--app-unit-1-5);
+  color: var(--app-text-secondary, var(--app-neutral-500));
+  line-height: 1.4;
+}
+
+.crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--app-unit-0-5);
+}
+
+.link {
+  color: var(--accent, var(--app-color-sky));
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.current {
+  font-weight: 700;
+  color: var(--app-text-primary, var(--app-neutral-800));
+}
+
+.separator {
+  color: var(--app-text-tertiary, var(--app-neutral-400));
+  user-select: none;
+}

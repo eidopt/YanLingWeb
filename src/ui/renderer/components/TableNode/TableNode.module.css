@@ -1,0 +1,41 @@
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--app-unit-1-75);
+  color: var(--text-body-color, var(--app-neutral-700));
+}
+
+.th {
+  text-align: left;
+  padding: var(--app-unit-1-5) var(--app-unit-2);
+  font-weight: 700;
+  font-size: var(--app-unit-1-5);
+  color: var(--text-caption-color, var(--app-neutral-500));
+  background: var(--app-surface-1);
+  border-bottom: var(--app-unit-0-125) solid var(--app-border);
+  white-space: nowrap;
+}
+
+.td {
+  padding: var(--app-unit-1-5) var(--app-unit-2);
+  border-bottom: var(--app-unit-0-125) solid var(--app-border-subtle, var(--app-neutral-100));
+}
+
+.tableBordered {
+  border: var(--app-unit-0-125) solid var(--app-border);
+  border-radius: var(--app-unit-1);
+  overflow: hidden;
+}
+
+.tableBordered .th,
+.tableBordered .td {
+  border: var(--app-unit-0-125) solid var(--app-border);
+}
+
+.tableStripe tbody tr:nth-child(even) {
+  background: var(--app-surface-1);
+}

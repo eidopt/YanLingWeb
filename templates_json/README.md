@@ -75,6 +75,11 @@ templates_json/<templateId>/
   "accent": "#8b5cf6",
   "category": "booking-reservation",
   "categoryLabel": "预约预订",
+  "displayCategory": "service",
+  "displayCategoryLabel": "本地服务",
+  "displayCategoryLabels": {
+    "service": "本地服务"
+  },
   "platformCategories": ["mini-program", "mobile-app"],
   "functionalCategories": ["booking-reservation", "booking", "reservation"],
   "functionalCategoryLabels": {
@@ -86,6 +91,9 @@ templates_json/<templateId>/
   "tags": ["预约", "小程序"],
   "cssVars": {
     "--color-primary": "#8b5cf6"
+  },
+  "cssAnimations": {
+    "soft-pulse": "0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.92; transform: scale(1.02); }"
   },
   "componentTemplates": {
     "biz-hero-banner": {
@@ -103,7 +111,8 @@ templates_json/<templateId>/
 ## 分类规则
 
 - `category` 和 `functionalCategories` 必须使用英文/slug key，不能写中文。
-- 中文展示文案写入 `categoryLabel` 和 `functionalCategoryLabels`。
+- `displayCategory` 是前端展示和筛选用的大类，建议从 `commerce`、`service`、`content`、`education`、`health`、`social`、`finance`、`marketing`、`utility`、`dashboard`、`profile`、`other` 中选择。
+- 中文展示文案写入 `categoryLabel`、`displayCategoryLabel` 和 `functionalCategoryLabels`。
 - `category` 必须等于 `functionalCategories[0]`。
 - 新增分类 key 时必须同时提供中文 label；后端会把中英文映射保存到
   `backend/data/template-category-labels.json`。
@@ -153,6 +162,10 @@ templates_json/<templateId>/
 
 模板的 `platformCategories` 决定布局边界：
 
+- 每个页面根节点 `core.screen.props.surface` 必须和目标平台一致：小程序用 `mini-program`，手机 App 用
+  `mobile-app`，网站用 `web`。不要只改 `platformCategories` 而让页面根节点继续使用错误外壳。
+- 每个页面根节点 `core.screen.props.chrome` 必须和外壳一致：微信小程序用 `wechat`，手机 App 用 `app`，
+  网站用 `none`。`web + none` 会隐藏手机状态栏、标题栏和微信胶囊，按网页宽屏渲染。
 - `mini-program` / `mobile-app`：
   - 默认按手机窄屏设计，页面内容单列为主。
   - section 级大组件必须默认占满可用宽度，例如主内容 `core.panel`、列表容器、
@@ -268,6 +281,14 @@ core.screen
 - 输入：`core.input`
 - 提示：`core.notice`
 - 导航：`core.tabs`
+- 更完整的内置 alias 还包括导航（`core.navbar`、`core.tabbar`、`core.breadcrumb`、`core.pagination`）、
+  数据展示（`core.list`、`core.list-item`、`core.statistic`、`core.table`、`core.timeline`）、
+  表单控件（`core.select`、`core.checkbox`、`core.radio`、`core.switch`、`core.rate`、`core.slider`、
+  `core.datepicker`、`core.timepicker`、`core.form`、`core.upload`）、
+  反馈组件（`core.alert`、`core.toast`、`core.loading`、`core.empty`、`core.skeleton`、`core.tooltip`）、
+  媒体与高级布局（`core.carousel`、`core.video`、`core.audio`、`core.avatar`、`core.badge`、`core.sidebar`、
+  `core.toolbar`、`core.drawer`、`core.dialog`、`core.splitter`、`core.collapse`、`core.tree`）。按业务需要选择，
+  但 `layoutDocument.components` 仍然只声明实际出现在布局树里的组件。
 
 限制：
 
@@ -311,8 +332,13 @@ core.screen
 
 ### 8. 图片与图标规则
 
-- 有可靠 HTTPS 图片时，`core.image.props.src` 必须是合法 HTTPS URL。
-- 没有可靠图片时不要写假 URL，保留 `alt` / `title` / `iconColor` 使用内置占位。
+- 有可靠图片时，`core.image.props.src` 必须是合法 HTTPS URL 或 `/template-assets/...` 本地静态路径。
+- 需要 AI 生图时，在顶层 `visualAssets` 中声明图片资产，并让 `core.image.props.assetId`
+  指向对应资产；后端会用 `AI_IMAGE_MODEL` 尝试生成并保存到 `/template-assets/generated/...`。
+- `visualAssets` 至少应包含 `id`、`nodeId` 或 `assetId` 关联、`prompt`、`alt`，并可包含
+  `role`、`aspectRatio`、`provider`、`placeholder`。
+- 没有可靠图片或生图不可用时不要写假 URL，保留 `alt` / `title` / `iconColor` 或
+  `visualAssets.placeholder` 使用内置占位。
 - 同一类图片必须保持相同 `objectFit`，商品/封面一般用 `cover`，图标/徽章一般用 `contain`。
 - 图片文案必须和业务场景一致，不要复用无关行业的 alt/title。
 - 图标类视觉可用 `core.image` 的占位态表达，不要发明 icon 组件 alias。
@@ -339,31 +365,82 @@ slotKey: home.hero.title | home.hero.subtitle | order.card.status
 patternKey: product.card | order.card | feature.gridItem
 ```
 
-### 10. AI 生成模板 schema 的工作流
+### 10. 动画与动效规则
+
+模板可以通过顶层 `cssAnimations` 声明可复用的 CSS keyframes，再在节点 `props.style.animation` 或
+`props.style.transition` 中引用。动画是视觉增强，不是业务逻辑；不要用 schema 动画模拟游戏循环、实时状态机或复杂手势逻辑。
+
+推荐写法：
+
+```json
+{
+  "cssAnimations": {
+    "soft-pulse": "0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.92; transform: scale(1.02); }",
+    "slide-up": "0% { opacity: 0; transform: translateY(12px); } 100% { opacity: 1; transform: translateY(0); }"
+  },
+  "layoutDocument": {
+    "layout": {
+      "id": "home-screen",
+      "alias": "core.screen",
+      "props": {
+        "surface": "mobile-app",
+        "chrome": "app"
+      },
+      "children": [
+        {
+          "id": "home-hero",
+          "alias": "core.panel",
+          "props": {
+            "style": {
+              "animation": "slide-up 360ms ease-out both"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+具体约束：
+
+- `cssAnimations` 的 key 是动画名称，只写英文字母、数字、`_`、`-`，不要包含空格或特殊符号。
+- `cssAnimations` 的 value 只写 keyframes 内部 body，不要再包一层 `@keyframes name { ... }`。
+- 节点引用动画时使用标准 CSS 字符串，例如 `"animation": "soft-pulse 1800ms ease-in-out infinite"`。
+- 动画属性写在 `props.style` 中，必须使用标准 CSS 属性和值；不要使用 rpx、wxs、小程序专属动画 API 或远程脚本。
+- 动画数量保持克制：每个模板建议 1-3 个通用动效，优先用于首屏入场、状态强调、加载/进度反馈或轻量悬浮反馈。
+- 不要给大面积列表中每个重复卡片都加无限动画，避免预览和导出项目出现性能问题。
+- 动画必须可降级：去掉动画后页面信息结构和主要操作仍然完整。
+- React source export 会把 `cssAnimations` 编译为 `@keyframes`，并保留简单的 `props.style.animation` / `transition`。
+
+### 11. AI 生成模板 schema 的工作流
 
 让 AI 生成一批模板时，必须按这个顺序工作：
 
 1. 先确定业务场景、目标用户、平台类型和页面清单。
 2. 定义统一视觉方向：主色、辅助色、背景、文字层级、卡片风格、按钮风格。
-3. 定义组件策略：哪些用 `core.*`，哪些需要 `componentTemplates` 自定义业务组件。
-4. 先设计页面结构和跨页面共享 pattern，再写 JSON。
-5. 每个模板只围绕一个业务场景生成内容。
-6. 每个页面都复用同一套导航、卡片、按钮、tag、标题层级。
-7. 写完模板 JSON 后，为需要稳定编辑的模板补 `configs/<templateId>.generated.json`
+3. 定义动效策略：是否需要 `cssAnimations`，哪些节点引用动画，动画是否可降级且不承担业务逻辑。
+4. 定义组件策略：哪些用 `core.*`，哪些需要 `componentTemplates` 自定义业务组件。
+5. 先设计页面结构和跨页面共享 pattern，再写 JSON。
+6. 每个模板只围绕一个业务场景生成内容。
+7. 每个页面都复用同一套导航、卡片、按钮、tag、标题层级。
+8. 写完模板 JSON 后，为需要稳定编辑的模板补 `configs/<templateId>.generated.json`
    或 `configs/<templateId>.override.json`。
-8. 运行 `pnpm templates:validate`，修复所有 error，再人工检查 warning。
-9. 对多页面模板额外检查：页面密度、卡片结构、颜色和导航是否一致。
-10. 检查最终 UI 是否只是白卡片和文字；如果是，必须增加主题色区域、业务组件、按钮、标签、
+9. 运行 `pnpm templates:validate`，修复所有 error，再人工检查 warning。
+10. 对多页面模板额外检查：页面密度、卡片结构、颜色和导航是否一致。
+11. 检查最终 UI 是否只是白卡片和文字；如果是，必须增加主题色区域、业务组件、按钮、标签、
     图片/图标或进度/状态组件。
 
-### 11. 人工审查清单
+### 12. 人工审查清单
 
 导入前至少检查：
 
 - 是否所有页面都像同一个产品。
 - 是否每个页面都有清晰用户任务。
 - 是否每个非阅读页面都有明确主按钮或主操作。
+- 是否每个页面根节点 `core.screen` 都设置了和 `platformCategories` 一致的 `surface` / `chrome`。
 - 是否主题色真实参与了关键 UI，而不是只存在于 token。
+- 如果使用 `cssAnimations`，是否只包含合法 keyframes body，且节点动画引用、持续时间和降级表现都合理。
 - 是否避免了全白背景、白色卡片、文本堆叠的廉价感。
 - 是否有足够组件多样性，而不是 `core.panel` + `core.text` 占据绝大多数界面。
 - 是否在 core 不够表达业务时使用了可编辑的 `componentTemplates` 自定义组件。
@@ -376,7 +453,7 @@ patternKey: product.card | order.card | feature.gridItem
 - 是否所有 inline style 使用 CSS 标准单位（px、rem、%），没有 rpx 等小程序专属单位。
 - 是否 `layoutDocument.components` 只包含布局树中实际使用的组件声明。
 
-### 12. 单位与渲染兼容规则
+### 13. 单位与渲染兼容规则
 
 模板由 web 渲染器（DynamicThemeRenderer）渲染，不是微信小程序运行时：
 
@@ -385,7 +462,7 @@ patternKey: product.card | order.card | feature.gridItem
 - 如果从 rpx 换算，参考值：`1rpx ≈ 0.5px`（基于 375px 设计稿），例如 `24rpx` → `12px`。
 - 不要在 style 中使用 `calc()` 搭配 rpx；calc 表达式内的所有值都必须是标准 CSS 单位。
 
-### 13. 组件声明精简规则
+### 14. 组件声明精简规则
 
 `layoutDocument.components` 是模板的组件目录，供编辑器展示可用组件列表：
 
@@ -395,7 +472,7 @@ patternKey: product.card | order.card | feature.gridItem
   不要在 `components` 中声明它们。
 - 自定义组件（`biz-*`）必须在 `components` 中声明，因为编辑器无法从内置注册表推断。
 
-### 14. 视觉原型规则
+### 15. 视觉原型规则
 
 每个模板必须选择一种视觉原型并贯穿整个模板。不同模板应选择不同原型，避免批量生成时视觉雷同。
 
@@ -447,7 +524,7 @@ patternKey: product.card | order.card | feature.gridItem
 - 主按钮使用霓虹色渐变背景
 - 页面背景 `#0f0f1a` 或 `#1a1a2e`
 
-### 15. 首页入口模式多样性
+### 16. 首页入口模式多样性
 
 同一批生成的模板不能都使用同一个首页结构。首页第一屏（hero 区域）应根据业务场景选择不同的入口模式：
 
@@ -464,7 +541,7 @@ patternKey: product.card | order.card | feature.gridItem
 
 每个模板的首页 hero 必须选择一种模式，且同批次模板之间应尽量不重复。
 
-### 16. Flex 布局行为规则
+### 17. Flex 布局行为规则
 
 小程序模板的布局大量使用 flex。与其事后用 CSS 修补挤压问题，不如在设计阶段就避免空间冲突。
 

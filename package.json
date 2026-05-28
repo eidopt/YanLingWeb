@@ -23,6 +23,7 @@
     "lint:backend": "cd backend && npm run lint",
     "dev:backend": "cd backend && npm run dev",
     "dev:all": "concurrently --kill-others-on-fail \"next dev\" \"cd backend && npm run dev\"",
+    "dev:preview": "npm --prefix templates_json/preview run dev",
     "dev:electron": "concurrently --kill-others-on-fail \"next dev\" \"npm run build:electron:main && wait-on http://localhost:3000 && electron dist-electron/main.cjs\"",
     "build:electron:main": "vite build --config vite.electron.config.ts",
     "build:electron:renderer": "next build",

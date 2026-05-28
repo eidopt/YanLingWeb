@@ -8,7 +8,7 @@ import { AppServicesProvider } from 'services/AppServicesContext';
 import type { AuthUser } from 'services/AuthService';
 import { AUTH_CHANGED_EVENT } from 'services/AuthService';
 import { FakeGlobalNav } from 'ui/global_nav';
-import { Box } from 'ui/system';
+import { Box } from 'ui/base';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (

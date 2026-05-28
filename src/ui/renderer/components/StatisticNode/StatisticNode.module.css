@@ -1,0 +1,49 @@
+.statistic {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-unit-0-5);
+}
+
+.title {
+  font-size: var(--app-unit-1-25);
+  color: var(--app-text-secondary, var(--app-neutral-500));
+  line-height: 1.4;
+}
+
+.value {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--app-unit-0-25);
+}
+
+.number {
+  font-size: var(--app-unit-3-5);
+  font-weight: 800;
+  color: var(--app-text-primary, var(--app-neutral-800));
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.prefix,
+.suffix {
+  font-size: var(--app-unit-1-5);
+  font-weight: 600;
+  color: var(--app-text-secondary, var(--app-neutral-500));
+}
+
+.trend {
+  font-size: var(--app-unit-1-25);
+  font-weight: 600;
+}
+
+.trendUp {
+  color: var(--app-color-success, #22c55e);
+}
+
+.trendDown {
+  color: var(--app-color-danger, #e53e3e);
+}
+
+.trendNeutral {
+  color: var(--app-text-tertiary, var(--app-neutral-400));
+}

@@ -105,6 +105,7 @@ export interface ThemeLayoutDocument {
   layout: ThemeLayoutNode;
   dependencies?: ThemeLibraryDependency[];
   cssVars?: Record<string, string>;
+  cssAnimations?: Record<string, string> | null;
   style?: ThemeLayoutStyleManifest;
 }
 
@@ -121,6 +122,7 @@ export interface ThemeLayoutDocumentSource {
   layout?: ThemeLayoutNode;
   dependencies?: ThemeLibraryDependency[];
   cssVars?: Record<string, string>;
+  cssAnimations?: Record<string, string> | null;
   style?: ThemeLayoutStyleManifest;
 }
 
@@ -206,6 +208,7 @@ export function normalizeThemeLayoutDocument(
     layout: activePage.layout,
     dependencies: document.dependencies ? [...document.dependencies] : undefined,
     cssVars: document.cssVars ? { ...document.cssVars } : undefined,
+    cssAnimations: document.cssAnimations ? { ...document.cssAnimations } : undefined,
     style: document.style
       ? {
           ...document.style,

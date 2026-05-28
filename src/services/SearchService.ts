@@ -1,9 +1,35 @@
-export interface SearchIntentResponse {
-  status: 'stub';
-  mode: 'search_templates' | 'create_blank_template';
-  query: string;
-  message: string;
+// ─── Response Types ───────────────────────────────────────────────
+
+export interface TemplateSummary {
+  templateId: string;
+  name: string;
+  tagline: string;
+  description: string;
+  category: string;
+  displayCategory?: string;
+  accent: string;
+  traits: string[];
+  tags: string[];
 }
+
+export interface SearchTemplatesResult {
+  status: 'ok';
+  mode: 'search_templates';
+  query: string;
+  results: TemplateSummary[];
+  total: number;
+}
+
+export interface CreateBlankTemplateResult {
+  status: 'ok';
+  mode: 'create_blank_template';
+  query: string;
+  schema: Record<string, unknown>;
+}
+
+export type SearchIntentResponse = SearchTemplatesResult | CreateBlankTemplateResult;
+
+// ─── Service ──────────────────────────────────────────────────────
 
 export class SearchService {
   private readonly base = '/api/proxy/search';
@@ -27,5 +53,15 @@ export class SearchService {
       throw new Error(data.message ?? `Search request failed (${res.status})`);
     }
     return data as SearchIntentResponse;
+  }
+
+  /** Type guard: check if response is a search result */
+  isSearchResult(response: SearchIntentResponse): response is SearchTemplatesResult {
+    return response.mode === 'search_templates';
+  }
+
+  /** Type guard: check if response is a create result */
+  isCreateResult(response: SearchIntentResponse): response is CreateBlankTemplateResult {
+    return response.mode === 'create_blank_template';
   }
 }

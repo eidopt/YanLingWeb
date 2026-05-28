@@ -118,6 +118,7 @@ export interface ThemeLayoutDocument {
   dependencies?: ThemeLibraryDependency[];
   componentTemplates?: Record<string, unknown>;
   cssVars?: Record<string, string>;
+  cssAnimations?: Record<string, string> | null;
   style?: ThemeLayoutStyleManifest;
 }
 

@@ -1,0 +1,7 @@
+.video {
+  width: 100%;
+  border-radius: var(--radius-image, var(--app-unit-2));
+  max-height: var(--app-unit-60);
+  object-fit: cover;
+  background: var(--app-neutral-100);
+}

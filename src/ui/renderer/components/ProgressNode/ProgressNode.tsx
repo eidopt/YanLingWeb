@@ -1,6 +1,7 @@
 'use client';
 
 import { asNumber, asString } from '../../valueResolvers';
+import type { ProgressProps } from '../propsTypes';
 import type { CoreNodeProps } from '../types';
 import styles from './ProgressNode.module.css';
 import { cx } from 'base/classname';
@@ -20,7 +21,7 @@ function clampPercent(value: number, max: number) {
   return Math.min(100, Math.max(0, (value / max) * 100));
 }
 
-export function ProgressNode({ props, nodeLayoutStyle }: CoreNodeProps) {
+export function ProgressNode({ props, nodeLayoutStyle }: CoreNodeProps<ProgressProps>) {
   const value = asNumber(props.value, 0);
   const max = asNumber(props.max, 100);
   const tone = asString(props.tone, 'accent');

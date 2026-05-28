@@ -1,11 +1,12 @@
 'use client';
 
-import { asBoolean, asNumber, asString } from '../../valueResolvers';
+import { asBoolean, asCssLength, asString } from '../../valueResolvers';
+import type { RowProps } from '../propsTypes';
 import type { CoreNodeProps } from '../types';
 import styles from './RowNode.module.css';
 import { cx } from 'base/classname';
 
-export function RowNode({ props, children, nodeLayoutStyle }: CoreNodeProps) {
+export function RowNode({ props, children, nodeLayoutStyle }: CoreNodeProps<RowProps>) {
   const tone = asString(props.tone);
   const panelClass =
     tone === 'accent'
@@ -23,14 +24,14 @@ export function RowNode({ props, children, nodeLayoutStyle }: CoreNodeProps) {
       style={{
         ...nodeLayoutStyle,
         position: props.__hasAbsoluteChildren ? 'relative' : undefined,
-        gap: `${asNumber(props.gap, 12)}px`,
+        gap: asCssLength(props.gap, '12px'),
         flexWrap: asBoolean(props.wrap) ? 'wrap' : 'nowrap',
         justifyContent: asString(props.justify) || undefined,
         alignItems: asString(props.align) || undefined,
         padding:
           tone === 'accent' || tone === 'panel'
             ? undefined
-            : `${asNumber(props.padding, 0)}px`,
+            : asCssLength(props.padding, '0px'),
         cursor: onClick ? 'pointer' : undefined,
       }}
     >

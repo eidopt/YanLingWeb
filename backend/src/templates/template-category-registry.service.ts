@@ -1,13 +1,19 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
 
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+
 import { isRecord, isStringRecord } from '../shared/type-guards';
 
-type CategoryKind = 'categories' | 'platformCategories' | 'functionalCategories';
+type CategoryKind =
+  | 'categories'
+  | 'displayCategories'
+  | 'platformCategories'
+  | 'functionalCategories';
 
 export interface TemplateCategoryLabels {
   categoryLabel: string;
+  displayCategoryLabel: string;
   platformCategoryLabels: Record<string, string>;
   functionalCategoryLabels: Record<string, string>;
 }
@@ -16,6 +22,9 @@ export interface TemplateCategoryRegistrationInput {
   category?: string | null;
   categoryLabel?: string | null;
   categoryLabels?: Record<string, string> | null;
+  displayCategory?: string | null;
+  displayCategoryLabel?: string | null;
+  displayCategoryLabels?: Record<string, string> | null;
   platformCategories?: readonly string[] | null;
   platformCategoryLabels?: Record<string, string> | null;
   functionalCategories?: readonly string[] | null;
@@ -29,6 +38,7 @@ export interface TemplateCategoryRegistrationOptions {
 export interface TemplateCategoryRegistry {
   version: number;
   categories: Record<string, string>;
+  displayCategories: Record<string, string>;
   platformCategories: Record<string, string>;
   functionalCategories: Record<string, string>;
 }
@@ -36,6 +46,7 @@ export interface TemplateCategoryRegistry {
 const EMPTY_REGISTRY: TemplateCategoryRegistry = {
   version: 1,
   categories: {},
+  displayCategories: {},
   platformCategories: {},
   functionalCategories: {},
 };
@@ -59,11 +70,19 @@ export class TemplateCategoryRegistryService {
   async getLabels(input: TemplateCategoryRegistrationInput): Promise<TemplateCategoryLabels> {
     const registry = await this.loadRegistry();
     const category = normalizeCategoryKey(input.category) || 'general';
+    const displayCategory = normalizeCategoryKey(input.displayCategory)
+      || category
+      || 'general';
     const platformCategories = normalizeArray(input.platformCategories);
     const functionalCategories = normalizeArray(input.functionalCategories);
 
     return {
       categoryLabel: this.labelFor(registry, 'categories', category),
+      displayCategoryLabel: this.labelFor(
+        registry,
+        'displayCategories',
+        displayCategory,
+      ),
       platformCategoryLabels: this.labelMapFor(
         registry,
         'platformCategories',
@@ -90,6 +109,21 @@ export class TemplateCategoryRegistryService {
         'categories',
         category,
         pickExplicitLabel(input.categoryLabel, input.categoryLabels, category),
+        options,
+      ) || changed;
+    }
+
+    const displayCategory = normalizeCategoryKey(input.displayCategory);
+    if (displayCategory) {
+      changed = this.ensureLabel(
+        registry,
+        'displayCategories',
+        displayCategory,
+        pickExplicitLabel(
+          input.displayCategoryLabel,
+          input.displayCategoryLabels,
+          displayCategory,
+        ),
         options,
       ) || changed;
     }
@@ -191,6 +225,9 @@ export class TemplateCategoryRegistryService {
         fileRegistry = {
           version: typeof parsed.version === 'number' ? parsed.version : undefined,
           categories: isStringRecord(parsed.categories) ? parsed.categories : undefined,
+          displayCategories: isStringRecord(parsed.displayCategories)
+            ? parsed.displayCategories
+            : undefined,
           platformCategories: isStringRecord(parsed.platformCategories)
             ? parsed.platformCategories
             : undefined,
@@ -212,6 +249,7 @@ export class TemplateCategoryRegistryService {
     this.registry = {
       version: fileRegistry.version ?? EMPTY_REGISTRY.version,
       categories: sanitizeRegistryMap(fileRegistry.categories),
+      displayCategories: sanitizeRegistryMap(fileRegistry.displayCategories),
       platformCategories: sanitizeRegistryMap(fileRegistry.platformCategories),
       functionalCategories: sanitizeRegistryMap(fileRegistry.functionalCategories),
     };
@@ -292,6 +330,6 @@ function isFsErrorCode(error: unknown, code: string): boolean {
     error &&
     typeof error === 'object' &&
     'code' in error &&
-    (error as { code?: unknown }).code === code,
+    (error as { code?: unknown; }).code === code,
   );
 }

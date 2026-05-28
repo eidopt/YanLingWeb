@@ -2,6 +2,7 @@
 
 import { getLibrary } from '../../useDependencyLoader';
 import { asString } from '../../valueResolvers';
+import type { WidgetProps } from '../propsTypes';
 import type { CoreNodeProps } from '../types';
 import { resolveSafeWidgetRenderer } from '@shared/agent/validation/widgetSafety';
 import { useEffect, useRef } from 'react';
@@ -153,7 +154,7 @@ function resolveMermaidDefinition(data: unknown): string {
   return 'graph TD; A[Start] --> B[Done];';
 }
 
-export function WidgetNode({ props, nodeLayoutStyle }: CoreNodeProps) {
+export function WidgetNode({ props, nodeLayoutStyle }: CoreNodeProps<WidgetProps>) {
   const containerRef = useRef<HTMLDivElement>(null);
   const library = asString(props.library);
   const renderer = resolveSafeWidgetRenderer(library, asString(props.renderer));

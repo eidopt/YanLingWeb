@@ -1,13 +1,15 @@
+import { promises as fs } from 'node:fs';
+import * as path from 'node:path';
+
 import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { buildTemplateProfile } from '@shared/agent/template/buildTemplateProfile';
-import { applyTemplateProfileOverride } from '@shared/agent/template/templateProfileOverride';
 import type { TemplateProfile } from '@shared/agent/template/templateProfile';
+import { applyTemplateProfileOverride } from '@shared/agent/template/templateProfileOverride';
 import { validateTemplateProfile } from '@shared/agent/template/validateTemplateProfile';
 import type { ThemeLayoutDocument } from '@shared/agent/types';
 import { withThemeLayoutStyleManifest } from '@shared/theme-layout/styleManifest';
-import { promises as fs } from 'node:fs';
-import * as path from 'node:path';
+import { mergeVisualAssetsIntoManifest } from '@shared/theme-layout/visualAssets';
 import { IsNull, Repository } from 'typeorm';
 
 import { ConfigService } from '../config/config.service';
@@ -19,18 +21,20 @@ import {
   isStringRecord,
 } from '../shared/type-guards';
 import { User } from '../users/entities/user.entity';
+import { Template } from './entities/template.entity';
 import { TemplateAgentPermissions } from './entities/template-agent-permissions.entity';
 import { TemplateAssetManifest } from './entities/template-asset-manifest.entity';
 import { TemplateEvaluationSpec } from './entities/template-evaluation-spec.entity';
-import { Template } from './entities/template.entity';
 import { TemplateProfileGenerated } from './entities/template-profile-generated.entity';
 import { TemplateProfileOverrideEntity } from './entities/template-profile-override.entity';
 import { TEMPLATE_SEED_DATA, type TemplateSeedException } from './seed/template-seed.data';
+import { TemplateAssetService } from './template-asset.service';
 import { TemplateCategoryRegistryService } from './template-category-registry.service';
 import { prepareTemplateLayoutForPersistence } from './template-layout-validation';
 
 interface TemplateListOptions {
   category?: string;
+  displayCategory?: string;
   functionalCategory?: string;
   platformCategory?: string;
   search?: string;
@@ -57,11 +61,55 @@ const FUNCTIONAL_CATEGORIES = new Set([
   'profile',
 ]);
 
+const DISPLAY_CATEGORIES = new Set([
+  'commerce',
+  'service',
+  'content',
+  'education',
+  'health',
+  'social',
+  'finance',
+  'marketing',
+  'utility',
+  'dashboard',
+  'profile',
+  'other',
+  'general',
+]);
+
+/**
+ * Build a denormalized searchable text from template fields.
+ * Used for efficient LIKE-based search without JSON parsing.
+ */
+function buildSearchText(template: {
+  name?: string;
+  tagline?: string;
+  description?: string;
+  tags?: string[];
+  category?: string;
+  displayCategory?: string;
+  functionalCategories?: string[];
+  traits?: string[];
+}): string {
+  const parts = [
+    template.name ?? '',
+    template.tagline ?? '',
+    template.description ?? '',
+    template.category ?? '',
+    template.displayCategory ?? '',
+    ...(template.tags ?? []),
+    ...(template.functionalCategories ?? []),
+    ...(template.traits ?? []),
+  ];
+  return parts.filter(Boolean).join(' ').toLowerCase();
+}
+
 export interface UpdateOwnedTemplateInput {
   name?: string;
   tagline?: string;
   description?: string;
   category?: string;
+  displayCategory?: string;
   platformCategories?: string[];
   functionalCategories?: string[];
   traits?: string[];
@@ -70,6 +118,7 @@ export interface UpdateOwnedTemplateInput {
   componentTemplates?: Record<string, unknown>;
   cssVars?: Record<string, string>;
   cssAnimations?: Record<string, string> | null;
+  visualAssets?: unknown[];
 }
 
 export interface TemplateAgentConfigDto {
@@ -111,6 +160,7 @@ export class TemplatesService implements OnModuleInit {
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
     private readonly config: ConfigService,
+    private readonly templateAssetService: TemplateAssetService,
     private readonly categoryRegistry: TemplateCategoryRegistryService,
   ) {}
 
@@ -120,20 +170,25 @@ export class TemplatesService implements OnModuleInit {
         this.categoryRegistry.ensureTemplateCategories(data)),
     );
     await this.repo.upsert(
-      TEMPLATE_SEED_DATA.map((data) =>
-        this.repo.create({
+      TEMPLATE_SEED_DATA.map((data) => {
+        const displayCategory = data.displayCategory
+          ?? resolveDisplayCategoryFromKey(data.category);
+        const tags = deriveTags(data);
+        return this.repo.create({
           ownerUserId: null,
           sourceTemplateId: null,
           isPublic: true,
           primaryFunctionalCategory: data.functionalCategories?.[0] ?? null,
-          tags: deriveTags(data),
+          displayCategory,
+          tags,
+          searchText: buildSearchText({ ...data, displayCategory, tags }),
           ...data,
           layoutDocument: withThemeLayoutStyleManifest(
             data.layoutDocument,
             data.cssVars,
           ),
-        }),
-      ) as never,
+        });
+      }) as never,
       { conflictPaths: ['templateId'], skipUpdateIfNoValuesChanged: true },
     );
     await Promise.all(TEMPLATE_SEED_DATA.map((data) => this.upsertTemplateAgentConfig(
@@ -164,22 +219,27 @@ export class TemplatesService implements OnModuleInit {
     if (options.category) {
       qb.andWhere('t.category = :category', { category: options.category });
     }
+    if (options.displayCategory) {
+      qb.andWhere('t.displayCategory = :displayCategory', {
+        displayCategory: options.displayCategory,
+      });
+    }
     if (options.functionalCategory) {
       qb.andWhere('t.primaryFunctionalCategory = :fc', { fc: options.functionalCategory });
+    }
+    if (options.platformCategory) {
+      qb.andWhere("t.platformCategories LIKE :pc", { pc: `%${options.platformCategory}%` });
     }
     if (options.search) {
       const q = `%${options.search.toLowerCase()}%`;
       qb.andWhere(
-        '(LOWER(t.name) LIKE :q OR LOWER(t.tagline) LIKE :q OR LOWER(t.description) LIKE :q)',
+        '(LOWER(t.name) LIKE :q OR LOWER(t.tagline) LIKE :q OR LOWER(t.description) LIKE :q OR LOWER(t.searchText) LIKE :q)',
         { q },
       );
     }
 
     qb.orderBy('t.createdAt', 'ASC');
-    const data = this.filterByPlatformCategory(
-      await qb.getMany(),
-      options.platformCategory,
-    );
+    const data = await qb.getMany();
     return {
       data: await Promise.all(data.map((template) =>
         this.categoryRegistry.decorateTemplate(template))),
@@ -197,22 +257,27 @@ export class TemplatesService implements OnModuleInit {
     if (options.category) {
       qb.andWhere('t.category = :category', { category: options.category });
     }
+    if (options.displayCategory) {
+      qb.andWhere('t.displayCategory = :displayCategory', {
+        displayCategory: options.displayCategory,
+      });
+    }
     if (options.functionalCategory) {
       qb.andWhere('t.primaryFunctionalCategory = :fc', { fc: options.functionalCategory });
+    }
+    if (options.platformCategory) {
+      qb.andWhere("t.platformCategories LIKE :pc", { pc: `%${options.platformCategory}%` });
     }
     if (options.search) {
       const q = `%${options.search.toLowerCase()}%`;
       qb.andWhere(
-        '(LOWER(t.name) LIKE :q OR LOWER(t.tagline) LIKE :q OR LOWER(t.description) LIKE :q)',
+        '(LOWER(t.name) LIKE :q OR LOWER(t.tagline) LIKE :q OR LOWER(t.description) LIKE :q OR LOWER(t.searchText) LIKE :q)',
         { q },
       );
     }
 
     qb.orderBy('t.updatedAt', 'DESC');
-    const data = this.filterByPlatformCategory(
-      await qb.getMany(),
-      options.platformCategory,
-    );
+    const data = await qb.getMany();
     return {
       data: await Promise.all(data.map((template) =>
         this.categoryRegistry.decorateTemplate(template))),
@@ -284,6 +349,7 @@ export class TemplatesService implements OnModuleInit {
       description: source.description,
       accent: source.accent,
       category: source.category,
+      displayCategory: source.displayCategory ?? resolveDisplayCategoryFromKey(source.category),
       primaryFunctionalCategory: source.functionalCategories?.[0] ?? null,
       platformCategories: [...(source.platformCategories ?? [])],
       functionalCategories: [...(source.functionalCategories ?? [])],
@@ -306,13 +372,24 @@ export class TemplatesService implements OnModuleInit {
     input: UpdateOwnedTemplateInput,
   ): Promise<Template> {
     const template = await this.findOwnedByTemplateId(ownerUserId, templateId);
+    const assetResolution = input.visualAssets !== undefined
+      ? await this.templateAssetService.resolveVisualAssetsForTemplate(
+        template.templateId,
+        input.layoutDocument ?? template.layoutDocument,
+        input.visualAssets,
+      )
+      : null;
+    const layoutDocumentSource = assetResolution?.layoutDocument
+      ?? input.layoutDocument
+      ?? template.layoutDocument;
     const shouldPrepareLayout =
       input.layoutDocument !== undefined ||
       input.componentTemplates !== undefined ||
-      input.cssVars !== undefined;
+      input.cssVars !== undefined ||
+      input.visualAssets !== undefined;
     const preparedLayoutDocument = shouldPrepareLayout
       ? prepareTemplateLayoutForPersistence({
-        layoutDocument: input.layoutDocument ?? template.layoutDocument,
+        layoutDocument: layoutDocumentSource,
         componentTemplates: input.componentTemplates ?? template.componentTemplates,
         cssVars: input.cssVars ?? template.cssVars,
       })
@@ -326,6 +403,10 @@ export class TemplatesService implements OnModuleInit {
     if (input.category !== undefined) {
       this.assertTemplateCategoryKey(input.category, 'category');
       template.category = input.category;
+    }
+    if (input.displayCategory !== undefined) {
+      this.assertTemplateCategoryKey(input.displayCategory, 'displayCategory');
+      template.displayCategory = input.displayCategory;
     }
     if (input.platformCategories !== undefined) {
       input.platformCategories.forEach((category) =>
@@ -355,10 +436,17 @@ export class TemplatesService implements OnModuleInit {
       template.tags = deriveTags(template);
     }
 
+    template.searchText = buildSearchText(template);
     await this.categoryRegistry.ensureTemplateCategories(template);
     const saved = await this.repo.save(template);
     if (shouldPrepareLayout) {
       await this.saveGeneratedProfileForTemplate(saved, true);
+    }
+    if (assetResolution?.manifest) {
+      await this.upsertTemplateAgentConfig(
+        saved.templateId,
+        { assets: assetResolution.manifest as unknown as Record<string, unknown> },
+      );
     }
     return this.attachAgentConfig(saved);
   }
@@ -381,7 +469,7 @@ export class TemplatesService implements OnModuleInit {
 
   private async attachAgentConfig<T extends Template>(
     template: T,
-  ): Promise<T & { agentConfig: TemplateAgentConfigDto }> {
+  ): Promise<T & { agentConfig: TemplateAgentConfigDto; }> {
     const decorated = await this.categoryRegistry.decorateTemplate(template);
     return Object.assign(decorated, {
       agentConfig: await this.loadTemplateAgentConfig(template),
@@ -434,7 +522,7 @@ export class TemplatesService implements OnModuleInit {
       try {
         effectiveProfile = applyTemplateProfileOverride(
           generatedProfile as unknown as TemplateProfile,
-          profileOverrideRecord as never,
+          profileOverrideRecord,
         ) as unknown as Record<string, unknown>;
       } catch {
         effectiveProfile = generatedProfile;
@@ -451,7 +539,7 @@ export class TemplatesService implements OnModuleInit {
     };
   }
 
-  private async findConfigByTemplateId<T extends { templateId: string }>(
+  private async findConfigByTemplateId<T extends { templateId: string; }>(
     repo: Repository<T>,
     templateId: string,
     fallbackTemplateId?: string,
@@ -676,6 +764,19 @@ export class TemplatesService implements OnModuleInit {
         changed = true;
       }
 
+      const normalizedDisplayCategory = this.resolveTemplateDisplayCategoryKey(
+        template.displayCategory,
+        template.category,
+        template.functionalCategories,
+      );
+      if (
+        normalizedDisplayCategory &&
+        normalizedDisplayCategory !== template.displayCategory
+      ) {
+        template.displayCategory = normalizedDisplayCategory;
+        changed = true;
+      }
+
       const primaryFunctionalCategory = template.functionalCategories?.[0] ?? null;
       if (template.primaryFunctionalCategory !== primaryFunctionalCategory) {
         template.primaryFunctionalCategory = primaryFunctionalCategory;
@@ -705,6 +806,23 @@ export class TemplatesService implements OnModuleInit {
     return current;
   }
 
+  private resolveTemplateDisplayCategoryKey(
+    displayCategory: string | null | undefined,
+    category: string | null | undefined,
+    functionalCategories: readonly string[] | null | undefined,
+  ): string {
+    const current = typeof displayCategory === 'string' ? displayCategory.trim() : '';
+    const primaryFunctionalCategory = functionalCategories?.[0]?.trim() ?? '';
+    if (current && !hasCjkText(current)) {
+      if (current !== category && current !== primaryFunctionalCategory) {
+        return current;
+      }
+    }
+    return resolveDisplayCategoryFromKey(
+      primaryFunctionalCategory || category || current || 'general',
+    );
+  }
+
   private assertTemplateCategoryKey(value: string, fieldName: string): void {
     if (!isTemplateCategoryKey(value)) {
       throw new BadRequestException(`${fieldName} must be an English slug key.`);
@@ -723,10 +841,23 @@ export class TemplatesService implements OnModuleInit {
     }
 
     const entries = await fs.readdir(directory, { withFileTypes: true });
-    const jsonFiles = entries
+    let jsonFiles = entries
       .filter((entry) => entry.isFile() && entry.name.endsWith('.json'))
       .map((entry) => path.join(directory, entry.name))
       .sort();
+
+    // Skip templates listed in import-skip-list.json
+    const skipListPath = path.join(directory, 'import-skip-list.json');
+    try {
+      const skipContent = await fs.readFile(skipListPath, 'utf8');
+      const skipIds = JSON.parse(skipContent);
+      if (Array.isArray(skipIds) && skipIds.length > 0) {
+        const skipBasenames = new Set(skipIds.map((id: string) => path.basename(id) + '.json'));
+        jsonFiles = jsonFiles.filter((f) => !skipBasenames.has(path.basename(f)));
+      }
+    } catch {
+      // No skip list file = process all
+    }
 
     const importedFiles: string[] = [];
     for (const filePath of jsonFiles) {
@@ -799,8 +930,18 @@ export class TemplatesService implements OnModuleInit {
         },
         { requireLabelsForUnknown: true },
       );
+      const assetResolution = await this.templateAssetService.resolveVisualAssetsForTemplate(
+        data.templateId,
+        data.layoutDocument,
+        isRecord(parsed) ? parsed.visualAssets : undefined,
+      );
+      const assetManifest = mergeVisualAssetsIntoManifest(
+        data.templateId,
+        agentConfig.assets,
+        assetResolution.visualAssets,
+      );
       const layoutDocument = prepareTemplateLayoutForPersistence({
-        layoutDocument: data.layoutDocument,
+        layoutDocument: assetResolution.layoutDocument,
         componentTemplates: data.componentTemplates,
         cssVars: data.cssVars,
         requireGeneratedTemplateQuality: true,
@@ -810,7 +951,7 @@ export class TemplatesService implements OnModuleInit {
       const effectiveProfile = agentConfig.profileOverride
         ? applyTemplateProfileOverride(
           generatedProfile as unknown as TemplateProfile,
-          agentConfig.profileOverride as never,
+          agentConfig.profileOverride,
         )
         : generatedProfile;
       const profileValidation = validateTemplateProfile(
@@ -825,13 +966,15 @@ export class TemplatesService implements OnModuleInit {
         await this.writeTemplateValidationLog(filePath, issues);
         return false;
       }
+      const tags = deriveTags(data);
       await this.repo.upsert(
         [this.repo.create({
           ownerUserId: null,
           sourceTemplateId: null,
           isPublic: true,
           primaryFunctionalCategory: data.functionalCategories?.[0] ?? null,
-          tags: deriveTags(data),
+          tags,
+          searchText: buildSearchText({ ...data, tags }),
           ...data,
           layoutDocument,
         })] as never,
@@ -839,6 +982,7 @@ export class TemplatesService implements OnModuleInit {
       );
       await this.upsertTemplateAgentConfig(data.templateId, {
         ...agentConfig,
+        ...(assetManifest ? { assets: assetManifest } : {}),
         profileGenerated: generatedProfile,
       });
       await this.removeTemplateValidationLog(filePath);
@@ -974,6 +1118,8 @@ export class TemplatesService implements OnModuleInit {
   ): {
     categoryLabel?: string;
     categoryLabels?: Record<string, string>;
+    displayCategoryLabel?: string;
+    displayCategoryLabels?: Record<string, string>;
     platformCategoryLabels?: Record<string, string>;
     functionalCategoryLabels?: Record<string, string>;
   } {
@@ -984,6 +1130,12 @@ export class TemplatesService implements OnModuleInit {
       }),
       ...(isStringRecord(record.categoryLabels) && {
         categoryLabels: record.categoryLabels,
+      }),
+      ...(isNonEmptyString(record.displayCategoryLabel) && {
+        displayCategoryLabel: record.displayCategoryLabel,
+      }),
+      ...(isStringRecord(record.displayCategoryLabels) && {
+        displayCategoryLabels: record.displayCategoryLabels,
       }),
       ...(isStringRecord(record.platformCategoryLabels) && {
         platformCategoryLabels: record.platformCategoryLabels,
@@ -1078,6 +1230,7 @@ export class TemplatesService implements OnModuleInit {
       'description',
       'accent',
       'category',
+      'displayCategory',
     ] as const;
     requiredStrings.forEach((key) => {
       if (!isNonEmptyString(value[key])) {
@@ -1102,6 +1255,9 @@ export class TemplatesService implements OnModuleInit {
       issues,
       { strict: false },
     );
+    const displayCategory = isNonEmptyString(value.displayCategory)
+      ? String(value.displayCategory).trim()
+      : resolveDisplayCategoryFromKey(String(value.category ?? ''));
 
     if (
       functionalCategories.length > 0 &&
@@ -1121,7 +1277,12 @@ export class TemplatesService implements OnModuleInit {
     if (isNonEmptyString(value.category) && !isTemplateCategoryKey(value.category)) {
       issues.push('category must be an English slug key.');
     }
-
+    if (
+      isNonEmptyString(displayCategory) &&
+      !isTemplateCategoryKey(displayCategory)
+    ) {
+      issues.push('displayCategory must be an English slug key.');
+    }
     if (issues.length) {
       return null;
     }
@@ -1133,6 +1294,7 @@ export class TemplatesService implements OnModuleInit {
       description: String(value.description),
       accent: String(value.accent),
       category: String(value.category),
+      displayCategory,
       platformCategories,
       functionalCategories,
       traits,
@@ -1170,7 +1332,7 @@ export class TemplatesService implements OnModuleInit {
     fieldName: string,
     allowedValues: Set<string>,
     issues: string[],
-    options: { strict?: boolean } = {},
+    options: { strict?: boolean; } = {},
   ): string[] {
     const strings = this.parseStringArray(value, fieldName, issues);
     strings.forEach((item) => {
@@ -1323,7 +1485,7 @@ export class TemplatesService implements OnModuleInit {
       error &&
       typeof error === 'object' &&
       'code' in error &&
-      (error as { code?: unknown }).code === code,
+      (error as { code?: unknown; }).code === code,
     );
   }
 
@@ -1359,6 +1521,42 @@ export class TemplatesService implements OnModuleInit {
 
 function hasCjkText(value: string): boolean {
   return /[\u4e00-\u9fff]/.test(value);
+}
+
+function resolveDisplayCategoryFromKey(key: string | null | undefined): string {
+  const normalized = typeof key === 'string' ? key.trim().toLowerCase() : '';
+  if (!normalized) {
+    return 'general';
+  }
+  if (DISPLAY_CATEGORIES.has(normalized)) {
+    return normalized;
+  }
+  const prefix = normalized.split('-')[0];
+  if (prefix === 'edu') {
+    return 'education';
+  }
+  if (DISPLAY_CATEGORIES.has(prefix)) {
+    return prefix;
+  }
+  if (normalized.includes('booking') || normalized.includes('food-ordering')) {
+    return 'service';
+  }
+  if (normalized.includes('reader') || normalized.includes('news')) {
+    return 'content';
+  }
+  if (normalized.includes('event')) {
+    return 'marketing';
+  }
+  if (normalized.includes('wellness') || normalized.includes('fitness')) {
+    return 'health';
+  }
+  if (normalized.includes('tools')) {
+    return 'utility';
+  }
+  if (normalized.includes('center')) {
+    return 'profile';
+  }
+  return 'other';
 }
 
 function isTemplateCategoryKey(value: string): boolean {

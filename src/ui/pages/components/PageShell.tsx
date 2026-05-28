@@ -1,7 +1,7 @@
 import styles from './PageComponents.module.css';
 import { cx } from 'base/classname';
 import type { CSSProperties, ReactNode } from 'react';
-import { Box, Container, Heading, Stack, Text } from 'ui/system';
+import { Box, Container, Heading, Stack, Text } from 'ui/base';
 
 export interface PageRootProps {
   children: ReactNode;

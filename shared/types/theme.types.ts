@@ -1,4 +1,5 @@
 // Shared theme types — used by both frontend (Next.js) and backend (NestJS)
+import type { VisualAsset } from '../theme-layout/visualAssets';
 
 export interface ThemeDto {
   id: string;
@@ -8,12 +9,15 @@ export interface ThemeDto {
   accent: string;
   category: string;
   categoryLabel?: string;
+  displayCategory?: string;
+  displayCategoryLabel?: string;
   platformCategories?: string[];
   platformCategoryLabels?: Record<string, string>;
   functionalCategories?: string[];
   functionalCategoryLabels?: Record<string, string>;
   traits: string[];
   cssVars: Record<string, string>;
+  visualAssets?: VisualAsset[];
   componentTemplates: Record<string, unknown>;
   layoutDocument: Record<string, unknown>;
   agentConfig?: {
@@ -35,12 +39,15 @@ export interface CreateThemeDto {
   accent: string;
   category: string;
   categoryLabel?: string;
+  displayCategory?: string;
+  displayCategoryLabel?: string;
   platformCategories?: string[];
   platformCategoryLabels?: Record<string, string>;
   functionalCategories?: string[];
   functionalCategoryLabels?: Record<string, string>;
   traits: string[];
   cssVars: Record<string, string>;
+  visualAssets?: VisualAsset[];
   componentTemplates: Record<string, unknown>;
   layoutDocument: Record<string, unknown>;
 }

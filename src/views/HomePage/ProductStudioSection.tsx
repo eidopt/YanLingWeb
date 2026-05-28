@@ -11,7 +11,7 @@ import {
 import {
   Box,
   Text,
-} from 'ui/system';
+} from 'ui/base';
 
 interface ProductStudioSectionProps {
   onCtaClick: () => void;

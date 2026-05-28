@@ -1,3 +1,9 @@
+import {
+  inferUiDesignSkillContext,
+  type UiRenderSurface,
+  type UiTargetPlatform,
+} from '@shared/agent/skills/uiDesignSkillRegistry';
+
 export type UiIntentCategory =
   | 'marketing_site'
   | 'web_app'
@@ -74,6 +80,9 @@ export interface UiIntentPlan {
   matchedCategories: UiIntentCategory[];
   confidence: number;
   generationStrategy: UiGenerationStrategy;
+  targetPlatforms: UiTargetPlatform[];
+  renderSurface: UiRenderSurface;
+  selectedSkillIds: string[];
   supportedCapabilities: UiCapabilityMatch[];
   missingCapabilities: UiCapabilityMatch[];
   promptHints: string[];
@@ -428,6 +437,7 @@ function buildPromptHints(
     UiIntentPlan,
     | 'primaryCategory'
     | 'generationStrategy'
+    | 'targetPlatforms'
     | 'supportedCapabilities'
     | 'missingCapabilities'
   >,
@@ -438,6 +448,8 @@ function buildPromptHints(
     'Keep the output editable by preserving clear node ids, layout metadata, '
       + 'and reusable templates.',
   ];
+
+  hints.push(`Target platforms: ${planSeed.targetPlatforms.join(', ')}.`);
 
   planSeed.supportedCapabilities.forEach((capability) => {
     hints.push(`Supported: ${capability.label}. ${capability.generationHint}`);
@@ -476,6 +488,7 @@ function buildPromptHints(
 export function planUiIntent(prompt: string): UiIntentPlan {
   const normalizedPrompt = normalizePrompt(prompt);
   const { matches, confidence } = resolveCategoryMatches(normalizedPrompt);
+  const skillContext = inferUiDesignSkillContext(normalizedPrompt, matches);
   const capabilities = resolveCapabilityMatches(normalizedPrompt);
   const supportedCapabilities = capabilities.filter(isSupported);
   const missingCapabilities = capabilities.filter((match) => !isSupported(match));
@@ -487,6 +500,7 @@ export function planUiIntent(prompt: string): UiIntentPlan {
   const planSeed = {
     primaryCategory: matches[0],
     generationStrategy,
+    targetPlatforms: skillContext.targetPlatforms,
     supportedCapabilities,
     missingCapabilities,
   };
@@ -495,6 +509,9 @@ export function planUiIntent(prompt: string): UiIntentPlan {
     ...planSeed,
     matchedCategories: matches,
     confidence,
+    targetPlatforms: planSeed.targetPlatforms,
+    renderSurface: skillContext.renderSurface,
+    selectedSkillIds: skillContext.selectedSkillIds,
     promptHints: buildPromptHints(planSeed),
   };
 }
@@ -513,6 +530,9 @@ export function formatUiIntentPlanForPrompt(plan: UiIntentPlan): string {
     `- matchedCategories: ${plan.matchedCategories.join(', ')}`,
     `- confidence: ${plan.confidence.toFixed(2)}`,
     `- generationStrategy: ${plan.generationStrategy}`,
+    `- targetPlatforms: ${plan.targetPlatforms.join(', ')}`,
+    `- renderSurface: ${plan.renderSurface}`,
+    `- selectedSkillIds: ${plan.selectedSkillIds.join(', ') || 'none'}`,
     `- supportedCapabilities: ${supported}`,
     `- missingCapabilities: ${missing}`,
     '- generationHints:',

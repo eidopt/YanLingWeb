@@ -3,12 +3,13 @@
 import { dynamicThemeRendererContent } from '../../content';
 import type { ThemeRuntime } from '../../types';
 import { asString, asStringArray } from '../../valueResolvers';
+import type { ScreenProps } from '../propsTypes';
 import type { CoreNodeProps } from '../types';
 import styles from './ScreenNode.module.css';
 import { cx } from 'base/classname';
 import type { CSSProperties, ReactNode } from 'react';
 
-interface ScreenNodeProps extends CoreNodeProps {
+interface ScreenNodeProps extends CoreNodeProps<ScreenProps> {
   runtime: ThemeRuntime;
 }
 
@@ -18,6 +19,13 @@ export function ScreenNode({ runtime, props, children, nodeLayoutStyle }: Screen
     : props.__screenPreset === 'tablet'
       ? 'tablet'
       : 'mobile';
+  const surface = asString(props.surface);
+  const chrome = asString(
+    props.chrome,
+    surface === 'web' ? 'none' : surface === 'mini-program' ? 'wechat' : 'app',
+  );
+  const isWebSurface = surface === 'web' || chrome === 'none';
+  const isWechatChrome = chrome === 'wechat';
   const isMobileScreen = screenPreset === 'mobile';
   const isTabletScreen = screenPreset === 'tablet';
   const footerChildren: ReactNode[] = [];
@@ -53,83 +61,96 @@ export function ScreenNode({ runtime, props, children, nodeLayoutStyle }: Screen
     <section
       className={cx(
         styles.screen,
-        isMobileScreen && styles.screenMobile,
-        isTabletScreen && styles.screenTablet,
-        screenPreset === 'desktop' && styles.screenDesktop,
+        isWebSurface && styles.screenWeb,
+        !isWebSurface && isMobileScreen && styles.screenMobile,
+        !isWebSurface && isTabletScreen && styles.screenTablet,
+        !isWebSurface && screenPreset === 'desktop' && styles.screenDesktop,
       )}
       style={{
         ...(runtime.cssVars as CSSProperties),
         ...nodeLayoutStyle,
-        width: isMobileScreen ? undefined : '100%',
-        maxWidth: isMobileScreen ? undefined : '100%',
-        height: isMobileScreen
+        width: isWebSurface || !isMobileScreen ? '100%' : undefined,
+        maxWidth: isWebSurface || !isMobileScreen ? '100%' : undefined,
+        height: isWebSurface
+          ? undefined
+          : isMobileScreen
           ? 'var(--screen-height, var(--app-unit-80))'
           : isTabletScreen
             ? 'var(--screen-height-tablet, calc(var(--app-base-unit) * 128))'
             : 'var(--screen-height-desktop, var(--app-unit-112))',
-        maxHeight: isMobileScreen
+        maxHeight: isWebSurface
+          ? undefined
+          : isMobileScreen
           ? 'var(--screen-height, var(--app-unit-80))'
           : isTabletScreen
             ? 'var(--screen-height-tablet, calc(var(--app-base-unit) * 128))'
             : 'var(--screen-height-desktop, var(--app-unit-112))',
-        minHeight: isMobileScreen
+        minHeight: isWebSurface
+          ? '100%'
+          : isMobileScreen
           ? undefined
           : isTabletScreen
             ? 'var(--screen-height-tablet, calc(var(--app-base-unit) * 128))'
             : 'var(--screen-height-desktop, var(--app-unit-112))',
-        borderRadius: isMobileScreen ? undefined : 'var(--radius-screen, var(--app-radius-3xl))',
+        borderRadius: isWebSurface || isMobileScreen
+          ? undefined
+          : 'var(--radius-screen, var(--app-radius-3xl))',
       }}
     >
-      <div className={cx(styles.statusBar, isMobileScreen && styles.statusBarMobile)}>
-        <span className={styles.statusTime}>{asString(props.statusTime, '9:41')}</span>
-        <div className={styles.statusIcons}>
-          <span className={styles.signalIcon} aria-hidden="true">
-            <span /><span /><span /><span />
-          </span>
-          <span className={styles.batteryIcon} aria-hidden="true">
-            <span className={styles.batteryLevel} />
-          </span>
+      {!isWebSurface ? (
+        <div className={cx(styles.statusBar, isMobileScreen && styles.statusBarMobile)}>
+          <span className={styles.statusTime}>{asString(props.statusTime, '9:41')}</span>
+          <div className={styles.statusIcons}>
+            <span className={styles.signalIcon} aria-hidden="true">
+              <span /><span /><span /><span />
+            </span>
+            <span className={styles.batteryIcon} aria-hidden="true">
+              <span className={styles.batteryLevel} />
+            </span>
+          </div>
         </div>
-      </div>
+      ) : null}
 
-      <div className={cx(styles.header, isMobileScreen && styles.headerMobile)}>
-        {props.headerActionLabel ? (
-          <span className={styles.headerGhostPlaceholder} />
-        ) : (
-          <span
-            className={styles.headerGhost}
-            aria-label={asString(
-              props.headerLeftAriaLabel,
-              dynamicThemeRendererContent.headerLeftAriaLabel,
-            )}
-          />
-        )}
-
-        <strong className={styles.headerTitle}>{asString(props.title)}</strong>
-
-        {props.headerActionLabel ? (
-          <span className={isMobileScreen ? styles.miniProgramCapsuleLabel : styles.headerAction}>
-            {asString(props.headerActionLabel)}
-          </span>
-        ) : (
-          isMobileScreen ? (
-            <div className={styles.miniProgramCapsule} aria-hidden="true">
-              <span /><span />
-            </div>
+      {!isWebSurface ? (
+        <div className={cx(styles.header, isMobileScreen && styles.headerMobile)}>
+          {props.headerActionLabel ? (
+            <span className={styles.headerGhostPlaceholder} />
           ) : (
             <span
               className={styles.headerGhost}
               aria-label={asString(
-                props.headerRightAriaLabel,
-                dynamicThemeRendererContent.headerRightAriaLabel,
+                props.headerLeftAriaLabel,
+                dynamicThemeRendererContent.headerLeftAriaLabel,
               )}
             />
-          )
-        )}
-      </div>
+          )}
+
+          <strong className={styles.headerTitle}>{asString(props.title)}</strong>
+
+          {props.headerActionLabel ? (
+            <span className={isWechatChrome && isMobileScreen ? styles.miniProgramCapsuleLabel : styles.headerAction}>
+              {asString(props.headerActionLabel)}
+            </span>
+          ) : (
+            isWechatChrome && isMobileScreen ? (
+              <div className={styles.miniProgramCapsule} aria-hidden="true">
+                <span /><span />
+              </div>
+            ) : (
+              <span
+                className={styles.headerGhost}
+                aria-label={asString(
+                  props.headerRightAriaLabel,
+                  dynamicThemeRendererContent.headerRightAriaLabel,
+                )}
+              />
+            )
+          )}
+        </div>
+      ) : null}
 
       <div
-        className={styles.viewport}
+        className={cx(styles.viewport, isWebSurface && styles.viewportWeb)}
         data-layout-viewport="true"
         style={{ position: props.__hasAbsoluteChildren ? 'relative' : undefined }}
       >
@@ -141,7 +162,7 @@ export function ScreenNode({ runtime, props, children, nodeLayoutStyle }: Screen
       </div>
 
       {footerChildren.length > 0
-        ? <div className={styles.footer}>{footerChildren}</div>
+        ? <div className={cx(styles.footer, isWebSurface && styles.footerWeb)}>{footerChildren}</div>
         : null}
     </section>
   );

@@ -13,7 +13,7 @@ import {
 import {
   Box,
   Text,
-} from 'ui/system';
+} from 'ui/base';
 import { ThemeCard } from 'ui/theme_card';
 
 interface TemplatesSectionProps {

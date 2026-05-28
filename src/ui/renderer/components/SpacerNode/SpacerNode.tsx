@@ -1,6 +1,7 @@
 'use client';
 
 import { asString } from '../../valueResolvers';
+import type { SpacerProps } from '../propsTypes';
 import type { CoreNodeProps } from '../types';
 
 const sizeMap: Record<string, string> = {
@@ -11,7 +12,7 @@ const sizeMap: Record<string, string> = {
   xl: 'var(--app-unit-6)',
 };
 
-export function SpacerNode({ props, nodeLayoutStyle }: CoreNodeProps) {
+export function SpacerNode({ props, nodeLayoutStyle }: CoreNodeProps<SpacerProps>) {
   const size = asString(props.size, 'md');
   const height = sizeMap[size] ?? size;
 

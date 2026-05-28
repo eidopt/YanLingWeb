@@ -16,6 +16,7 @@ import {
   resolveSafeWidgetRenderer,
   SUPPORTED_WIDGET_RENDERERS,
 } from './widgetSafety';
+import { isAllowedTemplateImageSrc } from '../../theme-layout/visualAssets';
 
 export interface ThemeLayoutValidatorOptions {
   failOnUnknownProps?: boolean;
@@ -44,13 +45,62 @@ const CORE_ALIASES = new Set([
   'core.divider',
   'core.spacer',
   'core.input',
+  // Navigation
+  'core.navbar',
+  'core.tabbar',
+  'core.breadcrumb',
+  'core.pagination',
+  // Data display
+  'core.avatar',
+  'core.badge',
+  'core.list',
+  'core.list-item',
+  'core.statistic',
+  'core.collapse',
+  'core.carousel',
+  'core.empty',
+  'core.skeleton',
+  // Data input
+  'core.select',
+  'core.checkbox',
+  'core.radio',
+  'core.switch',
+  'core.rate',
+  'core.slider',
+  'core.datepicker',
+  'core.timepicker',
+  'core.form',
+  'core.upload',
+  // Feedback
+  'core.dialog',
+  'core.toast',
+  'core.alert',
+  'core.loading',
+  'core.drawer',
+  // Media
+  'core.video',
+  'core.audio',
+  // Layout & Navigation
+  'core.sidebar',
+  'core.toolbar',
+  'core.splitter',
+  // Professional
+  'core.timeline',
+  'core.tooltip',
+  'core.tree',
+  'core.table',
 ]);
 const CORE_IMAGE_PROP_TYPES = new Map([
+  ['assetId', 'string'],
   ['src', 'string'],
   ['alt', 'string'],
   ['title', 'string'],
   ['iconColor', 'string'],
   ['objectFit', 'string'],
+]);
+const CORE_SCREEN_PROP_TYPES = new Map([
+  ['surface', 'string'],
+  ['chrome', 'string'],
 ]);
 const CORE_UNIVERSAL_PROP_TYPES = new Map([
   ['style', 'object'],
@@ -67,6 +117,18 @@ const CONTAINER_ALIASES = new Set([
   'core.row',
   'core.grid',
   'core.html',
+  'core.navbar',
+  'core.list',
+  'core.list-item',
+  'core.dialog',
+  'core.drawer',
+  'core.collapse',
+  'core.sidebar',
+  'core.form',
+  'core.toolbar',
+  'core.splitter',
+  'core.timeline',
+  'core.tree',
 ]);
 const LAYOUT_MODES = new Set(['flow', 'grid', 'absolute']);
 
@@ -93,18 +155,16 @@ function hasCjkText(value: string): boolean {
 
 function hasDisallowedLatinText(value: string): boolean {
   const normalized = value
-    .replace(/\b(AI|API|URL|URI|ID|VIP|H5|SaaS|CRM|ERP|IoT|OK)\b/gi, '')
+    .replace(/\b(AI|API|URL|URI|ID|VIP|H5|SaaS|CRM|ERP|IoT|OK|PPSU|SPF|DNA|SLA|SKU|QDII|ETF|MOBA|FPS|MMORPG|Python|JavaScript|Java|React|Node|Word|Excel|PPT)\b/gi, '')
     .replace(/Wi-?Fi/gi, '');
+  if (hasCjkText(normalized)) {
+    return (normalized.match(/[A-Za-z]{3,}/g) ?? []).length >= 3;
+  }
   return /[A-Za-z]{3,}/.test(normalized);
 }
 
 function isValidGeneratedImageUrl(value: string): boolean {
-  try {
-    const url = new URL(value);
-    return url.protocol === 'https:';
-  } catch {
-    return false;
-  }
+  return isAllowedTemplateImageSrc(value);
 }
 
 function collectAliases(
@@ -134,6 +194,9 @@ function validatePropValue(
 ): ValidationIssue | null {
   const fallbackType =
     CORE_UNIVERSAL_PROP_TYPES.get(propName) ??
+    (descriptor.alias === 'core.screen'
+      ? CORE_SCREEN_PROP_TYPES.get(propName)
+      : undefined) ??
     (descriptor.alias === 'core.image'
       ? CORE_IMAGE_PROP_TYPES.get(propName)
       : undefined);
@@ -154,6 +217,9 @@ function validatePropValue(
   }
   if (prop.type === 'object' && !isPlainObject(value)) {
     return issue('error', path, 'invalid_object', `Prop "${propName}" must be an object`);
+  }
+  if (prop.type === 'array' && !Array.isArray(value)) {
+    return issue('error', path, 'invalid_array', `Prop "${propName}" must be an array`);
   }
   if (prop.type === 'string[]' && (!Array.isArray(value) || !value.every((item) => typeof item === 'string'))) {
     return issue('error', path, 'invalid_string_array', `Prop "${propName}" must be string[]`);
@@ -563,7 +629,7 @@ function validateNode(
         'error',
         `${path}.props.src`,
         'invalid_generated_image_url',
-        'Generated core.image props.src must be a valid HTTPS URL; omit src to render the placeholder.',
+        'Generated core.image props.src must be a valid HTTPS URL or /template-assets/... path; omit src to render the placeholder.',
       ));
     }
   }
@@ -574,7 +640,6 @@ function validateNode(
       'text',
       'label',
       'placeholder',
-      'activeTab',
       'body',
       'caption',
       'subtitle',

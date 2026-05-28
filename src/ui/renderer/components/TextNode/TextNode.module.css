@@ -1,5 +1,7 @@
 .text {
   margin: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .textDisplay {

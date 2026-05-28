@@ -12,7 +12,12 @@ import {
 @Index(['ownerUserId', 'isPublic'])
 @Index(['sourceTemplateId'])
 @Index(['category'])
+@Index(['displayCategory'])
 @Index(['primaryFunctionalCategory'])
+@Index(['name'])
+@Index(['isPublic', 'category'])
+@Index(['isPublic', 'displayCategory'])
+@Index(['isPublic', 'primaryFunctionalCategory'])
 export class Template {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -34,9 +39,11 @@ export class Template {
   isPublic: boolean;
 
   @Column()
+  @Index()
   name: string;
 
   @Column({ default: '' })
+  @Index()
   tagline: string;
 
   @Column({ default: '' })
@@ -47,6 +54,10 @@ export class Template {
 
   @Column({ default: 'general' })
   category: string;
+
+  /** Coarse frontend display group used for marketplace filters. */
+  @Column({ default: 'general' })
+  displayCategory: string;
 
   /** First element of functionalCategories, indexed for efficient DB-level filtering. */
   @Column({ type: 'varchar', nullable: true })
@@ -64,6 +75,15 @@ export class Template {
   /** Search keywords and business tags used for template discovery. */
   @Column({ type: 'simple-json', default: '[]' })
   tags: string[];
+
+  /**
+   * Denormalized searchable text: combines name + tagline + description + tags
+   * for efficient LIKE-based search without JSON parsing.
+   * Auto-populated on insert/update by the service layer.
+   */
+  @Column({ type: 'varchar', default: '' })
+  @Index()
+  searchText: string;
 
   @Column({ type: 'simple-json', default: '{}' })
   cssVars: Record<string, string>;

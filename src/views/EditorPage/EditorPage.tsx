@@ -4,7 +4,7 @@ import styles from './EditorPage.module.css';
 import { EditorPageView } from './EditorPageView';
 import { useEditorPageController } from './useEditorPageController';
 import { Suspense } from 'react';
-import { Box } from 'ui/system';
+import { Box } from 'ui/base';
 
 function EditorPageInner() {
   const controller = useEditorPageController();

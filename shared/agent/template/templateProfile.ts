@@ -123,7 +123,7 @@ export type SemanticThemeLayoutNode = ThemeLayoutNode & {
 };
 
 export const EDITABLE_PROPS_BY_ALIAS: Record<string, string[]> = {
-  'core.screen': ['title', 'statusTime', 'headerActionLabel'],
+  'core.screen': ['title', 'statusTime', 'headerActionLabel', 'surface', 'chrome'],
   'core.text': ['text', 'variant', 'as'],
   'core.button': ['label', 'variant', 'active', 'disabled', 'icon'],
   'core.image': ['src', 'alt', 'title', 'iconColor', 'objectFit'],
@@ -140,7 +140,56 @@ export const EDITABLE_PROPS_BY_ALIAS: Record<string, string[]> = {
   'core.spacer': ['size'],
   'core.html': ['tag', 'style'],
   'core.widget': ['library', 'renderer', 'data'],
+  // Navigation
+  'core.navbar': ['title', 'subtitle', 'leftArrow', 'fixed', 'transparent'],
+  'core.tabbar': ['items', 'active', 'icons'],
+  'core.breadcrumb': ['items', 'separator'],
+  'core.pagination': ['current', 'total', 'pageSize'],
+  // Data display
+  'core.avatar': ['src', 'text', 'size', 'shape'],
+  'core.badge': ['count', 'dot', 'max', 'text', 'tone', 'placement'],
+  'core.list': ['bordered', 'split'],
+  'core.list-item': ['title', 'description', 'note', 'arrow', 'thumb'],
+  'core.statistic': ['title', 'value', 'suffix', 'prefix', 'tone', 'trend'],
+  'core.collapse': ['title', 'expanded'],
+  'core.carousel': ['images', 'autoplay', 'interval'],
+  'core.empty': ['text', 'image', 'actionLabel'],
+  'core.skeleton': ['rows', 'animated'],
+  // Data input
+  'core.select': ['label', 'placeholder', 'options', 'value', 'multiple'],
+  'core.checkbox': ['label', 'checked', 'disabled'],
+  'core.radio': ['label', 'checked', 'disabled', 'group'],
+  'core.switch': ['checked', 'disabled', 'label'],
+  'core.rate': ['value', 'count', 'size', 'disabled'],
+  'core.slider': ['value', 'startValue', 'endValue', 'min', 'max', 'step', 'range'],
+  'core.datepicker': ['value', 'format', 'placeholder'],
+  'core.timepicker': ['value', 'format', 'placeholder'],
+  'core.form': ['labelWidth', 'labelAlign'],
+  'core.upload': ['accept', 'multiple', 'maxCount', 'actionLabel'],
+  // Feedback
+  'core.dialog': ['title', 'visible', 'confirmText', 'cancelText'],
+  'core.toast': ['message', 'type', 'duration'],
+  'core.alert': ['text', 'type', 'closable'],
+  'core.loading': ['size', 'text', 'type'],
+  'core.drawer': ['title', 'visible', 'placement'],
+  // Media
+  'core.video': ['src', 'poster', 'autoplay', 'controls'],
+  'core.audio': ['src', 'autoplay', 'controls'],
+  // Layout & Navigation
+  'core.sidebar': ['collapsed', 'width'],
+  'core.toolbar': ['title', 'fixed'],
+  'core.splitter': ['direction', 'min', 'max'],
+  // Professional
+  'core.timeline': ['direction'],
+  'core.tooltip': ['text', 'placement'],
+  'core.tree': ['data', 'expandAll'],
+  'core.table': ['columns', 'data', 'bordered', 'stripe'],
 };
 
 export const SLOT_ALIASES = new Set(Object.keys(EDITABLE_PROPS_BY_ALIAS));
-export const CONTAINER_ALIASES = new Set(['core.screen', 'core.panel', 'core.stack', 'core.row', 'core.grid', 'core.html']);
+export const CONTAINER_ALIASES = new Set([
+  'core.screen', 'core.panel', 'core.stack', 'core.row', 'core.grid', 'core.html',
+  'core.navbar', 'core.list', 'core.list-item', 'core.dialog', 'core.drawer',
+  'core.collapse', 'core.sidebar', 'core.form', 'core.toolbar', 'core.splitter',
+  'core.timeline', 'core.tree',
+]);

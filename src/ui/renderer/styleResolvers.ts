@@ -46,6 +46,18 @@ export function resolveLayoutStyle(
   if (parentAlias === 'core.row' && layout.mode !== 'absolute') {
     const hasExplicitWidth = layout.width != null;
     const hasExplicitHeight = layout.height != null;
+    const isFullWidthChild = layout.width === '100%' || layout.width === 100;
+
+    if (isFullWidthChild) {
+      return {
+        ...baseStyle,
+        width: undefined,
+        flex: '1 1 0',
+        minWidth: baseStyle.minWidth ?? 0,
+        maxWidth: baseStyle.maxWidth ?? '100%',
+      };
+    }
+
     return {
       ...baseStyle,
       ...(hasExplicitWidth || hasExplicitHeight ? { flexShrink: 0 } : {}),

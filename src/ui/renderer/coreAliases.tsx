@@ -2,23 +2,60 @@
 
 import type { LayoutNodeFrame, LayoutNodeLayout } from '../layout/types';
 import {
+  AlertNode,
+  AudioNode,
+  AvatarNode,
+  BadgeNode,
+  BreadcrumbNode,
   ButtonNode,
+  CarouselNode,
+  CheckboxNode,
+  CollapseNode,
+  DatePickerNode,
+  DialogNode,
   DividerNode,
+  DrawerNode,
+  EmptyNode,
+  FormNode,
   GridNode,
   HtmlNode,
   ImageNode,
   InputNode,
+  ListNode,
+  ListItemNode,
+  LoadingNode,
+  NavBarNode,
   NoticeNode,
+  PaginationNode,
   PanelNode,
   ProgressNode,
+  RadioNode,
+  RateNode,
   RowNode,
   ScreenNode,
   SearchNode,
+  SelectNode,
+  SidebarNode,
+  SkeletonNode,
+  SliderNode,
   SpacerNode,
+  SplitterNode,
   StackNode,
+  StatisticNode,
+  SwitchNode,
+  TabBarNode,
+  TableNode,
   TabsNode,
   TagNode,
   TextNode,
+  TimePickerNode,
+  TimelineNode,
+  ToastNode,
+  ToolbarNode,
+  TooltipNode,
+  TreeNode,
+  UploadNode,
+  VideoNode,
   WidgetNode,
 } from './components';
 import { resolveFrameStyle, resolveLayoutStyle } from './styleResolvers';
@@ -109,6 +146,87 @@ export function renderCoreAlias(
       return <HtmlNode {...nodeProps} />;
     case 'core.widget':
       return <WidgetNode {...nodeProps} />;
+    // Navigation
+    case 'core.navbar':
+      return <NavBarNode {...nodeProps} />;
+    case 'core.tabbar':
+      return <TabBarNode {...nodeProps} />;
+    case 'core.breadcrumb':
+      return <BreadcrumbNode {...nodeProps} />;
+    case 'core.pagination':
+      return <PaginationNode {...nodeProps} />;
+    // Data display
+    case 'core.avatar':
+      return <AvatarNode {...nodeProps} />;
+    case 'core.badge':
+      return <BadgeNode {...nodeProps} />;
+    case 'core.list':
+      return <ListNode {...nodeProps} />;
+    case 'core.list-item':
+      return <ListItemNode {...nodeProps} />;
+    case 'core.statistic':
+      return <StatisticNode {...nodeProps} />;
+    case 'core.collapse':
+      return <CollapseNode {...nodeProps} />;
+    case 'core.carousel':
+      return <CarouselNode {...nodeProps} />;
+    case 'core.empty':
+      return <EmptyNode {...nodeProps} />;
+    case 'core.skeleton':
+      return <SkeletonNode {...nodeProps} />;
+    // Data input
+    case 'core.select':
+      return <SelectNode {...nodeProps} />;
+    case 'core.checkbox':
+      return <CheckboxNode {...nodeProps} />;
+    case 'core.radio':
+      return <RadioNode {...nodeProps} />;
+    case 'core.switch':
+      return <SwitchNode {...nodeProps} />;
+    case 'core.rate':
+      return <RateNode {...nodeProps} />;
+    case 'core.slider':
+      return <SliderNode {...nodeProps} />;
+    case 'core.datepicker':
+      return <DatePickerNode {...nodeProps} />;
+    case 'core.timepicker':
+      return <TimePickerNode {...nodeProps} />;
+    case 'core.form':
+      return <FormNode {...nodeProps} />;
+    case 'core.upload':
+      return <UploadNode {...nodeProps} />;
+    // Feedback
+    case 'core.dialog':
+      return <DialogNode {...nodeProps} />;
+    case 'core.toast':
+      return <ToastNode {...nodeProps} />;
+    case 'core.alert':
+      return <AlertNode {...nodeProps} />;
+    case 'core.loading':
+      return <LoadingNode {...nodeProps} />;
+    case 'core.drawer':
+      return <DrawerNode {...nodeProps} />;
+    // Media
+    case 'core.video':
+      return <VideoNode {...nodeProps} />;
+    case 'core.audio':
+      return <AudioNode {...nodeProps} />;
+    // Layout & Navigation
+    case 'core.sidebar':
+      return <SidebarNode {...nodeProps} />;
+    case 'core.toolbar':
+      return <ToolbarNode {...nodeProps} />;
+    case 'core.splitter':
+      return <SplitterNode {...nodeProps} />;
+    // Professional
+    case 'core.timeline':
+      return <TimelineNode {...nodeProps} />;
+    case 'core.tooltip':
+      return <TooltipNode {...nodeProps} />;
+    case 'core.tree':
+      return <TreeNode {...nodeProps} />;
+    case 'core.table':
+      return <TableNode {...nodeProps} />;
     default:
       return null;
   }

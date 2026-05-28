@@ -18,7 +18,7 @@ import {
   Label,
   Stack,
   Text,
-} from 'ui/system';
+} from 'ui/base';
 
 type Tab = 'login' | 'register';
 type View = Tab | 'wechat';

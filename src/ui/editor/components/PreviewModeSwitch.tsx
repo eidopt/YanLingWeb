@@ -9,7 +9,7 @@ import styles from '../ThemeLayoutBuilder.module.css';
 import { previewModeSwitchContent } from './PreviewModeSwitch.content';
 import { cx } from 'base/classname';
 import type { CSSProperties } from 'react';
-import { Box } from 'ui/system';
+import { Box } from 'ui/base';
 
 interface PreviewModeSwitchProps {
   screenPreset: DynamicThemeScreenPreset;

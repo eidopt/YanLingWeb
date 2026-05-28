@@ -1,11 +1,12 @@
 'use client';
 
-import { asNumber, asString } from '../../valueResolvers';
+import { asCssLength, asString } from '../../valueResolvers';
+import type { PanelProps } from '../propsTypes';
 import type { CoreNodeProps } from '../types';
 import styles from './PanelNode.module.css';
 import { cx } from 'base/classname';
 
-export function PanelNode({ props, children, nodeLayoutStyle }: CoreNodeProps) {
+export function PanelNode({ props, children, nodeLayoutStyle }: CoreNodeProps<PanelProps>) {
   const tone = asString(props.tone, 'default');
   const isAccentTone = tone === 'accent' || tone === 'promo' || tone === 'warm';
   const isSoftTone = tone === 'soft' || tone === 'member' || tone === 'highlight';
@@ -23,7 +24,7 @@ export function PanelNode({ props, children, nodeLayoutStyle }: CoreNodeProps) {
       style={{
         ...nodeLayoutStyle,
         position: props.__hasAbsoluteChildren ? 'relative' : undefined,
-        gap: `${asNumber(props.gap, 12)}px`,
+        gap: asCssLength(props.gap, '12px'),
         cursor: onClick ? 'pointer' : undefined,
       }}
     >

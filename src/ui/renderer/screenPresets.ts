@@ -39,6 +39,13 @@ export function getDefaultPreviewScreenPreset(
 ): DynamicThemeScreenPreset {
   if (
     (platformCategories ?? []).some(
+      (category) => category.trim().toLowerCase() === 'web',
+    )
+  ) {
+    return 'desktop';
+  }
+  if (
+    (platformCategories ?? []).some(
       (category) => category.trim().toLowerCase() === 'tablet-app',
     )
   ) {

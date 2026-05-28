@@ -1,0 +1,83 @@
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--app-unit-1-5);
+  padding: var(--app-unit-1-5) var(--app-unit-2);
+  border-left: var(--app-unit-0-75) solid var(--accent);
+  border-radius: var(--app-radius-sm);
+  background: var(--surface-muted, var(--app-neutral-50));
+  font-size: var(--app-unit-1-75);
+  color: var(--text-body-color, var(--app-neutral-700));
+}
+
+.alert[data-type='info'] {
+  border-left-color: var(--app-info, #3b82f6);
+  background: color-mix(in srgb, var(--app-info, #3b82f6) 8%, var(--app-neutral-0));
+}
+
+.alert[data-type='success'] {
+  border-left-color: var(--app-success, #22c55e);
+  background: color-mix(in srgb, var(--app-success, #22c55e) 8%, var(--app-neutral-0));
+}
+
+.alert[data-type='warning'] {
+  border-left-color: var(--app-warning, #f59e0b);
+  background: color-mix(in srgb, var(--app-warning, #f59e0b) 8%, var(--app-neutral-0));
+}
+
+.alert[data-type='error'] {
+  border-left-color: var(--app-error, #ef4444);
+  background: color-mix(in srgb, var(--app-error, #ef4444) 8%, var(--app-neutral-0));
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--app-unit-4);
+  height: var(--app-unit-4);
+  font-size: var(--app-unit-2);
+  font-weight: 700;
+}
+
+.alert[data-type='info'] .icon {
+  color: var(--app-info, #3b82f6);
+}
+
+.alert[data-type='success'] .icon {
+  color: var(--app-success, #22c55e);
+}
+
+.alert[data-type='warning'] .icon {
+  color: var(--app-warning, #f59e0b);
+}
+
+.alert[data-type='error'] .icon {
+  color: var(--app-error, #ef4444);
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+}
+
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--app-unit-3);
+  height: var(--app-unit-3);
+  border: none;
+  border-radius: var(--app-radius-sm);
+  background: transparent;
+  color: var(--text-muted-color, var(--app-neutral-400));
+  font-size: var(--app-unit-1-5);
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+
+.close:hover {
+  background: var(--app-neutral-100);
+}

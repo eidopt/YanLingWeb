@@ -8,12 +8,14 @@ export interface TemplateSeedException {
   description: string;
   accent: string;
   category: string;
+  displayCategory?: string;
   platformCategories?: string[];
   functionalCategories?: string[];
   traits: string[];
   tags?: string[];
   cssVars: Record<string, string>;
   cssAnimations?: Record<string, string>;
+  visualAssets?: unknown[];
   componentTemplates: Record<string, unknown>;
   layoutDocument: Record<string, unknown>;
 }

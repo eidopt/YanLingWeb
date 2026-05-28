@@ -1,0 +1,49 @@
+.tooltip {
+  position: relative;
+  display: inline-flex;
+  cursor: default;
+}
+
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  z-index: 100;
+  padding: var(--app-unit-1) var(--app-unit-1-5);
+  border-radius: var(--app-unit-1);
+  background: var(--app-neutral-800);
+  color: var(--app-neutral-0);
+  font-size: var(--app-unit-1-5);
+  line-height: 1.4;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.tooltip:hover::after {
+  opacity: 1;
+}
+
+.tooltipTop::after {
+  bottom: calc(100% + var(--app-unit-1));
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tooltipBottom::after {
+  top: calc(100% + var(--app-unit-1));
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tooltipLeft::after {
+  right: calc(100% + var(--app-unit-1));
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.tooltipRight::after {
+  left: calc(100% + var(--app-unit-1));
+  top: 50%;
+  transform: translateY(-50%);
+}

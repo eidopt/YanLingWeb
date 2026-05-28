@@ -1,0 +1,23 @@
+.splitter {
+  display: flex;
+  gap: var(--app-unit-0-125);
+  min-height: 0;
+  min-width: 0;
+}
+
+.splitterHorizontal {
+  flex-direction: row;
+}
+
+.splitterVertical {
+  flex-direction: column;
+}
+
+.splitter > * {
+  flex: 1;
+  min-width: var(--splitter-min, 0);
+  max-width: var(--splitter-max, none);
+  min-height: var(--splitter-min, 0);
+  max-height: var(--splitter-max, none);
+  overflow: auto;
+}

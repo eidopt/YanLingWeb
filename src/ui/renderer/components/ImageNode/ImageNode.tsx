@@ -1,6 +1,7 @@
 'use client';
 
 import { asString } from '../../valueResolvers';
+import type { ImageProps } from '../propsTypes';
 import type { CoreNodeProps } from '../types';
 import styles from './ImageNode.module.css';
 
@@ -19,7 +20,7 @@ function isRenderableImageSource(value: string) {
   }
 }
 
-export function ImageNode({ props, nodeLayoutStyle }: CoreNodeProps) {
+export function ImageNode({ props, nodeLayoutStyle }: CoreNodeProps<ImageProps>) {
   const rawSrc = asString(props.src);
   const src = isRenderableImageSource(rawSrc) ? rawSrc : '';
   const alt = asString(props.alt) || '';

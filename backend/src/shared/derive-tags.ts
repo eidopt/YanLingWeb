@@ -10,6 +10,7 @@ export function deriveTags(template: {
   tagline: string;
   description: string;
   category: string;
+  displayCategory?: string;
   traits: string[];
   tags?: string[];
   platformCategories?: string[];
@@ -21,6 +22,7 @@ export function deriveTags(template: {
     template.tagline,
     template.description,
     template.category,
+    template.displayCategory ?? '',
     ...(template.platformCategories ?? []),
     ...(template.functionalCategories ?? []),
     ...template.traits,

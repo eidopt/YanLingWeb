@@ -15,6 +15,7 @@ export async function POST(req: NextRequest) {
     layoutJson,
     themeId,
     runtimeCssVars,
+    runtimeCssAnimations,
   } = payload;
   const projectDir = path.join(OUTPUT_DIR, projectName);
 
@@ -23,6 +24,7 @@ export async function POST(req: NextRequest) {
     themeId,
     projectName,
     runtimeCssVars,
+    runtimeCssAnimations,
   );
   for (const file of files) {
     const filePath = path.join(projectDir, file.relativePath);

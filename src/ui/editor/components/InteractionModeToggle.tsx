@@ -4,7 +4,7 @@ import { EditIcon, PreviewIcon } from '../icons/DeviceIcons';
 import styles from '../ThemeLayoutBuilder.module.css';
 import { interactionModeToggleContent } from './InteractionModeToggle.content';
 import { cx } from 'base/classname';
-import { Box } from 'ui/system';
+import { Box } from 'ui/base';
 
 interface InteractionModeToggleProps {
   mode: 'edit' | 'preview';

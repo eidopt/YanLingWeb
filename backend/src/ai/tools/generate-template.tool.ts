@@ -6,6 +6,9 @@ export interface TemplateToolInput {
   category: string;
   categoryLabel?: string;
   categoryLabels?: Record<string, string>;
+  displayCategory?: string;
+  displayCategoryLabel?: string;
+  displayCategoryLabels?: Record<string, string>;
   platformCategories?: string[];
   platformCategoryLabels?: Record<string, string>;
   functionalCategories?: string[];
@@ -14,6 +17,7 @@ export interface TemplateToolInput {
   traits: string[];
   cssVars: Record<string, string>;
   cssAnimations?: Record<string, string>;
+  visualAssets?: unknown[];
   componentTemplates: Record<string, unknown>;
   layoutDocument: Record<string, unknown>;
 }
@@ -29,7 +33,8 @@ export const GENERATE_TEMPLATE_TOOL = {
   description: `Generate a UI template and save it to the database.
 
 The template uses a component tree system. Core layout components:
-- core.screen: page root (props: title, statusTime, headerActionLabel)
+- core.screen: page root (props: title, statusTime, headerActionLabel,
+  surface: mini-program|mobile-app|web, chrome: wechat|app|none)
 - core.stack: vertical container (props: gap, alignItems)
 - core.row: horizontal container (props: gap, wrap, justify, align, tone)
 - core.grid: grid container (props: gap, columns)
@@ -39,7 +44,7 @@ The template uses a component tree system. Core layout components:
   (props: text, variant: display|heading|subheading|body|caption|price|
    overline|eyebrow|title|subtitle)
 - core.button: button (props: label, variant: primary|secondary|link|pill, active, disabled, icon)
-- core.image: image or placeholder (props: src, alt, title, iconColor, objectFit)
+- core.image: image or placeholder (props: assetId, src, alt, title, iconColor, objectFit)
 - core.tag: status badge
   (props: label, tone: neutral|success|warning|info|hot|new|deal|member)
 - core.progress: progress bar
@@ -50,6 +55,11 @@ The template uses a component tree system. Core layout components:
 - core.tabs: tab bar (props: activeTab)
 - core.search: search bar (props: placeholder, value)
 - core.notice: notification banner (props: text, tone)
+- core.alert: inline alert (props: text, type: info|success|warning|error, closable)
+- core.toast: toast message (props: message, type: info|success|warning|error, duration)
+- core.carousel: image carousel (props: images, autoplay, interval)
+- core.slider: slider input (props: value, min, max, step, range, startValue, endValue).
+  When range is true, set startValue/endValue for a two-thumb selected interval.
 - core.html: raw HTML wrapper (props: tag, style). Use only for markup that
   can't be expressed with other core.* aliases.
 - core.widget: safe third-party ESM widget
@@ -71,6 +81,9 @@ The template uses a component tree system. Core layout components:
 
 LayoutDocument node:
 { id, alias, layout: { mode: "flow", order, width, minHeight }, props, children }
+For websites, set each page root props.surface="web" and props.chrome="none".
+For phone apps, use props.surface="mobile-app" and props.chrome="app".
+For WeChat mini programs, use props.surface="mini-program" and props.chrome="wechat".
 Optional layoutDocument.style:
 { cssVars: { "--accent": "#FF6B35", "--surface": "..." } }
 The service mirrors top-level cssVars into layoutDocument.style.cssVars before
@@ -84,6 +97,15 @@ ComponentTemplate: { displayName, root: TemplateNode }
 TemplateNode: { alias, props (with optional $bind bindings), children }
 Use $bind for dynamic props: { $bind: "propName" }
 
+Category rules:
+- category is the fine-grained functional key and must equal functionalCategories[0].
+- displayCategory is the coarse marketplace group. Choose one of:
+  commerce, service, content, education, health, social, finance, marketing,
+  utility, dashboard, profile, other. Provide displayCategoryLabel when the
+  key is not already registered.
+- platformCategories identifies target runtimes: mini-program, mobile-app,
+  tablet-app, web. It must match the screen surface/chrome props.
+
 Generated-template quality rules:
 - User-facing copy, page names, titles, labels, placeholders, and mock data must
   be coherent Simplified Chinese unless the user explicitly asks for another
@@ -92,9 +114,25 @@ Generated-template quality rules:
   business modules when they improve visual identity, consistency, or editing
   ergonomics; each custom alias must be declared in layoutDocument.components
   and expand only to safe core.* template nodes.
-- core.image props.src must be a valid HTTPS URL. If no reliable image URL is
-  available, omit src and use alt/title/iconColor so the renderer shows the
-  built-in placeholder.
+- Do not express a template's identity only by changing the primary/accent
+  color. Use domain-specific componentTemplates and semantic cssVars for hero,
+  cards, list items, KPI modules, timelines, coupons, media chips, checkout
+  actions, or profile headers. Component-level tokens may include values such
+  as --hero-bg, --metric-card-bg, --coupon-bg, --timeline-line,
+  --editorial-rule, --map-panel-bg, --media-chip-bg, --radius-card,
+  --shadow-card.
+- Avoid repeating the same panel+text+button structure across pages. Mix the
+  core components that fit the scenario: notice, divider, statistic, progress,
+  avatar, carousel, input/select, list/list-item, timeline, table, chart widget,
+  upload, rate, switch, slider, empty/skeleton/loading states.
+- When a template needs images, include visualAssets with id/nodeId/pageId/role,
+  prompt, alt, status, provider, and optional url. If image generation is not
+  available, use provider "curated" with a /template-assets/... URL or provider
+  "placeholder" with placeholder.iconColor. core.image should reference the
+  asset with props.assetId and may omit src until the asset pipeline resolves it.
+- core.image props.src must be a valid HTTPS URL or /template-assets/... path.
+  If no reliable image URL is available, omit src and use alt/title/iconColor
+  so the renderer shows the built-in placeholder.
 - Every editable layoutDocument.components[].props[] item must include a
   Chinese label field, e.g. { "name": "title", "type": "string",
   "label": "标题" }, so the property inspector is localized.
@@ -105,7 +143,7 @@ Generated-template quality rules:
     type: 'object',
     required: [
       'templateId', 'name', 'tagline', 'description',
-      'category', 'accent', 'traits', 'cssVars',
+      'category', 'displayCategory', 'accent', 'traits', 'cssVars',
       'componentTemplates', 'layoutDocument',
     ],
     properties: {
@@ -131,6 +169,18 @@ Generated-template quality rules:
       categoryLabels: {
         type: 'object',
         description: 'Optional map of English category key to Chinese display label.',
+      },
+      displayCategory: {
+        type: 'string',
+        description: 'Coarse frontend display category: commerce|service|content|education|health|social|finance|marketing|utility|dashboard|profile|other.',
+      },
+      displayCategoryLabel: {
+        type: 'string',
+        description: 'Chinese display label for displayCategory.',
+      },
+      displayCategoryLabels: {
+        type: 'object',
+        description: 'Optional map of English display category key to Chinese display label.',
       },
       platformCategories: {
         type: 'array',
@@ -161,15 +211,35 @@ Generated-template quality rules:
       },
       cssVars: {
         type: 'object',
-        description: 'CSS custom properties map (e.g. {"--color-accent": "#FF6B35"})',
+        description: 'CSS custom properties map. Include brand tokens plus semantic/component-level tokens, not only one accent color.',
       },
       cssAnimations: {
         type: 'object',
         description: 'Optional CSS keyframe animations map',
       },
+      visualAssets: {
+        type: 'array',
+        description: 'Optional image generation/fallback manifest. Each item should include id, nodeId, pageId, role, prompt, alt, status, provider, and optional url or placeholder.',
+        items: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            nodeId: { type: 'string' },
+            pageId: { type: 'string' },
+            role: { type: 'string' },
+            prompt: { type: 'string' },
+            alt: { type: 'string' },
+            status: { type: 'string', enum: ['pending', 'generated', 'fallback', 'failed'] },
+            provider: { type: 'string', enum: ['ai-image', 'curated', 'placeholder', 'manual'] },
+            url: { type: 'string' },
+            fallbackReason: { type: 'string' },
+            placeholder: { type: 'object' },
+          },
+        },
+      },
       componentTemplates: {
         type: 'object',
-        description: 'Use {} by default. Custom aliases are only allowed when explicitly requested.',
+        description: 'Reusable custom aliases for domain-specific UI modules. Prefer a few expressive modules over color-only generic panels.',
       },
       layoutDocument: {
         type: 'object',

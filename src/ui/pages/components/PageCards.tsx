@@ -7,7 +7,7 @@ import {
   Inline,
   Stack,
   Text,
-} from 'ui/system';
+} from 'ui/base';
 
 interface WithClassName {
   className?: string;

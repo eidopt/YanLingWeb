@@ -8,7 +8,7 @@ import {
   Box,
   Heading,
   Text,
-} from 'ui/system';
+} from 'ui/base';
 
 const WECHAT_AUTH_CHANNEL = 'wechat_oauth';
 

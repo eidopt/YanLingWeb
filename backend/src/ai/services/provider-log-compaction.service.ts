@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 
+import { AiConfigDto } from '../ai.service';
 import type { AIProvider, ProviderMessage, ProviderRequest } from '../core/providers/types';
 import { tokenCountWithEstimation } from '../core/utils/tokens';
-import { AiConfigDto } from '../ai.service';
 
 const MAX_PROVIDER_LOG_TOKENS = 500_000;
 const PROVIDER_LOG_FOLD_TAIL_TOKENS = 180_000;
@@ -164,7 +164,7 @@ export class ProviderLogCompactionService {
 
   private async summarizeProviderLog(
     messages: readonly ProviderMessage[],
-  ): Promise<{ content: string; reasoningContent?: string } | null> {
+  ): Promise<{ content: string; reasoningContent?: string; } | null> {
     if (!this.apiKeyConfigured || messages.length === 0) {
       return null;
     }

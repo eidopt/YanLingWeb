@@ -10,7 +10,7 @@ import {
   isValidElement,
   type ReactNode,
 } from 'react';
-import { Box } from 'ui/system';
+import { Box } from 'ui/base';
 
 export interface ScrollRevealProps {
   children: ReactNode;

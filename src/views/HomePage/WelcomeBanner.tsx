@@ -6,7 +6,7 @@ import {
   Box,
   Heading,
   Text,
-} from 'ui/system';
+} from 'ui/base';
 
 interface WelcomeBannerProps {
   userName: string;

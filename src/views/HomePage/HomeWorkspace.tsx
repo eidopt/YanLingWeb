@@ -32,7 +32,7 @@ import {
   Label,
   Text,
   TextArea,
-} from 'ui/system';
+} from 'ui/base';
 import { ThemeCard } from 'ui/theme_card';
 import { showThemePreviewModal } from 'ui/theme_preview_modal';
 import { UserSettingsDialog } from 'ui/user_settings';

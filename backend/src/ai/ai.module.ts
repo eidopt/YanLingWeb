@@ -2,12 +2,13 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from '../auth/auth.module';
+import { Template } from '../templates/entities/template.entity';
 import { TemplateAgentPermissions } from '../templates/entities/template-agent-permissions.entity';
 import { TemplateAssetManifest } from '../templates/entities/template-asset-manifest.entity';
 import { TemplateEvaluationSpec } from '../templates/entities/template-evaluation-spec.entity';
-import { Template } from '../templates/entities/template.entity';
 import { TemplateProfileGenerated } from '../templates/entities/template-profile-generated.entity';
 import { TemplateProfileOverrideEntity } from '../templates/entities/template-profile-override.entity';
+import { TemplateAssetService } from '../templates/template-asset.service';
 import { TemplateCategoryRegistryService } from '../templates/template-category-registry.service';
 import { User } from '../users/entities/user.entity';
 import { AgentEvalController } from './agent-eval.controller';
@@ -42,6 +43,7 @@ import { TokenUsageService } from './services/token-usage.service';
     TokenUsageService,
     EditorConversationService,
     ProviderLogCompactionService,
+    TemplateAssetService,
     TemplateCategoryRegistryService,
   ],
   exports: [AiService, AgentRunnerService],

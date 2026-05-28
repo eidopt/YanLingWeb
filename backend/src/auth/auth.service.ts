@@ -75,7 +75,7 @@ export class AuthService {
   // Challenge-response
   // ---------------------------------------------------------------------------
 
-  issueChallenge(): { nonce: string; expiresAt: string } {
+  issueChallenge(): { nonce: string; expiresAt: string; } {
     this.pruneExpiredNonces();
     const nonce = randomBytes(32).toString('hex');
     const expiresAt = Date.now() + NONCE_TTL_MS;
@@ -212,7 +212,7 @@ export class AuthService {
   // OAuth (WeChat / QQ)
   // ---------------------------------------------------------------------------
 
-  getOAuthQrCodeUrl(provider: 'wechat' | 'qq'): { qrUrl: string; state: string } {
+  getOAuthQrCodeUrl(provider: 'wechat' | 'qq'): { qrUrl: string; state: string; } {
     const oauthConfig = this.getOAuthProviderEnv(provider);
     const state = this.issueOAuthState(provider);
 
@@ -314,7 +314,7 @@ export class AuthService {
         `?appid=${oauthConfig.appId}&secret=${oauthConfig.appSecret}` +
         `&code=${code}&grant_type=authorization_code`;
       const res = await fetch(url);
-      const data = await res.json() as { openid?: string; errmsg?: string };
+      const data = await res.json() as { openid?: string; errmsg?: string; };
       if (!data.openid) {
         throw new UnauthorizedException(`WeChat OAuth failed: ${data.errmsg ?? 'unknown'}`);
       }
@@ -327,7 +327,7 @@ export class AuthService {
       `&client_secret=${oauthConfig.appSecret}&code=${code}` +
       `&redirect_uri=${oauthConfig.redirectUri}&fmt=json`;
     const tokenRes = await fetch(tokenUrl);
-    const tokenData = await tokenRes.json() as { access_token?: string; error?: string };
+    const tokenData = await tokenRes.json() as { access_token?: string; error?: string; };
     if (!tokenData.access_token) {
       throw new UnauthorizedException(
         `QQ token exchange failed: ${tokenData.error ?? 'unknown'}`,
@@ -336,7 +336,7 @@ export class AuthService {
     const meRes = await fetch(
       `https://graph.qq.com/oauth2.0/me?access_token=${tokenData.access_token}&fmt=json`,
     );
-    const meData = await meRes.json() as { openid?: string; error?: string };
+    const meData = await meRes.json() as { openid?: string; error?: string; };
     if (!meData.openid) {
       throw new UnauthorizedException(
         `QQ OpenID fetch failed: ${meData.error ?? 'unknown'}`,

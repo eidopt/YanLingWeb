@@ -18,7 +18,7 @@ import {
   Stack,
   Text,
   TextArea,
-} from 'ui/system';
+} from 'ui/base';
 
 export interface ChatClarification {
   question: string;

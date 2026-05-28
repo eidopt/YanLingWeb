@@ -1,0 +1,94 @@
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(var(--app-unit-1));
+}
+
+.drawer {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel-bg, var(--app-neutral-0));
+  box-shadow:
+    0 var(--app-unit-4) var(--app-unit-6) rgba(0, 0, 0, 0.12),
+    0 var(--app-unit-1) var(--app-unit-3) rgba(0, 0, 0, 0.08);
+  transition: transform 300ms ease;
+}
+
+/* Placement: right (default) */
+.drawer[data-placement='right'] {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(85vw, var(--app-unit-90));
+  animation: slideInRight 300ms ease;
+}
+
+/* Placement: left */
+.drawer[data-placement='left'] {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: min(85vw, var(--app-unit-90));
+  animation: slideInLeft 300ms ease;
+}
+
+/* Placement: top */
+.drawer[data-placement='top'] {
+  top: 0;
+  left: 0;
+  right: 0;
+  max-height: 80vh;
+  animation: slideInTop 300ms ease;
+}
+
+/* Placement: bottom */
+.drawer[data-placement='bottom'] {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 80vh;
+  animation: slideInBottom 300ms ease;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slideInTop {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes slideInBottom {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  padding: var(--app-unit-2) var(--app-unit-3);
+  border-bottom: var(--app-unit-0-125) solid var(--panel-border, var(--app-neutral-200));
+}
+
+.title {
+  font-size: var(--app-unit-2);
+  font-weight: 700;
+  color: var(--text-heading-color, var(--app-neutral-900));
+}
+
+.body {
+  flex: 1;
+  padding: var(--app-unit-3);
+  overflow-y: auto;
+  color: var(--text-body-color, var(--app-neutral-700));
+}

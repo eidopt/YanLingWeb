@@ -1,0 +1,27 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-unit-2);
+  width: 100%;
+}
+
+.form :global(label),
+.form :global(.field) {
+  display: grid;
+  grid-template-columns: var(--form-label-width, 80px) 1fr;
+  align-items: center;
+  gap: var(--app-unit-1-5);
+}
+
+.form :global(label) > :first-child,
+.form :global(.field) > :first-child {
+  text-align: var(--form-label-align, right);
+  font-weight: 700;
+  color: var(--text-heading-color, var(--app-neutral-900));
+  font-size: var(--app-unit-1-75);
+}
+
+.form :global(label) > :last-child,
+.form :global(.field) > :last-child {
+  min-width: 0;
+}

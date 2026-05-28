@@ -1,0 +1,20 @@
+.rate {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--app-unit-0-25);
+  font-size: var(--app-unit-2-5);
+  line-height: 1;
+}
+
+.rate[data-disabled='true'] {
+  opacity: 0.48;
+  pointer-events: none;
+}
+
+.starFilled {
+  color: var(--app-warning, #f59e0b);
+}
+
+.starEmpty {
+  color: var(--panel-border, var(--app-neutral-300));
+}

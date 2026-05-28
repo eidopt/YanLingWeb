@@ -1,5 +1,6 @@
 .tag {
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: center;
   min-height: var(--app-unit-3-5);
@@ -7,6 +8,7 @@
   border-radius: var(--radius-tag, var(--app-radius-pill));
   font-size: var(--app-unit-1-5);
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .tagNeutral  { background: var(--tag-neutral-bg,  var(--app-neutral-100)); color: var(--tag-neutral-color,  var(--app-neutral-700)); }

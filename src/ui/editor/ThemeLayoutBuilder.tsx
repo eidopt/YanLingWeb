@@ -37,7 +37,7 @@ import {
   Box,
   Button,
   Input,
-} from 'ui/system';
+} from 'ui/base';
 
 interface ThemeLayoutBuilderProps {
   themes: LayoutBuilderTheme[];

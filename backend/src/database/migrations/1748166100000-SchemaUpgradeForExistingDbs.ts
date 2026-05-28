@@ -15,13 +15,19 @@ export class SchemaUpgradeForExistingDbs1748166100000 implements MigrationInterf
   public async up(queryRunner: QueryRunner): Promise<void> {
     // ── Helper: check if a column exists on a table ──
     const hasColumn = async (table: string, column: string): Promise<boolean> => {
-      const rows: Array<{ name: string }> = await queryRunner.query(
+      const rows: { name: string; }[] = await queryRunner.query(
         `PRAGMA table_info('${table}')`,
       );
       return rows.some((r) => r.name === column);
     };
 
     // ── templates: add columns introduced in the refactoring ──
+
+    if (!(await hasColumn('templates', 'displayCategory'))) {
+      await queryRunner.query(
+        `ALTER TABLE "templates" ADD "displayCategory" varchar NOT NULL DEFAULT ('general')`,
+      );
+    }
 
     if (!(await hasColumn('templates', 'primaryFunctionalCategory'))) {
       await queryRunner.query(
@@ -75,6 +81,12 @@ export class SchemaUpgradeForExistingDbs1748166100000 implements MigrationInterf
         AND json_array_length("functionalCategories") > 0
     `);
 
+    await queryRunner.query(`
+      UPDATE "templates"
+      SET "displayCategory" = COALESCE(NULLIF("displayCategory", ''), NULLIF("category", ''), 'general')
+      WHERE "displayCategory" IS NULL OR "displayCategory" = ''
+    `);
+
     // ── Indexes (all IF NOT EXISTS) ──
 
     await queryRunner.query(
@@ -90,7 +102,13 @@ export class SchemaUpgradeForExistingDbs1748166100000 implements MigrationInterf
       `CREATE INDEX IF NOT EXISTS "IDX_templates_category" ON "templates" ("category")`,
     );
     await queryRunner.query(
+      `CREATE INDEX IF NOT EXISTS "IDX_templates_displayCategory" ON "templates" ("displayCategory")`,
+    );
+    await queryRunner.query(
       `CREATE INDEX IF NOT EXISTS "IDX_templates_primaryFunctionalCategory" ON "templates" ("primaryFunctionalCategory")`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX IF NOT EXISTS "IDX_templates_isPublic_displayCategory" ON "templates" ("isPublic", "displayCategory")`,
     );
 
     // ── themes indexes ──

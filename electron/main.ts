@@ -168,11 +168,23 @@ function registerExportHandlers() {
   ipcMain.handle(
     'export:buildProject',
     async (_event, payload: ExportBuildPayload) => {
-      const { projectName, layoutJson, themeId } = payload;
+      const {
+        projectName,
+        layoutJson,
+        themeId,
+        runtimeCssVars,
+        runtimeCssAnimations,
+      } = payload;
       const projectDir = path.join(OUTPUT_DIR, projectName);
 
       // 1. Generate and write scaffold files
-      const files = generateScaffoldFiles(layoutJson, themeId, projectName);
+      const files = generateScaffoldFiles(
+        layoutJson,
+        themeId,
+        projectName,
+        runtimeCssVars,
+        runtimeCssAnimations,
+      );
       for (const file of files) {
         const filePath = path.join(projectDir, file.relativePath);
         await fs.mkdir(path.dirname(filePath), { recursive: true });

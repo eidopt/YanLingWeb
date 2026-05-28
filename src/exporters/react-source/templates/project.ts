@@ -123,9 +123,22 @@ function serializeExportTokenMap(cssVars: Record<string, string> = {}): string {
     .join('\n');
 }
 
-export function generateStyles(runtimeCssVars: Record<string, string> = {}): string {
+function serializeCssAnimations(cssAnimations: Record<string, string> = {}): string {
+  return Object.entries(cssAnimations)
+    .filter(([name, body]) =>
+      /^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(name) && typeof body === 'string')
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([name, body]) => `@keyframes ${name} {\n  ${body}\n}`)
+    .join('\n\n');
+}
+
+export function generateStyles(
+  runtimeCssVars: Record<string, string> = {},
+  runtimeCssAnimations: Record<string, string> = {},
+): string {
   const runtimeVars = serializeCssVars(runtimeCssVars);
   const exportTokens = serializeExportTokenMap(runtimeCssVars);
+  const runtimeAnimations = serializeCssAnimations(runtimeCssAnimations);
 
   return `:root {
 ${runtimeVars}
@@ -189,6 +202,22 @@ input {
   border-radius: 999px;
   background: color-mix(in srgb, var(--export-text-base, #101828) 16%, transparent);
   pointer-events: none;
+}
+
+.screen-web {
+  width: 100%;
+  min-height: 100vh;
+  max-height: none;
+  border-radius: 0;
+  overflow: visible;
+}
+
+.screen-web::before {
+  content: none;
+}
+
+.screen-web .screenBody {
+  overflow: visible;
 }
 
 .statusBar {
@@ -478,5 +507,7 @@ img.core-image[data-fit="fill"] {
 .core-spacer {
   min-height: 16px;
 }
+
+${runtimeAnimations}
 `;
 }

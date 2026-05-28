@@ -23,7 +23,7 @@ import {
   Label,
   Stack,
   Text,
-} from 'ui/system';
+} from 'ui/base';
 
 interface ExportDialogProps {
   canvases: BuilderCanvas[];

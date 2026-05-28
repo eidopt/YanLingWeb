@@ -17,6 +17,7 @@ export function serializeCanvases(
   canvases: BuilderCanvas[],
   projectName: string,
   runtimeCssVars?: Record<string, string>,
+  runtimeCssAnimations?: Record<string, string>,
 ): string {
   const first = canvases[0];
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- defensive guard; array may be empty at runtime
@@ -40,6 +41,7 @@ export function serializeCanvases(
     pages,
     defaultPageId: pages[0].id,
     layout: pages[0].layout,
+    cssAnimations: runtimeCssAnimations ?? first.document.cssAnimations,
   }, runtimeCssVars);
 
   return JSON.stringify(merged, null, 2);
@@ -50,12 +52,19 @@ export function buildExportPayload(
   themeId: string,
   projectName: string,
   runtimeCssVars?: Record<string, string>,
+  runtimeCssAnimations?: Record<string, string>,
 ): ExportBuildPayload {
   return {
     projectName: slugify(projectName),
-    layoutJson: serializeCanvases(canvases, projectName, runtimeCssVars),
+    layoutJson: serializeCanvases(
+      canvases,
+      projectName,
+      runtimeCssVars,
+      runtimeCssAnimations,
+    ),
     themeId,
     runtimeCssVars,
+    runtimeCssAnimations,
   };
 }
 
@@ -105,11 +114,13 @@ export function generateScaffoldFiles(
   _themeId: string,
   projectName: string,
   runtimeCssVars?: Record<string, string>,
+  runtimeCssAnimations?: Record<string, string>,
 ): { relativePath: string; content: string }[] {
   const document = prepareSourceExportDocument(layoutJson);
   return compileDocumentToReactProject(document, {
     projectName,
     runtimeCssVars,
+    runtimeCssAnimations,
   });
 }
 

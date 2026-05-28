@@ -1,10 +1,10 @@
 .screen {
   /* ── Seed tokens (defined by template) ───────────────────────────── */
-  --accent: var(--app-color-accent);
-  --surface: linear-gradient(180deg, var(--app-neutral-50) 0%, var(--app-surface-2) 100%);
-  --surface-muted: var(--app-surface-1);
-  --panel-bg: var(--app-surface-1);
-  --panel-border: var(--app-border);
+  --accent: var(--color-primary, var(--app-color-accent));
+  --surface: var(--color-bg, linear-gradient(180deg, var(--app-neutral-50) 0%, var(--app-surface-2) 100%));
+  --surface-muted: var(--color-primary-light, color-mix(in srgb, var(--accent) 8%, var(--app-neutral-0)));
+  --panel-bg: var(--color-card, var(--app-surface-1));
+  --panel-border: color-mix(in srgb, var(--accent) 16%, var(--app-border));
   --panel-accent: color-mix(in srgb, var(--accent) 12%, var(--app-surface-1));
   --panel-accent-border: color-mix(in srgb, var(--accent) 26%, var(--app-border));
   --search-bg: var(--app-surface-1);
@@ -70,6 +70,15 @@
 }
 
 .screenDesktop {
+}
+
+.screenWeb {
+  width: 100%;
+  min-height: 100%;
+  overflow: visible;
+  border-radius: 0;
+  background: var(--surface);
+  box-shadow: none;
 }
 
 .screenTablet {
@@ -280,6 +289,12 @@
   overflow-y: auto;
 }
 
+.viewportWeb {
+  min-height: 100%;
+  overflow: visible;
+  padding: var(--app-unit-4);
+}
+
 .viewportRow {
   display: flex;
   flex-wrap: wrap;
@@ -291,4 +306,8 @@
 
 .footer {
   padding: 0 var(--app-unit-1-75) var(--app-unit-1-75);
+}
+
+.footerWeb {
+  padding: 0 var(--app-unit-4) var(--app-unit-4);
 }

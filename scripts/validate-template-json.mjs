@@ -22,6 +22,43 @@ const CORE_ALIASES = new Set([
   'core.divider',
   'core.spacer',
   'core.input',
+  'core.navbar',
+  'core.tabbar',
+  'core.breadcrumb',
+  'core.pagination',
+  'core.avatar',
+  'core.badge',
+  'core.list',
+  'core.list-item',
+  'core.statistic',
+  'core.collapse',
+  'core.carousel',
+  'core.empty',
+  'core.skeleton',
+  'core.select',
+  'core.checkbox',
+  'core.radio',
+  'core.switch',
+  'core.rate',
+  'core.slider',
+  'core.datepicker',
+  'core.timepicker',
+  'core.form',
+  'core.upload',
+  'core.dialog',
+  'core.toast',
+  'core.alert',
+  'core.loading',
+  'core.drawer',
+  'core.video',
+  'core.audio',
+  'core.sidebar',
+  'core.toolbar',
+  'core.splitter',
+  'core.timeline',
+  'core.tooltip',
+  'core.tree',
+  'core.table',
 ]);
 
 const CONTAINER_ALIASES = new Set([
@@ -31,6 +68,18 @@ const CONTAINER_ALIASES = new Set([
   'core.row',
   'core.grid',
   'core.html',
+  'core.navbar',
+  'core.list',
+  'core.list-item',
+  'core.dialog',
+  'core.drawer',
+  'core.collapse',
+  'core.sidebar',
+  'core.form',
+  'core.toolbar',
+  'core.splitter',
+  'core.timeline',
+  'core.tree',
 ]);
 
 const LAYOUT_MODES = new Set(['flow', 'grid', 'absolute']);
@@ -60,6 +109,7 @@ const REQUIRED_TEMPLATE_FIELDS = [
   'description',
   'accent',
   'category',
+  'displayCategory',
   'platformCategories',
   'functionalCategories',
   'traits',
@@ -88,18 +138,68 @@ function hasCjkText(value) {
 
 function hasDisallowedLatinText(value) {
   const normalized = value
-    .replace(/\b(AI|API|URL|URI|ID|VIP|H5|SaaS|CRM|ERP|IoT|OK)\b/gi, '')
+    .replace(/\b(AI|API|URL|URI|ID|VIP|H5|SaaS|CRM|ERP|IoT|OK|PPSU|SPF|DNA|SLA|SKU|QDII|ETF|MOBA|FPS|MMORPG|Python|JavaScript|Java|React|Node|Word|Excel|PPT)\b/gi, '')
     .replace(/Wi-?Fi/gi, '');
+  if (hasCjkText(normalized)) {
+    return (normalized.match(/[A-Za-z]{3,}/g) ?? []).length >= 3;
+  }
   return /[A-Za-z]{3,}/.test(normalized);
 }
 
 function isValidTemplateImageUrl(value) {
+  if (
+    value.startsWith('/template-assets/') &&
+    !value.includes('..') &&
+    !value.includes('\\') &&
+    !value.includes('//')
+  ) {
+    return true;
+  }
+
   try {
     const url = new URL(value);
     return url.protocol === 'https:';
   } catch {
     return false;
   }
+}
+
+function validateVisualAssets(visualAssets, filePath, issues) {
+  if (visualAssets === undefined) {
+    return;
+  }
+
+  if (!Array.isArray(visualAssets)) {
+    addIssue(issues, filePath, 'error', 'visualAssets', 'visualAssets must be an array.');
+    return;
+  }
+
+  const seenIds = new Set();
+  visualAssets.forEach((asset, index) => {
+    const pathName = `visualAssets[${index}]`;
+    if (!isRecord(asset)) {
+      addIssue(issues, filePath, 'error', pathName, 'visualAssets entries must be objects.');
+      return;
+    }
+    if (!isNonEmptyString(asset.id)) {
+      addIssue(issues, filePath, 'error', `${pathName}.id`, 'visualAssets entries must include id.');
+    } else if (seenIds.has(asset.id)) {
+      addIssue(issues, filePath, 'error', `${pathName}.id`, `Duplicate visual asset id "${asset.id}".`);
+    } else {
+      seenIds.add(asset.id);
+    }
+    if (asset.url !== undefined && (
+      typeof asset.url !== 'string' || !isValidTemplateImageUrl(asset.url.trim())
+    )) {
+      addIssue(
+        issues,
+        filePath,
+        'error',
+        `${pathName}.url`,
+        'visualAssets[].url must be a valid HTTPS URL or /template-assets/... path.',
+      );
+    }
+  });
 }
 
 function formatPath(filePath) {
@@ -508,7 +608,7 @@ function validateLayoutNode(node, context) {
         filePath,
         'error',
         `${pathName}.props.src`,
-        'core.image props.src must be a valid HTTPS URL; omit src to render the placeholder.',
+        'core.image props.src must be a valid HTTPS URL or /template-assets/... path; omit src to render the placeholder.',
       );
     }
   }
@@ -519,7 +619,6 @@ function validateLayoutNode(node, context) {
       'text',
       'label',
       'placeholder',
-      'activeTab',
       'body',
       'caption',
       'subtitle',
@@ -706,7 +805,15 @@ function validateTemplate(template, filePath, issues) {
     }
   }
 
-  for (const field of ['templateId', 'name', 'tagline', 'description', 'accent', 'category']) {
+  for (const field of [
+    'templateId',
+    'name',
+    'tagline',
+    'description',
+    'accent',
+    'category',
+    'displayCategory',
+  ]) {
     if (!isNonEmptyString(template[field])) {
       addIssue(issues, filePath, 'error', field, `${field} must be a non-empty string.`);
     }
@@ -718,6 +825,15 @@ function validateTemplate(template, filePath, issues) {
       'error',
       'category',
       'category must be an English slug key; put Chinese in categoryLabel.',
+    );
+  }
+  if (isNonEmptyString(template.displayCategory) && !isCategoryKey(template.displayCategory)) {
+    addIssue(
+      issues,
+      filePath,
+      'error',
+      'displayCategory',
+      'displayCategory must be an English slug key; put Chinese in displayCategoryLabel.',
     );
   }
 
@@ -764,6 +880,28 @@ function validateTemplate(template, filePath, issues) {
       'categoryLabel is required so frontend can display Chinese while category stays English.',
     );
   }
+  if (!isNonEmptyString(template.displayCategoryLabel)) {
+    addIssue(
+      issues,
+      filePath,
+      'error',
+      'displayCategoryLabel',
+      'displayCategoryLabel is required so frontend can display coarse categories in Chinese.',
+    );
+  }
+  if (
+    isRecord(template.displayCategoryLabels)
+    && isNonEmptyString(template.displayCategory)
+    && !isNonEmptyString(template.displayCategoryLabels[template.displayCategory])
+  ) {
+    addIssue(
+      issues,
+      filePath,
+      'error',
+      `displayCategoryLabels.${template.displayCategory}`,
+      'Missing Chinese display label for display category key.',
+    );
+  }
   if (!isRecord(template.functionalCategoryLabels)) {
     addIssue(
       issues,
@@ -800,6 +938,7 @@ function validateTemplate(template, filePath, issues) {
   }
 
   validateCssVars(template.cssVars, filePath, issues);
+  validateVisualAssets(template.visualAssets, filePath, issues);
   validateLayoutDocument(template.layoutDocument, componentTemplates, filePath, issues);
 }
 

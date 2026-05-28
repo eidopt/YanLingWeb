@@ -30,4 +30,6 @@ export interface ExportBuildPayload {
   themeId: string;
   /** CSS custom properties for the active runtime theme */
   runtimeCssVars?: Record<string, string>;
+  /** CSS keyframes for the active runtime theme */
+  runtimeCssAnimations?: Record<string, string>;
 }

@@ -5,6 +5,10 @@ import { formatUiIntentPlanForPrompt, planUiIntent } from '../planning/ui-intent
 import { GENERATE_TEMPLATE_TOOL, type TemplateToolInput } from '../tools/generate-template.tool';
 import { AgentEventRecorder } from './agentEventRecorder';
 import { TEMPLATE_DESIGNER_SYSTEM_PROMPT } from '@shared/agent/prompts/templateDesignerPrompt';
+import {
+  formatUiDesignSkillContextForPrompt,
+  inferUiDesignSkillContext,
+} from '@shared/agent/skills/uiDesignSkillRegistry';
 import type {
   AgentEvalScenario,
   AgentRunResult,
@@ -18,6 +22,10 @@ import {
   renderSmokeThemeLayoutDocument,
   validateThemeLayoutDocument,
 } from '@shared/agent/validation/themeLayoutValidator';
+import {
+  applyVisualAssetsToLayoutDocument,
+  normalizeVisualAssets,
+} from '@shared/theme-layout/visualAssets';
 
 export interface TemplateGenerationAgentOptions {
   provider: AIProvider;
@@ -50,6 +58,7 @@ export class TemplateGenerationAgent {
       this.options.onEvent?.(event);
     };
     const intentPlan = planUiIntent(input.prompt);
+    const skillContext = inferUiDesignSkillContext(input.prompt, intentPlan.matchedCategories);
     emit('intent_plan', intentPlan);
 
     let finalDocument: ThemeLayoutDocument | undefined;
@@ -59,6 +68,7 @@ export class TemplateGenerationAgent {
     const messages: ProviderMessage[] = [
       { role: 'system', content: TEMPLATE_DESIGNER_SYSTEM_PROMPT },
       { role: 'system', content: formatUiIntentPlanForPrompt(intentPlan) },
+      { role: 'system', content: formatUiDesignSkillContextForPrompt(skillContext) },
       { role: 'user', content: input.prompt },
     ];
 
@@ -84,7 +94,13 @@ export class TemplateGenerationAgent {
           return { output: JSON.stringify({ error: call.error }) };
         }
         const inputValue = args as unknown as TemplateToolInput;
-        const candidateDocument = asThemeLayoutDocument(inputValue.layoutDocument);
+        const visualAssets = normalizeVisualAssets(inputValue.visualAssets);
+        const candidateDocument = asThemeLayoutDocument(
+          applyVisualAssetsToLayoutDocument(
+            inputValue.layoutDocument,
+            visualAssets,
+          ),
+        );
         const validation = validateThemeLayoutDocument(candidateDocument, {
           componentTemplates: inputValue.componentTemplates,
         });
@@ -97,13 +113,18 @@ export class TemplateGenerationAgent {
           ...candidateDocument,
           componentTemplates: inputValue.componentTemplates,
           cssVars: inputValue.cssVars,
+          cssAnimations: inputValue.cssAnimations,
         };
         if (this.options.persist) {
           if (!this.options.templateStore) {
             call.error = 'persist=true requires a templateStore';
             return { output: JSON.stringify({ error: call.error }) };
           }
-          const saved = await this.options.templateStore.saveGeneratedTemplate(inputValue);
+          const saved = await this.options.templateStore.saveGeneratedTemplate({
+            ...inputValue,
+            layoutDocument: candidateDocument as unknown as Record<string, unknown>,
+            ...(visualAssets.length > 0 ? { visualAssets } : {}),
+          });
           emit('template_saved', { ...saved, name: inputValue.name });
           call.result = { success: true, ...saved };
           return { output: JSON.stringify({ success: true, ...saved }) };

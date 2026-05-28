@@ -23,6 +23,10 @@ import {
   applyEditorAiEditInstructions,
 } from '@shared/agent/editor/applyEditorInstructions';
 import { EDITOR_COPILOT_SYSTEM_PROMPT } from '@shared/agent/prompts/editorCopilotPrompt';
+import {
+  formatUiDesignSkillContextForPrompt,
+  inferUiDesignSkillContext,
+} from '@shared/agent/skills/uiDesignSkillRegistry';
 import type {
   AgentConversationMessage,
   AgentEvalScenario,
@@ -94,6 +98,7 @@ export class EditorEditAgent {
       this.options.onEvent?.(event);
     };
     const intentPlan = planUiIntent(input.prompt);
+    const skillContext = inferUiDesignSkillContext(input.prompt, intentPlan.matchedCategories);
     emit('intent_plan', intentPlan);
 
     let currentDocument = structuredClone(input.document);
@@ -103,6 +108,8 @@ export class EditorEditAgent {
       'Current turn context:',
       '',
       formatUiIntentPlanForPrompt(intentPlan),
+      '',
+      formatUiDesignSkillContextForPrompt(skillContext),
       '',
       buildEditorVolatileContext(
         currentDocument,

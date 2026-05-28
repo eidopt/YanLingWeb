@@ -1,5 +1,11 @@
 .row {
   display: flex;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.row > * {
+  min-width: 0;
 }
 
 .panel {

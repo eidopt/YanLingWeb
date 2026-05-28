@@ -6,7 +6,7 @@ import type { ThemeSpec } from 'types/theme.types';
 import {
   Box,
   Text,
-} from 'ui/system';
+} from 'ui/base';
 import { ThemePreview } from 'ui/theme_preview';
 
 interface ThemeCardProps {

@@ -1,5 +1,6 @@
 import type { ThemeLayoutDocument } from '../ui/layout/types';
 import type { ThemeRuntime } from '../ui/renderer';
+import type { VisualAsset } from '@shared/theme-layout/visualAssets';
 
 export interface TemplateAgentConfig {
   profileGenerated: Record<string, unknown> | null;
@@ -22,6 +23,8 @@ export interface ThemeSpec {
   accent: string;
   category: string;
   categoryLabel?: string;
+  displayCategory?: string;
+  displayCategoryLabel?: string;
   platformCategories?: string[];
   platformCategoryLabels?: Record<string, string>;
   functionalCategories?: string[];
@@ -32,5 +35,6 @@ export interface ThemeSpec {
   updatedAt?: string;
   layoutDocument: ThemeLayoutDocument;
   runtime: ThemeRuntime;
+  visualAssets?: VisualAsset[];
   agentConfig?: TemplateAgentConfig;
 }

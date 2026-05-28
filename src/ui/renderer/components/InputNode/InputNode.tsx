@@ -1,10 +1,11 @@
 'use client';
 
 import { asBoolean, asString } from '../../valueResolvers';
+import type { InputProps } from '../propsTypes';
 import type { CoreNodeProps } from '../types';
 import styles from './InputNode.module.css';
 
-export function InputNode({ props, nodeLayoutStyle }: CoreNodeProps) {
+export function InputNode({ props, nodeLayoutStyle }: CoreNodeProps<InputProps>) {
   const label = asString(props.label);
   const placeholder = asString(props.placeholder);
   const value = asString(props.value);

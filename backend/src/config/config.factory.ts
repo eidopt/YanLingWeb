@@ -14,6 +14,7 @@ export interface ServerConfig {
     models: {
       pro: string;
       lite?: string;
+      image?: string;
     };
     apiKey?: string;
     baseUrl?: string;
@@ -89,6 +90,7 @@ export class ConfigFactory {
       ?? this.read(source, serverFlavor, 'AI_MODEL')
       ?? defaultModel;
     const aiLiteModel = this.read(source, serverFlavor, 'AI_LITE_MODEL');
+    const aiImageModel = this.read(source, serverFlavor, 'AI_IMAGE_MODEL');
     const databaseDriver = this.readDatabaseDriver(source, serverFlavor);
 
     return {
@@ -98,6 +100,7 @@ export class ConfigFactory {
         models: {
           pro: aiProModel,
           ...(aiLiteModel ? { lite: aiLiteModel } : {}),
+          ...(aiImageModel ? { image: aiImageModel } : {}),
         },
         // Try provider-specific vars (e.g. OPENAI_API_KEY), fall back to generic AI_*
         apiKey: this.read(source, serverFlavor, `${prefix}_API_KEY`)

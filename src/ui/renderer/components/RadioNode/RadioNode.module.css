@@ -1,0 +1,58 @@
+.field {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--app-unit-1);
+  cursor: pointer;
+  color: var(--text-body-color, var(--app-neutral-700));
+  font-size: var(--app-unit-1-75);
+  user-select: none;
+}
+
+.field[data-disabled='true'] {
+  opacity: 0.48;
+  cursor: not-allowed;
+}
+
+.circle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--app-unit-4);
+  height: var(--app-unit-4);
+  border-radius: 50%;
+  background: var(--search-bg, var(--app-neutral-0));
+  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--panel-border, var(--app-border));
+  flex-shrink: 0;
+  transition: background 160ms ease, box-shadow 160ms ease;
+}
+
+.circle[data-checked='true'],
+.circle:has(.input:checked) {
+  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--accent);
+}
+
+.input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.dot {
+  display: none;
+  width: var(--app-unit-2);
+  height: var(--app-unit-2);
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.circle[data-checked='true'] .dot,
+.circle:has(.input:checked) .dot {
+  display: block;
+}
+
+.label {
+  color: var(--text-body-color, var(--app-neutral-700));
+}

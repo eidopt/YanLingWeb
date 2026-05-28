@@ -24,7 +24,7 @@ import {
   Stack,
   Text,
   TextArea,
-} from 'ui/system';
+} from 'ui/base';
 
 interface SelectedNodeInspectorProps {
   selectedNode: ThemeLayoutNode;

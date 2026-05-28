@@ -1,0 +1,56 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  vertical-align: middle;
+  background: var(--app-color-danger, #e53e3e);
+  color: var(--app-neutral-0, #fff);
+}
+
+.badgeCorner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(50%, -50%);
+  z-index: 1;
+}
+
+.pill {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  padding: 0;
+  min-width: auto;
+}
+
+.badgeNeutral {
+  background: var(--app-neutral-500, #737373);
+}
+
+.badgeSuccess {
+  background: var(--app-color-wechat, #07c160);
+}
+
+.badgeWarning {
+  background: var(--app-color-orange, #ed6a0c);
+}
+
+.badgeInfo {
+  background: var(--app-color-sky, #1890ff);
+}
+
+.badgeDanger {
+  background: var(--app-color-danger, #e53e3e);
+}

@@ -13,7 +13,7 @@ import {
   Input,
   Stack,
   Text,
-} from "ui/system";
+} from 'ui/base';
 
 const WECHAT_AUTH_CHANNEL = "wechat_oauth";
 const QR_TTL_MS = 4.5 * 60 * 1000; // refresh before 5-min WeChat expiry

@@ -1,5 +1,6 @@
 .btn {
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: center;
   gap: var(--app-unit-0-75);
@@ -10,6 +11,7 @@
   font-weight: 700;
   font-size: var(--app-unit-1-75);
   font-family: inherit;
+  white-space: nowrap;
   cursor: pointer;
   text-decoration: none;
   transition: transform 160ms ease, opacity 160ms ease;

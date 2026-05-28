@@ -66,6 +66,7 @@ export function createMockTemplateToolInput(scenario: AgentEvalScenario) {
     tagline: 'Agent eval generated template',
     description: layoutDocument.description,
     category: 'general',
+    displayCategory: 'general',
     accent: '#2563eb',
     traits: ['eval', 'mock'],
     cssVars: {

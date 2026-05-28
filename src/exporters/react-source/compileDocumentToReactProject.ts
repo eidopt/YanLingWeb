@@ -30,6 +30,7 @@ export interface ReactSourceProjectFile {
 export interface CompileDocumentToReactProjectOptions {
   projectName: string;
   runtimeCssVars?: Record<string, string>;
+  runtimeCssAnimations?: Record<string, string>;
 }
 
 function normalizePages(
@@ -86,6 +87,10 @@ export function compileDocumentToReactProject(
     document,
     options.runtimeCssVars,
   );
+  const cssAnimations = {
+    ...(options.runtimeCssAnimations ?? {}),
+    ...((document.cssAnimations ?? {}) as Record<string, string>),
+  };
   const appImports = compiledPages
     .map((page) => [
       `import { ${page.componentName} } from './pages/`,
@@ -150,7 +155,7 @@ export function App() {
     },
     {
       relativePath: 'src/styles.css',
-      content: generateStyles(cssVars),
+      content: generateStyles(cssVars, cssAnimations),
     },
     ...compiledPages.map((page) => ({
       relativePath: `src/pages/${page.fileName}`,

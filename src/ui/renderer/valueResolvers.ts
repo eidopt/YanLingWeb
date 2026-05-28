@@ -22,3 +22,33 @@ export function asStringArray(value: unknown) {
     ? value.filter((item): item is string => typeof item === 'string')
     : [];
 }
+
+export function asCssLength(value: unknown, fallback = '') {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return `${value}px`;
+  }
+
+  if (typeof value !== 'string') {
+    return fallback;
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return fallback;
+  }
+
+  if (/^-?\d+(?:\.\d+)?$/.test(trimmed)) {
+    return `${trimmed}px`;
+  }
+
+  if (
+    trimmed === '0' ||
+    trimmed === 'auto' ||
+    /^-?\d+(?:\.\d+)?(?:px|%|rem|em|vh|vw|vmin|vmax|svh|svw|lvh|lvw|dvh|dvw|ch|ex)$/.test(trimmed) ||
+    /^(?:var|calc|min|max|clamp)\(.+\)$/.test(trimmed)
+  ) {
+    return trimmed;
+  }
+
+  return fallback;
+}

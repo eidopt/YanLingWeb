@@ -1,7 +1,7 @@
 'use client';
 
 import styles from './WorkspaceSkeleton.module.css';
-import { Box } from 'ui/system';
+import { Box } from 'ui/base';
 
 function CardSkeleton() {
   return (

@@ -6,7 +6,7 @@ import { useAppServices } from 'hooks/useAppServices';
 import { useEffect, useState } from 'react';
 import type { AuthUser } from 'services/AuthService';
 import { AUTH_CHANGED_EVENT } from 'services/AuthService';
-import { Box } from 'ui/system';
+import { Box } from 'ui/base';
 import { HomeWorkspace } from 'views/HomePage/HomeWorkspace';
 
 export function TemplatesPage() {

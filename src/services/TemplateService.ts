@@ -1,4 +1,5 @@
 import type { TemplateAgentConfig, ThemeSpec } from 'types/theme.types';
+import { normalizeVisualAssets } from '@shared/theme-layout/visualAssets';
 import type {
   ThemeLayoutDocument,
   ThemeLayoutDocumentSource,
@@ -18,6 +19,8 @@ interface TemplateRecord {
   accent: string;
   category: string;
   categoryLabel?: string;
+  displayCategory?: string;
+  displayCategoryLabel?: string;
   platformCategories?: string[];
   platformCategoryLabels?: Record<string, string>;
   functionalCategories?: string[];
@@ -25,6 +28,7 @@ interface TemplateRecord {
   traits: string[];
   tags?: string[];
   cssVars: Record<string, string>;
+  visualAssets?: unknown;
   cssAnimations?: Record<string, string> | null;
   componentTemplates: Record<string, unknown>;
   layoutDocument: ThemeLayoutDocumentSource;
@@ -38,6 +42,7 @@ export interface TemplateSaveInput {
   tagline?: string;
   description?: string;
   category?: string;
+  displayCategory?: string;
   platformCategories?: string[];
   functionalCategories?: string[];
   traits?: string[];
@@ -87,6 +92,9 @@ export class TemplateService {
       componentTemplates: record.componentTemplates as ComponentTemplateMap,
       ...(record.cssAnimations && { cssAnimations: record.cssAnimations }),
     };
+    const visualAssets = normalizeVisualAssets(
+      record.visualAssets ?? record.agentConfig?.assets?.visualAssets,
+    );
     return {
       id: record.templateId,
       recordId: record.id,
@@ -99,6 +107,9 @@ export class TemplateService {
       accent: record.accent,
       category: record.category,
       categoryLabel: record.categoryLabel ?? record.category,
+      displayCategory: record.displayCategory,
+      displayCategoryLabel: record.displayCategoryLabel
+        ?? record.displayCategory,
       platformCategories: [...(record.platformCategories ?? [])],
       platformCategoryLabels: { ...(record.platformCategoryLabels ?? {}) },
       functionalCategories: [...(record.functionalCategories ?? [])],
@@ -111,6 +122,7 @@ export class TemplateService {
         record.layoutDocument,
       ),
       runtime,
+      ...(visualAssets.length > 0 && { visualAssets }),
       ...(record.agentConfig && { agentConfig: record.agentConfig }),
     };
   }
@@ -161,6 +173,7 @@ export class TemplateService {
   async fetchAll(params?: {
     search?: string;
     category?: string;
+    displayCategory?: string;
     platformCategory?: string;
   }): Promise<ThemeSpec[]> {
     const { data } = await this.request<{
@@ -173,6 +186,7 @@ export class TemplateService {
   async fetchMine(params?: {
     search?: string;
     category?: string;
+    displayCategory?: string;
     platformCategory?: string;
   }): Promise<ThemeSpec[]> {
     const { data } = await this.request<{

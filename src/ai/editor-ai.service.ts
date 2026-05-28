@@ -68,6 +68,7 @@ interface EditorAiRuntimeConfig {
   models?: {
     pro: string;
     lite?: string;
+    image?: string;
   };
   semanticTargets?: SemanticTargetDefinitionConfig[];
 }

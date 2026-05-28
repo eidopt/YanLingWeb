@@ -23,7 +23,7 @@ import {
   Box,
   Button,
   Text,
-} from 'ui/system';
+} from 'ui/base';
 
 type BuilderSidebarTab = 'components' | 'templates';
 

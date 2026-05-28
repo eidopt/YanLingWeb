@@ -11,7 +11,7 @@ import {
   Stack,
   Text,
   VisuallyHidden,
-} from 'ui/system';
+} from 'ui/base';
 
 export interface FloatingChatMessage {
   id?: string;

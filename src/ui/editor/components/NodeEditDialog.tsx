@@ -27,7 +27,7 @@ import {
   Stack,
   Text,
   TextArea,
-} from 'ui/system';
+} from 'ui/base';
 
 interface NodeEditDialogProps {
   dialogState: DialogState | null;

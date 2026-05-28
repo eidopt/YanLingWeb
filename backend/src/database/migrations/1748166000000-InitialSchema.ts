@@ -71,6 +71,7 @@ export class InitialSchema1748166000000 implements MigrationInterface {
         "description" varchar NOT NULL DEFAULT (''),
         "accent" varchar NOT NULL DEFAULT ('#000000'),
         "category" varchar NOT NULL DEFAULT ('general'),
+        "displayCategory" varchar NOT NULL DEFAULT ('general'),
         "primaryFunctionalCategory" varchar,
         "platformCategories" text NOT NULL DEFAULT ('[]'),
         "functionalCategories" text NOT NULL DEFAULT ('[]'),
@@ -96,6 +97,12 @@ export class InitialSchema1748166000000 implements MigrationInterface {
       'templates',
       'isPublic',
       `"isPublic" boolean NOT NULL DEFAULT (1)`,
+    );
+    await this.addColumnIfMissing(
+      queryRunner,
+      'templates',
+      'displayCategory',
+      `"displayCategory" varchar NOT NULL DEFAULT ('general')`,
     );
     await this.addColumnIfMissing(
       queryRunner,
@@ -131,7 +138,9 @@ export class InitialSchema1748166000000 implements MigrationInterface {
     await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_templates_ownerUserId_isPublic" ON "templates" ("ownerUserId", "isPublic")`);
     await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_templates_sourceTemplateId" ON "templates" ("sourceTemplateId")`);
     await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_templates_category" ON "templates" ("category")`);
+    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_templates_displayCategory" ON "templates" ("displayCategory")`);
     await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_templates_primaryFunctionalCategory" ON "templates" ("primaryFunctionalCategory")`);
+    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_templates_isPublic_displayCategory" ON "templates" ("isPublic", "displayCategory")`);
 
     // ── published_sites ──
     await queryRunner.query(`
@@ -240,7 +249,7 @@ export class InitialSchema1748166000000 implements MigrationInterface {
     column: string,
     definition: string,
   ): Promise<void> {
-    const rows: Array<{ name: string }> = await queryRunner.query(
+    const rows: { name: string; }[] = await queryRunner.query(
       `PRAGMA table_info('${table}')`,
     );
     if (!rows.some((row) => row.name === column)) {

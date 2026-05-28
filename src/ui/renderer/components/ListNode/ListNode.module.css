@@ -1,0 +1,14 @@
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.bordered {
+  border: 1px solid var(--app-border-color, var(--app-neutral-200));
+  border-radius: var(--app-radius-md, 6px);
+  overflow: hidden;
+}
+
+.split > * + * {
+  border-top: 1px solid var(--app-border-color, var(--app-neutral-200));
+}
