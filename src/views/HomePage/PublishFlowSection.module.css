@@ -1,7 +1,12 @@
 .publishFlowSection {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, var(--app-color-section-dark-1) 0%, var(--app-color-section-dark-2) 52%, var(--app-color-section-dark-3) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--app-color-section-dark-1) 0%,
+    var(--app-color-section-dark-2) 52%,
+    var(--app-color-section-dark-3) 100%
+  );
 }
 
 .publishFlowSection::before {
@@ -40,8 +45,7 @@
   padding: var(--app-unit-3);
   border: var(--app-unit-0-125) solid rgba(255, 255, 255, 0.18);
   border-radius: var(--app-radius-2xl);
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(var(--app-unit-1-75));
+  background: rgba(255, 255, 255, 0.08);
   transition:
     transform var(--app-motion-base) var(--app-motion-smooth),
     background var(--app-motion-base) var(--app-motion-smooth),

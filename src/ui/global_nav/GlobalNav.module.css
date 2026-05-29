@@ -8,10 +8,8 @@
   gap: var(--app-unit-3);
   padding: 0 var(--app-unit-3);
   height: var(--app-unit-7);
-  background: var(--app-bg-elevated);
-  backdrop-filter: blur(var(--app-unit-2-5)) saturate(180%);
-  -webkit-backdrop-filter: blur(var(--app-unit-2-5)) saturate(180%);
-  border-bottom: var(--app-unit-0-125) solid var(--app-border-subtle);
+  background: var(--app-bg);
+  border-bottom: var(--app-unit-0-125) solid var(--app-border);
 }
 
 .topbarOverlay {

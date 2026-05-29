@@ -60,8 +60,7 @@
   border: var(--app-unit-0-125) solid var(--app-border);
   border-radius: var(--app-unit-3);
   background: var(--app-surface-1);
-  box-shadow: var(--app-shadow-lg), var(--app-shadow-glow-violet);
-  backdrop-filter: blur(var(--app-unit-2-5)) saturate(150%);
+  box-shadow: var(--app-shadow-lg);
   overflow: hidden;
   animation: windowFloat 6.4s ease-in-out infinite;
 }

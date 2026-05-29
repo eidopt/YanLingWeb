@@ -116,9 +116,8 @@
   padding: var(--app-unit-1-75);
   border: var(--app-unit-0-125) solid var(--app-border);
   border-radius: var(--app-unit-4);
-  background: linear-gradient(180deg, rgba(31, 26, 22, 0.96), rgba(21, 18, 16, 0.9)), var(--app-surface-1);
-  box-shadow: var(--app-shadow-lg), var(--app-shadow-glow-violet);
-  backdrop-filter: blur(var(--app-unit-2-5)) saturate(150%);
+  background: linear-gradient(180deg, #211c18, #151210);
+  box-shadow: var(--app-shadow-lg);
   overflow: hidden;
   animation: editorMockFloat 6s ease-in-out infinite;
 }
@@ -681,9 +680,8 @@
   padding: var(--app-unit-1);
   border: var(--app-unit-0-125) solid var(--app-border);
   border-radius: var(--app-unit-2-5);
-  background: var(--app-surface-glass-strong);
+  background: rgba(255, 255, 255, 0.06);
   box-shadow: 0 var(--app-unit-2) var(--app-unit-5) var(--app-ink-alpha-12);
-  backdrop-filter: blur(var(--app-unit-2-25));
 }
 
 .heroStatusItem {
