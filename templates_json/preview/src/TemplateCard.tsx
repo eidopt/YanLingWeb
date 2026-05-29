@@ -51,7 +51,7 @@ function useInViewport<T extends HTMLElement>() {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry?.isIntersecting) {
+        if (entry.isIntersecting) {
           setVisible(true);
           observer.disconnect();
         }
@@ -66,24 +66,15 @@ function useInViewport<T extends HTMLElement>() {
   return { ref, visible };
 }
 
-export function TemplateCard({
-  entry,
-  onClick,
-  checked,
-  onCheck,
-}: Props): ReactNode {
+export function TemplateCard({ entry, onClick, checked, onCheck }: Props): ReactNode {
   const { ref, visible } = useInViewport<HTMLDivElement>();
   const device = resolveCardDevice(entry);
   const viewport = PREVIEW_VIEWPORT[device];
   const scale = THUMB_WIDTH / viewport.width;
-  const variantColor = entry.variant
-    ? (VARIANT_COLORS[entry.variant] ?? '#6b7280')
-    : undefined;
+  const variantColor = entry.variant ? (VARIANT_COLORS[entry.variant] ?? '#6b7280') : undefined;
   const platformLabel = entry.platform
-    ? PLATFORM_LABELS[entry.platform] ?? entry.platform
-    : entry.platformCategories?.map((platform) => (
-        PLATFORM_LABELS[platform] ?? platform
-      )).join(' / ');
+    ? (PLATFORM_LABELS[entry.platform] ?? entry.platform)
+    : entry.platformCategories?.map((platform) => PLATFORM_LABELS[platform] ?? platform).join(' / ');
 
   return (
     <article
@@ -95,9 +86,7 @@ export function TemplateCard({
         overflow: 'hidden',
         background: '#fff',
         position: 'relative',
-        boxShadow: checked
-          ? '0 0 0 2px rgba(22, 119, 255, 0.28)'
-          : '0 1px 2px rgba(15, 23, 42, 0.06)',
+        boxShadow: checked ? '0 0 0 2px rgba(22, 119, 255, 0.28)' : '0 1px 2px rgba(15, 23, 42, 0.06)',
       }}
     >
       <label

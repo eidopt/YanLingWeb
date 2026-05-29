@@ -7,7 +7,11 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# pnpm is the only supported package manager for this workspace.
+package-lock.json
+
 node_modules
+.pnpm-store/
 dist
 dist-ssr
 dist-electron
@@ -17,6 +21,11 @@ dist-electron
 .next
 out
 release
+playwright-report
+test-results
+coverage/
+backend/coverage/
+*.tsbuildinfo
 
 # Export output — compiled project builds land here
 output/*
@@ -35,6 +44,8 @@ shared/openapi.json
 .vscode/*
 !.vscode/extensions.json
 .idea
+.git-xdg
+.workbuddy/
 .DS_Store
 *.suo
 *.ntvs*

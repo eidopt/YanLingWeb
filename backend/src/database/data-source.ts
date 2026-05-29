@@ -10,9 +10,9 @@
  *     -d src/database/data-source.ts src/database/migrations/MigrationName \
  *     -- --flavor=prod
  *
- *   npm run migration:run:prod      # convenience script (see package.json)
- *   npm run migration:generate:prod -- src/database/migrations/Name
- *   npm run migration:revert:prod
+ *   pnpm migration:run:prod      # convenience script (see package.json)
+ *   pnpm migration:generate:prod -- src/database/migrations/Name
+ *   pnpm migration:revert:prod
  *
  * This file is NOT used at runtime — the NestJS app uses database.module.ts instead.
  */
@@ -43,17 +43,19 @@ function readCliFlavor(): string | undefined {
 
 function normalizeFlavor(raw: string | undefined): 'development' | 'production' | 'test' {
   const v = raw?.trim().toLowerCase();
-  if (v === 'prod' || v === 'production') {return 'production';}
-  if (v === 'test') {return 'test';}
+  if (v === 'prod' || v === 'production') {
+    return 'production';
+  }
+  if (v === 'test') {
+    return 'test';
+  }
   return 'development';
 }
 
 // ── Resolve flavor BEFORE loading any env files ──
 
 const flavor = normalizeFlavor(
-  readCliFlavor()
-  ?? process.env.SERVER_FLAVOR
-  ?? process.env.NODE_ENV,
+  readCliFlavor() ?? process.env.SERVER_FLAVOR ?? process.env.NODE_ENV,
 );
 
 // Set these so downstream code (and dotenv's override behavior) is consistent.
@@ -68,11 +70,12 @@ process.env.NODE_ENV = flavor;
 
 const backendRoot = path.resolve(__dirname, '..', '..');
 
-const flavorAliases = flavor === 'production'
-  ? ['prod', 'production']
-  : flavor === 'test'
-    ? ['test']
-    : ['dev', 'development'];
+const flavorAliases =
+  flavor === 'production'
+    ? ['prod', 'production']
+    : flavor === 'test'
+      ? ['test']
+      : ['dev', 'development'];
 
 // Load flavor-specific files first (e.g. .env.prod.local, .env.prod)
 for (const alias of flavorAliases) {
@@ -86,29 +89,42 @@ config({ path: path.join(backendRoot, '.env') });
 // ── Scoped env var reading (mirrors ConfigFactory.read) ──
 
 function scopePrefix(): 'DEV' | 'PROD' | 'TEST' {
-  if (flavor === 'production') {return 'PROD';}
-  if (flavor === 'test') {return 'TEST';}
+  if (flavor === 'production') {
+    return 'PROD';
+  }
+  if (flavor === 'test') {
+    return 'TEST';
+  }
   return 'DEV';
 }
 
 function readEnv(name: string): string | undefined {
   // Try scoped var first (e.g. PROD_DATABASE_DRIVER)
   const scoped = process.env[`${scopePrefix()}_${name}`]?.trim();
-  if (scoped) {return scoped;}
+  if (scoped) {
+    return scoped;
+  }
   // Fall back to generic var (e.g. DATABASE_DRIVER)
   const generic = process.env[name]?.trim();
-  return generic || undefined;
+  if (generic) {
+    return generic;
+  }
+  return undefined;
 }
 
 // ── Resolve database config ──
 
-const driver = readEnv('DATABASE_DRIVER')
-  ?? readEnv('DB_DRIVER')
-  ?? 'sqlite';
+const driver = readEnv('DATABASE_DRIVER') ?? readEnv('DB_DRIVER') ?? 'sqlite';
 
-const dbPath = readEnv('DB_PATH')
-  ?? readEnv('DEFAULT_DB_PATH')
-  ?? 'data/app.db';
+const dbPath = readEnv('DB_PATH') ?? readEnv('DEFAULT_DB_PATH') ?? 'data/app.db';
+
+const databaseUrl = readEnv('DATABASE_URL') ?? readEnv('DB_URL');
+const dbHost = readEnv('DB_HOST');
+const dbPort = readOptionalIntegerEnv('DB_PORT');
+const dbUsername = readEnv('DB_USERNAME') ?? readEnv('DB_USER');
+const dbPassword = readEnv('DB_PASSWORD');
+const dbName = readEnv('DB_NAME') ?? readEnv('DATABASE_NAME');
+const dbSsl = readBooleanEnv('DB_SSL') ?? false;
 
 // ── Entity imports (must match database-options.factory.ts) ──
 
@@ -122,6 +138,7 @@ import { TemplateAgentPermissions } from '../templates/entities/template-agent-p
 import { TemplateAssetManifest } from '../templates/entities/template-asset-manifest.entity';
 import { TemplateEvaluationSpec } from '../templates/entities/template-evaluation-spec.entity';
 import { TemplateProfileGenerated } from '../templates/entities/template-profile-generated.entity';
+// eslint-disable-next-line max-len
 import { TemplateProfileOverrideEntity } from '../templates/entities/template-profile-override.entity';
 import { Theme } from '../themes/entities/theme.entity';
 import { User } from '../users/entities/user.entity';
@@ -152,16 +169,75 @@ function buildOptions(): DataSourceOptions {
       entities: ALL_ENTITIES,
       migrations: [path.join(__dirname, 'migrations', '*.{ts,js}')],
       prepareDatabase: (db: unknown) => {
-        (db as { pragma: (sql: string) => void; }).pragma('journal_mode = WAL');
-        (db as { pragma: (sql: string) => void; }).pragma('foreign_keys = ON');
+        (db as { pragma: (sql: string) => void }).pragma('journal_mode = WAL');
+        (db as { pragma: (sql: string) => void }).pragma('foreign_keys = ON');
       },
     };
   }
 
-  throw new Error(
-    `Migration DataSource not configured for driver "${driver}". `
-    + 'Add a case in backend/src/database/data-source.ts.',
-  );
+  if (driver === 'postgres') {
+    const common = {
+      type: 'postgres' as const,
+      entities: ALL_ENTITIES,
+      migrations: [path.join(__dirname, 'migrations', '*.{ts,js}')],
+      ...(dbSsl ? { ssl: { rejectUnauthorized: false } } : {}),
+    };
+
+    if (databaseUrl) {
+      return {
+        ...common,
+        url: databaseUrl,
+      };
+    }
+
+    if (!dbHost || !dbName || !dbUsername) {
+      throw new Error(
+        'PostgreSQL migration DataSource requires DATABASE_URL or ' +
+          'DB_HOST + DB_NAME + DB_USERNAME/DB_USER.',
+      );
+    }
+
+    return {
+      ...common,
+      host: dbHost,
+      port: dbPort ?? 5432,
+      username: dbUsername,
+      password: dbPassword,
+      database: dbName,
+    };
+  }
+
+  throw new Error(`Unsupported database driver: ${driver}`);
 }
 
 export const AppDataSource = new DataSource(buildOptions());
+
+function readBooleanEnv(name: string): boolean | undefined {
+  const value = readEnv(name);
+  if (!value) {
+    return undefined;
+  }
+
+  const normalized = value.toLowerCase();
+  if (['1', 'true', 'yes', 'on'].includes(normalized)) {
+    return true;
+  }
+  if (['0', 'false', 'no', 'off'].includes(normalized)) {
+    return false;
+  }
+
+  throw new Error(`Invalid boolean environment variable ${name}: ${value}`);
+}
+
+function readOptionalIntegerEnv(name: string): number | undefined {
+  const value = readEnv(name);
+  if (!value) {
+    return undefined;
+  }
+
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed)) {
+    throw new Error(`Invalid integer environment variable ${name}: ${value}`);
+  }
+  return parsed;
+}

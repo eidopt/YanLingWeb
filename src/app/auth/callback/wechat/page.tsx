@@ -2,13 +2,10 @@
 
 import { wechatCallbackPageContent as c } from './page.content';
 import { useAppServices } from 'hooks/useAppServices';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect } from 'react';
-import {
-  Box,
-  Heading,
-  Text,
-} from 'ui/base';
+import { Box, Heading, Text } from 'ui/base';
 
 const WECHAT_AUTH_CHANNEL = 'wechat_oauth';
 
@@ -40,7 +37,9 @@ function WechatCallbackContent() {
   const missingParams = !code || !state;
 
   useEffect(() => {
-    if (missingParams || !code || !state) { return; }
+    if (missingParams || !code || !state) {
+      return;
+    }
 
     void (async () => {
       try {
@@ -63,29 +62,31 @@ function WechatCallbackContent() {
   }, [missingParams, code, state, router, authService, userService]);
 
   const errorParam = params.get('error');
-  const storedError = typeof window !== 'undefined'
-    ? sessionStorage.getItem('wechat_auth_error')
-    : null;
+  const storedError = typeof window !== 'undefined' ? sessionStorage.getItem('wechat_auth_error') : null;
 
   if (missingParams || errorParam) {
     const msg = storedError ?? c.error.missingParams;
     return (
       <Box style={containerStyle}>
         <Box style={cardStyle}>
-          <Text as="span" size="3xl">❌</Text>
+          <Text as="span" size="3xl">
+            ❌
+          </Text>
           <Heading as="h2" size="md" variant="primary" weight="heavy">
             {c.error.title}
           </Heading>
-          <Text align="center" size="sm" variant="muted">{msg}</Text>
-          <a href="/" style={linkStyle}>{c.error.retry}</a>
+          <Text align="center" size="sm" variant="muted">
+            {msg}
+          </Text>
+          <Link href="/" style={linkStyle}>
+            {c.error.retry}
+          </Link>
         </Box>
       </Box>
     );
   }
 
-  return (
-    <WechatCallbackLoading />
-  );
+  return <WechatCallbackLoading />;
 }
 
 function WechatCallbackLoading() {

@@ -1,22 +1,10 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Put,
-  Query,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 import { AuthenticatedRequest } from '../auth/authenticated-request.interface';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import {
-  TemplatesService,
-  type UpdateOwnedTemplateInput,
-} from './templates.service';
+import { TemplatesService, type UpdateOwnedTemplateInput } from './templates.service';
 
 @ApiTags('templates')
 @Controller('templates')
@@ -71,15 +59,13 @@ export class TemplatesController {
   @Get('mine/:templateId')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get an owned template by templateId' })
-  findOwnedOne(
-    @Req() req: AuthenticatedRequest,
-    @Param('templateId') templateId: string,
-  ) {
+  findOwnedOne(@Req() req: AuthenticatedRequest, @Param('templateId') templateId: string) {
     return this.service.findOwnedByTemplateId(req.user.sub, templateId);
   }
 
   @Put('mine/:templateId')
   @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { limit: 60, ttl: 60000 } })
   @ApiOperation({ summary: 'Update an owned template draft' })
   updateOwned(
     @Req() req: AuthenticatedRequest,
@@ -91,11 +77,9 @@ export class TemplatesController {
 
   @Post(':templateId/duplicate')
   @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
   @ApiOperation({ summary: 'Create an owned copy from a marketplace template' })
-  duplicate(
-    @Req() req: AuthenticatedRequest,
-    @Param('templateId') templateId: string,
-  ) {
+  duplicate(@Req() req: AuthenticatedRequest, @Param('templateId') templateId: string) {
     return this.service.duplicateForUser(req.user.sub, templateId);
   }
 

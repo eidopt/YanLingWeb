@@ -1,4 +1,4 @@
-import type { ProviderTool } from '@shared/agent/runtime/providerTypes';
+import type { ProviderTool } from '@shared/agent/contracts/provider';
 
 export const SUBMIT_DIVERSITY_VERDICT_TOOL: ProviderTool = {
   name: 'submit_diversity_verdict',

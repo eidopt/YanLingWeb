@@ -1,4 +1,6 @@
-import type { AgentClarificationOption } from '@shared/agent/types';
+import { editorAiServiceContent as c } from './editor-ai.service.content';
+import type { AgentClarificationOption } from '@shared/agent/contracts/agent';
+import { type HttpClient, type HttpStreamEvent, resolveHttpClient } from 'services/http/HttpClient';
 import type {
   ApplyEditorAiEditInstructionsOptions,
   ApplyEditorAiEditInstructionsResult,
@@ -8,22 +10,10 @@ import {
   configureSemanticTargetDefinitions,
   type SemanticTargetDefinitionConfig,
 } from 'ui/editor/services/semanticTargets';
-import type {
-  ThemeComponentDescriptor,
-  ThemeLayoutDocument,
-  ThemeLayoutNode,
-} from 'ui/layout/types';
+import type { ThemeComponentDescriptor, ThemeLayoutDocument, ThemeLayoutNode } from 'ui/layout/types';
 
 export interface EditorAiEvent {
-  type:
-    | 'text'
-    | 'intent_plan'
-    | 'tool_start'
-    | 'tool_done'
-    | 'edit_applied'
-    | 'clarification'
-    | 'error'
-    | 'done';
+  type: 'text' | 'intent_plan' | 'tool_start' | 'tool_done' | 'edit_applied' | 'clarification' | 'error' | 'done';
   data: string;
   terminal?: boolean;
 }
@@ -73,6 +63,28 @@ interface EditorAiRuntimeConfig {
   semanticTargets?: SemanticTargetDefinitionConfig[];
 }
 
+export interface EditorAiCacheStats {
+  totalRequests: number;
+  totalCacheHitTokens: number;
+  totalCacheMissTokens: number;
+  overallCacheHitRate: string;
+  byEndpoint: {
+    endpoint: string;
+    count: number;
+    cacheHitTokens: number;
+    cacheMissTokens: number;
+    hitRate: string;
+  }[];
+  recentRequests: {
+    timestamp: string;
+    endpoint: string;
+    model: string;
+    cacheHitTokens: number | null;
+    cacheMissTokens: number | null;
+    hitRate: string;
+  }[];
+}
+
 interface BackendEditorEvent {
   type: string;
   data?: unknown;
@@ -96,9 +108,7 @@ function getToolEventName(data: unknown): string {
   return eventDataToString(data);
 }
 
-function normalizeConversationHistory(
-  messages: unknown,
-): EditorAiConversationMessage[] {
+function normalizeConversationHistory(messages: unknown): EditorAiConversationMessage[] {
   if (!Array.isArray(messages)) {
     return [];
   }
@@ -110,13 +120,8 @@ function normalizeConversationHistory(
 
     const value = message as Record<string, unknown>;
     const role = value.role;
-    const content = typeof value.content === 'string'
-      ? value.content.trim()
-      : '';
-    if (
-      (role !== 'user' && role !== 'assistant')
-      || content.length === 0
-    ) {
+    const content = typeof value.content === 'string' ? value.content.trim() : '';
+    if ((role !== 'user' && role !== 'assistant') || content.length === 0) {
       return [];
     }
 
@@ -124,37 +129,41 @@ function normalizeConversationHistory(
   });
 }
 
-function hasConversationContext(
-  conversation: readonly EditorAiConversationMessage[] | undefined,
-): boolean {
+function hasConversationContext(conversation: readonly EditorAiConversationMessage[] | undefined): boolean {
   return (conversation ?? []).some((message) => message.content.trim().length > 0);
 }
 
 export class EditorAiService {
   private abortController: AbortController | null = null;
   private static runtimeConfig: EditorAiRuntimeConfig | null = null;
+  private readonly http: HttpClient;
 
   constructor(
     private readonly getToken: () => string | null,
     private readonly onAuthExpired?: () => void,
-  ) {}
+    httpClient?: HttpClient,
+  ) {
+    this.http = httpClient ?? resolveHttpClient(getToken);
+  }
 
-  static async fetchConfig(token: string | null): Promise<EditorAiRuntimeConfig> {
+  static async fetchConfig(
+    token: string | null,
+    httpClient = resolveHttpClient(() => token),
+  ): Promise<EditorAiRuntimeConfig> {
     if (EditorAiService.runtimeConfig) {
       return EditorAiService.runtimeConfig;
     }
     try {
-      const res = await fetch('/api/proxy/ai/config', {
-        headers: token ? { authorization: `Bearer ${token}` } : {},
+      const { data, response } = await httpClient.json<EditorAiRuntimeConfig>('/api/proxy/ai/config', {
+        auth: Boolean(token),
       });
-      if (res.ok) {
-        const config = await res.json() as EditorAiRuntimeConfig;
-        EditorAiService.runtimeConfig = config;
-        configureSemanticTargetDefinitions(config.semanticTargets);
-        return config;
+      if (response.ok) {
+        EditorAiService.runtimeConfig = data;
+        configureSemanticTargetDefinitions(data.semanticTargets);
+        return data;
       }
     } catch {
-      // Fall through to the browser-safe default.
+      // 继续回退到浏览器安全的默认配置。
     }
     const fallbackConfig = { provider: 'openai', model: 'gpt-5.4' };
     configureSemanticTargetDefinitions(undefined);
@@ -166,56 +175,64 @@ export class EditorAiService {
     this.abortController = null;
   }
 
-  async loadConversation(
-    templateId: string,
-  ): Promise<EditorAiConversationMessage[]> {
+  async loadConversation(templateId: string): Promise<EditorAiConversationMessage[]> {
     const token = this.getToken();
     if (!token) {
       return [];
     }
 
-    const res = await fetch(
+    const { data, response } = await this.http.json<{ messages?: unknown }>(
       `/api/proxy/ai/editor-conversations/${encodeURIComponent(templateId)}`,
-      {
-        headers: { authorization: `Bearer ${token}` },
-      },
+      { auth: true },
     );
-    if (!res.ok) {
+    if (!response.ok) {
       return [];
     }
 
-    const data = await res.json().catch(() => ({})) as { messages?: unknown };
     return normalizeConversationHistory(data.messages);
   }
 
-  async saveConversation(
-    templateId: string,
-    conversation: readonly EditorAiConversationMessage[],
-  ): Promise<void> {
+  async saveConversation(templateId: string, conversation: readonly EditorAiConversationMessage[]): Promise<void> {
     const token = this.getToken();
     if (!token) {
       return;
     }
 
-    const res = await fetch(
+    const { data, response } = await this.http.json<{ message?: string }>(
       `/api/proxy/ai/editor-conversations/${encodeURIComponent(templateId)}`,
       {
         method: 'PUT',
+        auth: true,
         headers: {
-          authorization: `Bearer ${token}`,
           'content-type': 'application/json',
         },
         body: JSON.stringify({ messages: conversation }),
       },
     );
-    if (!res.ok) {
-      const text = await res.text().catch(() => '');
-      throw new Error(text || `Failed to save conversation (${res.status})`);
+    if (!response.ok) {
+      throw new Error(data.message ?? `Failed to save conversation (${response.status})`);
     }
   }
 
+  async fetchCacheStats(): Promise<EditorAiCacheStats | null> {
+    const token = this.getToken();
+    if (!token) {
+      return null;
+    }
+
+    const { data, response } = await this.http.json<EditorAiCacheStats>('/api/proxy/ai/cache-stats', { auth: true });
+    if (response.status === 401) {
+      this.onAuthExpired?.();
+      return null;
+    }
+    if (!response.ok) {
+      return null;
+    }
+    return data;
+  }
+
   async editCanvas(opts: EditorAiEditCanvasOptions): Promise<void> {
-    const runtimeConfig = await EditorAiService.fetchConfig(this.getToken());
+    const runtimeConfig = await EditorAiService.fetchConfig(this.getToken(), this.http);
     const {
       prompt,
       model = runtimeConfig.model,
@@ -244,7 +261,7 @@ export class EditorAiService {
     try {
       const token = this.getToken();
       if (!token) {
-        onEvent({ type: 'error', data: '未登录，请先登录后再使用 AI 功能', terminal: true });
+        onEvent({ type: 'error', data: c.unauthenticated, terminal: true });
         onEvent({ type: 'done', data: '' });
         return;
       }
@@ -259,7 +276,7 @@ export class EditorAiService {
         headers['x-conversation-id'] = conversationId;
       }
 
-      const res = await fetch('/api/ai/editor', {
+      const { response, events } = await this.http.stream('/api/proxy/ai/editor', {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -275,19 +292,19 @@ export class EditorAiService {
         signal: abortController.signal,
       });
 
-      if (res.status === 401) {
+      if (response.status === 401) {
         this.onAuthExpired?.();
-        onEvent({ type: 'error', data: '登录已过期，请重新登录。', terminal: true });
+        onEvent({ type: 'error', data: c.authExpired, terminal: true });
         onEvent({ type: 'done', data: '' });
         return;
       }
 
-      if (!res.ok) {
-        const text = await res.text().catch(() => '');
-        throw new Error(text || `HTTP ${String(res.status)}`);
+      if (!response.ok) {
+        const text = await response.text().catch(() => '');
+        throw new Error(text || `HTTP ${String(response.status)}`);
       }
 
-      await this.consumeEditorEventStream(res, onEvent, applyInstructions, {
+      await this.consumeEditorEventStream(events, onEvent, applyInstructions, {
         userPrompt: prompt,
         selectedNodeId: selectedNode?.id ?? null,
       });
@@ -306,70 +323,41 @@ export class EditorAiService {
   }
 
   private async consumeEditorEventStream(
-    res: Response,
+    events: AsyncIterable<HttpStreamEvent>,
     onEvent: (event: EditorAiEvent) => void,
     applyInstructions: EditorAiEditCanvasOptions['applyInstructions'],
     applyOptions: ApplyEditorAiEditInstructionsOptions,
   ): Promise<void> {
-    if (!res.body) {
-      throw new Error('Empty AI editor response body');
-    }
-
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
-
-    try {
-      for (;;) {
-        const { done, value } = await reader.read();
-        if (done) { break; }
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() ?? '';
-
-        for (const line of lines) {
-          if (!line.startsWith('data:')) { continue; }
-          const raw = line.slice(5).trim();
-          if (!raw || raw === '[DONE]') { continue; }
-
-          const event = JSON.parse(raw) as BackendEditorEvent;
-          switch (event.type) {
-            case 'text':
-              onEvent({ type: 'text', data: eventDataToString(event.data) });
-              break;
-            case 'tool_start':
-              onEvent({ type: 'tool_start', data: getToolEventName(event.data) });
-              break;
-            case 'tool_done':
-              onEvent({ type: 'tool_done', data: getToolEventName(event.data) });
-              break;
-            case 'clarification':
-              onEvent({ type: 'clarification', data: eventDataToString(event.data) });
-              break;
-            case 'edit_request':
-              this.applyBackendEditRequest(
-                event.data,
-                onEvent,
-                applyInstructions,
-                applyOptions,
-              );
-              break;
-            case 'tool_error':
-              onEvent({ type: 'error', data: eventDataToString(event.data) });
-              break;
-            case 'error':
-              onEvent({ type: 'error', data: eventDataToString(event.data), terminal: true });
-              break;
-            case 'done':
-              onEvent({ type: 'done', data: '' });
-              return;
-            default:
-              break;
-          }
-        }
+    for await (const streamEvent of events) {
+      const event = JSON.parse(streamEvent.data) as BackendEditorEvent;
+      switch (event.type) {
+        case 'text':
+          onEvent({ type: 'text', data: eventDataToString(event.data) });
+          break;
+        case 'tool_start':
+          onEvent({ type: 'tool_start', data: getToolEventName(event.data) });
+          break;
+        case 'tool_done':
+          onEvent({ type: 'tool_done', data: getToolEventName(event.data) });
+          break;
+        case 'clarification':
+          onEvent({ type: 'clarification', data: eventDataToString(event.data) });
+          break;
+        case 'edit_request':
+          this.applyBackendEditRequest(event.data, onEvent, applyInstructions, applyOptions);
+          break;
+        case 'tool_error':
+          onEvent({ type: 'error', data: eventDataToString(event.data) });
+          break;
+        case 'error':
+          onEvent({ type: 'error', data: eventDataToString(event.data), terminal: true });
+          break;
+        case 'done':
+          onEvent({ type: 'done', data: '' });
+          return;
+        default:
+          break;
       }
-    } finally {
-      reader.releaseLock();
     }
   }
 
@@ -379,12 +367,11 @@ export class EditorAiService {
     applyInstructions: EditorAiEditCanvasOptions['applyInstructions'],
     applyOptions: ApplyEditorAiEditInstructionsOptions,
   ): void {
-    const args = typeof data === 'string'
-      ? JSON.parse(data) as { operations?: unknown; reason?: unknown }
-      : data as { operations?: unknown; reason?: unknown };
-    const instructions = Array.isArray(args.operations)
-      ? args.operations as readonly EditorAiEditInstruction[]
-      : [];
+    const args =
+      typeof data === 'string'
+        ? (JSON.parse(data) as { operations?: unknown; reason?: unknown })
+        : (data as { operations?: unknown; reason?: unknown });
+    const instructions = Array.isArray(args.operations) ? (args.operations as readonly EditorAiEditInstruction[]) : [];
     const reason = typeof args.reason === 'string' ? args.reason : undefined;
     const result = applyInstructions(instructions, {
       ...applyOptions,

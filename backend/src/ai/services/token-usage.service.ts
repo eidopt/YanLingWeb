@@ -1,12 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Not, Repository } from 'typeorm';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 
-import { User } from '../../users/entities/user.entity';
+import { USER_ACCOUNT_REPOSITORY, type UserAccountRepository } from '../../users/repositories';
+import type { AiTokenUsageEndpoint } from '../entities/ai-token-usage.entity';
 import {
-  type AiTokenUsageEndpoint,
-  AiTokenUsageEvent,
-} from '../entities/ai-token-usage.entity';
+  TOKEN_USAGE_REPOSITORY,
+  type TokenUsageRepository,
+} from '../repositories/token-usage.repository';
 
 export interface AiCacheStatsDto {
   totalRequests: number;
@@ -42,10 +41,10 @@ export class TokenUsageService {
   private readonly logger = new Logger(TokenUsageService.name);
 
   constructor(
-    @InjectRepository(AiTokenUsageEvent)
-    private readonly tokenUsageRepo: Repository<AiTokenUsageEvent>,
-    @InjectRepository(User)
-    private readonly userRepo: Repository<User>,
+    @Inject(TOKEN_USAGE_REPOSITORY)
+    private readonly tokenUsage: TokenUsageRepository,
+    @Inject(USER_ACCOUNT_REPOSITORY)
+    private readonly users: UserAccountRepository,
   ) {}
 
   async recordTokenUsage(
@@ -55,8 +54,8 @@ export class TokenUsageService {
     endpoint: AiTokenUsageEndpoint,
     provider: string,
   ): Promise<void> {
-    const inputTokens = sanitizeTokenCount(usage.inputTokens);
-    const outputTokens = sanitizeTokenCount(usage.outputTokens);
+    const inputTokens = this.sanitizeTokenCount(usage.inputTokens);
+    const outputTokens = this.sanitizeTokenCount(usage.outputTokens);
     const totalTokens = inputTokens + outputTokens;
 
     if (totalTokens <= 0) {
@@ -64,7 +63,7 @@ export class TokenUsageService {
     }
 
     try {
-      await this.tokenUsageRepo.save(this.tokenUsageRepo.create({
+      await this.tokenUsage.recordEvent({
         ownerUserId,
         endpoint,
         provider,
@@ -72,16 +71,16 @@ export class TokenUsageService {
         inputTokens,
         outputTokens,
         totalTokens,
-        cacheHitTokens: sanitizeOptionalTokenCount(usage.cacheHitTokens),
-        cacheMissTokens: sanitizeOptionalTokenCount(usage.cacheMissTokens),
-      }));
+        cacheHitTokens: this.sanitizeOptionalTokenCount(usage.cacheHitTokens),
+        cacheMissTokens: this.sanitizeOptionalTokenCount(usage.cacheMissTokens),
+      });
 
-      const user = await this.userRepo.findOne({ where: { id: ownerUserId } });
+      const user = await this.users.findById(ownerUserId);
       if (user) {
         const currentUsed = BigInt(user.tokensUsed);
         user.tokensUsed = (currentUsed + BigInt(totalTokens)).toString();
         user.tokensBalance = Math.max(0, user.tokensBalance - totalTokens);
-        await this.userRepo.save(user);
+        await this.users.save(user);
       }
     } catch (err) {
       this.logger.error(
@@ -97,8 +96,8 @@ export class TokenUsageService {
     usage: TokenUsagePayload,
     endpoint: AiTokenUsageEndpoint,
   ): void {
-    const hitTokens = sanitizeTokenCount(usage.cacheHitTokens);
-    const missTokens = sanitizeTokenCount(usage.cacheMissTokens);
+    const hitTokens = this.sanitizeTokenCount(usage.cacheHitTokens);
+    const missTokens = this.sanitizeTokenCount(usage.cacheMissTokens);
     const total = hitTokens + missTokens;
     if (total <= 0) {
       return;
@@ -108,31 +107,30 @@ export class TokenUsageService {
     const ratio = (rate * 100).toFixed(1);
     const user = ownerUserId.slice(0, 8);
     this.logger.log(
-      `[Cache] endpoint=${endpoint} user=${user} model=${model} `
-      + `hit=${hitTokens} miss=${missTokens} ratio=${ratio}%`,
+      `[Cache] endpoint=${endpoint} user=${user} model=${model} ` +
+        `hit=${hitTokens} miss=${missTokens} ratio=${ratio}%`,
     );
     if (rate < 0.3) {
       this.logger.warn(
-        `[Cache] low hit rate (${ratio}%) for endpoint=${endpoint}; `
-        + 'check whether stable context is being placed before per-turn data.',
+        `[Cache] low hit rate (${ratio}%) for endpoint=${endpoint}; ` +
+          'check whether stable context is being placed before per-turn data.',
       );
     }
   }
 
   async getCacheStats(ownerUserId: string): Promise<AiCacheStatsDto> {
-    const records = await this.tokenUsageRepo.find({
-      where: { ownerUserId, cacheHitTokens: Not(IsNull()) },
-      order: { createdAt: 'DESC' },
-      take: 100,
-    });
+    const records = await this.tokenUsage.findCacheRecords(ownerUserId, 100);
 
     const totalHit = records.reduce((sum, record) => sum + (record.cacheHitTokens ?? 0), 0);
     const totalMiss = records.reduce((sum, record) => sum + (record.cacheMissTokens ?? 0), 0);
-    const byEndpoint = new Map<AiTokenUsageEndpoint, {
-      count: number;
-      cacheHitTokens: number;
-      cacheMissTokens: number;
-    }>();
+    const byEndpoint = new Map<
+      AiTokenUsageEndpoint,
+      {
+        count: number;
+        cacheHitTokens: number;
+        cacheMissTokens: number;
+      }
+    >();
 
     for (const record of records) {
       const current = byEndpoint.get(record.endpoint) ?? {
@@ -150,13 +148,13 @@ export class TokenUsageService {
       totalRequests: records.length,
       totalCacheHitTokens: totalHit,
       totalCacheMissTokens: totalMiss,
-      overallCacheHitRate: formatHitRate(totalHit, totalMiss),
+      overallCacheHitRate: this.formatHitRate(totalHit, totalMiss),
       byEndpoint: [...byEndpoint.entries()].map(([endpoint, stats]) => ({
         endpoint,
         count: stats.count,
         cacheHitTokens: stats.cacheHitTokens,
         cacheMissTokens: stats.cacheMissTokens,
-        hitRate: formatHitRate(stats.cacheHitTokens, stats.cacheMissTokens),
+        hitRate: this.formatHitRate(stats.cacheHitTokens, stats.cacheMissTokens),
       })),
       recentRequests: records.slice(0, 20).map((record) => ({
         timestamp: record.createdAt.toISOString(),
@@ -164,25 +162,25 @@ export class TokenUsageService {
         model: record.model,
         cacheHitTokens: record.cacheHitTokens,
         cacheMissTokens: record.cacheMissTokens,
-        hitRate: formatHitRate(record.cacheHitTokens ?? 0, record.cacheMissTokens ?? 0),
+        hitRate: this.formatHitRate(record.cacheHitTokens ?? 0, record.cacheMissTokens ?? 0),
       })),
     };
   }
-}
 
-function sanitizeTokenCount(value: number | undefined): number {
-  if (!Number.isFinite(value) || value === undefined || value <= 0) {
-    return 0;
+  private sanitizeTokenCount(value: number | undefined): number {
+    if (!Number.isFinite(value) || value === undefined || value <= 0) {
+      return 0;
+    }
+    return Math.floor(Math.min(value, Number.MAX_SAFE_INTEGER));
   }
-  return Math.floor(Math.min(value, Number.MAX_SAFE_INTEGER));
-}
 
-function sanitizeOptionalTokenCount(value: number | undefined): number | null {
-  const sanitized = sanitizeTokenCount(value);
-  return sanitized > 0 ? sanitized : null;
-}
+  private sanitizeOptionalTokenCount(value: number | undefined): number | null {
+    const sanitized = this.sanitizeTokenCount(value);
+    return sanitized > 0 ? sanitized : null;
+  }
 
-function formatHitRate(hitTokens: number, missTokens: number): string {
-  const total = hitTokens + missTokens;
-  return total > 0 ? `${((hitTokens / total) * 100).toFixed(1)}%` : 'N/A';
+  private formatHitRate(hitTokens: number, missTokens: number): string {
+    const total = hitTokens + missTokens;
+    return total > 0 ? `${((hitTokens / total) * 100).toFixed(1)}%` : 'N/A';
+  }
 }

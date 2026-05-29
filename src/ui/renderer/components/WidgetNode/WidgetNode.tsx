@@ -1,10 +1,11 @@
 'use client';
 
+import type { ThemeRuntime } from '../../types';
 import { getLibrary } from '../../useDependencyLoader';
 import { asString } from '../../valueResolvers';
 import type { WidgetProps } from '../propsTypes';
 import type { CoreNodeProps } from '../types';
-import { resolveSafeWidgetRenderer } from '@shared/agent/validation/widgetSafety';
+import { isWidgetRuntimePolicyEnabled, resolveSafeWidgetRenderer } from '@shared/agent/contracts/widgetSafety';
 import { useEffect, useRef } from 'react';
 
 const WIDGET_RUNTIME_ENABLED = process.env.NEXT_PUBLIC_ENABLE_AI_WIDGETS !== 'false';
@@ -24,10 +25,7 @@ interface ChartJsInstance {
   resize?: () => void;
 }
 
-type ChartJsConstructor = new (
-  context: CanvasRenderingContext2D,
-  config: Record<string, unknown>,
-) => ChartJsInstance;
+type ChartJsConstructor = new (context: CanvasRenderingContext2D, config: Record<string, unknown>) => ChartJsInstance;
 
 interface LottieAnimation {
   destroy: () => void;
@@ -43,22 +41,31 @@ interface MermaidRenderResult {
 
 interface MermaidApi {
   initialize?: (options: Record<string, unknown>) => void;
-  render: (
-    id: string,
-    definition: string,
-  ) => MermaidRenderResult | Promise<MermaidRenderResult>;
+  render: (id: string, definition: string) => MermaidRenderResult | Promise<MermaidRenderResult>;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
 
+function hasEChartsApi(value: unknown): value is EChartsApi {
+  return isRecord(value) && typeof value.init === 'function';
+}
+
+function hasLottieApi(value: unknown): value is LottieApi {
+  return isRecord(value) && typeof value.loadAnimation === 'function';
+}
+
+function hasMermaidApi(value: unknown): value is MermaidApi {
+  return isRecord(value) && typeof value.render === 'function';
+}
+
 function resolveEChartsApi(lib: unknown): EChartsApi | null {
-  if (isRecord(lib) && typeof lib.init === 'function') {
-    return lib as unknown as EChartsApi;
+  if (hasEChartsApi(lib)) {
+    return lib;
   }
-  if (isRecord(lib) && isRecord(lib.default) && typeof lib.default.init === 'function') {
-    return lib.default as unknown as EChartsApi;
+  if (isRecord(lib) && hasEChartsApi(lib.default)) {
+    return lib.default;
   }
   return null;
 }
@@ -80,21 +87,21 @@ function resolveChartJsConstructor(lib: unknown): ChartJsConstructor | null {
 }
 
 function resolveLottieApi(lib: unknown): LottieApi | null {
-  if (isRecord(lib) && typeof lib.loadAnimation === 'function') {
-    return lib as unknown as LottieApi;
+  if (hasLottieApi(lib)) {
+    return lib;
   }
-  if (isRecord(lib) && isRecord(lib.default) && typeof lib.default.loadAnimation === 'function') {
-    return lib.default as unknown as LottieApi;
+  if (isRecord(lib) && hasLottieApi(lib.default)) {
+    return lib.default;
   }
   return null;
 }
 
 function resolveMermaidApi(lib: unknown): MermaidApi | null {
-  if (isRecord(lib) && typeof lib.render === 'function') {
-    return lib as unknown as MermaidApi;
+  if (hasMermaidApi(lib)) {
+    return lib;
   }
-  if (isRecord(lib) && isRecord(lib.default) && typeof lib.default.render === 'function') {
-    return lib.default as unknown as MermaidApi;
+  if (isRecord(lib) && hasMermaidApi(lib.default)) {
+    return lib.default;
   }
   return null;
 }
@@ -119,17 +126,18 @@ function resolveEChartsOption(data: unknown): Record<string, unknown> {
 }
 
 function resolveChartJsConfig(data: unknown): Record<string, unknown> {
-  const rawConfig = isRecord(data) && isRecord(data.config)
-    ? data.config
-    : isRecord(data) && typeof data.type === 'string'
-      ? data
-      : {
-          type: 'bar',
-          data: {
-            labels: ['A', 'B', 'C', 'D'],
-            datasets: [{ label: 'Value', data: [12, 20, 15, 28] }],
-          },
-        };
+  const rawConfig =
+    isRecord(data) && isRecord(data.config)
+      ? data.config
+      : isRecord(data) && typeof data.type === 'string'
+        ? data
+        : {
+            type: 'bar',
+            data: {
+              labels: ['A', 'B', 'C', 'D'],
+              datasets: [{ label: 'Value', data: [12, 20, 15, 28] }],
+            },
+          };
   const rawOptions = isRecord(rawConfig.options) ? rawConfig.options : {};
   return {
     ...rawConfig,
@@ -154,25 +162,38 @@ function resolveMermaidDefinition(data: unknown): string {
   return 'graph TD; A[Start] --> B[Done];';
 }
 
-export function WidgetNode({ props, nodeLayoutStyle }: CoreNodeProps<WidgetProps>) {
+export function WidgetNode({
+  props,
+  nodeLayoutStyle,
+  runtime,
+}: CoreNodeProps<WidgetProps> & { runtime: ThemeRuntime }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const library = asString(props.library);
-  const renderer = resolveSafeWidgetRenderer(library, asString(props.renderer));
+  const widgetRuntimeEnabled = WIDGET_RUNTIME_ENABLED && isWidgetRuntimePolicyEnabled(runtime.widgetPolicy);
+  const renderer = resolveSafeWidgetRenderer(library, asString(props.renderer), runtime.widgetPolicy);
 
   useEffect(() => {
-    if (!WIDGET_RUNTIME_ENABLED) { return; }
+    if (!widgetRuntimeEnabled) {
+      return;
+    }
 
     const container = containerRef.current;
-    if (!container || !library || !renderer) {return;}
+    if (!container || !library || !renderer) {
+      return;
+    }
     const lib = getLibrary(library);
-    if (!lib) {return;}
+    if (!lib) {
+      return;
+    }
 
     let cleanup: (() => void) | undefined;
     container.innerHTML = '';
 
     if (renderer === 'echarts') {
       const echarts = resolveEChartsApi(lib);
-      if (!echarts) {return;}
+      if (!echarts) {
+        return;
+      }
       const chart = echarts.init(container);
       chart.setOption(resolveEChartsOption(props.data));
       const resizeObserver = new ResizeObserver(() => chart.resize());
@@ -185,11 +206,15 @@ export function WidgetNode({ props, nodeLayoutStyle }: CoreNodeProps<WidgetProps
 
     if (renderer === 'chartjs') {
       const Chart = resolveChartJsConstructor(lib);
-      if (!Chart) {return;}
+      if (!Chart) {
+        return;
+      }
       const canvas = document.createElement('canvas');
       container.append(canvas);
       const context = canvas.getContext('2d');
-      if (!context) {return;}
+      if (!context) {
+        return;
+      }
       const chart = new Chart(context, resolveChartJsConfig(props.data));
       const resizeObserver = new ResizeObserver(() => chart.resize?.());
       resizeObserver.observe(container);
@@ -201,9 +226,13 @@ export function WidgetNode({ props, nodeLayoutStyle }: CoreNodeProps<WidgetProps
 
     if (renderer === 'lottie') {
       const lottie = resolveLottieApi(lib);
-      if (!lottie || !isRecord(props.data)) {return;}
+      if (!lottie || !isRecord(props.data)) {
+        return;
+      }
       const animationData = props.data.animationData ?? props.data.animation;
-      if (!isRecord(animationData)) {return;}
+      if (!isRecord(animationData)) {
+        return;
+      }
       const animation = lottie.loadAnimation({
         container,
         renderer: 'svg',
@@ -211,36 +240,41 @@ export function WidgetNode({ props, nodeLayoutStyle }: CoreNodeProps<WidgetProps
         autoplay: props.data.autoplay !== false,
         animationData,
       });
-      cleanup = () => { animation.destroy(); };
+      cleanup = () => {
+        animation.destroy();
+      };
     }
 
     if (renderer === 'mermaid') {
       const mermaid = resolveMermaidApi(lib);
-      if (!mermaid) {return;}
+      if (!mermaid) {
+        return;
+      }
       let cancelled = false;
       mermaid.initialize?.({ startOnLoad: false, securityLevel: 'strict' });
       void Promise.resolve(
-        mermaid.render(
-          `widget-mermaid-${Math.random().toString(36).slice(2)}`,
-          resolveMermaidDefinition(props.data),
-        ),
-      ).then((result) => {
-        if (!cancelled) {
-          container.innerHTML = result.svg;
-        }
-      }).catch((error: unknown) => {
-        if (!cancelled) {
-          console.error('[WidgetNode] mermaid render error', error);
-        }
-      });
+        mermaid.render(`widget-mermaid-${Math.random().toString(36).slice(2)}`, resolveMermaidDefinition(props.data)),
+      )
+        .then((result) => {
+          if (!cancelled) {
+            container.innerHTML = result.svg;
+          }
+        })
+        .catch((error: unknown) => {
+          if (!cancelled) {
+            console.error('[WidgetNode] mermaid render error', error);
+          }
+        });
       cleanup = () => {
         cancelled = true;
         container.innerHTML = '';
       };
     }
 
-    return () => { cleanup?.(); };
-  }, [library, renderer, props.data]);
+    return () => {
+      cleanup?.();
+    };
+  }, [library, renderer, props.data, widgetRuntimeEnabled]);
 
   return (
     <div
@@ -248,7 +282,7 @@ export function WidgetNode({ props, nodeLayoutStyle }: CoreNodeProps<WidgetProps
       style={{ minHeight: 240, ...nodeLayoutStyle }}
       aria-label={renderer ? `${renderer} widget` : 'Unsupported widget'}
       data-widget-library={library || undefined}
-      data-widget-runtime={WIDGET_RUNTIME_ENABLED ? 'enabled' : 'disabled'}
+      data-widget-runtime={widgetRuntimeEnabled ? 'enabled' : 'disabled'}
       data-widget-renderer={renderer ?? undefined}
     />
   );

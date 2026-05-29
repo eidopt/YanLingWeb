@@ -10,14 +10,13 @@ import type { ComponentType, KeyboardEvent, RefObject } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { AuthUser } from 'services/AuthService';
 import type { TemplateService } from 'services/TemplateService';
-import type { ThemeSpec } from 'types/theme.types';
 import {
-  Box,
-  Heading,
-  Label,
-  Text,
-  TextArea,
-} from 'ui/base';
+  homeWorkspaceStateActions,
+  type HomeWorkspaceTemplateView,
+  useHomeWorkspaceSnapshot,
+} from 'state/homeWorkspaceState';
+import type { ThemeSpec } from 'types/theme.types';
+import { Box, Heading, Label, Text, TextArea } from 'ui/base';
 import { ThemeToggleButton } from 'ui/global_nav';
 import {
   CalendarIcon,
@@ -43,8 +42,6 @@ interface HomeWorkspaceProps {
 }
 
 type QuickActionIcon = ComponentType<IconProps>;
-type TemplateView = 'marketplace' | 'mine';
-
 interface CategorySummary {
   key: string;
   label: string;
@@ -54,16 +51,6 @@ interface CategorySummary {
 interface FilterCard {
   key: string;
   label: string;
-}
-
-function getTemplateViewFromUrl(): TemplateView {
-  if (typeof window === 'undefined') {
-    return 'marketplace';
-  }
-
-  return new URLSearchParams(window.location.search).get('view') === 'mine'
-    ? 'mine'
-    : 'marketplace';
 }
 
 function groupByCategory(themes: ThemeSpec[]) {
@@ -81,22 +68,6 @@ function groupByCategory(themes: ThemeSpec[]) {
     });
   });
   return [...groups.values()];
-}
-
-function getCategoryFromUrl() {
-  if (typeof window === 'undefined') {
-    return '';
-  }
-
-  return new URLSearchParams(window.location.search).get('category')?.trim() ?? '';
-}
-
-function getPlatformCategoryFromUrl() {
-  if (typeof window === 'undefined') {
-    return '';
-  }
-
-  return new URLSearchParams(window.location.search).get('platformCategory')?.trim() ?? '';
 }
 
 function getCategoryIcon(category: string): QuickActionIcon {
@@ -123,20 +94,13 @@ function getPlatformIcon(platformCategory: string): QuickActionIcon {
   if (platformCategory === 'web') {
     return WebIcon;
   }
-  if (
-    platformCategory === 'mini-program' ||
-    platformCategory === 'mobile-app' ||
-    platformCategory === 'tablet-app'
-  ) {
+  if (platformCategory === 'mini-program' || platformCategory === 'mobile-app' || platformCategory === 'tablet-app') {
     return MobileIcon;
   }
   return MarketplaceIcon;
 }
 
-function buildTemplateUrl(params: {
-  category?: string;
-  platformCategory?: string;
-}) {
+function buildTemplateUrl(params: { category?: string; platformCategory?: string }) {
   const query = new URLSearchParams();
   if (params.platformCategory) {
     query.set('platformCategory', params.platformCategory);
@@ -204,26 +168,21 @@ async function openMarketplaceTemplate(
 export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
   const router = useRouter();
   const { searchService, templateService } = useAppServices();
+  const { templateView, searchDraft, submittedSearch, submittedCategory, submittedPlatformCategory, searchRevision } =
+    useHomeWorkspaceSnapshot(mode);
   const topRef = useRef<HTMLElement | null>(null);
   const templateRef = useRef<HTMLElement | null>(null);
   const [marketTemplates, setMarketTemplates] = useState<ThemeSpec[]>([]);
   const [categoryTemplates, setCategoryTemplates] = useState<ThemeSpec[]>([]);
   const [myTemplates, setMyTemplates] = useState<ThemeSpec[]>([]);
-  const [templateView, setTemplateView] = useState<TemplateView>(() =>
-    mode === 'templates' ? 'marketplace' : getTemplateViewFromUrl());
-  const [searchDraft, setSearchDraft] = useState('');
-  const [submittedSearch, setSubmittedSearch] = useState('');
-  const [submittedCategory, setSubmittedCategory] = useState(() => getCategoryFromUrl());
-  const [submittedPlatformCategory, setSubmittedPlatformCategory] = useState(() =>
-    getPlatformCategoryFromUrl());
-  const [searchRevision, setSearchRevision] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    void templateService.fetchAll()
+    void templateService
+      .fetchAll()
       .then((templates) => {
         if (!cancelled) {
           setCategoryTemplates(templates);
@@ -235,7 +194,9 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
         }
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [templateService]);
 
   useEffect(() => {
@@ -245,20 +206,11 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
       ...(submittedCategory ? { category: submittedCategory } : {}),
       ...(submittedPlatformCategory ? { platformCategory: submittedPlatformCategory } : {}),
     };
-    const hasParams = Boolean(
-      submittedSearch ||
-      submittedCategory ||
-      submittedPlatformCategory,
-    );
+    const hasParams = Boolean(submittedSearch || submittedCategory || submittedPlatformCategory);
     const listParams = hasParams ? params : undefined;
-    const mineRequest = mode === 'home'
-      ? templateService.fetchMine(listParams)
-      : Promise.resolve([]);
+    const mineRequest = mode === 'home' ? templateService.fetchMine(listParams) : Promise.resolve([]);
 
-    void Promise.all([
-      templateService.fetchAll(listParams),
-      mineRequest,
-    ])
+    void Promise.all([templateService.fetchAll(listParams), mineRequest])
       .then(([market, mine]) => {
         if (cancelled) {
           return;
@@ -278,52 +230,23 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
         }
       });
 
-    return () => { cancelled = true; };
-  }, [
-    mode,
-    templateService,
-    submittedSearch,
-    submittedCategory,
-    submittedPlatformCategory,
-    searchRevision,
-  ]);
-
-  useEffect(() => {
-    const syncTemplateView = () => {
-      setTemplateView(mode === 'templates' ? 'marketplace' : getTemplateViewFromUrl());
-      setSubmittedCategory(getCategoryFromUrl());
-      setSubmittedPlatformCategory(getPlatformCategoryFromUrl());
-    };
-
-    syncTemplateView();
-    window.addEventListener('popstate', syncTemplateView);
     return () => {
-      window.removeEventListener('popstate', syncTemplateView);
+      cancelled = true;
     };
-  }, [mode]);
+  }, [mode, templateService, submittedSearch, submittedCategory, submittedPlatformCategory, searchRevision]);
 
   const marketCategories = useMemo(
-    () => groupByCategory(categoryTemplates)
-      .filter((item) => item.count > 0),
+    () => groupByCategory(categoryTemplates).filter((item) => item.count > 0),
     [categoryTemplates],
   );
-  const recentMineTemplates = useMemo(
-    () => sortTemplatesByRecent(myTemplates).slice(0, 4),
-    [myTemplates],
-  );
-  const templateSectionThemes = templateView === 'mine' && mode === 'home'
-    ? myTemplates
-    : marketTemplates;
+  const recentMineTemplates = useMemo(() => sortTemplatesByRecent(myTemplates).slice(0, 4), [myTemplates]);
+  const templateSectionThemes = templateView === 'mine' && mode === 'home' ? myTemplates : marketTemplates;
   const activeCategoryLabel = useMemo(
     () => marketCategories.find((item) => item.key === submittedCategory)?.label,
     [marketCategories, submittedCategory],
   );
-  const templateSectionTitle = templateView === 'mine'
-    ? c.mine.title
-    : activeCategoryLabel ?? c.marketplace.title;
-  const templateSectionEmpty = templateView === 'mine' && mode === 'home'
-    ? c.mine.empty
-    : c.marketplace.empty;
+  const templateSectionTitle = templateView === 'mine' ? c.mine.title : (activeCategoryLabel ?? c.marketplace.title);
+  const templateSectionEmpty = templateView === 'mine' && mode === 'home' ? c.mine.empty : c.marketplace.empty;
   const greeting = useMemo(() => getGreeting(), []);
 
   function scrollTo(ref: RefObject<HTMLElement | null>) {
@@ -334,21 +257,22 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
     const trimmedSearch = nextSearch.trim();
 
     if (trimmedSearch) {
-      void searchService.submit(trimmedSearch).then((result) => {
-        if (searchService.isCreateResult(result)) {
-          router.push(`/editor?prompt=${encodeURIComponent(result.query)}&autoGenerate=true`);
-          return;
-        }
-        setLoading(true);
-        setSubmittedSearch(trimmedSearch);
-        setSearchRevision((current) => current + 1);
-      }).catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : String(err));
-      });
+      void searchService
+        .submit(trimmedSearch)
+        .then((result) => {
+          if (searchService.isCreateResult(result)) {
+            router.push(`/editor?prompt=${encodeURIComponent(result.query)}&autoGenerate=true`);
+            return;
+          }
+          setLoading(true);
+          homeWorkspaceStateActions.submitSearch(trimmedSearch);
+        })
+        .catch((err: unknown) => {
+          setError(err instanceof Error ? err.message : String(err));
+        });
     } else {
       setLoading(true);
-      setSubmittedSearch('');
-      setSearchRevision((current) => current + 1);
+      homeWorkspaceStateActions.submitSearch('');
     }
   }
 
@@ -362,12 +286,9 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
     window.requestAnimationFrame(() => scrollTo(templateRef));
   }
 
-  function showTemplateView(nextView: TemplateView) {
-    setSearchDraft('');
-    setSubmittedCategory('');
-    setSubmittedPlatformCategory('');
-    submitSearch('');
-    setTemplateView(nextView);
+  function showTemplateView(nextView: HomeWorkspaceTemplateView) {
+    setLoading(true);
+    homeWorkspaceStateActions.showTemplateView(nextView);
     if (nextView === 'mine') {
       router.push('/?view=mine', { scroll: false });
     } else {
@@ -409,42 +330,38 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
 
   function browseCategory(category: FilterCard | null) {
     const nextCategory = category?.key ?? '';
-    setTemplateView('marketplace');
-    setSubmittedCategory(nextCategory);
     setLoading(true);
-    setSearchRevision((current) => current + 1);
-    router.push(buildTemplateUrl({
-      category: nextCategory,
-      platformCategory: submittedPlatformCategory,
-    }), { scroll: false });
+    homeWorkspaceStateActions.browseCategory(nextCategory);
+    router.push(
+      buildTemplateUrl({
+        category: nextCategory,
+        platformCategory: submittedPlatformCategory,
+      }),
+      { scroll: false },
+    );
     window.requestAnimationFrame(() => scrollTo(templateRef));
   }
 
   function browsePlatformCategory(platformCategory: FilterCard | null) {
     const nextPlatformCategory = platformCategory?.key ?? '';
-    setTemplateView('marketplace');
-    setSubmittedPlatformCategory(nextPlatformCategory);
     setLoading(true);
-    setSearchRevision((current) => current + 1);
-    router.push(buildTemplateUrl({
-      category: submittedCategory,
-      platformCategory: nextPlatformCategory,
-    }), { scroll: false });
+    homeWorkspaceStateActions.browsePlatformCategory(nextPlatformCategory);
+    router.push(
+      buildTemplateUrl({
+        category: submittedCategory,
+        platformCategory: nextPlatformCategory,
+      }),
+      { scroll: false },
+    );
     window.requestAnimationFrame(() => scrollTo(templateRef));
   }
 
-  const sidebarItems = [
-    ...c.sidebar.items,
-    { id: 'editor', label: '编辑器' },
-  ];
+  const sidebarItems = [...c.sidebar.items, { id: 'editor', label: '编辑器' }];
   const categoryCards = [
     { key: '', label: c.category.all, count: categoryTemplates.length },
     ...marketCategories.slice(0, 7),
   ];
-  const platformCards = [
-    { key: '', label: c.platform.all },
-    ...c.platform.items,
-  ];
+  const platformCards = [{ key: '', label: c.platform.all }, ...c.platform.items];
   const categoryTones = ['indigo', 'amber', 'orange', 'teal', 'slate', 'gray', 'violet', 'green'];
   const platformTones = ['indigo', 'green', 'teal', 'violet', 'slate'];
   const showMineOverview = mode === 'home' && templateView === 'marketplace';
@@ -456,11 +373,12 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
           <Box as="nav" className={styles.nav} aria-label={c.sidebar.workspace}>
             {sidebarItems.map((item) => {
               const Icon = getSidebarIcon(item.id);
-              const active = item.id === 'home'
-                ? mode === 'home' && templateView !== 'mine'
-                : item.id === 'templates'
-                  ? mode === 'templates'
-                  : item.id === 'mine' && mode === 'home' && templateView === 'mine';
+              const active =
+                item.id === 'home'
+                  ? mode === 'home' && templateView !== 'mine'
+                  : item.id === 'templates'
+                    ? mode === 'templates'
+                    : item.id === 'mine' && mode === 'home' && templateView === 'mine';
               return (
                 <button
                   key={item.id}
@@ -472,7 +390,9 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
                   <Box as="span" className={styles.navIcon}>
                     <Icon />
                   </Box>
-                  <Box as="span" className={styles.navLabel}>{item.label}</Box>
+                  <Box as="span" className={styles.navLabel}>
+                    {item.label}
+                  </Box>
                 </button>
               );
             })}
@@ -486,7 +406,9 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
               title={c.sidebar.userSettings}
               onClick={() => setSettingsOpen(true)}
             >
-              <Box as="span" className={styles.userAvatar}>{getInitials(user.username)}</Box>
+              <Box as="span" className={styles.userAvatar}>
+                {getInitials(user.username)}
+              </Box>
             </button>
           </Box>
         </Box>
@@ -494,16 +416,13 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
         <Box as="section" className={styles.main}>
           <Box as="header" ref={topRef} className={styles.searchBand}>
             <Box className={styles.searchCopy}>
-              <Heading
-                as="h1"
-                size="display"
-                variant="primary"
-                weight="heavy"
-              >
+              <Heading as="h1" size="display" variant="primary" weight="heavy">
                 <Box as="span" className={styles.greetingLine}>
                   {greeting}，{user.username}
                 </Box>
-                <Box as="span" className={styles.titleLine}>{c.search.title}</Box>
+                <Box as="span" className={styles.titleLine}>
+                  {c.search.title}
+                </Box>
               </Heading>
             </Box>
             <Label className={styles.searchBox}>
@@ -512,7 +431,7 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
                 className={styles.searchInput}
                 rows={2}
                 value={searchDraft}
-                onChange={(event) => setSearchDraft(event.target.value)}
+                onChange={(event) => homeWorkspaceStateActions.setSearchDraft(event.target.value)}
                 onKeyDown={handleSearchKeyDown}
                 placeholder={c.search.placeholder}
                 variant="quiet"
@@ -543,7 +462,9 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
                           <Icon />
                         </Box>
                         <Box as="span" className={styles.categoryText}>
-                          <Box as="span" className={styles.categoryName}>{item.label}</Box>
+                          <Box as="span" className={styles.categoryName}>
+                            {item.label}
+                          </Box>
                         </Box>
                       </button>
                     );
@@ -556,9 +477,7 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
                 </Heading>
                 <Box className={styles.categoryStrip} aria-label={c.category.heading}>
                   {categoryCards.map((item, index) => {
-                    const Icon = item.key
-                      ? getCategoryIcon(item.label)
-                      : MarketplaceIcon;
+                    const Icon = item.key ? getCategoryIcon(item.label) : MarketplaceIcon;
                     const active = item.key === submittedCategory;
                     return (
                       <button
@@ -573,7 +492,9 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
                           <Icon />
                         </Box>
                         <Box as="span" className={styles.categoryText}>
-                          <Box as="span" className={styles.categoryName}>{item.label}</Box>
+                          <Box as="span" className={styles.categoryName}>
+                            {item.label}
+                          </Box>
                         </Box>
                       </button>
                     );
@@ -583,92 +504,78 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
             </Box>
           ) : null}
 
-          {loading ? (
-            <WorkspaceSkeleton />
-          ) : null}
+          {loading ? <WorkspaceSkeleton /> : null}
           {error ? (
             <Box className={styles.status}>
-              <Text size="md" variant="danger">{c.errorPrefix}{error}</Text>
+              <Text size="md" variant="danger">
+                {c.errorPrefix}
+                {error}
+              </Text>
             </Box>
           ) : null}
 
           {showMineOverview ? (
             <ScrollReveal variant="fadeUp" duration="base">
               <Box as="section" className={`${styles.section} ${styles.mineOverviewSection}`}>
-              <Box className={styles.sectionHeader}>
-                <Heading
-                  as="h2"
-                  size="xl"
-                  variant="primary"
-                  weight="heavy"
-                >
-                  {c.mineOverview.title}
-                </Heading>
-                <button
-                  type="button"
-                  className={styles.viewAllButton}
-                  onClick={() => showTemplateView('mine')}
-                >
-                  {c.mineOverview.viewAll}
-                </button>
+                <Box className={styles.sectionHeader}>
+                  <Heading as="h2" size="xl" variant="primary" weight="heavy">
+                    {c.mineOverview.title}
+                  </Heading>
+                  <button type="button" className={styles.viewAllButton} onClick={() => showTemplateView('mine')}>
+                    {c.mineOverview.viewAll}
+                  </button>
+                </Box>
+                {!loading && recentMineTemplates.length === 0 ? (
+                  <Text size="base" variant="muted">
+                    {c.mineOverview.empty}
+                  </Text>
+                ) : null}
+                <Box className={styles.templateGrid}>
+                  {recentMineTemplates.map((theme) => (
+                    <ThemeCard
+                      key={theme.id}
+                      theme={theme}
+                      className={styles.workspaceThemeCard}
+                      onClick={() => openOwned(theme)}
+                    />
+                  ))}
+                </Box>
               </Box>
-              {!loading && recentMineTemplates.length === 0 ? (
-                <Text size="base" variant="muted">{c.mineOverview.empty}</Text>
-              ) : null}
-              <Box className={styles.templateGrid}>
-                {recentMineTemplates.map((theme) => (
-                  <ThemeCard
-                    key={theme.id}
-                    theme={theme}
-                    className={styles.workspaceThemeCard}
-                    onClick={() => openOwned(theme)}
-                  />
-                ))}
-              </Box>
-            </Box>
             </ScrollReveal>
           ) : null}
 
           <ScrollReveal variant="fadeUp" duration="base">
             <Box as="section" ref={templateRef} className={styles.section}>
-            <Box className={styles.sectionHeader}>
-              <Heading
-                as="h2"
-                size="xl"
-                variant="primary"
-                weight="heavy"
-              >
-                {templateSectionTitle}
-              </Heading>
+              <Box className={styles.sectionHeader}>
+                <Heading as="h2" size="xl" variant="primary" weight="heavy">
+                  {templateSectionTitle}
+                </Heading>
+              </Box>
+              {!loading && templateSectionThemes.length === 0 ? (
+                <Text size="base" variant="muted">
+                  {templateSectionEmpty}
+                </Text>
+              ) : null}
+              <Box className={styles.masonryGrid}>
+                {templateSectionThemes.map((theme) => (
+                  <Box key={theme.id} className={styles.masonryItem}>
+                    <ThemeCard
+                      theme={theme}
+                      className={styles.workspaceThemeCard}
+                      onClick={() => {
+                        if (templateView === 'mine' && mode === 'home') {
+                          openOwned(theme);
+                          return;
+                        }
+                        previewMarketplaceTemplate(theme);
+                      }}
+                    />
+                  </Box>
+                ))}
+              </Box>
             </Box>
-            {!loading && templateSectionThemes.length === 0 ? (
-              <Text size="base" variant="muted">{templateSectionEmpty}</Text>
-            ) : null}
-            <Box className={styles.masonryGrid}>
-              {templateSectionThemes.map((theme) => (
-                <Box key={theme.id} className={styles.masonryItem}>
-                  <ThemeCard
-                    theme={theme}
-                    className={styles.workspaceThemeCard}
-                    onClick={() => {
-                      if (templateView === 'mine' && mode === 'home') {
-                        openOwned(theme);
-                        return;
-                      }
-                      previewMarketplaceTemplate(theme);
-                    }}
-                  />
-                </Box>
-              ))}
-            </Box>
-          </Box>
           </ScrollReveal>
-          {settingsOpen ? (
-            <UserSettingsDialog
-              user={user}
-              onClose={() => setSettingsOpen(false)}
-            />
-          ) : null}
+          {settingsOpen ? <UserSettingsDialog user={user} onClose={() => setSettingsOpen(false)} /> : null}
         </Box>
       </Box>
     </PageRoot>

@@ -1,26 +1,47 @@
 import {
   BadRequestException,
   ConflictException,
+  Inject,
   Injectable,
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
-import { Repository } from 'typeorm';
 
 import { ConfigService } from '../config/config.service';
 import { User } from '../users/entities/user.entity';
+import { USER_ACCOUNT_REPOSITORY, type UserAccountRepository } from '../users/repositories';
 
 // Type aliases matching shared/types/user.types.ts
 interface UserDto {
-  id: string; username: string; email: string | null; phone: string | null;
-  linkedLogins: string[]; tokensUsed: number; tokensBalance: number;
-  balanceCents: number; isActive: boolean; createdAt: string; lastLoginAt: string | null;
+  id: string;
+  username: string;
+  email: string | null;
+  phone: string | null;
+  linkedLogins: string[];
+  tokensUsed: number;
+  tokensBalance: number;
+  balanceCents: number;
+  isActive: boolean;
+  createdAt: string;
+  lastLoginAt: string | null;
 }
-interface AuthResponseDto { accessToken: string; user: UserDto; }
+interface AuthResponseDto {
+  accessToken: string;
+  user: UserDto;
+}
+
+interface AuthChallengeDto {
+  nonce: string;
+  expiresAt: string;
+}
+
+interface OAuthQrCodeDto {
+  qrUrl: string;
+  state: string;
+}
 
 interface RegisterDto {
   username: string;
@@ -39,6 +60,21 @@ interface OAuthCallbackDto {
   provider: 'wechat' | 'qq';
   code: string;
   state: string;
+}
+
+interface WeChatOpenIdResponse {
+  openid?: string;
+  errmsg?: string;
+}
+
+interface QqTokenResponse {
+  access_token?: string;
+  error?: string;
+}
+
+interface QqOpenIdResponse {
+  openid?: string;
+  error?: string;
 }
 
 const NONCE_TTL_MS = 5 * 60 * 1000; // 5 minutes
@@ -65,8 +101,8 @@ export class AuthService {
   private readonly oauthStates = new Map<string, OAuthStateEntry>();
 
   constructor(
-    @InjectRepository(User)
-    private readonly repo: Repository<User>,
+    @Inject(USER_ACCOUNT_REPOSITORY)
+    private readonly users: UserAccountRepository,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
   ) {}
@@ -75,7 +111,7 @@ export class AuthService {
   // Challenge-response
   // ---------------------------------------------------------------------------
 
-  issueChallenge(): { nonce: string; expiresAt: string; } {
+  issueChallenge(): AuthChallengeDto {
     this.pruneExpiredNonces();
     const nonce = randomBytes(32).toString('hex');
     const expiresAt = Date.now() + NONCE_TTL_MS;
@@ -114,12 +150,10 @@ export class AuthService {
   // ---------------------------------------------------------------------------
 
   async register(dto: RegisterDto): Promise<AuthResponseDto> {
-    const exists = await this.repo.findOne({
-      where: [
-        { username: dto.username },
-        ...(dto.email ? [{ email: dto.email }] : []),
-        ...(dto.phone ? [{ phone: dto.phone }] : []),
-      ],
+    const exists = await this.users.findByRegistrationIdentity({
+      username: dto.username,
+      email: dto.email,
+      phone: dto.phone,
     });
     if (exists) {
       throw new ConflictException({
@@ -131,14 +165,13 @@ export class AuthService {
     // dto.password is SHA-256(rawPassword) produced by the frontend.
     // Store with bcrypt for security (frontend hash is too fast to resist brute-force).
     const hashedPassword = await bcrypt.hash(dto.password, 12);
-    const user = this.repo.create({
+    const user = this.users.createLocalUser({
       username: dto.username,
       email: dto.email ?? null,
       phone: dto.phone ?? null,
       passwordHash: hashedPassword,
-      linkedLogins: ['local'],
     });
-    const saved = await this.repo.save(user);
+    const saved = await this.users.save(user);
     return this.buildAuthResponse(saved);
   }
 
@@ -146,13 +179,7 @@ export class AuthService {
     // Consume nonce first — even on auth failure, the nonce must not be reusable
     this.consumeNonce(dto.nonce);
 
-    const user = await this.repo.findOne({
-      where: [
-        { username: dto.identifier },
-        { email: dto.identifier },
-        { phone: dto.identifier },
-      ],
-    });
+    const user = await this.users.findByLoginIdentifier(dto.identifier);
 
     if (!user?.passwordHash) {
       throw new UnauthorizedException({
@@ -169,7 +196,8 @@ export class AuthService {
     //   Frontend sends: dto.password = SHA-256(rawPassword)
     //   Nonce (dto.nonce) is consumed above for anti-replay only — it does NOT
     //   participate in password hashing.
-    const isBcryptHash = user.passwordHash.startsWith('$2b$') || user.passwordHash.startsWith('$2a$');
+    const isBcryptHash =
+      user.passwordHash.startsWith('$2b$') || user.passwordHash.startsWith('$2a$');
 
     if (isBcryptHash) {
       // New format: bcrypt.compare(plaintext_candidate, bcrypt_hash)
@@ -194,17 +222,16 @@ export class AuthService {
       // Silent upgrade: hash the old SHA-256 value with bcrypt for future logins
       try {
         const upgraded = await bcrypt.hash(user.passwordHash, 12);
-        await this.repo.update(user.id, { passwordHash: upgraded });
+        await this.users.update(user.id, { passwordHash: upgraded });
         this.logger.log(`Silently upgraded password hash to bcrypt for user ${user.id}`);
       } catch (err) {
         // Non-critical: log but don't fail the login
-        this.logger.warn(
-          `Failed to upgrade password hash for user ${user.id}: ${err instanceof Error ? err.message : err}`,
-        );
+        const reason = err instanceof Error ? err.message : String(err);
+        this.logger.warn(`Failed to upgrade password hash for user ${user.id}: ${reason}`);
       }
     }
 
-    await this.repo.update(user.id, { lastLoginAt: new Date() });
+    await this.users.update(user.id, { lastLoginAt: new Date() });
     return this.buildAuthResponse(user);
   }
 
@@ -212,7 +239,7 @@ export class AuthService {
   // OAuth (WeChat / QQ)
   // ---------------------------------------------------------------------------
 
-  getOAuthQrCodeUrl(provider: 'wechat' | 'qq'): { qrUrl: string; state: string; } {
+  getOAuthQrCodeUrl(provider: 'wechat' | 'qq'): OAuthQrCodeDto {
     const oauthConfig = this.getOAuthProviderEnv(provider);
     const state = this.issueOAuthState(provider);
 
@@ -238,27 +265,23 @@ export class AuthService {
     this.consumeOAuthState(dto.provider, dto.state);
 
     const openId = await this.fetchOAuthOpenId(dto.provider, dto.code);
-    const openIdField = dto.provider === 'wechat' ? 'wechatOpenId' : 'qqOpenId';
 
-    let user = await this.repo.findOne({ where: { [openIdField]: openId } });
+    let user = await this.users.findByOAuthOpenId(dto.provider, openId);
 
     if (!user) {
       const username = `${dto.provider}_${openId.slice(0, 8)}`;
-      user = this.repo.create({
+      user = this.users.createOAuthUser({
+        provider: dto.provider,
+        openId,
         username,
-        email: null,
-        phone: null,
-        passwordHash: null,
-        [openIdField]: openId,
-        linkedLogins: [dto.provider],
       });
-      user = await this.repo.save(user);
+      user = await this.users.save(user);
     } else if (!user.linkedLogins.includes(dto.provider)) {
       user.linkedLogins = [...user.linkedLogins, dto.provider];
-      await this.repo.update(user.id, { linkedLogins: user.linkedLogins });
+      await this.users.update(user.id, { linkedLogins: user.linkedLogins });
     }
 
-    await this.repo.update(user.id, { lastLoginAt: new Date() });
+    await this.users.update(user.id, { lastLoginAt: new Date() });
     return this.buildAuthResponse(user);
   }
 
@@ -302,10 +325,7 @@ export class AuthService {
   /**
    * Exchange authorization code for OpenID.
    */
-  private async fetchOAuthOpenId(
-    provider: 'wechat' | 'qq',
-    code: string,
-  ): Promise<string> {
+  private async fetchOAuthOpenId(provider: 'wechat' | 'qq', code: string): Promise<string> {
     const oauthConfig = this.getOAuthProviderEnv(provider);
 
     if (provider === 'wechat') {
@@ -314,7 +334,7 @@ export class AuthService {
         `?appid=${oauthConfig.appId}&secret=${oauthConfig.appSecret}` +
         `&code=${code}&grant_type=authorization_code`;
       const res = await fetch(url);
-      const data = await res.json() as { openid?: string; errmsg?: string; };
+      const data = (await res.json()) as WeChatOpenIdResponse;
       if (!data.openid) {
         throw new UnauthorizedException(`WeChat OAuth failed: ${data.errmsg ?? 'unknown'}`);
       }
@@ -327,20 +347,16 @@ export class AuthService {
       `&client_secret=${oauthConfig.appSecret}&code=${code}` +
       `&redirect_uri=${oauthConfig.redirectUri}&fmt=json`;
     const tokenRes = await fetch(tokenUrl);
-    const tokenData = await tokenRes.json() as { access_token?: string; error?: string; };
+    const tokenData = (await tokenRes.json()) as QqTokenResponse;
     if (!tokenData.access_token) {
-      throw new UnauthorizedException(
-        `QQ token exchange failed: ${tokenData.error ?? 'unknown'}`,
-      );
+      throw new UnauthorizedException(`QQ token exchange failed: ${tokenData.error ?? 'unknown'}`);
     }
     const meRes = await fetch(
       `https://graph.qq.com/oauth2.0/me?access_token=${tokenData.access_token}&fmt=json`,
     );
-    const meData = await meRes.json() as { openid?: string; error?: string; };
+    const meData = (await meRes.json()) as QqOpenIdResponse;
     if (!meData.openid) {
-      throw new UnauthorizedException(
-        `QQ OpenID fetch failed: ${meData.error ?? 'unknown'}`,
-      );
+      throw new UnauthorizedException(`QQ OpenID fetch failed: ${meData.error ?? 'unknown'}`);
     }
     return meData.openid;
   }

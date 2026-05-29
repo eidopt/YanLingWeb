@@ -5,7 +5,9 @@ import type {
   ThemeLayoutDocument,
   ThemeLayoutNavigateAction,
   ThemeLayoutNode,
+  ThemeLayoutNodeAction,
   ThemeLayoutTabInteraction,
+  ThemeLayoutWidgetPolicy,
   ThemeLibraryDependency,
   ValidationIssue,
   ValidationResult,
@@ -13,8 +15,15 @@ import type {
 import {
   DISALLOWED_WIDGET_PROP_NAMES,
   formatAllowedWidgetLibraries,
+  getAllowedWidgetLibraryByName,
+  getWidgetLibraryPolicyKeys,
+  getWidgetRendererCapability,
   isAllowedWidgetDependency,
+  isSupportedWidgetCapability,
+  isWidgetRendererCapabilityAllowedByPolicy,
+  isWidgetRuntimePolicyEnabled,
   resolveSafeWidgetRenderer,
+  SUPPORTED_WIDGET_CAPABILITIES,
   SUPPORTED_WIDGET_RENDERERS,
 } from './widgetSafety';
 
@@ -104,6 +113,7 @@ const CORE_SCREEN_PROP_TYPES = new Map([
 ]);
 const CORE_UNIVERSAL_PROP_TYPES = new Map([
   ['style', 'object'],
+  ['dataBinding', 'object'],
 ]);
 const CORE_PROP_ALIASES = new Map([
   ['core.button:text', 'label'],
@@ -131,13 +141,11 @@ const CONTAINER_ALIASES = new Set([
   'core.tree',
 ]);
 const LAYOUT_MODES = new Set(['flow', 'grid', 'absolute']);
+const VISIBILITY_ACTION_TARGET_ALIASES = new Set(['core.dialog', 'core.drawer']);
+const DATA_BINDING_TARGET_ALIASES = new Set(['core.list', 'core.table', 'core.widget']);
+const DATA_SELECTOR_PATTERN = /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*$/;
 
-function issue(
-  severity: ValidationIssue['severity'],
-  path: string,
-  code: string,
-  message: string,
-): ValidationIssue {
+function issue(severity: ValidationIssue['severity'], path: string, code: string, message: string): ValidationIssue {
   return { severity, path, code, message };
 }
 
@@ -149,13 +157,46 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
 
+function isJsonSerializable(value: unknown): boolean {
+  try {
+    JSON.stringify(value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function isSafePublicJsonEndpoint(value: string): boolean {
+  if (value.startsWith('/')) {
+    return !value.startsWith('//');
+  }
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && !url.username && !url.password;
+  } catch {
+    return false;
+  }
+}
+
+function validateDataSelector(value: unknown, path: string, errors: ValidationIssue[]): void {
+  if (value === undefined) {
+    return;
+  }
+  if (typeof value !== 'string' || !DATA_SELECTOR_PATTERN.test(value)) {
+    errors.push(issue('error', path, 'invalid_data_selector', 'Data selector must be a dotted property path'));
+  }
+}
+
 function hasCjkText(value: string): boolean {
   return /[\u3400-\u9fff]/.test(value);
 }
 
 function hasDisallowedLatinText(value: string): boolean {
   const normalized = value
-    .replace(/\b(AI|API|URL|URI|ID|VIP|H5|SaaS|CRM|ERP|IoT|OK|PPSU|SPF|DNA|SLA|SKU|QDII|ETF|MOBA|FPS|MMORPG|Python|JavaScript|Java|React|Node|Word|Excel|PPT)\b/gi, '')
+    .replace(
+      /\b(AI|API|URL|URI|ID|VIP|H5|SaaS|CRM|ERP|IoT|OK|PPSU|SPF|DNA|SLA|SKU|QDII|ETF|MOBA|FPS|MMORPG|Python|JavaScript|Java|React|Node|Word|Excel|PPT)\b/gi,
+      '',
+    )
     .replace(/Wi-?Fi/gi, '');
   if (hasCjkText(normalized)) {
     return (normalized.match(/[A-Za-z]{3,}/g) ?? []).length >= 3;
@@ -167,10 +208,7 @@ function isValidGeneratedImageUrl(value: string): boolean {
   return isAllowedTemplateImageSrc(value);
 }
 
-function collectAliases(
-  document: ThemeLayoutDocument,
-  componentTemplates?: Record<string, unknown>,
-): Set<string> {
+function collectAliases(document: ThemeLayoutDocument, componentTemplates?: Record<string, unknown>): Set<string> {
   const aliases = new Set(CORE_ALIASES);
   const components = Array.isArray(document.components) ? document.components : [];
   components.forEach((component) => aliases.add(component.alias));
@@ -178,10 +216,7 @@ function collectAliases(
   return aliases;
 }
 
-function descriptorForAlias(
-  document: ThemeLayoutDocument,
-  alias: string,
-): ThemeComponentDescriptor | undefined {
+function descriptorForAlias(document: ThemeLayoutDocument, alias: string): ThemeComponentDescriptor | undefined {
   const components = Array.isArray(document.components) ? document.components : [];
   return components.find((component) => component.alias === alias);
 }
@@ -194,15 +229,11 @@ function validatePropValue(
 ): ValidationIssue | null {
   const fallbackType =
     CORE_UNIVERSAL_PROP_TYPES.get(propName) ??
-    (descriptor.alias === 'core.screen'
-      ? CORE_SCREEN_PROP_TYPES.get(propName)
-      : undefined) ??
-    (descriptor.alias === 'core.image'
-      ? CORE_IMAGE_PROP_TYPES.get(propName)
-      : undefined);
-  const prop = descriptor.props.find((item) => item.name === propName) ?? (
-    fallbackType ? { name: propName, type: fallbackType } : undefined
-  );
+    (descriptor.alias === 'core.screen' ? CORE_SCREEN_PROP_TYPES.get(propName) : undefined) ??
+    (descriptor.alias === 'core.image' ? CORE_IMAGE_PROP_TYPES.get(propName) : undefined);
+  const prop =
+    descriptor.props.find((item) => item.name === propName) ??
+    (fallbackType ? { name: propName, type: fallbackType } : undefined);
   if (!prop) {
     return issue('error', path, 'unknown_prop', `Unknown prop "${propName}" for ${descriptor.alias}`);
   }
@@ -241,6 +272,39 @@ function validateNavigateAction(
   }
 }
 
+function validateNodeAction(
+  action: ThemeLayoutNodeAction | undefined,
+  pageIds: Set<string>,
+  nodesById: Map<string, ThemeLayoutNode>,
+  path: string,
+  errors: ValidationIssue[],
+): void {
+  if (!action) {
+    return;
+  }
+
+  if (action.type === 'navigate') {
+    validateNavigateAction(action, pageIds, path, errors);
+    return;
+  }
+
+  const target = nodesById.get(action.targetNodeId);
+  if (!target) {
+    errors.push(issue('error', path, 'invalid_visibility_target', `Unknown target node: ${action.targetNodeId}`));
+    return;
+  }
+  if (!VISIBILITY_ACTION_TARGET_ALIASES.has(target.alias)) {
+    errors.push(
+      issue(
+        'error',
+        path,
+        'unsupported_visibility_target',
+        `Visibility actions can only target dialog or drawer nodes: ${action.targetNodeId}`,
+      ),
+    );
+  }
+}
+
 function isNavigateAction(value: ThemeLayoutTabInteraction): value is ThemeLayoutNavigateAction {
   return 'type' in value && value.type === 'navigate' && typeof value.targetPageId === 'string';
 }
@@ -265,6 +329,7 @@ function validateTabInteraction(
 
 function validateDependencies(
   dependencies: ThemeLibraryDependency[] | undefined,
+  widgetPolicy: ThemeLayoutWidgetPolicy | undefined,
   errors: ValidationIssue[],
 ): Set<string> {
   const dependencyNames = new Set<string>();
@@ -286,30 +351,211 @@ function validateDependencies(
     if (!isNonEmptyString(dependency.name)) {
       errors.push(issue('error', `${path}.name`, 'missing_dependency_name', 'Dependency name is required'));
     } else if (dependencyNames.has(dependency.name)) {
-      errors.push(issue(
-        'error',
-        `${path}.name`,
-        'duplicate_dependency_name',
-        `Duplicate dependency: ${dependency.name}`,
-      ));
+      errors.push(
+        issue('error', `${path}.name`, 'duplicate_dependency_name', `Duplicate dependency: ${dependency.name}`),
+      );
     } else {
       dependencyNames.add(dependency.name);
     }
     if (
-      !isNonEmptyString(dependency.name)
-      || !isNonEmptyString(dependency.url)
-      || !isAllowedWidgetDependency(dependency.name, dependency.url)
+      !isNonEmptyString(dependency.name) ||
+      !isNonEmptyString(dependency.url) ||
+      !isAllowedWidgetDependency(dependency.name, dependency.url, widgetPolicy)
     ) {
-      errors.push(issue(
-        'error',
-        `${path}.url`,
-        'blocked_dependency_url',
-        `Widget dependencies must use approved esm.sh packages: ${formatAllowedWidgetLibraries()}`,
-      ));
+      errors.push(
+        issue(
+          'error',
+          `${path}.url`,
+          'blocked_dependency_url',
+          'Widget dependencies must use approved esm.sh packages allowed by widgetPolicy: ' +
+            formatAllowedWidgetLibraries(),
+        ),
+      );
+      return;
+    }
+
+    const library = getAllowedWidgetLibraryByName(dependency.name);
+    if (library) {
+      getWidgetLibraryPolicyKeys(library).forEach((key) => dependencyNames.add(key));
     }
   });
 
   return dependencyNames;
+}
+
+function validateDataSources(dataSources: unknown, errors: ValidationIssue[]): Set<string> {
+  const dataSourceIds = new Set<string>();
+  if (dataSources === undefined) {
+    return dataSourceIds;
+  }
+  if (!Array.isArray(dataSources)) {
+    errors.push(issue('error', 'dataSources', 'invalid_data_sources', 'dataSources must be an array'));
+    return dataSourceIds;
+  }
+
+  dataSources.forEach((dataSource, index) => {
+    const path = `dataSources[${index}]`;
+    if (!isPlainObject(dataSource)) {
+      errors.push(issue('error', path, 'invalid_data_source', 'Data source must be an object'));
+      return;
+    }
+
+    const sourceId = dataSource.id;
+    const sourceKind = dataSource.kind;
+
+    if (!isNonEmptyString(sourceId)) {
+      errors.push(issue('error', `${path}.id`, 'missing_data_source_id', 'Data source id is required'));
+    } else if (dataSourceIds.has(sourceId)) {
+      errors.push(issue('error', `${path}.id`, 'duplicate_data_source_id', `Duplicate data source: ${sourceId}`));
+    } else {
+      dataSourceIds.add(sourceId);
+    }
+
+    if (sourceKind !== 'staticJson' && sourceKind !== 'publicJsonEndpoint') {
+      errors.push(
+        issue(
+          'error',
+          `${path}.kind`,
+          'invalid_data_source_kind',
+          'Data source kind must be staticJson or publicJsonEndpoint',
+        ),
+      );
+      return;
+    }
+
+    validateDataSelector(dataSource.select, `${path}.select`, errors);
+
+    if (sourceKind === 'staticJson') {
+      if (!('data' in dataSource)) {
+        errors.push(issue('error', `${path}.data`, 'missing_static_json_data', 'staticJson data is required'));
+      } else if (!isJsonSerializable(dataSource.data)) {
+        errors.push(
+          issue('error', `${path}.data`, 'invalid_static_json_data', 'staticJson data must be JSON serializable'),
+        );
+      }
+    }
+
+    if (sourceKind === 'publicJsonEndpoint') {
+      if (!isNonEmptyString(dataSource.url) || !isSafePublicJsonEndpoint(dataSource.url)) {
+        errors.push(
+          issue(
+            'error',
+            `${path}.url`,
+            'invalid_public_json_endpoint',
+            'publicJsonEndpoint url must be a safe relative path or HTTPS URL without credentials',
+          ),
+        );
+      }
+    }
+
+    if ('fallback' in dataSource && !isJsonSerializable(dataSource.fallback)) {
+      errors.push(
+        issue(
+          'error',
+          `${path}.fallback`,
+          'invalid_data_source_fallback',
+          'Data source fallback must be JSON serializable',
+        ),
+      );
+    }
+  });
+
+  return dataSourceIds;
+}
+
+function validateWidgetPolicy(policy: ThemeLayoutWidgetPolicy | undefined, errors: ValidationIssue[]): void {
+  if (policy === undefined) {
+    return;
+  }
+
+  if (!isPlainObject(policy)) {
+    errors.push(issue('error', 'widgetPolicy', 'invalid_widget_policy', 'widgetPolicy must be an object'));
+    return;
+  }
+
+  if (policy.enabled !== undefined && typeof policy.enabled !== 'boolean') {
+    errors.push(
+      issue('error', 'widgetPolicy.enabled', 'invalid_widget_policy_enabled', 'widgetPolicy.enabled must be a boolean'),
+    );
+  }
+
+  if (policy.allowedLibraries !== undefined) {
+    if (!Array.isArray(policy.allowedLibraries)) {
+      errors.push(
+        issue(
+          'error',
+          'widgetPolicy.allowedLibraries',
+          'invalid_widget_policy_libraries',
+          'widgetPolicy.allowedLibraries must be an array',
+        ),
+      );
+    } else {
+      policy.allowedLibraries.forEach((library, index) => {
+        if (!isNonEmptyString(library) || !getAllowedWidgetLibraryByName(library)) {
+          errors.push(
+            issue(
+              'error',
+              `widgetPolicy.allowedLibraries[${index}]`,
+              'invalid_widget_policy_library',
+              `widgetPolicy.allowedLibraries must reference approved libraries: ${formatAllowedWidgetLibraries()}`,
+            ),
+          );
+        }
+      });
+    }
+  }
+
+  if (policy.allowedRenderers !== undefined) {
+    if (!Array.isArray(policy.allowedRenderers)) {
+      errors.push(
+        issue(
+          'error',
+          'widgetPolicy.allowedRenderers',
+          'invalid_widget_policy_renderers',
+          'widgetPolicy.allowedRenderers must be an array',
+        ),
+      );
+    } else {
+      policy.allowedRenderers.forEach((renderer, index) => {
+        if (!isNonEmptyString(renderer) || !SUPPORTED_WIDGET_RENDERERS.has(renderer.trim().toLowerCase())) {
+          errors.push(
+            issue(
+              'error',
+              `widgetPolicy.allowedRenderers[${index}]`,
+              'invalid_widget_policy_renderer',
+              `widgetPolicy.allowedRenderers must be one of: ${[...SUPPORTED_WIDGET_RENDERERS].join(', ')}`,
+            ),
+          );
+        }
+      });
+    }
+  }
+
+  if (policy.allowedCapabilities !== undefined) {
+    if (!Array.isArray(policy.allowedCapabilities)) {
+      errors.push(
+        issue(
+          'error',
+          'widgetPolicy.allowedCapabilities',
+          'invalid_widget_policy_capabilities',
+          'widgetPolicy.allowedCapabilities must be an array',
+        ),
+      );
+    } else {
+      policy.allowedCapabilities.forEach((capability, index) => {
+        if (!isNonEmptyString(capability) || !isSupportedWidgetCapability(capability)) {
+          errors.push(
+            issue(
+              'error',
+              `widgetPolicy.allowedCapabilities[${index}]`,
+              'invalid_widget_policy_capability',
+              `widgetPolicy.allowedCapabilities must be one of: ${[...SUPPORTED_WIDGET_CAPABILITIES].join(', ')}`,
+            ),
+          );
+        }
+      });
+    }
+  }
 }
 
 function validateWidgetProps(
@@ -317,51 +563,89 @@ function validateWidgetProps(
   propsValue: unknown,
   path: string,
   dependencyNames: Set<string>,
+  widgetPolicy: ThemeLayoutWidgetPolicy | undefined,
   errors: ValidationIssue[],
 ): void {
   if (alias !== 'core.widget') {
     return;
   }
 
+  if (!isWidgetRuntimePolicyEnabled(widgetPolicy)) {
+    errors.push(
+      issue(
+        'error',
+        path,
+        'widget_disabled_by_policy',
+        'core.widget is disabled by layoutDocument.widgetPolicy.enabled=false',
+      ),
+    );
+  }
+
   const props = isPlainObject(propsValue) ? propsValue : {};
   Object.keys(props).forEach((propName) => {
     if (DISALLOWED_WIDGET_PROP_NAMES.has(propName)) {
-      errors.push(issue(
-        'error',
-        `${path}.props.${propName}`,
-        'custom_widget_script_blocked',
-        `core.widget does not allow custom script prop "${propName}"`,
-      ));
+      errors.push(
+        issue(
+          'error',
+          `${path}.props.${propName}`,
+          'custom_widget_script_blocked',
+          `core.widget does not allow custom script prop "${propName}"`,
+        ),
+      );
     }
   });
 
   if (!isNonEmptyString(props.library)) {
-    errors.push(issue(
-      'error',
-      `${path}.props.library`,
-      'missing_widget_library',
-      'core.widget requires a library name',
-    ));
+    errors.push(
+      issue('error', `${path}.props.library`, 'missing_widget_library', 'core.widget requires a library name'),
+    );
     return;
   }
 
-  if (!dependencyNames.has(props.library)) {
-    errors.push(issue(
-      'error',
-      `${path}.props.library`,
-      'missing_widget_dependency',
-      `core.widget library "${props.library}" must be declared in layoutDocument.dependencies`,
-    ));
+  const library = getAllowedWidgetLibraryByName(props.library);
+  const libraryKeys = library ? getWidgetLibraryPolicyKeys(library) : [props.library];
+  if (!libraryKeys.some((key) => dependencyNames.has(key))) {
+    errors.push(
+      issue(
+        'error',
+        `${path}.props.library`,
+        'missing_widget_dependency',
+        `core.widget library "${props.library}" must be declared in layoutDocument.dependencies`,
+      ),
+    );
   }
 
   const renderer = typeof props.renderer === 'string' ? props.renderer : undefined;
-  if (!resolveSafeWidgetRenderer(props.library, renderer)) {
-    errors.push(issue(
-      'error',
-      `${path}.props.renderer`,
-      'unsupported_widget_renderer',
-      `core.widget renderer must be one of: ${[...SUPPORTED_WIDGET_RENDERERS].join(', ')}`,
-    ));
+  const resolvedRenderer = resolveSafeWidgetRenderer(props.library, renderer, widgetPolicy);
+  if (!resolvedRenderer) {
+    const requestedRenderer = renderer?.trim().toLowerCase();
+    const requestedCapability = requestedRenderer ? getWidgetRendererCapability(requestedRenderer) : null;
+    if (
+      requestedRenderer &&
+      requestedCapability &&
+      !isWidgetRendererCapabilityAllowedByPolicy(requestedRenderer, widgetPolicy)
+    ) {
+      errors.push(
+        issue(
+          'error',
+          `${path}.props.renderer`,
+          'widget_capability_blocked',
+          [
+            `core.widget renderer "${requestedRenderer}" requires capability "${requestedCapability}"`,
+            'not allowed by widgetPolicy.allowedCapabilities',
+          ].join(' '),
+        ),
+      );
+    } else {
+      errors.push(
+        issue(
+          'error',
+          `${path}.props.renderer`,
+          'unsupported_widget_renderer',
+          `core.widget renderer must be one of: ${[...SUPPORTED_WIDGET_RENDERERS].join(', ')}`,
+        ),
+      );
+    }
   }
 }
 
@@ -369,15 +653,72 @@ function validateWidgetNode(
   node: ThemeLayoutNode,
   path: string,
   dependencyNames: Set<string>,
+  widgetPolicy: ThemeLayoutWidgetPolicy | undefined,
   errors: ValidationIssue[],
 ): void {
-  validateWidgetProps(node.alias, node.props, path, dependencyNames, errors);
+  validateWidgetProps(node.alias, node.props, path, dependencyNames, widgetPolicy, errors);
+}
+
+function validateNodeDataBinding(
+  node: ThemeLayoutNode,
+  path: string,
+  dataSourceIds: Set<string>,
+  errors: ValidationIssue[],
+): void {
+  const binding = node.props?.dataBinding;
+  if (binding === undefined) {
+    return;
+  }
+  if (!isPlainObject(binding)) {
+    errors.push(issue('error', `${path}.props.dataBinding`, 'invalid_data_binding', 'dataBinding must be an object'));
+    return;
+  }
+  if (!DATA_BINDING_TARGET_ALIASES.has(node.alias)) {
+    errors.push(
+      issue(
+        'error',
+        `${path}.props.dataBinding`,
+        'unsupported_data_binding_alias',
+        `dataBinding is supported only on ${[...DATA_BINDING_TARGET_ALIASES].join(', ')}`,
+      ),
+    );
+  }
+  const sourceId = binding.sourceId;
+  if (!isNonEmptyString(sourceId)) {
+    errors.push(
+      issue(
+        'error',
+        `${path}.props.dataBinding.sourceId`,
+        'missing_data_binding_source',
+        'dataBinding.sourceId is required',
+      ),
+    );
+  } else if (!dataSourceIds.has(sourceId)) {
+    errors.push(
+      issue(
+        'error',
+        `${path}.props.dataBinding.sourceId`,
+        'unknown_data_binding_source',
+        `Unknown data source: ${sourceId}`,
+      ),
+    );
+  }
+  validateDataSelector(binding.select, `${path}.props.dataBinding.select`, errors);
+  ['loadingText', 'errorText', 'emptyText'].forEach((field) => {
+    const value = binding[field];
+    if (value !== undefined && typeof value !== 'string') {
+      errors.push(
+        issue('error', `${path}.props.dataBinding.${field}`, 'invalid_data_binding_text', `${field} must be a string`),
+      );
+    }
+  });
 }
 
 function validateTemplateNodeWidgets(
   value: unknown,
   path: string,
   dependencyNames: Set<string>,
+  widgetPolicy: ThemeLayoutWidgetPolicy | undefined,
   errors: ValidationIssue[],
 ): void {
   if (!isPlainObject(value)) {
@@ -385,22 +726,18 @@ function validateTemplateNodeWidgets(
   }
 
   const alias = typeof value.alias === 'string' ? value.alias : '';
-  validateWidgetProps(alias, value.props, path, dependencyNames, errors);
+  validateWidgetProps(alias, value.props, path, dependencyNames, widgetPolicy, errors);
 
   const children = Array.isArray(value.children) ? value.children : [];
   children.forEach((child, index) => {
-    validateTemplateNodeWidgets(
-      child,
-      `${path}.children[${index}]`,
-      dependencyNames,
-      errors,
-    );
+    validateTemplateNodeWidgets(child, `${path}.children[${index}]`, dependencyNames, widgetPolicy, errors);
   });
 }
 
 function validateComponentTemplateWidgets(
   componentTemplates: Record<string, unknown> | undefined,
   dependencyNames: Set<string>,
+  widgetPolicy: ThemeLayoutWidgetPolicy | undefined,
   errors: ValidationIssue[],
 ): void {
   if (!componentTemplates) {
@@ -415,16 +752,13 @@ function validateComponentTemplateWidgets(
       template.root,
       `componentTemplates.${alias}.root`,
       dependencyNames,
+      widgetPolicy,
       errors,
     );
   });
 }
 
-function validateComponentTemplateNode(
-  value: unknown,
-  path: string,
-  errors: ValidationIssue[],
-): void {
+function validateComponentTemplateNode(value: unknown, path: string, errors: ValidationIssue[]): void {
   if (!isPlainObject(value)) {
     errors.push(issue('error', path, 'invalid_component_template_node', 'Component template node must be an object'));
     return;
@@ -434,12 +768,14 @@ function validateComponentTemplateNode(
   if (!isNonEmptyString(alias)) {
     errors.push(issue('error', `${path}.alias`, 'missing_template_node_alias', 'Template node alias is required'));
   } else if (!CORE_ALIASES.has(alias)) {
-    errors.push(issue(
-      'error',
-      `${path}.alias`,
-      'custom_component_template_alias',
-      `componentTemplates may only expand to core.* aliases: ${alias}`,
-    ));
+    errors.push(
+      issue(
+        'error',
+        `${path}.alias`,
+        'custom_component_template_alias',
+        `componentTemplates may only expand to core.* aliases: ${alias}`,
+      ),
+    );
   }
 
   if ('children' in value && !Array.isArray(value.children)) {
@@ -460,28 +796,29 @@ function validateComponentTemplates(
 ): void {
   Object.entries(componentTemplates ?? {}).forEach(([alias, template]) => {
     if (alias.startsWith('core.')) {
-      errors.push(issue(
-        'error',
-        `componentTemplates.${alias}`,
-        'core_component_template_alias',
-        'componentTemplates keys must be custom aliases, not core.* aliases.',
-      ));
+      errors.push(
+        issue(
+          'error',
+          `componentTemplates.${alias}`,
+          'core_component_template_alias',
+          'componentTemplates keys must be custom aliases, not core.* aliases.',
+        ),
+      );
     }
     if (!descriptorAliases.has(alias)) {
-      errors.push(issue(
-        'error',
-        `componentTemplates.${alias}`,
-        'missing_component_descriptor',
-        `componentTemplates alias "${alias}" must be declared in layoutDocument.components.`,
-      ));
+      errors.push(
+        issue(
+          'error',
+          `componentTemplates.${alias}`,
+          'missing_component_descriptor',
+          `componentTemplates alias "${alias}" must be declared in layoutDocument.components.`,
+        ),
+      );
     }
     if (!isPlainObject(template)) {
-      errors.push(issue(
-        'error',
-        `componentTemplates.${alias}`,
-        'invalid_component_template',
-        'Template must be an object',
-      ));
+      errors.push(
+        issue('error', `componentTemplates.${alias}`, 'invalid_component_template', 'Template must be an object'),
+      );
       return;
     }
     validateComponentTemplateNode(template.root, `componentTemplates.${alias}.root`, errors);
@@ -510,12 +847,9 @@ function validateComponentDescriptors(
       return;
     }
     if (aliases.has(component.alias)) {
-      errors.push(issue(
-        'error',
-        `${path}.alias`,
-        'duplicate_component_alias',
-        `Duplicate component alias: ${component.alias}`,
-      ));
+      errors.push(
+        issue('error', `${path}.alias`, 'duplicate_component_alias', `Duplicate component alias: ${component.alias}`),
+      );
     }
     aliases.add(component.alias);
 
@@ -523,12 +857,14 @@ function validateComponentDescriptors(
       errors.push(issue('error', `${path}.alias`, 'unknown_core_alias', `Unknown core alias: ${component.alias}`));
     }
     if (!component.alias.startsWith('core.') && !componentTemplates?.[component.alias]) {
-      errors.push(issue(
-        'error',
-        `${path}.alias`,
-        'missing_component_template',
-        `Custom alias "${component.alias}" must have a matching componentTemplates entry.`,
-      ));
+      errors.push(
+        issue(
+          'error',
+          `${path}.alias`,
+          'missing_component_template',
+          `Custom alias "${component.alias}" must have a matching componentTemplates entry.`,
+        ),
+      );
     }
     if (options.requireLocalizedPropLabels) {
       if (!Array.isArray(component.props)) {
@@ -537,21 +873,25 @@ function validateComponentDescriptors(
       }
       component.props.forEach((prop, propIndex) => {
         if (!isPlainObject(prop)) {
-          errors.push(issue(
-            'error',
-            `${path}.props[${propIndex}]`,
-            'invalid_prop_descriptor',
-            'Prop descriptor must be an object',
-          ));
+          errors.push(
+            issue(
+              'error',
+              `${path}.props[${propIndex}]`,
+              'invalid_prop_descriptor',
+              'Prop descriptor must be an object',
+            ),
+          );
           return;
         }
         if (!hasCjkText(prop.label ?? '')) {
-          errors.push(issue(
-            'error',
-            `${path}.props[${propIndex}].label`,
-            'missing_localized_prop_label',
-            `Editable prop "${prop.name}" must define a Chinese label`,
-          ));
+          errors.push(
+            issue(
+              'error',
+              `${path}.props[${propIndex}].label`,
+              'missing_localized_prop_label',
+              `Editable prop "${prop.name}" must define a Chinese label`,
+            ),
+          );
         }
       });
     }
@@ -566,7 +906,10 @@ function validateNode(
   path: string,
   aliases: Set<string>,
   pageIds: Set<string>,
+  nodesById: Map<string, ThemeLayoutNode>,
+  dataSourceIds: Set<string>,
   dependencyNames: Set<string>,
+  widgetPolicy: ThemeLayoutWidgetPolicy | undefined,
   seenIds: Set<string>,
   errors: ValidationIssue[],
   warnings: ValidationIssue[],
@@ -588,12 +931,9 @@ function validateNode(
 
   const nodeLayout = (node as Partial<ThemeLayoutNode>).layout;
   if (!nodeLayout || !LAYOUT_MODES.has(nodeLayout.mode)) {
-    errors.push(issue(
-      'error',
-      `${path}.layout.mode`,
-      'invalid_layout_mode',
-      'Layout mode must be flow, grid, or absolute',
-    ));
+    errors.push(
+      issue('error', `${path}.layout.mode`, 'invalid_layout_mode', 'Layout mode must be flow, grid, or absolute'),
+    );
   }
 
   if (node.children?.length && !CONTAINER_ALIASES.has(node.alias)) {
@@ -603,14 +943,8 @@ function validateNode(
   const descriptor = descriptorForAlias(document, node.alias);
   if (descriptor && node.props) {
     Object.entries(node.props).forEach(([propName, value]) => {
-      const effectivePropName =
-        CORE_PROP_ALIASES.get(`${descriptor.alias}:${propName}`) ?? propName;
-      const propIssue = validatePropValue(
-        descriptor,
-        effectivePropName,
-        value,
-        `${path}.props.${propName}`,
-      );
+      const effectivePropName = CORE_PROP_ALIASES.get(`${descriptor.alias}:${propName}`) ?? propName;
+      const propIssue = validatePropValue(descriptor, effectivePropName, value, `${path}.props.${propName}`);
       if (!propIssue) {
         return;
       }
@@ -625,12 +959,15 @@ function validateNode(
   if (options.requireValidImageUrls && node.alias === 'core.image') {
     const src = node.props?.src;
     if (typeof src === 'string' && src.trim() && !isValidGeneratedImageUrl(src.trim())) {
-      errors.push(issue(
-        'error',
-        `${path}.props.src`,
-        'invalid_generated_image_url',
-        'Generated core.image props.src must be a valid HTTPS URL or /template-assets/... path; omit src to render the placeholder.',
-      ));
+      errors.push(
+        issue(
+          'error',
+          `${path}.props.src`,
+          'invalid_generated_image_url',
+          'Generated core.image props.src must be a valid HTTPS URL or /template-assets/... path; ' +
+            'omit src to render the placeholder.',
+        ),
+      );
     }
   }
 
@@ -648,25 +985,40 @@ function validateNode(
       'actionLabel',
       'statusLabel',
     ].forEach((propName) => {
-        const value = node.props?.[propName];
-        if (typeof value !== 'string' || !value.trim()) {
-          return;
-        }
-        if (hasDisallowedLatinText(value)) {
-          errors.push(issue(
+      const value = node.props?.[propName];
+      if (typeof value !== 'string' || !value.trim()) {
+        return;
+      }
+      if (hasDisallowedLatinText(value)) {
+        errors.push(
+          issue(
             'error',
             `${path}.props.${propName}`,
             'mixed_visible_language',
             `Generated visible text should be Simplified Chinese, got "${value}"`,
-          ));
-        }
-      });
+          ),
+        );
+      }
+    });
   }
 
-  validateWidgetNode(node, path, dependencyNames, errors);
-  validateNavigateAction(node.interactions?.onClick, pageIds, `${path}.interactions.onClick`, errors);
-  validateNavigateAction(node.interactions?.onActionClick, pageIds, `${path}.interactions.onActionClick`, errors);
-  validateNavigateAction(node.interactions?.onStatusClick, pageIds, `${path}.interactions.onStatusClick`, errors);
+  validateWidgetNode(node, path, dependencyNames, widgetPolicy, errors);
+  validateNodeDataBinding(node, path, dataSourceIds, errors);
+  validateNodeAction(node.interactions?.onClick, pageIds, nodesById, `${path}.interactions.onClick`, errors);
+  validateNodeAction(
+    node.interactions?.onActionClick,
+    pageIds,
+    nodesById,
+    `${path}.interactions.onActionClick`,
+    errors,
+  );
+  validateNodeAction(
+    node.interactions?.onStatusClick,
+    pageIds,
+    nodesById,
+    `${path}.interactions.onStatusClick`,
+    errors,
+  );
   validateTabInteraction(node.interactions?.onTabClick, pageIds, `${path}.interactions.onTabClick`, errors);
 
   node.children?.forEach((child, index) => {
@@ -676,13 +1028,28 @@ function validateNode(
       `${path}.children[${index}]`,
       aliases,
       pageIds,
+      nodesById,
+      dataSourceIds,
       dependencyNames,
+      widgetPolicy,
       seenIds,
       errors,
       warnings,
       options,
     );
   });
+}
+
+function collectNodesById(pages: ThemeLayoutDocument['pages']): Map<string, ThemeLayoutNode> {
+  const nodesById = new Map<string, ThemeLayoutNode>();
+  const visit = (node: ThemeLayoutNode) => {
+    if (isNonEmptyString(node.id) && !nodesById.has(node.id)) {
+      nodesById.set(node.id, node);
+    }
+    node.children?.forEach(visit);
+  };
+  pages.forEach((page) => visit(page.layout));
+  return nodesById;
 }
 
 export function validateThemeLayoutDocument(
@@ -698,16 +1065,8 @@ export function validateThemeLayoutDocument(
   if (typeof document.version !== 'number') {
     errors.push(issue('error', 'version', 'invalid_version', 'version must be a number'));
   }
-  if (
-    document.schemaVersion !== undefined &&
-    typeof document.schemaVersion !== 'number'
-  ) {
-    errors.push(issue(
-      'error',
-      'schemaVersion',
-      'invalid_schema_version',
-      'schemaVersion must be a number',
-    ));
+  if (document.schemaVersion !== undefined && typeof document.schemaVersion !== 'number') {
+    errors.push(issue('error', 'schemaVersion', 'invalid_schema_version', 'schemaVersion must be a number'));
   }
   ['themeId', 'themeName', 'description'].forEach((field) => {
     if (!isNonEmptyString(document[field as keyof ThemeLayoutDocument])) {
@@ -722,27 +1081,24 @@ export function validateThemeLayoutDocument(
   }
 
   const pageIds = new Set(pages.map((page) => page.id));
+  const nodesById = collectNodesById(pages);
   if (!pageIds.has(document.defaultPageId)) {
-    errors.push(issue(
-      'error',
-      'defaultPageId',
-      'invalid_default_page',
-      'defaultPageId must point to an existing page',
-    ));
+    errors.push(
+      issue('error', 'defaultPageId', 'invalid_default_page', 'defaultPageId must point to an existing page'),
+    );
   }
   const defaultPage = pages.find((page) => page.id === document.defaultPageId);
   const documentLayout = (document as Partial<ThemeLayoutDocument>).layout;
   if (defaultPage && documentLayout?.id !== defaultPage.layout.id) {
-    errors.push(issue(
-      'error',
-      'layout',
-      'layout_default_mismatch',
-      'document.layout must match the default page root',
-    ));
+    errors.push(
+      issue('error', 'layout', 'layout_default_mismatch', 'document.layout must match the default page root'),
+    );
   }
 
   const aliases = collectAliases(document, options.componentTemplates);
-  const dependencyNames = validateDependencies(document.dependencies, errors);
+  validateWidgetPolicy(document.widgetPolicy, errors);
+  const dependencyNames = validateDependencies(document.dependencies, document.widgetPolicy, errors);
+  const dataSourceIds = validateDataSources(document.dataSources, errors);
   validateComponentDescriptors(
     document,
     options.componentTemplates ?? document.componentTemplates,
@@ -752,6 +1108,7 @@ export function validateThemeLayoutDocument(
   validateComponentTemplateWidgets(
     options.componentTemplates ?? document.componentTemplates,
     dependencyNames,
+    document.widgetPolicy,
     errors,
   );
   const seenIds = new Set<string>();
@@ -761,12 +1118,9 @@ export function validateThemeLayoutDocument(
       errors.push(issue('error', `pages[${pageIndex}].id`, 'missing_page_id', 'Page id is required'));
     }
     if (pageLayout?.alias !== 'core.screen') {
-      errors.push(issue(
-        'error',
-        `pages[${pageIndex}].layout.alias`,
-        'invalid_root_alias',
-        'Page root must be core.screen',
-      ));
+      errors.push(
+        issue('error', `pages[${pageIndex}].layout.alias`, 'invalid_root_alias', 'Page root must be core.screen'),
+      );
     }
     if (pageLayout) {
       validateNode(
@@ -775,7 +1129,10 @@ export function validateThemeLayoutDocument(
         `pages[${pageIndex}].layout`,
         aliases,
         pageIds,
+        nodesById,
+        dataSourceIds,
         dependencyNames,
+        document.widgetPolicy,
         seenIds,
         errors,
         warnings,
@@ -790,8 +1147,9 @@ export function validateThemeLayoutDocument(
 
 function countVisibleText(node: ThemeLayoutNode): number {
   const props = node.props ?? {};
-  const ownText = ['title', 'text', 'label', 'placeholder', 'activeTab', 'body']
-    .some((key) => typeof props[key] === 'string' && props[key].trim().length > 0)
+  const ownText = ['title', 'text', 'label', 'placeholder', 'activeTab', 'body'].some(
+    (key) => typeof props[key] === 'string' && props[key].trim().length > 0,
+  )
     ? 1
     : 0;
   return ownText + (node.children ?? []).reduce((total, child) => total + countVisibleText(child), 0);

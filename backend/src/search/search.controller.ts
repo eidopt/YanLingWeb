@@ -1,10 +1,4 @@
-import {
-  Body,
-  Controller,
-  Post,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { AuthenticatedRequest } from '../auth/authenticated-request.interface';
@@ -21,15 +15,10 @@ export class SearchController {
   constructor(private readonly service: SearchService) {}
 
   @Post()
+  @HttpCode(200)
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Route a homepage search or creation intent' })
-  submit(
-    @Req() req: AuthenticatedRequest,
-    @Body() body: SearchInputBody,
-  ) {
-    return this.service.handleInput(
-      req.user.sub,
-      typeof body.query === 'string' ? body.query : '',
-    );
+  submit(@Req() req: AuthenticatedRequest, @Body() body: SearchInputBody) {
+    return this.service.handleInput(req.user.sub, typeof body.query === 'string' ? body.query : '');
   }
 }

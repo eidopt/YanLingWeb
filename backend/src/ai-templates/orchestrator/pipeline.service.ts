@@ -8,6 +8,7 @@ import type {
   CriticVerdict,
   DesignerOutput,
   ExistingTemplateSummary,
+  PipelineExternalResult,
   PipelineResult,
   PipelineStageRecord,
   SchemaOutput,
@@ -23,6 +24,10 @@ interface AccumulatedStages {
   schema: PipelineStageRecord<SchemaOutput>[];
   verifier: PipelineStageRecord<VerifierVerdict[]>[];
 }
+
+type PipelineFailure = Error & {
+  lastSchema?: PipelineResult;
+};
 
 /**
  * 4-Stage 模板生成编排器
@@ -47,10 +52,7 @@ export class TemplatePipelineService {
     private readonly verifier: VerifierAgent,
   ) {}
 
-  async generate(
-    seed: TemplateSeed,
-    existing: ExistingTemplateSummary[],
-  ): Promise<PipelineResult> {
+  async generate(seed: TemplateSeed, existing: ExistingTemplateSummary[]): Promise<PipelineResult> {
     const pipelineStart = Date.now();
     const stages: AccumulatedStages = {
       designer: [],
@@ -74,8 +76,9 @@ export class TemplatePipelineService {
       const criticRecord = await this.critic.run(brief, existing, attempt);
       stages.critic.push(criticRecord);
       if (criticRecord.output.verdict === 'revise') {
-        reviseSuggestion = criticRecord.output.suggestion
-          ?? `多样性冲突 ${criticRecord.output.conflicts.length} 个，换一个 archetype 或 heroMode`;
+        reviseSuggestion =
+          criticRecord.output.suggestion ??
+          `多样性冲突 ${criticRecord.output.conflicts.length} 个，换一个 archetype 或 heroMode`;
         lastError = `critic revise: ${reviseSuggestion}`;
         this.logger.warn(`attempt ${attempt} critic revise — retrying`);
         continue;
@@ -87,7 +90,7 @@ export class TemplatePipelineService {
         schemaRecord = await this.schemaGenerator.run(brief, attempt);
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
-        reviseSuggestion = `Stage 3 schema 生成失败：${msg}`;
+        reviseSuggestion = `Stage 3 schema generation failed: ${msg}`;
         lastError = `schema gen throw: ${msg}`;
         this.logger.warn(`attempt ${attempt} schema gen throw — retrying`);
         continue;
@@ -110,9 +113,7 @@ export class TemplatePipelineService {
         };
       }
 
-      reviseSuggestion = failedLenses
-        .map((v) => `[${v.lens}] ${v.summary}`)
-        .join(' | ');
+      reviseSuggestion = failedLenses.map((v) => `[${v.lens}] ${v.summary}`).join(' | ');
       lastError = `verifier fail: ${reviseSuggestion}`;
       this.logger.warn(`attempt ${attempt} verifier fail — retrying`);
     }
@@ -125,7 +126,7 @@ export class TemplatePipelineService {
     const lastSchema = stages.schema.at(-1);
     const lastDesigner = stages.designer.at(-1);
     if (lastSchema && lastDesigner) {
-      (failure as Error & { lastSchema: PipelineResult; }).lastSchema = {
+      (failure as PipelineFailure).lastSchema = {
         templateId: lastSchema.output.templateId,
         document: lastSchema.output.document,
         brief: lastDesigner.output,
@@ -135,5 +136,22 @@ export class TemplatePipelineService {
       };
     }
     throw failure;
+  }
+
+  async generateExternal(
+    seed: TemplateSeed,
+    existing: ExistingTemplateSummary[],
+  ): Promise<PipelineExternalResult> {
+    const result = await this.generate(seed, existing);
+    return this.toExternalResult(result);
+  }
+
+  private toExternalResult(result: PipelineResult): PipelineExternalResult {
+    return {
+      templateId: result.templateId,
+      document: result.document,
+      brief: result.brief,
+      totalDurationMs: result.totalDurationMs,
+    };
   }
 }

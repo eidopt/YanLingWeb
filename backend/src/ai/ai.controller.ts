@@ -12,6 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
 
 import { AuthenticatedRequest } from '../auth/authenticated-request.interface';
@@ -45,10 +46,7 @@ export class AiController {
 
   @Get('editor-conversations/:templateId')
   @ApiOperation({ summary: 'Get persisted editor AI conversation for one template' })
-  getEditorConversation(
-    @Param('templateId') templateId: string,
-    @Req() req: AuthenticatedRequest,
-  ) {
+  getEditorConversation(@Param('templateId') templateId: string, @Req() req: AuthenticatedRequest) {
     return this.aiService.getEditorConversation(req.user.sub, templateId);
   }
 
@@ -59,14 +57,11 @@ export class AiController {
     @Body() body: SaveEditorAiConversationInput,
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.aiService.saveEditorConversation(
-      req.user.sub,
-      templateId,
-      body,
-    );
+    return this.aiService.saveEditorConversation(req.user.sub, templateId, body);
   }
 
   @Post('stream')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiOperation({ summary: 'Proxy a streaming LLM request (rate-limited per user)' })
   @ApiBody({
     schema: {
@@ -124,6 +119,7 @@ export class AiController {
   }
 
   @Post('editor')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiOperation({ summary: 'Run the editor AI copilot against backend LLM streaming' })
   @ApiBody({
     schema: {
@@ -180,16 +176,14 @@ export class AiController {
   }
 
   @Post('templates')
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
   @ApiOperation({ summary: 'Save a generated template to the database' })
-  async saveTemplate(
-    @Body() body: TemplateToolInput,
-    @Req() req: AuthenticatedRequest,
-  ) {
+  async saveTemplate(@Body() body: TemplateToolInput, @Req() req: AuthenticatedRequest) {
     return this.aiService.saveTemplate(req.user.sub, body);
   }
 
   private flushResponse(res: Response): void {
-    const maybeFlush = res as Response & { flush?: () => void; };
+    const maybeFlush = res as Response & { flush?: () => void };
     maybeFlush.flush?.();
   }
 }

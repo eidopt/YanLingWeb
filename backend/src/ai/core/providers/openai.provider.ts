@@ -10,26 +10,91 @@ import type {
   ProviderTool,
 } from './types';
 
-type ResponseInputItem =
-  | { role: 'user'; content: string | ResponseContentPart[]; }
-  | { role: 'developer'; content: string; }
-  | { role: 'assistant'; content: string; }
-  | { type: 'function_call'; call_id: string; name: string; arguments: string; }
-  | { type: 'function_call_output'; call_id: string; output: string; };
+interface UserResponseInputItem {
+  role: 'user';
+  content: string | ResponseContentPart[];
+}
 
-type ResponseContentPart =
-  | { type: 'input_text'; text: string; }
-  | { type: 'input_image'; image_url: string; };
+interface DeveloperResponseInputItem {
+  role: 'developer';
+  content: string;
+}
+
+interface AssistantResponseInputItem {
+  role: 'assistant';
+  content: string;
+}
+
+interface FunctionCallResponseInputItem {
+  type: 'function_call';
+  call_id: string;
+  name: string;
+  arguments: string;
+}
+
+interface FunctionCallOutputResponseInputItem {
+  type: 'function_call_output';
+  call_id: string;
+  output: string;
+}
+
+type ResponseInputItem =
+  | UserResponseInputItem
+  | DeveloperResponseInputItem
+  | AssistantResponseInputItem
+  | FunctionCallResponseInputItem
+  | FunctionCallOutputResponseInputItem;
+
+interface InputTextResponseContentPart {
+  type: 'input_text';
+  text: string;
+}
+
+interface InputImageResponseContentPart {
+  type: 'input_image';
+  image_url: string;
+}
+
+type ResponseContentPart = InputTextResponseContentPart | InputImageResponseContentPart;
+
+interface OpenAIStreamItem {
+  type: string;
+  call_id: string;
+  name: string;
+  arguments: string;
+}
+
+interface OpenAIStreamUsage {
+  input_tokens: number;
+  output_tokens: number;
+}
+
+interface OpenAIStreamIncompleteDetails {
+  reason: string;
+}
+
+interface OpenAIStreamResponse {
+  id?: string;
+  usage?: OpenAIStreamUsage;
+  incomplete_details?: OpenAIStreamIncompleteDetails;
+}
 
 interface OpenAIStreamEvent {
   type: string;
   delta?: string;
-  item?: { type: string; call_id: string; name: string; arguments: string; };
-  response?: {
-    id?: string;
-    usage?: { input_tokens: number; output_tokens: number; };
-    incomplete_details?: { reason: string; };
-  };
+  item?: OpenAIStreamItem;
+  response?: OpenAIStreamResponse;
+}
+
+interface ResponseToolDefinition {
+  type: 'function';
+  name: string;
+  description: string;
+  parameters: Record<string, unknown>;
+}
+
+interface AsyncIterableCandidate {
+  [Symbol.asyncIterator]?: unknown;
 }
 
 const CAPABILITIES: ProviderCapabilities = {
@@ -40,6 +105,14 @@ const CAPABILITIES: ProviderCapabilities = {
   supportsReasoningEffort: true,
   supportsServerSideContext: false,
 };
+
+function isOpenAIStreamIterable(value: unknown): value is AsyncIterable<OpenAIStreamEvent> {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+  const asyncIterator = (value as AsyncIterableCandidate)[Symbol.asyncIterator];
+  return typeof asyncIterator === 'function';
+}
 
 export class OpenAIProvider implements AIProvider {
   readonly name: string;
@@ -70,9 +143,10 @@ export class OpenAIProvider implements AIProvider {
       // Enable server-side response storage for prompt caching
       store: true,
       ...(tools && { tools }),
-      ...(request.reasoningEffort && request.reasoningEffort !== 'medium' && {
-        reasoning: { effort: request.reasoningEffort },
-      }),
+      ...(request.reasoningEffort &&
+        request.reasoningEffort !== 'medium' && {
+          reasoning: { effort: request.reasoningEffort },
+        }),
       // Pass previous_response_id to enable prompt caching (OpenAI won't
       // re-process the unchanged prefix on subsequent requests)
       ...(request.cache?.previousResponseId && {
@@ -83,7 +157,11 @@ export class OpenAIProvider implements AIProvider {
     let streamIter: AsyncIterable<OpenAIStreamEvent>;
     try {
       const raw = await this.client.responses.create(requestParams);
-      streamIter = raw as unknown as AsyncIterable<OpenAIStreamEvent>;
+      if (!isOpenAIStreamIterable(raw)) {
+        yield { type: 'error', message: 'OpenAI response stream is not async iterable' };
+        return;
+      }
+      streamIter = raw;
     } catch (error) {
       yield { type: 'error', message: error instanceof Error ? error.message : String(error) };
       return;
@@ -91,7 +169,9 @@ export class OpenAIProvider implements AIProvider {
 
     try {
       for await (const event of streamIter) {
-        if (abortController.signal.aborted) { break; }
+        if (abortController.signal.aborted) {
+          break;
+        }
 
         if (event.type === 'response.output_text.delta') {
           yield { type: 'text_delta', text: event.delta ?? '' };
@@ -116,10 +196,12 @@ export class OpenAIProvider implements AIProvider {
 
           yield {
             type: 'done',
-            usage: usage ? {
-              inputTokens: usage.input_tokens,
-              outputTokens: usage.output_tokens,
-            } : undefined,
+            usage: usage
+              ? {
+                  inputTokens: usage.input_tokens,
+                  outputTokens: usage.output_tokens,
+                }
+              : undefined,
             stopReason: isMaxTokens ? 'max_tokens' : 'end_turn',
             // Forward the response ID to the frontend for prompt caching
             response_id: responseId,
@@ -151,7 +233,9 @@ function convertMessages(messages: ProviderMessage[]): {
     switch (msg.role) {
       case 'system': {
         const text = typeof msg.content === 'string' ? msg.content : '';
-        if (!text) { continue; }
+        if (!text) {
+          continue;
+        }
         if (!instructions) {
           instructions = text;
         } else {
@@ -161,7 +245,9 @@ function convertMessages(messages: ProviderMessage[]): {
       }
       case 'developer': {
         const text = typeof msg.content === 'string' ? msg.content : '';
-        if (text) { input.push({ role: 'developer', content: text }); }
+        if (text) {
+          input.push({ role: 'developer', content: text });
+        }
         break;
       }
       case 'user':
@@ -169,7 +255,9 @@ function convertMessages(messages: ProviderMessage[]): {
         break;
       case 'assistant': {
         const text = typeof msg.content === 'string' ? msg.content : '';
-        if (text) { input.push({ role: 'assistant', content: text }); }
+        if (text) {
+          input.push({ role: 'assistant', content: text });
+        }
         break;
       }
       case 'tool_call':
@@ -206,10 +294,10 @@ function convertMessages(messages: ProviderMessage[]): {
   return { instructions: instructions || undefined, input };
 }
 
-function convertContent(
-  content: string | ContentPart[],
-): string | ResponseContentPart[] {
-  if (typeof content === 'string') { return content; }
+function convertContent(content: string | ContentPart[]): string | ResponseContentPart[] {
+  if (typeof content === 'string') {
+    return content;
+  }
   return content.map((part) => {
     if (part.type === 'image_url') {
       return { type: 'input_image' as const, image_url: part.image_url.url };
@@ -218,9 +306,7 @@ function convertContent(
   });
 }
 
-function convertTools(
-  tools: ProviderTool[],
-): { type: 'function'; name: string; description: string; parameters: Record<string, unknown>; }[] {
+function convertTools(tools: ProviderTool[]): ResponseToolDefinition[] {
   return tools.map((tool) => ({
     type: 'function' as const,
     name: tool.name,

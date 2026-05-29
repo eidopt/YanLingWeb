@@ -3,13 +3,16 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
+import { apiVersionAliasMiddleware } from './common/middleware/api-version-alias.middleware';
 import { ConfigService } from './config/config.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const env = app.get(ConfigService);
 
-  // Global prefix
+  app.use(apiVersionAliasMiddleware);
+
+  // Global prefix. `/api/v1/*` is accepted above as the versioned alias.
   app.setGlobalPrefix('api');
 
   // Validation
@@ -41,6 +44,7 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup('api/v1/docs', app, document);
 
   // Export OpenAPI JSON for frontend type generation
   const fs = await import('fs');
@@ -59,7 +63,7 @@ async function bootstrap() {
 
   await app.listen(env.port);
   console.log(`Backend running on port ${env.port} (${env.serverFlavor})`);
-  console.log('Swagger docs available at /api/docs');
+  console.log('Swagger docs available at /api/docs and /api/v1/docs');
 }
 
 void bootstrap();

@@ -1,5 +1,7 @@
- 
+import type { TemplateStyleProfile } from '../../theme-layout/styleProfile';
 import type { ThemeLayoutNode } from '../types';
+
+export type { TemplateStyleProfile } from '../../theme-layout/styleProfile';
 
 export type TemplateDevice = 'mobile' | 'miniapp' | 'tablet' | 'desktop';
 
@@ -77,17 +79,6 @@ export interface TemplateProfileConstraints {
   requiredComponents?: string[];
 }
 
-export interface TemplateStyleProfile {
-  colors: string[];
-  fontSizes: string[];
-  fontWeights: string[];
-  spacing: string[];
-  radius: string[];
-  shadows: string[];
-  componentDensity?: 'compact' | 'comfortable' | 'spacious';
-  commonLayoutPatterns: string[];
-}
-
 export interface TemplateProfile {
   templateId: string;
   templateVersion: string;
@@ -100,6 +91,24 @@ export interface TemplateProfile {
   navigation?: TemplateProfileNavigation;
   constraints?: TemplateProfileConstraints;
   styleProfile?: TemplateStyleProfile;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+export function isTemplateProfile(value: unknown): value is TemplateProfile {
+  return (
+    isRecord(value) &&
+    typeof value.templateId === 'string' &&
+    typeof value.templateVersion === 'string' &&
+    typeof value.profileVersion === 'string' &&
+    Array.isArray(value.devices) &&
+    Array.isArray(value.pages) &&
+    Array.isArray(value.regions) &&
+    Array.isArray(value.slots) &&
+    Array.isArray(value.patterns)
+  );
 }
 
 export interface TemplateProfileBuildOptions {
@@ -188,8 +197,22 @@ export const EDITABLE_PROPS_BY_ALIAS: Record<string, string[]> = {
 
 export const SLOT_ALIASES = new Set(Object.keys(EDITABLE_PROPS_BY_ALIAS));
 export const CONTAINER_ALIASES = new Set([
-  'core.screen', 'core.panel', 'core.stack', 'core.row', 'core.grid', 'core.html',
-  'core.navbar', 'core.list', 'core.list-item', 'core.dialog', 'core.drawer',
-  'core.collapse', 'core.sidebar', 'core.form', 'core.toolbar', 'core.splitter',
-  'core.timeline', 'core.tree',
+  'core.screen',
+  'core.panel',
+  'core.stack',
+  'core.row',
+  'core.grid',
+  'core.html',
+  'core.navbar',
+  'core.list',
+  'core.list-item',
+  'core.dialog',
+  'core.drawer',
+  'core.collapse',
+  'core.sidebar',
+  'core.form',
+  'core.toolbar',
+  'core.splitter',
+  'core.timeline',
+  'core.tree',
 ]);

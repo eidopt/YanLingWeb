@@ -6,7 +6,7 @@ import type {
   ThemeComponentDescriptor,
   ThemeLayoutDocument,
   ThemeLayoutNode,
-} from '@shared/agent/types';
+} from '@shared/agent/contracts/agent';
 
 export interface EditorClarificationInput {
   prompt: string;
@@ -27,11 +27,9 @@ const MAX_OPTIONS = 4;
 const CUSTOM_CLARIFICATION = {
   allowCustom: true,
   customLabel: '其他：我来补充',
-  customPlaceholder: '可以直接写清楚页面、区域、组件类型、文案或 nodeId，例如：在首页 home-product-panel 下面新增一个搜索入口。',
-} satisfies Pick<
-  AgentClarification,
-  'allowCustom' | 'customLabel' | 'customPlaceholder'
->;
+  customPlaceholder:
+    '可以直接写清楚页面、区域、组件类型、文案或 nodeId，例如：在首页 home-product-panel 下面新增一个搜索入口。',
+} satisfies Pick<AgentClarification, 'allowCustom' | 'customLabel' | 'customPlaceholder'>;
 
 function collectNodes(
   node: ThemeLayoutNode,
@@ -47,13 +45,9 @@ function collectNodes(
 
 function propText(node: ThemeLayoutNode): string {
   const props = node.props ?? {};
-  const values = [
-    props.label,
-    props.text,
-    props.title,
-    props.placeholder,
-    props.activeTab,
-  ].filter((value): value is string => typeof value === 'string' && value.trim().length > 0);
+  const values = [props.label, props.text, props.title, props.placeholder, props.activeTab].filter(
+    (value): value is string => typeof value === 'string' && value.trim().length > 0,
+  );
   return values[0] ?? node.id;
 }
 
@@ -63,10 +57,9 @@ function nodeLabel(candidate: NodeCandidate): string {
 }
 
 function nodeDescription(candidate: NodeCandidate): string {
-  return [
-    `nodeId: ${candidate.node.id}`,
-    candidate.parentId ? `parent: ${candidate.parentId}` : '',
-  ].filter(Boolean).join(' · ');
+  return [`nodeId: ${candidate.node.id}`, candidate.parentId ? `parent: ${candidate.parentId}` : '']
+    .filter(Boolean)
+    .join(' · ');
 }
 
 function pageLabel(page: AgentPageContext): string {
@@ -140,7 +133,7 @@ function templateRootAlias(document: ThemeLayoutDocument, alias: string): string
   if (!template || typeof template !== 'object' || !('root' in template)) {
     return null;
   }
-  const root = (template as { root?: { alias?: unknown; }; }).root;
+  const root = (template as { root?: { alias?: unknown } }).root;
   return typeof root?.alias === 'string' ? root.alias : null;
 }
 
@@ -169,25 +162,50 @@ function scoreCandidate(candidate: NodeCandidate, prompt: string): number {
     node.alias,
     propText(node),
     ...Object.entries(node.props ?? {}).map(([key, value]) => `${key} ${String(value)}`),
-  ].join(' ').toLowerCase();
+  ]
+    .join(' ')
+    .toLowerCase();
   let score = Math.max(0, 8 - candidate.depth);
 
-  if (hasAny(prompt, ['按钮', '主按钮', 'button']) && node.alias === 'core.button') {score += 40;}
-  if (hasAny(prompt, ['搜索', '搜']) && node.alias === 'core.search') {score += 40;}
-  if (hasAny(prompt, ['底部', '导航', 'tab', '切换']) && node.alias === 'core.tabs') {score += 40;}
-  if (hasAny(prompt, ['公告', '提示', '提醒']) && node.alias === 'core.notice') {score += 40;}
-  if (hasAny(prompt, ['标签', '标记']) && node.alias === 'core.tag') {score += 40;}
-  if (hasAny(prompt, ['标题', '文案', '文字']) && node.alias === 'core.text') {score += 24;}
-  if (hasAny(prompt, ['卡片', '面板', '区域']) && node.alias === 'core.panel') {score += 20;}
-  if (hasAny(prompt, ['入口', '动作']) && ['core.button', 'core.search', 'core.tabs'].includes(node.alias)) {score += 22;}
-  if (node.slot === 'footer') {score += 8;}
+  if (hasAny(prompt, ['按钮', '主按钮', 'button']) && node.alias === 'core.button') {
+    score += 40;
+  }
+  if (hasAny(prompt, ['搜索', '搜']) && node.alias === 'core.search') {
+    score += 40;
+  }
+  if (hasAny(prompt, ['底部', '导航', 'tab', '切换']) && node.alias === 'core.tabs') {
+    score += 40;
+  }
+  if (hasAny(prompt, ['公告', '提示', '提醒']) && node.alias === 'core.notice') {
+    score += 40;
+  }
+  if (hasAny(prompt, ['标签', '标记']) && node.alias === 'core.tag') {
+    score += 40;
+  }
+  if (hasAny(prompt, ['标题', '文案', '文字']) && node.alias === 'core.text') {
+    score += 24;
+  }
+  if (hasAny(prompt, ['卡片', '面板', '区域']) && node.alias === 'core.panel') {
+    score += 20;
+  }
+  if (
+    hasAny(prompt, ['入口', '动作']) &&
+    ['core.button', 'core.search', 'core.tabs'].includes(node.alias)
+  ) {
+    score += 22;
+  }
+  if (node.slot === 'footer') {
+    score += 8;
+  }
 
   prompt
     .toLowerCase()
     .split(/[\s,.;:!?()[\]{}"'`|/\\_-]+/)
     .filter((token) => token.length >= 2)
     .forEach((token) => {
-      if (searchable.includes(token)) {score += 16;}
+      if (searchable.includes(token)) {
+        score += 16;
+      }
     });
 
   return score;
@@ -196,23 +214,27 @@ function scoreCandidate(candidate: NodeCandidate, prompt: string): number {
 function uniqueNodeCandidates(candidates: NodeCandidate[]): NodeCandidate[] {
   const seen = new Set<string>();
   return candidates.filter((candidate) => {
-    if (seen.has(candidate.node.id)) {return false;}
+    if (seen.has(candidate.node.id)) {
+      return false;
+    }
     seen.add(candidate.node.id);
     return true;
   });
 }
 
 function buildNodeOptions(candidates: NodeCandidate[]): AgentClarificationOption[] {
-  return uniqueNodeCandidates(candidates).slice(0, MAX_OPTIONS).map((candidate) => ({
-    id: candidate.node.id,
-    label: nodeLabel(candidate),
-    description: nodeDescription(candidate),
-    value: `User selected node ${candidate.node.id} (${candidate.node.alias}) as the exact edit target.`,
-    target: {
-      nodeId: candidate.node.id,
-      alias: candidate.node.alias,
-    },
-  }));
+  return uniqueNodeCandidates(candidates)
+    .slice(0, MAX_OPTIONS)
+    .map((candidate) => ({
+      id: candidate.node.id,
+      label: nodeLabel(candidate),
+      description: nodeDescription(candidate),
+      value: `User selected node ${candidate.node.id} (${candidate.node.alias}) as the exact edit target.`,
+      target: {
+        nodeId: candidate.node.id,
+        alias: candidate.node.alias,
+      },
+    }));
 }
 
 function buildInsertionTargetOptions(
@@ -230,9 +252,15 @@ function buildInsertionTargetOptions(
       .map((candidate) => {
         let score = scoreCandidate(candidate, input.prompt);
         score += Math.max(0, 24 - candidate.depth * 4);
-        if (candidate.node.id === selectedId) { score += 80; }
-        if (candidate.node.id === selectedParentId) { score += 72; }
-        if (candidate.node.id === input.document.layout.id) { score += 18; }
+        if (candidate.node.id === selectedId) {
+          score += 80;
+        }
+        if (candidate.node.id === selectedParentId) {
+          score += 72;
+        }
+        if (candidate.node.id === input.document.layout.id) {
+          score += 18;
+        }
         return { candidate, score };
       })
       .sort((a, b) => b.score - a.score)
@@ -244,10 +272,9 @@ function buildPageOptions(pages: AgentPageContext[]): AgentClarificationOption[]
   return pages.slice(0, MAX_OPTIONS).map((page) => ({
     id: page.pageId,
     label: pageLabel(page),
-    description: [
-      page.isActive ? 'current page' : '',
-      `root: ${page.rootNodeId}`,
-    ].filter(Boolean).join(' · '),
+    description: [page.isActive ? 'current page' : '', `root: ${page.rootNodeId}`]
+      .filter(Boolean)
+      .join(' · '),
     value: `User selected page ${page.pageId} (${page.name}) as the exact edit target.`,
     target: { pageId: page.pageId },
   }));
@@ -276,10 +303,7 @@ export function buildEditorClarification(
   const selectedPlacementIsExplicit = hasAny(prompt, SELECTED_PLACEMENT_TERMS);
   if (
     input.selectedNode &&
-    (
-      !insertionPrompt ||
-      (selectedCanReceiveChildren && selectedPlacementIsExplicit)
-    )
+    (!insertionPrompt || (selectedCanReceiveChildren && selectedPlacementIsExplicit))
   ) {
     return null;
   }
@@ -325,16 +349,15 @@ export function buildEditorClarification(
     const options = buildInsertionTargetOptions(input, nodes);
     if (
       options.length > 1 &&
-      (
-        !input.selectedNode ||
+      (!input.selectedNode ||
         !selectedCanReceiveChildren ||
         !selectedPlacementIsExplicit ||
-        vagueTarget
-      )
+        vagueTarget)
     ) {
       return {
         reason: 'insertion_target_unclear',
-        question: '\u4f60\u60f3\u628a\u65b0\u5185\u5bb9\u6dfb\u52a0\u5230\u54ea\u4e2a\u533a\u57df\uff1f',
+        question:
+          '\u4f60\u60f3\u628a\u65b0\u5185\u5bb9\u6dfb\u52a0\u5230\u54ea\u4e2a\u533a\u57df\uff1f',
         options,
         ...CUSTOM_CLARIFICATION,
       };

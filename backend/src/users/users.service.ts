@@ -1,22 +1,33 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { Repository } from 'typeorm';
 
-import { AiTokenUsageEvent } from '../ai/entities/ai-token-usage.entity';
+import {
+  TOKEN_USAGE_REPOSITORY,
+  type TokenUsageRepository,
+} from '../ai/repositories/token-usage.repository';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { USER_ACCOUNT_REPOSITORY, type UserAccountRepository } from './repositories';
 
 // Local type aliases matching shared/types/user.types.ts (avoids cross-project rootDir expansion)
 interface UserDto {
-  id: string; username: string; email: string | null; phone: string | null;
-  linkedLogins: string[]; tokensUsed: number; tokensBalance: number;
-  balanceCents: number; isActive: boolean; createdAt: string; lastLoginAt: string | null;
+  id: string;
+  username: string;
+  email: string | null;
+  phone: string | null;
+  linkedLogins: string[];
+  tokensUsed: number;
+  tokensBalance: number;
+  balanceCents: number;
+  isActive: boolean;
+  createdAt: string;
+  lastLoginAt: string | null;
 }
 interface UserTokenUsageEventDto {
   id: string;
@@ -45,10 +56,10 @@ interface UserTokenUsageSummaryDto {
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User)
-    private readonly repo: Repository<User>,
-    @InjectRepository(AiTokenUsageEvent)
-    private readonly tokenUsageRepo: Repository<AiTokenUsageEvent>,
+    @Inject(USER_ACCOUNT_REPOSITORY)
+    private readonly users: UserAccountRepository,
+    @Inject(TOKEN_USAGE_REPOSITORY)
+    private readonly tokenUsage: TokenUsageRepository,
   ) {}
 
   // ---------------------------------------------------------------------------
@@ -62,10 +73,7 @@ export class UsersService {
 
   async getTokenUsageSummary(id: string): Promise<UserTokenUsageSummaryDto> {
     const user = await this.findEntityById(id);
-    const events = await this.tokenUsageRepo.find({
-      where: { ownerUserId: id },
-      order: { createdAt: 'DESC' },
-    });
+    const events = await this.tokenUsage.findForOwner(id);
 
     const inputTokens = events.reduce((sum, event) => sum + event.inputTokens, 0);
     const outputTokens = events.reduce((sum, event) => sum + event.outputTokens, 0);
@@ -108,7 +116,8 @@ export class UsersService {
 
       // Verify current password (supports both bcrypt and legacy SHA-256 formats)
       // dto.currentPassword = SHA-256(rawPassword), same as login protocol
-      const isBcryptHash = user.passwordHash.startsWith('$2b$') || user.passwordHash.startsWith('$2a$');
+      const isBcryptHash =
+        user.passwordHash.startsWith('$2b$') || user.passwordHash.startsWith('$2a$');
       if (isBcryptHash) {
         const valid = await bcrypt.compare(dto.currentPassword, user.passwordHash);
         if (!valid) {
@@ -128,17 +137,23 @@ export class UsersService {
       }
     }
 
-    if (dto.username !== undefined) { user.username = dto.username; }
-    if (dto.email !== undefined) { user.email = dto.email; }
-    if (dto.phone !== undefined) { user.phone = dto.phone; }
+    if (dto.username !== undefined) {
+      user.username = dto.username;
+    }
+    if (dto.email !== undefined) {
+      user.email = dto.email;
+    }
+    if (dto.phone !== undefined) {
+      user.phone = dto.phone;
+    }
 
-    const saved = await this.repo.save(user);
+    const saved = await this.users.save(user);
     return this.toDto(saved);
   }
 
   async remove(id: string): Promise<void> {
     const user = await this.findEntityById(id);
-    await this.repo.remove(user);
+    await this.users.remove(user);
   }
 
   // ---------------------------------------------------------------------------
@@ -146,7 +161,7 @@ export class UsersService {
   // ---------------------------------------------------------------------------
 
   private async findEntityById(id: string): Promise<User> {
-    const user = await this.repo.findOne({ where: { id } });
+    const user = await this.users.findById(id);
     if (!user) {
       throw new NotFoundException(`User ${id} not found`);
     }

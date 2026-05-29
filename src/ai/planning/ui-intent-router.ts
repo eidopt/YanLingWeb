@@ -1,8 +1,4 @@
-import {
-  inferUiDesignSkillContext,
-  type UiRenderSurface,
-  type UiTargetPlatform,
-} from '@shared/agent/skills/uiDesignSkillRegistry';
+import { inferUiDesignSkillContext, type UiRenderSurface, type UiTargetPlatform } from '@shared/agent/browser';
 
 export type UiIntentCategory =
   | 'marketing_site'
@@ -36,11 +32,7 @@ export type UiCapabilityId =
   | 'custom_widget_code'
   | 'backend_data';
 
-export type UiCapabilitySupportLevel =
-  | 'native'
-  | 'composed'
-  | 'fallback'
-  | 'unsupported';
+export type UiCapabilitySupportLevel = 'native' | 'composed' | 'fallback' | 'unsupported';
 
 export type UiGenerationStrategy =
   | 'standard_layout_document'
@@ -92,30 +84,12 @@ const CATEGORY_DEFINITIONS: UiIntentCategoryDefinition[] = [
   {
     id: 'marketing_site',
     label: 'Marketing site',
-    keywords: [
-      '官网',
-      'landing',
-      '首页',
-      '品牌站',
-      '公司网站',
-      '产品介绍',
-      '宣传页',
-      'website',
-      'site',
-    ],
+    keywords: ['官网', 'landing', '首页', '品牌站', '公司网站', '产品介绍', '宣传页', 'website', 'site'],
   },
   {
     id: 'web_app',
     label: 'Web app',
-    keywords: [
-      'web app',
-      '网页应用',
-      '后台',
-      '控制台',
-      '管理系统',
-      'saas',
-      'portal',
-    ],
+    keywords: ['web app', '网页应用', '后台', '控制台', '管理系统', 'saas', 'portal'],
   },
   {
     id: 'mobile_app',
@@ -198,8 +172,7 @@ const CAPABILITY_DEFINITIONS: UiCapabilityDefinition[] = [
     supportLevel: 'composed',
     rendererPath: 'core.panel + core.button + editor edit instruction tools',
     keywords: ['手动编辑', '拖动', '拖拽编辑', '保存', '排版', '编辑'],
-    generationHint:
-      'Represent editing affordances visually; real editor actions are handled separately.',
+    generationHint: 'Represent editing affordances visually; real editor actions are handled separately.',
   },
   {
     id: 'ai_assisted_generation',
@@ -349,10 +322,7 @@ function getCapabilityDefinition(id: UiCapabilityId): UiCapabilityDefinition {
   return definition;
 }
 
-function toCapabilityMatch(
-  definition: UiCapabilityDefinition,
-  matchedKeywords: string[],
-): UiCapabilityMatch {
+function toCapabilityMatch(definition: UiCapabilityDefinition, matchedKeywords: string[]): UiCapabilityMatch {
   return {
     id: definition.id,
     label: definition.label,
@@ -368,11 +338,10 @@ function resolveCategoryMatches(prompt: string): {
   matches: UiIntentCategory[];
   confidence: number;
 } {
-  const scored = CATEGORY_DEFINITIONS
-    .map((definition) => ({
-      definition,
-      matchedKeywords: findMatchedKeywords(prompt, definition.keywords),
-    }))
+  const scored = CATEGORY_DEFINITIONS.map((definition) => ({
+    definition,
+    matchedKeywords: findMatchedKeywords(prompt, definition.keywords),
+  }))
     .filter((item) => item.matchedKeywords.length > 0)
     .sort((a, b) => b.matchedKeywords.length - a.matchedKeywords.length);
 
@@ -388,18 +357,17 @@ function resolveCategoryMatches(prompt: string): {
 }
 
 function resolveCapabilityMatches(prompt: string): UiCapabilityMatch[] {
-  const matches = CAPABILITY_DEFINITIONS
-    .map((definition) => ({
-      definition,
-      matchedKeywords: findMatchedKeywords(prompt, definition.keywords),
-    }))
+  const matches = CAPABILITY_DEFINITIONS.map((definition) => ({
+    definition,
+    matchedKeywords: findMatchedKeywords(prompt, definition.keywords),
+  }))
     .filter((item) => item.matchedKeywords.length > 0)
     .map((item) => toCapabilityMatch(item.definition, item.matchedKeywords));
 
   const existingIds = new Set(matches.map((match) => match.id));
-  const defaults = DEFAULT_CAPABILITY_IDS
-    .filter((id) => !existingIds.has(id))
-    .map((id) => toCapabilityMatch(getCapabilityDefinition(id), []));
+  const defaults = DEFAULT_CAPABILITY_IDS.filter((id) => !existingIds.has(id)).map((id) =>
+    toCapabilityMatch(getCapabilityDefinition(id), []),
+  );
 
   return [...matches, ...defaults];
 }
@@ -414,9 +382,9 @@ function chooseGenerationStrategy(
   missingCapabilities: UiCapabilityMatch[],
 ): UiGenerationStrategy {
   if (
-    categoryMatches.length === 1
-    && categoryMatches[0] === 'unknown'
-    && supportedCapabilities.length <= DEFAULT_CAPABILITY_IDS.length
+    categoryMatches.length === 1 &&
+    categoryMatches[0] === 'unknown' &&
+    supportedCapabilities.length <= DEFAULT_CAPABILITY_IDS.length
   ) {
     return 'clarify_before_generation';
   }
@@ -435,18 +403,13 @@ function chooseGenerationStrategy(
 function buildPromptHints(
   planSeed: Pick<
     UiIntentPlan,
-    | 'primaryCategory'
-    | 'generationStrategy'
-    | 'targetPlatforms'
-    | 'supportedCapabilities'
-    | 'missingCapabilities'
+    'primaryCategory' | 'generationStrategy' | 'targetPlatforms' | 'supportedCapabilities' | 'missingCapabilities'
   >,
 ): string[] {
   const hints = [
     `Primary UI category: ${planSeed.primaryCategory}.`,
     'Generate only aliases that are either core.* or declared in componentTemplates.',
-    'Keep the output editable by preserving clear node ids, layout metadata, '
-      + 'and reusable templates.',
+    'Keep the output editable by preserving clear node ids, layout metadata, ' + 'and reusable templates.',
   ];
 
   hints.push(`Target platforms: ${planSeed.targetPlatforms.join(', ')}.`);
@@ -456,29 +419,26 @@ function buildPromptHints(
   });
 
   planSeed.missingCapabilities.forEach((capability) => {
-    hints.push(
-      `Gap: ${capability.label}. ${capability.gapHint ?? capability.generationHint}`,
-    );
+    hints.push(`Gap: ${capability.label}. ${capability.gapHint ?? capability.generationHint}`);
   });
 
   if (planSeed.generationStrategy === 'compose_existing_components') {
     hints.push(
-      'Use the closest static or page-based approximation and make limitations '
-        + 'clear in the final explanation.',
+      'Use the closest static or page-based approximation and make limitations ' + 'clear in the final explanation.',
     );
   }
 
   if (planSeed.generationStrategy === 'requires_dynamic_module') {
     hints.push(
-      'Do not fabricate runtime behavior. Generate the best editable UI shell '
-        + 'and explain which dynamic module would be needed.',
+      'Do not fabricate runtime behavior. Generate the best editable UI shell ' +
+        'and explain which dynamic module would be needed.',
     );
   }
 
   if (planSeed.generationStrategy === 'clarify_before_generation') {
     hints.push(
-      'The request is broad. Still create a practical starter template, '
-        + 'but avoid over-specific unsupported behavior.',
+      'The request is broad. Still create a practical starter template, ' +
+        'but avoid over-specific unsupported behavior.',
     );
   }
 
@@ -492,11 +452,7 @@ export function planUiIntent(prompt: string): UiIntentPlan {
   const capabilities = resolveCapabilityMatches(normalizedPrompt);
   const supportedCapabilities = capabilities.filter(isSupported);
   const missingCapabilities = capabilities.filter((match) => !isSupported(match));
-  const generationStrategy = chooseGenerationStrategy(
-    matches,
-    supportedCapabilities,
-    missingCapabilities,
-  );
+  const generationStrategy = chooseGenerationStrategy(matches, supportedCapabilities, missingCapabilities);
   const planSeed = {
     primaryCategory: matches[0],
     generationStrategy,
@@ -520,9 +476,8 @@ export function formatUiIntentPlanForPrompt(plan: UiIntentPlan): string {
   const supported = plan.supportedCapabilities
     .map((capability) => `${capability.id}:${capability.supportLevel}`)
     .join(', ');
-  const missing = plan.missingCapabilities
-    .map((capability) => `${capability.id}:${capability.supportLevel}`)
-    .join(', ') || 'none';
+  const missing =
+    plan.missingCapabilities.map((capability) => `${capability.id}:${capability.supportLevel}`).join(', ') || 'none';
 
   return [
     'UI intent plan:',
@@ -540,7 +495,4 @@ export function formatUiIntentPlanForPrompt(plan: UiIntentPlan): string {
   ].join('\n');
 }
 
-export {
-  CAPABILITY_DEFINITIONS as UI_CAPABILITY_DEFINITIONS,
-  CATEGORY_DEFINITIONS as UI_INTENT_CATEGORY_DEFINITIONS,
-};
+export { CAPABILITY_DEFINITIONS as UI_CAPABILITY_DEFINITIONS, CATEGORY_DEFINITIONS as UI_INTENT_CATEGORY_DEFINITIONS };

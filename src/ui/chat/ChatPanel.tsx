@@ -1,24 +1,12 @@
 'use client';
 
 import styles from './ChatPanel.module.css';
-import type { AgentClarificationOption } from '@shared/agent/types';
-import {
-  type FormEvent,
-  type KeyboardEvent,
-  type RefObject,
-  useState,
-} from 'react';
+import type { AgentClarificationOption } from '@shared/agent/contracts/agent';
+import { type FormEvent, type KeyboardEvent, type RefObject, useState } from 'react';
 import type { Components } from 'react-markdown';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import {
-  Box,
-  Button,
-  Heading,
-  Stack,
-  Text,
-  TextArea,
-} from 'ui/base';
+import { Box, Button, Heading, Stack, Text, TextArea } from 'ui/base';
 
 export interface ChatClarification {
   question: string;
@@ -61,26 +49,16 @@ export interface ChatPanelProps {
 const markdownComponents: Components = {
   a({ children, href, ...props }) {
     return (
-      <a
-        {...props}
-        href={href}
-        target="_blank"
-        rel="noreferrer"
-      >
+      <a {...props} href={href} target="_blank" rel="noreferrer">
         {children}
       </a>
     );
   },
   code({ children, className, ...props }) {
-    const codeClassName = className
-      ? `${className} ${styles.blockCode}`
-      : styles.inlineCode;
+    const codeClassName = className ? `${className} ${styles.blockCode}` : styles.inlineCode;
 
     return (
-      <code
-        {...props}
-        className={codeClassName}
-      >
+      <code {...props} className={codeClassName}>
         {children}
       </code>
     );
@@ -97,10 +75,7 @@ const markdownComponents: Components = {
 function MarkdownMessage({ text }: { text: string }) {
   return (
     <Box className={styles.markdown}>
-      <ReactMarkdown
-        components={markdownComponents}
-        remarkPlugins={[remarkGfm]}
-      >
+      <ReactMarkdown components={markdownComponents} remarkPlugins={[remarkGfm]}>
         {text}
       </ReactMarkdown>
     </Box>
@@ -110,7 +85,9 @@ function MarkdownMessage({ text }: { text: string }) {
 function StreamingPending({ label }: { label: string }) {
   return (
     <Box as="span" className={styles.waiting}>
-      <Text as="span" size="sm" variant="muted">{label}</Text>
+      <Text as="span" size="sm" variant="muted">
+        {label}
+      </Text>
       <Box as="span" className={styles.waitingDots} aria-hidden="true">
         <Box as="span" />
         <Box as="span" />
@@ -127,9 +104,7 @@ function messageClassName(message: ChatMessage): string {
   if (message.role === 'system') {
     return styles.systemMessage;
   }
-  return message.streaming
-    ? `${styles.assistantMessage} ${styles.streamingMessage}`
-    : styles.assistantMessage;
+  return message.streaming ? `${styles.assistantMessage} ${styles.streamingMessage}` : styles.assistantMessage;
 }
 
 export function ChatPanel({
@@ -169,11 +144,7 @@ export function ChatPanel({
   }
 
   function handleInputKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
-    if (
-      event.key !== 'Enter' ||
-      event.shiftKey ||
-      event.nativeEvent.isComposing
-    ) {
+    if (event.key !== 'Enter' || event.shiftKey || event.nativeEvent.isComposing) {
       return;
     }
 
@@ -191,32 +162,39 @@ export function ChatPanel({
           <Text as="span" size="xs" transform="uppercase" variant="muted" weight="bold">
             {eyebrow}
           </Text>
-          <Heading as="h3" size="xs" variant="primary" weight="bold">{title}</Heading>
+          <Heading as="h3" size="xs" variant="primary" weight="bold">
+            {title}
+          </Heading>
         </Stack>
-        <Text as="span" size="xs" variant="muted" weight="bold">{status}</Text>
+        <Text as="span" size="xs" variant="muted" weight="bold">
+          {status}
+        </Text>
       </Box>
 
       {badges.length > 0 ? (
         <Box className={styles.badges}>
           {badges.map((badge) => (
-            <Box key={badge} as="span">{badge}</Box>
+            <Box key={badge} as="span">
+              {badge}
+            </Box>
           ))}
         </Box>
       ) : null}
 
       <Box className={styles.messages} aria-live="polite">
         {messages.map((message) => (
-          <Box
-            key={message.id}
-            className={messageClassName(message)}
-          >
+          <Box key={message.id} className={messageClassName(message)}>
             {message.text ? (
-              message.role === 'user'
-                ? message.text
-                : <MarkdownMessage text={message.text} />
+              message.role === 'user' ? (
+                message.text
+              ) : (
+                <MarkdownMessage text={message.text} />
+              )
             ) : message.role === 'assistant' ? (
               <StreamingPending label={streamingLabel} />
-            ) : ''}
+            ) : (
+              ''
+            )}
 
             {message.clarification ? (
               <>
@@ -233,9 +211,7 @@ export function ChatPanel({
                       <span className={styles.optionContent}>
                         <span className={styles.optionLabel}>{option.label}</span>
                         {option.description ? (
-                          <span className={styles.optionDescription}>
-                            {option.description}
-                          </span>
+                          <span className={styles.optionDescription}>{option.description}</span>
                         ) : null}
                       </span>
                     </Button>
@@ -257,11 +233,7 @@ export function ChatPanel({
                     <Box className={styles.customChoiceActions}>
                       <Button
                         type="button"
-                        disabled={
-                          disabled
-                          || isRunning
-                          || !(customValues[message.id] ?? '').trim()
-                        }
+                        disabled={disabled || isRunning || !(customValues[message.id] ?? '').trim()}
                         onClick={() => submitCustomValue(message)}
                         size="sm"
                         variant="secondary"
@@ -295,21 +267,11 @@ export function ChatPanel({
         />
         <Box className={styles.actions}>
           {isRunning ? (
-            <Button
-              type="button"
-              onClick={onCancel}
-              size="sm"
-              variant="secondary"
-            >
+            <Button type="button" onClick={onCancel} size="sm" variant="secondary">
               {cancelLabel}
             </Button>
           ) : null}
-          <Button
-            type="submit"
-            disabled={disabled || isRunning || !inputValue.trim()}
-            size="sm"
-            variant="primary"
-          >
+          <Button type="submit" disabled={disabled || isRunning || !inputValue.trim()} size="sm" variant="primary">
             {submitLabel}
           </Button>
         </Box>

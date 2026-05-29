@@ -1,4 +1,5 @@
 import type { TemplateToolInput } from '../tools/generate-template.tool';
+import { type HttpClient, resolveHttpClient } from 'services/http/HttpClient';
 
 export interface GeneratedTemplateSaveResult {
   templateId: string;
@@ -10,30 +11,29 @@ export interface TemplateStore {
 }
 
 export class BrowserTemplateStore implements TemplateStore {
-  constructor(private readonly getToken: () => string | null) {}
+  private readonly http: HttpClient;
+
+  constructor(getToken: () => string | null, httpClient?: HttpClient) {
+    this.http = httpClient ?? resolveHttpClient(getToken);
+  }
 
   async saveGeneratedTemplate(input: TemplateToolInput): Promise<GeneratedTemplateSaveResult> {
-    const token = this.getToken();
-    const res = await fetch('/api/proxy/ai/templates', {
+    const { data, response } = await this.http.json<GeneratedTemplateSaveResult>('/api/proxy/ai/templates', {
       method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        ...(token ? { authorization: `Bearer ${token}` } : {}),
-      },
+      auth: true,
+      headers: { 'content-type': 'application/json' },
       body: JSON.stringify(input),
     });
 
-    if (!res.ok) {
-      const text = await res.text().catch(() => '');
-      let message = `Failed to save template (${String(res.status)})`;
-      try {
-        message = (JSON.parse(text) as { message?: string }).message ?? message;
-      } catch {
-        // keep status-based message
+    if (!response.ok) {
+      let message = `Failed to save template (${String(response.status)})`;
+      const errorMessage = (data as { message?: unknown }).message;
+      if (typeof errorMessage === 'string') {
+        message = errorMessage;
       }
       throw new Error(message);
     }
 
-    return await res.json() as GeneratedTemplateSaveResult;
+    return data;
   }
 }

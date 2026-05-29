@@ -54,14 +54,28 @@ export interface ThemeLayoutNavigateAction {
   targetPageId: string;
 }
 
-export type ThemeLayoutTabInteraction =
+export interface ThemeLayoutSetVisibilityAction {
+  type: 'setVisibility';
+  targetNodeId: string;
+  visible: boolean;
+}
+
+export interface ThemeLayoutToggleVisibilityAction {
+  type: 'toggleVisibility';
+  targetNodeId: string;
+}
+
+export type ThemeLayoutNodeAction =
   | ThemeLayoutNavigateAction
-  | Record<string, ThemeLayoutNavigateAction>;
+  | ThemeLayoutSetVisibilityAction
+  | ThemeLayoutToggleVisibilityAction;
+
+export type ThemeLayoutTabInteraction = ThemeLayoutNavigateAction | Record<string, ThemeLayoutNavigateAction>;
 
 export interface ThemeLayoutNodeInteractions {
-  onClick?: ThemeLayoutNavigateAction;
-  onActionClick?: ThemeLayoutNavigateAction;
-  onStatusClick?: ThemeLayoutNavigateAction;
+  onClick?: ThemeLayoutNodeAction;
+  onActionClick?: ThemeLayoutNodeAction;
+  onStatusClick?: ThemeLayoutNodeAction;
   onTabClick?: ThemeLayoutTabInteraction;
 }
 
@@ -92,6 +106,23 @@ export interface ThemeLayoutStyleManifest {
   cssVars?: Record<string, string>;
 }
 
+export interface ThemeLayoutWidgetPolicy {
+  enabled?: boolean;
+  allowedLibraries?: string[];
+  allowedRenderers?: string[];
+  allowedCapabilities?: ('chart' | 'animation' | 'diagram')[];
+}
+
+export interface ThemeLayoutDataSource {
+  id: string;
+  kind: 'staticJson' | 'publicJsonEndpoint';
+  description?: string;
+  url?: string;
+  data?: unknown;
+  select?: string;
+  fallback?: unknown;
+}
+
 export interface ThemeLayoutDocument {
   version: number;
   schemaVersion?: number;
@@ -104,6 +135,8 @@ export interface ThemeLayoutDocument {
   pages: ThemeLayoutPage[];
   layout: ThemeLayoutNode;
   dependencies?: ThemeLibraryDependency[];
+  widgetPolicy?: ThemeLayoutWidgetPolicy;
+  dataSources?: ThemeLayoutDataSource[];
   cssVars?: Record<string, string>;
   cssAnimations?: Record<string, string> | null;
   style?: ThemeLayoutStyleManifest;
@@ -121,6 +154,8 @@ export interface ThemeLayoutDocumentSource {
   pages?: ThemeLayoutPage[];
   layout?: ThemeLayoutNode;
   dependencies?: ThemeLibraryDependency[];
+  widgetPolicy?: ThemeLayoutWidgetPolicy;
+  dataSources?: ThemeLayoutDataSource[];
   cssVars?: Record<string, string>;
   cssAnimations?: Record<string, string> | null;
   style?: ThemeLayoutStyleManifest;
@@ -131,9 +166,7 @@ function resolvePageName(layout: ThemeLayoutNode, fallback: string) {
   return typeof title === 'string' && title.trim() ? title.trim() : fallback;
 }
 
-export function getThemeLayoutPages(
-  document: ThemeLayoutDocumentSource,
-): ThemeLayoutPage[] {
+export function getThemeLayoutPages(document: ThemeLayoutDocumentSource): ThemeLayoutPage[] {
   if (document.pages?.length) {
     return document.pages.map((page) => ({
       ...page,
@@ -142,10 +175,7 @@ export function getThemeLayoutPages(
   }
 
   if (!document.layout) {
-    throw new Error(
-      `Theme layout document "${document.themeId}"`
-      + ' is missing both pages and layout.',
-    );
+    throw new Error(`Theme layout document "${document.themeId}"` + ' is missing both pages and layout.');
   }
 
   // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- empty string should fall through
@@ -154,24 +184,17 @@ export function getThemeLayoutPages(
     {
       id: fallbackPageId,
       /* eslint-disable @typescript-eslint/prefer-nullish-coalescing -- empty string should fall through */
-      name: document.pageName?.trim()
-        || resolvePageName(document.layout, fallbackPageId),
+      name: document.pageName?.trim() || resolvePageName(document.layout, fallbackPageId),
       /* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
       layout: document.layout,
     },
   ];
 }
 
-export function getThemeLayoutPage(
-  document: ThemeLayoutDocumentSource,
-  pageId?: string | null,
-): ThemeLayoutPage {
+export function getThemeLayoutPage(document: ThemeLayoutDocumentSource, pageId?: string | null): ThemeLayoutPage {
   const pages = getThemeLayoutPages(document);
   if (!pages.length) {
-    throw new Error(
-      `Theme layout document "${document.themeId}"`
-      + ' does not contain any pages.',
-    );
+    throw new Error(`Theme layout document "${document.themeId}"` + ' does not contain any pages.');
   }
 
   if (pageId) {
@@ -185,14 +208,9 @@ export function getThemeLayoutPage(
   return pages.find((page) => page.id === defaultPageId) ?? pages[0];
 }
 
-export function normalizeThemeLayoutDocument(
-  document: ThemeLayoutDocumentSource,
-): ThemeLayoutDocument {
+export function normalizeThemeLayoutDocument(document: ThemeLayoutDocumentSource): ThemeLayoutDocument {
   const pages = getThemeLayoutPages(document);
-  const activePage = getThemeLayoutPage(
-    { ...document, pages },
-    document.defaultPageId,
-  );
+  const activePage = getThemeLayoutPage({ ...document, pages }, document.defaultPageId);
 
   return {
     version: document.version,
@@ -207,14 +225,13 @@ export function normalizeThemeLayoutDocument(
     pages,
     layout: activePage.layout,
     dependencies: document.dependencies ? [...document.dependencies] : undefined,
+    dataSources: document.dataSources ? [...document.dataSources] : undefined,
     cssVars: document.cssVars ? { ...document.cssVars } : undefined,
     cssAnimations: document.cssAnimations ? { ...document.cssAnimations } : undefined,
     style: document.style
       ? {
           ...document.style,
-          cssVars: document.style.cssVars
-            ? { ...document.style.cssVars }
-            : undefined,
+          cssVars: document.style.cssVars ? { ...document.style.cssVars } : undefined,
         }
       : undefined,
   };

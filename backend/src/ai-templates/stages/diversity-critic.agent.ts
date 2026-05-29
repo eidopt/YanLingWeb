@@ -1,7 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { STAGE_DIVERSITY_CRITIC_SYSTEM_PROMPT } from '@shared/agent/prompts/templates';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { STAGE_DIVERSITY_CRITIC_SYSTEM_PROMPT } from '@shared/agent/runtime';
 
-import { AiService } from '../../ai/ai.service';
+import {
+  AI_TEMPLATE_PIPELINE_PROVIDER,
+  type AiTemplatePipelineProvider,
+} from '../../ai/pipeline-provider.port';
 import type {
   CriticVerdict,
   DesignerOutput,
@@ -13,7 +16,11 @@ import { runStructuredStage } from '../orchestrator/run-stage';
 import { SUBMIT_DIVERSITY_VERDICT_TOOL } from '../tools/submit-diversity-verdict.tool';
 
 const VALID_DIMENSIONS = new Set<DiversityConflict['dimension']>([
-  'archetype', 'heroMode', 'componentTemplate', 'color-hue', 'signature',
+  'archetype',
+  'heroMode',
+  'componentTemplate',
+  'color-hue',
+  'signature',
 ]);
 
 /**
@@ -29,7 +36,10 @@ const VALID_DIMENSIONS = new Set<DiversityConflict['dimension']>([
 export class DiversityCriticAgent {
   private readonly logger = new Logger(DiversityCriticAgent.name);
 
-  constructor(private readonly aiService: AiService) {}
+  constructor(
+    @Inject(AI_TEMPLATE_PIPELINE_PROVIDER)
+    private readonly aiProvider: AiTemplatePipelineProvider,
+  ) {}
 
   async run(
     candidate: DesignerOutput,
@@ -38,8 +48,8 @@ export class DiversityCriticAgent {
   ): Promise<PipelineStageRecord<CriticVerdict>> {
     const start = Date.now();
     this.logger.debug(
-      `critic attempt=${attempt} candidate=${candidate.templateId}`
-        + ` existing=${existing.length}`,
+      `critic attempt=${attempt} candidate=${candidate.templateId}` +
+        ` existing=${existing.length}`,
     );
 
     const hardConflicts = this.findHardConflicts(candidate, existing);
@@ -72,11 +82,10 @@ export class DiversityCriticAgent {
       };
     }
 
-    const { provider, model, apiKeyConfigured } =
-      this.aiService.getProviderForTemplatePipeline();
+    const { provider, model, apiKeyConfigured } = this.aiProvider.getProviderForTemplatePipeline();
     if (!apiKeyConfigured) {
-      // API key 未配置，退化为只看硬规则的判断
-      this.logger.warn('AI_API_KEY 未配置，Critic 跳过 LLM 语义检查');
+      // API key 未配置时退化为只看硬规则的判断。
+      this.logger.warn('AI_API_KEY is not configured; Critic skips LLM semantic checks');
       return {
         attempt,
         durationMs: Date.now() - start,
@@ -114,8 +123,7 @@ export class DiversityCriticAgent {
     const conflicts: DiversityConflict[] = [];
 
     const sameArchetype = existing.filter(
-      (e) => e.archetype === candidate.archetype
-        && e.displayCategory === candidate.displayCategory,
+      (e) => e.archetype === candidate.archetype && e.displayCategory === candidate.displayCategory,
     );
     if (sameArchetype.length >= 2) {
       for (const e of sameArchetype) {
@@ -123,16 +131,15 @@ export class DiversityCriticAgent {
           templateId: e.templateId,
           dimension: 'archetype',
           description:
-            `同 archetype "${candidate.archetype}"`
-            + ` 在 displayCategory "${candidate.displayCategory}"`
-            + ` 下已有 ${sameArchetype.length} 个`,
+            `同 archetype "${candidate.archetype}"` +
+            ` 在 displayCategory "${candidate.displayCategory}"` +
+            ` 下已有 ${sameArchetype.length} 个`,
         });
       }
     }
 
     const sameHero = existing.filter(
-      (e) => e.heroMode === candidate.heroMode
-        && e.displayCategory === candidate.displayCategory,
+      (e) => e.heroMode === candidate.heroMode && e.displayCategory === candidate.displayCategory,
     );
     if (sameHero.length >= 1) {
       for (const e of sameHero) {
@@ -140,9 +147,9 @@ export class DiversityCriticAgent {
           templateId: e.templateId,
           dimension: 'heroMode',
           description:
-            `同 heroMode "${candidate.heroMode}"`
-            + ` 在 displayCategory "${candidate.displayCategory}"`
-            + ` 下已被 ${e.templateId} 使用`,
+            `同 heroMode "${candidate.heroMode}"` +
+            ` 在 displayCategory "${candidate.displayCategory}"` +
+            ` 下已被 ${e.templateId} 使用`,
         });
       }
     }
@@ -163,21 +170,15 @@ export class DiversityCriticAgent {
     return conflicts;
   }
 
-  private buildSuggestion(
-    candidate: DesignerOutput,
-    existing: ExistingTemplateSummary[],
-  ): string {
-    const digest = existing
-      .map((e) => `${e.templateId}(${e.archetype}/${e.heroMode})`)
-      .join(', ');
-    return `请换一个 archetype 或 heroMode；当前 displayCategory`
-      + ` "${candidate.displayCategory}" 下已有: ${digest}`;
+  private buildSuggestion(candidate: DesignerOutput, existing: ExistingTemplateSummary[]): string {
+    const digest = existing.map((e) => `${e.templateId}(${e.archetype}/${e.heroMode})`).join(', ');
+    return (
+      `请换一个 archetype 或 heroMode；当前 displayCategory` +
+      ` "${candidate.displayCategory}" 下已有: ${digest}`
+    );
   }
 
-  private buildUserMessage(
-    candidate: DesignerOutput,
-    existing: ExistingTemplateSummary[],
-  ): string {
+  private buildUserMessage(candidate: DesignerOutput, existing: ExistingTemplateSummary[]): string {
     const candidateSummary = {
       templateId: candidate.templateId,
       archetype: candidate.archetype,
@@ -188,8 +189,7 @@ export class DiversityCriticAgent {
       primaryHue: candidate.cssVars['--color-primary'] ?? '#000000',
     };
     return [
-      '判断候选 brief 是否与已生成模板雷同。重点对比 diversitySignature 的'
-        + '语义相似度。',
+      '判断候选 brief 是否与已生成模板雷同。重点对比 diversitySignature 的' + '语义相似度。',
       '只要语义雷同就 verdict=revise，并通过 suggestion 给出明确的换什么。',
       '',
       '候选：',
@@ -215,8 +215,7 @@ export class DiversityCriticAgent {
         throw new Error(`Critic conflicts[${i}] 必须是对象`);
       }
       const item = c as Record<string, unknown>;
-      const str = (key: string): string =>
-        typeof item[key] === 'string' ? (item[key]) : '';
+      const str = (key: string): string => (typeof item[key] === 'string' ? item[key] : '');
       const dim = str('dimension');
       if (!VALID_DIMENSIONS.has(dim as DiversityConflict['dimension'])) {
         throw new Error(`Critic conflicts[${i}].dimension "${dim}" 不在合法枚举内`);

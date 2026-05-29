@@ -1,11 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
-import {
-  buildVerifierSystemPrompt,
-  type VerifierLens,
-} from '@shared/agent/prompts/templates';
-import { validateThemeLayoutDocument } from '@shared/agent/validation/themeLayoutValidator';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { validateThemeLayoutDocument } from '@shared/agent/contracts/validation';
+import { buildVerifierSystemPrompt, type VerifierLens } from '@shared/agent/runtime';
 
-import { AiService } from '../../ai/ai.service';
+import {
+  AI_TEMPLATE_PIPELINE_PROVIDER,
+  type AiTemplatePipelineProvider,
+} from '../../ai/pipeline-provider.port';
 import type {
   DesignerOutput,
   ExistingTemplateSummary,
@@ -36,7 +36,10 @@ const LENSES: readonly VerifierLens[] = [
 export class VerifierAgent {
   private readonly logger = new Logger(VerifierAgent.name);
 
-  constructor(private readonly aiService: AiService) {}
+  constructor(
+    @Inject(AI_TEMPLATE_PIPELINE_PROVIDER)
+    private readonly aiProvider: AiTemplatePipelineProvider,
+  ) {}
 
   async run(
     brief: DesignerOutput,
@@ -47,8 +50,7 @@ export class VerifierAgent {
     const start = Date.now();
     this.logger.debug(`verifier attempt=${attempt} schema=${schema.templateId}`);
 
-    const { provider, model, apiKeyConfigured } =
-      this.aiService.getProviderForTemplatePipeline();
+    const { provider, model, apiKeyConfigured } = this.aiProvider.getProviderForTemplatePipeline();
 
     const usageTotal: StageRunUsage = { inputTokens: 0, outputTokens: 0, cacheHitTokens: 0 };
 
@@ -61,7 +63,9 @@ export class VerifierAgent {
           }
         }
         if (!apiKeyConfigured) {
-          this.logger.warn(`AI_API_KEY 未配置，verifier lens=${lens} 退化为 pass`);
+          this.logger.warn(
+            `AI_API_KEY is not configured; verifier lens=${lens} falls back to pass`,
+          );
           return { lens, pass: true, failures: [], summary: '未启用 LLM 检查' };
         }
         const result = await runStructuredStage<VerifierVerdict>({
@@ -96,7 +100,8 @@ export class VerifierAgent {
   private runProgrammaticSpecCheck(schema: SchemaOutput): VerifierVerdict {
     const validation = validateThemeLayoutDocument(schema.document, {
       failOnUnknownProps: false,
-      componentTemplates: schema.rawToolInput.componentTemplates as Record<string, unknown>
+      componentTemplates: schema.rawToolInput.componentTemplates as
+        | Record<string, unknown>
         | undefined,
     });
     if (validation.errors.length === 0) {
@@ -137,8 +142,7 @@ export class VerifierAgent {
 
     if (lens === 'diversity') {
       return [
-        '审查生成结果的视觉差异化。重点比对 hero 结构、componentTemplates、'
-          + 'cssVars 主色相。',
+        '审查生成结果的视觉差异化。重点比对 hero 结构、componentTemplates、' + 'cssVars 主色相。',
         '',
         '原始 brief 摘要：',
         '```json',
@@ -208,8 +212,7 @@ export class VerifierAgent {
       if (severity !== 'error' && severity !== 'warning') {
         throw new Error(`verifier failures[${i}].severity 必须是 "error" 或 "warning"`);
       }
-      const str = (key: string): string =>
-        typeof item[key] === 'string' ? (item[key]) : '';
+      const str = (key: string): string => (typeof item[key] === 'string' ? item[key] : '');
       return {
         rule: str('rule'),
         severity,

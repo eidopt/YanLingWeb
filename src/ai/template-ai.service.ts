@@ -1,17 +1,11 @@
 import { BrowserTemplateStore } from './adapters/browserTemplateStore';
 import { TemplateGenerationAgent } from './agents/templateGenerationAgent';
 import { BackendProxyProvider } from './core/providers/backend-proxy.provider';
-import type { AgentEvent } from '@shared/agent/types';
+import type { AgentEvent } from '@shared/agent/contracts/agent';
+import { type HttpClient, resolveHttpClient } from 'services/http/HttpClient';
 
 export interface AiGenerateEvent {
-  type:
-    | 'text'
-    | 'intent_plan'
-    | 'tool_start'
-    | 'tool_done'
-    | 'template_saved'
-    | 'error'
-    | 'done';
+  type: 'text' | 'intent_plan' | 'tool_start' | 'tool_done' | 'template_saved' | 'error' | 'done';
   data: string;
 }
 
@@ -40,10 +34,7 @@ function getToolEventName(data: unknown): string {
   return eventDataToString(data);
 }
 
-function forwardGenerateAgentEvent(
-  event: AgentEvent,
-  onEvent: (event: AiGenerateEvent) => void,
-): void {
+function forwardGenerateAgentEvent(event: AgentEvent, onEvent: (event: AiGenerateEvent) => void): void {
   switch (event.type) {
     case 'intent_plan':
       onEvent({ type: 'intent_plan', data: eventDataToString(event.data) });
@@ -75,26 +66,28 @@ function forwardGenerateAgentEvent(
 export class TemplateAiService {
   private provider: BackendProxyProvider;
   private static defaultModel: string | null = null;
+  private readonly http: HttpClient;
 
   constructor(
     private readonly getToken: () => string | null,
     private readonly onAuthExpired?: () => void,
+    httpClient?: HttpClient,
   ) {
-    this.provider = new BackendProxyProvider(getToken, onAuthExpired);
+    this.http = httpClient ?? resolveHttpClient(getToken);
+    this.provider = new BackendProxyProvider(getToken, onAuthExpired, this.http);
   }
 
-  static async fetchConfig(token: string | null): Promise<string> {
+  static async fetchConfig(token: string | null, httpClient = resolveHttpClient(() => token)): Promise<string> {
     if (TemplateAiService.defaultModel) {
       return TemplateAiService.defaultModel;
     }
     try {
-      const res = await fetch('/api/proxy/ai/config', {
-        headers: token ? { authorization: `Bearer ${token}` } : {},
+      const { data, response } = await httpClient.json<{ provider: string; model: string }>('/api/proxy/ai/config', {
+        auth: Boolean(token),
       });
-      if (res.ok) {
-        const config = await res.json() as { provider: string; model: string };
-        TemplateAiService.defaultModel = config.model;
-        return config.model;
+      if (response.ok) {
+        TemplateAiService.defaultModel = data.model;
+        return data.model;
       }
     } catch {
       // Fall through to the browser-safe default.
@@ -103,7 +96,7 @@ export class TemplateAiService {
   }
 
   async generate(opts: GenerateTemplateOptions): Promise<void> {
-    const cfgModel = await TemplateAiService.fetchConfig(this.getToken());
+    const cfgModel = await TemplateAiService.fetchConfig(this.getToken(), this.http);
     const { prompt, model = cfgModel, onEvent, signal } = opts;
     let cancelled = false;
 
@@ -118,7 +111,7 @@ export class TemplateAiService {
       const agent = new TemplateGenerationAgent({
         provider: this.provider,
         model,
-        templateStore: new BrowserTemplateStore(this.getToken),
+        templateStore: new BrowserTemplateStore(this.getToken, this.http),
         persist: true,
         isCancelled: () => cancelled,
         onEvent: (event) => {

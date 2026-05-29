@@ -1,55 +1,34 @@
-// ─── Response Types ───────────────────────────────────────────────
+import { type HttpClient, resolveHttpClient } from './http/HttpClient';
+import type { CreateWithAiResult, SearchIntentResponse, SearchTemplatesResult } from '@shared/types/search.types';
 
-export interface TemplateSummary {
-  templateId: string;
-  name: string;
-  tagline: string;
-  description: string;
-  category: string;
-  displayCategory?: string;
-  accent: string;
-  traits: string[];
-  tags: string[];
-}
-
-export interface SearchTemplatesResult {
-  status: 'ok';
-  mode: 'search_templates';
-  query: string;
-  results: TemplateSummary[];
-  total: number;
-}
-
-export interface CreateWithAiResult {
-  status: 'ok';
-  mode: 'create_with_ai';
-  query: string;
-}
-
-export type SearchIntentResponse = SearchTemplatesResult | CreateWithAiResult;
+export type {
+  CreateWithAiResult,
+  SearchIntentResponse,
+  SearchTemplatesResult,
+  TemplateSummary,
+} from '@shared/types/search.types';
 
 // ─── Service ──────────────────────────────────────────────────────
 
 export class SearchService {
   private readonly base = '/api/proxy/search';
+  private readonly http: HttpClient;
 
-  constructor(private readonly getToken?: () => string | null) {}
+  constructor(clientOrTokenProvider?: HttpClient | (() => string | null)) {
+    this.http = resolveHttpClient(clientOrTokenProvider);
+  }
 
   async submit(query: string): Promise<SearchIntentResponse> {
-    const token = this.getToken?.();
-    const res = await fetch(this.base, {
+    const { data, response } = await this.http.json<Partial<SearchIntentResponse> & { message?: string }>(this.base, {
       method: 'POST',
+      auth: true,
       headers: {
         'content-type': 'application/json',
-        ...(token ? { authorization: `Bearer ${token}` } : {}),
       },
       body: JSON.stringify({ query }),
     });
-    const data = await res.json().catch(() => ({})) as Partial<SearchIntentResponse> & {
-      message?: string;
-    };
-    if (!res.ok) {
-      throw new Error(data.message ?? `Search request failed (${res.status})`);
+    if (!response.ok) {
+      throw new Error(data.message ?? `Search request failed (${response.status})`);
     }
     return data as SearchIntentResponse;
   }

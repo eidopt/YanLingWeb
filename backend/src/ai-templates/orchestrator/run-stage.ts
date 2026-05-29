@@ -1,9 +1,6 @@
-import type {
-  AIProvider,
-  ProviderMessage,
-  ProviderTool,
-} from '@shared/agent/runtime/providerTypes';
-import { QueryLoop, type ToolResult } from '@shared/agent/runtime/queryLoop';
+import type { AIProvider, ProviderMessage, ProviderTool } from '@shared/agent/contracts/provider';
+import type { ToolResult, ToolSpec } from '@shared/agent/contracts/queryLoop';
+import { QueryLoop } from '@shared/agent/runtime';
 
 export interface StageRunUsage {
   inputTokens: number;
@@ -51,7 +48,7 @@ export async function runStructuredStage<T>(
   let parseError: Error | undefined;
   const usage: StageRunUsage = { inputTokens: 0, outputTokens: 0, cacheHitTokens: 0 };
 
-  const toolSpecs = new Map<string, { name: string; supportsParallel?: boolean; }>();
+  const toolSpecs = new Map<string, ToolSpec>();
   toolSpecs.set(options.tool.name, { name: options.tool.name, supportsParallel: false });
 
   const loop = new QueryLoop({
@@ -66,6 +63,7 @@ export async function runStructuredStage<T>(
       }
       try {
         captured = options.parse(args);
+        parseError = undefined;
         return { output: JSON.stringify({ accepted: true }), action: 'done' };
       } catch (err) {
         parseError = err instanceof Error ? err : new Error(String(err));

@@ -1,23 +1,43 @@
-import type { ProviderTool } from '@shared/agent/runtime/providerTypes';
+import type { ProviderTool } from '@shared/agent/contracts/provider';
 
 const ARCHETYPE_ENUM = ['fresh', 'immersive', 'editorial', 'vibrant', 'dark-pro'] as const;
 const HERO_MODE_ENUM = [
-  'date-strip', 'function-grid', 'cover-story', 'metric-dashboard',
-  'story-ring', 'dual-column', 'timer-banner', 'search-filter',
+  'date-strip',
+  'function-grid',
+  'cover-story',
+  'metric-dashboard',
+  'story-ring',
+  'dual-column',
+  'timer-banner',
+  'search-filter',
 ] as const;
 
 export const SUBMIT_TEMPLATE_BRIEF_TOOL: ProviderTool = {
   name: 'submit_template_brief',
   description:
-    '提交一份完整的设计 brief。这是 Stage 1 Designer 的唯一输出方式 —— '
-    + '不要输出 markdown 解释文字。所有字段都是必填。',
+    '提交一份完整的设计 brief。这是 Stage 1 Designer 的唯一输出方式 —— ' +
+    '不要输出 markdown 解释文字。所有字段都是必填。',
   parameters: {
     type: 'object',
     required: [
-      'templateId', 'name', 'tagline', 'archetype', 'heroMode',
-      'platform', 'chrome', 'scenario', 'audience', 'pages',
-      'cssVars', 'componentTemplatesDraft', 'bottomTabs', 'category',
-      'displayCategory', 'whyArchetype', 'whyHeroMode', 'diversitySignature',
+      'templateId',
+      'name',
+      'tagline',
+      'archetype',
+      'heroMode',
+      'platform',
+      'chrome',
+      'scenario',
+      'audience',
+      'pages',
+      'cssVars',
+      'componentTemplatesDraft',
+      'bottomTabs',
+      'category',
+      'displayCategory',
+      'whyArchetype',
+      'whyHeroMode',
+      'diversitySignature',
     ],
     properties: {
       templateId: {
@@ -113,8 +133,20 @@ export const SUBMIT_TEMPLATE_BRIEF_TOOL: ProviderTool = {
       },
       displayCategory: {
         type: 'string',
-        enum: ['commerce', 'service', 'content', 'education', 'health', 'social',
-          'finance', 'marketing', 'utility', 'dashboard', 'profile', 'other'],
+        enum: [
+          'commerce',
+          'service',
+          'content',
+          'education',
+          'health',
+          'social',
+          'finance',
+          'marketing',
+          'utility',
+          'dashboard',
+          'profile',
+          'other',
+        ],
       },
       whyArchetype: {
         type: 'string',
@@ -126,8 +158,7 @@ export const SUBMIT_TEMPLATE_BRIEF_TOOL: ProviderTool = {
       },
       diversitySignature: {
         type: 'string',
-        description:
-          '一行字描述视觉签名，例如 "深色霓虹仪表盘 + 圆环进度"',
+        description: '一行字描述视觉签名，例如 "深色霓虹仪表盘 + 圆环进度"',
       },
     },
   },

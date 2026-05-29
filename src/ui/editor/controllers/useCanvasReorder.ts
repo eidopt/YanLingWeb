@@ -1,12 +1,5 @@
-import type {
-  ThemeLayoutDocument,
-  ThemeLayoutNode,
-} from '../../layout/types';
-import type {
-  DropIndicator,
-  DropIndicatorAxis,
-  DropIndicatorPosition,
-} from '../services/layoutBuilderService';
+import type { ThemeLayoutDocument, ThemeLayoutNode } from '../../layout/types';
+import type { DropIndicator, DropIndicatorAxis, DropIndicatorPosition } from '../services/layoutBuilderService';
 import {
   findNode,
   findParentId,
@@ -14,14 +7,14 @@ import {
   moveNodeWithinParentInDocument,
   moveRootNodeToRowBoundaryInDocument,
 } from '../services/layoutBuilderService';
+import { type DragEvent, type PointerEvent as ReactPointerEvent, type RefObject, useEffect, useRef } from 'react';
 import {
-  type DragEvent,
-  type PointerEvent as ReactPointerEvent,
-  type RefObject,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+  editorCanvasDragStateActions,
+  type RelativePointerDragState,
+  useEditorCanvasDragSnapshot,
+} from 'state/editorCanvasDragState';
+
+export type { DraggingNodeSnapshot } from 'state/editorCanvasDragState';
 
 const SCREEN_ROW_TOLERANCE = 40;
 const SCREEN_ROW_INSERT_EDGE_RATIO = 0.24;
@@ -61,37 +54,10 @@ interface UseCanvasReorderArgs {
     position: DropIndicatorPosition,
     axis: DropIndicatorAxis,
   ) => void;
-  moveNodeWithinParent: (
-    nodeId: string,
-    targetId: string,
-    position: DropIndicatorPosition,
-  ) => void;
+  moveNodeWithinParent: (nodeId: string, targetId: string, position: DropIndicatorPosition) => void;
   moveNodeToParentEnd: (nodeId: string, parentId: string) => void;
-  moveRootNodeToRowBoundary: (
-    nodeId: string,
-    targetId: string,
-    position: DropIndicatorPosition,
-  ) => void;
+  moveRootNodeToRowBoundary: (nodeId: string, targetId: string, position: DropIndicatorPosition) => void;
   builderNodeRefs: RefObject<Record<string, HTMLDivElement | null>>;
-}
-
-export interface DraggingNodeSnapshot {
-  top: number;
-  right: number;
-  bottom: number;
-  left: number;
-  width: number;
-  height: number;
-}
-
-interface RelativePointerDragState {
-  nodeId: string;
-  parentId: string;
-  startX: number;
-  startY: number;
-  currentX: number;
-  currentY: number;
-  started: boolean;
 }
 
 export function useCanvasReorder({
@@ -104,31 +70,36 @@ export function useCanvasReorder({
   moveRootNodeToRowBoundary,
   builderNodeRefs,
 }: UseCanvasReorderArgs) {
-  const [draggingAlias, setDraggingAlias] = useState('');
-  const [isCanvasActive, setIsCanvasActive] = useState(false);
-  const [draggingNodeId, setDraggingNodeId] = useState('');
-  const [dropIndicator, setDropIndicator] =
-    useState<DropIndicator | null>(null);
-  const [containerDropTargetId, setContainerDropTargetId] = useState('');
-  const [previewDocument, setPreviewDocument] =
-    useState<ThemeLayoutDocument | null>(null);
-  const [previewSignature, setPreviewSignature] = useState('');
-  const [draggingNodeSnapshot, setDraggingNodeSnapshot] =
-    useState<DraggingNodeSnapshot | null>(null);
-  const [relativePointerDrag, setRelativePointerDrag] =
-    useState<RelativePointerDragState | null>(null);
-  const dragRectSnapshotsRef =
-    useRef<Record<string, RectSnapshot>>({});
-  const relativePointerDragRef =
-    useRef<RelativePointerDragState | null>(null);
+  const {
+    draggingAlias,
+    isCanvasActive,
+    draggingNodeId,
+    dropIndicator,
+    containerDropTargetId,
+    previewDocument,
+    previewSignature,
+    draggingNodeSnapshot,
+    relativePointerDrag,
+  } = useEditorCanvasDragSnapshot();
+  const {
+    setDraggingAlias,
+    setIsCanvasActive,
+    setDraggingNodeId,
+    setDropIndicator,
+    setContainerDropTargetId,
+    setPreviewDocument,
+    setPreviewSignature,
+    setDraggingNodeSnapshot,
+    setRelativePointerDrag,
+  } = editorCanvasDragStateActions;
+  const dragRectSnapshotsRef = useRef<Record<string, RectSnapshot>>({});
+  const relativePointerDragRef = useRef<RelativePointerDragState | null>(null);
 
   function clamp(value: number, min: number, max: number) {
     return Math.min(max, Math.max(min, value));
   }
 
-  function toRectSnapshot(
-    rect: DOMRect | RectSnapshot,
-  ): RectSnapshot {
+  function toRectSnapshot(rect: DOMRect | RectSnapshot): RectSnapshot {
     return {
       top: rect.top,
       right: rect.right,
@@ -143,17 +114,11 @@ export function useCanvasReorder({
     dragRectSnapshotsRef.current = Object.fromEntries(
       Object.entries(builderNodeRefs.current)
         .filter((entry): entry is [string, HTMLDivElement] => entry[1] !== null)
-        .map(([nodeId, element]) => [
-          nodeId,
-          toRectSnapshot(element.getBoundingClientRect()),
-        ]),
+        .map(([nodeId, element]) => [nodeId, toRectSnapshot(element.getBoundingClientRect())]),
     );
   }
 
-  function getNodeRectSnapshot(
-    nodeId: string,
-    fallbackElement?: HTMLDivElement | null,
-  ) {
+  function getNodeRectSnapshot(nodeId: string, fallbackElement?: HTMLDivElement | null) {
     const snapshot = dragRectSnapshotsRef.current[nodeId];
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- map value may be undefined at runtime
     if (snapshot) {
@@ -172,30 +137,20 @@ export function useCanvasReorder({
     nextNodeId: string,
     nextPosition: DropIndicatorPosition,
   ) {
-    if (
-      dropIndicator?.axis !== nextAxis ||
-      dropIndicator.nodeId !== nextNodeId
-    ) {
+    if (dropIndicator?.axis !== nextAxis || dropIndicator.nodeId !== nextNodeId) {
       return nextPosition;
     }
 
     return dropIndicator.position;
   }
 
-  function getAxisMetrics(
-    rect: RectSnapshot,
-    axis: DropIndicatorAxis,
-  ) {
+  function getAxisMetrics(rect: RectSnapshot, axis: DropIndicatorAxis) {
     return axis === 'horizontal'
       ? { start: rect.left, end: rect.right, size: rect.width }
       : { start: rect.top, end: rect.bottom, size: rect.height };
   }
 
-  function resolveSiblingDropTarget(
-    children: NodeRectSnapshot[],
-    axis: DropIndicatorAxis,
-    pointer: number,
-  ) {
+  function resolveSiblingDropTarget(children: NodeRectSnapshot[], axis: DropIndicatorAxis, pointer: number) {
     if (!children.length) {
       return null;
     }
@@ -223,49 +178,24 @@ export function useCanvasReorder({
       const nextChild = orderedChildren[index + 1];
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- array[-1] is undefined at runtime; TypeScript doesn't model this without noUncheckedIndexedAccess
       const previousSeam = previousChild
-        ? (
-          getAxisMetrics(previousChild.rect, axis).end +
-          currentMetrics.start
-        ) / 2
+        ? (getAxisMetrics(previousChild.rect, axis).end + currentMetrics.start) / 2
         : null;
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- array[length] is undefined at runtime
-      const nextSeam = nextChild
-        ? (
-          currentMetrics.end +
-          getAxisMetrics(nextChild.rect, axis).start
-        ) / 2
-        : null;
+      const nextSeam = nextChild ? (currentMetrics.end + getAxisMetrics(nextChild.rect, axis).start) / 2 : null;
 
-      if (
-        pointer >= currentMetrics.start &&
-        pointer <= currentMetrics.end
-      ) {
-        if (
-          previousSeam !== null &&
-          pointer <= previousSeam + SIBLING_SEAM_TOLERANCE
-        ) {
+      if (pointer >= currentMetrics.start && pointer <= currentMetrics.end) {
+        if (previousSeam !== null && pointer <= previousSeam + SIBLING_SEAM_TOLERANCE) {
           return {
             nodeId: currentChild.nodeId,
-            position: getCurrentDropPosition(
-              axis,
-              currentChild.nodeId,
-              'before',
-            ),
+            position: getCurrentDropPosition(axis, currentChild.nodeId, 'before'),
             axis,
           };
         }
 
-        if (
-          nextSeam !== null &&
-          pointer >= nextSeam - SIBLING_SEAM_TOLERANCE
-        ) {
+        if (nextSeam !== null && pointer >= nextSeam - SIBLING_SEAM_TOLERANCE) {
           return {
             nodeId: currentChild.nodeId,
-            position: getCurrentDropPosition(
-              axis,
-              currentChild.nodeId,
-              'after',
-            ),
+            position: getCurrentDropPosition(axis, currentChild.nodeId, 'after'),
             axis,
           };
         }
@@ -303,24 +233,19 @@ export function useCanvasReorder({
       }
 
       const nextMetrics = getAxisMetrics(nextChild.rect, axis);
-      if (
-        pointer > currentMetrics.end &&
-        pointer < nextMetrics.start
-      ) {
-        const gapMidpoint =
-          currentMetrics.end +
-          (nextMetrics.start - currentMetrics.end) / 2;
+      if (pointer > currentMetrics.end && pointer < nextMetrics.start) {
+        const gapMidpoint = currentMetrics.end + (nextMetrics.start - currentMetrics.end) / 2;
         return pointer <= gapMidpoint
           ? {
-            nodeId: currentChild.nodeId,
-            position: 'after' as const,
-            axis,
-          }
+              nodeId: currentChild.nodeId,
+              position: 'after' as const,
+              axis,
+            }
           : {
-            nodeId: nextChild.nodeId,
-            position: 'before' as const,
-            axis,
-          };
+              nodeId: nextChild.nodeId,
+              position: 'before' as const,
+              axis,
+            };
       }
     }
 
@@ -337,48 +262,24 @@ export function useCanvasReorder({
     return null;
   }
 
-  function getScreenRowSnapshots(
-    parent: ThemeLayoutNode,
-    excludedNodeId?: string,
-  ) {
+  function getScreenRowSnapshots(parent: ThemeLayoutNode, excludedNodeId?: string) {
     const rows: ScreenRowSnapshot[] = [];
     const bodyChildren = (parent.children ?? [])
-      .filter(
-        (child) =>
-          child.slot !== 'footer' && child.id !== excludedNodeId,
-      )
+      .filter((child) => child.slot !== 'footer' && child.id !== excludedNodeId)
       .map((child) => ({
         nodeId: child.id,
-        rect: getNodeRectSnapshot(
-          child.id,
-          builderNodeRefs.current[child.id],
-        ),
+        rect: getNodeRectSnapshot(child.id, builderNodeRefs.current[child.id]),
       }))
-      .filter(
-        (child): child is { nodeId: string; rect: RectSnapshot } =>
-          Boolean(child.rect),
-      )
-      .sort(
-        (left, right) =>
-          left.rect.top - right.rect.top ||
-          left.rect.left - right.rect.left,
-      );
+      .filter((child): child is { nodeId: string; rect: RectSnapshot } => Boolean(child.rect))
+      .sort((left, right) => left.rect.top - right.rect.top || left.rect.left - right.rect.left);
 
     bodyChildren.forEach((child) => {
-      const currentRow = rows.find(
-        (row) =>
-          Math.abs(row.top - child.rect.top) <= SCREEN_ROW_TOLERANCE,
-      );
+      const currentRow = rows.find((row) => Math.abs(row.top - child.rect.top) <= SCREEN_ROW_TOLERANCE);
       if (currentRow) {
         currentRow.children.push(child);
         currentRow.top = Math.min(currentRow.top, child.rect.top);
-        currentRow.bottom = Math.max(
-          currentRow.bottom,
-          child.rect.bottom,
-        );
-        currentRow.children.sort(
-          (left, right) => left.rect.left - right.rect.left,
-        );
+        currentRow.bottom = Math.max(currentRow.bottom, child.rect.bottom);
+        currentRow.children.sort((left, right) => left.rect.left - right.rect.left);
         return;
       }
 
@@ -417,19 +318,11 @@ export function useCanvasReorder({
       for (let index = 0; index < rows.length - 1; index += 1) {
         const currentRow = rows[index];
         const nextRow = rows[index + 1];
-        if (
-          pointerY > currentRow.bottom &&
-          pointerY < nextRow.top
-        ) {
-          const gapMidpoint =
-            currentRow.bottom +
-            (nextRow.top - currentRow.bottom) / 2;
+        if (pointerY > currentRow.bottom && pointerY < nextRow.top) {
+          const gapMidpoint = currentRow.bottom + (nextRow.top - currentRow.bottom) / 2;
           return pointerY <= gapMidpoint
             ? {
-                nodeId:
-                  currentRow.children[
-                    currentRow.children.length - 1
-                  ].nodeId,
+                nodeId: currentRow.children[currentRow.children.length - 1].nodeId,
                 position: 'after' as const,
                 axis: 'vertical' as const,
               }
@@ -442,12 +335,9 @@ export function useCanvasReorder({
       }
 
       const lastRow = rows[rows.length - 1];
-      if (
-        pointerY >= lastRow.bottom - SCREEN_ROW_OUTER_TOLERANCE
-      ) {
+      if (pointerY >= lastRow.bottom - SCREEN_ROW_OUTER_TOLERANCE) {
         return {
-          nodeId:
-            lastRow.children[lastRow.children.length - 1].nodeId,
+          nodeId: lastRow.children[lastRow.children.length - 1].nodeId,
           position: 'after' as const,
           axis: 'vertical' as const,
         };
@@ -455,16 +345,8 @@ export function useCanvasReorder({
     }
 
     const row = preferredNodeId
-      ? rows.find((candidate) =>
-          candidate.children.some(
-            (child) => child.nodeId === preferredNodeId,
-          ),
-        )
-      : rows.find(
-          (candidate) =>
-            pointerY >= candidate.top &&
-            pointerY <= candidate.bottom,
-        ) ?? null;
+      ? rows.find((candidate) => candidate.children.some((child) => child.nodeId === preferredNodeId))
+      : (rows.find((candidate) => pointerY >= candidate.top && pointerY <= candidate.bottom) ?? null);
     if (!row) {
       return null;
     }
@@ -491,11 +373,7 @@ export function useCanvasReorder({
       };
     }
 
-    return resolveSiblingDropTarget(
-      row.children,
-      'horizontal',
-      pointerX,
-    );
+    return resolveSiblingDropTarget(row.children, 'horizontal', pointerX);
   }
 
   function resolveGridDropTarget(
@@ -510,12 +388,8 @@ export function useCanvasReorder({
       return null;
     }
 
-    function resolveGridRowHorizontalDropTarget(
-      children: { nodeId: string; rect: RectSnapshot }[],
-    ) {
-      const orderedChildren = [...children].sort(
-        (left, right) => left.rect.left - right.rect.left,
-      );
+    function resolveGridRowHorizontalDropTarget(children: { nodeId: string; rect: RectSnapshot }[]) {
+      const orderedChildren = [...children].sort((left, right) => left.rect.left - right.rect.left);
       if (!orderedChildren.length) {
         return null;
       }
@@ -552,19 +426,11 @@ export function useCanvasReorder({
       for (let index = 0; index < rows.length - 1; index += 1) {
         const currentRow = rows[index];
         const nextRow = rows[index + 1];
-        if (
-          pointerY > currentRow.bottom &&
-          pointerY < nextRow.top
-        ) {
-          const gapMidpoint =
-            currentRow.bottom +
-            (nextRow.top - currentRow.bottom) / 2;
+        if (pointerY > currentRow.bottom && pointerY < nextRow.top) {
+          const gapMidpoint = currentRow.bottom + (nextRow.top - currentRow.bottom) / 2;
           return pointerY <= gapMidpoint
             ? {
-                nodeId:
-                  currentRow.children[
-                    currentRow.children.length - 1
-                  ].nodeId,
+                nodeId: currentRow.children[currentRow.children.length - 1].nodeId,
                 position: 'after' as const,
                 axis: 'vertical' as const,
               }
@@ -577,12 +443,9 @@ export function useCanvasReorder({
       }
 
       const lastRow = rows[rows.length - 1];
-      if (
-        pointerY >= lastRow.bottom - SCREEN_ROW_OUTER_TOLERANCE
-      ) {
+      if (pointerY >= lastRow.bottom - SCREEN_ROW_OUTER_TOLERANCE) {
         return {
-          nodeId:
-            lastRow.children[lastRow.children.length - 1].nodeId,
+          nodeId: lastRow.children[lastRow.children.length - 1].nodeId,
           position: 'after' as const,
           axis: 'vertical' as const,
         };
@@ -590,29 +453,17 @@ export function useCanvasReorder({
     }
 
     const row = preferredNodeId
-      ? rows.find((candidate) =>
-          candidate.children.some(
-            (child) => child.nodeId === preferredNodeId,
-          ),
-        )
-      : rows.find(
-          (candidate) =>
-            pointerY >= candidate.top &&
-            pointerY <= candidate.bottom,
-        ) ??
+      ? rows.find((candidate) => candidate.children.some((child) => child.nodeId === preferredNodeId))
+      : (rows.find((candidate) => pointerY >= candidate.top && pointerY <= candidate.bottom) ??
         rows.reduce<ScreenRowSnapshot | null>((closest, candidate) => {
           if (!closest) {
             return candidate;
           }
 
           const closestCenter = (closest.top + closest.bottom) / 2;
-          const candidateCenter =
-            (candidate.top + candidate.bottom) / 2;
-          return Math.abs(pointerY - candidateCenter) <
-            Math.abs(pointerY - closestCenter)
-            ? candidate
-            : closest;
-        }, null);
+          const candidateCenter = (candidate.top + candidate.bottom) / 2;
+          return Math.abs(pointerY - candidateCenter) < Math.abs(pointerY - closestCenter) ? candidate : closest;
+        }, null));
     if (!row) {
       return null;
     }
@@ -621,14 +472,8 @@ export function useCanvasReorder({
   }
 
   function clearNodeDragState() {
-    setDraggingNodeId('');
-    setDropIndicator(null);
-    setContainerDropTargetId('');
-    setPreviewDocument(null);
-    setPreviewSignature('');
-    setDraggingNodeSnapshot(null);
+    editorCanvasDragStateActions.clearNodeDragState();
     relativePointerDragRef.current = null;
-    setRelativePointerDrag(null);
     dragRectSnapshotsRef.current = {};
   }
 
@@ -636,23 +481,15 @@ export function useCanvasReorder({
     updater:
       | RelativePointerDragState
       | null
-      | ((
-          current: RelativePointerDragState | null,
-        ) => RelativePointerDragState | null),
+      | ((current: RelativePointerDragState | null) => RelativePointerDragState | null),
   ) {
-    const nextValue =
-      typeof updater === 'function'
-        ? updater(relativePointerDragRef.current)
-        : updater;
+    const nextValue = typeof updater === 'function' ? updater(relativePointerDragRef.current) : updater;
     relativePointerDragRef.current = nextValue;
     setRelativePointerDrag(nextValue);
     return nextValue;
   }
 
-  function updatePreviewDocument(
-    signature: string,
-    nextPreviewDocument: ThemeLayoutDocument | null,
-  ) {
+  function updatePreviewDocument(signature: string, nextPreviewDocument: ThemeLayoutDocument | null) {
     if (!nextPreviewDocument) {
       if (previewDocument || previewSignature) {
         setPreviewDocument(null);
@@ -691,18 +528,8 @@ export function useCanvasReorder({
     updatePreviewDocument(
       `${sourceNodeId}:${targetNodeId}:${position}:${axis}`,
       parentId === currentDocument.layout.id && axis === 'vertical'
-        ? moveRootNodeToRowBoundaryInDocument(
-            currentDocument,
-            sourceNodeId,
-            targetNodeId,
-            position,
-          )
-        : moveNodeWithinParentInDocument(
-            currentDocument,
-            sourceNodeId,
-            targetNodeId,
-            position,
-          ),
+        ? moveRootNodeToRowBoundaryInDocument(currentDocument, sourceNodeId, targetNodeId, position)
+        : moveNodeWithinParentInDocument(currentDocument, sourceNodeId, targetNodeId, position),
     );
   }
 
@@ -713,10 +540,7 @@ export function useCanvasReorder({
     axis: DropIndicatorAxis,
     parentId: string,
   ) {
-    if (
-      parentId === currentDocument.layout.id &&
-      axis === 'vertical'
-    ) {
+    if (parentId === currentDocument.layout.id && axis === 'vertical') {
       moveRootNodeToRowBoundary(sourceNodeId, targetNodeId, position);
     } else {
       moveNodeWithinParent(sourceNodeId, targetNodeId, position);
@@ -725,18 +549,13 @@ export function useCanvasReorder({
     clearNodeDragState();
   }
 
-  function handleRelativeDragStart(
-    nodeId: string,
-    event: DragEvent<HTMLDivElement>,
-  ) {
+  function handleRelativeDragStart(nodeId: string, event: DragEvent<HTMLDivElement>) {
     event.stopPropagation();
     event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.setData('text/plain', nodeId);
     captureDragSnapshots();
     setDraggingNodeId(nodeId);
-    setDraggingNodeSnapshot(
-      getNodeRectSnapshot(nodeId, builderNodeRefs.current[nodeId]),
-    );
+    setDraggingNodeSnapshot(getNodeRectSnapshot(nodeId, builderNodeRefs.current[nodeId]));
     setSelectedNodeId(nodeId);
     setPreviewDocument(null);
     setPreviewSignature('');
@@ -747,11 +566,7 @@ export function useCanvasReorder({
     parent: ThemeLayoutNode | null,
     event: ReactPointerEvent<HTMLDivElement>,
   ) {
-    if (
-      !parent ||
-      draggingAlias ||
-      node.layout.mode === 'absolute'
-    ) {
+    if (!parent || draggingAlias || node.layout.mode === 'absolute') {
       return;
     }
 
@@ -777,18 +592,11 @@ export function useCanvasReorder({
     node: ThemeLayoutNode,
     parent: ThemeLayoutNode | null,
   ) {
-    if (
-      !draggingNodeId ||
-      draggingNodeId === node.id ||
-      !parent
-    ) {
+    if (!draggingNodeId || draggingNodeId === node.id || !parent) {
       return;
     }
 
-    const draggingParentId = findParentId(
-      currentDocument.layout,
-      draggingNodeId,
-    );
+    const draggingParentId = findParentId(currentDocument.layout, draggingNodeId);
     if (!draggingParentId || draggingParentId !== parent.id) {
       return;
     }
@@ -798,13 +606,7 @@ export function useCanvasReorder({
     event.dataTransfer.dropEffect = 'move';
 
     if (parent.alias === 'core.screen') {
-      const nextDropTarget = resolveScreenRowDropTarget(
-        parent,
-        event.clientX,
-        event.clientY,
-        draggingNodeId,
-        node.id,
-      );
+      const nextDropTarget = resolveScreenRowDropTarget(parent, event.clientX, event.clientY, draggingNodeId, node.id);
       if (!nextDropTarget) {
         return;
       }
@@ -820,13 +622,7 @@ export function useCanvasReorder({
     }
 
     if (parent.alias === 'core.grid') {
-      const nextDropTarget = resolveGridDropTarget(
-        parent,
-        event.clientX,
-        event.clientY,
-        draggingNodeId,
-        node.id,
-      );
+      const nextDropTarget = resolveGridDropTarget(parent, event.clientX, event.clientY, draggingNodeId, node.id);
       if (!nextDropTarget) {
         return;
       }
@@ -850,14 +646,9 @@ export function useCanvasReorder({
       .filter((child) => child.id !== draggingNodeId)
       .map((child) => ({
         nodeId: child.id,
-        rect: getNodeRectSnapshot(
-          child.id,
-          builderNodeRefs.current[child.id],
-        ),
+        rect: getNodeRectSnapshot(child.id, builderNodeRefs.current[child.id]),
       }))
-      .filter(
-        (child): child is NodeRectSnapshot => Boolean(child.rect),
-      );
+      .filter((child): child is NodeRectSnapshot => Boolean(child.rect));
     const nextDropTarget = resolveSiblingDropTarget(
       siblingSnapshots,
       axis,
@@ -882,56 +673,30 @@ export function useCanvasReorder({
     }
   }
 
-  function handleRelativeDrop(
-    event: DragEvent<HTMLDivElement>,
-    nodeId: string,
-  ) {
-    if (
-      !draggingNodeId ||
-      draggingNodeId === nodeId ||
-      !dropIndicator
-    ) {
+  function handleRelativeDrop(event: DragEvent<HTMLDivElement>, nodeId: string) {
+    if (!draggingNodeId || draggingNodeId === nodeId || !dropIndicator) {
       return;
     }
 
     event.preventDefault();
     event.stopPropagation();
     const parentId = findParentId(currentDocument.layout, nodeId);
-    if (
-      parentId === currentDocument.layout.id &&
-      dropIndicator.axis === 'vertical'
-    ) {
-      moveRootNodeToRowBoundary(
-        draggingNodeId,
-        nodeId,
-        dropIndicator.position,
-      );
+    if (parentId === currentDocument.layout.id && dropIndicator.axis === 'vertical') {
+      moveRootNodeToRowBoundary(draggingNodeId, nodeId, dropIndicator.position);
     } else {
-      moveNodeWithinParent(
-        draggingNodeId,
-        nodeId,
-        dropIndicator.position,
-      );
+      moveNodeWithinParent(draggingNodeId, nodeId, dropIndicator.position);
     }
     clearNodeDragState();
   }
 
-  function handleLibraryDragStart(
-    alias: string,
-    event: DragEvent<HTMLElement>,
-  ) {
+  function handleLibraryDragStart(alias: string, event: DragEvent<HTMLElement>) {
     event.dataTransfer.effectAllowed = 'copy';
     event.dataTransfer.setData('text/plain', alias);
     setDraggingAlias(alias);
   }
 
   function handleLibraryDragEnd() {
-    setDraggingAlias('');
-    setIsCanvasActive(false);
-    setContainerDropTargetId('');
-    setDropIndicator(null);
-    setPreviewDocument(null);
-    setPreviewSignature('');
+    editorCanvasDragStateActions.clearLibraryDragState();
   }
 
   function handleCanvasDragOver(event: DragEvent<HTMLDivElement>) {
@@ -943,11 +708,7 @@ export function useCanvasReorder({
     setIsCanvasActive(true);
     if (draggingAlias) {
       setContainerDropTargetId('');
-      const rootDropTarget = resolveScreenRowDropTarget(
-        currentDocument.layout,
-        event.clientX,
-        event.clientY,
-      );
+      const rootDropTarget = resolveScreenRowDropTarget(currentDocument.layout, event.clientX, event.clientY);
       const hasChanged =
         dropIndicator?.nodeId !== rootDropTarget?.nodeId ||
         dropIndicator?.position !== rootDropTarget?.position ||
@@ -958,10 +719,7 @@ export function useCanvasReorder({
       return;
     }
     if (draggingNodeId) {
-      const draggingParentId = findParentId(
-        currentDocument.layout,
-        draggingNodeId,
-      );
+      const draggingParentId = findParentId(currentDocument.layout, draggingNodeId);
       if (draggingParentId !== currentDocument.layout.id) {
         return;
       }
@@ -980,8 +738,7 @@ export function useCanvasReorder({
         if (hasChanged) {
           setDropIndicator(rootDropTarget);
           updatePreviewDocument(
-            `canvas:${draggingNodeId}:${rootDropTarget.nodeId}` +
-              `:${rootDropTarget.position}:${rootDropTarget.axis}`,
+            `canvas:${draggingNodeId}:${rootDropTarget.nodeId}` + `:${rootDropTarget.position}:${rootDropTarget.axis}`,
             rootDropTarget.axis === 'vertical'
               ? moveRootNodeToRowBoundaryInDocument(
                   currentDocument,
@@ -1003,11 +760,7 @@ export function useCanvasReorder({
       if (!dropIndicator) {
         updatePreviewDocument(
           `end:${draggingNodeId}:${currentDocument.layout.id}`,
-          moveNodeToParentEndInDocument(
-            currentDocument,
-            draggingNodeId,
-            currentDocument.layout.id,
-          ),
+          moveNodeToParentEndInDocument(currentDocument, draggingNodeId, currentDocument.layout.id),
         );
       }
     }
@@ -1033,42 +786,23 @@ export function useCanvasReorder({
       } else {
         addNodeFromAlias(draggingAlias, currentDocument.layout.id);
       }
-      setDraggingAlias('');
-      setIsCanvasActive(false);
-      setDropIndicator(null);
+      editorCanvasDragStateActions.clearLibraryDragState();
       return;
     }
 
     if (draggingNodeId) {
-      const draggingParentId = findParentId(
-        currentDocument.layout,
-        draggingNodeId,
-      );
-      if (
-        dropIndicator &&
-        draggingParentId === currentDocument.layout.id
-      ) {
+      const draggingParentId = findParentId(currentDocument.layout, draggingNodeId);
+      if (dropIndicator && draggingParentId === currentDocument.layout.id) {
         if (dropIndicator.axis === 'vertical') {
-          moveRootNodeToRowBoundary(
-            draggingNodeId,
-            dropIndicator.nodeId,
-            dropIndicator.position,
-          );
+          moveRootNodeToRowBoundary(draggingNodeId, dropIndicator.nodeId, dropIndicator.position);
         } else {
-          moveNodeWithinParent(
-            draggingNodeId,
-            dropIndicator.nodeId,
-            dropIndicator.position,
-          );
+          moveNodeWithinParent(draggingNodeId, dropIndicator.nodeId, dropIndicator.position);
         }
         clearNodeDragState();
         return;
       }
 
-      moveNodeToParentEnd(
-        draggingNodeId,
-        currentDocument.layout.id,
-      );
+      moveNodeToParentEnd(draggingNodeId, currentDocument.layout.id);
       clearNodeDragState();
     }
   }
@@ -1095,10 +829,7 @@ export function useCanvasReorder({
         captureDragSnapshots();
         setDraggingNodeId(activePointerDrag.nodeId);
         setDraggingNodeSnapshot(
-          getNodeRectSnapshot(
-            activePointerDrag.nodeId,
-            builderNodeRefs.current[activePointerDrag.nodeId],
-          ),
+          getNodeRectSnapshot(activePointerDrag.nodeId, builderNodeRefs.current[activePointerDrag.nodeId]),
         );
         updateRelativePointerDrag((current) =>
           current
@@ -1122,10 +853,7 @@ export function useCanvasReorder({
           : current,
       );
 
-      const parentNode = findNode(
-        currentDocument.layout,
-        activePointerDrag.parentId,
-      );
+      const parentNode = findNode(currentDocument.layout, activePointerDrag.parentId);
       if (!parentNode) {
         return;
       }
@@ -1137,10 +865,7 @@ export function useCanvasReorder({
           event.clientY,
           activePointerDrag.nodeId,
         );
-        if (
-          !rootDropTarget ||
-          rootDropTarget.nodeId === activePointerDrag.nodeId
-        ) {
+        if (!rootDropTarget || rootDropTarget.nodeId === activePointerDrag.nodeId) {
           return;
         }
 
@@ -1161,10 +886,7 @@ export function useCanvasReorder({
           event.clientY,
           activePointerDrag.nodeId,
         );
-        if (
-          !gridDropTarget ||
-          gridDropTarget.nodeId === activePointerDrag.nodeId
-        ) {
+        if (!gridDropTarget || gridDropTarget.nodeId === activePointerDrag.nodeId) {
           return;
         }
 
@@ -1178,29 +900,20 @@ export function useCanvasReorder({
         return;
       }
 
-      const axis: DropIndicatorAxis =
-        parentNode.alias === 'core.row' ? 'horizontal' : 'vertical';
+      const axis: DropIndicatorAxis = parentNode.alias === 'core.row' ? 'horizontal' : 'vertical';
       const siblingSnapshots = (parentNode.children ?? [])
         .filter((child) => child.id !== activePointerDrag.nodeId)
         .map((child) => ({
           nodeId: child.id,
-          rect: getNodeRectSnapshot(
-            child.id,
-            builderNodeRefs.current[child.id],
-          ),
+          rect: getNodeRectSnapshot(child.id, builderNodeRefs.current[child.id]),
         }))
-        .filter(
-          (child): child is NodeRectSnapshot => Boolean(child.rect),
-        );
+        .filter((child): child is NodeRectSnapshot => Boolean(child.rect));
       const nextDropTarget = resolveSiblingDropTarget(
         siblingSnapshots,
         axis,
         axis === 'horizontal' ? event.clientX : event.clientY,
       );
-      if (
-        !nextDropTarget ||
-        nextDropTarget.nodeId === activePointerDrag.nodeId
-      ) {
+      if (!nextDropTarget || nextDropTarget.nodeId === activePointerDrag.nodeId) {
         return;
       }
 
@@ -1239,14 +952,8 @@ export function useCanvasReorder({
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- refs and stable resolver functions intentionally omitted
-  }, [
-    clearNodeDragState,
-    commitRelativeMove,
-    dropIndicator,
-    previewRelativeMove,
-    relativePointerDrag,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- refs and stable resolver functions intentionally omitted
+  }, [clearNodeDragState, commitRelativeMove, dropIndicator, previewRelativeMove, relativePointerDrag]);
 
   return {
     draggingAlias,

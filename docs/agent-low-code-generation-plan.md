@@ -1,5 +1,9 @@
 # Agent Low-Code Generation Plan
 
+> Document status: Historical planning note. For current implementation facts,
+> start with `docs/current-implementation-status.md` and
+> `reports/03-code-framework-defects-progress.md`.
+
 本文档规划 YanLingWeb agent 从自然语言生成自定义低代码语法的系统化改造路径。目标是把当前“AI 直接猜节点、猜属性、调用编辑工具”的模式，收敛为“AI 生成结构化意图，系统用模板规则确定性编译和校验”的模式。
 
 ## 1. 背景和目标
@@ -47,16 +51,16 @@ MVP 只做能闭环自然语言生成和修改页面的最小系统。低级编�
 
 ### 3.1 MVP 需要实现的能力
 
-| 能力 | 目标 |
-| --- | --- |
-| `TemplateProfile` | 为每个模板建立稳定语义索引 |
-| `slotKey -> nodeId` resolver | 让 agent 通过语义槽位修改节点 |
-| `patternKey` resolver | 支持列表、卡片、宫格等重复结构填充 |
-| `pageKind` resolver | 新建页面时自动选择参考页面 |
-| `PageSpec / EditSpec` | 让 AI 输出高层结构化意图 |
-| `PageSpecCompiler` | 把 spec 编译成现有编辑操作 |
-| 基础校验 | 防止不存在的组件、prop、node、page 被写入 |
-| agent evaluation | 用固定用例验证新链路稳定性 |
+| 能力                         | 目标                                      |
+| ---------------------------- | ----------------------------------------- |
+| `TemplateProfile`            | 为每个模板建立稳定语义索引                |
+| `slotKey -> nodeId` resolver | 让 agent 通过语义槽位修改节点             |
+| `patternKey` resolver        | 支持列表、卡片、宫格等重复结构填充        |
+| `pageKind` resolver          | 新建页面时自动选择参考页面                |
+| `PageSpec / EditSpec`        | 让 AI 输出高层结构化意图                  |
+| `PageSpecCompiler`           | 把 spec 编译成现有编辑操作                |
+| 基础校验                     | 防止不存在的组件、prop、node、page 被写入 |
+| agent evaluation             | 用固定用例验证新链路稳定性                |
 
 ### 3.2 MVP 工具清单
 
@@ -197,27 +201,27 @@ export type AgentEditError =
   | { code: 'pattern_not_found'; patternKey: string; availablePatterns: string[] }
   | { code: 'page_kind_not_found'; pageKind: string; availablePageKinds: string[] }
   | { code: 'region_not_found'; regionKey: string; availableRegions: string[] }
-  
+
   // 校验阶段错误
   | { code: 'invalid_props'; slot: string; invalidProps: string[]; allowedProps: string[] }
   | { code: 'invalid_component'; slot: string; expected: string; actual: string }
   | { code: 'device_violation'; device: string; violation: string }
-  
+
   // 编译阶段错误
   | { code: 'compile_failed'; reason: string; recoverable: boolean }
   | { code: 'reference_page_not_found'; pageKind: string }
   | { code: 'navigation_sync_failed'; reason: string }
-  
+
   // 应用阶段错误
   | { code: 'apply_failed'; reason: string; partialSuccess: boolean }
   | { code: 'version_conflict'; expected: number; actual: number }
-  | { code: 'atomic_rollback_failed'; reason: string }
+  | { code: 'atomic_rollback_failed'; reason: string };
 
 export interface AgentEditResult<T = void> {
-  success: boolean
-  data?: T
-  error?: AgentEditError
-  warnings?: string[]
+  success: boolean;
+  data?: T;
+  error?: AgentEditError;
+  warnings?: string[];
 }
 ```
 
@@ -235,20 +239,17 @@ export interface AgentEditResult<T = void> {
 // MVP 阶段的基础重试配置
 const MVP_RETRY_CONFIG = {
   maxRetries: 2,
-  retryableErrors: [
-    'slot_not_found',
-    'pattern_not_found',
-    'version_conflict'
-  ],
+  retryableErrors: ['slot_not_found', 'pattern_not_found', 'version_conflict'],
   backoff: {
     initialMs: 100,
     maxMs: 1000,
-    multiplier: 2
-  }
-}
+    multiplier: 2,
+  },
+};
 ```
 
 MVP 规则：
+
 - 只对明确标记为 `recoverable` 的错误进行重试
 - 重试时必须使用错误中提供的候选项重新选择
 - 超过最大重试次数后返回最终错误
@@ -267,20 +268,20 @@ shared/agent/template/templateProfile.ts
 建议类型：
 
 ```ts
-export type TemplateDevice = 'mobile' | 'miniapp' | 'tablet' | 'desktop'
+export type TemplateDevice = 'mobile' | 'miniapp' | 'tablet' | 'desktop';
 
 export type TemplateProfile = {
-  templateId: string
-  templateVersion: string
-  profileVersion: string
-  devices: TemplateDevice[]
-  pages: TemplateProfilePage[]
-  regions: TemplateProfileRegion[]
-  slots: TemplateProfileSlot[]
-  patterns: TemplateProfilePattern[]
-  navigation?: TemplateProfileNavigation
-  constraints?: TemplateProfileConstraints
-}
+  templateId: string;
+  templateVersion: string;
+  profileVersion: string;
+  devices: TemplateDevice[];
+  pages: TemplateProfilePage[];
+  regions: TemplateProfileRegion[];
+  slots: TemplateProfileSlot[];
+  patterns: TemplateProfilePattern[];
+  navigation?: TemplateProfileNavigation;
+  constraints?: TemplateProfileConstraints;
+};
 ```
 
 验收标准：
@@ -343,73 +344,71 @@ const SECURITY_CHECKS = {
     // 限制字符串长度
     // 转义特殊字符
   },
-  
+
   // 2. key 格式校验
   validateKeyFormat: (key: string) => {
     // pageKey, regionKey, slotKey, patternKey 必须符合命名规范
     // 只允许字母、数字、下划线、连字符
     // 长度限制：3-64 字符
-    const KEY_PATTERN = /^[a-zA-Z][a-zA-Z0-9_-]{2,63}$/
-    return KEY_PATTERN.test(key)
+    const KEY_PATTERN = /^[a-zA-Z][a-zA-Z0-9_-]{2,63}$/;
+    return KEY_PATTERN.test(key);
   },
-  
+
   // 3. nodeId 脱敏
   maskNodeId: (nodeId: string) => {
     // 在日志和错误信息中脱敏 nodeId
     // 只保留前 8 位和后 4 位
-    return nodeId.length > 12 
-      ? `${nodeId.slice(0, 8)}...${nodeId.slice(-4)}`
-      : '***'
+    return nodeId.length > 12 ? `${nodeId.slice(0, 8)}...${nodeId.slice(-4)}` : '***';
   },
-  
+
   // 4. 敏感信息检测
   detectSensitiveData: (data: any) => {
     // 检测是否包含用户敏感信息
     // 检测是否包含内部系统路径
     // 检测是否包含密钥或 token
-  }
-}
+  },
+};
 
 // 在校验流程中调用
 export function validateTemplateProfile(profile: TemplateProfile): ValidationResult {
   // ... 现有校验 ...
-  
+
   // 安全校验
-  const securityErrors = []
-  
+  const securityErrors = [];
+
   // 校验所有 key 格式
-  profile.pages.forEach(page => {
+  profile.pages.forEach((page) => {
     if (!SECURITY_CHECKS.validateKeyFormat(page.pageKey)) {
       securityErrors.push({
         code: 'invalid_key_format',
         field: 'pageKey',
         value: page.pageKey,
-        pattern: '^[a-zA-Z][a-zA-Z0-9_-]{2,63}$'
-      })
+        pattern: '^[a-zA-Z][a-zA-Z0-9_-]{2,63}$',
+      });
     }
-  })
-  
+  });
+
   // 校验 slot props 中的字符串值
-  profile.slots.forEach(slot => {
+  profile.slots.forEach((slot) => {
     Object.entries(slot.editableProps || {}).forEach(([key, value]) => {
       if (typeof value === 'string') {
-        const sanitized = SECURITY_CHECKS.sanitizeInput(value)
+        const sanitized = SECURITY_CHECKS.sanitizeInput(value);
         if (sanitized !== value) {
           securityErrors.push({
             code: 'unsafe_prop_value',
             slot: slot.slotKey,
             prop: key,
-            suggestion: sanitized
-          })
+            suggestion: sanitized,
+          });
         }
       }
-    })
-  })
-  
+    });
+  });
+
   return {
     valid: securityErrors.length === 0,
-    errors: [...existingErrors, ...securityErrors]
-  }
+    errors: [...existingErrors, ...securityErrors],
+  };
 }
 ```
 
@@ -432,13 +431,13 @@ shared/agent/template/buildTemplateProfile.ts
 输入：
 
 ```ts
-ThemeLayoutDocument
+ThemeLayoutDocument;
 ```
 
 输出：
 
 ```ts
-TemplateProfile
+TemplateProfile;
 ```
 
 初版启发式：
@@ -457,125 +456,123 @@ Profile 扫描可能涉及大量节点遍历，需要考虑性能优化：
 // shared/agent/template/profileCache.ts
 
 interface ProfileCacheEntry {
-  templateId: string
-  templateVersion: string
-  profile: TemplateProfile
-  buildTime: number  // 构建耗时（ms）
-  createdAt: number  // 缓存创建时间
-  accessCount: number
+  templateId: string;
+  templateVersion: string;
+  profile: TemplateProfile;
+  buildTime: number; // 构建耗时（ms）
+  createdAt: number; // 缓存创建时间
+  accessCount: number;
 }
 
 class ProfileCache {
-  private cache = new Map<string, ProfileCacheEntry>()
-  private readonly MAX_CACHE_SIZE = 50
-  private readonly CACHE_TTL_MS = 5 * 60 * 1000  // 5 分钟
-  
+  private cache = new Map<string, ProfileCacheEntry>();
+  private readonly MAX_CACHE_SIZE = 50;
+  private readonly CACHE_TTL_MS = 5 * 60 * 1000; // 5 分钟
+
   /**
    * 获取缓存的 Profile
    * 优先级：内存缓存 > 本地存储 > 重新扫描
    */
   async getProfile(templateId: string, templateVersion: string): Promise<TemplateProfile> {
-    const cacheKey = `${templateId}@${templateVersion}`
-    
+    const cacheKey = `${templateId}@${templateVersion}`;
+
     // 1. 检查内存缓存
-    const cached = this.cache.get(cacheKey)
+    const cached = this.cache.get(cacheKey);
     if (cached && this.isValid(cached)) {
-      cached.accessCount++
-      return cached.profile
+      cached.accessCount++;
+      return cached.profile;
     }
-    
+
     // 2. 检查本地存储（可选）
-    const stored = await this.loadFromStorage(cacheKey)
+    const stored = await this.loadFromStorage(cacheKey);
     if (stored) {
-      this.cache.set(cacheKey, stored)
-      return stored.profile
+      this.cache.set(cacheKey, stored);
+      return stored.profile;
     }
-    
+
     // 3. 重新扫描并缓存
-    return this.buildAndCache(templateId, templateVersion)
+    return this.buildAndCache(templateId, templateVersion);
   }
-  
+
   private isValid(entry: ProfileCacheEntry): boolean {
-    const now = Date.now()
-    return (now - entry.createdAt) < this.CACHE_TTL_MS
+    const now = Date.now();
+    return now - entry.createdAt < this.CACHE_TTL_MS;
   }
-  
+
   private async buildAndCache(templateId: string, templateVersion: string): Promise<TemplateProfile> {
-    const startTime = performance.now()
-    const profile = await buildTemplateProfile(templateId)
-    const buildTime = performance.now() - startTime
-    
+    const startTime = performance.now();
+    const profile = await buildTemplateProfile(templateId);
+    const buildTime = performance.now() - startTime;
+
     const entry: ProfileCacheEntry = {
       templateId,
       templateVersion,
       profile,
       buildTime,
       createdAt: Date.now(),
-      accessCount: 1
-    }
-    
-    this.cache.set(`${templateId}@${templateVersion}`, entry)
-    
+      accessCount: 1,
+    };
+
+    this.cache.set(`${templateId}@${templateVersion}`, entry);
+
     // 如果缓存过大，淘汰低频访问的条目
     if (this.cache.size > this.MAX_CACHE_SIZE) {
-      this.evictLeastUsed()
+      this.evictLeastUsed();
     }
-    
+
     // 记录性能指标
-    this.recordMetrics(templateId, buildTime)
-    
-    return profile
+    this.recordMetrics(templateId, buildTime);
+
+    return profile;
   }
-  
+
   private evictLeastUsed(): void {
-    let minAccess = Infinity
-    let minKey = ''
-    
+    let minAccess = Infinity;
+    let minKey = '';
+
     for (const [key, entry] of this.cache) {
       if (entry.accessCount < minAccess) {
-        minAccess = entry.accessCount
-        minKey = key
+        minAccess = entry.accessCount;
+        minKey = key;
       }
     }
-    
+
     if (minKey) {
-      this.cache.delete(minKey)
+      this.cache.delete(minKey);
     }
   }
-  
+
   private recordMetrics(templateId: string, buildTime: number): void {
     // 记录到监控系统
-    console.debug(`[ProfileCache] Built profile for ${templateId} in ${buildTime.toFixed(2)}ms`)
+    console.debug(`[ProfileCache] Built profile for ${templateId} in ${buildTime.toFixed(2)}ms`);
   }
-  
+
   /**
    * 批量预热缓存
    * 在系统启动时调用，预加载常用模板
    */
   async warmup(templateIds: string[]): Promise<void> {
-    const results = await Promise.allSettled(
-      templateIds.map(id => this.getProfile(id, 'latest'))
-    )
-    
-    const succeeded = results.filter(r => r.status === 'fulfilled').length
-    console.info(`[ProfileCache] Warmup complete: ${succeeded}/${templateIds.length} profiles cached`)
+    const results = await Promise.allSettled(templateIds.map((id) => this.getProfile(id, 'latest')));
+
+    const succeeded = results.filter((r) => r.status === 'fulfilled').length;
+    console.info(`[ProfileCache] Warmup complete: ${succeeded}/${templateIds.length} profiles cached`);
   }
-  
+
   /**
    * 清除过期缓存
    * 建议每 10 分钟调用一次
    */
   cleanup(): void {
-    const now = Date.now()
+    const now = Date.now();
     for (const [key, entry] of this.cache) {
-      if ((now - entry.createdAt) > this.CACHE_TTL_MS) {
-        this.cache.delete(key)
+      if (now - entry.createdAt > this.CACHE_TTL_MS) {
+        this.cache.delete(key);
       }
     }
   }
 }
 
-export const profileCache = new ProfileCache()
+export const profileCache = new ProfileCache();
 ```
 
 #### 4.4.2 迁移策略（新增）
@@ -586,10 +583,10 @@ export const profileCache = new ProfileCache()
 // shared/agent/template/migration.ts
 
 interface MigrationResult {
-  templateId: string
-  migrated: boolean
-  warnings: string[]
-  errors: string[]
+  templateId: string;
+  migrated: boolean;
+  warnings: string[];
+  errors: string[];
 }
 
 /**
@@ -597,98 +594,97 @@ interface MigrationResult {
  * 在系统升级时调用一次
  */
 export async function migrateExistingTemplates(): Promise<MigrationResult[]> {
-  const results: MigrationResult[] = []
-  
+  const results: MigrationResult[] = [];
+
   // 1. 获取所有现有模板
-  const templates = await getAllTemplates()
-  
+  const templates = await getAllTemplates();
+
   for (const template of templates) {
     const result: MigrationResult = {
       templateId: template.id,
       migrated: false,
       warnings: [],
-      errors: []
-    }
-    
+      errors: [],
+    };
+
     try {
       // 2. 检查是否已有 Profile
-      const existingProfile = await loadProfile(template.id)
+      const existingProfile = await loadProfile(template.id);
       if (existingProfile) {
-        result.warnings.push('Profile already exists, skipping')
-        results.push(result)
-        continue
+        result.warnings.push('Profile already exists, skipping');
+        results.push(result);
+        continue;
       }
-      
+
       // 3. 扫描生成基础 Profile
-      const profile = await buildTemplateProfile(template.id)
-      
+      const profile = await buildTemplateProfile(template.id);
+
       // 4. 校验生成的 Profile
-      const validation = validateTemplateProfile(profile)
+      const validation = validateTemplateProfile(profile);
       if (!validation.valid) {
-        result.warnings.push(`Profile validation warnings: ${validation.warnings.join(', ')}`)
+        result.warnings.push(`Profile validation warnings: ${validation.warnings.join(', ')}`);
       }
-      
+
       // 5. 保存 Profile
-      await saveProfile(template.id, profile)
-      
-      result.migrated = true
-      console.info(`[Migration] Successfully migrated template: ${template.id}`)
-      
+      await saveProfile(template.id, profile);
+
+      result.migrated = true;
+      console.info(`[Migration] Successfully migrated template: ${template.id}`);
     } catch (error) {
-      result.errors.push(`Migration failed: ${error.message}`)
-      console.error(`[Migration] Failed to migrate template: ${template.id}`, error)
+      result.errors.push(`Migration failed: ${error.message}`);
+      console.error(`[Migration] Failed to migrate template: ${template.id}`, error);
     }
-    
-    results.push(result)
+
+    results.push(result);
   }
-  
+
   // 6. 输出迁移报告
   const summary = {
     total: results.length,
-    migrated: results.filter(r => r.migrated).length,
-    skipped: results.filter(r => r.warnings.length > 0).length,
-    failed: results.filter(r => r.errors.length > 0).length
-  }
-  
-  console.info('[Migration] Migration complete:', summary)
-  
-  return results
+    migrated: results.filter((r) => r.migrated).length,
+    skipped: results.filter((r) => r.warnings.length > 0).length,
+    failed: results.filter((r) => r.errors.length > 0).length,
+  };
+
+  console.info('[Migration] Migration complete:', summary);
+
+  return results;
 }
 
 /**
  * 验证迁移后的 Profile 兼容性
  */
 export async function validateMigrationCompatibility(templateId: string): Promise<{
-  compatible: boolean
-  issues: string[]
+  compatible: boolean;
+  issues: string[];
 }> {
-  const issues: string[] = []
-  
+  const issues: string[] = [];
+
   // 1. 加载 Profile
-  const profile = await profileCache.getProfile(templateId, 'latest')
-  
+  const profile = await profileCache.getProfile(templateId, 'latest');
+
   // 2. 检查 nodeId 是否仍然有效
   for (const slot of profile.slots) {
-    const node = await findNodeById(slot.nodeId)
+    const node = await findNodeById(slot.nodeId);
     if (!node) {
-      issues.push(`Slot ${slot.slotKey} references non-existent node: ${slot.nodeId}`)
+      issues.push(`Slot ${slot.slotKey} references non-existent node: ${slot.nodeId}`);
     } else if (node.alias !== slot.component) {
-      issues.push(`Slot ${slot.slotKey} component mismatch: expected ${slot.component}, got ${node.alias}`)
+      issues.push(`Slot ${slot.slotKey} component mismatch: expected ${slot.component}, got ${node.alias}`);
     }
   }
-  
+
   // 3. 检查 pattern source 是否存在
   for (const pattern of profile.patterns) {
-    const sourceNode = await findNodeById(pattern.sourceRootNodeId)
+    const sourceNode = await findNodeById(pattern.sourceRootNodeId);
     if (!sourceNode) {
-      issues.push(`Pattern ${pattern.patternKey} source node not found: ${pattern.sourceRootNodeId}`)
+      issues.push(`Pattern ${pattern.patternKey} source node not found: ${pattern.sourceRootNodeId}`);
     }
   }
-  
+
   return {
     compatible: issues.length === 0,
-    issues
-  }
+    issues,
+  };
 }
 ```
 
@@ -713,7 +709,7 @@ backend/src/templates/profiles/
 或在 template seed 中增加：
 
 ```ts
-templateProfileOverrides
+templateProfileOverrides;
 ```
 
 覆盖内容：
@@ -741,12 +737,12 @@ shared/agent/template/templateProfileResolver.ts
 需要提供：
 
 ```ts
-resolvePageByKind(profile, pageKind)
-resolvePageByKey(profile, pageKey)
-resolveRegion(profile, regionKey)
-resolveSlot(profile, slotKey)
-resolvePattern(profile, patternKey)
-resolveEditableProps(profile, slotKey)
+resolvePageByKind(profile, pageKind);
+resolvePageByKey(profile, pageKey);
+resolveRegion(profile, regionKey);
+resolveSlot(profile, slotKey);
+resolvePattern(profile, patternKey);
+resolveEditableProps(profile, slotKey);
 ```
 
 验收标准：
@@ -859,25 +855,25 @@ src/ui/editor/controllers/useBuilderDocumentState.ts
 // shared/agent/editor/concurrencyControl.ts
 
 interface DocumentLock {
-  documentId: string
-  lockId: string
-  lockedBy: string  // agent session id 或 user id
-  lockedAt: number
-  expiresAt: number
-  operation: string  // 正在执行的操作描述
+  documentId: string;
+  lockId: string;
+  lockedBy: string; // agent session id 或 user id
+  lockedAt: number;
+  expiresAt: number;
+  operation: string; // 正在执行的操作描述
 }
 
 interface VersionedDocument {
-  documentId: string
-  version: number
-  lastModified: number
-  checksum: string  // 内容校验和
+  documentId: string;
+  version: number;
+  lastModified: number;
+  checksum: string; // 内容校验和
 }
 
 class ConcurrencyControl {
-  private locks = new Map<string, DocumentLock>()
-  private readonly LOCK_TIMEOUT_MS = 30 * 1000  // 30 秒
-  
+  private locks = new Map<string, DocumentLock>();
+  private readonly LOCK_TIMEOUT_MS = 30 * 1000; // 30 秒
+
   /**
    * 获取文档锁
    * 使用乐观锁策略：先检查版本，再执行操作
@@ -885,121 +881,119 @@ class ConcurrencyControl {
   async acquireLock(
     documentId: string,
     sessionId: string,
-    operation: string
+    operation: string,
   ): Promise<{ acquired: boolean; lockId?: string; reason?: string }> {
-    
     // 1. 检查是否已有锁
-    const existingLock = this.locks.get(documentId)
+    const existingLock = this.locks.get(documentId);
     if (existingLock && !this.isLockExpired(existingLock)) {
       // 如果是同一 session，允许重入
       if (existingLock.lockedBy === sessionId) {
-        return { acquired: true, lockId: existingLock.lockId }
+        return { acquired: true, lockId: existingLock.lockId };
       }
       return {
         acquired: false,
-        reason: `Document locked by ${existingLock.lockedBy} for: ${existingLock.operation}`
-      }
+        reason: `Document locked by ${existingLock.lockedBy} for: ${existingLock.operation}`,
+      };
     }
-    
+
     // 2. 创建新锁
-    const lockId = this.generateLockId()
-    const now = Date.now()
-    
+    const lockId = this.generateLockId();
+    const now = Date.now();
+
     const lock: DocumentLock = {
       documentId,
       lockId,
       lockedBy: sessionId,
       lockedAt: now,
       expiresAt: now + this.LOCK_TIMEOUT_MS,
-      operation
-    }
-    
-    this.locks.set(documentId, lock)
-    
+      operation,
+    };
+
+    this.locks.set(documentId, lock);
+
     // 3. 设置自动释放
     setTimeout(() => {
-      this.releaseLock(documentId, lockId)
-    }, this.LOCK_TIMEOUT_MS)
-    
-    return { acquired: true, lockId }
+      this.releaseLock(documentId, lockId);
+    }, this.LOCK_TIMEOUT_MS);
+
+    return { acquired: true, lockId };
   }
-  
+
   /**
    * 释放文档锁
    */
   releaseLock(documentId: string, lockId: string): boolean {
-    const lock = this.locks.get(documentId)
+    const lock = this.locks.get(documentId);
     if (lock && lock.lockId === lockId) {
-      this.locks.delete(documentId)
-      return true
+      this.locks.delete(documentId);
+      return true;
     }
-    return false
+    return false;
   }
-  
+
   /**
    * 检查文档版本
    * 在执行操作前调用，确保文档未被修改
    */
   async checkVersion(
     documentId: string,
-    expectedVersion: number
+    expectedVersion: number,
   ): Promise<{ valid: boolean; currentVersion?: number; conflict?: boolean }> {
-    
-    const currentDoc = await this.getDocumentVersion(documentId)
-    
+    const currentDoc = await this.getDocumentVersion(documentId);
+
     if (currentDoc.version === expectedVersion) {
-      return { valid: true, currentVersion: currentDoc.version }
+      return { valid: true, currentVersion: currentDoc.version };
     }
-    
+
     return {
       valid: false,
       currentVersion: currentDoc.version,
-      conflict: true
-    }
+      conflict: true,
+    };
   }
-  
+
   /**
    * 递增文档版本
    * 操作成功后调用
    */
   async incrementVersion(documentId: string): Promise<number> {
-    const currentDoc = await this.getDocumentVersion(documentId)
-    const newVersion = currentDoc.version + 1
-    
+    const currentDoc = await this.getDocumentVersion(documentId);
+    const newVersion = currentDoc.version + 1;
+
     await this.updateDocumentVersion(documentId, {
       version: newVersion,
       lastModified: Date.now(),
-      checksum: await this.calculateChecksum(documentId)
-    })
-    
-    return newVersion
+      checksum: await this.calculateChecksum(documentId),
+    });
+
+    return newVersion;
   }
-  
+
   private isLockExpired(lock: DocumentLock): boolean {
-    return Date.now() > lock.expiresAt
+    return Date.now() > lock.expiresAt;
   }
-  
+
   private generateLockId(): string {
-    return `lock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    return `lock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
-  
+
   private async getDocumentVersion(documentId: string): Promise<VersionedDocument> {
     // 从存储中获取文档版本信息
     // 实现略
   }
-  
+
   private async updateDocumentVersion(documentId: string, update: Partial<VersionedDocument>): Promise<void> {
     // 更新文档版本信息
     // 实现略
   }
-  
+
   private async calculateChecksum(documentId: string): Promise<string> {
     // 计算文档内容的校验和
     // 实现略
   }
 }
 
-export const concurrencyControl = new ConcurrencyControl()
+export const concurrencyControl = new ConcurrencyControl();
 ```
 
 #### 4.10.2 原子操作和回滚机制（新增）
@@ -1010,254 +1004,248 @@ export const concurrencyControl = new ConcurrencyControl()
 // shared/agent/editor/atomicOperations.ts
 
 interface OperationSnapshot {
-  documentId: string
-  snapshotId: string
-  timestamp: number
-  state: any  // 文档状态快照
+  documentId: string;
+  snapshotId: string;
+  timestamp: number;
+  state: any; // 文档状态快照
   metadata: {
-    operation: string
-    sessionId: string
-    description: string
-  }
+    operation: string;
+    sessionId: string;
+    description: string;
+  };
 }
 
 interface AtomicOperation {
-  operationId: string
-  documentId: string
-  steps: OperationStep[]
-  currentStep: number
-  snapshots: OperationSnapshot[]
-  status: 'pending' | 'in_progress' | 'completed' | 'failed' | 'rolled_back'
+  operationId: string;
+  documentId: string;
+  steps: OperationStep[];
+  currentStep: number;
+  snapshots: OperationSnapshot[];
+  status: 'pending' | 'in_progress' | 'completed' | 'failed' | 'rolled_back';
 }
 
 interface OperationStep {
-  stepId: string
-  description: string
-  execute: () => Promise<void>
-  rollback: () => Promise<void>
-  committed: boolean
+  stepId: string;
+  description: string;
+  execute: () => Promise<void>;
+  rollback: () => Promise<void>;
+  committed: boolean;
 }
 
 class AtomicOperationManager {
-  private operations = new Map<string, AtomicOperation>()
-  
+  private operations = new Map<string, AtomicOperation>();
+
   /**
    * 创建原子操作
    */
-  async createAtomicOperation(
-    documentId: string,
-    sessionId: string,
-    steps: OperationStep[]
-  ): Promise<string> {
-    const operationId = `op_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    
+  async createAtomicOperation(documentId: string, sessionId: string, steps: OperationStep[]): Promise<string> {
+    const operationId = `op_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
     // 1. 创建初始快照
     const snapshot = await this.createSnapshot(documentId, {
       operation: operationId,
       sessionId,
-      description: 'Initial state before atomic operation'
-    })
-    
+      description: 'Initial state before atomic operation',
+    });
+
     const operation: AtomicOperation = {
       operationId,
       documentId,
       steps,
       currentStep: 0,
       snapshots: [snapshot],
-      status: 'pending'
-    }
-    
-    this.operations.set(operationId, operation)
-    
-    return operationId
+      status: 'pending',
+    };
+
+    this.operations.set(operationId, operation);
+
+    return operationId;
   }
-  
+
   /**
    * 执行原子操作
    * 逐步执行，每步成功后创建快照
    */
   async executeAtomicOperation(operationId: string): Promise<AgentEditResult> {
-    const operation = this.operations.get(operationId)
+    const operation = this.operations.get(operationId);
     if (!operation) {
       return {
         success: false,
         error: {
           code: 'operation_not_found',
           reason: `Operation ${operationId} not found`,
-          recoverable: false
-        }
-      }
+          recoverable: false,
+        },
+      };
     }
-    
-    operation.status = 'in_progress'
-    
+
+    operation.status = 'in_progress';
+
     try {
       for (let i = operation.currentStep; i < operation.steps.length; i++) {
-        const step = operation.steps[i]
-        
+        const step = operation.steps[i];
+
         try {
           // 执行步骤
-          await step.execute()
-          step.committed = true
-          operation.currentStep = i + 1
-          
+          await step.execute();
+          step.committed = true;
+          operation.currentStep = i + 1;
+
           // 创建步骤后快照
           const snapshot = await this.createSnapshot(operation.documentId, {
             operation: operationId,
-            sessionId: '',  // 从上下文获取
-            description: `After step: ${step.description}`
-          })
-          operation.snapshots.push(snapshot)
-          
+            sessionId: '', // 从上下文获取
+            description: `After step: ${step.description}`,
+          });
+          operation.snapshots.push(snapshot);
         } catch (stepError) {
           // 步骤失败，开始回滚
-          console.error(`[AtomicOperation] Step ${i} failed:`, stepError)
-          
-          const rollbackResult = await this.rollbackOperation(operationId)
-          
+          console.error(`[AtomicOperation] Step ${i} failed:`, stepError);
+
+          const rollbackResult = await this.rollbackOperation(operationId);
+
           return {
             success: false,
             error: {
               code: 'apply_failed',
               reason: `Step ${step.description} failed: ${stepError.message}`,
-              partialSuccess: false
-            }
-          }
+              partialSuccess: false,
+            },
+          };
         }
       }
-      
-      operation.status = 'completed'
-      
+
+      operation.status = 'completed';
+
       return {
         success: true,
         data: {
           operationId,
           stepsCompleted: operation.steps.length,
-          snapshotsCreated: operation.snapshots.length
-        }
-      }
-      
+          snapshotsCreated: operation.snapshots.length,
+        },
+      };
     } catch (error) {
-      operation.status = 'failed'
-      
+      operation.status = 'failed';
+
       return {
         success: false,
         error: {
           code: 'apply_failed',
           reason: error.message,
-          partialSuccess: false
-        }
-      }
+          partialSuccess: false,
+        },
+      };
     }
   }
-  
+
   /**
    * 回滚操作
    * 从最后一个成功步骤开始，逐步回滚
    */
   async rollbackOperation(operationId: string): Promise<AgentEditResult> {
-    const operation = this.operations.get(operationId)
+    const operation = this.operations.get(operationId);
     if (!operation) {
       return {
         success: false,
         error: {
           code: 'operation_not_found',
           reason: `Operation ${operationId} not found`,
-          recoverable: false
-        }
-      }
+          recoverable: false,
+        },
+      };
     }
-    
-    console.info(`[AtomicOperation] Rolling back operation ${operationId}`)
-    
+
+    console.info(`[AtomicOperation] Rolling back operation ${operationId}`);
+
     // 从后往前回滚已提交的步骤
     for (let i = operation.currentStep - 1; i >= 0; i--) {
-      const step = operation.steps[i]
-      
+      const step = operation.steps[i];
+
       if (step.committed) {
         try {
-          await step.rollback()
-          console.debug(`[AtomicOperation] Rolled back step: ${step.description}`)
+          await step.rollback();
+          console.debug(`[AtomicOperation] Rolled back step: ${step.description}`);
         } catch (rollbackError) {
-          console.error(`[AtomicOperation] Rollback failed for step ${i}:`, rollbackError)
-          
-          operation.status = 'failed'
-          
+          console.error(`[AtomicOperation] Rollback failed for step ${i}:`, rollbackError);
+
+          operation.status = 'failed';
+
           return {
             success: false,
             error: {
               code: 'atomic_rollback_failed',
               reason: `Rollback failed at step ${step.description}: ${rollbackError.message}`,
-              recoverable: false
-            }
-          }
+              recoverable: false,
+            },
+          };
         }
       }
     }
-    
+
     // 恢复到初始快照
-    const initialSnapshot = operation.snapshots[0]
-    await this.restoreSnapshot(initialSnapshot)
-    
-    operation.status = 'rolled_back'
-    
+    const initialSnapshot = operation.snapshots[0];
+    await this.restoreSnapshot(initialSnapshot);
+
+    operation.status = 'rolled_back';
+
     return {
       success: true,
       data: {
         operationId,
         stepsRolledBack: operation.currentStep,
-        restoredToSnapshot: initialSnapshot.snapshotId
-      }
-    }
+        restoredToSnapshot: initialSnapshot.snapshotId,
+      },
+    };
   }
-  
+
   /**
    * 创建文档快照
    */
   private async createSnapshot(
     documentId: string,
-    metadata: OperationSnapshot['metadata']
+    metadata: OperationSnapshot['metadata'],
   ): Promise<OperationSnapshot> {
-    const snapshotId = `snap_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    
-    const state = await this.captureDocumentState(documentId)
-    
+    const snapshotId = `snap_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    const state = await this.captureDocumentState(documentId);
+
     const snapshot: OperationSnapshot = {
       documentId,
       snapshotId,
       timestamp: Date.now(),
       state,
-      metadata
-    }
-    
+      metadata,
+    };
+
     // 持久化快照（可选，根据存储策略）
-    await this.persistSnapshot(snapshot)
-    
-    return snapshot
+    await this.persistSnapshot(snapshot);
+
+    return snapshot;
   }
-  
+
   /**
    * 恢复快照
    */
   private async restoreSnapshot(snapshot: OperationSnapshot): Promise<void> {
-    await this.restoreDocumentState(snapshot.documentId, snapshot.state)
+    await this.restoreDocumentState(snapshot.documentId, snapshot.state);
   }
-  
+
   private async captureDocumentState(documentId: string): Promise<any> {
     // 捕获文档当前状态
     // 实现略
   }
-  
+
   private async restoreDocumentState(documentId: string, state: any): Promise<void> {
     // 恢复文档状态
     // 实现略
   }
-  
+
   private async persistSnapshot(snapshot: OperationSnapshot): Promise<void> {
     // 持久化快照到存储
     // 实现略
   }
-  
+
   /**
    * 清理过期快照
    * 建议每小时调用一次
@@ -1265,11 +1253,11 @@ class AtomicOperationManager {
   async cleanupSnapshots(maxAgeMs: number = 24 * 60 * 60 * 1000): Promise<number> {
     // 清理超过 maxAgeMs 的快照
     // 返回清理的快照数量
-    return 0
+    return 0;
   }
 }
 
-export const atomicOperationManager = new AtomicOperationManager()
+export const atomicOperationManager = new AtomicOperationManager();
 ```
 
 验收标准：
@@ -1375,25 +1363,19 @@ backend/src/templates/test/
 // backend/src/templates/test/generators/profileGenerator.ts
 
 interface ProfileGeneratorOptions {
-  templateType: 'ecommerce' | 'miniapp' | 'saas' | 'order'
-  pageCount?: number
-  slotCount?: number
-  patternCount?: number
-  includeOptional?: boolean
+  templateType: 'ecommerce' | 'miniapp' | 'saas' | 'order';
+  pageCount?: number;
+  slotCount?: number;
+  patternCount?: number;
+  includeOptional?: boolean;
 }
 
 export function generateTestProfile(options: ProfileGeneratorOptions): TemplateProfile {
-  const {
-    templateType,
-    pageCount = 3,
-    slotCount = 10,
-    patternCount = 2,
-    includeOptional = true
-  } = options
-  
+  const { templateType, pageCount = 3, slotCount = 10, patternCount = 2, includeOptional = true } = options;
+
   // 根据模板类型生成基础结构
-  const baseProfile = getBaseProfileByType(templateType)
-  
+  const baseProfile = getBaseProfileByType(templateType);
+
   // 根据参数调整规模
   return {
     ...baseProfile,
@@ -1402,8 +1384,8 @@ export function generateTestProfile(options: ProfileGeneratorOptions): TemplateP
     pages: generatePages(pageCount, templateType),
     slots: generateSlots(slotCount, templateType),
     patterns: generatePatterns(patternCount, templateType),
-    constraints: includeOptional ? generateConstraints(templateType) : undefined
-  }
+    constraints: includeOptional ? generateConstraints(templateType) : undefined,
+  };
 }
 
 function getBaseProfileByType(type: string): Partial<TemplateProfile> {
@@ -1416,21 +1398,21 @@ function getBaseProfileByType(type: string): Partial<TemplateProfile> {
           { key: 'home', label: '首页', icon: 'home' },
           { key: 'category', label: '分类', icon: 'category' },
           { key: 'cart', label: '购物车', icon: 'cart' },
-          { key: 'user', label: '我的', icon: 'user' }
-        ]
-      }
+          { key: 'user', label: '我的', icon: 'user' },
+        ],
+      },
     },
     miniapp: {
       devices: ['mobile'],
       constraints: {
         maxColumns: 1,
-        allowedLayouts: ['single_column', 'grid_2']
-      }
+        allowedLayouts: ['single_column', 'grid_2'],
+      },
     },
     // ... 其他类型
-  }
-  
-  return bases[type] || bases.ecommerce
+  };
+
+  return bases[type] || bases.ecommerce;
 }
 ```
 
@@ -1440,8 +1422,8 @@ function getBaseProfileByType(type: string): Partial<TemplateProfile> {
 // backend/src/templates/test/seeds/seedTestTemplates.ts
 
 export async function seedTestTemplates(): Promise<void> {
-  console.info('[TestSeed] Seeding test templates...')
-  
+  console.info('[TestSeed] Seeding test templates...');
+
   const templates = [
     {
       id: 'test-ecommerce',
@@ -1450,8 +1432,8 @@ export async function seedTestTemplates(): Promise<void> {
       pages: [
         { name: '首页', pageKey: 'home', pageKind: 'home' },
         { name: '商品列表', pageKey: 'products', pageKind: 'list' },
-        { name: '订单', pageKey: 'orders', pageKind: 'order' }
-      ]
+        { name: '订单', pageKey: 'orders', pageKind: 'order' },
+      ],
     },
     {
       id: 'test-miniapp',
@@ -1459,18 +1441,18 @@ export async function seedTestTemplates(): Promise<void> {
       type: 'miniapp',
       pages: [
         { name: '首页', pageKey: 'home', pageKind: 'home' },
-        { name: '个人中心', pageKey: 'profile', pageKind: 'profile' }
-      ]
-    }
+        { name: '个人中心', pageKey: 'profile', pageKind: 'profile' },
+      ],
+    },
     // ... 更多测试模板
-  ]
-  
+  ];
+
   for (const template of templates) {
-    await createTestTemplate(template)
-    await seedTestProfile(template.id, template.type)
+    await createTestTemplate(template);
+    await seedTestProfile(template.id, template.type);
   }
-  
-  console.info(`[TestSeed] Seeded ${templates.length} test templates`)
+
+  console.info(`[TestSeed] Seeded ${templates.length} test templates`);
 }
 
 export async function seedTestProfile(templateId: string, templateType: string): Promise<void> {
@@ -1478,11 +1460,11 @@ export async function seedTestProfile(templateId: string, templateType: string):
     templateType: templateType as any,
     pageCount: 3,
     slotCount: 8,
-    patternCount: 2
-  })
-  
-  await saveProfile(templateId, profile)
-  console.debug(`[TestSeed] Seeded profile for template: ${templateId}`)
+    patternCount: 2,
+  });
+
+  await saveProfile(templateId, profile);
+  console.debug(`[TestSeed] Seeded profile for template: ${templateId}`);
 }
 ```
 
@@ -1493,47 +1475,47 @@ export async function seedTestProfile(templateId: string, templateType: string):
 
 export function expectProfileValid(profile: TemplateProfile): void {
   // 基础结构校验
-  expect(profile.templateId).toBeDefined()
-  expect(profile.pages).toBeInstanceOf(Array)
-  expect(profile.slots).toBeInstanceOf(Array)
-  expect(profile.patterns).toBeInstanceOf(Array)
-  
+  expect(profile.templateId).toBeDefined();
+  expect(profile.pages).toBeInstanceOf(Array);
+  expect(profile.slots).toBeInstanceOf(Array);
+  expect(profile.patterns).toBeInstanceOf(Array);
+
   // key 唯一性校验
-  const pageKeys = profile.pages.map(p => p.pageKey)
-  expect(new Set(pageKeys).size).toBe(pageKeys.length)
-  
-  const slotKeys = profile.slots.map(s => s.slotKey)
-  expect(new Set(slotKeys).size).toBe(slotKeys.length)
-  
+  const pageKeys = profile.pages.map((p) => p.pageKey);
+  expect(new Set(pageKeys).size).toBe(pageKeys.length);
+
+  const slotKeys = profile.slots.map((s) => s.slotKey);
+  expect(new Set(slotKeys).size).toBe(slotKeys.length);
+
   // 关联完整性校验
   for (const slot of profile.slots) {
-    const page = profile.pages.find(p => p.pageKey === slot.pageKey)
-    expect(page).toBeDefined()
+    const page = profile.pages.find((p) => p.pageKey === slot.pageKey);
+    expect(page).toBeDefined();
   }
 }
 
 export function expectCompilationSuccess(result: AgentEditResult): void {
-  expect(result.success).toBe(true)
-  expect(result.error).toBeUndefined()
-  expect(result.data).toBeDefined()
+  expect(result.success).toBe(true);
+  expect(result.error).toBeUndefined();
+  expect(result.data).toBeDefined();
 }
 
 export function expectCompilationFailure(result: AgentEditResult, expectedCode: string): void {
-  expect(result.success).toBe(false)
-  expect(result.error).toBeDefined()
-  expect(result.error!.code).toBe(expectedCode)
+  expect(result.success).toBe(false);
+  expect(result.error).toBeDefined();
+  expect(result.error!.code).toBe(expectedCode);
 }
 
 export function expectAtomicOperationSuccess(result: AgentEditResult): void {
-  expect(result.success).toBe(true)
-  expect(result.data).toHaveProperty('operationId')
-  expect(result.data).toHaveProperty('stepsCompleted')
+  expect(result.success).toBe(true);
+  expect(result.data).toHaveProperty('operationId');
+  expect(result.data).toHaveProperty('stepsCompleted');
 }
 
 export function expectRollbackSuccess(result: AgentEditResult): void {
-  expect(result.success).toBe(true)
-  expect(result.data).toHaveProperty('stepsRolledBack')
-  expect(result.data).toHaveProperty('restoredToSnapshot')
+  expect(result.success).toBe(true);
+  expect(result.data).toHaveProperty('stepsRolledBack');
+  expect(result.data).toHaveProperty('restoredToSnapshot');
 }
 ```
 
@@ -1544,31 +1526,31 @@ export function expectRollbackSuccess(result: AgentEditResult): void {
 
 export async function setupTestEnvironment(): Promise<void> {
   // 1. 初始化测试数据库
-  await initTestDatabase()
-  
+  await initTestDatabase();
+
   // 2. 清理旧数据
-  await cleanupTestData()
-  
+  await cleanupTestData();
+
   // 3. 种子测试数据
-  await seedTestTemplates()
-  
+  await seedTestTemplates();
+
   // 4. 初始化缓存
-  await profileCache.warmup(['test-ecommerce', 'test-miniapp'])
-  
-  console.info('[TestSetup] Test environment ready')
+  await profileCache.warmup(['test-ecommerce', 'test-miniapp']);
+
+  console.info('[TestSetup] Test environment ready');
 }
 
 export async function cleanupTestEnvironment(): Promise<void> {
   // 1. 清理测试数据
-  await cleanupTestData()
-  
+  await cleanupTestData();
+
   // 2. 清理缓存
-  profileCache.cleanup()
-  
+  profileCache.cleanup();
+
   // 3. 清理快照
-  await atomicOperationManager.cleanupSnapshots(0)  // 清理所有快照
-  
-  console.info('[TestSetup] Test environment cleaned')
+  await atomicOperationManager.cleanupSnapshots(0); // 清理所有快照
+
+  console.info('[TestSetup] Test environment cleaned');
 }
 ```
 
@@ -1697,7 +1679,7 @@ type AgentEditError =
   | { code: 'missing_pattern'; patternKey: string; availablePatterns: string[] }
   | { code: 'invalid_props'; component: string; props: string[]; allowedProps: string[] }
   | { code: 'missing_page_kind'; pageKind: string; availablePageKinds: string[] }
-  | { code: 'design_policy_violation'; reasons: string[] }
+  | { code: 'design_policy_violation'; reasons: string[] };
 ```
 
 验收标准：
@@ -1916,42 +1898,50 @@ MVP 完成时应满足：
 本文档在原有基础上补充了以下关键内容，以确保系统的稳定性、安全性和可维护性：
 
 #### A.1 错误处理策略（Section 3.3）
+
 - **基础错误类型定义**：定义了 15 种结构化错误类型，覆盖 resolver、校验、编译、应用四个阶段
 - **错误处理原则**：结构化、可恢复性标记、候选项提供、错误链、日志友好
 - **重试策略**：可恢复错误自动重试，最多 2 次，支持指数退避
 
 #### A.2 安全机制（Section 3.3.4）
+
 - **输入清理**：移除潜在注入字符，限制字符串长度，转义特殊字符
 - **Key 格式校验**：所有语义 key 必须符合 `^[a-zA-Z][a-zA-Z0-9_-]{2,63}$` 规范
 - **nodeId 脱敏**：日志中自动脱敏敏感信息
 - **敏感信息检测**：检测并阻止用户敏感信息泄露
 
 #### A.3 性能优化（Section 4.4.1）
+
 - **Profile 缓存**：内存缓存 + 本地存储，TTL 5 分钟，LRU 淘汰策略
 - **批量预热**：系统启动时预加载常用模板
 - **性能监控**：记录扫描耗时、缓存命中率等指标
 
 #### A.4 迁移策略（Section 4.4.2）
+
 - **批量迁移**：现有模板一键迁移，成功率 > 95%
 - **兼容性验证**：迁移后自动验证 Profile 与节点的兼容性
 - **回滚支持**：迁移失败时可回滚到迁移前状态
 
 #### A.5 并发控制（Section 4.10.1）
+
 - **文档锁**：乐观锁策略，30 秒超时，支持重入
 - **版本控制**：操作前检查版本，冲突时返回 `version_conflict` 错误
 - **锁管理**：自动释放过期锁，防止死锁
 
 #### A.6 原子操作和回滚（Section 4.10.2）
+
 - **快照机制**：操作前创建快照，每步成功后创建增量快照
 - **逐步回滚**：从最后成功步骤开始，逐步回滚到初始状态
 - **资源清理**：过期快照自动清理，防止存储泄漏
 
 #### A.7 测试数据管理（Section 4.12.1）
+
 - **测试数据生成器**：快速生成各类测试场景的 Profile、Spec、Document
 - **测试种子数据**：预置常用测试模板和数据
 - **测试辅助函数**：断言函数、环境初始化、数据清理
 
 #### A.8 完整验收标准（Section 8）
+
 - **8 个维度**：功能、性能、并发稳定性、安全、测试、迁移、文档可观测性
 - **36 项验收标准**：明确的指标和阈值
 - **优先级分级**：P0（必须）、P1（应该）、P2（可以推迟）
@@ -1959,21 +1949,25 @@ MVP 完成时应满足：
 ### B. 关键设计决策说明
 
 #### B.1 为什么选择乐观锁而非悲观锁？
+
 - **场景特点**：agent 操作通常是短时间的（< 30 秒），冲突概率较低
 - **用户体验**：悲观锁会导致长时间等待，乐观锁可以快速失败并重试
 - **实现复杂度**：乐观锁实现更简单，不需要复杂的锁管理
 
 #### B.2 为什么在 MVP 阶段就引入错误处理？
+
 - **稳定性要求**：agent 操作涉及用户数据，必须保证稳定性
 - **调试效率**：结构化错误可以快速定位问题，减少调试时间
 - **AI 自我修正**：错误中的候选项可以帮助 AI 自动修正 spec
 
 #### B.3 为什么引入 Profile 缓存？
+
 - **性能瓶颈**：Profile 扫描涉及大量节点遍历，可能成为性能瓶颈
 - **使用模式**：同一模板通常会被多次访问（创建、编辑、预览）
 - **资源优化**：缓存可以减少 CPU 和 I/O 消耗
 
 #### B.4 为什么需要原子操作和回滚？
+
 - **数据一致性**：多步骤操作必须保证原子性，避免半写入状态
 - **用户信任**：操作失败时可以完全恢复，增强用户信任
 - **调试便利**：快照可以帮助重现和调试问题
@@ -1981,6 +1975,7 @@ MVP 完成时应满足：
 ### C. 实施建议
 
 #### C.1 开发顺序建议
+
 ```
 Phase 1（基础）：
   - 错误类型定义
@@ -1999,65 +1994,70 @@ Phase 3（完善）：
 ```
 
 #### C.2 技术选型建议
+
 - **缓存**：内存缓存（Map）+ 可选的 Redis（分布式场景）
 - **锁**：内存锁（单机）+ Redis 分布式锁（多机）
 - **快照**：内存快照（小规模）+ 文件存储（大规模）
 - **测试**：Jest + 自定义断言 + 测试数据生成器
 
 #### C.3 监控指标建议
+
 ```ts
 const METRICS = {
   // 性能指标
   profileScanDuration: 'histogram',
   compilationDuration: 'histogram',
   applyDuration: 'histogram',
-  
+
   // 成功率指标
   compilationSuccessRate: 'gauge',
   applySuccessRate: 'gauge',
   rollbackSuccessRate: 'gauge',
-  
+
   // 资源指标
   cacheHitRate: 'gauge',
   lockWaitDuration: 'histogram',
   snapshotCount: 'gauge',
-  
+
   // 业务指标
   slotUpdateCount: 'counter',
   patternFillCount: 'counter',
-  pageCreateCount: 'counter'
-}
+  pageCreateCount: 'counter',
+};
 ```
 
 ### D. 风险和缓解措施
 
 #### D.1 性能风险
+
 - **风险**：Profile 扫描耗时过长，影响用户体验
 - **缓解**：引入缓存、异步扫描、增量更新
 
 #### D.2 并发风险
+
 - **风险**：高并发场景下锁竞争激烈，性能下降
 - **缓解**：乐观锁、细粒度锁、锁超时机制
 
 #### D.3 数据一致性风险
+
 - **风险**：回滚失败导致数据不一致
 - **缓解**：多次快照、手动恢复工具、数据校验
 
 #### D.4 迁移风险
+
 - **风险**：现有模板迁移失败，影响正常使用
 - **缓解**：兼容模式、迁移回滚、人工干预
 
 ### E. 术语表
 
-| 术语 | 定义 |
-|------|------|
-| TemplateProfile | 模板的语义索引，包含页面、区域、槽位、模式等信息 |
-| PageSpec | 页面级结构化意图，描述创建或更新页面的需求 |
-| EditSpec | 编辑级结构化意图，描述修改槽位、填充模式、替换区域的需求 |
-| Slot | 语义槽位，对应一个可编辑的节点（如标题、图片、按钮） |
-| Pattern | 重复结构模式，对应一组可重复的节点（如商品卡片、订单卡片） |
-| Region | 语义区域，对应页面中的一个功能区域（如 banner、列表区） |
-| PageKind | 页面类型，用于选择参考页面（如 order、home、profile） |
-| Atomic Operation | 原子操作，保证多步骤操作的原子性，失败时完全回滚 |
-| Optimistic Lock | 乐观锁，假设冲突很少发生，冲突时快速失败并重试 |
-
+| 术语             | 定义                                                       |
+| ---------------- | ---------------------------------------------------------- |
+| TemplateProfile  | 模板的语义索引，包含页面、区域、槽位、模式等信息           |
+| PageSpec         | 页面级结构化意图，描述创建或更新页面的需求                 |
+| EditSpec         | 编辑级结构化意图，描述修改槽位、填充模式、替换区域的需求   |
+| Slot             | 语义槽位，对应一个可编辑的节点（如标题、图片、按钮）       |
+| Pattern          | 重复结构模式，对应一组可重复的节点（如商品卡片、订单卡片） |
+| Region           | 语义区域，对应页面中的一个功能区域（如 banner、列表区）    |
+| PageKind         | 页面类型，用于选择参考页面（如 order、home、profile）      |
+| Atomic Operation | 原子操作，保证多步骤操作的原子性，失败时完全回滚           |
+| Optimistic Lock  | 乐观锁，假设冲突很少发生，冲突时快速失败并重试             |

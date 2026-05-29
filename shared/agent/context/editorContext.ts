@@ -1,3 +1,4 @@
+import { formatEditorSemanticTargetLandmarks } from '../editor/semanticTargetResolver';
 import type { TemplateProfile } from '../template/templateProfile';
 import type {
   AgentConversationMessage,
@@ -49,7 +50,9 @@ function summarizeLayout(node: ThemeLayoutNode): string {
     node.layout.width ? `width=${String(node.layout.width)}` : '',
     typeof node.layout.flowRow === 'number' ? `row=${String(node.layout.flowRow)}` : '',
     typeof node.layout.order === 'number' ? `order=${String(node.layout.order)}` : '',
-  ].filter(Boolean).join(', ');
+  ]
+    .filter(Boolean)
+    .join(', ');
 }
 
 function appendNodeSummary(node: ThemeLayoutNode, lines: string[], depth = 0): void {
@@ -57,9 +60,7 @@ function appendNodeSummary(node: ThemeLayoutNode, lines: string[], depth = 0): v
     return;
   }
   const indent = '  '.repeat(depth);
-  lines.push(
-    `${indent}- ${node.id} | ${node.alias} | ${summarizeLayout(node)} | props: ${summarizeProps(node.props)}`,
-  );
+  lines.push(`${indent}- ${node.id} | ${node.alias} | ${summarizeLayout(node)} | props: ${summarizeProps(node.props)}`);
   node.children?.forEach((child) => {
     appendNodeSummary(child, lines, depth + 1);
   });
@@ -89,11 +90,10 @@ function nodeSearchText(node: ThemeLayoutNode): string {
   return [
     node.id,
     node.alias,
-    ...Object.entries(node.props ?? {}).flatMap(([key, value]) => [
-      key,
-      stringifyPropValue(value),
-    ]),
-  ].join(' ').toLowerCase();
+    ...Object.entries(node.props ?? {}).flatMap(([key, value]) => [key, stringifyPropValue(value)]),
+  ]
+    .join(' ')
+    .toLowerCase();
 }
 
 function scoreNodeForPrompt(
@@ -125,9 +125,7 @@ function scoreNodeForPrompt(
   return score;
 }
 
-function summarizeNodeLine(
-  item: { node: ThemeLayoutNode; depth: number; parentId?: string },
-): string {
+function summarizeNodeLine(item: { node: ThemeLayoutNode; depth: number; parentId?: string }): string {
   const { node, depth, parentId } = item;
   return [
     `- ${node.id}`,
@@ -136,7 +134,9 @@ function summarizeNodeLine(
     `depth=${String(depth)}`,
     `layout=(${summarizeLayout(node)})`,
     `props=(${summarizeProps(node.props)})`,
-  ].filter(Boolean).join(' | ');
+  ]
+    .filter(Boolean)
+    .join(' | ');
 }
 
 export function summarizeCanvas(document: ThemeLayoutDocument): string {
@@ -175,139 +175,37 @@ function buildNodeIndex(root: ThemeLayoutNode): string {
   return lines.join('\n');
 }
 
-function buildSimpleSemanticLandmarks(root: ThemeLayoutNode): string {
-  const landmarks: { role: string; nodeId: string; alias: string; label: string }[] = [];
-
-  const labelFromProp = (value: unknown, fallback: string) =>
-    stringifyPropValue(value) || fallback;
-
-  const pushLandmark = (
-    role: string,
-    node: ThemeLayoutNode,
-    label: string,
-  ) => {
-    landmarks.push({
-      role,
-      nodeId: node.id,
-      alias: node.alias,
-      label,
-    });
-  };
-
-  const walk = (node: ThemeLayoutNode, depth = 0, rootIndex = 0) => {
-    const props = node.props ?? {};
-
-    // page_footer_nav: footer slot tabs or bottom nav aliases
-    if (
-      (node.alias === 'core.tabs' && node.slot === 'footer') ||
-      (node.alias === 'svc-bottom-bar') ||
-      (node.alias === 'com-bottom-tabs')
-    ) {
-      pushLandmark(
-        'page_footer_nav',
-        node,
-        labelFromProp(props.activeTab, 'footer tabs'),
-      );
-    }
-
-    // page_header + page_title + main_content: root screen
-    if (node.alias === 'core.screen') {
-      const title = labelFromProp(props.title, 'root screen');
-      pushLandmark('page_header', node, title);
-      pushLandmark('page_title', node, title);
-      pushLandmark('main_content', node, title);
-    }
-
-    // main_content: top-level body containers (depth=1, non-footer, first 2)
-    if (
-      depth === 1 &&
-      node.slot !== 'footer' &&
-      ['core.panel', 'core.stack', 'core.row', 'core.grid'].includes(node.alias) &&
-      rootIndex <= 1
-    ) {
-      pushLandmark('main_content', node, 'body container');
-    }
-
-    // search_box
-    if (node.alias === 'core.search') {
-      pushLandmark(
-        'search_box',
-        node,
-        labelFromProp(props.placeholder, 'search'),
-      );
-    }
-
-    // primary_cta: primary variant buttons
-    if (node.alias === 'core.button' && props.variant === 'primary') {
-      pushLandmark('primary_cta', node, labelFromProp(props.label, 'button'));
-    }
-    // primary_cta: any button (lower priority, shown for discoverability)
-    if (node.alias === 'core.button' && props.variant !== 'primary') {
-      pushLandmark('primary_cta', node, labelFromProp(props.label, 'button'));
-    }
-
-    // notice_banner
-    if (node.alias === 'core.notice') {
-      pushLandmark('notice_banner', node, labelFromProp(props.text, 'notice'));
-    }
-
-    // section_header: nodes with both title and actionLabel
-    if (props.title && props.actionLabel) {
-      pushLandmark(
-        'section_header',
-        node,
-        labelFromProp(props.title, 'section header'),
-      );
-    }
-
-    node.children?.forEach((child, index) => {
-      walk(child, depth + 1, depth === 0 ? index : rootIndex);
-    });
-  };
-
-  walk(root);
-
-  if (!landmarks.length) {
-    return 'none detected';
-  }
-
-  // Deduplicate by role:nodeId, keeping the first (highest priority) entry
-  const seen = new Set<string>();
-  const unique = landmarks.filter((l) => {
-    const key = `${l.role}:${l.nodeId}`;
-    if (seen.has(key)) {return false;}
-    seen.add(key);
-    return true;
-  });
-
-  return unique
-    .map((l) => `- ${l.role} -> nodeId=${l.nodeId}, alias=${l.alias}, label=${l.label}`)
-    .join('\n');
-}
-
 export function summarizeComponents(components: ThemeComponentDescriptor[]): string {
-  return components.map((component) => {
-    const props = component.props.map((prop) => {
-      const enumValues = prop.enum?.length ? `[${prop.enum.join('|')}]` : '';
-      return `${prop.name}:${prop.type}${enumValues}`;
-    }).join(', ');
-    return `- ${component.alias} (${component.kind}) props: ${props || 'none'}`;
-  }).join('\n');
+  return components
+    .map((component) => {
+      const props = component.props
+        .map((prop) => {
+          const enumValues = prop.enum?.length ? `[${prop.enum.join('|')}]` : '';
+          return `${prop.name}:${prop.type}${enumValues}`;
+        })
+        .join(', ');
+      return `- ${component.alias} (${component.kind}) props: ${props || 'none'}`;
+    })
+    .join('\n');
 }
 
 export function summarizePages(pages: AgentPageContext[] | undefined): string {
   if (!pages?.length) {
     return 'none';
   }
-  return pages.map((page) => {
-    const activeMarker = page.isActive ? ' active' : '';
-    const stats = [
-      `root=${page.rootNodeId}`,
-      typeof page.nodeCount === 'number' ? `nodes=${String(page.nodeCount)}` : '',
-      page.isBlank ? 'blank' : '',
-    ].filter(Boolean).join(', ');
-    return `- ${page.pageId}${activeMarker} | ${page.name} | ${stats}`;
-  }).join('\n');
+  return pages
+    .map((page) => {
+      const activeMarker = page.isActive ? ' active' : '';
+      const stats = [
+        `root=${page.rootNodeId}`,
+        typeof page.nodeCount === 'number' ? `nodes=${String(page.nodeCount)}` : '',
+        page.isBlank ? 'blank' : '',
+      ]
+        .filter(Boolean)
+        .join(', ');
+      return `- ${page.pageId}${activeMarker} | ${page.name} | ${stats}`;
+    })
+    .join('\n');
 }
 
 function asTemplateProfile(value: unknown): TemplateProfile | null {
@@ -319,7 +217,7 @@ function asTemplateProfile(value: unknown): TemplateProfile | null {
     Array.isArray(record.regions) &&
     Array.isArray(record.slots) &&
     Array.isArray(record.patterns)
-    ? record as TemplateProfile
+    ? (record as TemplateProfile)
     : null;
 }
 
@@ -348,21 +246,18 @@ function summarizeTemplateProfile(profile: TemplateProfile): string {
     `- profileVersion=${profile.profileVersion}, templateVersion=${profile.templateVersion}`,
     `- devices=${profile.devices.join(', ') || 'none'}`,
     '- pages:',
-    ...(profile.pages.slice(0, 16).map((page) =>
-      `  - ${page.pageKey} | pageId=${page.pageId} | kind=${page.pageKind} | name=${page.name}`)),
-    profile.pages.length > 16
-      ? `  - ... ${profile.pages.length - 16} more pages`
-      : '',
+    ...profile.pages
+      .slice(0, 16)
+      .map((page) => `  - ${page.pageKey} | pageId=${page.pageId} | kind=${page.pageKind} | name=${page.name}`),
+    profile.pages.length > 16 ? `  - ... ${profile.pages.length - 16} more pages` : '',
     '- regions:',
-    ...(profile.regions.slice(0, 24).map((region) => {
+    ...profile.regions.slice(0, 24).map((region) => {
       const replaceable = String(Boolean(region.replaceable));
       return `  - ${region.regionKey} | page=${region.pageKey} | nodeId=${region.nodeId} | replaceable=${replaceable}`;
-    })),
-    profile.regions.length > 24
-      ? `  - ... ${profile.regions.length - 24} more regions`
-      : '',
+    }),
+    profile.regions.length > 24 ? `  - ... ${profile.regions.length - 24} more regions` : '',
     '- slots:',
-    ...(profile.slots.slice(0, 40).map((slot) => {
+    ...profile.slots.slice(0, 40).map((slot) => {
       const editableProps = slot.editableProps.join(',');
       return [
         `  - ${slot.slotKey}`,
@@ -371,12 +266,10 @@ function summarizeTemplateProfile(profile: TemplateProfile): string {
         `component=${slot.component}`,
         `props=${editableProps}`,
       ].join(' | ');
-    })),
-    profile.slots.length > 40
-      ? `  - ... ${profile.slots.length - 40} more slots`
-      : '',
+    }),
+    profile.slots.length > 40 ? `  - ... ${profile.slots.length - 40} more slots` : '',
     '- patterns:',
-    ...(profile.patterns.slice(0, 16).map((pattern) => {
+    ...profile.patterns.slice(0, 16).map((pattern) => {
       const fields = pattern.fields.map((field) => field.fieldKey).join(',');
       return [
         `  - ${pattern.patternKey}`,
@@ -384,10 +277,8 @@ function summarizeTemplateProfile(profile: TemplateProfile): string {
         `root=${pattern.sourceRootNodeId}`,
         `fields=${fields}`,
       ].join(' | ');
-    })),
-    profile.patterns.length > 16
-      ? `  - ... ${profile.patterns.length - 16} more patterns`
-      : '',
+    }),
+    profile.patterns.length > 16 ? `  - ... ${profile.patterns.length - 16} more patterns` : '',
   ].filter(Boolean);
 
   if (profile.navigation) {
@@ -403,9 +294,7 @@ function summarizeTemplateProfile(profile: TemplateProfile): string {
   return lines.join('\n');
 }
 
-export function summarizeTemplateAgentKnowledge(
-  knowledge: AgentTemplateKnowledgeContext | null | undefined,
-): string {
+export function summarizeTemplateAgentKnowledge(knowledge: AgentTemplateKnowledgeContext | null | undefined): string {
   if (!knowledge) {
     return '';
   }
@@ -442,9 +331,7 @@ export function buildEditorContext(
   ].join('\n');
 }
 
-export function buildEditorStablePrefixContext(
-  components: readonly ThemeComponentDescriptor[],
-): string {
+export function buildEditorStablePrefixContext(components: readonly ThemeComponentDescriptor[]): string {
   return [
     'Stable editor contract:',
     '- The component catalog below is stable prefix context. Use only these aliases.',
@@ -463,11 +350,7 @@ export function buildEditorVolatileContext(
   selectedDescriptor: ThemeComponentDescriptor | null | undefined,
 ): string {
   const depsSection = document.dependencies?.length
-    ? [
-        '',
-        'Loaded dependencies:',
-        ...document.dependencies.map((dep) => `  - ${dep.name}: ${dep.url}`),
-      ].join('\n')
+    ? ['', 'Loaded dependencies:', ...document.dependencies.map((dep) => `  - ${dep.name}: ${dep.url}`)].join('\n')
     : '';
 
   return [
@@ -496,9 +379,11 @@ export function buildEditorVolatileContext(
     buildNodeIndex(document.layout),
     '',
     'Semantic Landmarks (use these as fallback via semanticTarget):',
-    buildSimpleSemanticLandmarks(document.layout),
+    formatEditorSemanticTargetLandmarks(document.layout),
     depsSection,
-  ].filter(Boolean).join('\n');
+  ]
+    .filter(Boolean)
+    .join('\n');
 }
 
 export function buildEditorTrimmedVolatileContext(
@@ -541,13 +426,13 @@ export function buildEditorTrimmedVolatileContext(
       : 'none',
     '',
     'Relevant editable nodes:',
-    selectedAndScored.length
-      ? selectedAndScored.map(({ item }) => summarizeNodeLine(item)).join('\n')
-      : 'none',
+    selectedAndScored.length ? selectedAndScored.map(({ item }) => summarizeNodeLine(item)).join('\n') : 'none',
     nodes.length > selectedAndScored.length
       ? `- ... ${String(nodes.length - selectedAndScored.length)} nodes omitted from volatile context`
       : '',
-  ].filter(Boolean).join('\n');
+  ]
+    .filter(Boolean)
+    .join('\n');
 }
 
 export function buildEditorMinimalVolatileContext(
@@ -572,7 +457,9 @@ export function buildEditorMinimalVolatileContext(
           `name: ${selectedDescriptor?.name ?? selectedNode.alias}`,
         ].join('\n')
       : 'none',
-  ].filter(Boolean).join('\n');
+  ]
+    .filter(Boolean)
+    .join('\n');
 }
 
 function trimConversationContent(content: string): string {

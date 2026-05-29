@@ -63,10 +63,11 @@ function getNode(document: ThemeLayoutDocument, nodeId: string | undefined): The
 }
 
 function pageExists(document: ThemeLayoutDocument, assertion: SemanticAssertion): boolean {
-  return document.pages.some((page) => (
-    (assertion.pageId !== undefined && page.id === assertion.pageId) ||
-    (assertion.pageName !== undefined && page.name.includes(assertion.pageName))
-  ));
+  return document.pages.some(
+    (page) =>
+      (assertion.pageId !== undefined && page.id === assertion.pageId) ||
+      (assertion.pageName !== undefined && page.name.includes(assertion.pageName)),
+  );
 }
 
 function stringifyComparable(value: unknown): string {
@@ -131,13 +132,11 @@ function evaluateAssertion(
         ? pass('node prop equals expected value', assertion)
         : fail(`node prop mismatch: ${stringifyComparable(node?.props?.[assertion.prop ?? ''])}`, assertion);
     case 'node_prop_contains':
-      return stringifyComparable(node?.props?.[assertion.prop ?? ''])
-        .includes(stringifyComparable(assertion.value))
+      return stringifyComparable(node?.props?.[assertion.prop ?? '']).includes(stringifyComparable(assertion.value))
         ? pass('node prop contains expected value', assertion)
         : fail('node prop does not contain expected value', assertion);
     case 'node_prop_not_contains':
-      return !stringifyComparable(node?.props?.[assertion.prop ?? ''])
-        .includes(stringifyComparable(assertion.value))
+      return !stringifyComparable(node?.props?.[assertion.prop ?? '']).includes(stringifyComparable(assertion.value))
         ? pass('node prop excludes forbidden value', assertion)
         : fail('node prop contains forbidden value', assertion);
     case 'page_exists':
@@ -156,9 +155,9 @@ function evaluateAssertion(
         : fail(`page count delta is ${String(delta)}`, assertion);
     }
     case 'page_name_contains':
-      return document.pages.some((page) => page.name.includes(
-        stringifyComparable(assertion.value ?? assertion.pageName),
-      ))
+      return document.pages.some((page) =>
+        page.name.includes(stringifyComparable(assertion.value ?? assertion.pageName)),
+      )
         ? pass('page name contains expected text', assertion)
         : fail('no page name contains expected text', assertion);
     case 'navigation_targets_include': {
@@ -194,12 +193,15 @@ function evaluateAssertion(
       const initialIds = new Set(initialDocument?.pages.map((page) => page.id) ?? []);
       const newPages = document.pages.filter((page) => !initialIds.has(page.id));
       const minNodes = assertion.minNodes ?? 1;
-      const ok = newPages.some((page) => allNodes({
-        ...document,
-        pages: [page],
-        defaultPageId: page.id,
-        layout: page.layout,
-      }).length >= minNodes);
+      const ok = newPages.some(
+        (page) =>
+          allNodes({
+            ...document,
+            pages: [page],
+            defaultPageId: page.id,
+            layout: page.layout,
+          }).length >= minNodes,
+      );
       return ok ? pass('new page has enough nodes', assertion) : fail('new page is too small', assertion);
     }
     case 'all_pages_have_screen_root':
@@ -222,6 +224,26 @@ function evaluateAssertion(
   }
 }
 
+function evaluateMustNotChangeAssertion(
+  document: ThemeLayoutDocument,
+  initialDocument: ThemeLayoutDocument | undefined,
+  assertion: SemanticAssertion,
+): SemanticAssertionResult {
+  if (!initialDocument) {
+    return fail('mustNotChange requires an initial document', assertion);
+  }
+
+  const initialResult = evaluateAssertion(initialDocument, undefined, assertion);
+  if (!initialResult.passed) {
+    return fail(`initial invariant missing: ${initialResult.message}`, assertion);
+  }
+
+  const finalResult = evaluateAssertion(document, initialDocument, assertion);
+  return finalResult.passed
+    ? pass(`unchanged: ${finalResult.message}`, assertion)
+    : fail(`changed: ${finalResult.message}`, assertion);
+}
+
 export function evaluateSemanticAssertions(
   document: ThemeLayoutDocument | undefined,
   initialDocument: ThemeLayoutDocument | undefined,
@@ -230,12 +252,14 @@ export function evaluateSemanticAssertions(
   if (!document) {
     return { passed: false, taskScore: 0, failures: [], results: [] };
   }
-  const assertions = expected?.mustHave ?? [];
-  const results = assertions.map((assertion) => evaluateAssertion(document, initialDocument, assertion));
+  const mustHave = expected?.mustHave ?? [];
+  const mustNotChange = expected?.mustNotChange ?? [];
+  const results = [
+    ...mustHave.map((assertion) => evaluateAssertion(document, initialDocument, assertion)),
+    ...mustNotChange.map((assertion) => evaluateMustNotChangeAssertion(document, initialDocument, assertion)),
+  ];
   const failures = results.filter((result) => !result.passed);
-  const taskScore = assertions.length === 0
-    ? 1
-    : (assertions.length - failures.length) / assertions.length;
+  const taskScore = results.length === 0 ? 1 : (results.length - failures.length) / results.length;
   return {
     passed: taskScore >= 0.8,
     taskScore,

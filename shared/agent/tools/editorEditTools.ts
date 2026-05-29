@@ -1,9 +1,7 @@
 /* eslint-disable max-len */
-export interface AgentProviderTool {
-  name: string;
-  description: string;
-  parameters: Record<string, unknown>;
-}
+import type { ProviderTool } from '../contracts/provider';
+
+export type AgentProviderTool = ProviderTool;
 
 type EditorOperation = Record<string, unknown> & { type: string };
 
@@ -125,15 +123,10 @@ export const EDITOR_CREATE_PAGE_FROM_REFERENCE_TOOL = tool(
   },
 );
 
-export const EDITOR_DELETE_PAGE_TOOL = tool(
-  'editor_delete_page',
-  'Delete a page.',
-  [],
-  {
-    pageId: { type: 'string', description: 'Page id.' },
-    name: { type: 'string', description: 'Exact page name.' },
-  },
-);
+export const EDITOR_DELETE_PAGE_TOOL = tool('editor_delete_page', 'Delete a page.', [], {
+  pageId: { type: 'string', description: 'Page id.' },
+  name: { type: 'string', description: 'Exact page name.' },
+});
 
 const INSERT_NODE_DESCRIPTION = [
   'Insert one component into a container. parentId must be a container:',
@@ -153,32 +146,27 @@ const INSERT_NODE_DESCRIPTION = [
   'Do NOT put props at the top level - always inside the "props" object.',
 ].join('\n');
 
-export const EDITOR_INSERT_NODE_TOOL = tool(
-  'editor_insert_node',
-  INSERT_NODE_DESCRIPTION,
-  ['parentId', 'alias'],
-  {
-    pageId: commonTargetProperties.pageId,
-    parentId: { type: 'string', description: 'Exact existing container node id.' },
-    alias: { type: 'string', description: 'Component alias (e.g. core.text, core.button, core.panel).' },
-    nodeId: { type: 'string', description: 'Suggested inserted node id.' },
-    targetId: { type: 'string', description: 'Exact existing sibling node id.' },
-    position: { type: 'string', enum: ['before', 'after', 'inside_end'] },
-    props: {
-      type: 'object',
-      description: [
-        'Component-specific properties. Include the minimum required props for the alias.',
-        [
-          'Common props: text, label, title, placeholder, name, variant,',
-          'icon, src, alt, type, disabled, value, color, size.',
-        ].join(' '),
-        'Example: {"text":"提交","variant":"primary","disabled":false}',
+export const EDITOR_INSERT_NODE_TOOL = tool('editor_insert_node', INSERT_NODE_DESCRIPTION, ['parentId', 'alias'], {
+  pageId: commonTargetProperties.pageId,
+  parentId: { type: 'string', description: 'Exact existing container node id.' },
+  alias: { type: 'string', description: 'Component alias (e.g. core.text, core.button, core.panel).' },
+  nodeId: { type: 'string', description: 'Suggested inserted node id.' },
+  targetId: { type: 'string', description: 'Exact existing sibling node id.' },
+  position: { type: 'string', enum: ['before', 'after', 'inside_end'] },
+  props: {
+    type: 'object',
+    description: [
+      'Component-specific properties. Include the minimum required props for the alias.',
+      [
+        'Common props: text, label, title, placeholder, name, variant,',
+        'icon, src, alt, type, disabled, value, color, size.',
       ].join(' '),
-    },
-    layout: { type: 'object', description: 'Layout values (mode, width, height, etc).' },
-    select: { type: 'boolean', description: 'Select node after insert.' },
+      'Example: {"text":"提交","variant":"primary","disabled":false}',
+    ].join(' '),
   },
-);
+  layout: { type: 'object', description: 'Layout values (mode, width, height, etc).' },
+  select: { type: 'boolean', description: 'Select node after insert.' },
+});
 
 const UPDATE_PROPS_DESCRIPTION = [
   'Patch node props. Provide nodeId or semanticTarget to identify the node.',
@@ -193,32 +181,27 @@ const UPDATE_PROPS_DESCRIPTION = [
   'Do NOT put props at the top level - always inside the "props" object.',
 ].join('\n');
 
-export const EDITOR_UPDATE_PROPS_TOOL = tool(
-  'editor_update_props',
-  UPDATE_PROPS_DESCRIPTION,
-  ['props'],
-  {
-    pageId: commonTargetProperties.pageId,
-    nodeId: commonTargetProperties.nodeId,
-    props: {
-      type: 'object',
-      description: [
-        'Properties to update. Only include changed props.',
-        [
-          'Common props: text, label, title, placeholder, name, variant,',
-          'icon, activeTab, src, alt, type, disabled, value, color, size.',
-        ].join(' '),
-        'Example: {"text":"更新后的文案","variant":"outline"}',
+export const EDITOR_UPDATE_PROPS_TOOL = tool('editor_update_props', UPDATE_PROPS_DESCRIPTION, ['props'], {
+  pageId: commonTargetProperties.pageId,
+  nodeId: commonTargetProperties.nodeId,
+  props: {
+    type: 'object',
+    description: [
+      'Properties to update. Only include changed props.',
+      [
+        'Common props: text, label, title, placeholder, name, variant,',
+        'icon, activeTab, src, alt, type, disabled, value, color, size.',
       ].join(' '),
-    },
-    semanticTarget: {
-      type: 'string',
-      enum: EDITOR_SEMANTIC_TARGET_ROLE_VALUES,
-      description: 'Semantic target role (alternative to nodeId).',
-    },
-    select: { type: 'boolean' },
+      'Example: {"text":"更新后的文案","variant":"outline"}',
+    ].join(' '),
   },
-);
+  semanticTarget: {
+    type: 'string',
+    enum: EDITOR_SEMANTIC_TARGET_ROLE_VALUES,
+    description: 'Semantic target role (alternative to nodeId).',
+  },
+  select: { type: 'boolean' },
+});
 
 export const EDITOR_DELETE_NODE_TOOL = tool(
   'editor_delete_node',
@@ -316,19 +299,14 @@ export const EDITOR_UPDATE_INTERACTIONS_TOOL = tool(
   },
 );
 
-export const EDITOR_SYNC_NAVIGATION_TOOL = tool(
-  'editor_sync_navigation',
-  'Sync page navigation.',
-  [],
-  {
-    semanticTarget: {
-      type: 'string',
-      enum: EDITOR_SEMANTIC_TARGET_ROLE_VALUES,
-      description: 'Semantic target.',
-    },
-    select: { type: 'boolean' },
+export const EDITOR_SYNC_NAVIGATION_TOOL = tool('editor_sync_navigation', 'Sync page navigation.', [], {
+  semanticTarget: {
+    type: 'string',
+    enum: EDITOR_SEMANTIC_TARGET_ROLE_VALUES,
+    description: 'Semantic target.',
   },
-);
+  select: { type: 'boolean' },
+});
 
 export const EDITOR_SUBMIT_PAGE_SPEC_TOOL = tool(
   'editor_submit_page_spec',
@@ -428,18 +406,42 @@ function mergeFlatProps(args: Record<string, unknown>): Record<string, unknown> 
   }
 
   const legacyKeys = [
-    'text', 'label', 'title', 'placeholder', 'name',
-    'variant', 'tone', 'href', 'icon', 'activeTab', 'propsJson',
-    'tabs', 'src', 'alt', 'objectFit', 'type', 'target', 'value',
-    'disabled', 'max', 'gap', 'columns', 'size', 'color',
-    'library', 'renderer', 'data',
+    'text',
+    'label',
+    'title',
+    'placeholder',
+    'name',
+    'variant',
+    'tone',
+    'href',
+    'icon',
+    'activeTab',
+    'propsJson',
+    'tabs',
+    'src',
+    'alt',
+    'objectFit',
+    'type',
+    'target',
+    'value',
+    'disabled',
+    'max',
+    'gap',
+    'columns',
+    'size',
+    'color',
+    'library',
+    'renderer',
+    'data',
   ];
   const props: Record<string, unknown> = {};
   for (const key of legacyKeys) {
     if (key === 'propsJson' && typeof args.propsJson === 'string') {
       try {
         Object.assign(props, JSON.parse(args.propsJson));
-      } catch { /* ignore invalid JSON */ }
+      } catch {
+        /* ignore invalid JSON */
+      }
     } else if (args[key] !== undefined) {
       props[key] = args[key];
     }
@@ -510,8 +512,8 @@ export function editorToolCallToOperations(
       const mergedProps = mergeFlatProps(args);
       if (Object.keys(mergedProps).length === 0) {
         throw new Error(
-          'update_props requires at least one prop to update. '
-            + 'Provide props={"key":"value"} with at least one property.',
+          'update_props requires at least one prop to update. ' +
+            'Provide props={"key":"value"} with at least one property.',
         );
       }
       base.props = mergedProps;
@@ -540,12 +542,12 @@ export function editorToolCallToOperations(
     case EDITOR_SYNC_NAVIGATION_TOOL.name: {
       const base = cleanBaseArgs(args);
       return {
-        operations: [{
-          ...base,
-          type: args.semanticTarget === 'page_footer_nav'
-            ? 'sync_footer_tabs'
-            : 'sync_page_navigation',
-        }],
+        operations: [
+          {
+            ...base,
+            type: args.semanticTarget === 'page_footer_nav' ? 'sync_footer_tabs' : 'sync_page_navigation',
+          },
+        ],
         reason,
       };
     }

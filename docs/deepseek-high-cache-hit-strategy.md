@@ -39,12 +39,12 @@ DeepSeek API 使用 **前缀缓存（prefix caching）** 机制：
 
 ### 1.2 缓存失效的代价
 
-| 模型 | 场景 | 每 1M token 价格 |
-|---|---|---|
-| v4-flash | cache hit | **$0.0028** |
-| v4-flash | cache miss | **$0.14** |
-| v4-pro | cache hit | **$0.003625** |
-| v4-pro | cache miss | **$0.435** |
+| 模型     | 场景       | 每 1M token 价格 |
+| -------- | ---------- | ---------------- |
+| v4-flash | cache hit  | **$0.0028**      |
+| v4-flash | cache miss | **$0.14**        |
+| v4-pro   | cache hit  | **$0.003625**    |
+| v4-pro   | cache miss | **$0.435**       |
 
 一个完整会话的系统提示词 + 工具定义通常在 **3K-10K tokens**。如果这个前缀每次都命中，每轮对话只付新用户输入的 tokens 费用。若前缀频繁变化，每次都要为几千 tokens 付全价。
 
@@ -90,17 +90,17 @@ AppendOnlyLog ──────────────────────
 
 ### 2.3 缓存稳定性的关键
 
-| 操作 | 对缓存的影响 | 备注 |
-|---|---|---|
-| 添加/移除工具 | ❌ 前缀改变 → 全 miss | 仅 MCP 热桥接时发生 |
-| `/new` 重建系统提示词 | ❌ 前缀改变 → 全 miss | 明确接受成本 |
-| 追加用户消息 | ✅ 缓存命中 | 前缀不变，尾部增加 |
-| 追加助手回复 | ✅ 缓存命中 | 前缀不变，尾部增加 |
-| 追加工具结果 | ✅ 缓存命中 | 前缀不变，尾部增加 |
-| 会话折叠 (fold) | ✅ 缓存命中 | 仅替换前缀之后的旧消息 |
-| 修复已加载消息 (heal) | ✅ 缓存命中 | 仅修改历史，不改变前缀 |
-| `/compact` 压缩会话 | ✅ 缓存命中 | 使用模型对话摘要替换 |
-| 扁平化 Schema | ✅ 提升命中率 | 减少工具定义的 token 波动 |
+| 操作                  | 对缓存的影响          | 备注                      |
+| --------------------- | --------------------- | ------------------------- |
+| 添加/移除工具         | ❌ 前缀改变 → 全 miss | 仅 MCP 热桥接时发生       |
+| `/new` 重建系统提示词 | ❌ 前缀改变 → 全 miss | 明确接受成本              |
+| 追加用户消息          | ✅ 缓存命中           | 前缀不变，尾部增加        |
+| 追加助手回复          | ✅ 缓存命中           | 前缀不变，尾部增加        |
+| 追加工具结果          | ✅ 缓存命中           | 前缀不变，尾部增加        |
+| 会话折叠 (fold)       | ✅ 缓存命中           | 仅替换前缀之后的旧消息    |
+| 修复已加载消息 (heal) | ✅ 缓存命中           | 仅修改历史，不改变前缀    |
+| `/compact` 压缩会话   | ✅ 缓存命中           | 使用模型对话摘要替换      |
+| 扁平化 Schema         | ✅ 提升命中率         | 减少工具定义的 token 波动 |
 
 ---
 
@@ -118,10 +118,10 @@ src/memory/runtime.ts — ImmutablePrefix 类
 
 ```typescript
 class ImmutablePrefix {
-  system: string;              // 系统提示词（冻结）
-  private _toolSpecs: ToolSpec[];  // 工具定义（冻结）
-  readonly fewShots: readonly ChatMessage[];  // few-shot 示例（冻结）
-  private _fingerprintCache: string | null;   // 指纹缓存
+  system: string; // 系统提示词（冻结）
+  private _toolSpecs: ToolSpec[]; // 工具定义（冻结）
+  readonly fewShots: readonly ChatMessage[]; // few-shot 示例（冻结）
+  private _fingerprintCache: string | null; // 指纹缓存
 }
 ```
 
@@ -245,6 +245,7 @@ private buildMessages(pendingUser: string | null): ChatMessage[] {
 ```
 
 **最终的消息结构**：
+
 ```
 [preamble: system prompt + tool specs + memories + .gitignore]
         ↑ 缓存命中的关键 — 这一整块每次请求都完全相同
@@ -299,16 +300,16 @@ decidePreflight(messages, toolSpecs, model): PreflightDecision {
 async fold(model: string, opts?): Promise<FoldResult> {
   // 1. 计算尾部保留预算（默认 20% ctxMax）
   const tailBudget = ...;
-  
+
   // 2. 从后向前扫描，累积 token，停在第一个用户消息边界
   //    这样 tail 总以用户消息开头，模型看到的是完整对话轮次
-  
+
   // 3. 提取 pinned skills 内容（不参与摘要，原样保留）
   const { stubbedHead, pinnedBodies } = extractPinnedSkills(head);
-  
+
   // 4. 用 flash 模型对早期消息生成摘要
   const summary = await this.summarizeForFold(stubbedHead);
-  
+
   // 5. 构造折叠后的消息列表：
   //    [summary + pinned skills + original tail]
   const summaryMsg = buildAssistantMessage(
@@ -316,7 +317,7 @@ async fold(model: string, opts?): Promise<FoldResult> {
     [], model, summary.reasoningContent
   );
   const replacement = [summaryMsg, ...tail];
-  
+
   // 6. 替换内存中的日志，同步写入会话文件
   this.deps.log.compactInPlace(replacement);
   this.persistRewrite(replacement);
@@ -324,6 +325,7 @@ async fold(model: string, opts?): Promise<FoldResult> {
 ```
 
 **折叠对缓存的影响**:
+
 - 前缀部分（ImmutablePrefix）**完全不变** → 缓存命中
 - 只替换了历史消息部分 → 下一次请求的前缀仍然是缓存命中的
 - 折叠本身使用 flash 模型，成本极低（~100-200 tokens 输出）
@@ -341,6 +343,7 @@ src/repair/flatten.ts — flattenSchema(), analyzeSchema(), nestArguments()
 ### 5.2 为什么需要扁平化
 
 DeepSeek 在处理深度 >2 层或叶子 >10 个的 JSON Schema 时会 **静默丢弃部分参数**。这意味着：
+
 - 模型指示了 `write_file`，但参数 `content` 被丢弃 → 写入空文件
 - 缓存虽然命中，但工具执行结果错误
 
@@ -349,14 +352,16 @@ DeepSeek 在处理深度 >2 层或叶子 >10 个的 JSON Schema 时会 **静默�
 ```typescript
 /** 分析是否需要扁平化 */
 function analyzeSchema(schema): FlattenDecision {
-  let leafCount = 0, maxDepth = 0;
+  let leafCount = 0,
+    maxDepth = 0;
   walk(schema, 0, (depth, isLeaf) => {
     if (isLeaf) leafCount++;
     if (depth > maxDepth) maxDepth = depth;
   });
   return {
-    shouldFlatten: leafCount > 10 || maxDepth > 2,  // 超过阈值 → 需要扁平化
-    leafCount, maxDepth,
+    shouldFlatten: leafCount > 10 || maxDepth > 2, // 超过阈值 → 需要扁平化
+    leafCount,
+    maxDepth,
   };
 }
 
@@ -364,19 +369,19 @@ function analyzeSchema(schema): FlattenDecision {
 function flattenSchema(schema): JSONSchema {
   const flatProps = {};
   const required: string[] = [];
-  collect("", schema, flatProps, required, true);
+  collect('', schema, flatProps, required, true);
   // 输入: { path: string, content: string, encoding: string }
   // 不扁平（浅层且叶子少）
   // 输入: { operation: { type: string, target: { path: string, range: string } } }
   // 扁平为: { "operation.type": string, "operation.target.path": string, "operation.target.range": string }
-  return { type: "object", properties: flatProps, required };
+  return { type: 'object', properties: flatProps, required };
 }
 
 /** 工具调度时重建嵌套结构 */
 function nestArguments(flatArgs): Record<string, unknown> {
   const out = {};
   for (const [key, value] of Object.entries(flatArgs)) {
-    setByPath(out, key.split("."), value);  // "operation.target.path" → out.operation.target.path
+    setByPath(out, key.split('.'), value); // "operation.target.path" → out.operation.target.path
   }
   return out;
 }
@@ -440,15 +445,15 @@ for (const msg of stamped.messages) this.log.append(msg);
 
 ```typescript
 const DEEPSEEK_PRICING = {
-  "deepseek-v4-flash": {
-    inputCacheHit: 0.0028,    // $0.0028 / 1M tokens
-    inputCacheMiss: 0.14,     // $0.14 / 1M tokens (50x)
-    output: 0.28,             // $0.28 / 1M tokens
+  'deepseek-v4-flash': {
+    inputCacheHit: 0.0028, // $0.0028 / 1M tokens
+    inputCacheMiss: 0.14, // $0.14 / 1M tokens (50x)
+    output: 0.28, // $0.28 / 1M tokens
   },
-  "deepseek-v4-pro": {
-    inputCacheHit: 0.003625,  // $0.003625 / 1M tokens
-    inputCacheMiss: 0.435,    // $0.435 / 1M tokens (120x)
-    output: 0.87,             // $0.87 / 1M tokens
+  'deepseek-v4-pro': {
+    inputCacheHit: 0.003625, // $0.003625 / 1M tokens
+    inputCacheMiss: 0.435, // $0.435 / 1M tokens (120x)
+    output: 0.87, // $0.87 / 1M tokens
   },
 };
 ```
@@ -459,10 +464,11 @@ const DEEPSEEK_PRICING = {
 function costUsd(model: string, usage: Usage): number {
   const p = pricingFor(model);
   return (
-    usage.promptCacheHitTokens * p.inputCacheHit +    // 缓存命中部分 → 几乎免费
-    usage.promptCacheMissTokens * p.inputCacheMiss +   // 缓存未命中部分 → 全价
-    usage.completionTokens * p.output                   // 输出部分
-  ) / 1_000_000;
+    (usage.promptCacheHitTokens * p.inputCacheHit + // 缓存命中部分 → 几乎免费
+      usage.promptCacheMissTokens * p.inputCacheMiss + // 缓存未命中部分 → 全价
+      usage.completionTokens * p.output) / // 输出部分
+    1_000_000
+  );
 }
 ```
 
@@ -472,7 +478,7 @@ function costUsd(model: string, usage: Usage): number {
 class Usage {
   promptCacheHitTokens: number;
   promptCacheMissTokens: number;
-  
+
   get cacheHitRatio(): number {
     const denom = this.promptCacheHitTokens + this.promptCacheMissTokens;
     return denom > 0 ? this.promptCacheHitTokens / denom : 0;
@@ -488,6 +494,7 @@ class SessionStats {
 ```
 
 以一个 10 轮对话为例：
+
 - 每轮前缀 ~5K tokens（系统提示词 + 工具定义）
 - 第一轮: 5K miss + 用户输入 ~200 tokens → 缓存命中率 ~0%
 - 第二轮起: 5K hit + 用户输入 ~200 tokens → 缓存命中率 ~96%
@@ -628,7 +635,7 @@ class ImmutablePrefix {
   }
 
   toMessages(): ChatMessage[] {
-    return [{ role: "system", content: this.system }];
+    return [{ role: 'system', content: this.system }];
   }
 
   tools(): ToolSpec[] {
@@ -644,9 +651,9 @@ class ImmutablePrefix {
   }
 
   private compute(): string {
-    return createHash("sha256")
+    return createHash('sha256')
       .update(JSON.stringify({ system: this.system, tools: this.toolSpecs }))
-      .digest("hex")
+      .digest('hex')
       .slice(0, 16);
   }
 }
@@ -668,10 +675,12 @@ class AppendOnlyLog {
   }
 
   toMessages(): ChatMessage[] {
-    return this.entries.map(e => ({ ...e }));
+    return this.entries.map((e) => ({ ...e }));
   }
 
-  get length(): number { return this.entries.length; }
+  get length(): number {
+    return this.entries.length;
+  }
 }
 ```
 
@@ -680,9 +689,9 @@ class AppendOnlyLog {
 ```typescript
 function buildMessages(prefix: ImmutablePrefix, log: AppendOnlyLog, currentUserInput: string): ChatMessage[] {
   return [
-    ...prefix.toMessages(),     // 缓存命中的关键 — 不变的前缀
-    ...log.toMessages(),        // 历史消息（或折叠后的摘要）
-    { role: "user", content: currentUserInput },
+    ...prefix.toMessages(), // 缓存命中的关键 — 不变的前缀
+    ...log.toMessages(), // 历史消息（或折叠后的摘要）
+    { role: 'user', content: currentUserInput },
   ];
 }
 ```
@@ -720,11 +729,7 @@ function usageFromApi(raw: any): Usage {
 #### 上下文折叠
 
 ```typescript
-async function foldHistory(
-  log: AppendOnlyLog,
-  client: DeepSeekClient,
-  ctxMax: number = 1_000_000,
-): Promise<boolean> {
+async function foldHistory(log: AppendOnlyLog, client: DeepSeekClient, ctxMax: number = 1_000_000): Promise<boolean> {
   const all = log.toMessages();
   if (all.length === 0) return false;
 
@@ -732,12 +737,13 @@ async function foldHistory(
   const tailBudget = Math.floor(ctxMax * 0.2);
 
   // 2. 从后向前扫描，停在用户消息边界
-  let cumTokens = 0, boundary = all.length;
+  let cumTokens = 0,
+    boundary = all.length;
   for (let i = all.length - 1; i >= 0; i--) {
     const tokens = countTokens(all[i].content);
     if (cumTokens + tokens > tailBudget) break;
     cumTokens += tokens;
-    if (all[i].role === "user") boundary = i;
+    if (all[i].role === 'user') boundary = i;
   }
   if (boundary <= 0) return false;
 
@@ -746,19 +752,16 @@ async function foldHistory(
 
   // 3. 用模型生成摘要
   const summary = await client.chat({
-    model: "deepseek-v4-flash",
+    model: 'deepseek-v4-flash',
     messages: [
-      { role: "system", content: "你对对话历史生成纯文本摘要..." },
+      { role: 'system', content: '你对对话历史生成纯文本摘要...' },
       ...head,
-      { role: "user", content: "总结以上对话，保留关键决策和结果。" },
+      { role: 'user', content: '总结以上对话，保留关键决策和结果。' },
     ],
   });
 
   // 4. 替换日志
-  const replacement = [
-    { role: "assistant", content: `[摘要] ${summary.content}` },
-    ...tail,
-  ];
+  const replacement = [{ role: 'assistant', content: `[摘要] ${summary.content}` }, ...tail];
   log.compactInPlace(replacement);
   return true;
 }
@@ -770,9 +773,9 @@ async function foldHistory(
 function flattenSchema(schema: JSONSchema): JSONSchema {
   const flatProps: Record<string, JSONSchema> = {};
   const required: string[] = [];
-  
+
   function collect(prefix: string, s: JSONSchema) {
-    if (s.type === "object" && s.properties) {
+    if (s.type === 'object' && s.properties) {
       for (const [key, child] of Object.entries(s.properties)) {
         const nextPrefix = prefix ? `${prefix}.${key}` : key;
         collect(nextPrefix, child);
@@ -781,9 +784,9 @@ function flattenSchema(schema: JSONSchema): JSONSchema {
     }
     flatProps[prefix] = s;
   }
-  
-  collect("", schema);
-  return { type: "object", properties: flatProps, required };
+
+  collect('', schema);
+  return { type: 'object', properties: flatProps, required };
 }
 ```
 
@@ -797,29 +800,33 @@ class DeepSeekClient {
 
   constructor() {
     this.apiKey = process.env.DEEPSEEK_API_KEY!;
-    this.baseUrl = process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com";
-    this.timeoutMs = 660_000;  // 11 min — DeepSeek LB 最长排队 10min
+    this.baseUrl = process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com';
+    this.timeoutMs = 660_000; // 11 min — DeepSeek LB 最长排队 10min
   }
 
   async *stream(model: string, messages: ChatMessage[], tools?: ToolSpec[]) {
     const resp = await fetch(`${this.baseUrl}/chat/completions`, {
-      method: "POST",
+      method: 'POST',
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
-        "Content-Type": "application/json",
-        Accept: "text/event-stream",
+        'Content-Type': 'application/json',
+        Accept: 'text/event-stream',
       },
       body: JSON.stringify({
         model,
         messages,
         tools,
         stream: true,
-        extra_body: { thinking: { type: "enabled" } },  // 启用思维链
+        extra_body: { thinking: { type: 'enabled' } }, // 启用思维链
       }),
     });
 
     // 使用 eventsource-parser 解析 SSE 流
-    const parser = createParser({ onEvent: (ev) => { /* 解析 delta */ } });
+    const parser = createParser({
+      onEvent: (ev) => {
+        /* 解析 delta */
+      },
+    });
     // yield 每个 StreamChunk...
   }
 }
@@ -834,19 +841,17 @@ class CacheFirstLoop {
   readonly client: DeepSeekClient;
 
   async *step(userInput: string) {
-    this.log.append({ role: "user", content: userInput });
+    this.log.append({ role: 'user', content: userInput });
 
     const messages = [
-      ...this.prefix.toMessages(),  // ← 缓存命中的关键
+      ...this.prefix.toMessages(), // ← 缓存命中的关键
       ...this.log.toMessages(),
     ];
 
     const toolSpecs = this.prefix.tools();
-    let assistantContent = "";
+    let assistantContent = '';
 
-    for await (const chunk of this.client.stream(
-      "deepseek-v4-flash", messages, toolSpecs
-    )) {
+    for await (const chunk of this.client.stream('deepseek-v4-flash', messages, toolSpecs)) {
       // 处理流式块，生成事件...
       yield chunk;
     }
@@ -862,34 +867,34 @@ class CacheFirstLoop {
 
 ### 9.5 部署清单
 
-| # | 组件 | 必要性 | 说明 |
-|---|---|---|---|
-| 1 | `ImmutablePrefix` | ⭐ 必需 | 缓存命中的根基 — 确保前缀永不变化 |
-| 2 | `AppendOnlyLog` | ⭐ 必需 | 只追加日志，避免修改前缀后的内容 |
-| 3 | `buildMessages()` | ⭐ 必需 | 合并前缀 + 历史 + 当前输入 |
-| 4 | 缓存命中率追踪 | ⭐ 必需 | 验证策略是否有效 |
-| 5 | 上下文折叠 | 🔶 推荐 | 防止长对话超出窗口，保持缓存命中 |
-| 6 | Schema 扁平化 | 🔶 推荐 | 防止 DeepSeek 丢参数导致工具调用失败 |
-| 7 | 会话持久化 (JSONL) | 🔶 推荐 | 恢复时前缀缓存仍有效 |
-| 8 | 恢复时修复 (heal) | 🔶 推荐 | 防止加载损坏消息导致 API 400 |
-| 9 | 前请求预检 | 🔷 可选 | 防止超限导致的 API 错误 |
-| 10 | 风暴抑制 (StormBreaker) | 🔷 可选 | 防止模型重复调用浪费 tokens |
+| #   | 组件                    | 必要性  | 说明                                 |
+| --- | ----------------------- | ------- | ------------------------------------ |
+| 1   | `ImmutablePrefix`       | ⭐ 必需 | 缓存命中的根基 — 确保前缀永不变化    |
+| 2   | `AppendOnlyLog`         | ⭐ 必需 | 只追加日志，避免修改前缀后的内容     |
+| 3   | `buildMessages()`       | ⭐ 必需 | 合并前缀 + 历史 + 当前输入           |
+| 4   | 缓存命中率追踪          | ⭐ 必需 | 验证策略是否有效                     |
+| 5   | 上下文折叠              | 🔶 推荐 | 防止长对话超出窗口，保持缓存命中     |
+| 6   | Schema 扁平化           | 🔶 推荐 | 防止 DeepSeek 丢参数导致工具调用失败 |
+| 7   | 会话持久化 (JSONL)      | 🔶 推荐 | 恢复时前缀缓存仍有效                 |
+| 8   | 恢复时修复 (heal)       | 🔶 推荐 | 防止加载损坏消息导致 API 400         |
+| 9   | 前请求预检              | 🔷 可选 | 防止超限导致的 API 错误              |
+| 10  | 风暴抑制 (StormBreaker) | 🔷 可选 | 防止模型重复调用浪费 tokens          |
 
 ---
 
 ## 附录：关键文件索引
 
-| 文件 | 作用 |
-|---|---|
-| `src/memory/runtime.ts` | ImmutablePrefix + AppendOnlyLog 实现 |
-| `src/context-manager.ts` | 上下文折叠、预检、后决策 |
-| `src/loop.ts` | CacheFirstLoop 主循环 |
-| `src/client.ts` | DeepSeek API 客户端 + Usage 类 |
-| `src/telemetry/stats.ts` | 定价、成本计算、缓存命中率聚合 |
-| `src/code/prompt.ts` | 系统提示词构建（前缀内容） |
-| `src/repair/flatten.ts` | Schema 扁平化 |
-| `src/repair/index.ts` | 修复管线（scavenge → truncation → storm） |
-| `src/memory/session.ts` | 会话持久化 |
+| 文件                     | 作用                                      |
+| ------------------------ | ----------------------------------------- |
+| `src/memory/runtime.ts`  | ImmutablePrefix + AppendOnlyLog 实现      |
+| `src/context-manager.ts` | 上下文折叠、预检、后决策                  |
+| `src/loop.ts`            | CacheFirstLoop 主循环                     |
+| `src/client.ts`          | DeepSeek API 客户端 + Usage 类            |
+| `src/telemetry/stats.ts` | 定价、成本计算、缓存命中率聚合            |
+| `src/code/prompt.ts`     | 系统提示词构建（前缀内容）                |
+| `src/repair/flatten.ts`  | Schema 扁平化                             |
+| `src/repair/index.ts`    | 修复管线（scavenge → truncation → storm） |
+| `src/memory/session.ts`  | 会话持久化                                |
 
 ---
 
@@ -932,42 +937,42 @@ class CacheFirstLoop {
 
 ### 10.2 前端 Agent 代码位置与职责
 
-| 文件 | 职责 | 与缓存相关 |
-|---|---|---|
-| `src/ai/agents/editorEditAgent.ts` | EditorEditAgent 编排 — 构建消息、调用 QueryLoop | ⚠️ 每次重建系统提示词 |
-| `src/ai/core/query-loop.ts` | QueryLoop 主循环 — 流式调用、工具执行、compact | ✅ 已有 compact 但无 prefix 缓存 |
-| `src/ai/core/providers/backend-proxy.provider.ts` | 代理转发到后端 API | ⚠️ 支持 previousResponseId 但仅限 OpenAI |
-| `src/ai/core/providers/types.ts` | Provider 类型定义 | ⚠️ 缺少 cache metrics |
-| `src/ai/core/compact/autoCompact.ts` | 自动 compact 阈值检测 | ✅ 已有但简单 |
-| `src/ai/core/compact/compact.ts` | 对话压缩：保留最近 20 条 | ✅ 已有 Compact |
-| `src/ai/core/compact/microCompact.ts` | 微压缩：仅截断超大工具结果 | ✅ 已有 micro-compact |
-| `src/ai/core/utils/tokens.ts` | Token 计数 + 上下文窗口表 | ⚠️ DeepSeek 窗口写为 128K（应为 1M） |
+| 文件                                              | 职责                                            | 与缓存相关                               |
+| ------------------------------------------------- | ----------------------------------------------- | ---------------------------------------- |
+| `src/ai/agents/editorEditAgent.ts`                | EditorEditAgent 编排 — 构建消息、调用 QueryLoop | ⚠️ 每次重建系统提示词                    |
+| `src/ai/core/query-loop.ts`                       | QueryLoop 主循环 — 流式调用、工具执行、compact  | ✅ 已有 compact 但无 prefix 缓存         |
+| `src/ai/core/providers/backend-proxy.provider.ts` | 代理转发到后端 API                              | ⚠️ 支持 previousResponseId 但仅限 OpenAI |
+| `src/ai/core/providers/types.ts`                  | Provider 类型定义                               | ⚠️ 缺少 cache metrics                    |
+| `src/ai/core/compact/autoCompact.ts`              | 自动 compact 阈值检测                           | ✅ 已有但简单                            |
+| `src/ai/core/compact/compact.ts`                  | 对话压缩：保留最近 20 条                        | ✅ 已有 Compact                          |
+| `src/ai/core/compact/microCompact.ts`             | 微压缩：仅截断超大工具结果                      | ✅ 已有 micro-compact                    |
+| `src/ai/core/utils/tokens.ts`                     | Token 计数 + 上下文窗口表                       | ⚠️ DeepSeek 窗口写为 128K（应为 1M）     |
 
 ### 10.3 后端 Agent 代码位置与职责
 
-| 文件 | 职责 | 与缓存相关 |
-|---|---|---|
-| `backend/src/ai/ai.service.ts` | AI 服务：路由、速率限制、token 用量记录 | ✅ 已有 usage 持久化，但无缓存统计 |
-| `backend/src/ai/agent-runner.service.ts` | Agent 评测运行器 | — |
-| `backend/src/ai/core/query-loop.ts` | 后端 QueryLoop（与前端几乎相同） | ⚠️ 同样缺少 prefix 缓存 |
-| `backend/src/ai/core/providers/openai-compatible.provider.ts` | OpenAI 兼容流式客户端 | ⚠️ 未传递 cache 参数到 DeepSeek |
-| `backend/src/ai/core/providers/openai.provider.ts` | OpenAI Responses API 客户端 | ✅ 支持 previousResponseId |
-| `backend/src/ai/core/compact/compact.ts` | 后端 compact（与前端类似） | ✅ |
-| `backend/src/ai/core/compact/microCompact.ts` | 后端 micro-compact | ✅ |
+| 文件                                                          | 职责                                    | 与缓存相关                         |
+| ------------------------------------------------------------- | --------------------------------------- | ---------------------------------- |
+| `backend/src/ai/ai.service.ts`                                | AI 服务：路由、速率限制、token 用量记录 | ✅ 已有 usage 持久化，但无缓存统计 |
+| `backend/src/ai/agent-runner.service.ts`                      | Agent 评测运行器                        | —                                  |
+| `backend/src/ai/core/query-loop.ts`                           | 后端 QueryLoop（与前端几乎相同）        | ⚠️ 同样缺少 prefix 缓存            |
+| `backend/src/ai/core/providers/openai-compatible.provider.ts` | OpenAI 兼容流式客户端                   | ⚠️ 未传递 cache 参数到 DeepSeek    |
+| `backend/src/ai/core/providers/openai.provider.ts`            | OpenAI Responses API 客户端             | ✅ 支持 previousResponseId         |
+| `backend/src/ai/core/compact/compact.ts`                      | 后端 compact（与前端类似）              | ✅                                 |
+| `backend/src/ai/core/compact/microCompact.ts`                 | 后端 micro-compact                      | ✅                                 |
 
 ### 10.4 当前实现与高缓存命中方案的差距
 
-| 维度 | 当前实现 | 理想方案 | 差距 |
-|---|---|---|---|
-| **系统提示词稳定性** | 每次 `agent.run()` 都重新构建 EDITOR_COPILOT_SYSTEM_PROMPT + intentPlan + editorContext | ImmutablePrefix：启动时固定，永不变化 | 🔴 每次调用都变 |
-| **工具定义的稳定性** | 硬编码在 agent 构建中，每次一样的工具但 schema 存在于每次请求的 tools 参数 | ImmutablePrefix 统一管理，不变化 | 🟡 有效但不稳定 |
-| **Prefix Cache 利用** | 完全未考虑 | 前缀部分每次都相同，确保缓存命中 | 🔴 完全缺失 |
-| **previousResponseId** | 仅 OpenAI Provider 支持，DeepSeek 未实现 | 所有 provider 都传递 cache 上下文 | 🟡 部分实现 |
-| **缓存命中率追踪** | 无 | SessionStats.aggregateCacheHitRatio | 🔴 完全缺失 |
-| **上下文折叠策略** | 纯本地 compact（丢弃旧消息而非摘要） | 用 LLM 生成摘要，保留语义 | 🟡 已实现但可优化 |
-| **Schema 扁平化** | 无 | 深度 >2 或叶子 >10 展平 | 🔴 完全缺失 |
-| **会话持久化** | 仅编辑器对话保存到 DB，agent 会话不持久化 | JSONL 持久化，恢复时也命中缓存 | 🟡 部分实现 |
-| **指纹追踪** | 无 | SHA-256 指纹检测前缀漂移 | 🔴 完全缺失 |
+| 维度                   | 当前实现                                                                                | 理想方案                              | 差距              |
+| ---------------------- | --------------------------------------------------------------------------------------- | ------------------------------------- | ----------------- |
+| **系统提示词稳定性**   | 每次 `agent.run()` 都重新构建 EDITOR_COPILOT_SYSTEM_PROMPT + intentPlan + editorContext | ImmutablePrefix：启动时固定，永不变化 | 🔴 每次调用都变   |
+| **工具定义的稳定性**   | 硬编码在 agent 构建中，每次一样的工具但 schema 存在于每次请求的 tools 参数              | ImmutablePrefix 统一管理，不变化      | 🟡 有效但不稳定   |
+| **Prefix Cache 利用**  | 完全未考虑                                                                              | 前缀部分每次都相同，确保缓存命中      | 🔴 完全缺失       |
+| **previousResponseId** | 仅 OpenAI Provider 支持，DeepSeek 未实现                                                | 所有 provider 都传递 cache 上下文     | 🟡 部分实现       |
+| **缓存命中率追踪**     | 无                                                                                      | SessionStats.aggregateCacheHitRatio   | 🔴 完全缺失       |
+| **上下文折叠策略**     | 纯本地 compact（丢弃旧消息而非摘要）                                                    | 用 LLM 生成摘要，保留语义             | 🟡 已实现但可优化 |
+| **Schema 扁平化**      | 无                                                                                      | 深度 >2 或叶子 >10 展平               | 🔴 完全缺失       |
+| **会话持久化**         | 仅编辑器对话保存到 DB，agent 会话不持久化                                               | JSONL 持久化，恢复时也命中缓存        | 🟡 部分实现       |
+| **指纹追踪**           | 无                                                                                      | SHA-256 指纹检测前缀漂移              | 🔴 完全缺失       |
 
 ### 10.5 当前消息构建流程（问题所在）
 
@@ -1064,7 +1069,7 @@ export class ImmutablePrefix {
   toPrefixMessages(): ProviderMessage[] {
     return [
       { role: 'system', content: this.system },
-      ...this._toolSpecs.map(spec => ({
+      ...this._toolSpecs.map((spec) => ({
         role: 'system' as const,
         content: `Tool: ${spec.name}\nDescription: ${spec.description}\nParameters: ${JSON.stringify(spec.parameters)}`,
       })),
@@ -1073,7 +1078,7 @@ export class ImmutablePrefix {
 
   /** 生成上下文部分消息（每轮不同，但不在前缀中） */
   toContextMessages(): ProviderMessage[] {
-    return this._contextBlocks.map(content => ({
+    return this._contextBlocks.map((content) => ({
       role: 'system' as const,
       content,
     }));
@@ -1088,7 +1093,7 @@ export class ImmutablePrefix {
   private computeFingerprint(): string {
     const blob = JSON.stringify({
       system: this.system,
-      tools: this._toolSpecs.map(t => ({ name: t.name, params: t.parameters })),
+      tools: this._toolSpecs.map((t) => ({ name: t.name, params: t.parameters })),
     });
     return createHash('sha256').update(blob).digest('hex').slice(0, 16);
   }
@@ -1107,7 +1112,7 @@ DeepSeek 官方支持通过 `previous_response_id` 实现 prompt caching：
 
 async *stream(request: ProviderRequest): AsyncIterable<ProviderStreamEvent> {
   // ... existing code ...
-  
+
   // DeepSeek/OpenAI 的 cache 机制：传递 previous_response_id
   const body: Record<string, unknown> = {
     model: request.model,
@@ -1115,18 +1120,18 @@ async *stream(request: ProviderRequest): AsyncIterable<ProviderStreamEvent> {
     stream: true,
     stream_options: { include_usage: true },
   };
-  
+
   if (request.tools?.length) {
     body.tools = convertTools(request.tools);
   }
-  
+
   // 注入 previous_response_id 以启用 prompt caching
   if (request.cache?.previousResponseId) {
     // DeepSeek 使用这个字段来维持前缀缓存
     // OpenAI 使用这个字段来启用 Prompt Caching
     (body as any).previous_response_id = request.cache.previousResponseId;
   }
-  
+
   // ... rest of stream implementation ...
 ```
 
@@ -1140,7 +1145,7 @@ private withRequestScopedCache(
 ): StreamRequest {
   // 对所有 provider 类型都注入 cache 参数
   if (!cacheOptions?.previousResponseId) return req;
-  
+
   return {
     ...req,
     cache: {
@@ -1156,9 +1161,7 @@ private withRequestScopedCache(
 // src/ai/agents/editorEditAgent.ts — 改造后的消息构建
 
 // 在 Agent 初始化时创建 ImmutablePrefix（仅一次！）
-const prefix = new ImmutablePrefix(EDITOR_COPILOT_SYSTEM_PROMPT, [
-  APPLY_EDITOR_EDITS_TOOL,
-]);
+const prefix = new ImmutablePrefix(EDITOR_COPILOT_SYSTEM_PROMPT, [APPLY_EDITOR_EDITS_TOOL]);
 // 可选：对工具 schema 做扁平化
 // flattenToolSchemas(prefix.toolSpecs);
 
@@ -1166,11 +1169,11 @@ const prefix = new ImmutablePrefix(EDITOR_COPILOT_SYSTEM_PROMPT, [
 const messages: ProviderMessage[] = [
   // L0 — 稳定前缀（缓存命中）
   ...prefix.toPrefixMessages(),
-  
+
   // L1 — 轮次上下文（随对话变化）
   ...prefix.toContextMessages(),
   ...conversationMessages,
-  
+
   // L2 — 当前输入
   { role: 'user', content: input.prompt },
 ];
@@ -1184,7 +1187,7 @@ const messages: ProviderMessage[] = [
 
 async *stream(request: ProviderRequest): AsyncIterable<ProviderStreamEvent> {
   // ... existing setup ...
-  
+
   const headers: Record<string, string> = {
     'content-type': 'application/json',
     authorization: `Bearer ${token}`,
@@ -1195,7 +1198,7 @@ async *stream(request: ProviderRequest): AsyncIterable<ProviderStreamEvent> {
   if (previousResponseId) {
     headers['x-previous-response-id'] = previousResponseId;
   }
-  
+
   // ... rest of stream ...
 ```
 
@@ -1212,8 +1215,8 @@ export interface StreamEventDone {
   usage?: {
     inputTokens: number;
     outputTokens: number;
-    cacheHitTokens?: number;   // ← 新增
-    cacheMissTokens?: number;  // ← 新增
+    cacheHitTokens?: number; // ← 新增
+    cacheMissTokens?: number; // ← 新增
   };
   // ...
 }
@@ -1259,16 +1262,16 @@ private async recordTokenUsage(
   endpoint: AiTokenUsageEndpoint,
 ): Promise<void> {
   // ... existing code ...
-  
+
   // 新增缓存相关字段
   const cacheHitTokens = sanitizeOptionalTokenCount(usage.cacheHitTokens);
   const cacheMissTokens = sanitizeOptionalTokenCount(usage.cacheMissTokens);
-  
+
   // 计算缓存命中率
   const cacheHitRatio = cacheHitTokens !== null && cacheMissTokens !== null
     ? cacheHitTokens / (cacheHitTokens + cacheMissTokens)
     : null;
-  
+
   // 记录到数据库...
 }
 ```
@@ -1282,13 +1285,13 @@ private async recordTokenUsage(
 @Entity('ai_token_usage')
 export class AiTokenUsageEvent {
   // ... existing fields ...
-  
+
   @Column({ type: 'int', nullable: true })
   cacheHitTokens?: number;
-  
+
   @Column({ type: 'int', nullable: true })
   cacheMissTokens?: number;
-  
+
   @Column({ type: 'decimal', precision: 5, scale: 4, nullable: true })
   cacheHitRatio?: number;
 }
@@ -1315,23 +1318,18 @@ async function semanticCompactConversation(
 
   // 用 LLM 生成摘要
   const summary = await generateSummary(old, provider, model);
-  
-  return [
-    ...system,
-    { role: 'user', content: `[对话摘要] ${summary}` },
-    ...recent,
-  ];
+
+  return [...system, { role: 'user', content: `[对话摘要] ${summary}` }, ...recent];
 }
 
-async function generateSummary(
-  messages: ProviderMessage[],
-  provider: AIProvider,
-  model: string,
-): Promise<string> {
+async function generateSummary(messages: ProviderMessage[], provider: AIProvider, model: string): Promise<string> {
   const summaryRequest: ProviderRequest = {
-    model: 'deepseek-chat',  // 使用便宜的模型做摘要
+    model: 'deepseek-chat', // 使用便宜的模型做摘要
     messages: [
-      { role: 'system', content: '你压缩对话历史。输出纯文本摘要，保留目标、决策、已完成的工具调用和文件修改。不要做任何工具调用。' },
+      {
+        role: 'system',
+        content: '你压缩对话历史。输出纯文本摘要，保留目标、决策、已完成的工具调用和文件修改。不要做任何工具调用。',
+      },
       ...messages,
       { role: 'user', content: '压缩以上对话。' },
     ],
@@ -1364,7 +1362,8 @@ interface JSONSchema {
 }
 
 function shouldFlatten(schema: JSONSchema): boolean {
-  let leafCount = 0, maxDepth = 0;
+  let leafCount = 0,
+    maxDepth = 0;
   walk(schema, 0, (depth, isLeaf) => {
     if (isLeaf) leafCount++;
     if (depth > maxDepth) maxDepth = depth;
@@ -1403,16 +1402,16 @@ function nestArguments(flatArgs: Record<string, unknown>): Record<string, unknow
 
 ### 11.3 改造优先级与路线图
 
-| 优先级 | 改动 | 影响 | 工作量 |
-|---|---|---|---|
-| 🚨 **P0** | Agent 消息分层（L0/L1/L2）— 将系统提示词与轮次上下文分离 | **直接影响缓存命中率** | 2-3天 |
-| 🚨 **P0** | Provider 传递 previousResponseId | 启用 DeepSeek prefix caching | 1天 |
-| 🚨 **P0** | 缓存命中率追踪（usage.cacheHitTokens） | 验证策略效果的前提 | 1-2天 |
-| 🔶 **P1** | 使用 LLM 驱动的上下文折叠 | 长对话场景必要 | 2-3天 |
-| 🔶 **P1** | ImmutablePrefix 指纹追踪 | 防止无意前缀漂移 | 0.5天 |
-| 🔷 **P2** | Schema 扁平化 | 防止 DeepSeek 丢参数 | 1天 |
-| 🔷 **P2** | 会话持久化 + 恢复时 heal | 跨会话缓存利用 | 2天 |
-| 🔷 **P2** | 成本核算面板 | 可视化缓存收益 | 1天 |
+| 优先级    | 改动                                                     | 影响                         | 工作量 |
+| --------- | -------------------------------------------------------- | ---------------------------- | ------ |
+| 🚨 **P0** | Agent 消息分层（L0/L1/L2）— 将系统提示词与轮次上下文分离 | **直接影响缓存命中率**       | 2-3天  |
+| 🚨 **P0** | Provider 传递 previousResponseId                         | 启用 DeepSeek prefix caching | 1天    |
+| 🚨 **P0** | 缓存命中率追踪（usage.cacheHitTokens）                   | 验证策略效果的前提           | 1-2天  |
+| 🔶 **P1** | 使用 LLM 驱动的上下文折叠                                | 长对话场景必要               | 2-3天  |
+| 🔶 **P1** | ImmutablePrefix 指纹追踪                                 | 防止无意前缀漂移             | 0.5天  |
+| 🔷 **P2** | Schema 扁平化                                            | 防止 DeepSeek 丢参数         | 1天    |
+| 🔷 **P2** | 会话持久化 + 恢复时 heal                                 | 跨会话缓存利用               | 2天    |
+| 🔷 **P2** | 成本核算面板                                             | 可视化缓存收益               | 1天    |
 
 ### 11.4 改动文件清单
 
@@ -1455,14 +1454,14 @@ function nestArguments(flatArgs: Record<string, unknown>): Record<string, unknow
 
 ### 12.1 验证缓存命中率的关键指标
 
-| 指标 | 说明 | 理想值 |
-|---|---|---|
-| `cacheHitRatio` | 缓存命中 tokens / (命中 + 未命中) | >60% (第二轮起 >90%) |
-| `cacheHitTokens` | 每轮被缓存命中的 token 数 | 稳定 = 前缀大小 |
-| `cacheMissTokens` | 每轮实际计算的 token 数 | 仅限增量部分 |
-| `prompt_cache_hit_tokens` / `prompt_cache_miss_tokens` | DeepSeek Chat Completions 当前可观测的权威缓存字段 | 作为本项目主指标 |
-| `x-model-cached-token` | 历史或代理层可能出现的响应头；当前 DeepSeek v4 实测未返回 | 不作为主指标 |
-| 单轮成本 | `hit*0.0028 + miss*0.14 + output*0.28` (flash) | 第一轮后降至 1/10 |
+| 指标                                                   | 说明                                                      | 理想值               |
+| ------------------------------------------------------ | --------------------------------------------------------- | -------------------- |
+| `cacheHitRatio`                                        | 缓存命中 tokens / (命中 + 未命中)                         | >60% (第二轮起 >90%) |
+| `cacheHitTokens`                                       | 每轮被缓存命中的 token 数                                 | 稳定 = 前缀大小      |
+| `cacheMissTokens`                                      | 每轮实际计算的 token 数                                   | 仅限增量部分         |
+| `prompt_cache_hit_tokens` / `prompt_cache_miss_tokens` | DeepSeek Chat Completions 当前可观测的权威缓存字段        | 作为本项目主指标     |
+| `x-model-cached-token`                                 | 历史或代理层可能出现的响应头；当前 DeepSeek v4 实测未返回 | 不作为主指标         |
+| 单轮成本                                               | `hit*0.0028 + miss*0.14 + output*0.28` (flash)            | 第一轮后降至 1/10    |
 
 ### 12.2 测试方案 A：手动验证（DL）
 
@@ -1475,12 +1474,10 @@ function nestArguments(flatArgs: Record<string, unknown>): Record<string, unknow
 if (chunk.usage) {
   const hit = chunk.usage.prompt_cache_hit_tokens ?? 0;
   const miss = chunk.usage.prompt_cache_miss_tokens ?? 0;
-  const ratio = hit + miss > 0 ? (hit / (hit + miss) * 100).toFixed(1) : 'N/A';
-  
+  const ratio = hit + miss > 0 ? ((hit / (hit + miss)) * 100).toFixed(1) : 'N/A';
+
   console.log(`[Cache] model=${request.model} hit=${hit} miss=${miss} ratio=${ratio}%`);
-  console.log(`[Cache] prefix=${
-    request.messages[0]?.content?.toString().slice(0, 50) ?? ''
-  }...`);
+  console.log(`[Cache] prefix=${request.messages[0]?.content?.toString().slice(0, 50) ?? ''}...`);
 }
 ```
 
@@ -1517,7 +1514,7 @@ cd .. && npm run dev
 
 换模板（新 conversationId）:
   [Cache] model=deepseek-chat hit=0 miss=4600 ratio=0.0% ← 新会话，无缓存
-  
+
 同模板第二轮:
   [Cache] model=deepseek-chat hit=3800 miss=950 ratio=80.0% ← 恢复命中
 ```
@@ -1530,10 +1527,10 @@ cd .. && npm run dev
 // scripts/test-cache-hitrate.ts
 /**
  * 缓存命中率自动化验证脚本
- * 
+ *
  * 运行方式：
  *   npx tsx scripts/test-cache-hitrate.ts
- * 
+ *
  * 功能：
  *   1. 连续发送 5 轮请求到 AI API
  *   2. 每次增加一条对话历史
@@ -1549,7 +1546,7 @@ const BASE_URL = process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com';
 
 async function runTest() {
   const provider = new OpenAICompatibleProvider(API_KEY, BASE_URL, 'deepseek-test');
-  
+
   // 稳定的系统提示词（模拟 ImmutablePrefix）
   const SYSTEM_PROMPT = `你是 Reasonix Code，一个测试助手。请简短回答。
   
@@ -1557,7 +1554,7 @@ async function runTest() {
   - 保持回答简洁
   - 不要使用工具调用
   - 回答完毕后直接结束`;
-  
+
   const results: Array<{
     turn: number;
     cacheHitTokens: number;
@@ -1568,7 +1565,7 @@ async function runTest() {
 
   let previousResponseId: string | undefined;
   const conversationHistory: Array<{ role: string; content: string }> = [];
-  
+
   const testPrompts = [
     '你好，请介绍一下你自己。',
     '请问 1+1 等于多少？',
@@ -1579,11 +1576,11 @@ async function runTest() {
 
   for (let turn = 0; turn < testPrompts.length; turn++) {
     const messages = [
-      { role: 'system', content: SYSTEM_PROMPT },       // ← 缓存前缀
-      ...conversationHistory,                             // ← 增量追加
-      { role: 'user', content: testPrompts[turn] },       // ← 新消息
+      { role: 'system', content: SYSTEM_PROMPT }, // ← 缓存前缀
+      ...conversationHistory, // ← 增量追加
+      { role: 'user', content: testPrompts[turn] }, // ← 新消息
     ];
-    
+
     const request: ProviderRequest = {
       model: 'deepseek-chat',
       messages,
@@ -1615,8 +1612,8 @@ async function runTest() {
 
     const hit = usage?.cacheHitTokens ?? 0;
     const miss = usage?.cacheMissTokens ?? 0;
-    const ratio = hit + miss > 0 ? (hit / (hit + miss) * 100).toFixed(1) : 'N/A';
-    
+    const ratio = hit + miss > 0 ? ((hit / (hit + miss)) * 100).toFixed(1) : 'N/A';
+
     results.push({
       turn: turn + 1,
       cacheHitTokens: hit,
@@ -1644,30 +1641,29 @@ async function runTest() {
   console.log('├──────┼───────┼───────┼────────┤');
   for (const r of results) {
     console.log(
-      `│  ${r.turn}   │ ${String(r.cacheHitTokens).padStart(5)} │ ${String(r.cacheMissTokens).padStart(5)} │ ${r.ratio.padStart(6)} │`
+      `│  ${r.turn}   │ ${String(r.cacheHitTokens).padStart(5)} │ ${String(r.cacheMissTokens).padStart(5)} │ ${r.ratio.padStart(6)} │`,
     );
   }
   console.log('═══════════════════════════════════════');
-  
-  const avgRatio = results
-    .filter(r => r.cacheHitTokens + r.cacheMissTokens > 0)
-    .reduce((sum, r, _, arr) => {
-      const ratio = r.cacheHitTokens / (r.cacheHitTokens + r.cacheMissTokens);
-      return sum + (isNaN(ratio) ? 0 : ratio);
-    }, 0) / results.filter(r => r.cacheHitTokens + r.cacheMissTokens > 0).length;
-  
+
+  const avgRatio =
+    results
+      .filter((r) => r.cacheHitTokens + r.cacheMissTokens > 0)
+      .reduce((sum, r, _, arr) => {
+        const ratio = r.cacheHitTokens / (r.cacheHitTokens + r.cacheMissTokens);
+        return sum + (isNaN(ratio) ? 0 : ratio);
+      }, 0) / results.filter((r) => r.cacheHitTokens + r.cacheMissTokens > 0).length;
+
   const totalHit = results.reduce((s, r) => s + r.cacheHitTokens, 0);
   const totalMiss = results.reduce((s, r) => s + r.cacheMissTokens, 0);
-  const totalRatio = totalHit + totalMiss > 0
-    ? (totalHit / (totalHit + totalMiss) * 100).toFixed(1)
-    : 'N/A';
-  
+  const totalRatio = totalHit + totalMiss > 0 ? ((totalHit / (totalHit + totalMiss)) * 100).toFixed(1) : 'N/A';
+
   console.log(`\n汇总:`);
   console.log(`  总命中: ${totalHit} tokens`);
   console.log(`  总未命中: ${totalMiss} tokens`);
   console.log(`  综合缓存命中率: ${totalRatio}%`);
   console.log(`  轮次平均命中率: ${(avgRatio * 100).toFixed(1)}%`);
-  
+
   if (parseFloat(totalRatio) > 50) {
     console.log('\n✅ 结论：缓存命中率 > 50%，策略有效！');
   } else {
@@ -1707,19 +1703,19 @@ cd .. && npm run dev &
 // 在 runEditorStream 或 stream 方法中
 private async runStream(ownerUserId: string, req: StreamRequest, ...) {
   // ... existing code ...
-  
+
   for await (const event of this.provider.stream(request)) {
     if (event.type === 'done' && event.usage) {
       const hitTokens = event.usage.cacheHitTokens ?? 0;
       const missTokens = event.usage.cacheMissTokens ?? 0;
       const total = hitTokens + missTokens;
       const ratio = total > 0 ? (hitTokens / total * 100).toFixed(1) : 'N/A';
-      
+
       this.logger.log(
         `[Cache] user=${ownerUserId.slice(0,8)} model=${req.model} ` +
         `hit=${hitTokens} miss=${missTokens} ratio=${ratio}%`
       );
-      
+
       // 如果命中率低于 30%，给出警告
       if (total > 0 && hitTokens / total < 0.3) {
         this.logger.warn(
@@ -1727,7 +1723,7 @@ private async runStream(ownerUserId: string, req: StreamRequest, ...) {
         );
       }
     }
-    
+
     await this.recordTokenUsage(ownerUserId, req.model, event.usage, 'stream');
   }
 }
@@ -1757,7 +1753,7 @@ async getCacheStats(userId: string) {
 
   const totalHit = records.reduce((s, r) => s + (r.cacheHitTokens ?? 0), 0);
   const totalMiss = records.reduce((s, r) => s + (r.cacheMissTokens ?? 0), 0);
-  
+
   // 按端点分组
   const byEndpoint: Record<string, { count: number; hit: number; miss: number }> = {};
   for (const r of records) {
@@ -1829,23 +1825,23 @@ async getCacheStats(userId: string) {
 
 ## 附录 B：当前项目文件索引
 
-| 路径 | 说明 | 改造状态 |
-|---|---|---|
-| `src/ai/core/immutable-prefix.ts` | 不可变前缀（新建） | 📝 待创建 |
-| `src/ai/core/flatten-schema.ts` | Schema 扁平化（新建） | 📝 待创建 |
-| `src/ai/core/query-loop.ts` | 前端主循环（改造） | 🔧 需改造 |
-| `src/ai/core/providers/types.ts` | Provider 类型（改造） | 🔧 需改造 |
-| `src/ai/core/providers/backend-proxy.provider.ts` | 后端代理（改造） | 🔧 需改造 |
-| `src/ai/core/compact/compact.ts` | 对话压缩（改造） | 🔧 需改造 |
-| `src/ai/core/utils/tokens.ts` | Token 工具（改造） | 🔧 需改造 |
-| `src/ai/agents/editorEditAgent.ts` | 编辑器 Agent（改造） | 🔧 需改造 |
-| `src/ai/editor-ai.service.ts` | 编辑器 AI 服务（改造） | 🔧 需改造 |
-| `backend/src/ai/ai.service.ts` | 后端 AI 服务（改造） | 🔧 需改造 |
-| `backend/src/ai/core/query-loop.ts` | 后端主循环（改造） | 🔧 需改造 |
-| `backend/src/ai/core/providers/openai-compatible.provider.ts` | DeepSeek Provider（改造） | 🔧 需改造 |
-| `backend/src/ai/core/providers/types.ts` | 后端 Provider 类型（改造） | 🔧 需改造 |
-| `backend/src/ai/entities/ai-token-usage.entity.ts` | Token 用量实体（改造） | 🔧 需改造 |
-| `scripts/test-cache-hitrate.ts` | 缓存测试脚本（新建） | 📝 待创建 |
+| 路径                                                          | 说明                       | 改造状态  |
+| ------------------------------------------------------------- | -------------------------- | --------- |
+| `src/ai/core/immutable-prefix.ts`                             | 不可变前缀（新建）         | 📝 待创建 |
+| `src/ai/core/flatten-schema.ts`                               | Schema 扁平化（新建）      | 📝 待创建 |
+| `src/ai/core/query-loop.ts`                                   | 前端主循环（改造）         | 🔧 需改造 |
+| `src/ai/core/providers/types.ts`                              | Provider 类型（改造）      | 🔧 需改造 |
+| `src/ai/core/providers/backend-proxy.provider.ts`             | 后端代理（改造）           | 🔧 需改造 |
+| `src/ai/core/compact/compact.ts`                              | 对话压缩（改造）           | 🔧 需改造 |
+| `src/ai/core/utils/tokens.ts`                                 | Token 工具（改造）         | 🔧 需改造 |
+| `src/ai/agents/editorEditAgent.ts`                            | 编辑器 Agent（改造）       | 🔧 需改造 |
+| `src/ai/editor-ai.service.ts`                                 | 编辑器 AI 服务（改造）     | 🔧 需改造 |
+| `backend/src/ai/ai.service.ts`                                | 后端 AI 服务（改造）       | 🔧 需改造 |
+| `backend/src/ai/core/query-loop.ts`                           | 后端主循环（改造）         | 🔧 需改造 |
+| `backend/src/ai/core/providers/openai-compatible.provider.ts` | DeepSeek Provider（改造）  | 🔧 需改造 |
+| `backend/src/ai/core/providers/types.ts`                      | 后端 Provider 类型（改造） | 🔧 需改造 |
+| `backend/src/ai/entities/ai-token-usage.entity.ts`            | Token 用量实体（改造）     | 🔧 需改造 |
+| `scripts/test-cache-hitrate.ts`                               | 缓存测试脚本（新建）       | 📝 待创建 |
 
 ---
 
@@ -1867,20 +1863,20 @@ async getCacheStats(userId: string) {
 
 ### 13.2 已实施改动
 
-| 文件 | 状态 | 说明 |
-|---|---|---|
-| `shared/agent/context/editorContext.ts` | ✅ 已改 | 拆分 `buildEditorStablePrefixContext()` 与 `buildEditorVolatileContext()` |
-| `src/ai/agents/editorEditAgent.ts` | ✅ 已改 | 将稳定上下文前置，动态本轮上下文放到尾部 user 消息 |
-| `backend/src/ai/agent-runner.service.ts` | ✅ 已改 | live eval 使用稳定前缀，并在结果中收集 cache usage |
-| `src/ai/core/providers/types.ts` | ✅ 已改 | 前端 provider usage 增加 `cacheHitTokens/cacheMissTokens` |
-| `backend/src/ai/core/providers/openai-compatible.provider.ts` | ✅ 已改 | 解析 DeepSeek usage cache 字段，缺 miss 时按 prompt-hit 回退 |
-| `backend/src/ai/ai.service.ts` | ✅ 已改 | 记录缓存命中日志，提供最近 100 次 cache stats 聚合 |
-| `backend/src/ai/ai.controller.ts` | ✅ 已改 | 新增 `GET /api/ai/cache-stats` |
-| `src/ai/core/utils/tokens.ts` / `backend/src/ai/core/utils/tokens.ts` | ✅ 已改 | DeepSeek v4/chat/reasoner 上下文窗口按 1,000,000 处理 |
-| `scripts/agent-eval/run-agent-eval.js` | ✅ 已改 | 汇总 live eval 返回的缓存命中率 |
-| `scripts/agent-eval/report-writer.js` | ✅ 已改 | 报告输出缓存命中率 |
-| `scripts/agent-eval/run-cache-hitrate.js` | ✅ 新增 | 使用 100 个 agent eval 样例直接测 DeepSeek prefix cache |
-| `package.json` | ✅ 已改 | 新增 `npm run agent:cache-test` |
+| 文件                                                                  | 状态    | 说明                                                                      |
+| --------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------- |
+| `shared/agent/context/editorContext.ts`                               | ✅ 已改 | 拆分 `buildEditorStablePrefixContext()` 与 `buildEditorVolatileContext()` |
+| `src/ai/agents/editorEditAgent.ts`                                    | ✅ 已改 | 将稳定上下文前置，动态本轮上下文放到尾部 user 消息                        |
+| `backend/src/ai/agent-runner.service.ts`                              | ✅ 已改 | live eval 使用稳定前缀，并在结果中收集 cache usage                        |
+| `src/ai/core/providers/types.ts`                                      | ✅ 已改 | 前端 provider usage 增加 `cacheHitTokens/cacheMissTokens`                 |
+| `backend/src/ai/core/providers/openai-compatible.provider.ts`         | ✅ 已改 | 解析 DeepSeek usage cache 字段，缺 miss 时按 prompt-hit 回退              |
+| `backend/src/ai/ai.service.ts`                                        | ✅ 已改 | 记录缓存命中日志，提供最近 100 次 cache stats 聚合                        |
+| `backend/src/ai/ai.controller.ts`                                     | ✅ 已改 | 新增 `GET /api/ai/cache-stats`                                            |
+| `src/ai/core/utils/tokens.ts` / `backend/src/ai/core/utils/tokens.ts` | ✅ 已改 | DeepSeek v4/chat/reasoner 上下文窗口按 1,000,000 处理                     |
+| `scripts/agent-eval/run-agent-eval.js`                                | ✅ 已改 | 汇总 live eval 返回的缓存命中率                                           |
+| `scripts/agent-eval/report-writer.js`                                 | ✅ 已改 | 报告输出缓存命中率                                                        |
+| `scripts/agent-eval/run-cache-hitrate.js`                             | ✅ 新增 | 使用 100 个 agent eval 样例直接测 DeepSeek prefix cache                   |
+| `package.json`                                                        | ✅ 已改 | 新增 `npm run agent:cache-test`                                           |
 
 ### 13.3 当前验证命令
 
@@ -1909,17 +1905,16 @@ npm run agent:cache-test -- --limit 100 --rounds 5 --target 0.95
    使用稳定 system 前缀连续请求 `deepseek-v4-pro` 三次：
 
    | Round | prompt tokens | cache hit | cache miss | hit rate |
-   |---:|---:|---:|---:|---:|
-   | 1 | 5071 | 0 | 5071 | 0.0% |
-   | 2 | 5071 | 4992 | 79 | 98.4% |
-   | 3 | 5071 | 4992 | 79 | 98.4% |
+   | ----: | ------------: | --------: | ---------: | -------: |
+   |     1 |          5071 |         0 |       5071 |     0.0% |
+   |     2 |          5071 |      4992 |         79 |    98.4% |
+   |     3 |          5071 |      4992 |         79 |    98.4% |
 
    该结果与前九章的核心结论一致：首轮通常全量 miss，后续请求只要前缀稳定，就会命中大部分稳定 token。
 
 4. **真实 agent 编辑流程样本**
 
    使用后端 `AgentRunnerService.runLiveScenario()` 真实调用 DeepSeek，跑 5 个编辑场景（新增、删除、更新、导航、跨页新增）：
-
    - 通过率：5/5。
    - 节点语义命中率：100%。
    - 每个场景工具调用次数：1。
@@ -1931,7 +1926,6 @@ npm run agent:cache-test -- --limit 100 --rounds 5 --target 0.95
 5. **压缩质量样本**
 
    使用 `compactConversationWithLLM()` 与 `deepseek-v4-flash` 构造超长历史并实际压缩，摘要保留了以下关键信息：
-
    - node ID：`home-panel-extra-text`、`home-search`、`missing-node-404`。
    - 成功结果：`insert_node:home-panel-extra-text`、`update_props:home-search`。
    - 错误上下文：`node not found missing-node-404`、`semantic target failed before delete`。
@@ -1945,3 +1939,6 @@ npm run agent:cache-test -- --limit 100 --rounds 5 --target 0.95
 > **参考代码库**: [esengine/DeepSeek-Reasonix](https://github.com/esengine/DeepSeek-Reasonix)  
 > **本项分析基于**: 当前项目的前后端 Agent 实现  
 > **许可**: MIT
+> Document status: Strategy note. For current AI/provider implementation facts,
+> start with `docs/current-implementation-status.md` and
+> `reports/03-code-framework-defects-progress.md`.

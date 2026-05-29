@@ -46,7 +46,13 @@ const localRules = {
           TSConstructSignatureDeclaration: requireSemicolon,
           TSIndexSignature: requireSemicolon,
           TSMethodSignature: requireSemicolon,
-          TSPropertySignature: requireSemicolon,
+          TSPropertySignature(node) {
+            if (node.parent?.type === 'TSTypeLiteral') {
+              return;
+            }
+
+            requireSemicolon(node);
+          },
           TSTypeAliasDeclaration: requireSemicolon,
         };
       },
@@ -60,11 +66,7 @@ export default defineConfig([
   // --- Base TypeScript rules (Node / NestJS) ---
   {
     files: ['src/**/*.ts'],
-    extends: [
-      js.configs.recommended,
-      tseslint.configs.recommendedTypeChecked,
-      tseslint.configs.stylisticTypeChecked,
-    ],
+    extends: [js.configs.recommended, tseslint.configs.recommendedTypeChecked, tseslint.configs.stylisticTypeChecked],
     languageOptions: {
       ecmaVersion: 2023,
       globals: {
@@ -72,7 +74,7 @@ export default defineConfig([
         ...globals.es2023,
       },
       parserOptions: {
-        projectService: true,
+        project: ['./tsconfig.eslint.json'],
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -81,10 +83,7 @@ export default defineConfig([
     },
     rules: {
       // TypeScript
-      '@typescript-eslint/no-unused-vars': [
-        'error',
-        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
-      ],
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       // NestJS uses emitDecoratorMetadata — 'import type' breaks DI reflection
       '@typescript-eslint/consistent-type-imports': 'off',
       '@typescript-eslint/no-import-type-side-effects': 'off',
@@ -95,10 +94,7 @@ export default defineConfig([
       '@typescript-eslint/no-unnecessary-condition': 'warn',
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/await-thenable': 'error',
-      '@typescript-eslint/no-misused-promises': [
-        'error',
-        { checksVoidReturn: { attributes: false } },
-      ],
+      '@typescript-eslint/no-misused-promises': ['error', { checksVoidReturn: { attributes: false } }],
 
       // General JS quality
       'no-console': 'off', // NestJS bootstrap and Logger use console intentionally

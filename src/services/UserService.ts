@@ -1,3 +1,4 @@
+import { type HttpClient, resolveHttpClient } from './http/HttpClient';
 import type {
   AuthResponseDto,
   OAuthCallbackDto,
@@ -54,55 +55,41 @@ function extractError(res: Response, data: ErrorResponseBody): ApiError {
 
 export class UserService {
   private readonly base = '/api/proxy/users';
+  private readonly http: HttpClient;
 
-  constructor(private readonly getToken?: () => string | null) {}
-
-  private authHeaders(requireAuth: boolean): HeadersInit {
-    const token = this.getToken?.();
-    return requireAuth && token
-      ? { authorization: `Bearer ${token}` }
-      : {};
+  constructor(clientOrTokenProvider?: HttpClient | (() => string | null)) {
+    this.http = resolveHttpClient(clientOrTokenProvider);
   }
 
   private async get<T>(path: string, auth = false): Promise<T> {
-    const res = await fetch(`${this.base}${path}`, {
-      headers: this.authHeaders(auth),
-    });
-    const data = await res.json() as T & ErrorResponseBody;
-    if (!res.ok) {
-      throw extractError(res, data);
+    const { data, response } = await this.http.json<T & ErrorResponseBody>(`${this.base}${path}`, { auth });
+    if (!response.ok) {
+      throw extractError(response, data);
     }
     return data;
   }
 
   private async post<T>(path: string, body: unknown): Promise<T> {
-    const res = await fetch(`${this.base}${path}`, {
+    const { data, response } = await this.http.json<T & ErrorResponseBody>(`${this.base}${path}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(body),
     });
-    const data = await res.json() as T & ErrorResponseBody;
-    if (!res.ok) {
-      throw extractError(res, data);
+    if (!response.ok) {
+      throw extractError(response, data);
     }
     return data;
   }
 
   private async put<T>(path: string, body: unknown): Promise<T> {
-    const headers: Record<string, string> = { 'content-type': 'application/json' };
-    const token = this.getToken?.();
-    if (token) {
-      headers.authorization = `Bearer ${token}`;
-    }
-
-    const res = await fetch(`${this.base}${path}`, {
+    const { data, response } = await this.http.json<T & ErrorResponseBody>(`${this.base}${path}`, {
       method: 'PUT',
-      headers,
+      auth: true,
+      headers: { 'content-type': 'application/json' },
       body: JSON.stringify(body),
     });
-    const data = await res.json() as T & ErrorResponseBody;
-    if (!res.ok) {
-      throw extractError(res, data);
+    if (!response.ok) {
+      throw extractError(response, data);
     }
     return data;
   }
@@ -115,11 +102,7 @@ export class UserService {
     return this.post<AuthResponseDto>('/login', { identifier, password, nonce });
   }
 
-  register(dto: {
-    username: string;
-    password: string;
-    email?: string;
-  }): Promise<AuthResponseDto> {
+  register(dto: { username: string; password: string; email?: string }): Promise<AuthResponseDto> {
     return this.post<AuthResponseDto>('/register', dto);
   }
 

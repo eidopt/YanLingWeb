@@ -1,5 +1,16 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
+import {
+  booleanDefault,
+  createIndexSql,
+  ensurePostgresUuidSupport,
+  getMigrationDialect,
+  hasColumn,
+  timestampColumn,
+  uuidPrimaryKey,
+  varcharPrimaryKey,
+} from '../migration-sql';
+
 /**
  * Initial schema migration — creates all application tables.
  *
@@ -11,10 +22,22 @@ export class InitialSchema1748166000000 implements MigrationInterface {
   name = 'InitialSchema1748166000000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
+    const dialect = getMigrationDialect(queryRunner);
+    await ensurePostgresUuidSupport(queryRunner, dialect);
+    const generatedId = uuidPrimaryKey(dialect);
+    const stableId = varcharPrimaryKey();
+    const activeDefault = booleanDefault(dialect, true);
+    const createdAt = timestampColumn(dialect, 'createdAt');
+    const updatedAt = timestampColumn(dialect, 'updatedAt');
+    const lastLoginAt = timestampColumn(dialect, 'lastLoginAt', {
+      nullable: true,
+      defaultNow: false,
+    });
+
     // ── users ──
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS "users" (
-        "id" varchar PRIMARY KEY NOT NULL DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random())%4+1,1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6)))),
+        ${generatedId},
         "username" varchar NOT NULL,
         "email" varchar,
         "phone" varchar,
@@ -25,10 +48,10 @@ export class InitialSchema1748166000000 implements MigrationInterface {
         "tokensUsed" bigint NOT NULL DEFAULT (0),
         "tokensBalance" integer NOT NULL DEFAULT (0),
         "balanceCents" integer NOT NULL DEFAULT (0),
-        "isActive" boolean NOT NULL DEFAULT (1),
-        "lastLoginAt" datetime,
-        "createdAt" datetime NOT NULL DEFAULT (datetime('now')),
-        "updatedAt" datetime NOT NULL DEFAULT (datetime('now')),
+        "isActive" boolean NOT NULL DEFAULT (${activeDefault}),
+        ${lastLoginAt},
+        ${createdAt},
+        ${updatedAt},
         CONSTRAINT "UQ_users_username" UNIQUE ("username"),
         CONSTRAINT "UQ_users_email" UNIQUE ("email"),
         CONSTRAINT "UQ_users_phone" UNIQUE ("phone"),
@@ -40,7 +63,7 @@ export class InitialSchema1748166000000 implements MigrationInterface {
     // ── themes ──
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS "themes" (
-        "id" varchar PRIMARY KEY NOT NULL,
+        ${stableId},
         "name" varchar NOT NULL,
         "tagline" varchar NOT NULL DEFAULT (''),
         "description" varchar NOT NULL DEFAULT (''),
@@ -50,22 +73,22 @@ export class InitialSchema1748166000000 implements MigrationInterface {
         "cssVars" text NOT NULL DEFAULT ('{}'),
         "componentTemplates" text NOT NULL DEFAULT ('{}'),
         "layoutDocument" text NOT NULL DEFAULT ('{}'),
-        "createdAt" datetime NOT NULL DEFAULT (datetime('now')),
-        "updatedAt" datetime NOT NULL DEFAULT (datetime('now')),
+        ${createdAt},
+        ${updatedAt},
         CONSTRAINT "UQ_themes_name" UNIQUE ("name")
       )
     `);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_themes_category" ON "themes" ("category")`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_themes_createdAt" ON "themes" ("createdAt")`);
+    await queryRunner.query(createIndexSql('IDX_themes_category', 'themes', ['category']));
+    await queryRunner.query(createIndexSql('IDX_themes_createdAt', 'themes', ['createdAt']));
 
     // ── templates ──
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS "templates" (
-        "id" varchar PRIMARY KEY NOT NULL,
+        ${stableId},
         "templateId" varchar NOT NULL,
         "ownerUserId" varchar,
         "sourceTemplateId" varchar,
-        "isPublic" boolean NOT NULL DEFAULT (1),
+        "isPublic" boolean NOT NULL DEFAULT (${activeDefault}),
         "name" varchar NOT NULL,
         "tagline" varchar NOT NULL DEFAULT (''),
         "description" varchar NOT NULL DEFAULT (''),
@@ -81,8 +104,8 @@ export class InitialSchema1748166000000 implements MigrationInterface {
         "cssAnimations" text DEFAULT ('{}'),
         "componentTemplates" text NOT NULL DEFAULT ('{}'),
         "layoutDocument" text NOT NULL DEFAULT ('{}'),
-        "createdAt" datetime NOT NULL DEFAULT (datetime('now')),
-        "updatedAt" datetime NOT NULL DEFAULT (datetime('now')),
+        ${createdAt},
+        ${updatedAt},
         CONSTRAINT "UQ_templates_templateId" UNIQUE ("templateId")
       )
     `);
@@ -96,7 +119,7 @@ export class InitialSchema1748166000000 implements MigrationInterface {
       queryRunner,
       'templates',
       'isPublic',
-      `"isPublic" boolean NOT NULL DEFAULT (1)`,
+      `"isPublic" boolean NOT NULL DEFAULT (${activeDefault})`,
     );
     await this.addColumnIfMissing(
       queryRunner,
@@ -134,35 +157,69 @@ export class InitialSchema1748166000000 implements MigrationInterface {
       'cssAnimations',
       `"cssAnimations" text DEFAULT ('{}')`,
     );
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_templates_ownerUserId_updatedAt" ON "templates" ("ownerUserId", "updatedAt")`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_templates_ownerUserId_isPublic" ON "templates" ("ownerUserId", "isPublic")`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_templates_sourceTemplateId" ON "templates" ("sourceTemplateId")`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_templates_category" ON "templates" ("category")`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_templates_displayCategory" ON "templates" ("displayCategory")`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_templates_primaryFunctionalCategory" ON "templates" ("primaryFunctionalCategory")`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_templates_isPublic_displayCategory" ON "templates" ("isPublic", "displayCategory")`);
+    await queryRunner.query(
+      createIndexSql('IDX_templates_ownerUserId_updatedAt', 'templates', [
+        'ownerUserId',
+        'updatedAt',
+      ]),
+    );
+    await queryRunner.query(
+      createIndexSql('IDX_templates_ownerUserId_isPublic', 'templates', [
+        'ownerUserId',
+        'isPublic',
+      ]),
+    );
+    await queryRunner.query(
+      createIndexSql('IDX_templates_sourceTemplateId', 'templates', ['sourceTemplateId']),
+    );
+    await queryRunner.query(createIndexSql('IDX_templates_category', 'templates', ['category']));
+    await queryRunner.query(
+      createIndexSql('IDX_templates_displayCategory', 'templates', ['displayCategory']),
+    );
+    await queryRunner.query(
+      createIndexSql('IDX_templates_primaryFunctionalCategory', 'templates', [
+        'primaryFunctionalCategory',
+      ]),
+    );
+    await queryRunner.query(
+      createIndexSql('IDX_templates_isPublic_displayCategory', 'templates', [
+        'isPublic',
+        'displayCategory',
+      ]),
+    );
 
     // ── published_sites ──
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS "published_sites" (
-        "id" varchar PRIMARY KEY NOT NULL,
+        ${stableId},
         "ownerUserId" varchar NOT NULL,
         "templateId" varchar NOT NULL,
         "subdomain" varchar NOT NULL,
         "status" varchar NOT NULL DEFAULT ('active'),
         "activeRevisionId" varchar,
-        "createdAt" datetime NOT NULL DEFAULT (datetime('now')),
-        "updatedAt" datetime NOT NULL DEFAULT (datetime('now'))
+        ${createdAt},
+        ${updatedAt}
       )
     `);
-    await queryRunner.query(`CREATE UNIQUE INDEX IF NOT EXISTS "IDX_published_sites_subdomain" ON "published_sites" ("subdomain")`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_published_sites_ownerUserId_updatedAt" ON "published_sites" ("ownerUserId", "updatedAt")`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_published_sites_templateId" ON "published_sites" ("templateId")`);
+    await queryRunner.query(
+      createIndexSql('IDX_published_sites_subdomain', 'published_sites', ['subdomain'], {
+        unique: true,
+      }),
+    );
+    await queryRunner.query(
+      createIndexSql('IDX_published_sites_ownerUserId_updatedAt', 'published_sites', [
+        'ownerUserId',
+        'updatedAt',
+      ]),
+    );
+    await queryRunner.query(
+      createIndexSql('IDX_published_sites_templateId', 'published_sites', ['templateId']),
+    );
 
     // ── published_site_revisions ──
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS "published_site_revisions" (
-        "id" varchar PRIMARY KEY NOT NULL,
+        ${stableId},
         "siteId" varchar NOT NULL,
         "templateId" varchar NOT NULL,
         "schemaVersion" integer NOT NULL,
@@ -173,16 +230,25 @@ export class InitialSchema1748166000000 implements MigrationInterface {
         "manifestJson" text NOT NULL,
         "status" varchar NOT NULL DEFAULT ('active'),
         "errorMessage" text,
-        "createdAt" datetime NOT NULL DEFAULT (datetime('now'))
+        ${createdAt}
       )
     `);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_published_site_revisions_siteId_createdAt" ON "published_site_revisions" ("siteId", "createdAt")`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_published_site_revisions_templateId" ON "published_site_revisions" ("templateId")`);
+    await queryRunner.query(
+      createIndexSql('IDX_published_site_revisions_siteId_createdAt', 'published_site_revisions', [
+        'siteId',
+        'createdAt',
+      ]),
+    );
+    await queryRunner.query(
+      createIndexSql('IDX_published_site_revisions_templateId', 'published_site_revisions', [
+        'templateId',
+      ]),
+    );
 
     // ── export_records ──
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS "export_records" (
-        "id" varchar PRIMARY KEY NOT NULL,
+        ${stableId},
         "ownerUserId" varchar,
         "projectName" varchar NOT NULL,
         "themeId" varchar NOT NULL,
@@ -190,16 +256,21 @@ export class InitialSchema1748166000000 implements MigrationInterface {
         "layoutJson" text NOT NULL DEFAULT ('{}'),
         "outputPath" varchar,
         "errorMessage" text,
-        "createdAt" datetime NOT NULL DEFAULT (datetime('now')),
-        "updatedAt" datetime NOT NULL DEFAULT (datetime('now'))
+        ${createdAt},
+        ${updatedAt}
       )
     `);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_export_records_ownerUserId_createdAt" ON "export_records" ("ownerUserId", "createdAt")`);
+    await queryRunner.query(
+      createIndexSql('IDX_export_records_ownerUserId_createdAt', 'export_records', [
+        'ownerUserId',
+        'createdAt',
+      ]),
+    );
 
     // ── ai_token_usage_events ──
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS "ai_token_usage_events" (
-        "id" varchar PRIMARY KEY NOT NULL,
+        ${stableId},
         "ownerUserId" varchar NOT NULL,
         "endpoint" varchar NOT NULL,
         "provider" varchar NOT NULL,
@@ -209,27 +280,44 @@ export class InitialSchema1748166000000 implements MigrationInterface {
         "totalTokens" integer NOT NULL DEFAULT (0),
         "cacheHitTokens" integer,
         "cacheMissTokens" integer,
-        "createdAt" datetime NOT NULL DEFAULT (datetime('now'))
+        ${createdAt}
       )
     `);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_ai_token_usage_events_ownerUserId_createdAt" ON "ai_token_usage_events" ("ownerUserId", "createdAt")`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_ai_token_usage_events_provider_model" ON "ai_token_usage_events" ("provider", "model")`);
+    await queryRunner.query(
+      createIndexSql('IDX_ai_token_usage_events_ownerUserId_createdAt', 'ai_token_usage_events', [
+        'ownerUserId',
+        'createdAt',
+      ]),
+    );
+    await queryRunner.query(
+      createIndexSql('IDX_ai_token_usage_events_provider_model', 'ai_token_usage_events', [
+        'provider',
+        'model',
+      ]),
+    );
 
     // ── editor_ai_conversations ──
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS "editor_ai_conversations" (
-        "id" varchar PRIMARY KEY NOT NULL,
+        ${stableId},
         "ownerUserId" varchar NOT NULL,
         "templateId" varchar NOT NULL,
         "messages" text NOT NULL DEFAULT ('[]'),
         "providerMessages" text NOT NULL DEFAULT ('[]'),
         "providerSession" text,
-        "createdAt" datetime NOT NULL DEFAULT (datetime('now')),
-        "updatedAt" datetime NOT NULL DEFAULT (datetime('now')),
-        CONSTRAINT "UQ_editor_ai_conversations_ownerUserId_templateId" UNIQUE ("ownerUserId", "templateId")
+        ${createdAt},
+        ${updatedAt},
+        CONSTRAINT "UQ_editor_ai_conversations_ownerUserId_templateId"
+          UNIQUE ("ownerUserId", "templateId")
       )
     `);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_editor_ai_conversations_ownerUserId_updatedAt" ON "editor_ai_conversations" ("ownerUserId", "updatedAt")`);
+    await queryRunner.query(
+      createIndexSql(
+        'IDX_editor_ai_conversations_ownerUserId_updatedAt',
+        'editor_ai_conversations',
+        ['ownerUserId', 'updatedAt'],
+      ),
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
@@ -249,10 +337,7 @@ export class InitialSchema1748166000000 implements MigrationInterface {
     column: string,
     definition: string,
   ): Promise<void> {
-    const rows: { name: string; }[] = await queryRunner.query(
-      `PRAGMA table_info('${table}')`,
-    );
-    if (!rows.some((row) => row.name === column)) {
+    if (!(await hasColumn(queryRunner, table, column))) {
       await queryRunner.query(`ALTER TABLE "${table}" ADD ${definition}`);
     }
   }

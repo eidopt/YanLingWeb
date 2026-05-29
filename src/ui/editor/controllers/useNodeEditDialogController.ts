@@ -3,14 +3,14 @@ import {
   buildNodeFromDraft,
   createDraftFromNode,
   descriptorForAlias,
-  type DialogState,
   findNode,
   findParentId,
   type NodeDraft,
   upsertNode,
   validateDraft,
 } from '../services/layoutBuilderService';
-import { type Dispatch, type SetStateAction,useState } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { editorNodeDialogStateActions, useEditorNodeDialogSnapshot } from 'state/editorNodeDialogState';
 
 interface UseNodeEditDialogControllerArgs {
   currentDocument: ThemeLayoutDocument;
@@ -23,8 +23,8 @@ export function useNodeEditDialogController({
   setEditorDocument,
   setSelectedNodeId,
 }: UseNodeEditDialogControllerArgs) {
-  const [dialogState, setDialogState] = useState<DialogState | null>(null);
-  const [dialogError, setDialogError] = useState('');
+  const { dialogState, dialogError } = useEditorNodeDialogSnapshot();
+  const { setDialogState, setDialogError, resetDialog } = editorNodeDialogStateActions;
 
   function openEditDialog(nodeId: string) {
     const node = findNode(currentDocument.layout, nodeId);
@@ -43,15 +43,13 @@ export function useNodeEditDialogController({
       draft: createDraftFromNode(
         descriptor,
         node,
-        findParentId(currentDocument.layout, nodeId)
-          ?? currentDocument.layout.id,
+        findParentId(currentDocument.layout, nodeId) ?? currentDocument.layout.id,
       ),
     });
   }
 
   function closeDialog() {
-    setDialogState(null);
-    setDialogError('');
+    resetDialog();
   }
 
   function updateDraft<K extends keyof NodeDraft>(key: K, value: NodeDraft[K]) {
@@ -61,11 +59,7 @@ export function useNodeEditDialogController({
       }
 
       const nextDraft = { ...current.draft, [key]: value };
-      if (
-        key === 'parentId'
-        && value !== currentDocument.layout.id
-        && nextDraft.slot === 'footer'
-      ) {
+      if (key === 'parentId' && value !== currentDocument.layout.id && nextDraft.slot === 'footer') {
         nextDraft.slot = 'body';
       }
       return { ...current, draft: nextDraft };
@@ -102,26 +96,15 @@ export function useNodeEditDialogController({
       return;
     }
 
-    const existingNode = dialogState.draft.nodeId
-      ? findNode(currentDocument.layout, dialogState.draft.nodeId)
-      : null;
-    const nextNode = buildNodeFromDraft(
-      dialogState.descriptor,
-      dialogState.draft,
-      existingNode?.children,
-    );
+    const existingNode = dialogState.draft.nodeId ? findNode(currentDocument.layout, dialogState.draft.nodeId) : null;
+    const nextNode = buildNodeFromDraft(dialogState.descriptor, dialogState.draft, existingNode?.children);
 
     setEditorDocument((current) => {
       if (!current) {
         return current;
       }
 
-      return upsertNode(
-        current,
-        dialogState.draft.parentId,
-        nextNode,
-        dialogState.draft.nodeId,
-      ) ?? current;
+      return upsertNode(current, dialogState.draft.parentId, nextNode, dialogState.draft.nodeId) ?? current;
     });
 
     setSelectedNodeId(nextNode.id);

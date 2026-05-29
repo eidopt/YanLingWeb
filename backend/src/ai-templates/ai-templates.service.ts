@@ -1,13 +1,15 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 
-import { Template } from '../templates/entities/template.entity';
+import {
+  TEMPLATE_READ_REPOSITORY,
+  type TemplateDiversitySummaryRecord,
+  type TemplateReadRepository,
+} from '../templates/repositories/template-read.repository';
 import { TemplatePipelineService } from './orchestrator/pipeline.service';
 import type {
   ExistingTemplateSummary,
   HeroMode,
-  PipelineResult,
+  PipelineExternalResult,
   TemplateArchetype,
   TemplateSeed,
 } from './orchestrator/pipeline.types';
@@ -17,11 +19,21 @@ const HERO_TRAIT_PREFIX = 'hero:';
 const SIGNATURE_TRAIT_PREFIX = 'sig:';
 
 const VALID_ARCHETYPES: readonly TemplateArchetype[] = [
-  'fresh', 'immersive', 'editorial', 'vibrant', 'dark-pro',
+  'fresh',
+  'immersive',
+  'editorial',
+  'vibrant',
+  'dark-pro',
 ];
 const VALID_HERO_MODES: readonly HeroMode[] = [
-  'date-strip', 'function-grid', 'cover-story', 'metric-dashboard',
-  'story-ring', 'dual-column', 'timer-banner', 'search-filter',
+  'date-strip',
+  'function-grid',
+  'cover-story',
+  'metric-dashboard',
+  'story-ring',
+  'dual-column',
+  'timer-banner',
+  'search-filter',
 ];
 
 /**
@@ -39,17 +51,17 @@ export class AiTemplatesService {
   private readonly logger = new Logger(AiTemplatesService.name);
 
   constructor(
-    @InjectRepository(Template)
-    private readonly templateRepo: Repository<Template>,
+    @Inject(TEMPLATE_READ_REPOSITORY)
+    private readonly templates: TemplateReadRepository,
     private readonly pipeline: TemplatePipelineService,
   ) {}
 
-  async generate(seed: TemplateSeed): Promise<PipelineResult> {
+  async generate(seed: TemplateSeed): Promise<PipelineExternalResult> {
     const existing = await this.collectExistingSummaries(seed);
     this.logger.log(
       `generating template "${seed.prompt}" with ${existing.length} existing baselines`,
     );
-    return this.pipeline.generate(seed, existing);
+    return this.pipeline.generateExternal(seed, existing);
   }
 
   /**
@@ -59,35 +71,35 @@ export class AiTemplatesService {
    * 前缀化条目持久化（如 "archetype:fresh"、"hero:cover-story"、"sig:..."）。
    * 已有模板没有这些 trait 时，对应字段降级为 "unknown"。
    */
-  private async collectExistingSummaries(
-    seed: TemplateSeed,
-  ): Promise<ExistingTemplateSummary[]> {
+  private async collectExistingSummaries(seed: TemplateSeed): Promise<ExistingTemplateSummary[]> {
     // 仅取公共模板 + 同 displayCategory（如果种子已指定）作为对比基线，
     // 控制 critic prompt 长度。
-    const where: Record<string, unknown> = { isPublic: true };
-    if (seed.displayCategory) {
-      where.displayCategory = seed.displayCategory;
-    }
-    const templates = await this.templateRepo.find({
-      where,
-      take: 50,
-      order: { updatedAt: 'DESC' },
+    const templates = await this.templates.findDiversitySummaries({
+      displayCategory: seed.displayCategory,
+      limit: 50,
     });
 
     return templates.map((t) => this.toSummary(t));
   }
 
-  private toSummary(template: Template): ExistingTemplateSummary {
+  private toSummary(template: TemplateDiversitySummaryRecord): ExistingTemplateSummary {
     const traits = template.traits;
     const archetype = this.extractTrait<TemplateArchetype>(
-      traits, ARCHETYPE_TRAIT_PREFIX, VALID_ARCHETYPES, 'fresh',
+      traits,
+      ARCHETYPE_TRAIT_PREFIX,
+      VALID_ARCHETYPES,
+      'fresh',
     );
     const heroMode = this.extractTrait<HeroMode>(
-      traits, HERO_TRAIT_PREFIX, VALID_HERO_MODES, 'function-grid',
+      traits,
+      HERO_TRAIT_PREFIX,
+      VALID_HERO_MODES,
+      'function-grid',
     );
-    const signature = traits
-      .find((t) => t.startsWith(SIGNATURE_TRAIT_PREFIX))
-      ?.slice(SIGNATURE_TRAIT_PREFIX.length) ?? `legacy-${template.templateId}`;
+    const signature =
+      traits
+        .find((t) => t.startsWith(SIGNATURE_TRAIT_PREFIX))
+        ?.slice(SIGNATURE_TRAIT_PREFIX.length) ?? `legacy-${template.templateId}`;
 
     const componentTemplateAliases = Object.keys(template.componentTemplates);
     const primaryHue = template.cssVars['--color-primary'] ?? template.accent;
@@ -110,9 +122,7 @@ export class AiTemplatesService {
     valid: readonly T[],
     fallback: T,
   ): T {
-    const found = traits
-      .find((t) => t.startsWith(prefix))
-      ?.slice(prefix.length);
+    const found = traits.find((t) => t.startsWith(prefix))?.slice(prefix.length);
     return (valid as readonly string[]).includes(found ?? '') ? (found as T) : fallback;
   }
 }

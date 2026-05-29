@@ -1,5 +1,5 @@
-import type { VerifierLens } from '@shared/agent/prompts/templates';
-import type { ThemeLayoutDocument } from '@shared/agent/types';
+import type { ThemeLayoutDocument } from '@shared/agent/contracts/agent';
+import type { VerifierLens } from '@shared/agent/runtime';
 
 /**
  * 用户/批量入口提交的种子需求。
@@ -18,12 +18,7 @@ export interface TemplateSeed {
   forceHeroMode?: HeroMode;
 }
 
-export type TemplateArchetype =
-  | 'fresh'
-  | 'immersive'
-  | 'editorial'
-  | 'vibrant'
-  | 'dark-pro';
+export type TemplateArchetype = 'fresh' | 'immersive' | 'editorial' | 'vibrant' | 'dark-pro';
 
 export type HeroMode =
   | 'date-strip'
@@ -58,12 +53,17 @@ export interface DesignerOutput {
     role: string;
     description: string;
   }[];
-  bottomTabs: { targetPageId: string; label: string; }[];
+  bottomTabs: DesignerBottomTab[];
   category: string;
   displayCategory: string;
   whyArchetype: string;
   whyHeroMode: string;
   diversitySignature: string;
+}
+
+export interface DesignerBottomTab {
+  targetPageId: string;
+  label: string;
 }
 
 export interface DiversityConflict {
@@ -120,6 +120,13 @@ export interface PipelineResult {
   };
   totalDurationMs: number;
   totalAttempts: number;
+}
+
+export interface PipelineExternalResult {
+  templateId: string;
+  document: ThemeLayoutDocument;
+  brief: DesignerOutput;
+  totalDurationMs: number;
 }
 
 /**

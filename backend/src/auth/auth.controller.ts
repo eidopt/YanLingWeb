@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Post,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 
@@ -60,6 +52,7 @@ export class AuthController {
   }
 
   @Get('oauth/qrcode')
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
   @ApiOperation({ summary: 'Get OAuth QR code URL for WeChat or QQ login' })
   @ApiQuery({ name: 'provider', enum: ['wechat', 'qq'] })
   getQrCode(@Query('provider') provider: 'wechat' | 'qq') {
@@ -68,6 +61,7 @@ export class AuthController {
 
   @Post('oauth/callback')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiOperation({ summary: 'Handle OAuth callback from WeChat / QQ' })
   oauthCallback(@Body() dto: OAuthCallbackDto) {
     return this.authService.oauthCallback(dto);

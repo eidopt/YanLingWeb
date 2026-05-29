@@ -3,13 +3,11 @@ import {
   type ThemeLayoutDocument,
   type ThemeLayoutNavigateAction,
   type ThemeLayoutNode,
+  type ThemeLayoutNodeAction,
   type ThemeLayoutPage,
   type ThemeLayoutTabInteraction,
 } from '../../layout/types';
-import {
-  type DynamicThemeScreenPreset,
-  getDefaultPreviewScreenPreset,
-} from '../../renderer';
+import { getDefaultPreviewScreenPreset } from '../../renderer';
 import {
   applyEditorAiEditInstructions,
   type ApplyEditorAiEditInstructionsOptions,
@@ -40,16 +38,14 @@ import {
 } from '../services/layoutBuilderService';
 import type { BuilderCanvas, LayoutBuilderTheme } from '../types';
 import { builderDocumentStateContent as c } from './useBuilderDocumentState.content';
-import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from 'react';
+import { type Dispatch, type SetStateAction, useEffect, useRef } from 'react';
+import { editorDocumentStateActions, useEditorDocumentSnapshot } from 'state/editorDocumentState';
 
 type PageCreationInstruction = Extract<
   EditorAiEditInstruction,
   { type: 'create_page' | 'create_page_from_reference' | 'insert_node' }
 >;
-type PageDeletionInstruction = Extract<
-  EditorAiEditInstruction,
-  { type: 'delete_page' }
->;
+type PageDeletionInstruction = Extract<EditorAiEditInstruction, { type: 'delete_page' }>;
 
 function createCanvasId() {
   return `canvas-${Math.random().toString(36).slice(2, 8)}`;
@@ -67,10 +63,7 @@ function createRootNodeId(pageId: string) {
   return `${pageId}-screen`;
 }
 
-function getStringProp(
-  props: Record<string, unknown> | undefined,
-  name: string,
-) {
+function getStringProp(props: Record<string, unknown> | undefined, name: string) {
   const value = props?.[name];
   return typeof value === 'string' && value.trim() ? value.trim() : '';
 }
@@ -80,16 +73,11 @@ function firstNonEmpty(...values: (string | undefined)[]) {
 }
 
 function getInstructionPageId(instruction: EditorAiEditInstruction) {
-  return 'pageId' in instruction && typeof instruction.pageId === 'string'
-    ? instruction.pageId.trim()
-    : '';
+  return 'pageId' in instruction && typeof instruction.pageId === 'string' ? instruction.pageId.trim() : '';
 }
 
 function getInstructionRootNodeId(instruction: EditorAiEditInstruction) {
-  if (
-    instruction.type === 'create_page' ||
-    instruction.type === 'create_page_from_reference'
-  ) {
+  if (instruction.type === 'create_page' || instruction.type === 'create_page_from_reference') {
     return instruction.rootNodeId?.trim() ?? '';
   }
   if (instruction.type === 'insert_node') {
@@ -99,9 +87,7 @@ function getInstructionRootNodeId(instruction: EditorAiEditInstruction) {
 }
 
 function getRootNodePageAlias(rootNodeId: string) {
-  return rootNodeId.endsWith('-screen')
-    ? rootNodeId.slice(0, -'-screen'.length).trim()
-    : '';
+  return rootNodeId.endsWith('-screen') ? rootNodeId.slice(0, -'-screen'.length).trim() : '';
 }
 
 function withResolvedNodeAliases(
@@ -152,9 +138,7 @@ function isRootScreenInsert(
   return instruction.type === 'insert_node' && instruction.alias === 'core.screen';
 }
 
-function isPageCreationInstruction(
-  instruction: EditorAiEditInstruction,
-): instruction is PageCreationInstruction {
+function isPageCreationInstruction(instruction: EditorAiEditInstruction): instruction is PageCreationInstruction {
   return (
     instruction.type === 'create_page' ||
     instruction.type === 'create_page_from_reference' ||
@@ -162,17 +146,12 @@ function isPageCreationInstruction(
   );
 }
 
-function isPageDeletionInstruction(
-  instruction: EditorAiEditInstruction,
-): instruction is PageDeletionInstruction {
+function isPageDeletionInstruction(instruction: EditorAiEditInstruction): instruction is PageDeletionInstruction {
   return instruction.type === 'delete_page';
 }
 
 function isPageNavigationSyncInstruction(instruction: EditorAiEditInstruction) {
-  return (
-    instruction.type === 'sync_page_navigation' ||
-    instruction.type === 'sync_footer_tabs'
-  );
+  return instruction.type === 'sync_page_navigation' || instruction.type === 'sync_footer_tabs';
 }
 
 function needsMultiPageContext(instruction: EditorAiEditInstruction) {
@@ -205,7 +184,7 @@ function getActiveTabLabel(canvas: BuilderCanvas) {
 }
 
 function uniquePageTabLabel(label: string, usedLabels: Set<string>) {
-  const base = label.trim() || c.defaultCanvasNamePrefix.trim() || '页面';
+  const base = label.trim() || c.defaultCanvasNamePrefix.trim() || c.fallbackPageName;
   if (!usedLabels.has(base)) {
     usedLabels.add(base);
     return base;
@@ -253,11 +232,7 @@ function createFooterNodeId(document: ThemeLayoutDocument) {
 }
 
 function createDefaultFooterTabs(canvas: BuilderCanvas) {
-  const activeTab = firstNonEmpty(
-    canvas.document.pageName,
-    canvas.name,
-    canvas.document.defaultPageId,
-  );
+  const activeTab = firstNonEmpty(canvas.document.pageName, canvas.name, canvas.document.defaultPageId);
   return {
     id: createFooterNodeId(canvas.document),
     alias: 'core.tabs',
@@ -270,19 +245,13 @@ function createDefaultFooterTabs(canvas: BuilderCanvas) {
 function syncPageNavigation(canvases: BuilderCanvas[]) {
   const tabEntries = createPageTabEntries(canvases);
   const tabs = tabEntries.map((entry) => entry.label);
-  const labelToPageId = new Map(
-    tabEntries.map((entry) => [entry.label, entry.pageId]),
-  );
-  const templateFooter = canvases
-    .flatMap((canvas) => findFooterTabs(canvas.document))
-    .find(Boolean);
+  const labelToPageId = new Map(tabEntries.map((entry) => [entry.label, entry.pageId]));
+  const templateFooter = canvases.flatMap((canvas) => findFooterTabs(canvas.document)).find(Boolean);
 
   canvases.forEach((canvas) => {
     let footers = findFooterTabs(canvas.document);
     if (!footers.length) {
-      const clonedFooter = templateFooter
-        ? structuredClone(templateFooter)
-        : createDefaultFooterTabs(canvas);
+      const clonedFooter = templateFooter ? structuredClone(templateFooter) : createDefaultFooterTabs(canvas);
       clonedFooter.id = createFooterNodeId(canvas.document);
       clonedFooter.slot = 'footer';
       clonedFooter.layout = {
@@ -298,21 +267,14 @@ function syncPageNavigation(canvases: BuilderCanvas[]) {
     }
 
     footers.forEach((footer) => {
-      const activeTab =
-        tabEntries.find((entry) => entry.canvasId === canvas.id)?.label ??
-        getActiveTabLabel(canvas);
+      const activeTab = tabEntries.find((entry) => entry.canvasId === canvas.id)?.label ?? getActiveTabLabel(canvas);
       const onTabClick = Object.fromEntries(
         tabs
           .map((label) => {
             const targetPageId = labelToPageId.get(label);
-            return targetPageId
-              ? [label, { type: 'navigate' as const, targetPageId }]
-              : null;
+            return targetPageId ? [label, { type: 'navigate' as const, targetPageId }] : null;
           })
-          .filter((entry): entry is [
-            string,
-            { type: 'navigate'; targetPageId: string },
-          ] => Boolean(entry)),
+          .filter((entry): entry is [string, { type: 'navigate'; targetPageId: string }] => Boolean(entry)),
       );
 
       footer.props = {
@@ -330,10 +292,7 @@ function syncPageNavigation(canvases: BuilderCanvas[]) {
   return canvases;
 }
 
-function createDocumentFromPage(
-  themeDocument: ThemeLayoutDocument,
-  page: ThemeLayoutPage,
-): ThemeLayoutDocument {
+function createDocumentFromPage(themeDocument: ThemeLayoutDocument, page: ThemeLayoutPage): ThemeLayoutDocument {
   return normalizeThemeLayoutDocument({
     ...themeDocument,
     pageName: page.name,
@@ -357,21 +316,15 @@ function createCanvasesFromTheme(theme: LayoutBuilderTheme): BuilderCanvas[] {
   });
 }
 
-function createCanvasFromTheme(
-  theme: LayoutBuilderTheme,
-  index: number,
-  blank = false,
-): BuilderCanvas {
+function createCanvasFromTheme(theme: LayoutBuilderTheme, index: number, blank = false): BuilderCanvas {
   const defaultName = blank
     ? createCanvasName(index)
-    /* eslint-disable @typescript-eslint/prefer-nullish-coalescing -- empty string should fall through */
-    : theme.layoutDocument.pageName?.trim()
-      || theme.layoutDocument.layout.props?.title?.toString().trim()
-      || theme.name;
-    /* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
-  const document = blank
-    ? createBlankDocument(theme.layoutDocument)
-    : cloneDocument(theme.layoutDocument);
+    : /* eslint-disable @typescript-eslint/prefer-nullish-coalescing -- 空字符串需要继续回退到下一个选项 */
+      theme.layoutDocument.pageName?.trim() ||
+      theme.layoutDocument.layout.props?.title?.toString().trim() ||
+      theme.name;
+  /* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
+  const document = blank ? createBlankDocument(theme.layoutDocument) : cloneDocument(theme.layoutDocument);
   document.pageName = defaultName;
 
   return {
@@ -388,22 +341,13 @@ function createCanvasFromAiPageInstruction(
   index: number,
   instruction: EditorAiEditInstruction,
 ): BuilderCanvas {
-  const insertedRootId =
-    instruction.type === 'insert_node' ? instruction.nodeId : undefined;
-  const requestedPageId =
-    instruction.type === 'create_page' ? instruction.pageId : undefined;
+  const insertedRootId = instruction.type === 'insert_node' ? instruction.nodeId : undefined;
+  const requestedPageId = instruction.type === 'create_page' ? instruction.pageId : undefined;
   const props = 'props' in instruction ? instruction.props : undefined;
   const title = getStringProp(props, 'title');
   const fallbackName = title ? title : createCanvasName(index);
-  const name =
-    instruction.type === 'create_page' && instruction.name?.trim()
-      ? instruction.name.trim()
-      : fallbackName;
-  const pageId = firstNonEmpty(
-    requestedPageId,
-    insertedRootId?.replace(/-screen$/, ''),
-    createPageId(index),
-  );
+  const name = instruction.type === 'create_page' && instruction.name?.trim() ? instruction.name.trim() : fallbackName;
+  const pageId = firstNonEmpty(requestedPageId, insertedRootId?.replace(/-screen$/, ''), createPageId(index));
   const rootNodeId = firstNonEmpty(
     instruction.type === 'create_page' ? instruction.rootNodeId : insertedRootId,
     createRootNodeId(pageId),
@@ -468,11 +412,7 @@ function uniqueNodeId(baseId: string, usedIds: Set<string>) {
   return candidate;
 }
 
-function remapReferenceNodeId(
-  referenceNodeId: string,
-  referencePageId: string,
-  pageId: string,
-) {
+function remapReferenceNodeId(referenceNodeId: string, referencePageId: string, pageId: string) {
   if (referenceNodeId === `${referencePageId}-screen`) {
     return `${pageId}-screen`;
   }
@@ -490,14 +430,27 @@ function rewriteNavigateActionTarget(
   if (!action) {
     return undefined;
   }
-  return action.targetPageId === referencePageId
-    ? { ...action, targetPageId: pageId }
-    : action;
+  return action.targetPageId === referencePageId ? { ...action, targetPageId: pageId } : action;
 }
 
-function isNavigateAction(
-  interaction: ThemeLayoutTabInteraction,
-): interaction is ThemeLayoutNavigateAction {
+function rewriteNodeActionTarget(
+  action: ThemeLayoutNodeAction | undefined,
+  referencePageId: string,
+  pageId: string,
+): ThemeLayoutNodeAction | undefined {
+  if (!action) {
+    return undefined;
+  }
+  if (action.type === 'navigate') {
+    return rewriteNavigateActionTarget(action, referencePageId, pageId);
+  }
+  return {
+    ...action,
+    targetNodeId: remapReferenceNodeId(action.targetNodeId, referencePageId, pageId),
+  };
+}
+
+function isNavigateAction(interaction: ThemeLayoutTabInteraction): interaction is ThemeLayoutNavigateAction {
   return 'type' in interaction && interaction.type === 'navigate';
 }
 
@@ -530,9 +483,9 @@ function rewriteInteractionTargets(
   }
   return {
     ...interactions,
-    onClick: rewriteNavigateActionTarget(interactions.onClick, referencePageId, pageId),
-    onActionClick: rewriteNavigateActionTarget(interactions.onActionClick, referencePageId, pageId),
-    onStatusClick: rewriteNavigateActionTarget(interactions.onStatusClick, referencePageId, pageId),
+    onClick: rewriteNodeActionTarget(interactions.onClick, referencePageId, pageId),
+    onActionClick: rewriteNodeActionTarget(interactions.onActionClick, referencePageId, pageId),
+    onStatusClick: rewriteNodeActionTarget(interactions.onStatusClick, referencePageId, pageId),
     onTabClick: rewriteTabInteractionTargets(interactions.onTabClick, referencePageId, pageId),
   };
 }
@@ -553,20 +506,14 @@ function cloneReferenceNode(
     return null;
   }
   const nextId = uniqueNodeId(
-    options.isRoot
-      ? options.rootNodeId
-      : remapReferenceNodeId(node.id, options.referencePageId, options.pageId),
+    options.isRoot ? options.rootNodeId : remapReferenceNodeId(node.id, options.referencePageId, options.pageId),
     options.usedIds,
   );
   options.idMap.set(node.id, nextId);
   const cloned: ThemeLayoutNode = {
     ...structuredClone(node),
     id: nextId,
-    interactions: rewriteInteractionTargets(
-      node.interactions,
-      options.referencePageId,
-      options.pageId,
-    ),
+    interactions: rewriteInteractionTargets(node.interactions, options.referencePageId, options.pageId),
   };
   cloned.children = (node.children ?? [])
     .map((child) => cloneReferenceNode(child, { ...options, isRoot: false }))
@@ -587,19 +534,20 @@ function createCanvasFromReferencePageInstruction(
   const pageId = firstNonEmpty(instruction.pageId, createPageId(canvases.length));
   const rootNodeId = firstNonEmpty(instruction.rootNodeId, createRootNodeId(pageId));
   const idMap = new Map<string, string>();
-  const root = cloneReferenceNode(referenceCanvas.document.layout, {
-    idMap,
-    omitIds: new Set(
-      (instruction.omitReferenceNodeIds ?? [])
-        .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
-        .map((value) => value.trim()),
-    ),
-    pageId,
-    referencePageId: referenceCanvas.document.defaultPageId,
-    rootNodeId,
-    usedIds: collectCanvasNodeIds(canvases),
-    isRoot: true,
-  }) ?? structuredClone(referenceCanvas.document.layout);
+  const root =
+    cloneReferenceNode(referenceCanvas.document.layout, {
+      idMap,
+      omitIds: new Set(
+        (instruction.omitReferenceNodeIds ?? [])
+          .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+          .map((value) => value.trim()),
+      ),
+      pageId,
+      referencePageId: referenceCanvas.document.defaultPageId,
+      rootNodeId,
+      usedIds: collectCanvasNodeIds(canvases),
+      isRoot: true,
+    }) ?? structuredClone(referenceCanvas.document.layout);
   const rootProps = instruction.rootProps ?? {};
   root.props = {
     ...(root.props ?? {}),
@@ -631,17 +579,11 @@ function createCanvasFromReferencePageInstruction(
 function validateReferencePageInstructionShape(
   instruction: Extract<EditorAiEditInstruction, { type: 'create_page_from_reference' }>,
 ) {
-  if (
-    instruction.referenceNodeUpdates !== undefined &&
-    !Array.isArray(instruction.referenceNodeUpdates)
-  ) {
-    return 'referenceNodeUpdates 必须是数组';
+  if (instruction.referenceNodeUpdates !== undefined && !Array.isArray(instruction.referenceNodeUpdates)) {
+    return c.referenceNodeUpdatesArrayRequired;
   }
-  if (
-    instruction.omitReferenceNodeIds !== undefined &&
-    !Array.isArray(instruction.omitReferenceNodeIds)
-  ) {
-    return 'omitReferenceNodeIds 必须是数组';
+  if (instruction.omitReferenceNodeIds !== undefined && !Array.isArray(instruction.omitReferenceNodeIds)) {
+    return c.omitReferenceNodeIdsArrayRequired;
   }
   return '';
 }
@@ -654,8 +596,7 @@ interface ApplyAiEditInstructionsToCanvasesInput {
   options?: ApplyEditorAiEditInstructionsOptions;
 }
 
-interface ApplyAiEditInstructionsToCanvasesResult
-  extends ApplyEditorAiEditInstructionsResult {
+interface ApplyAiEditInstructionsToCanvasesResult extends ApplyEditorAiEditInstructionsResult {
   canvases: BuilderCanvas[];
   activeCanvasId: string;
 }
@@ -667,8 +608,7 @@ export function applyAiEditInstructionsToCanvases({
   instructions,
   options,
 }: ApplyAiEditInstructionsToCanvasesInput): ApplyAiEditInstructionsToCanvasesResult {
-  const activeCanvas =
-    canvases.find((canvas) => canvas.id === activeCanvasId) ?? canvases[0];
+  const activeCanvas = canvases.find((canvas) => canvas.id === activeCanvasId) ?? canvases[0];
   const nextCanvases = canvases.map((canvas) => ({
     ...canvas,
     document: cloneDocument(canvas.document),
@@ -687,9 +627,7 @@ export function applyAiEditInstructionsToCanvases({
   }
 
   function findCanvasIndexByPageId(pageId: string) {
-    return nextCanvases.findIndex(
-      (canvas) => canvas.document.defaultPageId === pageId,
-    );
+    return nextCanvases.findIndex((canvas) => canvas.document.defaultPageId === pageId);
   }
 
   function rememberPageIdAlias(alias: string | undefined, pageId: string) {
@@ -708,10 +646,7 @@ export function applyAiEditInstructionsToCanvases({
     nodeIdAliases.set(normalizedAlias, nodeId);
   }
 
-  function rememberCreatedPageAliases(
-    instruction: PageCreationInstruction,
-    canvas: BuilderCanvas,
-  ) {
+  function rememberCreatedPageAliases(instruction: PageCreationInstruction, canvas: BuilderCanvas) {
     const pageId = canvas.document.defaultPageId;
     const rootNodeId = getInstructionRootNodeId(instruction);
     const createdRootNodeId = canvas.document.layout.id;
@@ -761,23 +696,15 @@ export function applyAiEditInstructionsToCanvases({
     }
 
     const activeCanvasIndex = findCanvasIndexById(activeWorkingCanvasId);
-    if (
-      activeCanvasIndex >= 0 &&
-      newlyCreatedCanvasIds.has(activeWorkingCanvasId)
-    ) {
-      rememberPageIdAlias(
-        requestedPageId,
-        nextCanvases[activeCanvasIndex].document.defaultPageId,
-      );
+    if (activeCanvasIndex >= 0 && newlyCreatedCanvasIds.has(activeWorkingCanvasId)) {
+      rememberPageIdAlias(requestedPageId, nextCanvases[activeCanvasIndex].document.defaultPageId);
       return activeCanvasIndex;
     }
 
     return -1;
   }
 
-  function findCanvasIndexForPageDeletion(
-    instruction: PageDeletionInstruction,
-  ) {
+  function findCanvasIndexForPageDeletion(instruction: PageDeletionInstruction) {
     const pageId = getInstructionPageId(instruction);
     if (pageId) {
       return findCanvasIndexByPageId(resolvePageIdAlias(pageId));
@@ -788,9 +715,7 @@ export function applyAiEditInstructionsToCanvases({
       return -1;
     }
 
-    return nextCanvases.findIndex((canvas) => (
-      canvas.name === name || canvas.document.pageName === name
-    ));
+    return nextCanvases.findIndex((canvas) => canvas.name === name || canvas.document.pageName === name);
   }
 
   function findCanvasIndexForReferencePage(
@@ -801,22 +726,18 @@ export function applyAiEditInstructionsToCanvases({
     if (byPageId >= 0) {
       return byPageId;
     }
-    return nextCanvases.findIndex((canvas) => (
-      canvas.name === instruction.referencePageId ||
-      canvas.document.pageName === instruction.referencePageId
-    ));
+    return nextCanvases.findIndex(
+      (canvas) =>
+        canvas.name === instruction.referencePageId || canvas.document.pageName === instruction.referencePageId,
+    );
   }
 
   function describePageDeletionTarget(instruction: PageDeletionInstruction) {
-    return firstNonEmpty(getInstructionPageId(instruction), instruction.name)
-      || '未指定页面';
+    return firstNonEmpty(getInstructionPageId(instruction), instruction.name) || c.unspecifiedPage;
   }
 
   function selectFallbackCanvasAfterDeletion(deletedIndex: number) {
-    return (
-      nextCanvases[Math.min(deletedIndex, nextCanvases.length - 1)] ??
-      nextCanvases[0]
-    );
+    return nextCanvases[Math.min(deletedIndex, nextCanvases.length - 1)] ?? nextCanvases[0];
   }
 
   instructions.forEach((instruction, index) => {
@@ -828,15 +749,13 @@ export function applyAiEditInstructionsToCanvases({
       if (instruction.type === 'create_page_from_reference') {
         const shapeError = validateReferencePageInstructionShape(instruction);
         if (shapeError) {
-          errors.push(`第 ${index + 1} 条：${shapeError}`);
+          errors.push(`${c.instructionPrefix(index)}${shapeError}`);
           aborted = true;
           return;
         }
         const referenceCanvasIndex = findCanvasIndexForReferencePage(instruction);
         if (referenceCanvasIndex < 0) {
-          errors.push(
-            `第 ${index + 1} 条：未找到参考页面：${instruction.referencePageId}`,
-          );
+          errors.push(`${c.instructionPrefix(index)}${c.missingReferencePage(instruction.referencePageId)}`);
           aborted = true;
           return;
         }
@@ -851,15 +770,13 @@ export function applyAiEditInstructionsToCanvases({
         const updateInstructions: EditorAiEditInstruction[] = [];
         for (const update of instruction.referenceNodeUpdates ?? []) {
           if (!update.referenceNodeId) {
-            errors.push(`第 ${index + 1} 条：referenceNodeUpdates 缺少 referenceNodeId`);
+            errors.push(`${c.instructionPrefix(index)}${c.missingReferenceNodeId}`);
             aborted = true;
             return;
           }
           const targetNodeId = created.idMap.get(update.referenceNodeId);
           if (!targetNodeId) {
-            errors.push(
-              `第 ${index + 1} 条：参考节点未复制：${update.referenceNodeId}`,
-            );
+            errors.push(`${c.instructionPrefix(index)}${c.referenceNodeNotCopied(update.referenceNodeId)}`);
             aborted = true;
             return;
           }
@@ -872,16 +789,10 @@ export function applyAiEditInstructionsToCanvases({
           });
         }
         if (updateInstructions.length > 0) {
-          const result = applyEditorAiEditInstructions(
-            createdCanvas.document,
-            updateInstructions,
-            options,
-          );
+          const result = applyEditorAiEditInstructions(createdCanvas.document, updateInstructions, options);
           if (result.errors.length > 0) {
             errors.push(
-              ...result.errors.map((error) =>
-                error.replace(/^第 \d+ 条：/, `第 ${index + 1} 条：`),
-              ),
+              ...result.errors.map((error) => error.replace(c.instructionPrefixPattern, c.instructionPrefix(index))),
             );
             aborted = true;
             return;
@@ -898,55 +809,44 @@ export function applyAiEditInstructionsToCanvases({
         newlyCreatedCanvasIds.add(createdCanvas.id);
         rememberCreatedPageAliases(instruction, createdCanvas);
         rememberReferenceNodeAliases(created.idMap);
-        applied.push(`基于参考页面创建 ${createdCanvas.name}`);
+        applied.push(c.createdFromReferencePage(createdCanvas.name));
         applied.push(...createdUpdateApplied);
-        selectedNodeIdFromAi =
-          instruction.select === false ? undefined : createdCanvas.document.layout.id;
+        selectedNodeIdFromAi = instruction.select === false ? undefined : createdCanvas.document.layout.id;
         return;
       }
 
-      const nextCanvas = createCanvasFromAiPageInstruction(
-        activeTheme,
-        nextCanvases.length,
-        instruction,
-      );
+      const nextCanvas = createCanvasFromAiPageInstruction(activeTheme, nextCanvases.length, instruction);
       nextCanvases.push(nextCanvas);
       activeWorkingCanvasId = nextCanvas.id;
       newlyCreatedCanvasIds.add(nextCanvas.id);
       rememberCreatedPageAliases(instruction, nextCanvas);
-      applied.push(`创建页面 ${nextCanvas.name}`);
-      const shouldSelectNewPageRoot =
-        instruction.type === 'insert_node'
-        || instruction.activate !== false;
+      applied.push(c.createdPage(nextCanvas.name));
+      const shouldSelectNewPageRoot = instruction.type === 'insert_node' || instruction.activate !== false;
       if (shouldSelectNewPageRoot) {
-        selectedNodeIdFromAi =
-          instruction.select === false ? undefined : nextCanvas.document.layout.id;
+        selectedNodeIdFromAi = instruction.select === false ? undefined : nextCanvas.document.layout.id;
       }
       return;
     }
 
     if (isPageDeletionInstruction(instruction)) {
       if (nextCanvases.length <= 1) {
-        errors.push(`第 ${index + 1} 条：至少需要保留一个页面`);
+        errors.push(`${c.instructionPrefix(index)}${c.atLeastOnePageRequired}`);
         aborted = true;
         return;
       }
 
       const deletingIndex = findCanvasIndexForPageDeletion(instruction);
       if (deletingIndex < 0) {
-        errors.push(
-          `第 ${index + 1} 条：未找到页面：${describePageDeletionTarget(instruction)}`,
-        );
+        errors.push(`${c.instructionPrefix(index)}${c.missingPage(describePageDeletionTarget(instruction))}`);
         aborted = true;
         return;
       }
 
       const deletedCanvas = nextCanvases[deletingIndex];
       nextCanvases.splice(deletingIndex, 1);
-      applied.push(`删除页面 ${deletedCanvas.name}`);
+      applied.push(c.deletedPage(deletedCanvas.name));
       if (activeWorkingCanvasId === deletedCanvas.id) {
-        activeWorkingCanvasId =
-          selectFallbackCanvasAfterDeletion(deletingIndex).id;
+        activeWorkingCanvasId = selectFallbackCanvasAfterDeletion(deletingIndex).id;
         selectedNodeIdFromAi = null;
       }
       return;
@@ -954,37 +854,28 @@ export function applyAiEditInstructionsToCanvases({
 
     if (isPageNavigationSyncInstruction(instruction)) {
       syncPageNavigation(nextCanvases);
-      applied.push('同步页面导航');
+      applied.push(c.syncedPageNavigation);
       return;
     }
 
     const targetPageId = getInstructionPageId(instruction);
     const targetCanvasIndex = findCanvasIndexForInstruction(instruction);
     if (targetCanvasIndex < 0) {
-      errors.push(`第 ${index + 1} 条：未找到页面：${targetPageId}`);
+      errors.push(`${c.instructionPrefix(index)}${c.missingPage(targetPageId)}`);
       aborted = true;
       return;
     }
 
     const targetCanvas = nextCanvases[targetCanvasIndex];
-    const resolvedInstruction = withResolvedNodeAliases(
-      instruction,
-      resolveNodeIdAlias,
-    );
-    const result = applyEditorAiEditInstructions(
-      targetCanvas.document,
-      [resolvedInstruction],
-      options,
-    );
+    const resolvedInstruction = withResolvedNodeAliases(instruction, resolveNodeIdAlias);
+    const result = applyEditorAiEditInstructions(targetCanvas.document, [resolvedInstruction], options);
     nextCanvases[targetCanvasIndex] = {
       ...targetCanvas,
       document: result.document,
     };
     applied.push(...result.applied);
     errors.push(
-      ...result.errors.map((error) =>
-        error.replace(/^第 1 条：/, `第 ${index + 1} 条：`),
-      ),
+      ...result.errors.map((error) => error.replace(c.firstInstructionPrefixPattern, c.instructionPrefix(index))),
     );
     if (result.errors.length > 0) {
       aborted = true;
@@ -995,9 +886,7 @@ export function applyAiEditInstructionsToCanvases({
   });
 
   const finalCanvases = syncPageNavigation(nextCanvases);
-  const nextActiveCanvas =
-    finalCanvases.find((canvas) => canvas.id === activeWorkingCanvasId)
-    ?? finalCanvases[0];
+  const nextActiveCanvas = finalCanvases.find((canvas) => canvas.id === activeWorkingCanvasId) ?? finalCanvases[0];
 
   if (errors.length > 0) {
     return {
@@ -1020,29 +909,31 @@ export function applyAiEditInstructionsToCanvases({
   };
 }
 
-export function useBuilderDocumentState(
-  themes: LayoutBuilderTheme[],
-  initialThemeId?: string,
-) {
-  const initialTheme = (
-    initialThemeId
-      ? themes.find((t) => t.id === initialThemeId)
-      : undefined
-  ) ?? themes[0];
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- themes[0] may be undefined at runtime without noUncheckedIndexedAccess
-  const initialScreenPreset = initialTheme
-    ? getDefaultPreviewScreenPreset(initialTheme.platformCategories)
-    : 'mobile';
-  const [canvases, setCanvases] = useState<BuilderCanvas[]>(() =>
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- themes[0] may be undefined at runtime without noUncheckedIndexedAccess
-    initialTheme ? createCanvasesFromTheme(initialTheme) : [],
+export function useBuilderDocumentState(themes: LayoutBuilderTheme[], initialThemeId?: string) {
+  const initialTheme = (initialThemeId ? themes.find((t) => t.id === initialThemeId) : undefined) ?? themes[0];
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- 未开启 noUncheckedIndexedAccess 时，运行时 themes[0] 仍可能是 undefined
+  const initialScreenPreset = initialTheme ? getDefaultPreviewScreenPreset(initialTheme.platformCategories) : 'mobile';
+  const documentSessionKey = `${initialThemeId ?? ''}:${themes.map((theme) => theme.id).join('|')}`;
+  const { canvases, activeCanvasId, selectedNodeId, screenPreset } = useEditorDocumentSnapshot(
+    documentSessionKey,
+    () => {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- 未开启 noUncheckedIndexedAccess 时，运行时 themes[0] 仍可能是 undefined
+      const initialCanvases = initialTheme ? createCanvasesFromTheme(initialTheme) : [];
+      return {
+        sessionKey: documentSessionKey,
+        canvases: initialCanvases,
+        activeCanvasId: initialCanvases[0]?.id ?? '',
+        selectedNodeId: null,
+        screenPreset: initialScreenPreset,
+      };
+    },
   );
-  const [activeCanvasId, setActiveCanvasIdState] = useState(
-    () => canvases[0]?.id ?? '',
-  );
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [screenPreset, setScreenPreset] =
-    useState<DynamicThemeScreenPreset>(initialScreenPreset);
+  const {
+    setSnapshot: setDocumentSnapshot,
+    setCanvases,
+    setSelectedNodeId,
+    setScreenPreset,
+  } = editorDocumentStateActions;
   const canvasesRef = useRef(canvases);
   const activeCanvasIdRef = useRef(activeCanvasId);
 
@@ -1054,31 +945,21 @@ export function useBuilderDocumentState(
     activeCanvasIdRef.current = activeCanvasId;
   }, [activeCanvasId]);
 
-  const activeCanvas =
-    canvases.find((canvas) => canvas.id === activeCanvasId) ?? canvases[0];
-  const activeTheme =
-    themes.find((theme) => theme.id === activeCanvas.themeId) ?? themes[0];
+  const activeCanvas = canvases.find((canvas) => canvas.id === activeCanvasId) ?? canvases[0];
+  const activeTheme = themes.find((theme) => theme.id === activeCanvas.themeId) ?? themes[0];
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- defensive guard; array elements may be undefined at runtime
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- 防御式保护；数组元素运行时可能是 undefined
   if (!activeTheme || !activeCanvas) {
     throw new Error('Theme layout builder requires at least one theme.');
   }
 
   const currentDocument = activeCanvas.document;
   const flatNodes = flattenNodes(currentDocument.layout);
-  const containerNodes = flatNodes.filter(
-    ({ node }) => CONTAINER_ALIASES.has(node.alias),
-  );
-  const selectedNode = selectedNodeId
-    ? flatNodes.find(({ node }) => node.id === selectedNodeId)?.node ?? null
-    : null;
-  const selectedDescriptor = selectedNode
-    ? descriptorForAlias(currentDocument, selectedNode.alias)
-    : null;
+  const containerNodes = flatNodes.filter(({ node }) => CONTAINER_ALIASES.has(node.alias));
+  const selectedNode = selectedNodeId ? (flatNodes.find(({ node }) => node.id === selectedNodeId)?.node ?? null) : null;
+  const selectedDescriptor = selectedNode ? descriptorForAlias(currentDocument, selectedNode.alias) : null;
   const selectedContainerId =
-    selectedNode && CONTAINER_ALIASES.has(selectedNode.alias)
-      ? selectedNode.id
-      : currentDocument.layout.id;
+    selectedNode && CONTAINER_ALIASES.has(selectedNode.alias) ? selectedNode.id : currentDocument.layout.id;
   const layoutDescriptors = activeTheme.layoutDocument.components.filter(
     (component) =>
       component.kind === 'layout' &&
@@ -1092,13 +973,14 @@ export function useBuilderDocumentState(
 
   function setActiveCanvasId(canvasId: string) {
     activeCanvasIdRef.current = canvasId;
-    setActiveCanvasIdState(canvasId);
-    setSelectedNodeId(null);
+    setDocumentSnapshot((current) => ({
+      ...current,
+      activeCanvasId: canvasId,
+      selectedNodeId: null,
+    }));
   }
 
-  const setEditorDocument: Dispatch<
-    SetStateAction<ThemeLayoutDocument | null>
-  > = (value) => {
+  const setEditorDocument: Dispatch<SetStateAction<ThemeLayoutDocument | null>> = (value) => {
     setCanvases((current) => {
       const activeId = activeCanvasIdRef.current;
       const nextCanvases = current.map((canvas) => {
@@ -1106,8 +988,7 @@ export function useBuilderDocumentState(
           return canvas;
         }
 
-        const nextDocument =
-          typeof value === 'function' ? value(canvas.document) : value;
+        const nextDocument = typeof value === 'function' ? value(canvas.document) : value;
         return nextDocument
           ? {
               ...canvas,
@@ -1120,10 +1001,7 @@ export function useBuilderDocumentState(
     });
   };
 
-  function updateNode(
-    nodeId: string,
-    updater: (node: ThemeLayoutNode) => void,
-  ) {
+  function updateNode(nodeId: string, updater: (node: ThemeLayoutNode) => void) {
     setEditorDocument((current) => {
       if (!current) {
         return current;
@@ -1138,9 +1016,7 @@ export function useBuilderDocumentState(
       return;
     }
 
-    const propDescriptor = selectedDescriptor.props.find(
-      (prop) => prop.name === name,
-    );
+    const propDescriptor = selectedDescriptor.props.find((prop) => prop.name === name);
     if (!propDescriptor) {
       return;
     }
@@ -1183,12 +1059,8 @@ export function useBuilderDocumentState(
     options?: ApplyEditorAiEditInstructionsOptions,
   ) {
     const liveCanvases = canvasesRef.current;
-    const liveActiveCanvas =
-      liveCanvases.find((canvas) => canvas.id === activeCanvasIdRef.current)
-      ?? liveCanvases[0];
-    const liveActiveTheme =
-      themes.find((theme) => theme.id === liveActiveCanvas.themeId)
-      ?? activeTheme;
+    const liveActiveCanvas = liveCanvases.find((canvas) => canvas.id === activeCanvasIdRef.current) ?? liveCanvases[0];
+    const liveActiveTheme = themes.find((theme) => theme.id === liveActiveCanvas.themeId) ?? activeTheme;
 
     if (instructions.some(needsMultiPageContext)) {
       const result = applyAiEditInstructionsToCanvases({
@@ -1200,46 +1072,35 @@ export function useBuilderDocumentState(
       });
       canvasesRef.current = result.canvases;
       activeCanvasIdRef.current = result.activeCanvasId;
-      setCanvases(result.canvases);
-      setActiveCanvasIdState(result.activeCanvasId);
-      if (result.selectedNodeId !== undefined) {
-        setSelectedNodeId(result.selectedNodeId);
-      }
+      setDocumentSnapshot((current) => ({
+        ...current,
+        canvases: result.canvases,
+        activeCanvasId: result.activeCanvasId,
+        selectedNodeId: result.selectedNodeId === undefined ? current.selectedNodeId : result.selectedNodeId,
+      }));
       return result;
     }
 
-    const result = applyEditorAiEditInstructions(
-      liveActiveCanvas.document,
-      instructions,
-      options,
-    );
+    const result = applyEditorAiEditInstructions(liveActiveCanvas.document, instructions, options);
     const nextCanvases = liveCanvases.map((canvas) =>
-      canvas.id === liveActiveCanvas.id
-        ? { ...canvas, document: result.document }
-        : canvas,
+      canvas.id === liveActiveCanvas.id ? { ...canvas, document: result.document } : canvas,
     );
     canvasesRef.current = nextCanvases;
-    setCanvases(nextCanvases);
-    if (result.selectedNodeId !== undefined) {
-      setSelectedNodeId(result.selectedNodeId);
-    }
+    setDocumentSnapshot((current) => ({
+      ...current,
+      canvases: nextCanvases,
+      selectedNodeId: result.selectedNodeId === undefined ? current.selectedNodeId : result.selectedNodeId,
+    }));
     return result;
   }
 
-  function moveNodeWithinParent(
-    nodeId: string,
-    targetId: string,
-    position: 'before' | 'after',
-  ) {
+  function moveNodeWithinParent(nodeId: string, targetId: string, position: 'before' | 'after') {
     setEditorDocument((current) => {
       if (!current) {
         return current;
       }
 
-      return (
-        moveNodeWithinParentInDocument(current, nodeId, targetId, position)
-        ?? current
-      );
+      return moveNodeWithinParentInDocument(current, nodeId, targetId, position) ?? current;
     });
   }
 
@@ -1249,30 +1110,17 @@ export function useBuilderDocumentState(
         return current;
       }
 
-      return (
-        moveNodeToParentEndInDocument(current, nodeId, parentId) ?? current
-      );
+      return moveNodeToParentEndInDocument(current, nodeId, parentId) ?? current;
     });
   }
 
-  function moveRootNodeToRowBoundary(
-    nodeId: string,
-    targetId: string,
-    position: 'before' | 'after',
-  ) {
+  function moveRootNodeToRowBoundary(nodeId: string, targetId: string, position: 'before' | 'after') {
     setEditorDocument((current) => {
       if (!current) {
         return current;
       }
 
-      return (
-        moveRootNodeToRowBoundaryInDocument(
-          current,
-          nodeId,
-          targetId,
-          position,
-        ) ?? current
-      );
+      return moveRootNodeToRowBoundaryInDocument(current, nodeId, targetId, position) ?? current;
     });
   }
 
@@ -1296,20 +1144,13 @@ export function useBuilderDocumentState(
     }
   }
 
-  function addNodeFromAlias(
-    alias: string,
-    parentId = currentDocument.layout.id,
-  ) {
+  function addNodeFromAlias(alias: string, parentId = currentDocument.layout.id) {
     const descriptor = descriptorForAlias(currentDocument, alias);
     if (!descriptor) {
       return;
     }
 
-    const slot =
-      parentId === currentDocument.layout.id
-      && FOOTER_ALIASES.has(descriptor.alias)
-        ? 'footer'
-        : 'body';
+    const slot = parentId === currentDocument.layout.id && FOOTER_ALIASES.has(descriptor.alias) ? 'footer' : 'body';
     const sampleChildren =
       descriptor.alias === 'core.panel' || descriptor.alias === 'core.stack'
         ? createLibrarySampleChildren(currentDocument, descriptor.alias)
@@ -1322,9 +1163,7 @@ export function useBuilderDocumentState(
         parentId,
         slot,
         undefined,
-        parentId === currentDocument.layout.id && slot === 'body'
-          ? nextRootFlowRow(currentDocument.layout)
-          : 0,
+        parentId === currentDocument.layout.id && slot === 'body' ? nextRootFlowRow(currentDocument.layout) : 0,
       ),
       sampleChildren,
     );
@@ -1351,11 +1190,7 @@ export function useBuilderDocumentState(
       return;
     }
 
-    const slot =
-      parentId === currentDocument.layout.id
-      && FOOTER_ALIASES.has(descriptor.alias)
-        ? 'footer'
-        : 'body';
+    const slot = parentId === currentDocument.layout.id && FOOTER_ALIASES.has(descriptor.alias) ? 'footer' : 'body';
     if (slot === 'footer') {
       addNodeFromAlias(alias, parentId);
       return;
@@ -1373,9 +1208,7 @@ export function useBuilderDocumentState(
         parentId,
         slot,
         undefined,
-        parentId === currentDocument.layout.id
-          ? nextRootFlowRow(currentDocument.layout)
-          : 0,
+        parentId === currentDocument.layout.id ? nextRootFlowRow(currentDocument.layout) : 0,
       ),
       sampleChildren,
     );
@@ -1385,23 +1218,14 @@ export function useBuilderDocumentState(
         return current;
       }
 
-      return (
-        insertNodeRelativeToTargetInDocument(
-          current,
-          parentId,
-          nextNode,
-          targetId,
-          position,
-          axis,
-        ) ?? current
-      );
+      return insertNodeRelativeToTargetInDocument(current, parentId, nextNode, targetId, position, axis) ?? current;
     });
     setSelectedNodeId(nextNode.id);
   }
 
   function applyTemplateToActiveCanvas(themeId: string) {
     const nextTheme = themes.find((theme) => theme.id === themeId) ?? themes[0];
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- defensive guard
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- 防御式保护
     if (!nextTheme) {
       return;
     }
@@ -1409,33 +1233,39 @@ export function useBuilderDocumentState(
     const nextCanvases = createCanvasesFromTheme(nextTheme);
     const defaultPageId = nextTheme.layoutDocument.defaultPageId;
     const defaultCanvas =
-      nextCanvases.find(
-        (canvas) => canvas.document.defaultPageId === defaultPageId,
-      ) ?? nextCanvases[0];
+      nextCanvases.find((canvas) => canvas.document.defaultPageId === defaultPageId) ?? nextCanvases[0];
 
-    setCanvases(nextCanvases);
-    setScreenPreset(
-      getDefaultPreviewScreenPreset(nextTheme.platformCategories),
-    );
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- nextCanvases[0] may be undefined at runtime
-    setActiveCanvasIdState(defaultCanvas?.id ?? '');
-    setSelectedNodeId(null);
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- nextCanvases[0] 运行时可能是 undefined
+    const nextActiveCanvasId = defaultCanvas?.id ?? '';
+    canvasesRef.current = nextCanvases;
+    activeCanvasIdRef.current = nextActiveCanvasId;
+    setDocumentSnapshot((current) => ({
+      ...current,
+      canvases: nextCanvases,
+      activeCanvasId: nextActiveCanvasId,
+      selectedNodeId: null,
+      screenPreset: getDefaultPreviewScreenPreset(nextTheme.platformCategories),
+    }));
   }
 
   function createCanvas() {
-    const nextCanvas = createCanvasFromTheme(
-      activeTheme,
-      canvases.length,
-      true,
-    );
-    setCanvases((current) => [...current, nextCanvas]);
-    setActiveCanvasIdState(nextCanvas.id);
-    setSelectedNodeId(null);
+    const nextCanvas = createCanvasFromTheme(activeTheme, canvases.length, true);
+    activeCanvasIdRef.current = nextCanvas.id;
+    setDocumentSnapshot((current) => {
+      const nextCanvases = [...current.canvases, nextCanvas];
+      canvasesRef.current = nextCanvases;
+      return {
+        ...current,
+        canvases: nextCanvases,
+        activeCanvasId: nextCanvas.id,
+        selectedNodeId: null,
+      };
+    });
   }
 
   function clearActiveCanvas() {
-    setCanvases((current) =>
-      current.map((canvas) =>
+    setCanvases((current) => {
+      const nextCanvases = current.map((canvas) =>
         canvas.id === activeCanvas.id
           ? {
               ...canvas,
@@ -1445,14 +1275,16 @@ export function useBuilderDocumentState(
               },
             }
           : canvas,
-      ),
-    );
+      );
+      canvasesRef.current = nextCanvases;
+      return nextCanvases;
+    });
     setSelectedNodeId(null);
   }
 
   function updateActiveCanvasName(name: string) {
-    setCanvases((current) =>
-      current.map((canvas) =>
+    setCanvases((current) => {
+      const nextCanvases = current.map((canvas) =>
         canvas.id === activeCanvas.id
           ? {
               ...canvas,
@@ -1463,8 +1295,10 @@ export function useBuilderDocumentState(
               },
             }
           : canvas,
-      ),
-    );
+      );
+      canvasesRef.current = nextCanvases;
+      return nextCanvases;
+    });
   }
 
   return {

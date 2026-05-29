@@ -2,30 +2,23 @@ import type { TemplateStore } from '../adapters/browserTemplateStore';
 import type { AIProvider, ProviderMessage, ProviderTool } from '../core/providers/types';
 import { QueryLoop } from '../core/query-loop';
 import { formatUiIntentPlanForPrompt, planUiIntent } from '../planning/ui-intent-router';
-import { GENERATE_TEMPLATE_TOOL, type TemplateToolInput } from '../tools/generate-template.tool';
+import { GENERATE_TEMPLATE_TOOL, isTemplateToolInput } from '../tools/generate-template.tool';
 import { AgentEventRecorder } from './agentEventRecorder';
-import { TEMPLATE_DESIGNER_SYSTEM_PROMPT } from '@shared/agent/prompts/templateDesignerPrompt';
 import {
   formatUiDesignSkillContextForPrompt,
   inferUiDesignSkillContext,
-} from '@shared/agent/skills/uiDesignSkillRegistry';
-import type {
-  AgentEvalScenario,
-  AgentRunResult,
-  ThemeLayoutDocument,
-} from '@shared/agent/types';
+  TEMPLATE_DESIGNER_SYSTEM_PROMPT,
+} from '@shared/agent/browser';
+import type { AgentEvalScenario, AgentRunResult, ThemeLayoutDocument } from '@shared/agent/contracts/agent';
 import {
   evaluateSemanticAssertions,
-} from '@shared/agent/validation/semanticAssertions';
-import { evaluateUnrelatedDiff } from '@shared/agent/validation/templateDiff';
-import {
+  evaluateUnrelatedDiff,
   renderSmokeThemeLayoutDocument,
   validateThemeLayoutDocument,
-} from '@shared/agent/validation/themeLayoutValidator';
-import {
-  applyVisualAssetsToLayoutDocument,
-  normalizeVisualAssets,
-} from '@shared/theme-layout/visualAssets';
+} from '@shared/agent/contracts/validation';
+import { themeLayoutDocumentToRecord } from '@shared/theme-layout/documentBoundary';
+import { migrateThemeLayoutDocument } from '@shared/theme-layout/migrations';
+import { applyVisualAssetsToLayoutDocument, normalizeVisualAssets } from '@shared/theme-layout/visualAssets';
 
 export interface TemplateGenerationAgentOptions {
   provider: AIProvider;
@@ -41,10 +34,6 @@ export interface TemplateGenerationRunInput {
   prompt: string;
   scenario?: AgentEvalScenario;
   scenarioId?: string;
-}
-
-function asThemeLayoutDocument(value: unknown): ThemeLayoutDocument {
-  return value as ThemeLayoutDocument;
 }
 
 export class TemplateGenerationAgent {
@@ -93,16 +82,16 @@ export class TemplateGenerationAgent {
           call.error = `Unknown tool: ${name}`;
           return { output: JSON.stringify({ error: call.error }) };
         }
-        const inputValue = args as unknown as TemplateToolInput;
-        const visualAssets = normalizeVisualAssets(inputValue.visualAssets);
-        const candidateDocument = asThemeLayoutDocument(
-          applyVisualAssetsToLayoutDocument(
-            inputValue.layoutDocument,
-            visualAssets,
-          ),
+        if (!isTemplateToolInput(args)) {
+          call.error = 'generate_template requires a complete template payload';
+          return { output: JSON.stringify({ error: call.error }) };
+        }
+        const visualAssets = normalizeVisualAssets(args.visualAssets);
+        const candidateDocument = migrateThemeLayoutDocument(
+          applyVisualAssetsToLayoutDocument(args.layoutDocument, visualAssets),
         );
         const validation = validateThemeLayoutDocument(candidateDocument, {
-          componentTemplates: inputValue.componentTemplates,
+          componentTemplates: args.componentTemplates,
         });
         if (!validation.valid) {
           call.error = 'Generated template failed validation';
@@ -111,9 +100,9 @@ export class TemplateGenerationAgent {
         }
         finalDocument = {
           ...candidateDocument,
-          componentTemplates: inputValue.componentTemplates,
-          cssVars: inputValue.cssVars,
-          cssAnimations: inputValue.cssAnimations,
+          componentTemplates: args.componentTemplates,
+          cssVars: args.cssVars,
+          cssAnimations: args.cssAnimations,
         };
         if (this.options.persist) {
           if (!this.options.templateStore) {
@@ -121,11 +110,11 @@ export class TemplateGenerationAgent {
             return { output: JSON.stringify({ error: call.error }) };
           }
           const saved = await this.options.templateStore.saveGeneratedTemplate({
-            ...inputValue,
-            layoutDocument: candidateDocument as unknown as Record<string, unknown>,
+            ...args,
+            layoutDocument: themeLayoutDocumentToRecord(candidateDocument),
             ...(visualAssets.length > 0 ? { visualAssets } : {}),
           });
-          emit('template_saved', { ...saved, name: inputValue.name });
+          emit('template_saved', { ...saved, name: args.name });
           call.result = { success: true, ...saved };
           return { output: JSON.stringify({ success: true, ...saved }) };
         }
@@ -144,12 +133,14 @@ export class TemplateGenerationAgent {
       ? validateThemeLayoutDocument(finalDocument)
       : {
           valid: false,
-          errors: [{
-            path: 'toolCalls',
-            code: 'missing_generate_template',
-            message: 'generate_template did not produce a final document',
-            severity: 'error' as const,
-          }],
+          errors: [
+            {
+              path: 'toolCalls',
+              code: 'missing_generate_template',
+              message: 'generate_template did not produce a final document',
+              severity: 'error' as const,
+            },
+          ],
           warnings: [],
           score: 0,
         };
@@ -159,8 +150,13 @@ export class TemplateGenerationAgent {
       ? renderSmokeThemeLayoutDocument(finalDocument)
       : { passed: false, score: 0, errors: ['Missing final document'], visibleTextCount: 0 };
     const calledExpectedTool = recorder.toolCalls.some((call) => call.name === GENERATE_TEMPLATE_TOOL.name);
-    const passed = !terminalError && calledExpectedTool && validation.valid && semantic.passed && unrelatedDiff.passed
-      && render.passed;
+    const passed =
+      !terminalError &&
+      calledExpectedTool &&
+      validation.valid &&
+      semantic.passed &&
+      unrelatedDiff.passed &&
+      render.passed;
 
     return {
       scenarioId: input.scenarioId ?? input.scenario?.id,

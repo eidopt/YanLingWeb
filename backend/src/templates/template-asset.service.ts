@@ -25,9 +25,23 @@ interface StoredImage {
   storageKey: string;
 }
 
+interface RolePlaceholder {
+  title: string;
+  iconColor: string;
+}
+
+interface ImageGenerationDataItem {
+  b64_json?: string;
+  url?: string;
+}
+
+interface ImageGenerationResponse {
+  data?: ImageGenerationDataItem[];
+}
+
 const DEFAULT_IMAGE_SIZE = '1024x1024';
 
-const ROLE_PLACEHOLDERS: Record<string, { title: string; iconColor: string; }> = {
+const ROLE_PLACEHOLDERS: Record<string, RolePlaceholder> = {
   hero: {
     title: 'Hero image',
     iconColor: 'linear-gradient(135deg, #0F766E 0%, #F59E0B 100%)',
@@ -49,23 +63,6 @@ const ROLE_PLACEHOLDERS: Record<string, { title: string; iconColor: string; }> =
     iconColor: 'linear-gradient(135deg, #334155 0%, #EAB308 100%)',
   },
 };
-
-function safePathSegment(value: string): string {
-  const segment = value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9._-]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-  return segment || 'asset';
-}
-
-function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
-}
-
-function truncateReason(reason: string): string {
-  return reason.length > 240 ? `${reason.slice(0, 237)}...` : reason;
-}
 
 @Injectable()
 export class TemplateAssetService {
@@ -100,14 +97,12 @@ export class TemplateAssetService {
     };
   }
 
-  private async resolveVisualAsset(
-    templateId: string,
-    asset: VisualAsset,
-  ): Promise<VisualAsset> {
+  private async resolveVisualAsset(templateId: string, asset: VisualAsset): Promise<VisualAsset> {
     if (asset.url && isAllowedTemplateImageSrc(asset.url)) {
       return {
         ...asset,
-        provider: asset.provider ?? (asset.url.startsWith('/template-assets/') ? 'curated' : 'manual'),
+        provider:
+          asset.provider ?? (asset.url.startsWith('/template-assets/') ? 'curated' : 'manual'),
         status: asset.status ?? 'generated',
       };
     }
@@ -139,7 +134,7 @@ export class TemplateAssetService {
         storageKey: stored.storageKey,
       };
     } catch (error) {
-      const reason = `image generation failed: ${errorMessage(error)}`;
+      const reason = `image generation failed: ${this.errorMessage(error)}`;
       this.logger.warn(
         `Falling back to placeholder for template asset ${templateId}/${asset.id}: ${reason}`,
       );
@@ -147,24 +142,18 @@ export class TemplateAssetService {
     }
   }
 
-  private async generateImageBytes(
-    model: string,
-    asset: VisualAsset,
-  ): Promise<Buffer> {
+  private async generateImageBytes(model: string, asset: VisualAsset): Promise<Buffer> {
     const openai = new OpenAI({
       apiKey: this.config.ai.apiKey,
       baseURL: this.config.ai.baseUrl,
     });
-    const imagesClient = openai.images as unknown as {
-      generate(input: Record<string, unknown>): Promise<unknown>;
-    };
-    const response = await imagesClient.generate({
+    const response = await openai.images.generate({
       model,
       prompt: this.buildImagePrompt(asset),
       n: 1,
       size: DEFAULT_IMAGE_SIZE,
     });
-    const data = (response as { data?: { b64_json?: string; url?: string; }[]; }).data;
+    const data = (response as ImageGenerationResponse).data;
     const image = data?.[0];
 
     if (image?.b64_json) {
@@ -200,19 +189,10 @@ export class TemplateAssetService {
     imageBytes: Buffer,
   ): Promise<StoredImage> {
     const assetsRoot = this.resolveTemplateAssetsRoot();
-    const templateSegment = safePathSegment(templateId);
-    const assetSegment = safePathSegment(assetId);
-    const relativeStorageKey = path.posix.join(
-      'generated',
-      templateSegment,
-      `${assetSegment}.png`,
-    );
-    const outputPath = path.join(
-      assetsRoot,
-      'generated',
-      templateSegment,
-      `${assetSegment}.png`,
-    );
+    const templateSegment = this.safePathSegment(templateId);
+    const assetSegment = this.safePathSegment(assetId);
+    const relativeStorageKey = path.posix.join('generated', templateSegment, `${assetSegment}.png`);
+    const outputPath = path.join(assetsRoot, 'generated', templateSegment, `${assetSegment}.png`);
 
     await fs.mkdir(path.dirname(outputPath), { recursive: true });
     await fs.writeFile(outputPath, imageBytes);
@@ -228,8 +208,8 @@ export class TemplateAssetService {
       path.resolve(process.cwd(), 'public'),
       path.resolve(process.cwd(), '..', 'public'),
     ];
-    const publicRoot = publicCandidates.find((candidate) => existsSync(candidate))
-      ?? publicCandidates[0];
+    const publicRoot =
+      publicCandidates.find((candidate) => existsSync(candidate)) ?? publicCandidates[0];
     return path.join(publicRoot, 'template-assets');
   }
 
@@ -239,11 +219,28 @@ export class TemplateAssetService {
       ...asset,
       provider: 'placeholder',
       status: 'fallback',
-      fallbackReason: truncateReason(reason),
+      fallbackReason: this.truncateReason(reason),
       placeholder: {
         title: asset.placeholder?.title ?? asset.alt ?? defaults.title,
         iconColor: asset.placeholder?.iconColor ?? defaults.iconColor,
       },
     };
+  }
+
+  private safePathSegment(value: string): string {
+    const segment = value
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9._-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    return segment || 'asset';
+  }
+
+  private errorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : String(error);
+  }
+
+  private truncateReason(reason: string): string {
+    return reason.length > 240 ? `${reason.slice(0, 237)}...` : reason;
   }
 }

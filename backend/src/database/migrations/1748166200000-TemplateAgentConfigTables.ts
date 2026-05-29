@@ -1,18 +1,31 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
+import {
+  ensurePostgresUuidSupport,
+  getMigrationDialect,
+  timestampColumn,
+  uuidPrimaryKey,
+} from '../migration-sql';
+
 export class TemplateAgentConfigTables1748166200000 implements MigrationInterface {
   name = 'TemplateAgentConfigTables1748166200000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
+    const dialect = getMigrationDialect(queryRunner);
+    await ensurePostgresUuidSupport(queryRunner, dialect);
+    const generatedId = uuidPrimaryKey(dialect);
+    const createdAt = timestampColumn(dialect, 'createdAt');
+    const updatedAt = timestampColumn(dialect, 'updatedAt');
+
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS "template_profile_generated" (
-        "id" varchar PRIMARY KEY NOT NULL DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random())%4+1,1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6)))),
+        ${generatedId},
         "templateId" varchar NOT NULL,
         "templateVersion" varchar NOT NULL DEFAULT ('1.0.0'),
         "profileVersion" varchar NOT NULL DEFAULT ('1.0.0'),
         "profile" text NOT NULL DEFAULT ('{}'),
-        "createdAt" datetime NOT NULL DEFAULT (datetime('now')),
-        "updatedAt" datetime NOT NULL DEFAULT (datetime('now'))
+        ${createdAt},
+        ${updatedAt}
       )
     `);
     await queryRunner.query(`
@@ -22,12 +35,12 @@ export class TemplateAgentConfigTables1748166200000 implements MigrationInterfac
 
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS "template_profile_overrides" (
-        "id" varchar PRIMARY KEY NOT NULL DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random())%4+1,1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6)))),
+        ${generatedId},
         "templateId" varchar NOT NULL,
         "profileVersion" varchar NOT NULL DEFAULT ('1.0.0'),
         "override" text NOT NULL DEFAULT ('{}'),
-        "createdAt" datetime NOT NULL DEFAULT (datetime('now')),
-        "updatedAt" datetime NOT NULL DEFAULT (datetime('now'))
+        ${createdAt},
+        ${updatedAt}
       )
     `);
     await queryRunner.query(`
@@ -37,11 +50,11 @@ export class TemplateAgentConfigTables1748166200000 implements MigrationInterfac
 
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS "template_asset_manifests" (
-        "id" varchar PRIMARY KEY NOT NULL DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random())%4+1,1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6)))),
+        ${generatedId},
         "templateId" varchar NOT NULL,
         "manifest" text NOT NULL DEFAULT ('{}'),
-        "createdAt" datetime NOT NULL DEFAULT (datetime('now')),
-        "updatedAt" datetime NOT NULL DEFAULT (datetime('now'))
+        ${createdAt},
+        ${updatedAt}
       )
     `);
     await queryRunner.query(`
@@ -51,11 +64,11 @@ export class TemplateAgentConfigTables1748166200000 implements MigrationInterfac
 
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS "template_agent_permissions" (
-        "id" varchar PRIMARY KEY NOT NULL DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random())%4+1,1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6)))),
+        ${generatedId},
         "templateId" varchar NOT NULL,
         "permissions" text NOT NULL DEFAULT ('{}'),
-        "createdAt" datetime NOT NULL DEFAULT (datetime('now')),
-        "updatedAt" datetime NOT NULL DEFAULT (datetime('now'))
+        ${createdAt},
+        ${updatedAt}
       )
     `);
     await queryRunner.query(`
@@ -65,11 +78,11 @@ export class TemplateAgentConfigTables1748166200000 implements MigrationInterfac
 
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS "template_evaluation_specs" (
-        "id" varchar PRIMARY KEY NOT NULL DEFAULT (lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))),2) || '-' || substr('89ab',abs(random())%4+1,1) || substr(lower(hex(randomblob(2))),2) || '-' || lower(hex(randomblob(6)))),
+        ${generatedId},
         "templateId" varchar NOT NULL,
         "evaluation" text NOT NULL DEFAULT ('{}'),
-        "createdAt" datetime NOT NULL DEFAULT (datetime('now')),
-        "updatedAt" datetime NOT NULL DEFAULT (datetime('now'))
+        ${createdAt},
+        ${updatedAt}
       )
     `);
     await queryRunner.query(`

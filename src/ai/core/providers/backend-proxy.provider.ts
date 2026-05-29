@@ -1,9 +1,6 @@
-import type {
-  AIProvider,
-  ProviderCapabilities,
-  ProviderRequest,
-  ProviderStreamEvent,
-} from './types';
+import { backendProxyProviderContent as c } from './backend-proxy.provider.content';
+import type { AIProvider, ProviderCapabilities, ProviderRequest, ProviderStreamEvent } from './types';
+import { type HttpClient, resolveHttpClient } from 'services/http/HttpClient';
 
 const CAPABILITIES: ProviderCapabilities = {
   supportsStreaming: true,
@@ -15,38 +12,41 @@ const CAPABILITIES: ProviderCapabilities = {
 };
 
 /**
- * Sends ProviderRequests to the backend /api/ai/stream endpoint.
- * The backend holds the API key and enforces rate limits.
+ * 通过 BFF 代理把 ProviderRequest 转发给后端。
+ * 后端负责保管 API key 并执行限流。
  *
- * Maintains a conversation ID and tracks the previous response ID for
- * providers that support prompt caching (OpenAI, Claude, etc.).
- * The backend receives these via headers and can forward them to the LLM.
+ * 维护会话 ID，并记录支持 prompt caching 的 provider 最近一次 response ID。
+ * 后端会通过请求头接收这些值，再按需转发给 LLM。
  */
 export class BackendProxyProvider implements AIProvider {
   readonly name = 'backend-proxy';
   private aborted = false;
   private abortController: AbortController | null = null;
 
-  /** Active conversation identifier; editor chat sets this per template. */
+  /** 当前会话标识；编辑器聊天会按模板设置。 */
   private conversationId: string | null = null;
-  /** IDs of the most recent LLM responses, keyed by conversation. */
+  /** 每个会话最近一次 LLM 响应 ID。 */
   private previousResponseIdsByConversation = new Map<string, string>();
 
   /**
-   * @param getToken - Returns the current JWT token (or null if not logged in).
-   * @param onAuthExpired - Optional callback fired when the backend returns 401.
-   *   The caller should clear auth state and redirect to login.
+   * @param getToken 返回当前 JWT token；未登录时返回 null。
+   * @param onAuthExpired 后端返回 401 时触发；调用方应清理登录态并跳转登录。
    */
   constructor(
     private readonly getToken: () => string | null,
     private readonly onAuthExpired?: () => void,
-  ) {}
+    httpClient?: HttpClient,
+  ) {
+    this.http = httpClient ?? resolveHttpClient(getToken);
+  }
+
+  private readonly http: HttpClient;
 
   getCapabilities(): ProviderCapabilities {
     return CAPABILITIES;
   }
 
-  /** Assign the active conversation ID, usually scoped to one template. */
+  /** 设置当前会话 ID，通常按模板隔离。 */
   setConversationId(id: string): void {
     this.conversationId = id;
   }
@@ -66,7 +66,7 @@ export class BackendProxyProvider implements AIProvider {
 
     const token = this.getToken();
     if (!token) {
-      yield { type: 'error', message: '未登录，请先登录后再使用 AI 功能' };
+      yield { type: 'error', message: c.unauthenticated };
       return;
     }
 
@@ -78,12 +78,10 @@ export class BackendProxyProvider implements AIProvider {
       }
     };
 
-    // Ensure a stable conversation ID exists for cache purposes
-    this.conversationId ??=
-      `conv-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    // 为缓存场景确保会话 ID 稳定存在。
+    this.conversationId ??= `conv-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
     const conversationId = this.conversationId;
-    const previousResponseId =
-      this.previousResponseIdsByConversation.get(conversationId);
+    const previousResponseId = this.previousResponseIdsByConversation.get(conversationId);
 
     const headers: Record<string, string> = {
       'content-type': 'application/json',
@@ -95,9 +93,9 @@ export class BackendProxyProvider implements AIProvider {
       headers['x-previous-response-id'] = previousResponseId;
     }
 
-    let res: Response;
+    let streamResult: Awaited<ReturnType<HttpClient['stream']>>;
     try {
-      res = await fetch('/api/ai/stream', {
+      streamResult = await this.http.stream('/api/proxy/ai/stream', {
         method: 'POST',
         headers,
         body: JSON.stringify(request),
@@ -111,11 +109,12 @@ export class BackendProxyProvider implements AIProvider {
       throw err;
     }
 
+    const { response: res, events } = streamResult;
     if (!res.ok) {
-      // 401 = JWT expired or invalid → notify caller to clear auth
+      // 401 表示 JWT 过期或无效，需要通知调用方清理登录状态。
       if (res.status === 401) {
         this.onAuthExpired?.();
-        yield { type: 'error', message: '登录已过期，请重新登录。' };
+        yield { type: 'error', message: c.authExpired };
         clearAbortController();
         return;
       }
@@ -124,66 +123,52 @@ export class BackendProxyProvider implements AIProvider {
       let message = `HTTP ${res.status}`;
       try {
         const json = JSON.parse(text) as { message?: string };
-        if (json.message) {message = json.message;}
-      } catch { /* use raw text */ }
+        if (json.message) {
+          message = json.message;
+        }
+      } catch {
+        /* 使用原始文本。 */
+      }
       yield { type: 'error', message };
       clearAbortController();
       return;
     }
 
-    // Extract cache metadata from response headers
+    // 从响应头提取缓存元数据。
     const respIdHeader = res.headers.get('x-response-id');
     if (respIdHeader) {
       this.previousResponseIdsByConversation.set(conversationId, respIdHeader);
     }
 
-    // body is always present on a successful fetch Response
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const reader = res.body!.getReader();
-
-    const decoder = new TextDecoder();
-    let buffer = '';
-
     try {
-      // cancel() sets this.aborted from outside; TS can't see cross-method mutation
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      while (!this.aborted && !abortController.signal.aborted) {
-        const { done, value } = await reader.read();
-        if (done) {break;}
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() ?? '';
-
-        for (const line of lines) {
-          if (!line.startsWith('data:')) {continue;}
-          const raw = line.slice(5).trim();
-          if (!raw || raw === '[DONE]') {continue;}
-
-          try {
-            const event = JSON.parse(raw) as ProviderStreamEvent;
-            if (event.type === 'done') {
-              // Track response ID from done event if present
-              // (the provider may embed it in usage metadata)
-              const doneEvent = event as unknown as Record<string, unknown>;
-              if (typeof doneEvent.response_id === 'string') {
-                this.previousResponseIdsByConversation.set(
-                  conversationId,
-                  doneEvent.response_id,
-                );
-              }
-              yield event;
-              return;
+      for await (const streamEvent of events) {
+        // cancel() 会从其他方法修改 this.aborted，TS 无法识别跨方法变更。
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (this.aborted) {
+          break;
+        }
+        try {
+          const event = JSON.parse(streamEvent.data) as ProviderStreamEvent;
+          if (event.type === 'done') {
+            // 如果 done 事件包含 response ID，则记录下来；provider 可能把它放在 usage metadata 中。
+            if (hasResponseId(event)) {
+              this.previousResponseIdsByConversation.set(conversationId, event.response_id);
             }
             yield event;
-          } catch { /* skip malformed lines */ }
+            return;
+          }
+          yield event;
+        } catch {
+          // 跳过格式异常的行。
         }
       }
-    } finally {
-      if (abortController.signal.aborted) {
-        await reader.cancel().catch(() => undefined);
+    } catch (err) {
+      // cancel() 会跨方法修改 this.aborted；TS 只能看到当前方法体。
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if (!this.aborted && !abortController.signal.aborted) {
+        throw err;
       }
-      reader.releaseLock();
+    } finally {
       clearAbortController();
     }
   }
@@ -193,4 +178,8 @@ export class BackendProxyProvider implements AIProvider {
     this.abortController?.abort();
     this.abortController = null;
   }
+}
+
+function hasResponseId(event: ProviderStreamEvent): event is ProviderStreamEvent & { response_id: string } {
+  return 'response_id' in event && typeof event.response_id === 'string';
 }

@@ -1,32 +1,34 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 
 import { CreateThemeDto } from './dto/create-theme.dto';
 import { UpdateThemeDto } from './dto/update-theme.dto';
 import { Theme } from './entities/theme.entity';
+import { THEME_REPOSITORY, type ThemeRepository } from './repositories';
+
+interface ThemeListResult {
+  data: Theme[];
+  total: number;
+}
 
 @Injectable()
 export class ThemesService {
   constructor(
-    @InjectRepository(Theme)
-    private readonly repo: Repository<Theme>,
+    @Inject(THEME_REPOSITORY)
+    private readonly themes: ThemeRepository,
   ) {}
 
   async create(dto: CreateThemeDto): Promise<Theme> {
-    const theme = this.repo.create(dto);
-    return this.repo.save(theme);
+    const theme = this.themes.create(dto);
+    return this.themes.save(theme);
   }
 
-  async findAll(): Promise<{ data: Theme[]; total: number; }> {
-    const [data, total] = await this.repo.findAndCount({
-      order: { createdAt: 'DESC' },
-    });
+  async findAll(): Promise<ThemeListResult> {
+    const [data, total] = await this.themes.findAndCountNewestFirst();
     return { data, total };
   }
 
   async findOne(id: string): Promise<Theme> {
-    const theme = await this.repo.findOne({ where: { id } });
+    const theme = await this.themes.findById(id);
     if (!theme) {
       throw new NotFoundException(`Theme ${id} not found`);
     }
@@ -35,12 +37,11 @@ export class ThemesService {
 
   async update(id: string, dto: UpdateThemeDto): Promise<Theme> {
     const theme = await this.findOne(id);
-    Object.assign(theme, dto);
-    return this.repo.save(theme);
+    return this.themes.save(this.themes.assign(theme, dto));
   }
 
   async remove(id: string): Promise<void> {
     const theme = await this.findOne(id);
-    await this.repo.remove(theme);
+    await this.themes.remove(theme);
   }
 }

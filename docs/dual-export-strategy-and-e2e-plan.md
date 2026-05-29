@@ -1,5 +1,9 @@
 # Dual Export Strategy and E2E Implementation Plan
 
+> Document status: Historical strategy note. For current implementation facts,
+> start with `docs/current-implementation-status.md` and
+> `reports/03-code-framework-defects-progress.md`.
+
 ## 1. Background
 
 YanLingWeb needs to support two different delivery modes for AI-generated frontend UI:
@@ -17,10 +21,10 @@ YanLingWeb needs to support two different delivery modes for AI-generated fronte
 
 These modes must share the same template schema, but they must not share the same export implementation. Their goals are different:
 
-| Mode | Primary Goal | Output | Later Changes |
-| --- | --- | --- | --- |
-| Hosted runtime | Stable one-click deployment with minimal AI-generated code | Runtime app + JSON/config | Edit online, redeploy |
-| React source export | Human-readable project handoff | React source project | User maintains code manually |
+| Mode                | Primary Goal                                               | Output                    | Later Changes                |
+| ------------------- | ---------------------------------------------------------- | ------------------------- | ---------------------------- |
+| Hosted runtime      | Stable one-click deployment with minimal AI-generated code | Runtime app + JSON/config | Edit online, redeploy        |
+| React source export | Human-readable project handoff                             | React source project      | User maintains code manually |
 
 ## 2. Current Codebase Facts
 
@@ -112,12 +116,12 @@ At runtime, the platform serves:
 
 Recommended entities:
 
-| Entity | Purpose |
-| --- | --- |
-| `PublishedSite` | Owns deployed site metadata, subdomain, status, active revision |
-| `PublishedSiteRevision` | Immutable snapshot of layout/theme/data/runtime version |
-| `TemplateSchemaMigration` | Tracks schema upgrades if persisted separately |
-| `DeploymentEvent` | Records publish/build/failure/rollback events |
+| Entity                    | Purpose                                                         |
+| ------------------------- | --------------------------------------------------------------- |
+| `PublishedSite`           | Owns deployed site metadata, subdomain, status, active revision |
+| `PublishedSiteRevision`   | Immutable snapshot of layout/theme/data/runtime version         |
+| `TemplateSchemaMigration` | Tracks schema upgrades if persisted separately                  |
+| `DeploymentEvent`         | Records publish/build/failure/rollback events                   |
 
 Minimum fields for `PublishedSite`:
 
@@ -149,14 +153,14 @@ Minimum fields for `PublishedSiteRevision`:
 
 Suggested endpoints:
 
-| Action | Route | Notes |
-| --- | --- | --- |
-| Publish template | `POST /api/sites` | Creates or updates a site from a template |
-| Republish | `POST /api/sites/:id/revisions` | Creates a new immutable revision |
-| Get site | `GET /api/sites/:id` | Owner-only management view |
-| List sites | `GET /api/sites/mine` | Owner-only |
-| Rollback | `POST /api/sites/:id/rollback` | Switch active revision |
-| Resolve public site | `GET /api/public/sites/:subdomain` | Public render config |
+| Action              | Route                              | Notes                                     |
+| ------------------- | ---------------------------------- | ----------------------------------------- |
+| Publish template    | `POST /api/sites`                  | Creates or updates a site from a template |
+| Republish           | `POST /api/sites/:id/revisions`    | Creates a new immutable revision          |
+| Get site            | `GET /api/sites/:id`               | Owner-only management view                |
+| List sites          | `GET /api/sites/mine`              | Owner-only                                |
+| Rollback            | `POST /api/sites/:id/rollback`     | Switch active revision                    |
+| Resolve public site | `GET /api/public/sites/:subdomain` | Public render config                      |
 
 Subdomain routing can initially be simulated locally by path routing:
 
@@ -496,4 +500,3 @@ Do not mix hosted runtime export with maintainable React source export.
 Preserve existing user changes in the worktree.
 After each milestone, run build and the relevant E2E tests, then report exact commands and results.
 ```
-

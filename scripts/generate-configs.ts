@@ -3,7 +3,7 @@
  * Output: templates_json/configs/<templateId>.generated.json
  */
 
-import { existsSync,mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 // ─── Types ────────────────────────────────────────────────────────
@@ -26,6 +26,17 @@ interface ThemeLayoutDocument {
   pages: { id: string; name: string; layout: ThemeLayoutNode }[];
   defaultPageId: string;
   cssVars?: Record<string, string>;
+}
+
+function isThemeLayoutDocument(value: unknown): value is ThemeLayoutDocument {
+  return Boolean(
+    value &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    'themeId' in value &&
+    'pages' in value &&
+    Array.isArray((value as { pages?: unknown }).pages),
+  );
 }
 
 interface ProfilePage {
@@ -157,42 +168,114 @@ const EDITABLE_PROPS: Record<string, string[]> = {
 };
 
 const CONTAINER_ALIASES = new Set([
-  'core.screen', 'core.panel', 'core.stack', 'core.row', 'core.grid', 'core.html',
-  'core.navbar', 'core.list', 'core.list-item', 'core.dialog', 'core.drawer',
-  'core.collapse', 'core.sidebar', 'core.form', 'core.toolbar', 'core.splitter',
-  'core.timeline', 'core.tree',
+  'core.screen',
+  'core.panel',
+  'core.stack',
+  'core.row',
+  'core.grid',
+  'core.html',
+  'core.navbar',
+  'core.list',
+  'core.list-item',
+  'core.dialog',
+  'core.drawer',
+  'core.collapse',
+  'core.sidebar',
+  'core.form',
+  'core.toolbar',
+  'core.splitter',
+  'core.timeline',
+  'core.tree',
 ]);
 
 const COMPONENT_LABELS: Record<string, string> = {
-  'core.screen': '页面', 'core.text': '文本', 'core.button': '按钮', 'core.image': '图片',
-  'core.tag': '标签', 'core.notice': '通知', 'core.input': '输入框', 'core.search': '搜索',
-  'core.tabs': '标签栏', 'core.progress': '进度条', 'core.panel': '面板', 'core.stack': '堆叠',
-  'core.row': '行', 'core.grid': '网格', 'core.spacer': '间距', 'core.divider': '分隔线',
-  'core.avatar': '头像', 'core.badge': '徽标', 'core.statistic': '统计', 'core.select': '下拉选择',
-  'core.checkbox': '复选框', 'core.radio': '单选框', 'core.switch': '开关', 'core.rate': '评分',
-  'core.slider': '滑块', 'core.carousel': '轮播', 'core.empty': '空状态', 'core.skeleton': '骨架屏',
-  'core.loading': '加载', 'core.alert': '警告', 'core.toast': '提示', 'core.dialog': '对话框',
-  'core.drawer': '抽屉', 'core.upload': '上传', 'core.breadcrumb': '面包屑', 'core.pagination': '分页',
-  'core.tabbar': '底部栏', 'core.list': '列表', 'core.list-item': '列表项', 'core.collapse': '折叠面板',
-  'core.form': '表单', 'core.sidebar': '侧边栏', 'core.toolbar': '工具栏', 'core.splitter': '分割面板',
-  'core.timeline': '时间线', 'core.tooltip': '提示', 'core.tree': '树', 'core.table': '表格',
-  'core.video': '视频', 'core.audio': '音频', 'core.widget': '组件',
+  'core.screen': '页面',
+  'core.text': '文本',
+  'core.button': '按钮',
+  'core.image': '图片',
+  'core.tag': '标签',
+  'core.notice': '通知',
+  'core.input': '输入框',
+  'core.search': '搜索',
+  'core.tabs': '标签栏',
+  'core.progress': '进度条',
+  'core.panel': '面板',
+  'core.stack': '堆叠',
+  'core.row': '行',
+  'core.grid': '网格',
+  'core.spacer': '间距',
+  'core.divider': '分隔线',
+  'core.avatar': '头像',
+  'core.badge': '徽标',
+  'core.statistic': '统计',
+  'core.select': '下拉选择',
+  'core.checkbox': '复选框',
+  'core.radio': '单选框',
+  'core.switch': '开关',
+  'core.rate': '评分',
+  'core.slider': '滑块',
+  'core.carousel': '轮播',
+  'core.empty': '空状态',
+  'core.skeleton': '骨架屏',
+  'core.loading': '加载',
+  'core.alert': '警告',
+  'core.toast': '提示',
+  'core.dialog': '对话框',
+  'core.drawer': '抽屉',
+  'core.upload': '上传',
+  'core.breadcrumb': '面包屑',
+  'core.pagination': '分页',
+  'core.tabbar': '底部栏',
+  'core.list': '列表',
+  'core.list-item': '列表项',
+  'core.collapse': '折叠面板',
+  'core.form': '表单',
+  'core.sidebar': '侧边栏',
+  'core.toolbar': '工具栏',
+  'core.splitter': '分割面板',
+  'core.timeline': '时间线',
+  'core.tooltip': '提示',
+  'core.tree': '树',
+  'core.table': '表格',
+  'core.video': '视频',
+  'core.audio': '音频',
+  'core.widget': '组件',
 };
 
 // ─── Page Kind Detection ──────────────────────────────────────────
 
 function detectPageKind(pageId: string, pageName: string): string {
   const lower = (pageId + ' ' + pageName).toLowerCase();
-  if (lower.includes('home') || lower.includes('首页') || lower.includes('主页')) {return 'home';}
-  if (lower.includes('detail') || lower.includes('详情')) {return 'detail';}
-  if (lower.includes('profile') || lower.includes('我的') || lower.includes('个人')) {return 'profile';}
-  if (lower.includes('cart') || lower.includes('购物车')) {return 'cart';}
-  if (lower.includes('order') || lower.includes('订单')) {return 'order';}
-  if (lower.includes('search') || lower.includes('搜索')) {return 'search';}
-  if (lower.includes('list') || lower.includes('分类') || lower.includes('列表')) {return 'list';}
-  if (lower.includes('setting') || lower.includes('设置')) {return 'settings';}
-  if (lower.includes('message') || lower.includes('消息')) {return 'message';}
-  if (lower.includes('login') || lower.includes('登录')) {return 'auth';}
+  if (lower.includes('home') || lower.includes('首页') || lower.includes('主页')) {
+    return 'home';
+  }
+  if (lower.includes('detail') || lower.includes('详情')) {
+    return 'detail';
+  }
+  if (lower.includes('profile') || lower.includes('我的') || lower.includes('个人')) {
+    return 'profile';
+  }
+  if (lower.includes('cart') || lower.includes('购物车')) {
+    return 'cart';
+  }
+  if (lower.includes('order') || lower.includes('订单')) {
+    return 'order';
+  }
+  if (lower.includes('search') || lower.includes('搜索')) {
+    return 'search';
+  }
+  if (lower.includes('list') || lower.includes('分类') || lower.includes('列表')) {
+    return 'list';
+  }
+  if (lower.includes('setting') || lower.includes('设置')) {
+    return 'settings';
+  }
+  if (lower.includes('message') || lower.includes('消息')) {
+    return 'message';
+  }
+  if (lower.includes('login') || lower.includes('登录')) {
+    return 'auth';
+  }
   return 'content';
 }
 
@@ -231,9 +314,10 @@ function generateConfig(doc: ThemeLayoutDocument): TemplateProfile {
     const footerTabs = findFooterTabs(page.layout);
     if (footerTabs?.interactions?.onTabClick) {
       const tabClick = footerTabs.interactions.onTabClick;
-      const tabs = Array.isArray(footerTabs.props?.tabs) ? footerTabs.props.tabs as string[] : [];
+      const tabs = Array.isArray(footerTabs.props?.tabs) ? (footerTabs.props.tabs as string[]) : [];
       for (const tab of tabs) {
-        const action = typeof tabClick === 'object' ? (tabClick as Record<string, { targetPageId?: string }>)[tab] : undefined;
+        const action =
+          typeof tabClick === 'object' ? (tabClick as Record<string, { targetPageId?: string }>)[tab] : undefined;
         if (action?.targetPageId) {
           navItems.push({ label: tab, targetPageId: action.targetPageId });
         }
@@ -244,7 +328,9 @@ function generateConfig(doc: ThemeLayoutDocument): TemplateProfile {
   // Deduplicate nav items
   const seenNavTargets = new Set<string>();
   const uniqueNav = navItems.filter((item) => {
-    if (seenNavTargets.has(item.targetPageId)) {return false;}
+    if (seenNavTargets.has(item.targetPageId)) {
+      return false;
+    }
     seenNavTargets.add(item.targetPageId);
     return true;
   });
@@ -270,9 +356,7 @@ function generateConfig(doc: ThemeLayoutDocument): TemplateProfile {
     regions,
     slots,
     patterns,
-    navigation: uniqueNav.length > 0
-      ? { type: 'bottom_tabs', items: uniqueNav }
-      : { type: 'none', items: [] },
+    navigation: uniqueNav.length > 0 ? { type: 'bottom_tabs', items: uniqueNav } : { type: 'none', items: [] },
     constraints: { maxWidth: '100%' },
     styleProfile,
   };
@@ -282,9 +366,13 @@ function detectDevices(doc: ThemeLayoutDocument): string[] {
   const devices = new Set<string>();
   for (const page of doc.pages) {
     const surface = page.layout.props?.surface as string | undefined;
-    if (surface === 'mini-program') {devices.add('miniapp');}
-    else if (surface === 'mobile-app') {devices.add('mobile');}
-    else if (surface === 'web') {devices.add('desktop');}
+    if (surface === 'mini-program') {
+      devices.add('miniapp');
+    } else if (surface === 'mobile-app') {
+      devices.add('mobile');
+    } else if (surface === 'web') {
+      devices.add('desktop');
+    }
   }
   if (devices.size === 0) {
     devices.add('miniapp');
@@ -374,11 +462,15 @@ function walkNode(
 }
 
 function findFooterTabs(node: ThemeLayoutNode): ThemeLayoutNode | null {
-  if (node.slot === 'footer' && node.alias === 'core.tabs') {return node;}
+  if (node.slot === 'footer' && node.alias === 'core.tabs') {
+    return node;
+  }
   if (node.children) {
     for (const child of node.children) {
       const found = findFooterTabs(child);
-      if (found) {return found;}
+      if (found) {
+        return found;
+      }
     }
   }
   return null;
@@ -398,7 +490,7 @@ function main() {
     .filter((f) => f.endsWith('.json') && !f.includes('.generated.') && !f.includes('.override.'))
     .sort();
 
-  console.log(`Generating configs for ${jsonFiles.length} templates...`);
+  console.warn(`Generating configs for ${jsonFiles.length} templates...`);
 
   let generated = 0;
   let errors = 0;
@@ -406,13 +498,14 @@ function main() {
   for (const file of jsonFiles) {
     try {
       const filePath = join(templateDir, file);
-      const doc: ThemeLayoutDocument = JSON.parse(readFileSync(filePath, 'utf8'));
+      const parsed: unknown = JSON.parse(readFileSync(filePath, 'utf8'));
 
-      if (!doc.themeId || !doc.pages?.length) {
-        console.log(`  SKIP ${file}: missing themeId or pages`);
+      if (!isThemeLayoutDocument(parsed) || !parsed.themeId || !parsed.pages.length) {
+        console.warn(`  SKIP ${file}: missing themeId or pages`);
         continue;
       }
 
+      const doc = parsed;
       const config = generateConfig(doc);
       const configPath = join(configDir, `${doc.themeId}.generated.json`);
       writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
@@ -423,7 +516,7 @@ function main() {
     }
   }
 
-  console.log(`\nDone! Generated ${generated} configs (${errors} errors) in ${configDir}`);
+  console.warn(`\nDone! Generated ${generated} configs (${errors} errors) in ${configDir}`);
 }
 
 main();

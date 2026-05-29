@@ -69,25 +69,16 @@ export class TemplateCategoryRegistryService {
 
   async getLabels(input: TemplateCategoryRegistrationInput): Promise<TemplateCategoryLabels> {
     const registry = await this.loadRegistry();
-    const category = normalizeCategoryKey(input.category) || 'general';
-    const displayCategory = normalizeCategoryKey(input.displayCategory)
-      || category
-      || 'general';
-    const platformCategories = normalizeArray(input.platformCategories);
-    const functionalCategories = normalizeArray(input.functionalCategories);
+    const category = this.normalizeCategoryKey(input.category) || 'general';
+    const displayCategory =
+      this.normalizeCategoryKey(input.displayCategory) || category || 'general';
+    const platformCategories = this.normalizeArray(input.platformCategories);
+    const functionalCategories = this.normalizeArray(input.functionalCategories);
 
     return {
       categoryLabel: this.labelFor(registry, 'categories', category),
-      displayCategoryLabel: this.labelFor(
-        registry,
-        'displayCategories',
-        displayCategory,
-      ),
-      platformCategoryLabels: this.labelMapFor(
-        registry,
-        'platformCategories',
-        platformCategories,
-      ),
+      displayCategoryLabel: this.labelFor(registry, 'displayCategories', displayCategory),
+      platformCategoryLabels: this.labelMapFor(registry, 'platformCategories', platformCategories),
       functionalCategoryLabels: this.labelMapFor(
         registry,
         'functionalCategories',
@@ -102,68 +93,69 @@ export class TemplateCategoryRegistryService {
   ): Promise<void> {
     const registry = await this.loadRegistry();
     let changed = false;
-    const category = normalizeCategoryKey(input.category);
+    const category = this.normalizeCategoryKey(input.category);
     if (category) {
-      changed = this.ensureLabel(
-        registry,
-        'categories',
-        category,
-        pickExplicitLabel(input.categoryLabel, input.categoryLabels, category),
-        options,
-      ) || changed;
-    }
-
-    const displayCategory = normalizeCategoryKey(input.displayCategory);
-    if (displayCategory) {
-      changed = this.ensureLabel(
-        registry,
-        'displayCategories',
-        displayCategory,
-        pickExplicitLabel(
-          input.displayCategoryLabel,
-          input.displayCategoryLabels,
-          displayCategory,
-        ),
-        options,
-      ) || changed;
-    }
-
-    for (const platformCategory of normalizeArray(input.platformCategories)) {
-      changed = this.ensureLabel(
-        registry,
-        'platformCategories',
-        platformCategory,
-        pickExplicitLabel(undefined, input.platformCategoryLabels, platformCategory),
-        options,
-      ) || changed;
-    }
-
-    for (const functionalCategory of normalizeArray(input.functionalCategories)) {
-      const functionalLabel = pickExplicitLabel(
-        undefined,
-        input.functionalCategoryLabels,
-        functionalCategory,
-      ) ?? (
-        functionalCategory === category
-          ? pickExplicitLabel(input.categoryLabel, input.categoryLabels, functionalCategory)
-          : undefined
-      );
-      changed = this.ensureLabel(
-        registry,
-        'functionalCategories',
-        functionalCategory,
-        functionalLabel,
-        options,
-      ) || changed;
-      if (!category || category === functionalCategory) {
-        changed = this.ensureLabel(
+      changed =
+        this.ensureLabel(
           registry,
           'categories',
-          functionalCategory,
-          pickExplicitLabel(input.categoryLabel, input.categoryLabels, functionalCategory)
-            ?? functionalLabel,
+          category,
+          this.pickExplicitLabel(input.categoryLabel, input.categoryLabels, category),
           options,
         ) || changed;
+    }
+
+    const displayCategory = this.normalizeCategoryKey(input.displayCategory);
+    if (displayCategory) {
+      changed =
+        this.ensureLabel(
+          registry,
+          'displayCategories',
+          displayCategory,
+          this.pickExplicitLabel(
+            input.displayCategoryLabel,
+            input.displayCategoryLabels,
+            displayCategory,
+          ),
+          options,
+        ) || changed;
+    }
+
+    for (const platformCategory of this.normalizeArray(input.platformCategories)) {
+      changed =
+        this.ensureLabel(
+          registry,
+          'platformCategories',
+          platformCategory,
+          this.pickExplicitLabel(undefined, input.platformCategoryLabels, platformCategory),
+          options,
+        ) || changed;
+    }
+
+    for (const functionalCategory of this.normalizeArray(input.functionalCategories)) {
+      const functionalLabel =
+        this.pickExplicitLabel(undefined, input.functionalCategoryLabels, functionalCategory) ??
+        (functionalCategory === category
+          ? this.pickExplicitLabel(input.categoryLabel, input.categoryLabels, functionalCategory)
+          : undefined);
+      changed =
+        this.ensureLabel(
+          registry,
+          'functionalCategories',
+          functionalCategory,
+          functionalLabel,
+          options,
+        ) || changed;
+      if (!category || category === functionalCategory) {
+        changed =
+          this.ensureLabel(
+            registry,
+            'categories',
+            functionalCategory,
+            this.pickExplicitLabel(input.categoryLabel, input.categoryLabels, functionalCategory) ??
+              functionalLabel,
+            options,
+          ) || changed;
       }
     }
 
@@ -177,17 +169,11 @@ export class TemplateCategoryRegistryService {
     kind: CategoryKind,
     keys: readonly string[],
   ): Record<string, string> {
-    return Object.fromEntries(
-      keys.map((key) => [key, this.labelFor(registry, kind, key)]),
-    );
+    return Object.fromEntries(keys.map((key) => [key, this.labelFor(registry, kind, key)]));
   }
 
-  private labelFor(
-    registry: TemplateCategoryRegistry,
-    kind: CategoryKind,
-    key: string,
-  ): string {
-    return registry[kind][key] ?? humanizeCategoryKey(key);
+  private labelFor(registry: TemplateCategoryRegistry, kind: CategoryKind, key: string): string {
+    return registry[kind][key] ?? this.humanizeCategoryKey(key);
   }
 
   private ensureLabel(
@@ -197,16 +183,19 @@ export class TemplateCategoryRegistryService {
     explicitLabel: string | undefined,
     options: TemplateCategoryRegistrationOptions,
   ): boolean {
-    if (!isRegistryKey(key)) {
+    if (!this.isRegistryKey(key)) {
       return false;
     }
-    if (!registry[kind][key] && !explicitLabel && options.requireLabelsForUnknown) {
+    const existingLabel = Object.prototype.hasOwnProperty.call(registry[kind], key)
+      ? registry[kind][key]
+      : undefined;
+    if (!existingLabel && !explicitLabel && options.requireLabelsForUnknown) {
       throw new BadRequestException(
         `${kind}.${key} requires a Chinese label before it can be registered.`,
       );
     }
-    const label = explicitLabel ?? registry[kind][key] ?? humanizeCategoryKey(key);
-    if (registry[kind][key] === label) {
+    const label = explicitLabel ?? existingLabel ?? this.humanizeCategoryKey(key);
+    if (existingLabel === label) {
       return false;
     }
     registry[kind][key] = label;
@@ -237,7 +226,7 @@ export class TemplateCategoryRegistryService {
         };
       }
     } catch (error) {
-      if (!isFsErrorCode(error, 'ENOENT')) {
+      if (!this.isFsErrorCode(error, 'ENOENT')) {
         this.logger.warn(
           `Could not read template category registry: ${
             error instanceof Error ? error.message : String(error)
@@ -248,10 +237,10 @@ export class TemplateCategoryRegistryService {
 
     this.registry = {
       version: fileRegistry.version ?? EMPTY_REGISTRY.version,
-      categories: sanitizeRegistryMap(fileRegistry.categories),
-      displayCategories: sanitizeRegistryMap(fileRegistry.displayCategories),
-      platformCategories: sanitizeRegistryMap(fileRegistry.platformCategories),
-      functionalCategories: sanitizeRegistryMap(fileRegistry.functionalCategories),
+      categories: this.sanitizeRegistryMap(fileRegistry.categories),
+      displayCategories: this.sanitizeRegistryMap(fileRegistry.displayCategories),
+      platformCategories: this.sanitizeRegistryMap(fileRegistry.platformCategories),
+      functionalCategories: this.sanitizeRegistryMap(fileRegistry.functionalCategories),
     };
     await this.saveRegistry(this.registry);
     return this.registry;
@@ -260,76 +249,70 @@ export class TemplateCategoryRegistryService {
   private async saveRegistry(registry: TemplateCategoryRegistry): Promise<void> {
     this.writeQueue = this.writeQueue.then(async () => {
       await fs.mkdir(path.dirname(this.registryPath), { recursive: true });
-      await fs.writeFile(
-        this.registryPath,
-        `${JSON.stringify(registry, null, 2)}\n`,
-        'utf8',
-      );
+      await fs.writeFile(this.registryPath, `${JSON.stringify(registry, null, 2)}\n`, 'utf8');
     });
     await this.writeQueue;
   }
-}
 
-function pickExplicitLabel(
-  directLabel: string | null | undefined,
-  labelMap: Record<string, string> | null | undefined,
-  key: string,
-): string | undefined {
-  return normalizeLabel(directLabel) ?? normalizeLabel(labelMap?.[key]);
-}
-
-function normalizeCategoryKey(value: string | null | undefined): string {
-  const normalized = normalizeKey(value)
-    .toLowerCase()
-    .replace(/\s+/g, '-');
-  return isRegistryKey(normalized) ? normalized : '';
-}
-
-function normalizeKey(value: string | null | undefined): string {
-  return typeof value === 'string' ? value.trim() : '';
-}
-
-function normalizeLabel(value: string | null | undefined): string | undefined {
-  const normalized = normalizeKey(value);
-  if (!normalized || /^\?+$/.test(normalized)) {
-    return undefined;
+  private pickExplicitLabel(
+    directLabel: string | null | undefined,
+    labelMap: Record<string, string> | null | undefined,
+    key: string,
+  ): string | undefined {
+    return this.normalizeLabel(directLabel) ?? this.normalizeLabel(labelMap?.[key]);
   }
-  return normalized;
-}
 
-function normalizeArray(value: readonly string[] | null | undefined): string[] {
-  return (value ?? [])
-    .map((item) => normalizeCategoryKey(item))
-    .filter(Boolean);
-}
+  private normalizeCategoryKey(value: string | null | undefined): string {
+    const normalized = this.normalizeKey(value).toLowerCase().replace(/\s+/g, '-');
+    return this.isRegistryKey(normalized) ? normalized : '';
+  }
 
-function sanitizeRegistryMap(
-  value: Record<string, string> | undefined,
-): Record<string, string> {
-  return Object.fromEntries(
-    Object.entries(value ?? {})
-      .map(([key, label]) => [normalizeCategoryKey(key), normalizeLabel(label)] as const)
-      .filter((entry): entry is [string, string] => Boolean(entry[0] && entry[1])),
-  );
-}
+  private normalizeKey(value: string | null | undefined): string {
+    return typeof value === 'string' ? value.trim() : '';
+  }
 
-function isRegistryKey(key: string): boolean {
-  return /^[a-z0-9][a-z0-9._-]*$/i.test(key) && !/[\u4e00-\u9fff]/.test(key);
-}
+  private normalizeLabel(value: string | null | undefined): string | undefined {
+    const normalized = this.normalizeKey(value);
+    if (!normalized || /^\?+$/.test(normalized)) {
+      return undefined;
+    }
+    return normalized;
+  }
 
-function humanizeCategoryKey(key: string): string {
-  return key
-    .split(/[-_\s]+/)
-    .map((part) => part ? `${part[0].toUpperCase()}${part.slice(1)}` : '')
-    .filter(Boolean)
-    .join(' ') || key;
-}
+  private normalizeArray(value: readonly string[] | null | undefined): string[] {
+    return (value ?? []).map((item) => this.normalizeCategoryKey(item)).filter(Boolean);
+  }
 
-function isFsErrorCode(error: unknown, code: string): boolean {
-  return Boolean(
-    error &&
-    typeof error === 'object' &&
-    'code' in error &&
-    (error as { code?: unknown; }).code === code,
-  );
+  private sanitizeRegistryMap(value: Record<string, string> | undefined): Record<string, string> {
+    return Object.fromEntries(
+      Object.entries(value ?? {})
+        .map(
+          ([key, label]) => [this.normalizeCategoryKey(key), this.normalizeLabel(label)] as const,
+        )
+        .filter((entry): entry is [string, string] => Boolean(entry[0] && entry[1])),
+    );
+  }
+
+  private isRegistryKey(key: string): boolean {
+    return /^[a-z0-9][a-z0-9._-]*$/i.test(key) && !/[\u4e00-\u9fff]/.test(key);
+  }
+
+  private humanizeCategoryKey(key: string): string {
+    return (
+      key
+        .split(/[-_\s]+/)
+        .map((part) => (part ? `${part[0].toUpperCase()}${part.slice(1)}` : ''))
+        .filter(Boolean)
+        .join(' ') || key
+    );
+  }
+
+  private isFsErrorCode(error: unknown, code: string): boolean {
+    return Boolean(
+      error &&
+      typeof error === 'object' &&
+      'code' in error &&
+      (error as { code?: unknown }).code === code,
+    );
+  }
 }

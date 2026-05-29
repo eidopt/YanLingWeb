@@ -1,5 +1,9 @@
 # Dual Export Implementation Plan
 
+> Document status: Historical implementation plan. For current implementation
+> facts, start with `docs/current-implementation-status.md` and
+> `reports/03-code-framework-defects-progress.md`.
+
 This document captures the current implementation plan derived from
 `docs/dual-export-strategy-and-e2e-plan.md` and the current codebase shape.
 
@@ -95,13 +99,13 @@ Minimum `PublishedSiteRevision` fields:
 
 Planned API:
 
-| Action | Route | Auth |
-| --- | --- | --- |
-| Publish template | `POST /api/sites` | Owner |
-| Republish | `POST /api/sites/:id/revisions` | Owner |
-| List my sites | `GET /api/sites/mine` | Owner |
-| Get site | `GET /api/sites/:id` | Owner |
-| Rollback | `POST /api/sites/:id/rollback` | Owner |
+| Action              | Route                              | Auth   |
+| ------------------- | ---------------------------------- | ------ |
+| Publish template    | `POST /api/sites`                  | Owner  |
+| Republish           | `POST /api/sites/:id/revisions`    | Owner  |
+| List my sites       | `GET /api/sites/mine`              | Owner  |
+| Get site            | `GET /api/sites/:id`               | Owner  |
+| Rollback            | `POST /api/sites/:id/rollback`     | Owner  |
 | Resolve public site | `GET /api/public/sites/:subdomain` | Public |
 
 Planned frontend public route:

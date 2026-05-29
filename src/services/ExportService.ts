@@ -1,7 +1,4 @@
-import {
-  renderSmokeThemeLayoutDocument,
-  validateThemeLayoutDocument,
-} from '@shared/agent/validation/themeLayoutValidator';
+import { renderSmokeThemeLayoutDocument, validateThemeLayoutDocument } from '@shared/agent/contracts/validation';
 import { migrateThemeLayoutDocument } from '@shared/theme-layout/migrations';
 import { withThemeLayoutStyleManifest } from '@shared/theme-layout/styleManifest';
 import { compileDocumentToReactProject } from 'exporters/react-source';
@@ -21,28 +18,29 @@ export function serializeCanvases(
 ): string {
   const first = canvases[0];
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- defensive guard; array may be empty at runtime
-  if (!first) {throw new Error('No canvases to export.');}
+  if (!first) {
+    throw new Error('No canvases to export.');
+  }
 
   const pages = canvases.map((canvas) => ({
     id: canvas.document.defaultPageId,
     /* eslint-disable @typescript-eslint/prefer-nullish-coalescing -- empty string should fall through */
-    name: (
-      canvas.name ||
-      canvas.document.pageName ||
-      canvas.document.defaultPageId
-    ),
+    name: canvas.name || canvas.document.pageName || canvas.document.defaultPageId,
     /* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
     layout: canvas.document.layout,
   }));
 
-  const merged: ThemeLayoutDocumentSource = withThemeLayoutStyleManifest({
-    ...first.document,
-    pageName: projectName,
-    pages,
-    defaultPageId: pages[0].id,
-    layout: pages[0].layout,
-    cssAnimations: runtimeCssAnimations ?? first.document.cssAnimations,
-  }, runtimeCssVars);
+  const merged: ThemeLayoutDocumentSource = withThemeLayoutStyleManifest(
+    {
+      ...first.document,
+      pageName: projectName,
+      pages,
+      defaultPageId: pages[0].id,
+      layout: pages[0].layout,
+      cssAnimations: runtimeCssAnimations ?? first.document.cssAnimations,
+    },
+    runtimeCssVars,
+  );
 
   return JSON.stringify(merged, null, 2);
 }
@@ -56,12 +54,7 @@ export function buildExportPayload(
 ): ExportBuildPayload {
   return {
     projectName: slugify(projectName),
-    layoutJson: serializeCanvases(
-      canvases,
-      projectName,
-      runtimeCssVars,
-      runtimeCssAnimations,
-    ),
+    layoutJson: serializeCanvases(canvases, projectName, runtimeCssVars, runtimeCssAnimations),
     themeId,
     runtimeCssVars,
     runtimeCssAnimations,
@@ -69,11 +62,7 @@ export function buildExportPayload(
 }
 
 /** Triggers a file download in the browser (web build, no Electron). */
-export function downloadFile(
-  filename: string,
-  content: string,
-  mimeType = 'application/json',
-) {
+export function downloadFile(filename: string, content: string, mimeType = 'application/json') {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -101,9 +90,7 @@ function prepareSourceExportDocument(layoutJson: string): ThemeLayoutDocumentSou
 
   const smoke = renderSmokeThemeLayoutDocument(migrated);
   if (!smoke.passed) {
-    throw new Error(
-      `Render smoke failed before source export: ${smoke.errors.join('; ')}`,
-    );
+    throw new Error(`Render smoke failed before source export: ${smoke.errors.join('; ')}`);
   }
 
   return migrated;

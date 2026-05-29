@@ -1,5 +1,5 @@
 import { Body, Controller, ForbiddenException, Post } from '@nestjs/common';
-import type { AgentEvalScenario } from '@shared/agent/types';
+import type { AgentEvalScenario } from '@shared/agent/contracts/agent';
 
 import { ConfigService } from '../config/config.service';
 import { AgentRunnerService } from './agent-runner.service';

@@ -15,6 +15,15 @@ interface UsageAccumulator {
   outputTokens: number;
 }
 
+interface CompatibleUsageAccumulator extends UsageAccumulator {
+  cacheHitTokens?: number;
+  cacheMissTokens?: number;
+}
+
+type CompatibleAssistantMessageParam = OpenAI.Chat.ChatCompletionAssistantMessageParam & {
+  reasoning_content?: string;
+};
+
 const CAPABILITIES: ProviderCapabilities = {
   supportsStreaming: true,
   supportsToolCalls: true,
@@ -23,6 +32,11 @@ const CAPABILITIES: ProviderCapabilities = {
   supportsReasoningEffort: false,
   supportsServerSideContext: false,
 };
+
+function numberProperty(value: object, key: string): number | undefined {
+  const item = (value as Record<string, unknown>)[key];
+  return typeof item === 'number' && Number.isFinite(item) ? item : undefined;
+}
 
 /**
  * OpenAI-compatible provider using the Chat Completions API (/v1/chat/completions).
@@ -65,29 +79,32 @@ export class OpenAICompatibleProvider implements AIProvider {
       return;
     }
 
-    const toolCallAccumulators = new Map<number, {
-      id: string;
-      name: string;
-      arguments: string;
-    }>();
-    let usage:
-      | (UsageAccumulator & { cacheHitTokens?: number; cacheMissTokens?: number; })
-      | undefined;
+    const toolCallAccumulators = new Map<
+      number,
+      {
+        id: string;
+        name: string;
+        arguments: string;
+      }
+    >();
+    let usage: CompatibleUsageAccumulator | undefined;
     /** Accumulated reasoning_content (DeepSeek streams it character by character) */
     let reasoningBuffer = '';
     let responseId: string | undefined;
 
     try {
       for await (const chunk of streamIter) {
-        if (abortController.signal.aborted) { break; }
+        if (abortController.signal.aborted) {
+          break;
+        }
 
         // Merge usage from the last chunk (usage is only present on the final chunk)
         // DeepSeek returns prompt_cache_hit_tokens / prompt_cache_miss_tokens in usage
         if (chunk.usage) {
-          const rawUsage = chunk.usage as unknown as Record<string, number>;
-          const cacheHitTokens = rawUsage.prompt_cache_hit_tokens ?? undefined;
-          const cacheMissTokens = rawUsage.prompt_cache_miss_tokens
-            ?? (cacheHitTokens === undefined
+          const cacheHitTokens = numberProperty(chunk.usage, 'prompt_cache_hit_tokens');
+          const cacheMissTokens =
+            numberProperty(chunk.usage, 'prompt_cache_miss_tokens') ??
+            (cacheHitTokens === undefined
               ? undefined
               : Math.max(0, chunk.usage.prompt_tokens - cacheHitTokens));
           usage = {
@@ -102,8 +119,10 @@ export class OpenAICompatibleProvider implements AIProvider {
           responseId = chunk.id;
         }
 
-        const choice = chunk.choices?.[0];
-        if (!choice) { continue; }
+        const choice = chunk.choices.length > 0 ? chunk.choices[0] : undefined;
+        if (!choice) {
+          continue;
+        }
 
         // 1. Capture reasoning_content (accumulated — DeepSeek streams it per-char)
         const delta = choice.delta as Record<string, string | undefined>;
@@ -113,13 +132,13 @@ export class OpenAICompatibleProvider implements AIProvider {
         }
 
         // 2. Text delta — don't emit reasoning content as text
-        const contentDelta = choice.delta?.content;
+        const contentDelta = choice.delta.content;
         if (contentDelta) {
           yield { type: 'text_delta', text: contentDelta };
         }
 
         // 2. Tool call deltas (accumulate across chunks)
-        const toolCallDeltas = choice.delta?.tool_calls;
+        const toolCallDeltas = choice.delta.tool_calls;
         if (toolCallDeltas) {
           for (const delta of toolCallDeltas) {
             const index = delta.index;
@@ -130,9 +149,15 @@ export class OpenAICompatibleProvider implements AIProvider {
               toolCallAccumulators.set(index, acc);
             }
 
-            if (delta.id) { acc.id = delta.id; }
-            if (delta.function?.name) { acc.name = delta.function.name; }
-            if (delta.function?.arguments) { acc.arguments += delta.function.arguments; }
+            if (delta.id) {
+              acc.id = delta.id;
+            }
+            if (delta.function?.name) {
+              acc.name = delta.function.name;
+            }
+            if (delta.function?.arguments) {
+              acc.arguments += delta.function.arguments;
+            }
           }
         }
 
@@ -141,8 +166,10 @@ export class OpenAICompatibleProvider implements AIProvider {
           // Emit all accumulated tool calls
           const sortedIndices = [...toolCallAccumulators.keys()].sort();
           for (const idx of sortedIndices) {
-            const acc = toolCallAccumulators.get(idx)!;
-            if (!acc.id || !acc.name) { continue; }
+            const acc = toolCallAccumulators.get(idx);
+            if (!acc?.id || !acc.name) {
+              continue;
+            }
             yield {
               type: 'tool_call',
               id: acc.id,
@@ -176,9 +203,7 @@ export class OpenAICompatibleProvider implements AIProvider {
 
 // ── Message conversion ──────────────────────────────────────────────────
 
-function convertMessages(
-  messages: ProviderMessage[],
-): OpenAI.Chat.ChatCompletionMessageParam[] {
+function convertMessages(messages: ProviderMessage[]): OpenAI.Chat.ChatCompletionMessageParam[] {
   const result: OpenAI.Chat.ChatCompletionMessageParam[] = [];
 
   for (const msg of messages) {
@@ -190,52 +215,58 @@ function convertMessages(
         break;
 
       case 'user': {
-        const content = typeof msg.content === 'string'
-          ? msg.content
-          : msg.content.map((part) => {
-              if (part.type === 'image_url') {
-                return { type: 'image_url' as const, image_url: part.image_url };
-              }
-              return { type: 'text' as const, text: part.text };
-            });
+        const content =
+          typeof msg.content === 'string'
+            ? msg.content
+            : msg.content.map((part) => {
+                if (part.type === 'image_url') {
+                  return { type: 'image_url' as const, image_url: part.image_url };
+                }
+                return { type: 'text' as const, text: part.text };
+              });
         result.push({ role: 'user', content });
         break;
       }
 
       case 'assistant': {
         const content = typeof msg.content === 'string' ? msg.content : '';
-        const assistantMsg: Record<string, unknown> = {
+        const assistantMsg: CompatibleAssistantMessageParam = {
           role: 'assistant',
           content,
         };
         if (msg.reasoningContent) {
           assistantMsg.reasoning_content = msg.reasoningContent;
         }
-        result.push(assistantMsg as unknown as OpenAI.Chat.ChatCompletionAssistantMessageParam);
+        result.push(assistantMsg);
         break;
       }
 
       case 'tool_call': {
         // Represent a tool call request as an assistant message with tool_calls
         let args: Record<string, unknown>;
-        try { args = JSON.parse(msg.toolArguments ?? '{}') as Record<string, unknown>; }
-        catch { args = {}; }
-        const assistantMsg: Record<string, unknown> = {
+        try {
+          args = JSON.parse(msg.toolArguments ?? '{}') as Record<string, unknown>;
+        } catch {
+          args = {};
+        }
+        const assistantMsg: CompatibleAssistantMessageParam = {
           role: 'assistant',
           content: null,
-          tool_calls: [{
-            id: msg.toolCallId ?? '',
-            type: 'function',
-            function: {
-              name: msg.toolName ?? '',
-              arguments: JSON.stringify(args),
+          tool_calls: [
+            {
+              id: msg.toolCallId ?? '',
+              type: 'function',
+              function: {
+                name: msg.toolName ?? '',
+                arguments: JSON.stringify(args),
+              },
             },
-          }],
+          ],
         };
         if (msg.reasoningContent) {
           assistantMsg.reasoning_content = msg.reasoningContent;
         }
-        result.push(assistantMsg as unknown as OpenAI.Chat.ChatCompletionAssistantMessageParam);
+        result.push(assistantMsg);
         break;
       }
 
@@ -252,9 +283,7 @@ function convertMessages(
   return result;
 }
 
-function convertTools(
-  tools: ProviderTool[],
-): ChatCompletionTool[] {
+function convertTools(tools: ProviderTool[]): ChatCompletionTool[] {
   return tools.map((tool) => ({
     type: 'function',
     function: {

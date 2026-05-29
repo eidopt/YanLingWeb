@@ -12,4 +12,4 @@ export type {
   StreamEventError,
   StreamEventTextDelta,
   StreamEventToolCall,
-} from '@shared/agent/runtime/providerTypes';
+} from '@shared/agent/contracts/provider';

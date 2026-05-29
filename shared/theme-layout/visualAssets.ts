@@ -8,17 +8,9 @@ export type VisualAssetRole =
   | 'icon'
   | 'background';
 
-export type VisualAssetStatus =
-  | 'pending'
-  | 'generated'
-  | 'fallback'
-  | 'failed';
+export type VisualAssetStatus = 'pending' | 'generated' | 'fallback' | 'failed';
 
-export type VisualAssetProvider =
-  | 'ai-image'
-  | 'curated'
-  | 'placeholder'
-  | 'manual';
+export type VisualAssetProvider = 'ai-image' | 'curated' | 'placeholder' | 'manual';
 
 export interface VisualAssetPlaceholder {
   title?: string;
@@ -29,7 +21,7 @@ export interface VisualAsset {
   id: string;
   nodeId?: string;
   pageId?: string;
-  role?: VisualAssetRole | string;
+  role?: VisualAssetRole | (string & {});
   prompt?: string;
   alt?: string;
   aspectRatio?: string;
@@ -70,25 +62,15 @@ function asNonEmptyString(value: unknown): string | undefined {
 }
 
 function asPositiveNumber(value: unknown): number | undefined {
-  return typeof value === 'number' && Number.isFinite(value) && value > 0
-    ? value
-    : undefined;
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : undefined;
 }
 
 function asVisualAssetStatus(value: unknown): VisualAssetStatus | undefined {
-  return value === 'pending'
-    || value === 'generated'
-    || value === 'fallback'
-    || value === 'failed'
-    ? value
-    : undefined;
+  return value === 'pending' || value === 'generated' || value === 'fallback' || value === 'failed' ? value : undefined;
 }
 
 function asVisualAssetProvider(value: unknown): VisualAssetProvider | undefined {
-  return value === 'ai-image'
-    || value === 'curated'
-    || value === 'placeholder'
-    || value === 'manual'
+  return value === 'ai-image' || value === 'curated' || value === 'placeholder' || value === 'manual'
     ? value
     : undefined;
 }
@@ -133,8 +115,12 @@ export function normalizeVisualAssets(value: unknown): VisualAsset[] {
     if (isRecord(asset.placeholder)) {
       const title = asNonEmptyString(asset.placeholder.title);
       const iconColor = asNonEmptyString(asset.placeholder.iconColor);
-      if (title) {placeholder.title = title;}
-      if (iconColor) {placeholder.iconColor = iconColor;}
+      if (title) {
+        placeholder.title = title;
+      }
+      if (iconColor) {
+        placeholder.iconColor = iconColor;
+      }
     }
 
     const normalized: VisualAsset = { id };
@@ -152,29 +138,54 @@ export function normalizeVisualAssets(value: unknown): VisualAsset[] {
     const storageKey = asNonEmptyString(asset.storageKey);
     const fallbackReason = asNonEmptyString(asset.fallbackReason);
 
-    if (nodeId) {normalized.nodeId = nodeId;}
-    if (pageId) {normalized.pageId = pageId;}
-    if (role) {normalized.role = role;}
-    if (prompt) {normalized.prompt = prompt;}
-    if (alt) {normalized.alt = alt;}
-    if (aspectRatio) {normalized.aspectRatio = aspectRatio;}
-    if (width) {normalized.width = width;}
-    if (height) {normalized.height = height;}
-    if (status) {normalized.status = status;}
-    if (provider) {normalized.provider = provider;}
-    if (url) {normalized.url = url;}
-    if (storageKey) {normalized.storageKey = storageKey;}
-    if (fallbackReason) {normalized.fallbackReason = fallbackReason;}
-    if (Object.keys(placeholder).length > 0) {normalized.placeholder = placeholder;}
+    if (nodeId) {
+      normalized.nodeId = nodeId;
+    }
+    if (pageId) {
+      normalized.pageId = pageId;
+    }
+    if (role) {
+      normalized.role = role;
+    }
+    if (prompt) {
+      normalized.prompt = prompt;
+    }
+    if (alt) {
+      normalized.alt = alt;
+    }
+    if (aspectRatio) {
+      normalized.aspectRatio = aspectRatio;
+    }
+    if (width) {
+      normalized.width = width;
+    }
+    if (height) {
+      normalized.height = height;
+    }
+    if (status) {
+      normalized.status = status;
+    }
+    if (provider) {
+      normalized.provider = provider;
+    }
+    if (url) {
+      normalized.url = url;
+    }
+    if (storageKey) {
+      normalized.storageKey = storageKey;
+    }
+    if (fallbackReason) {
+      normalized.fallbackReason = fallbackReason;
+    }
+    if (Object.keys(placeholder).length > 0) {
+      normalized.placeholder = placeholder;
+    }
 
     return [normalized];
   });
 }
 
-export function buildVisualAssetManifest(
-  templateId: string,
-  value: unknown,
-): VisualAssetManifest | null {
+export function buildVisualAssetManifest(templateId: string, value: unknown): VisualAssetManifest | null {
   const visualAssets = normalizeVisualAssets(value);
   if (!visualAssets.length) {
     return null;
@@ -208,18 +219,12 @@ function cloneDocument<T>(document: T): T {
   return JSON.parse(JSON.stringify(document)) as T;
 }
 
-function visitNode(
-  node: VisualAssetLayoutNode,
-  visitor: (node: VisualAssetLayoutNode) => void,
-) {
+function visitNode(node: VisualAssetLayoutNode, visitor: (node: VisualAssetLayoutNode) => void) {
   visitor(node);
   node.children?.forEach((child) => visitNode(child, visitor));
 }
 
-export function applyVisualAssetsToLayoutDocument<T extends Record<string, unknown>>(
-  document: T,
-  value: unknown,
-): T {
+export function applyVisualAssetsToLayoutDocument<T extends Record<string, unknown>>(document: T, value: unknown): T {
   const visualAssets = normalizeVisualAssets(value);
   if (!visualAssets.length) {
     return document;
@@ -229,8 +234,11 @@ export function applyVisualAssetsToLayoutDocument<T extends Record<string, unkno
   const byAssetId = new Map(visualAssets.map((asset) => [asset.id, asset]));
   const byNodeId = new Map(
     visualAssets
-      .filter((asset) => asset.nodeId)
-      .map((asset) => [asset.nodeId!, asset]),
+      .filter(
+        (asset): asset is VisualAsset & { nodeId: string } =>
+          typeof asset.nodeId === 'string' && asset.nodeId.length > 0,
+      )
+      .map((asset) => [asset.nodeId, asset]),
   );
 
   const patchImageNode = (node: VisualAssetLayoutNode) => {

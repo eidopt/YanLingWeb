@@ -18,28 +18,18 @@ import {
   type ReactNode,
   type RefObject,
   useLayoutEffect,
-  useState,
 } from 'react';
+import { editorCanvasDragStateActions, useEditorCanvasDragSnapshot } from 'state/editorCanvasDragState';
 
 interface UseCanvasNodeShellRendererArgs {
   currentDocument: ThemeLayoutDocument;
   selectedNodeId: string | null;
   setSelectedNodeId: (nodeId: string | null) => void;
   handleDeleteNode: (nodeId: string) => void;
-  setBuilderNodeRef: (
-    nodeId: string,
-    element: HTMLDivElement | null,
-  ) => void;
+  setBuilderNodeRef: (nodeId: string, element: HTMLDivElement | null) => void;
   builderNodeRefs: RefObject<Record<string, HTMLDivElement | null>>;
-  startAbsoluteDrag: (
-    node: ThemeLayoutNode,
-    event: ReactPointerEvent<HTMLDivElement>,
-  ) => void;
-  startResize: (
-    node: ThemeLayoutNode,
-    axis: 'x' | 'y' | 'xy',
-    event: ReactPointerEvent<HTMLButtonElement>,
-  ) => void;
+  startAbsoluteDrag: (node: ThemeLayoutNode, event: ReactPointerEvent<HTMLDivElement>) => void;
+  startResize: (node: ThemeLayoutNode, axis: 'x' | 'y' | 'xy', event: ReactPointerEvent<HTMLButtonElement>) => void;
   startRelativePointerDrag: (
     node: ThemeLayoutNode,
     parent: ThemeLayoutNode | null,
@@ -62,19 +52,13 @@ interface UseCanvasNodeShellRendererArgs {
   setContainerDropTargetId: (nodeId: string) => void;
   setDraggingAlias: (alias: string) => void;
   addNodeFromAlias: (alias: string, parentId?: string) => void;
-  handleRelativeDragStart: (
-    nodeId: string,
-    event: DragEvent<HTMLDivElement>,
-  ) => void;
+  handleRelativeDragStart: (nodeId: string, event: DragEvent<HTMLDivElement>) => void;
   handleRelativeDragOver: (
     event: DragEvent<HTMLDivElement>,
     node: ThemeLayoutNode,
     parent: ThemeLayoutNode | null,
   ) => void;
-  handleRelativeDrop: (
-    event: DragEvent<HTMLDivElement>,
-    nodeId: string,
-  ) => void;
+  handleRelativeDrop: (event: DragEvent<HTMLDivElement>, nodeId: string) => void;
   clearNodeDragState: () => void;
 }
 
@@ -103,20 +87,15 @@ export function useCanvasNodeShellRenderer({
   handleRelativeDrop,
   clearNodeDragState,
 }: UseCanvasNodeShellRendererArgs) {
-  const [dragVisualOffset, setDragVisualOffset] = useState({ x: 0, y: 0 });
+  const { dragVisualOffset } = useEditorCanvasDragSnapshot();
+  const { setDragVisualOffset } = editorCanvasDragStateActions;
 
   useLayoutEffect(() => {
-    if (
-      !relativePointerDrag?.started
-      || !draggingNodeId
-      || !draggingNodeSnapshot
-    ) {
+    if (!relativePointerDrag?.started || !draggingNodeId || !draggingNodeSnapshot) {
       // Intentional reset after layout effect fires (cascading render is
       // acceptable here as it only triggers on drag start/end transitions).
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setDragVisualOffset((current) => (
-        current.x === 0 && current.y === 0 ? current : { x: 0, y: 0 }
-      ));
+
+      setDragVisualOffset((current) => (current.x === 0 && current.y === 0 ? current : { x: 0, y: 0 }));
       return;
     }
 
@@ -125,10 +104,8 @@ export function useCanvasNodeShellRenderer({
       return;
     }
 
-    const pointerTranslateX =
-      relativePointerDrag.currentX - relativePointerDrag.startX;
-    const pointerTranslateY =
-      relativePointerDrag.currentY - relativePointerDrag.startY;
+    const pointerTranslateX = relativePointerDrag.currentX - relativePointerDrag.startX;
+    const pointerTranslateY = relativePointerDrag.currentY - relativePointerDrag.startY;
     const appliedTranslateX = pointerTranslateX + dragVisualOffset.x;
     const appliedTranslateY = pointerTranslateY + dragVisualOffset.y;
     const currentRect = draggingElement.getBoundingClientRect();
@@ -139,12 +116,8 @@ export function useCanvasNodeShellRenderer({
       y: draggingNodeSnapshot.top - baseTop,
     };
 
-    setDragVisualOffset((current) => (
-      current.x === nextOffset.x && current.y === nextOffset.y
-        ? current
-        : nextOffset
-    ));
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- dragVisualOffset.x/y intentionally omitted to avoid loop; relativePointerDrag.startX/Y intentionally capture start position only
+    setDragVisualOffset((current) => (current.x === nextOffset.x && current.y === nextOffset.y ? current : nextOffset));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- dragVisualOffset.x/y intentionally omitted to avoid loop; relativePointerDrag.startX/Y intentionally capture start position only
   }, [
     builderNodeRefs,
     draggingNodeId,
@@ -163,9 +136,7 @@ export function useCanvasNodeShellRenderer({
     }
 
     if (parent.alias === 'core.screen') {
-      return (parent.children ?? []).filter(
-        (child) => child.slot !== 'footer',
-      );
+      return (parent.children ?? []).filter((child) => child.slot !== 'footer');
     }
 
     return parent.children ?? [];
@@ -179,210 +150,185 @@ export function useCanvasNodeShellRenderer({
     rendered,
   }: DynamicThemeNodeShellContext): ReactNode {
     const descriptor = descriptorForAlias(currentDocument, node.alias);
-    const capabilities = getNodeCapabilities(
-      node,
-      descriptor,
-      currentDocument.layout.id,
-    );
+    const capabilities = getNodeCapabilities(node, descriptor, currentDocument.layout.id);
     const isSelected = selectedNodeId === node.id;
-    const showHorizontalDrop =
-      dropIndicator?.nodeId === node.id
-      && dropIndicator.axis === 'horizontal';
-    const showDropBefore =
-      dropIndicator?.nodeId === node.id
-      && dropIndicator.position === 'before';
-    const showDropAfter =
-      dropIndicator?.nodeId === node.id
-      && dropIndicator.position === 'after';
+    const showHorizontalDrop = dropIndicator?.nodeId === node.id && dropIndicator.axis === 'horizontal';
+    const showDropBefore = dropIndicator?.nodeId === node.id && dropIndicator.position === 'before';
+    const showDropAfter = dropIndicator?.nodeId === node.id && dropIndicator.position === 'after';
     const isContainerDropTarget = containerDropTargetId === node.id;
-    const isPointerDraggingNode =
-      relativePointerDrag?.started === true
-      && relativePointerDrag.nodeId === node.id;
+    const isPointerDraggingNode = relativePointerDrag?.started === true && relativePointerDrag.nodeId === node.id;
     const canShowDropSlots =
       relativePointerDrag?.started === true &&
       Boolean(draggingNodeId) &&
       draggingNodeId !== node.id &&
       capabilities.canReorderRelative;
-    const shouldShowSlot = (
-      axis: 'horizontal' | 'vertical',
-      position: 'before' | 'after',
-    ) => (
+    const shouldShowSlot = (axis: 'horizontal' | 'vertical', position: 'before' | 'after') =>
       canShowDropSlots &&
       dropIndicator?.nodeId === node.id &&
       dropIndicator.axis === axis &&
-      dropIndicator.position === position
-    );
+      dropIndicator.position === position;
     const siblings = getRenderableSiblings(parent);
     const siblingIndex = siblings.findIndex((child) => child.id === node.id);
-    const previousSibling =
-      siblingIndex > 0 ? siblings[siblingIndex - 1] : null;
-    const nextSibling =
-      siblingIndex >= 0 && siblingIndex < siblings.length - 1
-        ? siblings[siblingIndex + 1]
-        : null;
+    const previousSibling = siblingIndex > 0 ? siblings[siblingIndex - 1] : null;
+    const nextSibling = siblingIndex >= 0 && siblingIndex < siblings.length - 1 ? siblings[siblingIndex + 1] : null;
     const currentRow = node.layout.flowRow ?? index + 1;
-    const previousRow =
-      previousSibling?.layout.flowRow
-      ?? (siblingIndex > 0 ? siblingIndex : undefined);
-    const nextRow =
-      nextSibling?.layout.flowRow
-      ?? (siblingIndex >= 0 ? siblingIndex + 2 : undefined);
-    const isFirstInRow =
-      parent?.alias === 'core.screen' ? previousRow !== currentRow : true;
-    const isLastInRow =
-      parent?.alias === 'core.screen'
-        ? nextRow !== currentRow
-        : siblingIndex === siblings.length - 1;
+    const previousRow = previousSibling?.layout.flowRow ?? (siblingIndex > 0 ? siblingIndex : undefined);
+    const nextRow = nextSibling?.layout.flowRow ?? (siblingIndex >= 0 ? siblingIndex + 2 : undefined);
+    const isFirstInRow = parent?.alias === 'core.screen' ? previousRow !== currentRow : true;
+    const isLastInRow = parent?.alias === 'core.screen' ? nextRow !== currentRow : siblingIndex === siblings.length - 1;
     const isLastSibling = siblingIndex === siblings.length - 1;
-    const dropSlots = canShowDropSlots ? (() => {
-      if (!parent) {
-        return [];
-      }
+    const dropSlots = canShowDropSlots
+      ? (() => {
+          if (!parent) {
+            return [];
+          }
 
-      if (parent.alias === 'core.screen') {
-        return [
-          ...(isFirstInRow
-            && shouldShowSlot('vertical', 'before')
-            ? [{
-                key: 'row-before',
-                position: 'before' as const,
-                axis: 'vertical' as const,
-                className: cx(styles.dropSlot, styles.dropSlotBlock),
-              }]
-            : []),
-          ...(shouldShowSlot('horizontal', 'before')
-            ? [{
-                key: 'item-before',
-                position: 'before' as const,
-                axis: 'horizontal' as const,
-                className: cx(styles.dropSlot, styles.dropSlotInline),
-              }]
-            : []),
-          ...(isLastInRow
-            && shouldShowSlot('horizontal', 'after')
-            ? [{
-                key: 'item-after',
-                position: 'after' as const,
-                axis: 'horizontal' as const,
-                className: cx(styles.dropSlot, styles.dropSlotInline),
-              }]
-            : []),
-          ...(isLastSibling
-            && shouldShowSlot('vertical', 'after')
-            ? [{
-                key: 'row-after',
-                position: 'after' as const,
-                axis: 'vertical' as const,
-                className: cx(styles.dropSlot, styles.dropSlotBlock),
-              }]
-            : []),
-        ];
-      }
+          if (parent.alias === 'core.screen') {
+            return [
+              ...(isFirstInRow && shouldShowSlot('vertical', 'before')
+                ? [
+                    {
+                      key: 'row-before',
+                      position: 'before' as const,
+                      axis: 'vertical' as const,
+                      className: cx(styles.dropSlot, styles.dropSlotBlock),
+                    },
+                  ]
+                : []),
+              ...(shouldShowSlot('horizontal', 'before')
+                ? [
+                    {
+                      key: 'item-before',
+                      position: 'before' as const,
+                      axis: 'horizontal' as const,
+                      className: cx(styles.dropSlot, styles.dropSlotInline),
+                    },
+                  ]
+                : []),
+              ...(isLastInRow && shouldShowSlot('horizontal', 'after')
+                ? [
+                    {
+                      key: 'item-after',
+                      position: 'after' as const,
+                      axis: 'horizontal' as const,
+                      className: cx(styles.dropSlot, styles.dropSlotInline),
+                    },
+                  ]
+                : []),
+              ...(isLastSibling && shouldShowSlot('vertical', 'after')
+                ? [
+                    {
+                      key: 'row-after',
+                      position: 'after' as const,
+                      axis: 'vertical' as const,
+                      className: cx(styles.dropSlot, styles.dropSlotBlock),
+                    },
+                  ]
+                : []),
+            ];
+          }
 
-      if (parent.alias === 'core.row') {
-        return [
-          ...(shouldShowSlot('horizontal', 'before')
-            ? [{
-                key: 'item-before',
-                position: 'before' as const,
-                axis: 'horizontal' as const,
-                className: cx(styles.dropSlot, styles.dropSlotInline),
-              }]
-            : []),
-          ...(isLastSibling
-            && shouldShowSlot('horizontal', 'after')
-            ? [{
-                key: 'item-after',
-                position: 'after' as const,
-                axis: 'horizontal' as const,
-                className: cx(styles.dropSlot, styles.dropSlotInline),
-              }]
-            : []),
-        ];
-      }
+          if (parent.alias === 'core.row') {
+            return [
+              ...(shouldShowSlot('horizontal', 'before')
+                ? [
+                    {
+                      key: 'item-before',
+                      position: 'before' as const,
+                      axis: 'horizontal' as const,
+                      className: cx(styles.dropSlot, styles.dropSlotInline),
+                    },
+                  ]
+                : []),
+              ...(isLastSibling && shouldShowSlot('horizontal', 'after')
+                ? [
+                    {
+                      key: 'item-after',
+                      position: 'after' as const,
+                      axis: 'horizontal' as const,
+                      className: cx(styles.dropSlot, styles.dropSlotInline),
+                    },
+                  ]
+                : []),
+            ];
+          }
 
-      if (parent.alias === 'core.grid') {
-        return [
-          ...(shouldShowSlot('horizontal', 'before')
-            ? [{
-                key: 'item-before',
-                position: 'before' as const,
-                axis: 'horizontal' as const,
-                className: cx(styles.dropSlot, styles.dropSlotInline),
-              }]
-            : []),
-          ...(isLastSibling
-            && shouldShowSlot('horizontal', 'after')
-            ? [{
-                key: 'item-after',
-                position: 'after' as const,
-                axis: 'horizontal' as const,
-                className: cx(styles.dropSlot, styles.dropSlotInline),
-              }]
-            : []),
-          ...(shouldShowSlot('vertical', 'before')
-            ? [{
-                key: 'row-before',
-                position: 'before' as const,
-                axis: 'vertical' as const,
-                className: cx(styles.dropSlot, styles.dropSlotBlock),
-              }]
-            : []),
-          ...(isLastSibling
-            && shouldShowSlot('vertical', 'after')
-            ? [{
-                key: 'row-after',
-                position: 'after' as const,
-                axis: 'vertical' as const,
-                className: cx(styles.dropSlot, styles.dropSlotBlock),
-              }]
-            : []),
-        ];
-      }
+          if (parent.alias === 'core.grid') {
+            return [
+              ...(shouldShowSlot('horizontal', 'before')
+                ? [
+                    {
+                      key: 'item-before',
+                      position: 'before' as const,
+                      axis: 'horizontal' as const,
+                      className: cx(styles.dropSlot, styles.dropSlotInline),
+                    },
+                  ]
+                : []),
+              ...(isLastSibling && shouldShowSlot('horizontal', 'after')
+                ? [
+                    {
+                      key: 'item-after',
+                      position: 'after' as const,
+                      axis: 'horizontal' as const,
+                      className: cx(styles.dropSlot, styles.dropSlotInline),
+                    },
+                  ]
+                : []),
+              ...(shouldShowSlot('vertical', 'before')
+                ? [
+                    {
+                      key: 'row-before',
+                      position: 'before' as const,
+                      axis: 'vertical' as const,
+                      className: cx(styles.dropSlot, styles.dropSlotBlock),
+                    },
+                  ]
+                : []),
+              ...(isLastSibling && shouldShowSlot('vertical', 'after')
+                ? [
+                    {
+                      key: 'row-after',
+                      position: 'after' as const,
+                      axis: 'vertical' as const,
+                      className: cx(styles.dropSlot, styles.dropSlotBlock),
+                    },
+                  ]
+                : []),
+            ];
+          }
 
-      return [
-        ...(shouldShowSlot('vertical', 'before')
-          ? [{
-              key: 'item-before',
-              position: 'before' as const,
-              axis: 'vertical' as const,
-              className: `${styles.dropSlot} ${styles.dropSlotBlock}`,
-            }]
-          : []),
-        ...(isLastSibling
-          && shouldShowSlot('vertical', 'after')
-          ? [{
-              key: 'item-after',
-              position: 'after' as const,
-              axis: 'vertical' as const,
-              className: `${styles.dropSlot} ${styles.dropSlotBlock}`,
-            }]
-          : []),
-      ];
-    })() : [];
+          return [
+            ...(shouldShowSlot('vertical', 'before')
+              ? [
+                  {
+                    key: 'item-before',
+                    position: 'before' as const,
+                    axis: 'vertical' as const,
+                    className: `${styles.dropSlot} ${styles.dropSlotBlock}`,
+                  },
+                ]
+              : []),
+            ...(isLastSibling && shouldShowSlot('vertical', 'after')
+              ? [
+                  {
+                    key: 'item-after',
+                    position: 'after' as const,
+                    axis: 'vertical' as const,
+                    className: `${styles.dropSlot} ${styles.dropSlotBlock}`,
+                  },
+                ]
+              : []),
+          ];
+        })()
+      : [];
     const shellStyle: CSSProperties = {
       ...nodeStyle,
-      zIndex: isPointerDraggingNode
-        ? 30
-        : isSelected
-          ? 12
-          : node.layout.mode === 'absolute'
-            ? 1
-            : undefined,
-      cursor: capabilities.canDragAbsolute
-        ? 'grab'
-        : capabilities.canReorderRelative
-          ? 'move'
-          : undefined,
+      zIndex: isPointerDraggingNode ? 30 : isSelected ? 12 : node.layout.mode === 'absolute' ? 1 : undefined,
+      cursor: capabilities.canDragAbsolute ? 'grab' : capabilities.canReorderRelative ? 'move' : undefined,
       transform: isPointerDraggingNode
-        ? `translate(${
-            relativePointerDrag.currentX
-            - relativePointerDrag.startX
-            + dragVisualOffset.x
-          }px, ${
-            relativePointerDrag.currentY
-            - relativePointerDrag.startY
-            + dragVisualOffset.y
+        ? `translate(${relativePointerDrag.currentX - relativePointerDrag.startX + dragVisualOffset.x}px, ${
+            relativePointerDrag.currentY - relativePointerDrag.startY + dragVisualOffset.y
           }px)`
         : nodeStyle.transform,
     };
@@ -412,8 +358,7 @@ export function useCanvasNodeShellRenderer({
             isSelected && styles.canvasNodeSelected,
             node.layout.mode === 'absolute' && styles.canvasNodeAbsolute,
             isPointerDraggingNode && styles.canvasNodeDragging,
-            (dropIndicator?.nodeId === node.id || isContainerDropTarget) &&
-              styles.canvasNodeDropTarget,
+            (dropIndicator?.nodeId === node.id || isContainerDropTarget) && styles.canvasNodeDropTarget,
           )}
           style={shellStyle}
           role="button"
@@ -492,9 +437,7 @@ export function useCanvasNodeShellRenderer({
             <span
               className={cx(
                 styles.dropIndicator,
-                showHorizontalDrop
-                  ? styles.dropIndicatorLeft
-                  : styles.dropIndicatorBefore,
+                showHorizontalDrop ? styles.dropIndicatorLeft : styles.dropIndicatorBefore,
               )}
             />
           ) : null}
@@ -502,9 +445,7 @@ export function useCanvasNodeShellRenderer({
             <button
               type="button"
               className={styles.canvasDeleteButton}
-              aria-label={
-                themeLayoutBuilderContent.nodeActions.deleteAriaLabel
-              }
+              aria-label={themeLayoutBuilderContent.nodeActions.deleteAriaLabel}
               onPointerDown={(event) => {
                 event.preventDefault();
                 event.stopPropagation();
@@ -525,9 +466,7 @@ export function useCanvasNodeShellRenderer({
               type="button"
               className={cx(styles.resizeHandle, styles.resizeHandleX)}
               onPointerDown={(event) => startResize(node, 'x', event)}
-              aria-label={
-                themeLayoutBuilderContent.nodeActions.resizeWidthAriaLabel
-              }
+              aria-label={themeLayoutBuilderContent.nodeActions.resizeWidthAriaLabel}
             />
           ) : null}
 
@@ -536,22 +475,16 @@ export function useCanvasNodeShellRenderer({
               type="button"
               className={cx(styles.resizeHandle, styles.resizeHandleY)}
               onPointerDown={(event) => startResize(node, 'y', event)}
-              aria-label={
-                themeLayoutBuilderContent.nodeActions.resizeHeightAriaLabel
-              }
+              aria-label={themeLayoutBuilderContent.nodeActions.resizeHeightAriaLabel}
             />
           ) : null}
 
-          {isSelected
-          && capabilities.canResizeWidth
-          && capabilities.canResizeHeight ? (
+          {isSelected && capabilities.canResizeWidth && capabilities.canResizeHeight ? (
             <button
               type="button"
               className={cx(styles.resizeHandle, styles.resizeHandleCorner)}
               onPointerDown={(event) => startResize(node, 'xy', event)}
-              aria-label={
-                themeLayoutBuilderContent.nodeActions.resizeBothAriaLabel
-              }
+              aria-label={themeLayoutBuilderContent.nodeActions.resizeBothAriaLabel}
             />
           ) : null}
 
@@ -559,9 +492,7 @@ export function useCanvasNodeShellRenderer({
             <span
               className={cx(
                 styles.dropIndicator,
-                showHorizontalDrop
-                  ? styles.dropIndicatorRight
-                  : styles.dropIndicatorAfter,
+                showHorizontalDrop ? styles.dropIndicatorRight : styles.dropIndicatorAfter,
               )}
             />
           ) : null}

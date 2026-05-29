@@ -1,9 +1,10 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AiTemplatesService } from './ai-templates.service';
-import type { PipelineResult, TemplateSeed } from './orchestrator/pipeline.types';
+import type { PipelineExternalResult, TemplateSeed } from './orchestrator/pipeline.types';
 
 @ApiTags('ai-templates')
 @ApiSecurity('bearer')
@@ -13,7 +14,10 @@ export class AiTemplatesController {
   constructor(private readonly service: AiTemplatesService) {}
 
   @Post('generate')
-  @ApiOperation({ summary: '走 4-stage 流水线生成一个新模板（含 designer / critic / schema / verifier）' })
+  @Throttle({ default: { limit: 3, ttl: 600000 } })
+  @ApiOperation({
+    summary: '走 4-stage 流水线生成一个新模板（含 designer / critic / schema / verifier）',
+  })
   @ApiBody({
     schema: {
       type: 'object',
@@ -30,7 +34,7 @@ export class AiTemplatesController {
       },
     },
   })
-  async generate(@Body() body: TemplateSeed): Promise<PipelineResult> {
+  async generate(@Body() body: TemplateSeed): Promise<PipelineExternalResult> {
     return this.service.generate(body);
   }
 }

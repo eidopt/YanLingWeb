@@ -5,7 +5,7 @@ AI App 是一个在线 AI 应用生成与编辑平台。用户可以从模板广
 当前项目包含三个主要部分：
 
 - 前端：Next.js + React，负责官网首页、模板广场、编辑器和前端代理接口。
-- 后端：NestJS + TypeORM + SQLite，负责模板、主题、导出记录、用户认证和 AI 代理。
+- 后端：NestJS + TypeORM + SQLite/PostgreSQL，负责模板、主题、导出记录、用户认证和 AI 代理。
 - 桌面端：Electron 包装 Next 应用，用于后续桌面端分发。
 
 ## 功能概览
@@ -21,7 +21,7 @@ AI App 是一个在线 AI 应用生成与编辑平台。用户可以从模板广
 ## 技术栈
 
 - Frontend: Next.js 15, React 19, TypeScript
-- Backend: NestJS 10, TypeORM, better-sqlite3, Swagger
+- Backend: NestJS 10, TypeORM, better-sqlite3/PostgreSQL, Swagger
 - AI: OpenAI-compatible provider through backend proxy
 - Desktop: Electron, Vite, electron-builder
 - Tooling: ESLint 9, simple-import-sort, concurrently
@@ -54,7 +54,7 @@ AI App 是一个在线 AI 应用生成与编辑平台。用户可以从模板广
 ## 环境要求
 
 - Node.js 22+。
-- pnpm (推荐) 或 npm
+- pnpm
 - macOS / Linux / Windows 均可开发前端和后端；Electron 打包目标按平台能力决定。
 
 ## 安装依赖
@@ -91,6 +91,11 @@ NODE_ENV=development
 CORS_ORIGINS=http://localhost:3000,http://localhost:3001,app://
 DATABASE_DRIVER=sqlite
 DEFAULT_DB_PATH=./data/app.dev.db
+# PostgreSQL alternative:
+# DATABASE_DRIVER=postgres
+# DATABASE_URL=postgres://user:password@localhost:5432/yanling
+# or DB_HOST=localhost DB_PORT=5432 DB_NAME=yanling DB_USER=yanling DB_PASSWORD=...
+# DB_SSL=false
 DB_SYNCHRONIZE=true
 # Required in production. Generate with: openssl rand -hex 32
 JWT_SECRET=replace-with-a-stable-random-secret
@@ -114,8 +119,9 @@ QQ_REDIRECT_URI=
 - `AI_BASE_URL` 可选，用于 OpenAI-compatible 网关。
 - `JWT_SECRET` 必须在生产环境显式设置为稳定随机值，否则后端会拒绝启动。修改该值会让已有 JWT 立即失效。
 - 开发 / 测试环境未设置 `JWT_SECRET` 时会使用固定的 insecure fallback，并在启动时打印 warning；建议仍在 `.env.*.local` 中配置稳定值。
-- `DATABASE_DRIVER` 默认使用 `better-sqlite3`（原生 SQLite），也兼容旧版 `sqljs`（WASM）；后续可扩展到 `postgres`、`mysql`。
-- `DEFAULT_DB_PATH` 是本地文件数据库默认路径；`DB_PATH` 可作为更具体的覆盖项。
+- `DATABASE_DRIVER` 支持 `sqlite` 和 `postgres`。默认 `sqlite` 使用 `better-sqlite3` 本地文件数据库。
+- SQLite 使用 `DEFAULT_DB_PATH` 作为默认路径；`DB_PATH` 可作为更具体的覆盖项。
+- PostgreSQL 可使用 `DATABASE_URL`/`DB_URL`，也可使用 `DB_HOST`、`DB_PORT`、`DB_NAME`、`DB_USERNAME`/`DB_USER`、`DB_PASSWORD`。`DB_SSL=true` 会启用 TLS 连接。
 - `DB_SYNCHRONIZE` 本地可为 `true`（自动建表），生产环境应设为 `false` 并使用 migration 管理 schema 变更。
 
 ## 启动开发环境
@@ -126,7 +132,7 @@ QQ_REDIRECT_URI=
 
 ```bash
 cd backend
-npm run dev
+pnpm dev
 ```
 
 后端默认地址：

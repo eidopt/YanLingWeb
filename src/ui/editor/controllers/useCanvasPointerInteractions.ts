@@ -1,26 +1,15 @@
 import type { ThemeLayoutNode } from '../../layout/types';
-import type { PointerInteraction } from '../services/layoutBuilderService';
-import {
-  type PointerEvent as ReactPointerEvent,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { type PointerEvent as ReactPointerEvent, useEffect, useRef } from 'react';
+import { editorCanvasDragStateActions, useEditorCanvasDragSnapshot } from 'state/editorCanvasDragState';
 
 interface UseCanvasPointerInteractionsArgs {
-  updateNode: (
-    nodeId: string,
-    updater: (node: ThemeLayoutNode) => void,
-  ) => void;
+  updateNode: (nodeId: string, updater: (node: ThemeLayoutNode) => void) => void;
   setSelectedNodeId: (nodeId: string | null) => void;
 }
 
-export function useCanvasPointerInteractions({
-  updateNode,
-  setSelectedNodeId,
-}: UseCanvasPointerInteractionsArgs) {
-  const [pointerInteraction, setPointerInteraction] =
-    useState<PointerInteraction | null>(null);
+export function useCanvasPointerInteractions({ updateNode, setSelectedNodeId }: UseCanvasPointerInteractionsArgs) {
+  const { pointerInteraction } = useEditorCanvasDragSnapshot();
+  const { setPointerInteraction } = editorCanvasDragStateActions;
   const builderNodeRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
@@ -50,19 +39,15 @@ export function useCanvasPointerInteractions({
       const nextWidth = Math.max(
         72,
         Math.round(
-          activeInteraction.originWidth
-          + (activeInteraction.axis === 'y'
-            ? 0
-            : event.clientX - activeInteraction.startX),
+          activeInteraction.originWidth +
+            (activeInteraction.axis === 'y' ? 0 : event.clientX - activeInteraction.startX),
         ),
       );
       const nextHeight = Math.max(
         44,
         Math.round(
-          activeInteraction.originHeight
-          + (activeInteraction.axis === 'x'
-            ? 0
-            : event.clientY - activeInteraction.startY),
+          activeInteraction.originHeight +
+            (activeInteraction.axis === 'x' ? 0 : event.clientY - activeInteraction.startY),
         ),
       );
 
@@ -71,23 +56,15 @@ export function useCanvasPointerInteractions({
           node.frame = {
             position: 'absolute',
             ...(node.frame ?? {}),
-            width: activeInteraction.axis === 'y'
-              ? node.frame?.width
-              : nextWidth,
-            height: activeInteraction.axis === 'x'
-              ? node.frame?.height
-              : nextHeight,
+            width: activeInteraction.axis === 'y' ? node.frame?.width : nextWidth,
+            height: activeInteraction.axis === 'x' ? node.frame?.height : nextHeight,
             unit: node.frame?.unit ?? 'px',
           };
           return;
         }
 
-        node.layout.width = activeInteraction.axis === 'y'
-          ? node.layout.width
-          : nextWidth;
-        node.layout.height = activeInteraction.axis === 'x'
-          ? node.layout.height
-          : nextHeight;
+        node.layout.width = activeInteraction.axis === 'y' ? node.layout.width : nextWidth;
+        node.layout.height = activeInteraction.axis === 'x' ? node.layout.height : nextHeight;
       });
     }
 
@@ -101,16 +78,13 @@ export function useCanvasPointerInteractions({
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
     };
-  }, [pointerInteraction, updateNode]);
+  }, [pointerInteraction, setPointerInteraction, updateNode]);
 
   function setBuilderNodeRef(nodeId: string, element: HTMLDivElement | null) {
     builderNodeRefs.current[nodeId] = element;
   }
 
-  function startAbsoluteDrag(
-    node: ThemeLayoutNode,
-    event: ReactPointerEvent<HTMLDivElement>,
-  ) {
+  function startAbsoluteDrag(node: ThemeLayoutNode, event: ReactPointerEvent<HTMLDivElement>) {
     event.preventDefault();
     event.stopPropagation();
     setSelectedNodeId(node.id);
@@ -124,11 +98,7 @@ export function useCanvasPointerInteractions({
     });
   }
 
-  function startResize(
-    node: ThemeLayoutNode,
-    axis: 'x' | 'y' | 'xy',
-    event: ReactPointerEvent<HTMLButtonElement>,
-  ) {
+  function startResize(node: ThemeLayoutNode, axis: 'x' | 'y' | 'xy', event: ReactPointerEvent<HTMLButtonElement>) {
     event.preventDefault();
     event.stopPropagation();
     const element = builderNodeRefs.current[node.id];

@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { AiModule } from './ai/ai.module';
 import { AiTemplatesModule } from './ai-templates/ai-templates.module';
 import { AuthModule } from './auth/auth.module';
+import { ApiExceptionFilter } from './common/filters/api-exception.filter';
+import { ApiResponseInterceptor } from './common/interceptors/api-response.interceptor';
 import { ConfigFactory } from './config/config.factory';
 import { ConfigModule } from './config/config.module';
 import { DatabaseModule } from './database/database.module';
@@ -24,10 +26,12 @@ const startupServerFlavor = ConfigFactory.applyStartupFlavor();
       envFilePath: ConfigFactory.envFilePaths(startupServerFlavor),
       isGlobal: true,
     }),
-    ThrottlerModule.forRoot([{
-      ttl: 60000,  // 1 minute window
-      limit: 120,  // general API limit; auth and AI endpoints apply stricter guards
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 1 minute window
+        limit: 120, // general API limit; auth and AI endpoints apply stricter guards
+      },
+    ]),
 
     ConfigModule,
     DatabaseModule,
@@ -42,6 +46,14 @@ const startupServerFlavor = ConfigFactory.applyStartupFlavor();
     AiTemplatesModule,
   ],
   providers: [
+    {
+      provide: APP_FILTER,
+      useClass: ApiExceptionFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ApiResponseInterceptor,
+    },
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

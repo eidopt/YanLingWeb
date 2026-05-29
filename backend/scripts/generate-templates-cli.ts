@@ -87,29 +87,15 @@ function parseArgs(): CliOptions {
  */
 function buildOutputJson(result: PipelineResult): Record<string, unknown> {
   const { brief, document } = result;
-  const rawDocument = document as unknown as Record<string, unknown>;
-  const isRecord = (v: unknown): v is Record<string, unknown> =>
-    !!v && typeof v === 'object' && !Array.isArray(v);
 
-  const traits = [
-    `archetype:${brief.archetype}`,
-    `hero:${brief.heroMode}`,
-    `sig:${brief.diversitySignature}`,
-  ];
+  const traits = [`archetype:${brief.archetype}`, `hero:${brief.heroMode}`, `sig:${brief.diversitySignature}`];
 
   // componentTemplates / cssVars / cssAnimations 提到顶层（seed 格式期望位置）
-  const componentTemplates = isRecord(rawDocument.componentTemplates)
-    ? rawDocument.componentTemplates
-    : {};
-  const cssVars = isRecord(rawDocument.cssVars)
-    ? rawDocument.cssVars as Record<string, string>
-    : brief.cssVars;
-  const cssAnimations = isRecord(rawDocument.cssAnimations)
-    ? rawDocument.cssAnimations
-    : undefined;
+  const componentTemplates = document.componentTemplates ?? {};
+  const cssVars = document.cssVars ?? brief.cssVars;
+  const cssAnimations = document.cssAnimations ?? undefined;
 
-  const displayCategoryLabel = DISPLAY_CATEGORY_LABELS[brief.displayCategory]
-    ?? brief.displayCategory;
+  const displayCategoryLabel = DISPLAY_CATEGORY_LABELS[brief.displayCategory] ?? brief.displayCategory;
 
   return {
     templateId: brief.templateId,
@@ -130,14 +116,14 @@ function buildOutputJson(result: PipelineResult): Record<string, unknown> {
     cssVars,
     ...(cssAnimations ? { cssAnimations } : {}),
     componentTemplates,
-    layoutDocument: rawDocument,
+    layoutDocument: document,
   };
 }
 
 async function main(): Promise<void> {
   const opts = parseArgs();
 
-  console.log('🚀 启动 NestJS 上下文（无 HTTP 模式）...');
+  console.log('Starting NestJS application context without HTTP...');
   const app = await NestFactory.createApplicationContext(AppModule, { logger: ['error', 'warn'] });
   const service = app.get(AiTemplatesService);
 
@@ -145,7 +131,7 @@ async function main(): Promise<void> {
   if (opts.match) {
     briefs = briefs.filter((b) => b.prompt.includes(opts.match!));
     if (briefs.length === 0) {
-      console.error(`没有匹配 "${opts.match}" 的 brief`);
+      console.error(`No brief matched "${opts.match}"`);
       await app.close();
       process.exit(1);
     }
@@ -176,7 +162,7 @@ async function main(): Promise<void> {
     try {
       const result = await service.generate(seed);
 
-      // 累加 token 统计
+      // 累加 token 统计。
       const sumStage = (records: { inputTokens: number; outputTokens: number; cacheHitTokens: number }[]): void => {
         for (const r of records) {
           stats.totalInputTokens += r.inputTokens;
@@ -191,51 +177,49 @@ async function main(): Promise<void> {
       stats.totalAttempts += result.totalAttempts;
 
       console.log(
-        `  ✅ 完成 — id=${result.templateId} attempts=${result.totalAttempts}`
-        + ` time=${(result.totalDurationMs / 1000).toFixed(1)}s`,
+        `  Done - id=${result.templateId} attempts=${result.totalAttempts}` +
+          ` time=${(result.totalDurationMs / 1000).toFixed(1)}s`,
       );
 
       if (!opts.dryRun) {
         const outPath = join(opts.outputDir, `${result.templateId}.json`);
         const payload = buildOutputJson(result);
         writeFileSync(outPath, JSON.stringify(payload, null, 2), 'utf8');
-        console.log(`  💾 写入 ${outPath}`);
+        console.log(`  Wrote ${outPath}`);
       } else {
-        console.log(`  🌵 dry-run: archetype=${result.brief.archetype}`
-          + ` hero=${result.brief.heroMode}`);
+        console.log(`  🌵 dry-run: archetype=${result.brief.archetype}` + ` hero=${result.brief.heroMode}`);
       }
       stats.succeeded += 1;
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      console.error(`  ❌ 失败 — ${msg}`);
-      // 失败时也尝试把最后一次的 schema 写到 .failed.json 便于调试
-      if (!opts.dryRun && err instanceof Error
-          && (err as Error & { lastSchema?: PipelineResult }).lastSchema) {
+      console.error(`  Failed - ${msg}`);
+      // 失败时也尝试把最后一次的 schema 写到 .failed.json，便于调试。
+      if (!opts.dryRun && err instanceof Error && (err as Error & { lastSchema?: PipelineResult }).lastSchema) {
         const partial = (err as Error & { lastSchema: PipelineResult }).lastSchema;
         const debugPath = join(opts.outputDir, `${partial.templateId}.failed.json`);
         const payload = buildOutputJson(partial);
         writeFileSync(debugPath, JSON.stringify(payload, null, 2), 'utf8');
-        console.error(`  💾 已写入失败 schema: ${debugPath}`);
+        console.error(`  Wrote failed schema: ${debugPath}`);
       }
       stats.failed += 1;
     }
   }
 
-  console.log('\n========== 汇总 ==========');
-  console.log(`  总计: ${stats.total}  成功: ${stats.succeeded}  失败: ${stats.failed}`);
-  console.log(`  总重试次数: ${stats.totalAttempts} (理想 = 总计)`);
-  console.log(`  输入 tokens: ${stats.totalInputTokens.toLocaleString()}`);
-  console.log(`  输出 tokens: ${stats.totalOutputTokens.toLocaleString()}`);
-  console.log(`  缓存命中 tokens: ${stats.totalCacheHit.toLocaleString()}`
-    + ` (${stats.totalInputTokens > 0
-      ? ((stats.totalCacheHit / stats.totalInputTokens) * 100).toFixed(1)
-      : '0'}%)`);
+  console.log('\n========== Summary ==========');
+  console.log(`  Total: ${stats.total}  Succeeded: ${stats.succeeded}  Failed: ${stats.failed}`);
+  console.log(`  Total attempts: ${stats.totalAttempts} (ideal = total)`);
+  console.log(`  Input tokens: ${stats.totalInputTokens.toLocaleString()}`);
+  console.log(`  Output tokens: ${stats.totalOutputTokens.toLocaleString()}`);
+  console.log(
+    `  Cache hit tokens: ${stats.totalCacheHit.toLocaleString()}` +
+      ` (${stats.totalInputTokens > 0 ? ((stats.totalCacheHit / stats.totalInputTokens) * 100).toFixed(1) : '0'}%)`,
+  );
 
   await app.close();
   process.exit(stats.failed > 0 ? 1 : 0);
 }
 
 main().catch((err) => {
-  console.error('CLI 致命错误:', err);
+  console.error('Fatal CLI error:', err);
   process.exit(1);
 });

@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+import { buildTemplateStyleProfile } from '../../theme-layout/styleProfile';
 import type { ThemeLayoutDocument, ThemeLayoutNode } from '../types';
 import {
   CONTAINER_ALIASES,
@@ -27,40 +27,80 @@ function slug(value: string, fallback = 'item'): string {
 
 function inferPageKind(pageName: string, pageId: string): TemplatePageKind {
   const text = `${pageName} ${pageId}`.toLowerCase();
-  if (/home|首页|main/.test(text)) {return 'home';}
-  if (/order|订单|待收货|配送/.test(text)) {return 'order';}
-  if (/profile|user|account|我的|个人|会员/.test(text)) {return 'profile';}
-  if (/product|商品|goods/.test(text)) {return 'product';}
-  if (/category|分类/.test(text)) {return 'category';}
-  if (/form|表单/.test(text)) {return 'form';}
-  if (/detail|详情/.test(text)) {return 'detail';}
-  if (/dashboard|工作台|后台/.test(text)) {return 'dashboard';}
-  if (/list|列表/.test(text)) {return 'list';}
+  if (/home|首页|main/.test(text)) {
+    return 'home';
+  }
+  if (/order|订单|待收货|配送/.test(text)) {
+    return 'order';
+  }
+  if (/profile|user|account|我的|个人|会员/.test(text)) {
+    return 'profile';
+  }
+  if (/product|商品|goods/.test(text)) {
+    return 'product';
+  }
+  if (/category|分类/.test(text)) {
+    return 'category';
+  }
+  if (/form|表单/.test(text)) {
+    return 'form';
+  }
+  if (/detail|详情/.test(text)) {
+    return 'detail';
+  }
+  if (/dashboard|工作台|后台/.test(text)) {
+    return 'dashboard';
+  }
+  if (/list|列表/.test(text)) {
+    return 'list';
+  }
   return 'unknown';
 }
 
 function inferDevice(document: ThemeLayoutDocument): TemplateDevice[] {
   const text = `${document.themeName} ${document.description}`.toLowerCase();
-  if (/miniapp|小程序/.test(text)) {return ['miniapp', 'mobile'];}
-  if (/tablet|pad|平板/.test(text)) {return ['tablet'];}
-  if (/desktop|dashboard|后台|管理/.test(text)) {return ['desktop'];}
+  if (/miniapp|小程序/.test(text)) {
+    return ['miniapp', 'mobile'];
+  }
+  if (/tablet|pad|平板/.test(text)) {
+    return ['tablet'];
+  }
+  if (/desktop|dashboard|后台|管理/.test(text)) {
+    return ['desktop'];
+  }
   return ['mobile'];
 }
 
-function walkNodes(node: ThemeLayoutNode, visitor: (node: SemanticThemeLayoutNode, parent?: SemanticThemeLayoutNode) => void, parent?: SemanticThemeLayoutNode): void {
+function walkNodes(
+  node: ThemeLayoutNode,
+  visitor: (node: SemanticThemeLayoutNode, parent?: SemanticThemeLayoutNode) => void,
+  parent?: SemanticThemeLayoutNode,
+): void {
   const semanticNode = node as SemanticThemeLayoutNode;
   visitor(semanticNode, parent);
   semanticNode.children?.forEach((child) => walkNodes(child, visitor, semanticNode));
 }
 
+function nodeContains(root: ThemeLayoutNode, nodeId: string): boolean {
+  if (root.id === nodeId) {
+    return true;
+  }
+  return (root.children ?? []).some((child) => nodeContains(child, nodeId));
+}
+
 function firstText(node: ThemeLayoutNode): string | undefined {
   const props = node.props ?? {};
-  const own = [props.title, props.text, props.label, props.placeholder]
-    .find((value): value is string => typeof value === 'string' && value.trim().length > 0);
-  if (own) {return own;}
+  const own = [props.title, props.text, props.label, props.placeholder].find(
+    (value): value is string => typeof value === 'string' && value.trim().length > 0,
+  );
+  if (own) {
+    return own;
+  }
   for (const child of node.children ?? []) {
     const found = firstText(child);
-    if (found) {return found;}
+    if (found) {
+      return found;
+    }
   }
   return undefined;
 }
@@ -83,16 +123,24 @@ function buildNavigation(document: ThemeLayoutDocument): TemplateProfileNavigati
     pageKey: slug(page.name, page.id),
     pageId: page.id,
   }));
-  if (!items.length) {return undefined;}
+  if (!items.length) {
+    return undefined;
+  }
   return { type: 'bottom_tabs', items };
 }
 
-function inferPatternFields(pageKey: string, _regionKey: string | undefined, sourceRoot: ThemeLayoutNode): TemplateProfilePattern['fields'] {
+function inferPatternFields(
+  pageKey: string,
+  _regionKey: string | undefined,
+  sourceRoot: ThemeLayoutNode,
+): TemplateProfilePattern['fields'] {
   const fields: TemplateProfilePattern['fields'] = [];
   walkNodes(sourceRoot, (node) => {
     const props = EDITABLE_PROPS_BY_ALIAS[node.alias] ?? [];
     const preferred = props.find((prop) => node.props?.[prop] !== undefined) ?? props[0];
-    if (!preferred) {return;}
+    if (!preferred) {
+      return;
+    }
     if (['core.text', 'core.button', 'core.image', 'core.tag', 'core.notice'].includes(node.alias)) {
       const componentKey = node.alias.replace('core.', '');
       fields.push({
@@ -138,7 +186,9 @@ export function buildTemplateProfile(
     const rootChildren = page.layout.children ?? [];
 
     rootChildren.forEach((node) => {
-      if (node.alias === 'core.tabs') {return;}
+      if (node.alias === 'core.tabs') {
+        return;
+      }
       const semanticNode = node as SemanticThemeLayoutNode;
       const regionBase = semanticNode.meta?.regionKey ?? `${pageKey}.${slug(firstText(node) ?? node.id)}`;
       const regionKey = makeUniqueKey(regionBase, regionKeySet);
@@ -153,7 +203,8 @@ export function buildTemplateProfile(
       });
 
       if (CONTAINER_ALIASES.has(node.alias) && (node.children?.length ?? 0) >= 1) {
-        const sourceRoot = node.children?.find((child) => CONTAINER_ALIASES.has(child.alias)) ?? node.children?.[0] ?? node;
+        const sourceRoot =
+          node.children?.find((child) => CONTAINER_ALIASES.has(child.alias)) ?? node.children?.[0] ?? node;
         const patternBase = semanticNode.meta?.patternKey ?? `${pageKey}.${slug(firstText(node) ?? node.id)}.pattern`;
         const patternKey = makeUniqueKey(patternBase, patternKeySet);
         patterns.push({
@@ -172,14 +223,25 @@ export function buildTemplateProfile(
 
     walkNodes(page.layout, (node) => {
       const editableProps = EDITABLE_PROPS_BY_ALIAS[node.alias] ?? [];
-      if (!editableProps.length) {return;}
+      if (!editableProps.length) {
+        return;
+      }
       const semanticNode = node;
       const role = semanticNode.meta?.aiRole;
-      const slotBase = semanticNode.meta?.slotKey ?? `${pageKey}.${role ? slug(role) : slug(node.id)}.${node.alias.replace('core.', '')}`;
+      const slotBase =
+        semanticNode.meta?.slotKey ??
+        `${pageKey}.${role ? slug(role) : slug(node.id)}.${node.alias.replace('core.', '')}`;
       const slotKey = makeUniqueKey(slotBase, slotKeySet);
-      const matchingRegion = regions.find((region) => region.pageKey === pageKey && (
-        region.nodeId === node.id || Boolean((page.layout.children ?? []).find((child) => child.id === region.nodeId && child.children?.some((grandChild) => grandChild.id === node.id)))
-      ));
+      const matchingRegion = regions.find((region) => {
+        if (region.pageKey !== pageKey) {
+          return false;
+        }
+        if (region.nodeId === node.id) {
+          return true;
+        }
+        const regionRoot = rootChildren.find((child) => child.id === region.nodeId);
+        return regionRoot ? nodeContains(regionRoot, node.id) : false;
+      });
       slots.push({
         slotKey,
         pageKey,
@@ -203,15 +265,9 @@ export function buildTemplateProfile(
     slots,
     patterns,
     navigation: buildNavigation(document),
-    constraints: { devices: options.devices ?? inferredDevices }, 
-    styleProfile: {
-      colors: Object.values(document.cssVars ?? {}).filter((value) => /^#|rgb|hsl/.test(value)),
-      fontSizes: Object.values(document.cssVars ?? {}).filter((value) => /rem|px/.test(value)),
-      fontWeights: [],
-      spacing: [],
-      radius: [],
-      shadows: [],
-      commonLayoutPatterns: Array.from(new Set(regions.map((region) => region.sectionKind ?? 'section'))),
-    },
+    constraints: { devices: options.devices ?? inferredDevices },
+    styleProfile: buildTemplateStyleProfile(document, {
+      commonLayoutPatterns: regions.map((region) => region.sectionKind ?? 'section'),
+    }),
   };
 }

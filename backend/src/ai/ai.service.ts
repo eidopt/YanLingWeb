@@ -1,51 +1,40 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import {
-  compileSemanticEditorInstruction,
-  isSemanticEditorInstruction,
-  type SemanticEditorInstruction,
-} from '@shared/agent/compiler/semanticInstructionCompiler';
-import {
-  type AgentTemplateKnowledgeContext,
-  buildConversationContextMessages,
-  buildEditorMinimalVolatileContext,
-  buildEditorStablePrefixContext,
-  buildEditorTrimmedVolatileContext,
-  summarizeTemplateAgentKnowledge,
-} from '@shared/agent/context/editorContext';
-import { EDITOR_COPILOT_SYSTEM_PROMPT } from '@shared/agent/prompts/editorCopilotPrompt';
-import { QueryLoop, type ToolResult } from '@shared/agent/runtime/queryLoop';
-import {
-  formatUiDesignSkillContextForPrompt,
-  inferUiDesignSkillContext,
-} from '@shared/agent/skills/uiDesignSkillRegistry';
-import { buildTemplateProfile } from '@shared/agent/template/buildTemplateProfile';
-import type { TemplateProfile } from '@shared/agent/template/templateProfile';
-import { applyTemplateProfileOverride } from '@shared/agent/template/templateProfileOverride';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import type {
   AgentConversationMessage,
   AgentPageContext,
   ThemeComponentDescriptor,
   ThemeLayoutDocument,
   ThemeLayoutNode,
-} from '@shared/agent/types';
-import { withThemeLayoutStyleManifest } from '@shared/theme-layout/styleManifest';
-import { buildVisualAssetManifest } from '@shared/theme-layout/visualAssets';
+} from '@shared/agent/contracts/agent';
+import {
+  type AgentTemplateKnowledgeContext,
+  buildConversationContextMessages,
+  buildEditorMinimalVolatileContext,
+  buildEditorStablePrefixContext,
+  buildEditorTrimmedVolatileContext,
+  compileSemanticEditorInstruction,
+  EDITOR_COPILOT_SYSTEM_PROMPT,
+  formatUiDesignSkillContextForPrompt,
+  inferUiDesignSkillContext,
+  isSemanticEditorInstruction,
+  QueryLoop,
+  type SemanticEditorInstruction,
+  summarizeTemplateAgentKnowledge,
+  type TemplateProfile,
+  type ToolResult,
+} from '@shared/agent/runtime';
 import { Observable, Subject } from 'rxjs';
-import { IsNull, Not, Repository } from 'typeorm';
 
 import { ConfigService } from '../config/config.service';
-import { deriveTags } from '../shared/derive-tags';
-import { Template } from '../templates/entities/template.entity';
-import { TemplateAgentPermissions } from '../templates/entities/template-agent-permissions.entity';
-import { TemplateAssetManifest } from '../templates/entities/template-asset-manifest.entity';
-import { TemplateEvaluationSpec } from '../templates/entities/template-evaluation-spec.entity';
-import { TemplateProfileGenerated } from '../templates/entities/template-profile-generated.entity';
-import { TemplateProfileOverrideEntity } from '../templates/entities/template-profile-override.entity';
-import { TemplateAssetService } from '../templates/template-asset.service';
-import { TemplateCategoryRegistryService } from '../templates/template-category-registry.service';
-import { assertValidTemplateLayout } from '../templates/template-layout-validation';
-import { User } from '../users/entities/user.entity';
+import {
+  TEMPLATE_READ_REPOSITORY,
+  type TemplateReadRepository,
+} from '../templates/repositories/template-read.repository';
+import {
+  TEMPLATE_AGENT_KNOWLEDGE_SERVICE,
+  type TemplateAgentKnowledgeServicePort,
+} from '../templates/template-agent-knowledge.service';
+import { TemplatesService } from '../templates/templates.service';
 import { OpenAIProvider } from './core/providers/openai.provider';
 import { OpenAICompatibleProvider } from './core/providers/openai-compatible.provider';
 import type {
@@ -55,24 +44,15 @@ import type {
   ProviderStreamEvent,
   ProviderTool,
 } from './core/providers/types';
-import { tokenCountWithEstimation } from './core/utils/tokens';
 import { buildEditorClarification } from './editor-clarification';
+import { AI_SEMANTIC_TARGETS, type AiSemanticTargetConfig } from './semantic-targets.config';
 import {
-  type AiTokenUsageEndpoint,
-  AiTokenUsageEvent,
-} from './entities/ai-token-usage.entity';
-import {
-  EditorAiConversation,
-  type EditorAiConversationMessageRecord,
-  type EditorAiProviderSessionRecord,
-} from './entities/editor-ai-conversation.entity';
-import {
-  AI_SEMANTIC_TARGETS,
-  type AiSemanticTargetConfig,
-} from './semantic-targets.config';
-import { type EditorAiConversationDto, EditorConversationService, type SaveEditorAiConversationInput } from './services/editor-conversation.service';
+  type EditorAiConversationDto,
+  EditorConversationService,
+  type SaveEditorAiConversationInput,
+} from './services/editor-conversation.service';
 import { ProviderLogCompactionService } from './services/provider-log-compaction.service';
-import { type AiCacheStatsDto,TokenUsageService } from './services/token-usage.service';
+import { type AiCacheStatsDto, TokenUsageService } from './services/token-usage.service';
 import {
   EDITOR_EDIT_TOOL_NAMES,
   EDITOR_EDIT_TOOLS,
@@ -93,7 +73,10 @@ export interface AiConfigDto {
 }
 
 // Re-export types from sub-services for backward compatibility
-export type { EditorAiConversationDto, SaveEditorAiConversationInput } from './services/editor-conversation.service';
+export type {
+  EditorAiConversationDto,
+  SaveEditorAiConversationInput,
+} from './services/editor-conversation.service';
 export type { AiCacheStatsDto } from './services/token-usage.service';
 
 export type StreamRequest = ProviderRequest;
@@ -118,209 +101,61 @@ interface EditorToolInput {
   reason?: unknown;
 }
 
-interface TokenUsagePayload {
-  inputTokens: number;
-  outputTokens: number;
-  cacheHitTokens?: number;
-  cacheMissTokens?: number;
+interface EditorToolInputWithWarnings extends EditorToolInput {
+  warnings?: string[];
 }
 
-// Simple in-memory rate limiter: max N requests per window per user
+interface RateLimitEntry {
+  count: number;
+  resetAt: number;
+}
+
+interface ProviderCacheOptions {
+  conversationId?: string;
+  previousResponseId?: string;
+}
+
+interface ClarificationChoiceRecord {
+  value?: unknown;
+}
+
+interface RequiredClarificationChoiceRecord {
+  value: string;
+}
+
+interface OperationTypeRecord {
+  type?: unknown;
+}
+
+interface SemanticOperationRecord {
+  type: string;
+}
+
+interface EditorSseEventPayload {
+  type: string;
+  data: unknown;
+}
+
+interface SaveGeneratedTemplateResult {
+  templateId: string;
+  action: 'created' | 'updated';
+}
+
+interface EditorAgentStreamRequestCandidate extends Partial<EditorAgentStreamRequest> {
+  messages?: unknown;
+}
+
+// 简单内存限流器：每个用户在一个窗口内最多 N 次请求。
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 10;
-const rateLimitMap = new Map<string, { count: number; resetAt: number; }>();
+const rateLimitMap = new Map<string, RateLimitEntry>();
 const DEFAULT_EDITOR_AGENT_MAX_ITERATIONS = 96;
-const EDITOR_PROVIDER_SESSION_TTL_MS = 30 * 60_000;
-const EDITOR_PROVIDER_SESSION_EXPIRY_SAFETY_MS = 60_000;
-const MAX_EDITOR_CONVERSATION_CONTEXT_CHARS = 500_000;
-const MAX_EDITOR_CONVERSATION_MESSAGE_CHARS = 40_000;
-const MAX_PROVIDER_LOG_TOKENS = 500_000;
-const PROVIDER_LOG_FOLD_TAIL_TOKENS = 180_000;
-const PROVIDER_LOG_FOLD_MARKER = [
-  '[Editor provider history summary - earlier provider messages folded',
-  'for cache and context efficiency]',
-].join(' ');
-
-function resolveEditorAgentMaxIterations() {
+const EDITOR_AGENT_MAX_ITERATIONS = (() => {
   const configured = Number(process.env.EDITOR_AGENT_MAX_ITERATIONS);
   return Number.isFinite(configured) && configured >= 32
     ? Math.floor(configured)
     : DEFAULT_EDITOR_AGENT_MAX_ITERATIONS;
-}
-
-const EDITOR_AGENT_MAX_ITERATIONS = resolveEditorAgentMaxIterations();
-
-function normalizeEditorConversationMessages(
-  messages: unknown,
-): EditorAiConversationMessageRecord[] {
-  if (!Array.isArray(messages)) {
-    return [];
-  }
-
-  const normalized = messages
-    .flatMap((message): EditorAiConversationMessageRecord[] => {
-      if (!message || typeof message !== 'object') {
-        return [];
-      }
-
-      const value = message as Record<string, unknown>;
-      const role = value.role;
-      const content = typeof value.content === 'string'
-        ? value.content.trim()
-        : '';
-      if (
-        (role !== 'user' && role !== 'assistant')
-        || content.length === 0
-      ) {
-        return [];
-      }
-
-      return [{
-        role,
-        content: content.length > MAX_EDITOR_CONVERSATION_MESSAGE_CHARS
-          ? `[Earlier content omitted]\n${content.slice(-MAX_EDITOR_CONVERSATION_MESSAGE_CHARS)}`
-          : content,
-      }];
-    });
-
-  const retained: EditorAiConversationMessageRecord[] = [];
-  let totalChars = 0;
-  for (let index = normalized.length - 1; index >= 0; index -= 1) {
-    const next = normalized[index];
-    const nextTotal = totalChars + next.content.length;
-    if (nextTotal > MAX_EDITOR_CONVERSATION_CONTEXT_CHARS) {
-      break;
-    }
-    retained.unshift(next);
-    totalChars = nextTotal;
-  }
-  return retained;
-}
-
-function normalizeProviderMessages(messages: unknown): ProviderMessage[] {
-  if (!Array.isArray(messages)) {
-    return [];
-  }
-
-  return messages.flatMap((message): ProviderMessage[] => {
-    if (!message || typeof message !== 'object') {
-      return [];
-    }
-    const value = message as Record<string, unknown>;
-    const role = value.role;
-    if (
-      role !== 'user'
-      && role !== 'assistant'
-      && role !== 'tool_call'
-      && role !== 'tool_result'
-    ) {
-      return [];
-    }
-    const content = typeof value.content === 'string' ? value.content : '';
-    const normalized: ProviderMessage = { role, content };
-    if (typeof value.toolCallId === 'string') {
-      normalized.toolCallId = value.toolCallId;
-    }
-    if (typeof value.toolName === 'string') {
-      normalized.toolName = value.toolName;
-    }
-    if (typeof value.toolArguments === 'string') {
-      normalized.toolArguments = value.toolArguments;
-    }
-    if (typeof value.reasoningContent === 'string') {
-      normalized.reasoningContent = value.reasoningContent;
-    }
-    return [normalized];
-  });
-}
-
-function providerMessageTokenEstimate(message: ProviderMessage): number {
-  return tokenCountWithEstimation([message]);
-}
-
-function providerLogFoldBoundary(
-  messages: readonly ProviderMessage[],
-  tailTokens = PROVIDER_LOG_FOLD_TAIL_TOKENS,
-): number {
-  let tokens = 0;
-  let boundary = -1;
-  for (let index = messages.length - 1; index >= 0; index -= 1) {
-    const message = messages[index];
-    if (!message) {
-      continue;
-    }
-    const nextTokens = tokens + providerMessageTokenEstimate(message);
-    if (nextTokens > tailTokens && boundary >= 0) {
-      break;
-    }
-    tokens = nextTokens;
-    if (message.role === 'user') {
-      boundary = index;
-    }
-  }
-  return boundary;
-}
-
-function serializeProviderMessageForSummary(message: ProviderMessage, index: number): string {
-  const lines = [
-    `Message ${index + 1}`,
-    `role: ${message.role}`,
-  ];
-  if (message.toolName) {
-    lines.push(`toolName: ${message.toolName}`);
-  }
-  if (message.toolCallId) {
-    lines.push(`toolCallId: ${message.toolCallId}`);
-  }
-  if (message.toolArguments) {
-    lines.push(`toolArguments: ${message.toolArguments}`);
-  }
-  const content = typeof message.content === 'string'
-    ? message.content
-    : JSON.stringify(message.content);
-  lines.push('content:', content);
-  return lines.join('\n');
-}
-
-function templateIdFromConversationId(conversationId: string | undefined): string | null {
-  const prefix = 'editor-template-';
-  if (!conversationId?.startsWith(prefix)) {
-    return null;
-  }
-  try {
-    return decodeURIComponent(conversationId.slice(prefix.length));
-  } catch {
-    return conversationId.slice(prefix.length);
-  }
-}
-
-function isProviderSessionFresh(
-  session: EditorAiProviderSessionRecord | null | undefined,
-): session is EditorAiProviderSessionRecord {
-  if (!session?.expiresAt) {
-    return false;
-  }
-  const expiresAt = Date.parse(session.expiresAt);
-  return Number.isFinite(expiresAt)
-    && expiresAt - EDITOR_PROVIDER_SESSION_EXPIRY_SAFETY_MS > Date.now();
-}
-
-function buildProviderSessionRecord(
-  provider: string,
-  model: string,
-  conversationId: string,
-  previousResponseId?: string,
-): EditorAiProviderSessionRecord {
-  const now = new Date();
-  return {
-    provider,
-    model,
-    conversationId,
-    ...(previousResponseId && { previousResponseId }),
-    expiresAt: new Date(now.getTime() + EDITOR_PROVIDER_SESSION_TTL_MS).toISOString(),
-    updatedAt: now.toISOString(),
-  };
-}
+})();
 
 @Injectable()
 export class AiService {
@@ -330,27 +165,15 @@ export class AiService {
   private readonly apiKeyConfigured: boolean;
 
   constructor(
-    @InjectRepository(Template)
-    private readonly templateRepo: Repository<Template>,
-    @InjectRepository(TemplateProfileGenerated)
-    private readonly profileGeneratedRepo: Repository<TemplateProfileGenerated>,
-    @InjectRepository(TemplateProfileOverrideEntity)
-    private readonly profileOverrideRepo: Repository<TemplateProfileOverrideEntity>,
-    @InjectRepository(TemplateAssetManifest)
-    private readonly assetManifestRepo: Repository<TemplateAssetManifest>,
-    @InjectRepository(TemplateAgentPermissions)
-    private readonly agentPermissionsRepo: Repository<TemplateAgentPermissions>,
-    @InjectRepository(TemplateEvaluationSpec)
-    private readonly evaluationSpecRepo: Repository<TemplateEvaluationSpec>,
-    @InjectRepository(EditorAiConversation)
-    private readonly editorConversationRepo: Repository<EditorAiConversation>,
-    @InjectRepository(AiTokenUsageEvent)
-    private readonly tokenUsageRepo: Repository<AiTokenUsageEvent>,
-    @InjectRepository(User)
-    private readonly userRepo: Repository<User>,
+    @Inject(TEMPLATE_READ_REPOSITORY)
+    private readonly templates: TemplateReadRepository,
+    @Inject(TEMPLATE_AGENT_KNOWLEDGE_SERVICE)
+    private readonly templateAgentKnowledge: TemplateAgentKnowledgeServicePort,
     private readonly config: ConfigService,
-    private readonly templateAssetService: TemplateAssetService,
-    private readonly categoryRegistry: TemplateCategoryRegistryService,
+    private readonly templatesService: TemplatesService,
+    private readonly tokenUsageService: TokenUsageService,
+    private readonly editorConversations: EditorConversationService,
+    private readonly providerLogCompaction: ProviderLogCompactionService,
   ) {
     const apiKey = this.config.ai.apiKey ?? '';
 
@@ -379,6 +202,8 @@ export class AiService {
     } else {
       this.provider = new OpenAIProvider(apiKey, this.config.ai.baseUrl, 'openai');
     }
+
+    this.providerLogCompaction.configure(this.aiConfig, this.provider, this.apiKeyConfigured);
   }
 
   checkRateLimit(userId: string): void {
@@ -433,20 +258,17 @@ export class AiService {
     return this.apiKeyConfigured;
   }
 
+  foldEditorProviderMessagesByTokenBudget(
+    messages: readonly ProviderMessage[],
+  ): Promise<ProviderMessage[]> {
+    return this.providerLogCompaction.foldEditorProviderMessagesByTokenBudget(messages);
+  }
+
   async getEditorConversation(
     ownerUserId: string,
     templateId: string,
   ): Promise<EditorAiConversationDto> {
-    await this.ensureTemplateAccessible(ownerUserId, templateId);
-    const conversation = await this.editorConversationRepo.findOne({
-      where: { ownerUserId, templateId },
-    });
-
-    return {
-      templateId,
-      messages: conversation?.messages ?? [],
-      updatedAt: conversation?.updatedAt.toISOString() ?? null,
-    };
+    return this.editorConversations.getEditorConversation(ownerUserId, templateId);
   }
 
   async saveEditorConversation(
@@ -454,301 +276,18 @@ export class AiService {
     templateId: string,
     input: SaveEditorAiConversationInput,
   ): Promise<EditorAiConversationDto> {
-    await this.ensureTemplateAccessible(ownerUserId, templateId);
-    const messages = normalizeEditorConversationMessages(input.messages);
-    const existing = await this.editorConversationRepo.findOne({
-      where: { ownerUserId, templateId },
-    });
-
-    if (!messages.length) {
-      if (existing) {
-        await this.editorConversationRepo.remove(existing);
-      }
-      return { templateId, messages: [], updatedAt: null };
-    }
-
-    const conversation = existing ?? this.editorConversationRepo.create({
-      ownerUserId,
-      templateId,
-    });
-    conversation.messages = messages;
-    conversation.providerMessages ??= [];
-    conversation.providerSession ??= null;
-    const saved = await this.editorConversationRepo.save(conversation);
-
-    return {
-      templateId,
-      messages: saved.messages,
-      updatedAt: saved.updatedAt.toISOString(),
-    };
-  }
-
-  private async loadEditorProviderLog(
-    ownerUserId: string,
-    conversationId: string | undefined,
-  ): Promise<ProviderMessage[]> {
-    const templateId = templateIdFromConversationId(conversationId);
-    if (!templateId) {
-      return [];
-    }
-    await this.ensureTemplateAccessible(ownerUserId, templateId);
-    const conversation = await this.editorConversationRepo.findOne({
-      where: { ownerUserId, templateId },
-    });
-    return this.foldEditorProviderMessagesByTokenBudget(conversation?.providerMessages ?? []);
-  }
-
-  private async loadEditorProviderSession(
-    ownerUserId: string,
-    conversationId: string | undefined,
-    model: string,
-  ): Promise<EditorAiProviderSessionRecord | null> {
-    const templateId = templateIdFromConversationId(conversationId);
-    if (!templateId || !conversationId) {
-      return null;
-    }
-    await this.ensureTemplateAccessible(ownerUserId, templateId);
-    const conversation = await this.editorConversationRepo.findOne({
-      where: { ownerUserId, templateId },
-    });
-    const session = conversation?.providerSession;
-    if (
-      !isProviderSessionFresh(session)
-      || session.provider !== this.provider.name
-      || session.model !== model
-      || session.conversationId !== conversationId
-    ) {
-      return null;
-    }
-    return session;
-  }
-
-  private async saveEditorProviderSession(
-    ownerUserId: string,
-    conversationId: string | undefined,
-    model: string,
-    previousResponseId?: string,
-  ): Promise<void> {
-    const templateId = templateIdFromConversationId(conversationId);
-    if (!templateId || !conversationId) {
-      return;
-    }
-    await this.ensureTemplateAccessible(ownerUserId, templateId);
-    const existing = await this.editorConversationRepo.findOne({
-      where: { ownerUserId, templateId },
-    });
-    const conversation = existing ?? this.editorConversationRepo.create({
-      ownerUserId,
-      templateId,
-      messages: [],
-      providerMessages: [],
-    });
-    conversation.providerSession = buildProviderSessionRecord(
-      this.provider.name,
-      model,
-      conversationId,
-      previousResponseId,
-    );
-    await this.editorConversationRepo.save(conversation);
-  }
-
-  private async saveEditorProviderLog(
-    ownerUserId: string,
-    conversationId: string | undefined,
-    messages: readonly ProviderMessage[],
-  ): Promise<void> {
-    const templateId = templateIdFromConversationId(conversationId);
-    if (!templateId) {
-      return;
-    }
-    await this.ensureTemplateAccessible(ownerUserId, templateId);
-    const existing = await this.editorConversationRepo.findOne({
-      where: { ownerUserId, templateId },
-    });
-    const conversation = existing ?? this.editorConversationRepo.create({
-      ownerUserId,
-      templateId,
-      messages: [],
-    });
-    conversation.providerMessages = await this.foldEditorProviderMessagesByTokenBudget(messages);
-    conversation.providerSession ??= null;
-    await this.editorConversationRepo.save(conversation);
-  }
-
-  async foldEditorProviderMessagesByTokenBudget(
-    messages: readonly ProviderMessage[],
-    maxTokens = MAX_PROVIDER_LOG_TOKENS,
-  ): Promise<ProviderMessage[]> {
-    const normalized = normalizeProviderMessages(messages);
-    const tokens = tokenCountWithEstimation(normalized);
-    if (tokens <= maxTokens) {
-      return normalized;
-    }
-
-    const boundary = providerLogFoldBoundary(normalized);
-    if (boundary <= 0) {
-      this.logger.warn(
-        [
-          `[ProviderLog] log is over budget (~${tokens} tokens) but no safe`,
-          'user-turn fold boundary was found; keeping full log.',
-        ].join(' '),
-      );
-      return normalized;
-    }
-
-    const head = normalized.slice(0, boundary);
-    const tail = normalized.slice(boundary);
-    const summary = await this.summarizeProviderLog(head);
-    if (!summary?.content) {
-      this.logger.warn(
-        [
-          `[ProviderLog] summary fold failed for over-budget log (~${tokens}`,
-          'tokens); keeping full log.',
-        ].join(' '),
-      );
-      return normalized;
-    }
-
-    const folded: ProviderMessage[] = [
-      {
-        role: 'assistant',
-        content: [
-          PROVIDER_LOG_FOLD_MARKER,
-          '',
-          summary.content,
-        ].join('\n'),
-        ...(summary.reasoningContent ? { reasoningContent: summary.reasoningContent } : {}),
-      },
-      ...tail,
-    ];
-    this.logger.log(
-      `[ProviderLog] folded provider log messages ${normalized.length}->${folded.length} `
-      + `tokens ~${tokens}->~${tokenCountWithEstimation(folded)}`,
-    );
-    return folded;
-  }
-
-  private async summarizeProviderLog(
-    messages: readonly ProviderMessage[],
-  ): Promise<{ content: string; reasoningContent?: string; } | null> {
-    if (!this.apiKeyConfigured || messages.length === 0) {
-      return null;
-    }
-
-    const serialized = messages
-      .map((message, index) => serializeProviderMessageForSummary(message, index))
-      .join('\n\n---\n\n');
-    const summaryModel = this.aiConfig.models.lite ?? this.aiConfig.models.pro;
-    const request: StreamRequest = {
-      model: summaryModel,
-      messages: [
-        {
-          role: 'system',
-          content: [
-            'You compact provider conversation history for an editor AI agent.',
-            'Return a concise but self-contained prose summary.',
-            [
-              'Preserve user goals, clarification decisions, target pages/nodes,',
-              'tool calls, edit results, unresolved issues, and constraints needed',
-              'for future turns.',
-            ].join(' '),
-            'Do not invent facts. Do not include markdown headings. Do not call tools.',
-          ].join('\n'),
-        },
-        {
-          role: 'user',
-          content: [
-            [
-              'Summarize the provider messages below. This summary will replace',
-              'them in the next request history.',
-            ].join(' '),
-            '',
-            serialized,
-          ].join('\n'),
-        },
-      ],
-    };
-
-    let content = '';
-    let reasoningContent = '';
-    try {
-      for await (const event of this.provider.stream(request)) {
-        if (event.type === 'text_delta') {
-          content += event.text;
-        } else if (event.type === 'done' && event.reasoningContent) {
-          reasoningContent = event.reasoningContent;
-        } else if (event.type === 'error') {
-          this.logger.warn(`[ProviderLog] summary fold provider error: ${event.message}`);
-          return null;
-        }
-      }
-    } catch (err) {
-      this.logger.warn(
-        '[ProviderLog] summary fold failed',
-        err instanceof Error ? err.message : String(err),
-      );
-      return null;
-    }
-
-    const trimmed = content.trim();
-    return trimmed ? { content: trimmed, reasoningContent } : null;
+    return this.editorConversations.saveEditorConversation(ownerUserId, templateId, input);
   }
 
   async getCacheStats(ownerUserId: string): Promise<AiCacheStatsDto> {
-    const records = await this.tokenUsageRepo.find({
-      where: { ownerUserId, cacheHitTokens: Not(IsNull()) },
-      order: { createdAt: 'DESC' },
-      take: 100,
-    });
-
-    const totalHit = records.reduce((sum, record) => sum + (record.cacheHitTokens ?? 0), 0);
-    const totalMiss = records.reduce((sum, record) => sum + (record.cacheMissTokens ?? 0), 0);
-    const byEndpoint = new Map<AiTokenUsageEndpoint, {
-      count: number;
-      cacheHitTokens: number;
-      cacheMissTokens: number;
-    }>();
-
-    for (const record of records) {
-      const current = byEndpoint.get(record.endpoint) ?? {
-        count: 0,
-        cacheHitTokens: 0,
-        cacheMissTokens: 0,
-      };
-      current.count += 1;
-      current.cacheHitTokens += record.cacheHitTokens ?? 0;
-      current.cacheMissTokens += record.cacheMissTokens ?? 0;
-      byEndpoint.set(record.endpoint, current);
-    }
-
-    return {
-      totalRequests: records.length,
-      totalCacheHitTokens: totalHit,
-      totalCacheMissTokens: totalMiss,
-      overallCacheHitRate: formatHitRate(totalHit, totalMiss),
-      byEndpoint: [...byEndpoint.entries()].map(([endpoint, stats]) => ({
-        endpoint,
-        count: stats.count,
-        cacheHitTokens: stats.cacheHitTokens,
-        cacheMissTokens: stats.cacheMissTokens,
-        hitRate: formatHitRate(stats.cacheHitTokens, stats.cacheMissTokens),
-      })),
-      recentRequests: records.slice(0, 20).map((record) => ({
-        timestamp: record.createdAt.toISOString(),
-        endpoint: record.endpoint,
-        model: record.model,
-        cacheHitTokens: record.cacheHitTokens,
-        cacheMissTokens: record.cacheMissTokens,
-        hitRate: formatHitRate(record.cacheHitTokens ?? 0, record.cacheMissTokens ?? 0),
-      })),
-    };
+    return this.tokenUsageService.getCacheStats(ownerUserId);
   }
 
   /** Proxy a streaming OpenAI-compatible Responses API request, forwarding events as SSE */
   stream(
     ownerUserId: string,
     req: StreamRequest,
-    cacheOptions?: { conversationId?: string; previousResponseId?: string; },
+    cacheOptions?: ProviderCacheOptions,
   ): Observable<StreamSseEvent> {
     return new Observable<StreamSseEvent>((subscriber) => {
       const subject = new Subject<StreamSseEvent>();
@@ -775,7 +314,7 @@ export class AiService {
   streamEditor(
     ownerUserId: string,
     req: StreamRequest | EditorAgentStreamRequest,
-    cacheOptions?: { conversationId?: string; previousResponseId?: string; },
+    cacheOptions?: ProviderCacheOptions,
   ): Observable<StreamSseEvent> {
     return new Observable<StreamSseEvent>((subscriber) => {
       const subject = new Subject<StreamSseEvent>();
@@ -785,7 +324,7 @@ export class AiService {
         complete: () => subscriber.complete(),
       });
 
-      const runner = isEditorAgentStreamRequest(req)
+      const runner = this.isEditorAgentStreamRequest(req)
         ? this.runStructuredEditorStream(ownerUserId, req, subject, cacheOptions)
         : this.runEditorStream(ownerUserId, req, subject, cacheOptions);
       runner.catch((err) => {
@@ -805,7 +344,7 @@ export class AiService {
     ownerUserId: string,
     req: StreamRequest,
     subject: Subject<StreamSseEvent>,
-    cacheOptions?: { conversationId?: string; previousResponseId?: string; },
+    cacheOptions?: ProviderCacheOptions,
   ): Promise<void> {
     if (!this.apiKeyConfigured) {
       this.emitStreamEvent(subject, {
@@ -821,8 +360,14 @@ export class AiService {
 
     for await (const event of this.provider.stream(request)) {
       if (event.type === 'done' && event.usage) {
-        this.logCacheUsage(ownerUserId, model, event.usage, 'stream');
-        await this.recordTokenUsage(ownerUserId, model, event.usage, 'stream');
+        this.tokenUsageService.logCacheUsage(ownerUserId, model, event.usage, 'stream');
+        await this.tokenUsageService.recordTokenUsage(
+          ownerUserId,
+          model,
+          event.usage,
+          'stream',
+          this.aiConfig.provider,
+        );
       }
       this.emitStreamEvent(subject, event);
     }
@@ -832,7 +377,7 @@ export class AiService {
 
   private withRequestScopedCache(
     req: StreamRequest,
-    cacheOptions?: { conversationId?: string; previousResponseId?: string; },
+    cacheOptions?: ProviderCacheOptions,
   ): StreamRequest {
     if (!(this.provider instanceof OpenAIProvider) || !cacheOptions?.previousResponseId) {
       return req;
@@ -846,43 +391,11 @@ export class AiService {
     };
   }
 
-  private async ensureTemplateAccessible(
-    ownerUserId: string,
-    templateId: string,
-  ): Promise<void> {
-    const template = await this.templateRepo.findOne({
-      where: [
-        { templateId, ownerUserId },
-        { templateId, ownerUserId: IsNull(), isPublic: true },
-      ],
-    });
+  private async ensureTemplateAccessible(ownerUserId: string, templateId: string): Promise<void> {
+    const template = await this.templates.findAccessibleIdentity(ownerUserId, templateId);
     if (!template) {
       throw new NotFoundException(`Template "${templateId}" not found`);
     }
-  }
-
-  private async findAccessibleTemplate(
-    ownerUserId: string,
-    templateId: string,
-  ): Promise<Template | null> {
-    return this.templateRepo.findOne({
-      where: [
-        { templateId, ownerUserId },
-        { templateId, ownerUserId: IsNull(), isPublic: true },
-      ],
-    });
-  }
-
-  private async findTemplateAgentRecord<T extends { templateId: string; }>(
-    repo: Repository<T>,
-    templateId: string,
-    fallbackTemplateId?: string,
-  ): Promise<T | null> {
-    const current = await repo.findOne({ where: { templateId } as never });
-    if (current || !fallbackTemplateId) {
-      return current;
-    }
-    return repo.findOne({ where: { templateId: fallbackTemplateId } as never });
   }
 
   private async loadTemplateAgentKnowledge(
@@ -891,88 +404,15 @@ export class AiService {
     conversationId: string | undefined,
   ): Promise<AgentTemplateKnowledgeContext> {
     const requestedTemplateId =
-      templateIdFromConversationId(conversationId) ?? document.themeId;
-    const template = requestedTemplateId
-      ? await this.findAccessibleTemplate(ownerUserId, requestedTemplateId)
-      : null;
-    const templateId = template?.templateId;
-    const fallbackTemplateId = template?.sourceTemplateId ?? undefined;
-    let profileGenerated: TemplateProfileGenerated | null = null;
-    let profileOverride: TemplateProfileOverrideEntity | null = null;
-    let assets: TemplateAssetManifest | null = null;
-    let permissions: TemplateAgentPermissions | null = null;
-    let evaluation: TemplateEvaluationSpec | null = null;
-
-    if (templateId) {
-      [
-        profileGenerated,
-        profileOverride,
-        assets,
-        permissions,
-        evaluation,
-      ] = await Promise.all([
-        this.findTemplateAgentRecord(
-          this.profileGeneratedRepo,
-          templateId,
-          fallbackTemplateId,
-        ),
-        this.findTemplateAgentRecord(
-          this.profileOverrideRepo,
-          templateId,
-          fallbackTemplateId,
-        ),
-        this.findTemplateAgentRecord(
-          this.assetManifestRepo,
-          templateId,
-          fallbackTemplateId,
-        ),
-        this.findTemplateAgentRecord(
-          this.agentPermissionsRepo,
-          templateId,
-          fallbackTemplateId,
-        ),
-        this.findTemplateAgentRecord(
-          this.evaluationSpecRepo,
-          templateId,
-          fallbackTemplateId,
-        ),
-      ]);
-    }
-
-    const generatedProfile =
-      profileGenerated?.profile ??
-      buildTemplateProfile(document) as unknown as Record<string, unknown>;
-    const profileOverrideRecord = profileOverride?.override ?? null;
-    let effectiveProfile = generatedProfile;
-    if (profileOverrideRecord) {
-      try {
-        effectiveProfile = applyTemplateProfileOverride(
-          generatedProfile as unknown as TemplateProfile,
-          profileOverrideRecord,
-        ) as unknown as Record<string, unknown>;
-      } catch (error) {
-        this.logger.warn(
-          `[TemplateAgentConfig] Failed to apply profile override for ${templateId}: ${
-            error instanceof Error ? error.message : String(error)
-          }`,
-        );
-      }
-    }
-
-    return {
-      profileGenerated: generatedProfile,
-      profileOverride: profileOverrideRecord,
-      effectiveProfile,
-      assets: assets?.manifest ?? null,
-      permissions: permissions?.permissions ?? null,
-      evaluation: evaluation?.evaluation ?? null,
-    };
+      EditorConversationService.templateIdFromConversationId(conversationId) ?? document.themeId;
+    return this.templateAgentKnowledge.loadForEditor({
+      ownerUserId,
+      document,
+      ...(requestedTemplateId ? { templateId: requestedTemplateId } : {}),
+    });
   }
 
-  private emitStreamEvent(
-    subject: Subject<StreamSseEvent>,
-    event: ProviderStreamEvent,
-  ): void {
+  private emitStreamEvent(subject: Subject<StreamSseEvent>, event: ProviderStreamEvent): void {
     subject.next({ data: JSON.stringify(event) });
   }
 
@@ -980,7 +420,7 @@ export class AiService {
     ownerUserId: string,
     req: StreamRequest,
     subject: Subject<StreamSseEvent>,
-    cacheOptions?: { conversationId?: string; previousResponseId?: string; },
+    cacheOptions?: ProviderCacheOptions,
   ): Promise<void> {
     if (!this.apiKeyConfigured) {
       this.emitEditorEvent(subject, {
@@ -994,17 +434,19 @@ export class AiService {
 
     const model = this.resolveConfiguredModel(req.model);
     const editorTools = [...EDITOR_EDIT_TOOLS];
-    const persistedSession = await this.loadEditorProviderSession(
+    const persistedSession = await this.editorConversations.loadEditorProviderSession(
       ownerUserId,
       cacheOptions?.conversationId,
       model,
+      this.provider.name,
     );
-    const previousResponseId = cacheOptions?.previousResponseId
-      ?? persistedSession?.previousResponseId;
-    await this.saveEditorProviderSession(
+    const previousResponseId =
+      cacheOptions?.previousResponseId ?? persistedSession?.previousResponseId;
+    await this.editorConversations.saveEditorProviderSession(
       ownerUserId,
       cacheOptions?.conversationId,
       model,
+      this.provider.name,
       previousResponseId,
     );
     const loop = new QueryLoop({
@@ -1027,25 +469,22 @@ export class AiService {
       onError: (msg) => {
         this.emitEditorEvent(subject, { type: 'error', data: msg });
       },
-      onUsage: (usage) => this.recordTokenUsage(
-        ownerUserId,
-        model,
-        usage,
-        'editor',
-      ).then(() => {
-        this.logCacheUsage(ownerUserId, model, usage, 'editor');
-      }),
-      requestCache: previousResponseId
-        ? { previousResponseId }
-        : undefined,
+      onUsage: (usage) =>
+        this.tokenUsageService
+          .recordTokenUsage(ownerUserId, model, usage, 'editor', this.aiConfig.provider)
+          .then(() => {
+            this.tokenUsageService.logCacheUsage(ownerUserId, model, usage, 'editor');
+          }),
+      requestCache: previousResponseId ? { previousResponseId } : undefined,
       toolExecutor: (name, args) => this.executeEditorTool(subject, name, args),
     });
 
     const result = await loop.run(req.messages);
-    await this.saveEditorProviderSession(
+    await this.editorConversations.saveEditorProviderSession(
       ownerUserId,
       cacheOptions?.conversationId,
       model,
+      this.provider.name,
       result.responseId ?? previousResponseId,
     );
     if (result.stopReason === 'error') {
@@ -1059,7 +498,7 @@ export class AiService {
     ownerUserId: string,
     req: EditorAgentStreamRequest,
     subject: Subject<StreamSseEvent>,
-    cacheOptions?: { conversationId?: string; previousResponseId?: string; },
+    cacheOptions?: ProviderCacheOptions,
   ): Promise<void> {
     if (!this.apiKeyConfigured) {
       this.emitEditorEvent(subject, {
@@ -1089,33 +528,35 @@ export class AiService {
     }
 
     const model = this.resolveConfiguredModel(req.model);
-    const selectedChoiceText = req.clarificationChoice
-      && typeof req.clarificationChoice === 'object'
-      && 'value' in req.clarificationChoice
-      && typeof (req.clarificationChoice as { value?: unknown; }).value === 'string'
-      ? (req.clarificationChoice as { value: string; }).value
-      : '';
+    const selectedChoiceText =
+      req.clarificationChoice &&
+      typeof req.clarificationChoice === 'object' &&
+      'value' in req.clarificationChoice &&
+      typeof (req.clarificationChoice as ClarificationChoiceRecord).value === 'string'
+        ? (req.clarificationChoice as RequiredClarificationChoiceRecord).value
+        : '';
 
-    const providerLog = await this.loadEditorProviderLog(
+    const providerLog = await this.editorConversations.loadEditorProviderLog(
       ownerUserId,
       cacheOptions?.conversationId,
     );
-    const persistedSession = await this.loadEditorProviderSession(
+    const persistedSession = await this.editorConversations.loadEditorProviderSession(
       ownerUserId,
       cacheOptions?.conversationId,
       model,
+      this.provider.name,
     );
-    const previousResponseId = cacheOptions?.previousResponseId
-      ?? persistedSession?.previousResponseId;
-    await this.saveEditorProviderSession(
+    const previousResponseId =
+      cacheOptions?.previousResponseId ?? persistedSession?.previousResponseId;
+    await this.editorConversations.saveEditorProviderSession(
       ownerUserId,
       cacheOptions?.conversationId,
       model,
+      this.provider.name,
       previousResponseId,
     );
-    const fallbackConversation = providerLog.length > 0
-      ? []
-      : buildConversationContextMessages(req.conversation);
+    const fallbackConversation =
+      providerLog.length > 0 ? [] : buildConversationContextMessages(req.conversation);
     const templateKnowledge = await this.loadTemplateAgentKnowledge(
       ownerUserId,
       req.document,
@@ -1125,9 +566,11 @@ export class AiService {
     const stableEditorContext = [
       buildEditorStablePrefixContext(req.document.components),
       templateKnowledgeContext,
-    ].filter(Boolean).join('\n\n');
+    ]
+      .filter(Boolean)
+      .join('\n\n');
     const effectiveTemplateProfile = templateKnowledge.effectiveProfile
-      ? templateKnowledge.effectiveProfile as TemplateProfile
+      ? (templateKnowledge.effectiveProfile as TemplateProfile)
       : undefined;
     const prefixMessages: StreamRequest['messages'] = [
       { role: 'system', content: EDITOR_COPILOT_SYSTEM_PROMPT },
@@ -1164,7 +607,9 @@ export class AiService {
           '',
           'User request:',
           prompt,
-        ].filter(Boolean).join('\n'),
+        ]
+          .filter(Boolean)
+          .join('\n'),
       },
     ];
 
@@ -1191,36 +636,28 @@ export class AiService {
       onError: (msg) => {
         this.emitEditorEvent(subject, { type: 'error', data: msg });
       },
-      onUsage: (usage) => this.recordTokenUsage(
-        ownerUserId,
-        model,
-        usage,
-        'editor',
-      ).then(() => {
-        this.logCacheUsage(ownerUserId, model, usage, 'editor');
-      }),
-      requestCache: previousResponseId
-        ? { previousResponseId }
-        : undefined,
-      toolExecutor: (name, args) => this.executeEditorTool(
-        subject,
-        name,
-        args,
-        req.document,
-        effectiveTemplateProfile,
-      ),
+      onUsage: (usage) =>
+        this.tokenUsageService
+          .recordTokenUsage(ownerUserId, model, usage, 'editor', this.aiConfig.provider)
+          .then(() => {
+            this.tokenUsageService.logCacheUsage(ownerUserId, model, usage, 'editor');
+          }),
+      requestCache: previousResponseId ? { previousResponseId } : undefined,
+      toolExecutor: (name, args) =>
+        this.executeEditorTool(subject, name, args, req.document, effectiveTemplateProfile),
     });
 
     const result = await loop.run(messages);
-    await this.saveEditorProviderLog(
+    await this.editorConversations.saveEditorProviderLog(
       ownerUserId,
       cacheOptions?.conversationId,
       result.messages.slice(prefixMessages.length),
     );
-    await this.saveEditorProviderSession(
+    await this.editorConversations.saveEditorProviderSession(
       ownerUserId,
       cacheOptions?.conversationId,
       model,
+      this.provider.name,
       result.responseId ?? previousResponseId,
     );
     if (result.stopReason === 'error') {
@@ -1230,10 +667,7 @@ export class AiService {
     subject.complete();
   }
 
-  private emitEditorEvent(
-    subject: Subject<StreamSseEvent>,
-    event: { type: string; data: unknown; },
-  ): void {
+  private emitEditorEvent(subject: Subject<StreamSseEvent>, event: EditorSseEventPayload): void {
     subject.next({ data: JSON.stringify(event) });
   }
 
@@ -1282,7 +716,7 @@ export class AiService {
     edit: EditorToolInput,
     document: ThemeLayoutDocument | undefined,
     profile: TemplateProfile | undefined,
-  ): EditorToolInput & { warnings?: string[]; } {
+  ): EditorToolInputWithWarnings {
     if (!Array.isArray(edit.operations) || !document) {
       return edit;
     }
@@ -1293,8 +727,8 @@ export class AiService {
       if (
         operation &&
         typeof operation === 'object' &&
-        typeof (operation as { type?: unknown; }).type === 'string' &&
-        isSemanticEditorInstruction(operation as { type: string; })
+        typeof (operation as OperationTypeRecord).type === 'string' &&
+        isSemanticEditorInstruction(operation as SemanticOperationRecord)
       ) {
         const compiled = compileSemanticEditorInstruction(
           document,
@@ -1330,263 +764,25 @@ export class AiService {
     }
   }
 
-  private async recordTokenUsage(
-    ownerUserId: string,
-    model: string,
-    usage: TokenUsagePayload,
-    endpoint: AiTokenUsageEndpoint,
-  ): Promise<void> {
-    const inputTokens = sanitizeTokenCount(usage.inputTokens);
-    const outputTokens = sanitizeTokenCount(usage.outputTokens);
-    const totalTokens = inputTokens + outputTokens;
-
-    if (totalTokens <= 0) {
-      return;
-    }
-
-    try {
-      await this.tokenUsageRepo.save(this.tokenUsageRepo.create({
-        ownerUserId,
-        endpoint,
-        provider: this.aiConfig.provider,
-        model,
-        inputTokens,
-        outputTokens,
-        totalTokens,
-        cacheHitTokens: sanitizeOptionalTokenCount(usage.cacheHitTokens),
-        cacheMissTokens: sanitizeOptionalTokenCount(usage.cacheMissTokens),
-      }));
-
-      const user = await this.userRepo.findOne({ where: { id: ownerUserId } });
-      if (user) {
-        const currentUsed = BigInt(user.tokensUsed);
-        user.tokensUsed = (currentUsed + BigInt(totalTokens)).toString();
-        user.tokensBalance = Math.max(0, user.tokensBalance - totalTokens);
-        await this.userRepo.save(user);
-      }
-
-    } catch (err) {
-      this.logger.error(
-        'Failed to record AI token usage',
-        err instanceof Error ? err.message : err,
-      );
-    }
-  }
-
-  private logCacheUsage(
-    ownerUserId: string,
-    model: string,
-    usage: TokenUsagePayload,
-    endpoint: AiTokenUsageEndpoint,
-  ): void {
-    const hitTokens = sanitizeTokenCount(usage.cacheHitTokens);
-    const missTokens = sanitizeTokenCount(usage.cacheMissTokens);
-    const total = hitTokens + missTokens;
-    if (total <= 0) {
-      return;
-    }
-
-    const rate = hitTokens / total;
-    const ratio = (rate * 100).toFixed(1);
-    const user = ownerUserId.slice(0, 8);
-    this.logger.log(
-      `[Cache] endpoint=${endpoint} user=${user} model=${model} `
-      + `hit=${hitTokens} miss=${missTokens} ratio=${ratio}%`,
-    );
-    if (rate < 0.3) {
-      this.logger.warn(
-        `[Cache] low hit rate (${ratio}%) for endpoint=${endpoint}; `
-        + 'check whether stable context is being placed before per-turn data.',
-      );
-    }
-  }
-
   async saveTemplate(
     ownerUserId: string,
     input: TemplateToolInput,
-  ): Promise<{ templateId: string; action: 'created' | 'updated'; }> {
-    assertValidTemplateLayout({
-      layoutDocument: input.layoutDocument,
-      componentTemplates: input.componentTemplates,
-      requireGeneratedTemplateQuality: true,
-    });
-    this.assertTemplateCategoryKeys(input);
-
-    const existing = await this.templateRepo.findOne({ where: { templateId: input.templateId } });
-    const targetTemplateId = existing
-      ? existing.ownerUserId === ownerUserId
-        ? existing.templateId
-        : await this.createAvailableUserTemplateId(input.templateId, ownerUserId)
-      : input.templateId;
-    const assetResolution = await this.templateAssetService.resolveVisualAssetsForTemplate(
-      targetTemplateId,
-      input.layoutDocument,
-      input.visualAssets,
-    );
-    const preparedInput: TemplateToolInput = {
-      ...input,
-      templateId: targetTemplateId,
-      layoutDocument: assetResolution.layoutDocument,
-      ...(assetResolution.visualAssets.length > 0
-        ? { visualAssets: assetResolution.visualAssets }
-        : {}),
-    };
-    assertValidTemplateLayout({
-      layoutDocument: preparedInput.layoutDocument,
-      componentTemplates: preparedInput.componentTemplates,
-      requireGeneratedTemplateQuality: true,
-    });
-    await this.categoryRegistry.ensureTemplateCategories(
-      preparedInput,
-      { requireLabelsForUnknown: true },
-    );
-
-    if (existing?.ownerUserId === ownerUserId) {
-      this.applyGeneratedTemplateInput(existing, preparedInput);
-      existing.ownerUserId = ownerUserId;
-      existing.sourceTemplateId = null;
-      existing.isPublic = false;
-      await this.templateRepo.save(existing);
-      await this.saveGeneratedVisualAssets(existing.templateId, assetResolution.visualAssets);
-      this.logger.log(`Template updated: ${existing.templateId}`);
-      return { templateId: existing.templateId, action: 'updated' };
-    }
-
-    const template = this.templateRepo.create({
-      templateId: targetTemplateId,
-      ownerUserId,
-      sourceTemplateId: null,
-      isPublic: false,
-    });
-    this.applyGeneratedTemplateInput(template, preparedInput);
-    await this.templateRepo.save(template);
-    await this.saveGeneratedVisualAssets(template.templateId, assetResolution.visualAssets);
-    this.logger.log(`Template created: ${template.templateId}`);
-    return { templateId: template.templateId, action: 'created' };
+  ): Promise<SaveGeneratedTemplateResult> {
+    const result = await this.templatesService.saveGeneratedTemplate(ownerUserId, input);
+    this.logger.log(`Template ${result.action}: ${result.templateId}`);
+    return result;
   }
 
-  private async saveGeneratedVisualAssets(
-    templateId: string,
-    visualAssets: unknown,
-  ): Promise<void> {
-    const manifest = buildVisualAssetManifest(templateId, visualAssets);
-    if (!manifest) {
-      return;
+  private isEditorAgentStreamRequest(value: unknown): value is EditorAgentStreamRequest {
+    if (!value || typeof value !== 'object') {
+      return false;
     }
-
-    await this.assetManifestRepo.upsert(
-      this.assetManifestRepo.create({
-        templateId,
-        manifest: manifest as unknown as Record<string, unknown>,
-      }) as never,
-      { conflictPaths: ['templateId'], skipUpdateIfNoValuesChanged: true },
+    const input = value as EditorAgentStreamRequestCandidate;
+    return (
+      typeof input.prompt === 'string' &&
+      Boolean(input.document) &&
+      typeof input.document === 'object' &&
+      !Array.isArray(input.messages)
     );
   }
-
-  private applyGeneratedTemplateInput(
-    template: Template,
-    input: TemplateToolInput,
-  ): void {
-    template.name = input.name;
-    template.tagline = input.tagline;
-    template.description = input.description;
-    template.category = input.category;
-    template.displayCategory = input.displayCategory || input.category;
-    template.platformCategories = [...(input.platformCategories ?? [])];
-    template.functionalCategories = input.functionalCategories?.length
-      ? [...input.functionalCategories]
-      : [input.category];
-    template.primaryFunctionalCategory = template.functionalCategories[0] ?? null;
-    template.accent = input.accent;
-    template.traits = input.traits;
-    template.tags = deriveTags({
-      ...input,
-      templateId: template.templateId,
-      displayCategory: template.displayCategory,
-    });
-    template.searchText = [
-      template.name,
-      template.tagline,
-      template.description,
-      template.category,
-      template.displayCategory,
-      ...template.functionalCategories,
-      ...template.traits,
-      ...template.tags,
-    ].filter(Boolean).join(' ').toLowerCase();
-    template.cssVars = input.cssVars;
-    template.cssAnimations = input.cssAnimations ?? null;
-    template.componentTemplates = input.componentTemplates;
-    template.layoutDocument = withThemeLayoutStyleManifest(
-      input.layoutDocument,
-      input.cssVars,
-    );
-  }
-
-  private assertTemplateCategoryKeys(input: TemplateToolInput): void {
-    assertTemplateCategoryKey(input.category, 'category');
-    if (input.displayCategory) {
-      assertTemplateCategoryKey(input.displayCategory, 'displayCategory');
-    }
-    input.platformCategories?.forEach((category) =>
-      assertTemplateCategoryKey(category, 'platformCategories'));
-    input.functionalCategories?.forEach((category) =>
-      assertTemplateCategoryKey(category, 'functionalCategories'));
-  }
-
-  private async createAvailableUserTemplateId(
-    baseTemplateId: string,
-    ownerUserId: string,
-  ): Promise<string> {
-    const ownerPrefix = ownerUserId.replace(/-/g, '').slice(0, 8);
-    const base = baseTemplateId.trim() || 'ai-template';
-
-    for (let attempt = 0; attempt < 5; attempt += 1) {
-      const candidate = `${base}-ai-${ownerPrefix}-${Date.now().toString(36)}${
-        attempt ? `-${attempt}` : ''
-      }`;
-      const exists = await this.templateRepo.exists({ where: { templateId: candidate } });
-      if (!exists) {
-        return candidate;
-      }
-    }
-
-    return `${base}-ai-${ownerPrefix}-${Date.now().toString(36)}-${Math.random()
-      .toString(36)
-      .slice(2, 8)}`;
-  }
-}
-
-function sanitizeTokenCount(value: number | undefined): number {
-  if (!Number.isFinite(value) || value === undefined || value <= 0) {
-    return 0;
-  }
-  return Math.floor(Math.min(value, Number.MAX_SAFE_INTEGER));
-}
-
-function assertTemplateCategoryKey(value: string, fieldName: string): void {
-  if (!/^[a-z0-9][a-z0-9._-]*$/i.test(value) || /[\u4e00-\u9fff]/.test(value)) {
-    throw new BadRequestException(`${fieldName} must be an English slug key.`);
-  }
-}
-
-function sanitizeOptionalTokenCount(value: number | undefined): number | null {
-  const sanitized = sanitizeTokenCount(value);
-  return sanitized > 0 ? sanitized : null;
-}
-
-function isEditorAgentStreamRequest(value: unknown): value is EditorAgentStreamRequest {
-  if (!value || typeof value !== 'object') {
-    return false;
-  }
-  const input = value as Partial<EditorAgentStreamRequest> & { messages?: unknown; };
-  return typeof input.prompt === 'string'
-    && Boolean(input.document)
-    && typeof input.document === 'object'
-    && !Array.isArray(input.messages);
-}
-
-function formatHitRate(hitTokens: number, missTokens: number): string {
-  const total = hitTokens + missTokens;
-  return total > 0 ? `${((hitTokens / total) * 100).toFixed(1)}%` : 'N/A';
 }

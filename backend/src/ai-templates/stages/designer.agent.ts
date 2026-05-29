@@ -1,7 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { STAGE_DESIGNER_SYSTEM_PROMPT } from '@shared/agent/prompts/templates';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { STAGE_DESIGNER_SYSTEM_PROMPT } from '@shared/agent/runtime';
 
-import { AiService } from '../../ai/ai.service';
+import {
+  AI_TEMPLATE_PIPELINE_PROVIDER,
+  type AiTemplatePipelineProvider,
+} from '../../ai/pipeline-provider.port';
 import type {
   DesignerOutput,
   PipelineStageRecord,
@@ -10,12 +13,16 @@ import type {
 import { runStructuredStage } from '../orchestrator/run-stage';
 import { SUBMIT_TEMPLATE_BRIEF_TOOL } from '../tools/submit-template-brief.tool';
 
-const VALID_ARCHETYPES = new Set([
-  'fresh', 'immersive', 'editorial', 'vibrant', 'dark-pro',
-]);
+const VALID_ARCHETYPES = new Set(['fresh', 'immersive', 'editorial', 'vibrant', 'dark-pro']);
 const VALID_HERO_MODES = new Set([
-  'date-strip', 'function-grid', 'cover-story', 'metric-dashboard',
-  'story-ring', 'dual-column', 'timer-banner', 'search-filter',
+  'date-strip',
+  'function-grid',
+  'cover-story',
+  'metric-dashboard',
+  'story-ring',
+  'dual-column',
+  'timer-banner',
+  'search-filter',
 ]);
 const VALID_PLATFORMS = new Set(['mini-program', 'mobile-app', 'web']);
 const VALID_CHROMES = new Set(['wechat', 'app', 'none']);
@@ -30,7 +37,10 @@ const VALID_CHROMES = new Set(['wechat', 'app', 'none']);
 export class DesignerAgent {
   private readonly logger = new Logger(DesignerAgent.name);
 
-  constructor(private readonly aiService: AiService) {}
+  constructor(
+    @Inject(AI_TEMPLATE_PIPELINE_PROVIDER)
+    private readonly aiProvider: AiTemplatePipelineProvider,
+  ) {}
 
   async run(
     seed: TemplateSeed,
@@ -38,7 +48,7 @@ export class DesignerAgent {
     attempt: number,
   ): Promise<PipelineStageRecord<DesignerOutput>> {
     const start = Date.now();
-    const { provider, model, apiKeyConfigured } = this.aiService.getProviderForTemplatePipeline();
+    const { provider, model, apiKeyConfigured } = this.aiProvider.getProviderForTemplatePipeline();
     if (!apiKeyConfigured) {
       throw new Error('AI_API_KEY 未配置 — Designer 无法运行');
     }
@@ -80,17 +90,17 @@ export class DesignerAgent {
       payload.reviseSuggestion = revise;
     }
     return [
-      '请根据下方 seed 输出一份完整的设计 brief，通过 submit_template_brief'
-        + ' 工具一次提交。',
+      '请根据下方 seed 输出一份完整的设计 brief，通过 submit_template_brief' + ' 工具一次提交。',
       revise
-        ? '注意：上一次产出被审查拒绝，请按 reviseSuggestion 调整 archetype'
-          + ' 或 heroMode。'
+        ? '注意：上一次产出被审查拒绝，请按 reviseSuggestion 调整 archetype' + ' 或 heroMode。'
         : '',
       '',
       '```json',
       JSON.stringify(payload, null, 2),
       '```',
-    ].filter(Boolean).join('\n');
+    ]
+      .filter(Boolean)
+      .join('\n');
   }
 
   private parseBrief(args: Record<string, unknown>): DesignerOutput {
@@ -138,8 +148,7 @@ export class DesignerAgent {
           throw new Error(`Designer brief pages[${i}] 必须是对象`);
         }
         const page = p as Record<string, unknown>;
-        const str = (key: string): string =>
-          typeof page[key] === 'string' ? (page[key]) : '';
+        const str = (key: string): string => (typeof page[key] === 'string' ? page[key] : '');
         return {
           id: str('id'),
           name: str('name'),
@@ -156,8 +165,7 @@ export class DesignerAgent {
           throw new Error(`Designer brief componentTemplatesDraft[${i}] 必须是对象`);
         }
         const item = c as Record<string, unknown>;
-        const str = (key: string): string =>
-          typeof item[key] === 'string' ? (item[key]) : '';
+        const str = (key: string): string => (typeof item[key] === 'string' ? item[key] : '');
         return { alias: str('alias'), role: str('role'), description: str('description') };
       }),
       bottomTabs: requireArray('bottomTabs').map((t, i) => {
@@ -165,8 +173,7 @@ export class DesignerAgent {
           throw new Error(`Designer brief bottomTabs[${i}] 必须是对象`);
         }
         const tab = t as Record<string, unknown>;
-        const str = (key: string): string =>
-          typeof tab[key] === 'string' ? (tab[key]) : '';
+        const str = (key: string): string => (typeof tab[key] === 'string' ? tab[key] : '');
         return { targetPageId: str('targetPageId'), label: str('label') };
       }),
       category: requireString('category'),

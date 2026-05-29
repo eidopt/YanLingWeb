@@ -11,13 +11,11 @@ interface DynamicThemeRendererProps {
 
 export function DynamicThemeRenderer({ controller }: DynamicThemeRendererProps) {
   useInjectAnimations(controller.runtime);
-  const ready = useDependencyLoader(controller.state.layoutDocument.dependencies);
+  const ready = useDependencyLoader(controller.state.layoutDocument.dependencies, controller.runtime.widgetPolicy);
 
-  if (!ready) {return null;}
+  if (!ready) {
+    return null;
+  }
 
-  return renderThemeNodeTree(
-    controller.runtime,
-    controller.state,
-    controller.renderNodeShell,
-  );
+  return renderThemeNodeTree(controller.runtime, controller.state, controller.renderNodeShell);
 }

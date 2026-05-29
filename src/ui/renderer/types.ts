@@ -1,8 +1,4 @@
-import type {
-  ThemeLayoutDocument,
-  ThemeLayoutNode,
-  ThemeLayoutPage,
-} from '../layout/types';
+import type { ThemeLayoutDocument, ThemeLayoutNode, ThemeLayoutPage, ThemeLayoutWidgetPolicy } from '../layout/types';
 import type { ComponentTemplateMap } from './templateTypes';
 import type { CSSProperties, ReactNode } from 'react';
 
@@ -16,6 +12,7 @@ export interface ThemeRuntime {
    * e.g. { "shimmer": "0% { opacity:0 } 100% { opacity:1 }" }
    */
   cssAnimations?: Record<string, string>;
+  widgetPolicy?: ThemeLayoutWidgetPolicy;
 }
 
 export interface DynamicThemeNodeShellContext {

@@ -1,9 +1,10 @@
 import { BadRequestException } from '@nestjs/common';
-import type { ThemeLayoutDocument } from '@shared/agent/types';
+import type { ThemeLayoutDocument } from '@shared/agent/contracts/agent';
 import {
   renderSmokeThemeLayoutDocument,
   validateThemeLayoutDocument,
-} from '@shared/agent/validation/themeLayoutValidator';
+} from '@shared/agent/contracts/validation';
+import { isThemeLayoutDocument } from '@shared/theme-layout/documentBoundary';
 import { migrateThemeLayoutDocument } from '@shared/theme-layout/migrations';
 import { withThemeLayoutStyleManifest } from '@shared/theme-layout/styleManifest';
 
@@ -18,9 +19,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
 
-function toValidationErrorResponse(
-  validation: ReturnType<typeof validateThemeLayoutDocument>,
-) {
+function toValidationErrorResponse(validation: ReturnType<typeof validateThemeLayoutDocument>) {
   return {
     message: 'Template layoutDocument failed schema validation',
     code: 'template_layout_invalid',
@@ -51,34 +50,49 @@ export function prepareTemplateLayoutForPersistence({
     throw new BadRequestException({
       message: 'Template layoutDocument failed schema validation',
       code: 'template_layout_invalid',
-      errors: [{
-        path: 'layoutDocument',
-        code: 'invalid_document',
-        message: 'layoutDocument must be an object',
-        severity: 'error',
-      }],
+      errors: [
+        {
+          path: 'layoutDocument',
+          code: 'invalid_document',
+          message: 'layoutDocument must be an object',
+          severity: 'error',
+        },
+      ],
       warnings: [],
     });
   }
 
   const migrated = withThemeLayoutStyleManifest(
-    migrateThemeLayoutDocument(layoutDocument) as unknown as Record<string, unknown>,
+    migrateThemeLayoutDocument(layoutDocument),
     cssVars,
-  ) as unknown as ThemeLayoutDocument;
-  const validation = validateThemeLayoutDocument(
-    migrated,
-    {
-      componentTemplates,
-      failOnUnknownProps: true,
-      ...(requireGeneratedTemplateQuality
-        ? {
+  );
+  if (!isThemeLayoutDocument(migrated)) {
+    throw new BadRequestException({
+      message: 'Template layoutDocument failed schema validation',
+      code: 'template_layout_invalid',
+      errors: [
+        {
+          path: 'layoutDocument',
+          code: 'invalid_document',
+          message: 'layoutDocument must match ThemeLayoutDocument structure',
+          severity: 'error',
+        },
+      ],
+      warnings: [],
+    });
+  }
+
+  const validation = validateThemeLayoutDocument(migrated, {
+    componentTemplates,
+    failOnUnknownProps: true,
+    ...(requireGeneratedTemplateQuality
+      ? {
           requireValidImageUrls: true,
           requireLocalizedPropLabels: true,
           requireChineseVisibleText: true,
         }
-        : {}),
-    },
-  );
+      : {}),
+  });
 
   if (!validation.valid) {
     throw new BadRequestException(toValidationErrorResponse(validation));

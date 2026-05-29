@@ -30,52 +30,60 @@ createRoot(document.getElementById('root')!).render(
 }
 
 export function generatePackageJson(projectName: string): string {
-  return `${JSON.stringify({
-    name: projectName,
-    private: true,
-    version: '0.0.0',
-    type: 'module',
-    scripts: {
-      dev: 'vite',
-      build: 'vite build',
-      preview: 'vite preview',
+  return `${JSON.stringify(
+    {
+      name: projectName,
+      private: true,
+      version: '0.0.0',
+      type: 'module',
+      scripts: {
+        dev: 'vite',
+        build: 'vite build',
+        preview: 'vite preview',
+      },
+      dependencies: {
+        vite: 'latest',
+        typescript: 'latest',
+        react: 'latest',
+        'react-dom': 'latest',
+      },
+      devDependencies: {
+        '@types/react': 'latest',
+        '@types/react-dom': 'latest',
+      },
     },
-    dependencies: {
-      vite: 'latest',
-      typescript: 'latest',
-      react: 'latest',
-      'react-dom': 'latest',
-    },
-    devDependencies: {
-      '@types/react': 'latest',
-      '@types/react-dom': 'latest',
-    },
-  }, null, 2)}
+    null,
+    2,
+  )}
 `;
 }
 
 export function generateTsConfig(): string {
-  return `${JSON.stringify({
-    compilerOptions: {
-      target: 'ES2022',
-      useDefineForClassFields: true,
-      lib: ['DOM', 'DOM.Iterable', 'ES2022'],
-      allowJs: false,
-      skipLibCheck: true,
-      esModuleInterop: true,
-      allowSyntheticDefaultImports: true,
-      strict: true,
-      forceConsistentCasingInFileNames: true,
-      module: 'ESNext',
-      moduleResolution: 'Bundler',
-      resolveJsonModule: true,
-      isolatedModules: true,
-      noEmit: true,
-      jsx: 'react-jsx',
+  return `${JSON.stringify(
+    {
+      compilerOptions: {
+        target: 'ES2022',
+        useDefineForClassFields: true,
+        lib: ['DOM', 'DOM.Iterable', 'ES2022'],
+        allowJs: false,
+        skipLibCheck: true,
+        esModuleInterop: true,
+        allowSyntheticDefaultImports: true,
+        strict: true,
+        forceConsistentCasingInFileNames: true,
+        module: 'ESNext',
+        moduleResolution: 'Bundler',
+        resolveJsonModule: true,
+        isolatedModules: true,
+        noEmit: true,
+        jsx: 'react-jsx',
+      },
+      include: ['src'],
+      references: [],
     },
-    include: ['src'],
-    references: [],
-  }, null, 2)}
+    null,
+    2,
+  )}
 `;
 }
 
@@ -125,8 +133,7 @@ function serializeExportTokenMap(cssVars: Record<string, string> = {}): string {
 
 function serializeCssAnimations(cssAnimations: Record<string, string> = {}): string {
   return Object.entries(cssAnimations)
-    .filter(([name, body]) =>
-      /^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(name) && typeof body === 'string')
+    .filter(([name, body]) => /^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(name) && typeof body === 'string')
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([name, body]) => `@keyframes ${name} {\n  ${body}\n}`)
     .join('\n\n');
@@ -229,6 +236,15 @@ input {
   font-weight: 700;
 }
 
+button.statusBar {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+
 .headerSpacer {
   width: 64px;
   flex: 0 0 64px;
@@ -243,6 +259,14 @@ input {
   text-overflow: ellipsis;
   font-size: 12px;
   font-weight: 700;
+}
+
+button.headerAction {
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
 }
 
 .screenHeader {
@@ -378,12 +402,77 @@ input {
 }
 
 .core-image,
-.widgetPlaceholder,
+.staticWidget,
 .unsupportedNode {
   min-height: 96px;
   border-radius: calc(var(--export-radius-base, 8px) * 1.1);
   border: 0;
   background: rgba(28, 17, 7, 0.08);
+}
+
+.staticWidget {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  color: #111827;
+}
+
+.staticWidgetHeader,
+.staticWidgetBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.staticWidgetHeader span {
+  font-weight: 700;
+}
+
+.staticWidgetHeader small {
+  color: #6b7280;
+}
+
+.staticWidgetBars {
+  display: grid;
+  gap: 8px;
+}
+
+.staticWidgetBar span {
+  width: 96px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.staticWidgetBar div {
+  flex: 1;
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, 0.12);
+}
+
+.staticWidgetBar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--export-accent, #2563eb);
+}
+
+.staticWidgetBar strong {
+  min-width: 40px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.staticWidget pre {
+  max-height: 220px;
+  overflow: auto;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 12px;
 }
 
 img.core-image {
@@ -443,6 +532,116 @@ img.core-image[data-fit="fill"] {
   opacity: 0.48;
 }
 
+.core-checkbox,
+.core-radio,
+.core-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--export-text-base, #101828);
+}
+
+.core-checkbox input,
+.core-radio input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.checkbox-box,
+.radio-dot {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  border: 2px solid color-mix(in srgb, var(--export-text-base, #101828) 24%, transparent);
+  background: #ffffff;
+}
+
+.checkbox-box {
+  border-radius: 5px;
+}
+
+.radio-dot {
+  border-radius: 999px;
+}
+
+.core-checkbox input:checked + .checkbox-box,
+.core-radio input:checked + .radio-dot {
+  border-color: var(--export-accent, #2563eb);
+  background: var(--export-accent, #2563eb);
+  box-shadow: inset 0 0 0 4px #ffffff;
+}
+
+.core-switch {
+  width: fit-content;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+}
+
+.core-switch:disabled {
+  cursor: default;
+  opacity: 0.48;
+}
+
+.switch-track {
+  width: 42px;
+  height: 24px;
+  padding: 3px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--export-text-base, #101828) 18%, transparent);
+  transition: background 160ms ease;
+}
+
+.switch-track[data-checked="true"] {
+  background: var(--export-accent, #2563eb);
+}
+
+.switch-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(16, 24, 40, 0.18);
+  transform: translateX(0);
+  transition: transform 160ms ease;
+}
+
+.switch-track[data-checked="true"] .switch-thumb {
+  transform: translateX(18px);
+}
+
+.core-rate {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  width: fit-content;
+}
+
+.rate-star {
+  border: 0;
+  padding: 0 1px;
+  color: color-mix(in srgb, var(--export-text-base, #101828) 34%, transparent);
+  background: transparent;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.rate-star.filled {
+  color: #f59e0b;
+}
+
+.rate-star:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
 .core-tag,
 .core-notice {
   display: inline-flex;
@@ -496,6 +695,21 @@ img.core-image[data-fit="fill"] {
 
 .core-progress[data-tone="info"] span {
   background: #0ea5e9;
+}
+
+.async-data-status,
+.async-data-error,
+.async-data-empty {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--export-radius-base, 8px);
+  background: rgba(255, 255, 255, 0.82);
+  color: color-mix(in srgb, var(--export-text-base, #101828) 72%, white);
+}
+
+.async-data-error {
+  color: #991b1b;
+  background: color-mix(in srgb, #dc2626 12%, white);
 }
 
 .core-divider {

@@ -1,212 +1,38 @@
 const assert = require('node:assert/strict');
-const { spawnSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
+const { compileFixtureProject, createFixtureDocument, repoRoot, run } = require('./source-export-fixture.cjs');
 
-const repoRoot = path.resolve(__dirname, '..');
 const workDir = path.join(repoRoot, '.workbuddy', 'source-export-smoke');
-const cjsDir = path.join(workDir, 'cjs');
 const projectDir = path.join(workDir, 'project');
 
-function run(command, args, options = {}) {
-  const result = spawnSync(command, args, {
-    cwd: repoRoot,
-    encoding: 'utf8',
-    stdio: 'pipe',
-    ...options,
-  });
-  if (result.status !== 0) {
-    throw new Error(
-      [
-        `Command failed: ${command} ${args.join(' ')}`,
-        result.stdout,
-        result.stderr,
-      ].filter(Boolean).join('\n'),
-    );
-  }
-  return result;
-}
-
-function writeProject(files) {
-  fs.rmSync(projectDir, { recursive: true, force: true });
-  for (const file of files) {
-    const filePath = path.join(projectDir, file.relativePath);
-    fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    fs.writeFileSync(filePath, file.content, 'utf8');
-  }
-}
-
-function createFixtureDocument() {
-  return {
-    version: 1,
-    schemaVersion: 1,
-    themeId: 'source-export-fixture',
-    themeName: 'Source Export Fixture',
-    description: 'Fixture used by source export smoke tests.',
-    components: [
-      {
-        alias: 'fixture-card',
-        name: 'Fixture card',
-        kind: 'component',
-        description: 'Unsupported custom component fixture.',
-        props: [],
-      },
-    ],
-    defaultPageId: 'home',
-    pages: [
-      {
-        id: 'home',
-        name: 'Home',
-        layout: {
-          id: 'home-screen',
-          alias: 'core.screen',
-          layout: { mode: 'flow', width: '100%' },
-          props: { title: 'Home' },
-          children: [
-            {
-              id: 'hero-panel',
-              alias: 'core.panel',
-              layout: { mode: 'flow', width: '100%' },
-              props: { tone: 'accent', gap: 12 },
-              children: [
-                {
-                  id: 'headline',
-                  alias: 'core.text',
-                  layout: { mode: 'flow' },
-                  props: { text: 'Maintainable source export', variant: 'heading' },
-                },
-                {
-                  id: 'search',
-                  alias: 'core.search',
-                  layout: { mode: 'flow', width: '100%' },
-                  props: { placeholder: 'Search generated source' },
-                },
-                {
-                  id: 'cta',
-                  alias: 'core.button',
-                  layout: { mode: 'flow' },
-                  props: { label: 'Open details' },
-                  interactions: { onClick: { type: 'navigate', targetPageId: 'details' } },
-                },
-              ],
-            },
-            {
-              id: 'widget',
-              alias: 'core.widget',
-              layout: { mode: 'flow', width: '100%' },
-              props: {},
-            },
-          ],
-        },
-      },
-      {
-        id: 'details',
-        name: 'Details',
-        layout: {
-          id: 'details-screen',
-          alias: 'core.screen',
-          layout: { mode: 'flow', width: '100%' },
-          props: { title: 'Details' },
-          children: [
-            {
-              id: 'html-block',
-              alias: 'core.html',
-              layout: { mode: 'flow' },
-              props: { tag: 'section', style: { padding: '12px' } },
-              children: [
-                {
-                  id: 'details-copy',
-                  alias: 'core.text',
-                  layout: { mode: 'flow' },
-                  props: { text: 'Editable generated page source', variant: 'body' },
-                },
-              ],
-            },
-            {
-              id: 'tabs',
-              alias: 'core.tabs',
-              layout: { mode: 'flow' },
-              props: { tabs: ['Home', 'Details'], activeTab: 'Details' },
-              interactions: {
-                onTabClick: {
-                  Home: { type: 'navigate', targetPageId: 'home' },
-                  Details: { type: 'navigate', targetPageId: 'details' },
-                },
-              },
-            },
-            {
-              id: 'unsupported',
-              alias: 'fixture-card',
-              layout: { mode: 'flow' },
-              props: {},
-            },
-          ],
-        },
-      },
-    ],
-    layout: {
-      id: 'home-screen',
-      alias: 'core.screen',
-      layout: { mode: 'flow', width: '100%' },
-      props: { title: 'Home' },
-      children: [],
-    },
-  };
-}
-
 fs.rmSync(workDir, { recursive: true, force: true });
-fs.mkdirSync(cjsDir, { recursive: true });
-fs.writeFileSync(path.join(cjsDir, 'package.json'), '{"type":"commonjs"}', 'utf8');
-const smokeTsconfig = path.join(workDir, 'tsconfig.cjs.json');
-fs.writeFileSync(smokeTsconfig, JSON.stringify({
-  compilerOptions: {
-    ignoreDeprecations: '6.0',
-    module: 'commonjs',
-    target: 'ES2020',
-    jsx: 'react-jsx',
-    moduleResolution: 'node',
-    esModuleInterop: true,
-    skipLibCheck: true,
-    baseUrl: '../..',
-    paths: {
-      '*': ['src/*'],
-      '@shared/*': ['shared/*'],
-    },
-    rootDir: '../..',
-    outDir: cjsDir,
-  },
-  include: [
-    '../../src/exporters/react-source/index.ts',
-    '../../shared/**/*.ts',
-  ],
-}, null, 2), 'utf8');
 
-run(process.execPath, [
-  path.join(repoRoot, 'node_modules', 'typescript', 'bin', 'tsc'),
-  '-p', smokeTsconfig,
-]);
-fs.cpSync(
-  path.join(cjsDir, 'shared'),
-  path.join(cjsDir, 'node_modules', '@shared'),
-  { recursive: true },
-);
-
+const { files } = compileFixtureProject({ workDir, projectDir });
 const { compileDocumentToReactProject } = require(
-  path.join(cjsDir, 'src', 'exporters', 'react-source', 'index.js'),
+  path.join(workDir, 'cjs', 'src', 'exporters', 'react-source', 'index.js'),
 );
-const document = createFixtureDocument();
-const files = compileDocumentToReactProject(document, {
-  projectName: 'Source Export Fixture',
-});
-const secondRun = compileDocumentToReactProject(document, {
+const secondRun = compileDocumentToReactProject(createFixtureDocument(), {
   projectName: 'Source Export Fixture',
 });
 
 assert.deepEqual(files, secondRun, 'source export output must be stable');
 assert(files.some((file) => file.relativePath === 'src/pages/home.tsx'));
 assert(files.some((file) => file.relativePath === 'src/pages/details.tsx'));
+assert(files.some((file) => file.relativePath === 'src/data/dataSources.ts'));
+assert(files.some((file) => file.relativePath === 'src/data/useExportedData.ts'));
+assert(files.some((file) => file.relativePath === 'src/components/AsyncDataBoundary.tsx'));
 assert(files.some((file) => file.relativePath === 'src/components/HtmlBlock.tsx'));
-assert(files.some((file) => file.relativePath === 'src/components/WidgetPlaceholder.tsx'));
+assert(files.some((file) => file.relativePath === 'src/components/InteractiveAlert.tsx'));
+assert(files.some((file) => file.relativePath === 'src/components/InteractiveCarousel.tsx'));
+assert(files.some((file) => file.relativePath === 'src/components/InteractiveDialog.tsx'));
+assert(files.some((file) => file.relativePath === 'src/components/InteractiveDrawer.tsx'));
+assert(files.some((file) => file.relativePath === 'src/components/InteractiveForm.tsx'));
+assert(files.some((file) => file.relativePath === 'src/components/InteractivePagination.tsx'));
+assert(files.some((file) => file.relativePath === 'src/components/InteractiveRate.tsx'));
+assert(files.some((file) => file.relativePath === 'src/components/InteractiveSwitch.tsx'));
+assert(files.some((file) => file.relativePath === 'src/components/InteractiveTabs.tsx'));
+assert(files.some((file) => file.relativePath === 'src/components/StaticWidget.tsx'));
 assert(files.some((file) => file.relativePath === 'src/components/UnsupportedNode.tsx'));
 assert(!files.some((file) => file.relativePath === 'layout.json'));
 
@@ -216,36 +42,110 @@ assert(appFile && appFile.content.includes('"home": HomePage'));
 assert(appFile && appFile.content.includes('"details": DetailsPage'));
 const homePage = files.find((file) => file.relativePath === 'src/pages/home.tsx');
 assert(homePage && homePage.content.includes('Maintainable source export'));
-assert(homePage && homePage.content.includes('WidgetPlaceholder'));
+assert(homePage && homePage.content.includes('StaticWidget'));
+assert(homePage && homePage.content.includes('AsyncDataBoundary'));
+assert(homePage && homePage.content.includes('InteractiveCarousel'));
+assert(homePage && homePage.content.includes('InteractiveAlert'));
+assert(homePage && homePage.content.includes('InteractiveDialog'));
+assert(homePage && homePage.content.includes('InteractiveDrawer'));
+assert(homePage && homePage.content.includes('InteractiveForm'));
+assert(homePage && homePage.content.includes('InteractiveRate'));
+assert(homePage && homePage.content.includes('InteractiveSwitch'));
+assert(homePage && homePage.content.includes('"echarts"'));
+assert(homePage && homePage.content.includes('"Draft"'));
+assert(homePage && homePage.content.includes('sourceId="fixture-widget-source"'));
+assert(homePage && homePage.content.includes('data={data}'));
 assert(homePage && homePage.content.includes('Open details'));
+assert(homePage && homePage.content.includes('Open confirm dialog'));
+assert(homePage && homePage.content.includes('Toggle settings drawer'));
+assert(homePage && homePage.content.includes('useState<Record<string, boolean>>(initialVisibleNodes)'));
+assert(homePage && homePage.content.includes('setNodeVisibility("confirm-dialog", true)'));
+assert(homePage && homePage.content.includes('toggleNodeVisibility("settings-drawer")'));
+assert(homePage && homePage.content.includes('visible={visibleNodes["confirm-dialog"] ?? false}'));
+assert(homePage && homePage.content.includes('visible={visibleNodes["settings-drawer"] ?? false}'));
+assert(homePage && homePage.content.includes('className="statusBar" type="button" onClick'));
+assert(homePage && homePage.content.includes('className="headerAction" type="button" onClick'));
+assert(homePage && homePage.content.includes('No export tasks are blocked.'));
+assert(homePage && homePage.content.includes('className="empty-action" onClick'));
+assert(homePage && homePage.content.includes('Closable export alert'));
 const detailsPage = files.find((file) => file.relativePath === 'src/pages/details.tsx');
 assert(detailsPage && detailsPage.content.includes('Home'));
 assert(detailsPage && detailsPage.content.includes('Details'));
+assert(detailsPage && detailsPage.content.includes('InteractivePagination'));
+assert(detailsPage && detailsPage.content.includes('InteractiveTabs'));
+assert(detailsPage && detailsPage.content.includes('sourceId="fixture-table-source"'));
+assert(detailsPage && detailsPage.content.includes('asRecordArray(data).map'));
+assert(detailsPage && detailsPage.content.includes('readDisplayValue(row, "name")'));
+assert(detailsPage && detailsPage.content.includes('Loading fixture table'));
+const dataSources = files.find((file) => file.relativePath === 'src/data/dataSources.ts');
+assert(dataSources && dataSources.content.includes('fixture-table-source'));
+assert(dataSources && dataSources.content.includes('staticJson'));
+assert(dataSources && dataSources.content.includes('publicJsonEndpoint'));
+assert(dataSources && dataSources.content.includes('https://example.test/source-export-widget.json'));
+assert(dataSources && dataSources.content.includes('Fallback A'));
+assert(dataSources && !dataSources.content.includes('javascript:'));
+const asyncDataBoundary = files.find((file) => file.relativePath === 'src/components/AsyncDataBoundary.tsx');
+assert(asyncDataBoundary && asyncDataBoundary.content.includes('role="status"'));
+assert(asyncDataBoundary && asyncDataBoundary.content.includes('role="alert"'));
+const interactiveTabs = files.find((file) => file.relativePath === 'src/components/InteractiveTabs.tsx');
+assert(interactiveTabs && interactiveTabs.content.includes('useState'));
+assert(interactiveTabs && interactiveTabs.content.includes('setActiveTab(tab)'));
+const interactiveCarousel = files.find((file) => file.relativePath === 'src/components/InteractiveCarousel.tsx');
+assert(interactiveCarousel && interactiveCarousel.content.includes('setActiveIndex'));
+assert(interactiveCarousel && interactiveCarousel.content.includes('Next slide'));
+const interactivePagination = files.find((file) => file.relativePath === 'src/components/InteractivePagination.tsx');
+assert(interactivePagination && interactivePagination.content.includes('setCurrentPage'));
+assert(interactivePagination && interactivePagination.content.includes('aria-current'));
+const interactiveAlert = files.find((file) => file.relativePath === 'src/components/InteractiveAlert.tsx');
+assert(interactiveAlert && interactiveAlert.content.includes('role="alert"'));
+assert(interactiveAlert && interactiveAlert.content.includes('setVisible(false)'));
+const interactiveForm = files.find((file) => file.relativePath === 'src/components/InteractiveForm.tsx');
+assert(interactiveForm && interactiveForm.content.includes('event.preventDefault()'));
+assert(interactiveForm && interactiveForm.content.includes('setSubmitted(true)'));
+assert(homePage && homePage.content.includes('type="checkbox" defaultChecked'));
+assert(homePage && homePage.content.includes('type="radio" name="lead-choice" defaultChecked'));
+const interactiveSwitch = files.find((file) => file.relativePath === 'src/components/InteractiveSwitch.tsx');
+assert(interactiveSwitch && interactiveSwitch.content.includes('role="switch"'));
+assert(interactiveSwitch && interactiveSwitch.content.includes('setChecked((current) => !current)'));
+assert(interactiveSwitch && interactiveSwitch.content.includes('aria-checked={checked}'));
+const interactiveRate = files.find((file) => file.relativePath === 'src/components/InteractiveRate.tsx');
+assert(interactiveRate && interactiveRate.content.includes('role="radiogroup"'));
+assert(interactiveRate && interactiveRate.content.includes('setCurrentValue(nextValue)'));
+assert(interactiveRate && interactiveRate.content.includes('aria-checked={Object.is(nextValue, currentValue)}'));
+const interactiveDialog = files.find((file) => file.relativePath === 'src/components/InteractiveDialog.tsx');
+assert(interactiveDialog && interactiveDialog.content.includes('role="dialog"'));
+assert(interactiveDialog && interactiveDialog.content.includes('setCurrentVisible(false)'));
+assert(interactiveDialog && interactiveDialog.content.includes('onVisibleChange?.(nextVisible)'));
+const interactiveDrawer = files.find((file) => file.relativePath === 'src/components/InteractiveDrawer.tsx');
+assert(interactiveDrawer && interactiveDrawer.content.includes('Close drawer'));
+assert(interactiveDrawer && interactiveDrawer.content.includes('setCurrentVisible(false)'));
+assert(interactiveDrawer && interactiveDrawer.content.includes('onVisibleChange?.(nextVisible)'));
+assert(!homePage.content.includes('javascript:alert'));
+assert(!detailsPage.content.includes('example.test/image.png'));
+assert(!detailsPage.content.includes('backgroundImage'));
 
-writeProject(files);
-run(process.execPath, [
-  path.join(repoRoot, 'node_modules', 'vite', 'bin', 'vite.js'),
-  'build',
-], { cwd: projectDir });
+run(process.execPath, [path.join(repoRoot, 'node_modules', 'vite', 'bin', 'vite.js'), 'build'], {
+  cwd: projectDir,
+});
 
 assert(fs.existsSync(path.join(projectDir, 'dist', 'index.html')));
 
 const homePagePath = path.join(projectDir, 'src', 'pages', 'home.tsx');
-const editedSource = fs.readFileSync(homePagePath, 'utf8')
+const editedSource = fs
+  .readFileSync(homePagePath, 'utf8')
   .replace('Maintainable source export', 'Manually edited export text');
 fs.writeFileSync(homePagePath, editedSource, 'utf8');
-run(process.execPath, [
-  path.join(repoRoot, 'node_modules', 'vite', 'bin', 'vite.js'),
-  'build',
-], { cwd: projectDir });
+run(process.execPath, [path.join(repoRoot, 'node_modules', 'vite', 'bin', 'vite.js'), 'build'], {
+  cwd: projectDir,
+});
 
-const builtAssetText = fs.readdirSync(path.join(projectDir, 'dist', 'assets'))
+const builtAssetText = fs
+  .readdirSync(path.join(projectDir, 'dist', 'assets'))
   .filter((name) => name.endsWith('.js'))
-  .map((name) =>
-    fs.readFileSync(path.join(projectDir, 'dist', 'assets', name), 'utf8'),
-  )
+  .map((name) => fs.readFileSync(path.join(projectDir, 'dist', 'assets', name), 'utf8'))
   .join('\n');
 assert(builtAssetText.includes('Manually edited export text'));
+assert(builtAssetText.includes('Fallback A'));
 
 fs.rmSync(workDir, { recursive: true, force: true });
 console.log('Source export smoke test passed.');

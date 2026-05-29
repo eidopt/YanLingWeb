@@ -1,4 +1,4 @@
-import type { AgentEvent, AgentToolCall } from '@shared/agent/types';
+import type { AgentEvent, AgentToolCall } from '@shared/agent/contracts/agent';
 
 export class AgentEventRecorder {
   private eventSeq = 0;

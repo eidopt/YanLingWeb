@@ -2,11 +2,7 @@ import { applyVisualAssetsToLayoutDocument } from '@shared/theme-layout/visualAs
 import { type CSSProperties, useEffect, useMemo, useState } from 'react';
 import type { ThemeLayoutDocument, ThemeLayoutDocumentSource } from 'ui/layout/types';
 import { normalizeThemeLayoutDocument } from 'ui/layout/types';
-import {
-  DynamicThemeRenderer,
-  type DynamicThemeScreenPreset,
-  useDynamicThemeRendererController,
-} from 'ui/renderer';
+import { DynamicThemeRenderer, type DynamicThemeScreenPreset, useDynamicThemeRendererController } from 'ui/renderer';
 import type { ComponentTemplateMap } from 'ui/renderer/templateTypes';
 import type { ThemeRuntime } from 'ui/renderer/types';
 
@@ -34,6 +30,12 @@ interface PreviewTemplate {
   runtime: ThemeRuntime;
 }
 
+interface TemplatePreviewState {
+  file: string;
+  template: PreviewTemplate | null;
+  error: string | null;
+}
+
 interface Props {
   file: string;
   device: DynamicThemeScreenPreset;
@@ -49,41 +51,47 @@ function asStringRecord(value: unknown): Record<string, string> {
   }
 
   return Object.fromEntries(
-    Object.entries(value).filter((entry): entry is [string, string] => (
-      typeof entry[1] === 'string'
-    )),
+    Object.entries(value).filter((entry): entry is [string, string] => typeof entry[1] === 'string'),
+  );
+}
+
+function isThemeLayoutDocumentSource(value: unknown): value is ThemeLayoutDocumentSource {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return (
+    typeof value.version === 'number' &&
+    typeof value.themeId === 'string' &&
+    typeof value.themeName === 'string' &&
+    typeof value.description === 'string' &&
+    Array.isArray(value.components) &&
+    (Array.isArray(value.pages) || isRecord(value.layout))
   );
 }
 
 function toPreviewTemplate(raw: unknown): PreviewTemplate {
   if (!isRecord(raw)) {
-    throw new Error('模板 JSON 必须是对象');
+    throw new Error('Template JSON must be an object.');
   }
 
   const template = raw as TemplateJson;
-  const layoutDocumentSource = isRecord(template.layoutDocument)
-    ? template.layoutDocument as unknown as ThemeLayoutDocumentSource
-    : raw as unknown as ThemeLayoutDocumentSource;
+  const layoutDocumentSource = isRecord(template.layoutDocument) ? template.layoutDocument : raw;
+  if (!isThemeLayoutDocumentSource(layoutDocumentSource)) {
+    throw new Error('Template layoutDocument is incomplete.');
+  }
+
+  const layoutDocumentWithAssetsRecord = applyVisualAssetsToLayoutDocument(layoutDocumentSource, template.visualAssets);
+  if (!isThemeLayoutDocumentSource(layoutDocumentWithAssetsRecord)) {
+    throw new Error('Template layoutDocument became invalid after applying visualAssets.');
+  }
+
   const layoutDocumentRecord = layoutDocumentSource as ThemeLayoutDocumentSource & {
     componentTemplates?: Record<string, unknown>;
   };
-
-  if (!isRecord(layoutDocumentSource)) {
-    throw new Error('模板缺少 layoutDocument');
-  }
-
-  const themeId = template.templateId
-    ?? template.layoutDocument?.themeId
-    ?? layoutDocumentSource.themeId
-    ?? 'template-preview';
-
-  const layoutDocumentWithAssets = applyVisualAssetsToLayoutDocument(
-    layoutDocumentSource as unknown as Record<string, unknown>,
-    template.visualAssets,
-  ) as unknown as ThemeLayoutDocumentSource;
+  const themeId = template.templateId ?? template.layoutDocument?.themeId ?? layoutDocumentSource.themeId;
 
   return {
-    layoutDocument: normalizeThemeLayoutDocument(layoutDocumentWithAssets),
+    layoutDocument: normalizeThemeLayoutDocument(layoutDocumentWithAssetsRecord),
     runtime: {
       id: themeId,
       cssVars: {
@@ -91,11 +99,9 @@ function toPreviewTemplate(raw: unknown): PreviewTemplate {
         ...asStringRecord(template.layoutDocument?.cssVars),
         ...asStringRecord(template.cssVars),
       },
-      componentTemplates: (
-        template.componentTemplates
-        ?? layoutDocumentRecord.componentTemplates
-        ?? {}
-      ) as ComponentTemplateMap,
+      componentTemplates: (template.componentTemplates ??
+        layoutDocumentRecord.componentTemplates ??
+        {}) as ComponentTemplateMap,
       ...(template.cssAnimations || template.layoutDocument?.cssAnimations
         ? {
             cssAnimations: {
@@ -122,23 +128,21 @@ function TemplatePreviewRenderer({
   });
 
   return (
-    <div
-      style={template.runtime.cssVars}
-      data-template-preview-renderer="true"
-    >
+    <div style={template.runtime.cssVars} data-template-preview-renderer="true">
       <DynamicThemeRenderer controller={controller} />
     </div>
   );
 }
 
 export function TemplatePreview({ file, device }: Props) {
-  const [template, setTemplate] = useState<PreviewTemplate | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [state, setState] = useState<TemplatePreviewState>({
+    file,
+    template: null,
+    error: null,
+  });
 
   useEffect(() => {
     let cancelled = false;
-    setTemplate(null);
-    setError(null);
 
     fetch(`${TEMPLATES_API}/${encodeURIComponent(file)}`)
       .then((response) => {
@@ -149,12 +153,20 @@ export function TemplatePreview({ file, device }: Props) {
       })
       .then((raw) => {
         if (!cancelled) {
-          setTemplate(toPreviewTemplate(raw));
+          setState({
+            file,
+            template: toPreviewTemplate(raw),
+            error: null,
+          });
         }
       })
       .catch((reason: unknown) => {
         if (!cancelled) {
-          setError(reason instanceof Error ? reason.message : String(reason));
+          setState({
+            file,
+            template: null,
+            error: reason instanceof Error ? reason.message : String(reason),
+          });
         }
       });
 
@@ -164,27 +176,24 @@ export function TemplatePreview({ file, device }: Props) {
   }, [file]);
 
   const viewport = PREVIEW_VIEWPORT[device];
-  const style = useMemo<CSSProperties>(() => ({
-    width: viewport.width,
-    height: viewport.height,
-    overflow: 'auto',
-    background: '#fff',
-  }), [viewport.height, viewport.width]);
+  const style = useMemo<CSSProperties>(
+    () => ({
+      width: viewport.width,
+      height: viewport.height,
+      overflow: 'auto',
+      background: '#fff',
+    }),
+    [viewport.height, viewport.width],
+  );
+  const template = state.file === file ? state.template : null;
+  const error = state.file === file ? state.error : null;
 
   if (error) {
-    return (
-      <div style={{ padding: 20, color: '#c2410c', fontSize: 13 }}>
-        加载失败: {error}
-      </div>
-    );
+    return <div style={{ padding: 20, color: '#c2410c', fontSize: 13 }}>Load failed: {error}</div>;
   }
 
   if (!template) {
-    return (
-      <div style={{ padding: 20, color: '#64748b', fontSize: 13 }}>
-        加载中...
-      </div>
-    );
+    return <div style={{ padding: 20, color: '#64748b', fontSize: 13 }}>Loading...</div>;
   }
 
   return (

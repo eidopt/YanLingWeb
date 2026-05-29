@@ -10,44 +10,33 @@ import {
 } from '../renderer';
 import { BuilderLibraryPanel } from './components/BuilderLibraryPanel';
 import { EditorAiPanel } from './components/EditorAiPanel';
-import {
-  InteractionModeToggle,
-} from './components/InteractionModeToggle';
+import { InteractionModeToggle } from './components/InteractionModeToggle';
 import { NodeEditDialog } from './components/NodeEditDialog';
 import { PreviewModeSwitch } from './components/PreviewModeSwitch';
-import {
-  SelectedNodeInspector,
-} from './components/SelectedNodeInspector';
-import {
-  useCanvasEditorController,
-} from './controllers/useCanvasEditorController';
+import { SelectedNodeInspector } from './components/SelectedNodeInspector';
+import { useCanvasEditorController } from './controllers/useCanvasEditorController';
 import { useEditorKeyboardShortcuts } from './controllers/useEditorKeyboardShortcuts';
 import { flattenNodes } from './services/layoutBuilderService';
-import {
-  themeLayoutBuilderContent,
-} from './ThemeLayoutBuilder.content';
+import { themeLayoutBuilderContent } from './ThemeLayoutBuilder.content';
 import styles from './ThemeLayoutBuilder.module.css';
 import type { LayoutBuilderTheme } from './types';
 import type { BuilderCanvas } from './types';
 import { cx } from 'base/classname';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Tooltip } from 'ui';
+import { useCallback, useEffect, useRef } from 'react';
 import {
-  Box,
-  Button,
-  Input,
-} from 'ui/base';
+  type EditorBuilderInteractionMode,
+  editorBuilderUiStateActions,
+  useEditorBuilderUiSnapshot,
+} from 'state/editorBuilderUiState';
+import { Tooltip } from 'ui';
+import { Box, Button, Input } from 'ui/base';
 import { ExportDialog } from 'ui/export_dialog/ExportDialog';
 
 interface ThemeLayoutBuilderProps {
   themes: LayoutBuilderTheme[];
   libraryThemes?: LayoutBuilderTheme[];
   initialThemeId?: string;
-  onCanvasesChange?: (
-    canvases: BuilderCanvas[],
-    activeCanvasId: string,
-    activeTheme: LayoutBuilderTheme,
-  ) => void;
+  onCanvasesChange?: (canvases: BuilderCanvas[], activeCanvasId: string, activeTheme: LayoutBuilderTheme) => void;
 }
 
 const PHONE_CANVAS_WIDTH = 352;
@@ -60,11 +49,8 @@ const DESKTOP_CANVAS_HEIGHT = 896;
 function getElementContentSize(element: HTMLElement) {
   const computedStyle = window.getComputedStyle(element);
   const horizontalPadding =
-    Number.parseFloat(computedStyle.paddingLeft) +
-    Number.parseFloat(computedStyle.paddingRight);
-  const verticalPadding =
-    Number.parseFloat(computedStyle.paddingTop) +
-    Number.parseFloat(computedStyle.paddingBottom);
+    Number.parseFloat(computedStyle.paddingLeft) + Number.parseFloat(computedStyle.paddingRight);
+  const verticalPadding = Number.parseFloat(computedStyle.paddingTop) + Number.parseFloat(computedStyle.paddingBottom);
 
   return {
     width: element.clientWidth - horizontalPadding,
@@ -84,12 +70,8 @@ function canvasSizeForPreset(screenPreset: DynamicThemeScreenPreset) {
 
 function getCanvasPageStats(canvas: BuilderCanvas) {
   const nodes = flattenNodes(canvas.document.layout);
-  const bodyNodeCount = nodes.filter(
-    ({ depth, node }) => depth > 0 && node.slot !== 'footer',
-  ).length;
-  const footerNodeCount = nodes.filter(
-    ({ node }) => node.slot === 'footer',
-  ).length;
+  const bodyNodeCount = nodes.filter(({ depth, node }) => depth > 0 && node.slot !== 'footer').length;
+  const footerNodeCount = nodes.filter(({ node }) => node.slot === 'footer').length;
 
   return {
     nodeCount: nodes.length,
@@ -99,22 +81,14 @@ function getCanvasPageStats(canvas: BuilderCanvas) {
   };
 }
 
-export function ThemeLayoutBuilder(
-  {
-    themes,
-    libraryThemes,
-    initialThemeId,
-    onCanvasesChange,
-  }: ThemeLayoutBuilderProps,
-) {
-  const [sidebarTab, setSidebarTab] = useState<
-    'components' | 'templates'
-  >('templates');
-  const [interactionMode, setInteractionMode] = useState<
-    'edit' | 'preview'
-  >('edit');
-  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
-  const [canvasScale, setCanvasScale] = useState(1);
+export function ThemeLayoutBuilder({
+  themes,
+  libraryThemes,
+  initialThemeId,
+  onCanvasesChange,
+}: ThemeLayoutBuilderProps) {
+  const { sidebarTab, interactionMode, isExportDialogOpen, canvasScale } = useEditorBuilderUiSnapshot();
+  const { setSidebarTab, setInteractionMode, setExportDialogOpen, setCanvasScale } = editorBuilderUiStateActions;
   const previewStageRef = useRef<HTMLDivElement | null>(null);
   const canvasDropRef = useRef<HTMLDivElement | null>(null);
   const controller = useCanvasEditorController(themes, initialThemeId);
@@ -158,37 +132,22 @@ export function ThemeLayoutBuilder(
     updateActiveCanvasName,
     containerNodes,
   } = controller;
-  const screenPresetOptions = getPreviewScreenPresetOptions(
-    activeTheme.platformCategories,
-  );
+  const screenPresetOptions = getPreviewScreenPresetOptions(activeTheme.platformCategories);
 
-  const { width: canvasWidth, height: canvasHeight } =
-    canvasSizeForPreset(screenPreset);
-  const activeCanvasIndex = canvases.findIndex(
-    (canvas) => canvas.id === activeCanvasId,
-  );
+  const { width: canvasWidth, height: canvasHeight } = canvasSizeForPreset(screenPreset);
+  const activeCanvasIndex = canvases.findIndex((canvas) => canvas.id === activeCanvasId);
   const defaultPageName =
     activeCanvas.defaultName ||
-    themeLayoutBuilderContent.preview.defaultPageName(
-      activeCanvasIndex >= 0 ? activeCanvasIndex + 1 : 1,
-    );
+    themeLayoutBuilderContent.preview.defaultPageName(activeCanvasIndex >= 0 ? activeCanvasIndex + 1 : 1);
   /* eslint-disable @typescript-eslint/no-unnecessary-condition -- pageName/name may be undefined at runtime despite the type */
-  const currentPageName =
-    activeCanvas.document.pageName ?? activeCanvas.name ?? defaultPageName;
+  const currentPageName = activeCanvas.document.pageName ?? activeCanvas.name ?? defaultPageName;
   /* eslint-enable @typescript-eslint/no-unnecessary-condition */
   const isPreviewMode = interactionMode === 'preview';
   const documentForRender = previewDocument ?? currentDocument;
 
   useEffect(() => {
-    if (
-      !isPreviewScreenPresetAllowed(
-        screenPreset,
-        activeTheme.platformCategories,
-      )
-    ) {
-      setScreenPreset(
-        getDefaultPreviewScreenPreset(activeTheme.platformCategories),
-      );
+    if (!isPreviewScreenPresetAllowed(screenPreset, activeTheme.platformCategories)) {
+      setScreenPreset(getDefaultPreviewScreenPreset(activeTheme.platformCategories));
     }
   }, [activeTheme.platformCategories, screenPreset, setScreenPreset]);
 
@@ -199,9 +158,7 @@ export function ThemeLayoutBuilder(
     screenPreset,
     onNavigateToPage: isPreviewMode
       ? (pageId) => {
-          const targetCanvas = canvases.find(
-            (canvas) => canvas.document.defaultPageId === pageId,
-          );
+          const targetCanvas = canvases.find((canvas) => canvas.document.defaultPageId === pageId);
           if (!targetCanvas || targetCanvas.id === activeCanvasId) {
             return Boolean(targetCanvas);
           }
@@ -250,7 +207,7 @@ export function ThemeLayoutBuilder(
     updateCanvasScale();
 
     return () => resizeObserver.disconnect();
-  }, [canvasHeight, canvasWidth]);
+  }, [canvasHeight, canvasWidth, setCanvasScale]);
 
   useEffect(() => {
     onCanvasesChange?.(canvases, activeCanvasId, activeTheme);
@@ -286,7 +243,7 @@ export function ThemeLayoutBuilder(
     setActiveCanvasId(canvasId);
   }
 
-  function handleChangeInteractionMode(mode: 'edit' | 'preview') {
+  function handleChangeInteractionMode(mode: EditorBuilderInteractionMode) {
     closeDialog();
     setSelectedNodeId(null);
     setInteractionMode(mode);
@@ -335,12 +292,8 @@ export function ThemeLayoutBuilder(
               <Button
                 type="button"
                 onClick={handleClearCanvas}
-                aria-label={
-                  themeLayoutBuilderContent.preview.clearCanvasAriaLabel
-                }
-                title={
-                  themeLayoutBuilderContent.preview.clearCanvasAriaLabel
-                }
+                aria-label={themeLayoutBuilderContent.preview.clearCanvasAriaLabel}
+                title={themeLayoutBuilderContent.preview.clearCanvasAriaLabel}
                 disabled={isPreviewMode}
                 size="sm"
                 variant="secondary"
@@ -348,16 +301,11 @@ export function ThemeLayoutBuilder(
                 {themeLayoutBuilderContent.preview.clearCanvas}
               </Button>
 
-              <Tooltip
-                as="div"
-                content={themeLayoutBuilderContent.preview.exportTooltip}
-              >
+              <Tooltip as="div" content={themeLayoutBuilderContent.preview.exportTooltip}>
                 <Button
                   type="button"
-                  onClick={() => setIsExportDialogOpen(true)}
-                  aria-label={
-                    themeLayoutBuilderContent.preview.exportAriaLabel
-                  }
+                  onClick={() => setExportDialogOpen(true)}
+                  aria-label={themeLayoutBuilderContent.preview.exportAriaLabel}
                   size="sm"
                   variant="primary"
                 >
@@ -370,12 +318,8 @@ export function ThemeLayoutBuilder(
               <Input
                 type="text"
                 value={currentPageName}
-                aria-label={
-                  themeLayoutBuilderContent.preview.pageNameAriaLabel
-                }
-                onChange={(event) =>
-                  updateActiveCanvasName(event.target.value)
-                }
+                aria-label={themeLayoutBuilderContent.preview.pageNameAriaLabel}
+                onChange={(event) => updateActiveCanvasName(event.target.value)}
                 onBlur={handlePageNameBlur}
                 readOnly={isPreviewMode}
                 size="sm"
@@ -384,28 +328,15 @@ export function ThemeLayoutBuilder(
             </Box>
 
             <Box className={styles.canvasToolbarRight}>
-              <Tooltip
-                as="div"
-                content={
-                  themeLayoutBuilderContent.preview.screenPresetTooltip
-                }
-              >
+              <Tooltip as="div" content={themeLayoutBuilderContent.preview.screenPresetTooltip}>
                 <PreviewModeSwitch
                   screenPreset={screenPreset}
                   options={screenPresetOptions}
                   onChange={setScreenPreset}
                 />
               </Tooltip>
-              <Tooltip
-                as="div"
-                content={
-                  themeLayoutBuilderContent.preview.interactionModeTooltip
-                }
-              >
-                <InteractionModeToggle
-                  mode={interactionMode}
-                  onChange={handleChangeInteractionMode}
-                />
+              <Tooltip as="div" content={themeLayoutBuilderContent.preview.interactionModeTooltip}>
+                <InteractionModeToggle mode={interactionMode} onChange={handleChangeInteractionMode} />
               </Tooltip>
             </Box>
           </Box>
@@ -413,19 +344,10 @@ export function ThemeLayoutBuilder(
           <Box ref={previewStageRef} className={styles.previewStage}>
             <Box
               ref={canvasDropRef}
-              className={cx(
-                styles.canvasDrop,
-                isCanvasActive && styles.canvasDropActive,
-              )}
-              onClick={
-                isPreviewMode ? undefined : () => setSelectedNodeId(null)
-              }
-              onDragOver={
-                isPreviewMode ? undefined : handleCanvasDragOver
-              }
-              onDragLeave={
-                isPreviewMode ? undefined : handleCanvasDragLeave
-              }
+              className={cx(styles.canvasDrop, isCanvasActive && styles.canvasDropActive)}
+              onClick={isPreviewMode ? undefined : () => setSelectedNodeId(null)}
+              onDragOver={isPreviewMode ? undefined : handleCanvasDragOver}
+              onDragLeave={isPreviewMode ? undefined : handleCanvasDragLeave}
               onDrop={isPreviewMode ? undefined : handleCanvasDrop}
             >
               <Box
@@ -450,24 +372,15 @@ export function ThemeLayoutBuilder(
           </Box>
 
           <Box className={styles.canvasPager}>
-            <Box
-              as="span"
-              className={styles.canvasPagerLead}
-              aria-hidden="true"
-            />
+            <Box as="span" className={styles.canvasPagerLead} aria-hidden="true" />
             {canvases.length > 1 ? (
               <Box className={styles.canvasDots}>
                 {canvases.map((canvas, index) => (
                   <button
                     key={canvas.id}
                     type="button"
-                    className={cx(
-                      styles.canvasDot,
-                      canvas.id === activeCanvasId && styles.canvasDotActive,
-                    )}
-                    aria-label={
-                      themeLayoutBuilderContent.preview.canvasLabel(index)
-                    }
+                    className={cx(styles.canvasDot, canvas.id === activeCanvasId && styles.canvasDotActive)}
+                    aria-label={themeLayoutBuilderContent.preview.canvasLabel(index)}
                     onClick={() => handleSelectCanvas(canvas.id)}
                   />
                 ))}
@@ -479,16 +392,12 @@ export function ThemeLayoutBuilder(
             <Tooltip
               as="div"
               className={styles.canvasPagerAction}
-              content={
-                themeLayoutBuilderContent.preview.addCanvasTooltip
-              }
+              content={themeLayoutBuilderContent.preview.addCanvasTooltip}
             >
               <Button
                 type="button"
                 onClick={handleCreateCanvas}
-                aria-label={
-                  themeLayoutBuilderContent.preview.addCanvas
-                }
+                aria-label={themeLayoutBuilderContent.preview.addCanvas}
                 disabled={isPreviewMode}
                 size="icon-md"
                 variant="primary"
@@ -501,10 +410,7 @@ export function ThemeLayoutBuilder(
 
         <Box
           as="aside"
-          className={cx(
-            styles.treePanel,
-            selectedNode && !isPreviewMode && styles.treePanelWithInspector,
-          )}
+          className={cx(styles.treePanel, selectedNode && !isPreviewMode && styles.treePanelWithInspector)}
         >
           {!isPreviewMode && selectedNode ? (
             <Box className={styles.inspectorDock}>
@@ -514,9 +420,7 @@ export function ThemeLayoutBuilder(
                 onPropChange={updateSelectedNodeProp}
                 onEdit={() => openEditDialog(selectedNode.id)}
                 onDelete={() => handleDeleteNode(selectedNode.id)}
-                canDelete={
-                  selectedNode.id !== currentDocument.layout.id
-                }
+                canDelete={selectedNode.id !== currentDocument.layout.id}
               />
             </Box>
           ) : null}
@@ -557,7 +461,7 @@ export function ThemeLayoutBuilder(
           canvases={canvases}
           activeTheme={activeTheme}
           defaultProjectName={currentPageName}
-          onClose={() => setIsExportDialogOpen(false)}
+          onClose={() => setExportDialogOpen(false)}
         />
       )}
     </Box>

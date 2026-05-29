@@ -1,11 +1,5 @@
-import {
-  createDynamicThemeRendererState,
-  useDynamicThemeRendererState,
-} from './state';
-import type {
-  DynamicThemeRendererController,
-  DynamicThemeRendererControllerOptions,
-} from './types';
+import { createDynamicThemeRendererState, useDynamicThemeRendererState } from './state';
+import type { DynamicThemeRendererController, DynamicThemeRendererControllerOptions } from './types';
 import { useMemo } from 'react';
 
 export function createDynamicThemeRendererController({
@@ -16,8 +10,13 @@ export function createDynamicThemeRendererController({
   initialPageId,
   onNavigateToPage,
 }: DynamicThemeRendererControllerOptions): DynamicThemeRendererController {
+  const resolvedRuntime = {
+    ...runtime,
+    widgetPolicy: layoutDocument.widgetPolicy ?? runtime.widgetPolicy,
+  };
+
   return {
-    runtime,
+    runtime: resolvedRuntime,
     state: createDynamicThemeRendererState({
       layoutDocument,
       screenPreset,
@@ -45,13 +44,20 @@ export function useDynamicThemeRendererController(
     initialPageId,
     onNavigateToPage,
   });
+  const resolvedRuntime = useMemo(
+    () => ({
+      ...runtime,
+      widgetPolicy: layoutDocument.widgetPolicy ?? runtime.widgetPolicy,
+    }),
+    [layoutDocument.widgetPolicy, runtime],
+  );
 
   return useMemo(
     () => ({
-      runtime,
+      runtime: resolvedRuntime,
       state,
       renderNodeShell,
     }),
-    [renderNodeShell, runtime, state],
+    [renderNodeShell, resolvedRuntime, state],
   );
 }

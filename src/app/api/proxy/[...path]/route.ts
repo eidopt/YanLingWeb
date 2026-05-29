@@ -24,6 +24,14 @@ async function proxy(req: NextRequest, segments: string[]): Promise<NextResponse
   if (authorization) {
     headers.set('authorization', authorization);
   }
+  const conversationId = req.headers.get('x-conversation-id');
+  if (conversationId) {
+    headers.set('x-conversation-id', conversationId);
+  }
+  const previousResponseId = req.headers.get('x-previous-response-id');
+  if (previousResponseId) {
+    headers.set('x-previous-response-id', previousResponseId);
+  }
 
   const body = req.method === 'GET' || req.method === 'HEAD' ? undefined : req.body;
 
@@ -37,22 +45,39 @@ async function proxy(req: NextRequest, segments: string[]): Promise<NextResponse
       duplex: 'half',
     });
   } catch {
-    return NextResponse.json(
-      { message: `Backend service is unavailable at ${BACKEND_URL}` },
-      { status: 502 },
-    );
+    return NextResponse.json({ message: `Backend service is unavailable at ${BACKEND_URL}` }, { status: 502 });
+  }
+
+  const responseHeaders = {
+    'content-type': upstream.headers.get('content-type') ?? 'application/json',
+  };
+
+  if (responseHeaders['content-type'].includes('text/event-stream')) {
+    const upstreamConversationId = upstream.headers.get('x-conversation-id');
+    const upstreamResponseId = upstream.headers.get('x-response-id');
+    return new NextResponse(upstream.body, {
+      status: upstream.status,
+      headers: {
+        ...responseHeaders,
+        'cache-control': upstream.headers.get('cache-control') ?? 'no-cache, no-transform',
+        connection: 'keep-alive',
+        'x-accel-buffering': 'no',
+        ...(upstreamConversationId ? { 'x-conversation-id': upstreamConversationId } : {}),
+        ...(upstreamResponseId ? { 'x-response-id': upstreamResponseId } : {}),
+      },
+    });
   }
 
   const data = await upstream.arrayBuffer();
   return new NextResponse(data, {
     status: upstream.status,
-    headers: {
-      'content-type': upstream.headers.get('content-type') ?? 'application/json',
-    },
+    headers: responseHeaders,
   });
 }
 
-interface RouteContext { params: Promise<{ path: string[] }> }
+interface RouteContext {
+  params: Promise<{ path: string[] }>;
+}
 
 export async function GET(req: NextRequest, ctx: RouteContext) {
   const { path } = await ctx.params;

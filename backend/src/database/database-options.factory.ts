@@ -11,6 +11,7 @@ import { TemplateAgentPermissions } from '../templates/entities/template-agent-p
 import { TemplateAssetManifest } from '../templates/entities/template-asset-manifest.entity';
 import { TemplateEvaluationSpec } from '../templates/entities/template-evaluation-spec.entity';
 import { TemplateProfileGenerated } from '../templates/entities/template-profile-generated.entity';
+// eslint-disable-next-line max-len
 import { TemplateProfileOverrideEntity } from '../templates/entities/template-profile-override.entity';
 import { Theme } from '../themes/entities/theme.entity';
 import { User } from '../users/entities/user.entity';
@@ -36,15 +37,12 @@ export function createDatabaseOptions(env: ServerConfig): TypeOrmModuleOptions {
     case 'sqlite':
       return createSqliteOptions(env);
     case 'postgres':
-    case 'mysql':
-      throw new Error(
-        `Database driver "${env.database.driver}" is configured but not implemented yet.`,
-      );
+      return createPostgresOptions(env);
   }
 }
 
 function createSqliteOptions(env: ServerConfig): TypeOrmModuleOptions {
-  const databasePath = env.database.path || 'data/app.db';
+  const databasePath = env.database.path ?? 'data/app.db';
 
   return {
     type: 'better-sqlite3',
@@ -57,9 +55,35 @@ function createSqliteOptions(env: ServerConfig): TypeOrmModuleOptions {
       // WAL allows concurrent readers while a write is in progress,
       // which is a significant improvement over the default DELETE journal
       // for a NestJS server handling concurrent requests.
-      (db as { pragma: (sql: string) => void; }).pragma('journal_mode = WAL');
+      (db as { pragma: (sql: string) => void }).pragma('journal_mode = WAL');
       // Enable foreign key enforcement (SQLite has it off by default).
-      (db as { pragma: (sql: string) => void; }).pragma('foreign_keys = ON');
+      (db as { pragma: (sql: string) => void }).pragma('foreign_keys = ON');
     },
+  };
+}
+
+function createPostgresOptions(env: ServerConfig): TypeOrmModuleOptions {
+  const common = {
+    type: 'postgres' as const,
+    entities: DATABASE_ENTITIES,
+    synchronize: env.database.synchronize,
+    logging: env.database.logging,
+    ...(env.database.ssl ? { ssl: { rejectUnauthorized: false } } : {}),
+  };
+
+  if (env.database.url) {
+    return {
+      ...common,
+      url: env.database.url,
+    };
+  }
+
+  return {
+    ...common,
+    host: env.database.host,
+    port: env.database.port ?? 5432,
+    username: env.database.username,
+    password: env.database.password,
+    database: env.database.name,
   };
 }

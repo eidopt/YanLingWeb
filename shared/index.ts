@@ -1,9 +1,10 @@
+export * from './agent/contracts/provider';
+export * from './agent/contracts/queryLoop';
 export * from './agent/types';
 export * from './theme-layout/migrations';
-export {
-  resolveThemeLayoutCssVars,
-  withThemeLayoutStyleManifest,
-} from './theme-layout/styleManifest';
+export { resolveThemeLayoutCssVars, withThemeLayoutStyleManifest } from './theme-layout/styleManifest';
+export * from './theme-layout/styleProfile';
 export * from './types/export.types';
+export * from './types/search.types';
 export * from './types/theme.types';
 export * from './types/user.types';

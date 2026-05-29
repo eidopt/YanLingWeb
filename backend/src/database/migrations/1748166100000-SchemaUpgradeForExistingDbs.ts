@@ -1,5 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
+import { booleanDefault, createIndexSql, getMigrationDialect, hasColumn } from '../migration-sql';
+
 /**
  * Safe schema upgrade for databases that already existed before the
  * InitialSchema migration (e.g. created by synchronize:true or an older version).
@@ -13,151 +15,180 @@ export class SchemaUpgradeForExistingDbs1748166100000 implements MigrationInterf
   name = 'SchemaUpgradeForExistingDbs1748166100000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // ── Helper: check if a column exists on a table ──
-    const hasColumn = async (table: string, column: string): Promise<boolean> => {
-      const rows: { name: string; }[] = await queryRunner.query(
-        `PRAGMA table_info('${table}')`,
-      );
-      return rows.some((r) => r.name === column);
-    };
+    const dialect = getMigrationDialect(queryRunner);
+    const activeDefault = booleanDefault(dialect, true);
 
     // ── templates: add columns introduced in the refactoring ──
 
-    if (!(await hasColumn('templates', 'displayCategory'))) {
+    if (!(await hasColumn(queryRunner, 'templates', 'displayCategory'))) {
       await queryRunner.query(
         `ALTER TABLE "templates" ADD "displayCategory" varchar NOT NULL DEFAULT ('general')`,
       );
     }
 
-    if (!(await hasColumn('templates', 'primaryFunctionalCategory'))) {
-      await queryRunner.query(
-        `ALTER TABLE "templates" ADD "primaryFunctionalCategory" varchar`,
-      );
+    if (!(await hasColumn(queryRunner, 'templates', 'primaryFunctionalCategory'))) {
+      await queryRunner.query(`ALTER TABLE "templates" ADD "primaryFunctionalCategory" varchar`);
     }
 
-    if (!(await hasColumn('templates', 'platformCategories'))) {
+    if (!(await hasColumn(queryRunner, 'templates', 'platformCategories'))) {
       await queryRunner.query(
         `ALTER TABLE "templates" ADD "platformCategories" text NOT NULL DEFAULT ('[]')`,
       );
     }
 
-    if (!(await hasColumn('templates', 'functionalCategories'))) {
+    if (!(await hasColumn(queryRunner, 'templates', 'functionalCategories'))) {
       await queryRunner.query(
         `ALTER TABLE "templates" ADD "functionalCategories" text NOT NULL DEFAULT ('[]')`,
       );
     }
 
-    if (!(await hasColumn('templates', 'tags'))) {
-      await queryRunner.query(
-        `ALTER TABLE "templates" ADD "tags" text NOT NULL DEFAULT ('[]')`,
-      );
+    if (!(await hasColumn(queryRunner, 'templates', 'tags'))) {
+      await queryRunner.query(`ALTER TABLE "templates" ADD "tags" text NOT NULL DEFAULT ('[]')`);
     }
 
-    if (!(await hasColumn('templates', 'cssAnimations'))) {
-      await queryRunner.query(
-        `ALTER TABLE "templates" ADD "cssAnimations" text DEFAULT ('{}')`,
-      );
+    if (!(await hasColumn(queryRunner, 'templates', 'cssAnimations'))) {
+      await queryRunner.query(`ALTER TABLE "templates" ADD "cssAnimations" text DEFAULT ('{}')`);
     }
 
-    if (!(await hasColumn('templates', 'sourceTemplateId'))) {
-      await queryRunner.query(
-        `ALTER TABLE "templates" ADD "sourceTemplateId" varchar`,
-      );
+    if (!(await hasColumn(queryRunner, 'templates', 'sourceTemplateId'))) {
+      await queryRunner.query(`ALTER TABLE "templates" ADD "sourceTemplateId" varchar`);
     }
 
-    if (!(await hasColumn('templates', 'isPublic'))) {
+    if (!(await hasColumn(queryRunner, 'templates', 'isPublic'))) {
       await queryRunner.query(
-        `ALTER TABLE "templates" ADD "isPublic" boolean NOT NULL DEFAULT (1)`,
+        `ALTER TABLE "templates" ADD "isPublic" boolean NOT NULL DEFAULT (${activeDefault})`,
       );
     }
 
     // Backfill primaryFunctionalCategory from functionalCategories JSON
     // Only updates rows where primaryFunctionalCategory is still NULL
-    await queryRunner.query(`
-      UPDATE "templates"
-      SET "primaryFunctionalCategory" = json_extract("functionalCategories", '$[0]')
-      WHERE "primaryFunctionalCategory" IS NULL
-        AND "functionalCategories" IS NOT NULL
-        AND json_array_length("functionalCategories") > 0
-    `);
+    if (dialect === 'postgres') {
+      await queryRunner.query(`
+        UPDATE "templates"
+        SET "primaryFunctionalCategory" = ("functionalCategories"::jsonb ->> 0)
+        WHERE "primaryFunctionalCategory" IS NULL
+          AND "functionalCategories" IS NOT NULL
+          AND jsonb_array_length("functionalCategories"::jsonb) > 0
+      `);
+    } else {
+      await queryRunner.query(`
+        UPDATE "templates"
+        SET "primaryFunctionalCategory" = json_extract("functionalCategories", '$[0]')
+        WHERE "primaryFunctionalCategory" IS NULL
+          AND "functionalCategories" IS NOT NULL
+          AND json_array_length("functionalCategories") > 0
+      `);
+    }
 
     await queryRunner.query(`
       UPDATE "templates"
-      SET "displayCategory" = COALESCE(NULLIF("displayCategory", ''), NULLIF("category", ''), 'general')
+      SET "displayCategory" = COALESCE(
+        NULLIF("displayCategory", ''),
+        NULLIF("category", ''),
+        'general'
+      )
       WHERE "displayCategory" IS NULL OR "displayCategory" = ''
     `);
 
     // ── Indexes (all IF NOT EXISTS) ──
 
     await queryRunner.query(
-      `CREATE INDEX IF NOT EXISTS "IDX_templates_ownerUserId_updatedAt" ON "templates" ("ownerUserId", "updatedAt")`,
+      createIndexSql('IDX_templates_ownerUserId_updatedAt', 'templates', [
+        'ownerUserId',
+        'updatedAt',
+      ]),
     );
     await queryRunner.query(
-      `CREATE INDEX IF NOT EXISTS "IDX_templates_ownerUserId_isPublic" ON "templates" ("ownerUserId", "isPublic")`,
+      createIndexSql('IDX_templates_ownerUserId_isPublic', 'templates', [
+        'ownerUserId',
+        'isPublic',
+      ]),
     );
     await queryRunner.query(
-      `CREATE INDEX IF NOT EXISTS "IDX_templates_sourceTemplateId" ON "templates" ("sourceTemplateId")`,
+      createIndexSql('IDX_templates_sourceTemplateId', 'templates', ['sourceTemplateId']),
+    );
+    await queryRunner.query(createIndexSql('IDX_templates_category', 'templates', ['category']));
+    await queryRunner.query(
+      createIndexSql('IDX_templates_displayCategory', 'templates', ['displayCategory']),
     );
     await queryRunner.query(
-      `CREATE INDEX IF NOT EXISTS "IDX_templates_category" ON "templates" ("category")`,
+      createIndexSql('IDX_templates_primaryFunctionalCategory', 'templates', [
+        'primaryFunctionalCategory',
+      ]),
     );
     await queryRunner.query(
-      `CREATE INDEX IF NOT EXISTS "IDX_templates_displayCategory" ON "templates" ("displayCategory")`,
-    );
-    await queryRunner.query(
-      `CREATE INDEX IF NOT EXISTS "IDX_templates_primaryFunctionalCategory" ON "templates" ("primaryFunctionalCategory")`,
-    );
-    await queryRunner.query(
-      `CREATE INDEX IF NOT EXISTS "IDX_templates_isPublic_displayCategory" ON "templates" ("isPublic", "displayCategory")`,
+      createIndexSql('IDX_templates_isPublic_displayCategory', 'templates', [
+        'isPublic',
+        'displayCategory',
+      ]),
     );
 
     // ── themes indexes ──
-    await queryRunner.query(
-      `CREATE INDEX IF NOT EXISTS "IDX_themes_category" ON "themes" ("category")`,
-    );
-    await queryRunner.query(
-      `CREATE INDEX IF NOT EXISTS "IDX_themes_createdAt" ON "themes" ("createdAt")`,
-    );
+    await queryRunner.query(createIndexSql('IDX_themes_category', 'themes', ['category']));
+    await queryRunner.query(createIndexSql('IDX_themes_createdAt', 'themes', ['createdAt']));
 
     // ── published_sites indexes ──
     await queryRunner.query(
-      `CREATE UNIQUE INDEX IF NOT EXISTS "IDX_published_sites_subdomain" ON "published_sites" ("subdomain")`,
+      createIndexSql('IDX_published_sites_subdomain', 'published_sites', ['subdomain'], {
+        unique: true,
+      }),
     );
     await queryRunner.query(
-      `CREATE INDEX IF NOT EXISTS "IDX_published_sites_ownerUserId_updatedAt" ON "published_sites" ("ownerUserId", "updatedAt")`,
+      createIndexSql('IDX_published_sites_ownerUserId_updatedAt', 'published_sites', [
+        'ownerUserId',
+        'updatedAt',
+      ]),
     );
     await queryRunner.query(
-      `CREATE INDEX IF NOT EXISTS "IDX_published_sites_templateId" ON "published_sites" ("templateId")`,
+      createIndexSql('IDX_published_sites_templateId', 'published_sites', ['templateId']),
     );
 
     // ── published_site_revisions indexes ──
     await queryRunner.query(
-      `CREATE INDEX IF NOT EXISTS "IDX_published_site_revisions_siteId_createdAt" ON "published_site_revisions" ("siteId", "createdAt")`,
+      createIndexSql('IDX_published_site_revisions_siteId_createdAt', 'published_site_revisions', [
+        'siteId',
+        'createdAt',
+      ]),
     );
     await queryRunner.query(
-      `CREATE INDEX IF NOT EXISTS "IDX_published_site_revisions_templateId" ON "published_site_revisions" ("templateId")`,
+      createIndexSql('IDX_published_site_revisions_templateId', 'published_site_revisions', [
+        'templateId',
+      ]),
     );
 
     // ── export_records indexes ──
     await queryRunner.query(
-      `CREATE INDEX IF NOT EXISTS "IDX_export_records_ownerUserId_createdAt" ON "export_records" ("ownerUserId", "createdAt")`,
+      createIndexSql('IDX_export_records_ownerUserId_createdAt', 'export_records', [
+        'ownerUserId',
+        'createdAt',
+      ]),
     );
 
     // ── ai_token_usage_events indexes ──
     await queryRunner.query(
-      `CREATE INDEX IF NOT EXISTS "IDX_ai_token_usage_events_ownerUserId_createdAt" ON "ai_token_usage_events" ("ownerUserId", "createdAt")`,
+      createIndexSql('IDX_ai_token_usage_events_ownerUserId_createdAt', 'ai_token_usage_events', [
+        'ownerUserId',
+        'createdAt',
+      ]),
     );
     await queryRunner.query(
-      `CREATE INDEX IF NOT EXISTS "IDX_ai_token_usage_events_provider_model" ON "ai_token_usage_events" ("provider", "model")`,
+      createIndexSql('IDX_ai_token_usage_events_provider_model', 'ai_token_usage_events', [
+        'provider',
+        'model',
+      ]),
     );
 
     // ── editor_ai_conversations indexes ──
     await queryRunner.query(
-      `CREATE INDEX IF NOT EXISTS "IDX_editor_ai_conversations_ownerUserId_updatedAt" ON "editor_ai_conversations" ("ownerUserId", "updatedAt")`,
+      createIndexSql(
+        'IDX_editor_ai_conversations_ownerUserId_updatedAt',
+        'editor_ai_conversations',
+        ['ownerUserId', 'updatedAt'],
+      ),
     );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
+  public async down(_queryRunner: QueryRunner): Promise<void> {
     // SQLite does not support DROP COLUMN in older versions.
     // This migration is additive-only; reverting requires recreating the table.
     // For safety, no-op on down.

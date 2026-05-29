@@ -1,5 +1,8 @@
-/* eslint-disable max-len */
-import { compileSemanticEditorInstruction, isSemanticEditorInstruction, type SemanticEditorInstruction } from '../compiler/semanticInstructionCompiler';
+import {
+  compileSemanticEditorInstruction,
+  isSemanticEditorInstruction,
+  type SemanticEditorInstruction,
+} from '../compiler/semanticInstructionCompiler';
 import type {
   LayoutNodeFrame,
   LayoutNodeLayout,
@@ -7,6 +10,7 @@ import type {
   ThemeLayoutDocument,
   ThemeLayoutNavigateAction,
   ThemeLayoutNode,
+  ThemeLayoutNodeAction,
   ThemeLayoutNodeInteractions,
   ThemeLayoutPage,
   ThemeLayoutTabInteraction,
@@ -152,14 +156,7 @@ export interface ApplyEditorAiEditInstructionsResult {
   rollbackReason?: 'validation';
 }
 
-const CONTAINER_ALIASES = new Set([
-  'core.screen',
-  'core.panel',
-  'core.stack',
-  'core.row',
-  'core.grid',
-  'core.html',
-]);
+const CONTAINER_ALIASES = new Set(['core.screen', 'core.panel', 'core.stack', 'core.row', 'core.grid', 'core.html']);
 const FOOTER_ALIASES = new Set(['core.tabs']);
 const SIZE_LAYOUT_KEYS = ['width', 'height', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight'] as const;
 const ALIGN_VALUES = new Set(['auto', 'start', 'center', 'end', 'stretch']);
@@ -271,11 +268,7 @@ function scoreNodeIdMatch(requestedId: string, existingId: string): number {
   if (requested === existing) {
     return 1;
   }
-  if (
-    requested.length >= 4 &&
-    existing.length >= 4 &&
-    (requested.includes(existing) || existing.includes(requested))
-  ) {
+  if (requested.length >= 4 && existing.length >= 4 && (requested.includes(existing) || existing.includes(requested))) {
     return 0.92;
   }
 
@@ -286,9 +279,7 @@ function scoreNodeIdMatch(requestedId: string, existingId: string): number {
   }
 
   const existingTokenSet = new Set(existingTokens);
-  const overlap = requestedTokens.filter((token) => (
-    existingTokenSet.has(token)
-  )).length;
+  const overlap = requestedTokens.filter((token) => existingTokenSet.has(token)).length;
   if (overlap === 0) {
     return commonPrefixRatio(requested, existing) >= 0.7 ? 0.65 : 0;
   }
@@ -299,10 +290,7 @@ function scoreNodeIdMatch(requestedId: string, existingId: string): number {
   return Math.max(jaccard, containment * 0.9);
 }
 
-function resolveNodeIdFromExistingIds(
-  root: ThemeLayoutNode,
-  requestedId: string,
-): string | null {
+function resolveNodeIdFromExistingIds(root: ThemeLayoutNode, requestedId: string): string | null {
   const candidates = collectNodeIds(root)
     .map((nodeId) => ({
       nodeId,
@@ -315,10 +303,7 @@ function resolveNodeIdFromExistingIds(
     return null;
   }
   const [best, second] = candidates;
-  if (
-    candidates.length > 1 &&
-    best.score - second.score < MIN_NODE_ID_MATCH_GAP
-  ) {
+  if (candidates.length > 1 && best.score - second.score < MIN_NODE_ID_MATCH_GAP) {
     return null;
   }
   return best.nodeId;
@@ -332,10 +317,7 @@ function summarizeNodeForError(node: ThemeLayoutNode): string {
   return entries.length > 0 ? entries.join(', ') : 'no text props';
 }
 
-function buildNodeResolutionError(
-  root: ThemeLayoutNode,
-  requestedId: string,
-): NodeResolutionErrorInfo {
+function buildNodeResolutionError(root: ThemeLayoutNode, requestedId: string): NodeResolutionErrorInfo {
   const allIds = collectNodeIds(root);
 
   const scoredCandidates = allIds
@@ -465,9 +447,7 @@ interface ResolveNodeIdMultiStrategyResult {
   error?: NodeResolutionErrorInfo;
 }
 
-function multiStrategyResolveNodeId(
-  input: ResolveNodeIdMultiStrategyInput,
-): ResolveNodeIdMultiStrategyResult {
+function multiStrategyResolveNodeId(input: ResolveNodeIdMultiStrategyInput): ResolveNodeIdMultiStrategyResult {
   const { root, document, instruction, requestedId, selectedNodeId, alias, parentId, resolveSemanticTarget } = input;
 
   // semanticTarget first when no explicit nodeId — true one-of semantics
@@ -603,12 +583,13 @@ function sanitizeFramePatch(frame: Partial<LayoutNodeFrame> | undefined): Partia
       next[key] = frame[key];
     }
   });
-  (['left', 'top', 'right', 'bottom', 'width', 'height', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight'] as const)
-    .forEach((key) => {
-      if (isSizeValue(frame[key])) {
-        next[key] = frame[key];
-      }
-    });
+  (
+    ['left', 'top', 'right', 'bottom', 'width', 'height', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight'] as const
+  ).forEach((key) => {
+    if (isSizeValue(frame[key])) {
+      next[key] = frame[key];
+    }
+  });
   if (frame.unit === 'px' || frame.unit === '%') {
     next.unit = frame.unit;
   }
@@ -630,13 +611,9 @@ function coercePropValue(
   name: string,
   value: unknown,
 ): { error?: string; value?: unknown } {
-  const fallbackType =
-    descriptor.alias === 'core.image'
-      ? CORE_IMAGE_PROP_FALLBACKS.get(name)
-      : undefined;
-  const prop = descriptor.props.find((item) => item.name === name) ?? (
-    fallbackType ? { name, type: fallbackType } : undefined
-  );
+  const fallbackType = descriptor.alias === 'core.image' ? CORE_IMAGE_PROP_FALLBACKS.get(name) : undefined;
+  const prop =
+    descriptor.props.find((item) => item.name === name) ?? (fallbackType ? { name, type: fallbackType } : undefined);
   if (!prop) {
     return { error: `Property "${name}" is not valid for ${descriptor.alias}` };
   }
@@ -645,16 +622,19 @@ function coercePropValue(
   }
   if (prop.type === 'number') {
     const numericValue = typeof value === 'number' ? value : Number(value);
-    return Number.isFinite(numericValue)
-      ? { value: numericValue }
-      : { error: `Property "${name}" must be a number` };
+    return Number.isFinite(numericValue) ? { value: numericValue } : { error: `Property "${name}" must be a number` };
   }
   if (prop.type === 'string[]') {
     if (Array.isArray(value)) {
       return { value: value.map((item) => String(item).trim()).filter(Boolean) };
     }
     if (typeof value === 'string') {
-      return { value: value.split(/[,，]/).map((item) => item.trim()).filter(Boolean) };
+      return {
+        value: value
+          .split(/[,，]/)
+          .map((item) => item.trim())
+          .filter(Boolean),
+      };
     }
     return { error: `Property "${name}" must be a string array` };
   }
@@ -670,10 +650,8 @@ function coercePropValue(
     }
     if (typeof value === 'string') {
       try {
-        const parsed = JSON.parse(value);
-        return Array.isArray(parsed)
-          ? { value: parsed }
-          : { error: `Property "${name}" must be an array` };
+        const parsed: unknown = JSON.parse(value);
+        return Array.isArray(parsed) ? { value: parsed } : { error: `Property "${name}" must be an array` };
       } catch {
         return { error: `Property "${name}" must be a valid JSON array` };
       }
@@ -687,7 +665,10 @@ function coercePropValue(
   return { value: stringValue };
 }
 
-function coerceProps(descriptor: ThemeComponentDescriptor, props: Record<string, unknown> | undefined) {
+function coerceProps(
+  descriptor: ThemeComponentDescriptor,
+  props: Record<string, unknown> | undefined,
+): { errors: string[]; props: Record<string, unknown> } {
   const nextProps: Record<string, unknown> = {};
   const errors: string[] = [];
   Object.entries(props ?? {}).forEach(([name, value]) => {
@@ -757,8 +738,8 @@ function buildNode(
 function resolveTargetPage(document: ThemeLayoutDocument, pageId?: string) {
   const fallbackPage = document.pages[0] as ThemeLayoutPage | undefined;
   return pageId
-    ? document.pages.find((page) => page.id === pageId) ?? null
-    : document.pages.find((page) => page.id === document.defaultPageId) ?? fallbackPage ?? null;
+    ? (document.pages.find((page) => page.id === pageId) ?? null)
+    : (document.pages.find((page) => page.id === document.defaultPageId) ?? fallbackPage ?? null);
 }
 
 function slugNodeId(value: string): string {
@@ -790,11 +771,7 @@ function uniqueNodeId(baseId: string, usedIds: Set<string>): string {
   return candidate;
 }
 
-function remapReferenceNodeId(
-  referenceNodeId: string,
-  referencePageId: string,
-  pageId: string,
-): string {
+function remapReferenceNodeId(referenceNodeId: string, referencePageId: string, pageId: string): string {
   if (referenceNodeId === `${referencePageId}-screen`) {
     return `${pageId}-screen`;
   }
@@ -823,14 +800,27 @@ function rewriteNavigateActionTarget(
   if (!action) {
     return undefined;
   }
-  return action.targetPageId === referencePageId
-    ? { ...action, targetPageId: pageId }
-    : action;
+  return action.targetPageId === referencePageId ? { ...action, targetPageId: pageId } : action;
 }
 
-function isNavigateAction(
-  interaction: ThemeLayoutTabInteraction,
-): interaction is ThemeLayoutNavigateAction {
+function rewriteNodeActionTarget(
+  action: ThemeLayoutNodeAction | undefined,
+  referencePageId: string,
+  pageId: string,
+): ThemeLayoutNodeAction | undefined {
+  if (!action) {
+    return undefined;
+  }
+  if (action.type === 'navigate') {
+    return rewriteNavigateActionTarget(action, referencePageId, pageId);
+  }
+  return {
+    ...action,
+    targetNodeId: remapReferenceNodeId(action.targetNodeId, referencePageId, pageId),
+  };
+}
+
+function isNavigateAction(interaction: ThemeLayoutTabInteraction): interaction is ThemeLayoutNavigateAction {
   return 'type' in interaction && interaction.type === 'navigate';
 }
 
@@ -863,9 +853,9 @@ function rewriteInteractionTargets(
   }
   return {
     ...interactions,
-    onClick: rewriteNavigateActionTarget(interactions.onClick, referencePageId, pageId),
-    onActionClick: rewriteNavigateActionTarget(interactions.onActionClick, referencePageId, pageId),
-    onStatusClick: rewriteNavigateActionTarget(interactions.onStatusClick, referencePageId, pageId),
+    onClick: rewriteNodeActionTarget(interactions.onClick, referencePageId, pageId),
+    onActionClick: rewriteNodeActionTarget(interactions.onActionClick, referencePageId, pageId),
+    onStatusClick: rewriteNodeActionTarget(interactions.onStatusClick, referencePageId, pageId),
     onTabClick: rewriteTabInteractionTargets(interactions.onTabClick, referencePageId, pageId),
   };
 }
@@ -886,20 +876,14 @@ function cloneReferenceNode(
     return null;
   }
   const nextId = uniqueNodeId(
-    options.isRoot
-      ? options.rootNodeId
-      : remapReferenceNodeId(node.id, options.referencePageId, options.pageId),
+    options.isRoot ? options.rootNodeId : remapReferenceNodeId(node.id, options.referencePageId, options.pageId),
     options.usedIds,
   );
   options.idMap.set(node.id, nextId);
   const cloned: ThemeLayoutNode = {
     ...structuredClone(node),
     id: nextId,
-    interactions: rewriteInteractionTargets(
-      node.interactions,
-      options.referencePageId,
-      options.pageId,
-    ),
+    interactions: rewriteInteractionTargets(node.interactions, options.referencePageId, options.pageId),
   };
   cloned.children = (node.children ?? [])
     .map((child) => cloneReferenceNode(child, { ...options, isRoot: false }))
@@ -918,15 +902,14 @@ function applyCreatePage(
     return { document, error: `Page id already exists: ${instruction.pageId}` };
   }
   const requestedName = instruction.name?.trim();
-  const name = requestedName === undefined || requestedName.length === 0
-    ? instruction.pageId
-    : requestedName;
+  const name = requestedName === undefined || requestedName.length === 0 ? instruction.pageId : requestedName;
   const requestedRootNodeId = instruction.rootNodeId?.trim();
   const titleValue = stringifyPrimitive(instruction.props?.title) || name;
   const root: ThemeLayoutNode = {
-    id: requestedRootNodeId === undefined || requestedRootNodeId.length === 0
-      ? `${instruction.pageId}-screen`
-      : requestedRootNodeId,
+    id:
+      requestedRootNodeId === undefined || requestedRootNodeId.length === 0
+        ? `${instruction.pageId}-screen`
+        : requestedRootNodeId,
     alias: 'core.screen',
     layout: { mode: 'flow', width: '100%', ...sanitizeLayoutPatch(instruction.layout) },
     props: { ...(instruction.props ?? {}), title: titleValue },
@@ -962,16 +945,10 @@ function applyCreatePageFromReference(
     requestedRootNodeId === undefined || requestedRootNodeId.length === 0
       ? `${instruction.pageId}-screen`
       : requestedRootNodeId;
-  if (
-    instruction.referenceNodeUpdates !== undefined &&
-    !Array.isArray(instruction.referenceNodeUpdates)
-  ) {
+  if (instruction.referenceNodeUpdates !== undefined && !Array.isArray(instruction.referenceNodeUpdates)) {
     return { document, error: 'referenceNodeUpdates must be an array' };
   }
-  if (
-    instruction.omitReferenceNodeIds !== undefined &&
-    !Array.isArray(instruction.omitReferenceNodeIds)
-  ) {
+  if (instruction.omitReferenceNodeIds !== undefined && !Array.isArray(instruction.omitReferenceNodeIds)) {
     return { document, error: 'omitReferenceNodeIds must be an array' };
   }
   const idMap = new Map<string, string>();
@@ -1097,7 +1074,9 @@ function applyClonePatternItems(
   if (!source) {
     return { document, error: `Pattern source node not found: ${instruction.sourceRootNodeId}` };
   }
-  const parent = instruction.parentId ? findNode(page.layout, instruction.parentId) : findParentNode(page.layout, source.id);
+  const parent = instruction.parentId
+    ? findNode(page.layout, instruction.parentId)
+    : findParentNode(page.layout, source.id);
   if (!parent || !CONTAINER_ALIASES.has(parent.alias)) {
     return { document, error: `Pattern parent node is invalid: ${instruction.parentId ?? ''}` };
   }
@@ -1108,7 +1087,9 @@ function applyClonePatternItems(
   }
 
   if (instruction.replaceExisting !== false) {
-    parent.children = parent.children.filter((child) => child.id === source.id || !child.id.startsWith(`${slugNodeId(source.id)}-item-`));
+    parent.children = parent.children.filter(
+      (child) => child.id === source.id || !child.id.startsWith(`${slugNodeId(source.id)}-item-`),
+    );
   }
 
   const usedIds = collectDocumentNodeIds(document);
@@ -1156,7 +1137,7 @@ function applyClonePatternItems(
   return {
     document,
     message: `Cloned pattern ${instruction.sourceRootNodeId} with ${clones.length} item(s)`,
-    selectedNodeId: instruction.select === false ? undefined : clones[0]?.id ?? source.id,
+    selectedNodeId: instruction.select === false ? undefined : (clones[0]?.id ?? source.id),
   };
 }
 
@@ -1190,10 +1171,7 @@ function applyDeletePage(
 function syncPageNavigation(document: ThemeLayoutDocument): void {
   const tabs = document.pages.map((page) => (page.name.length > 0 ? page.name : page.id));
   const onTabClick = Object.fromEntries(
-    document.pages.map((page, index) => [
-      tabs[index],
-      { type: 'navigate' as const, targetPageId: page.id },
-    ]),
+    document.pages.map((page, index) => [tabs[index], { type: 'navigate' as const, targetPageId: page.id }]),
   );
   document.pages.forEach((page) => {
     const footers = findFooterTabs(page.layout);
@@ -1254,12 +1232,18 @@ function applyOneInstruction(
         return { document, error: result.error };
       }
       nextDocument = result.document;
-      if (result.message) {messages.push(result.message);}
-      if (result.selectedNodeId !== undefined) {selectedNodeId = result.selectedNodeId;}
+      if (result.message) {
+        messages.push(result.message);
+      }
+      if (result.selectedNodeId !== undefined) {
+        selectedNodeId = result.selectedNodeId;
+      }
     }
     return {
       document: nextDocument,
-      message: messages.length ? `Semantic ${instruction.type}: ${messages.join('; ')}` : `Semantic ${instruction.type} compiled`,
+      message: messages.length
+        ? `Semantic ${instruction.type}: ${messages.join('; ')}`
+        : `Semantic ${instruction.type} compiled`,
       selectedNodeId,
     };
   }
@@ -1291,11 +1275,7 @@ function applyOneInstruction(
     // semanticTarget as parentId takes priority over root default
     let effectiveParentId = instruction.parentId;
     if (!effectiveParentId && instruction.semanticTarget && options?.resolveSemanticTarget) {
-      const semResult = options.resolveSemanticTarget(
-        document,
-        instruction.semanticTarget,
-        options.selectedNodeId,
-      );
+      const semResult = options.resolveSemanticTarget(document, instruction.semanticTarget, options.selectedNodeId);
       if (semResult) {
         effectiveParentId = semResult.nodeId;
       }
@@ -1532,9 +1512,7 @@ export function applyEditorAiEditInstructions(
     return {
       applied,
       document: cloneDocument(document),
-      errors: validation.errors.map((error) => (
-        `Validation ${error.path}: ${error.message}`
-      )),
+      errors: validation.errors.map((error) => `Validation ${error.path}: ${error.message}`),
       selectedNodeId,
       rollbackReason: 'validation',
     };

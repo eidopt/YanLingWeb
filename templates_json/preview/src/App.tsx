@@ -1,21 +1,12 @@
 import { TemplateCard } from './TemplateCard';
-import {
-  PREVIEW_VIEWPORT,
-  TemplatePreview,
-} from './TemplatePreview';
+import { PREVIEW_VIEWPORT, TemplatePreview } from './TemplatePreview';
 import type { TemplateEntry, TemplateIndex } from './types';
-import {
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import type { DynamicThemeScreenPreset } from 'ui/renderer';
 
 const SKIP_LIST_PATH = '/templates_json/import-skip-list.json';
 
-const CATEGORY_LABELS: Record<string, string> = {
+const CATEGORY_LABELS: Partial<Record<string, string>> = {
   commerce: '电商零售',
   content: '内容社区',
   dashboard: '数据看板',
@@ -40,9 +31,7 @@ const DEVICE_LABELS: Record<DynamicThemeScreenPreset, string> = {
 };
 
 function uniqueSorted(values: string[]) {
-  return Array.from(new Set(values.filter(Boolean))).sort(
-    (a, b) => a.localeCompare(b),
-  );
+  return Array.from(new Set(values.filter(Boolean))).sort((a, b) => a.localeCompare(b));
 }
 
 function entryMatchesQuery(entry: TemplateEntry, query: string) {
@@ -107,26 +96,18 @@ export function App(): ReactNode {
       .catch(() => setSkipIds(new Set()));
   }, []);
 
-  const categories = useMemo(
-    () => [...(index?.categories ?? []), ...(index?.extraCategories ?? [])],
-    [index],
+  const categories = useMemo(() => [...(index?.categories ?? []), ...(index?.extraCategories ?? [])], [index]);
+  const categoryData = useMemo(() => categories.find((item) => item.name === category), [categories, category]);
+  const subcategories = useMemo(
+    () => uniqueSorted((categoryData?.items ?? []).map((item) => item.subcategory)),
+    [categoryData],
   );
-  const categoryData = useMemo(
-    () => categories.find((item) => item.name === category),
-    [categories, category],
-  );
-  const subcategories = useMemo(() => (
-    uniqueSorted((categoryData?.items ?? []).map((item) => item.subcategory))
-  ), [categoryData]);
 
   const visibleItems = useMemo(() => {
-    const source = query.trim()
-      ? index?.all ?? []
-      : categoryData?.items ?? [];
-    return source.filter((entry) => (
-      (!subcategory || entry.subcategory === subcategory)
-      && entryMatchesQuery(entry, query)
-    ));
+    const source = query.trim() ? (index?.all ?? []) : (categoryData?.items ?? []);
+    return source.filter(
+      (entry) => (!subcategory || entry.subcategory === subcategory) && entryMatchesQuery(entry, query),
+    );
   }, [categoryData, index, query, subcategory]);
 
   const toggleSkipId = useCallback((id: string) => {
@@ -171,11 +152,7 @@ export function App(): ReactNode {
   }, []);
 
   if (loading) {
-    return (
-      <div style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>
-        加载模板索引...
-      </div>
-    );
+    return <div style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>加载模板索引...</div>;
   }
 
   if (selected) {
@@ -312,9 +289,7 @@ export function App(): ReactNode {
                     cursor: 'pointer',
                     fontSize: 13,
                     border: 0,
-                    borderRight: active && !subcategory
-                      ? '3px solid #1677ff'
-                      : '3px solid transparent',
+                    borderRight: active && !subcategory ? '3px solid #1677ff' : '3px solid transparent',
                     background: active && !subcategory ? '#e6f4ff' : 'transparent',
                     color: '#0f172a',
                     display: 'flex',
@@ -327,34 +302,33 @@ export function App(): ReactNode {
                   <span style={{ color: '#64748b', fontSize: 12 }}>{item.count}</span>
                 </button>
 
-                {active && subcategories.map((name) => (
-                  <button
-                    key={name}
-                    type="button"
-                    onClick={() => setSubcategory(name)}
-                    style={{
-                      width: '100%',
-                      padding: '5px 14px 5px 28px',
-                      cursor: 'pointer',
-                      fontSize: 12,
-                      border: 0,
-                      borderRight: subcategory === name
-                        ? '3px solid #1677ff'
-                        : '3px solid transparent',
-                      background: subcategory === name ? '#e6f4ff' : 'transparent',
-                      color: '#334155',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      fontWeight: subcategory === name ? 700 : 500,
-                      textAlign: 'left',
-                    }}
-                  >
-                    <span>{name}</span>
-                    <span style={{ color: '#64748b', fontSize: 11 }}>
-                      {item.items.filter((entry) => entry.subcategory === name).length}
-                    </span>
-                  </button>
-                ))}
+                {active &&
+                  subcategories.map((name) => (
+                    <button
+                      key={name}
+                      type="button"
+                      onClick={() => setSubcategory(name)}
+                      style={{
+                        width: '100%',
+                        padding: '5px 14px 5px 28px',
+                        cursor: 'pointer',
+                        fontSize: 12,
+                        border: 0,
+                        borderRight: subcategory === name ? '3px solid #1677ff' : '3px solid transparent',
+                        background: subcategory === name ? '#e6f4ff' : 'transparent',
+                        color: '#334155',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        fontWeight: subcategory === name ? 700 : 500,
+                        textAlign: 'left',
+                      }}
+                    >
+                      <span>{name}</span>
+                      <span style={{ color: '#64748b', fontSize: 11 }}>
+                        {item.items.filter((entry) => entry.subcategory === name).length}
+                      </span>
+                    </button>
+                  ))}
               </div>
             );
           })}
@@ -430,9 +404,7 @@ export function App(): ReactNode {
               background: '#fff',
             }}
           />
-          <span style={{ fontSize: 12, color: '#64748b' }}>
-            当前显示 {visibleItems.length} 个模板
-          </span>
+          <span style={{ fontSize: 12, color: '#64748b' }}>当前显示 {visibleItems.length} 个模板</span>
         </div>
 
         <div

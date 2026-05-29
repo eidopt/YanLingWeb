@@ -17,6 +17,15 @@ process.env.NODE_ENV = serverFlavor;
 
 loadEnvFiles(envFilePaths(serverFlavor));
 
+if (serverFlavor === 'production' && readEnv(serverFlavor, 'ALLOW_PROD_DB_INIT') !== 'true') {
+  console.error(
+    '[db:init] Refusing to initialize a production database directly. ' +
+      'Run pnpm migration:run:prod instead, or set PROD_ALLOW_PROD_DB_INIT=true ' +
+      'only for an explicitly approved one-off bootstrap.',
+  );
+  process.exit(1);
+}
+
 const databaseDriver = readDatabaseDriver(serverFlavor);
 if (!isKnownDriver(databaseDriver)) {
   console.error(`[db:init] Unsupported database driver: ${databaseDriver}`);
@@ -27,8 +36,7 @@ if (!isFileBackedDriver(databaseDriver)) {
   process.exit(0);
 }
 
-const dbPath = readEnv(serverFlavor, 'DB_PATH')
-  ?? readEnv(serverFlavor, 'DEFAULT_DB_PATH');
+const dbPath = readEnv(serverFlavor, 'DB_PATH') ?? readEnv(serverFlavor, 'DEFAULT_DB_PATH');
 
 if (!dbPath) {
   console.error(`[db:init] ${databaseDriver} requires DB_PATH or DEFAULT_DB_PATH`);
@@ -56,10 +64,12 @@ if (!fs.existsSync(resolvedDbPath)) {
 console.log('[db:init] Done. Starting NestJS...');
 
 function resolveServerFlavor() {
-  return normalizeServerFlavor(readCliServerFlavor())
-    ?? normalizeServerFlavor(process.env[SERVER_FLAVOR_ENV_NAME])
-    ?? normalizeServerFlavor(process.env.NODE_ENV)
-    ?? 'development';
+  return (
+    normalizeServerFlavor(readCliServerFlavor()) ??
+    normalizeServerFlavor(process.env[SERVER_FLAVOR_ENV_NAME]) ??
+    normalizeServerFlavor(process.env.NODE_ENV) ??
+    'development'
+  );
 }
 
 function readCliServerFlavor() {
@@ -126,16 +136,17 @@ function loadEnvFiles(filePaths) {
 }
 
 function readEnv(flavor, name) {
-  return clean(process.env[`${scopePrefix(flavor)}_${name}`])
-    ?? clean(process.env[name]);
+  return clean(process.env[`${scopePrefix(flavor)}_${name}`]) ?? clean(process.env[name]);
 }
 
 function readDatabaseDriver(flavor) {
-  return clean(process.env[`${scopePrefix(flavor)}_DATABASE_DRIVER`])
-    ?? clean(process.env[`${scopePrefix(flavor)}_DB_DRIVER`])
-    ?? clean(process.env.DATABASE_DRIVER)
-    ?? clean(process.env.DB_DRIVER)
-    ?? 'sqlite';
+  return (
+    clean(process.env[`${scopePrefix(flavor)}_DATABASE_DRIVER`]) ??
+    clean(process.env[`${scopePrefix(flavor)}_DB_DRIVER`]) ??
+    clean(process.env.DATABASE_DRIVER) ??
+    clean(process.env.DB_DRIVER) ??
+    'sqlite'
+  );
 }
 
 function isFileBackedDriver(driver) {
@@ -143,7 +154,7 @@ function isFileBackedDriver(driver) {
 }
 
 function isKnownDriver(driver) {
-  return ['sqlite', 'postgres', 'mysql'].includes(driver);
+  return ['sqlite', 'postgres'].includes(driver);
 }
 
 function scopePrefix(flavor) {

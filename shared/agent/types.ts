@@ -57,14 +57,28 @@ export interface ThemeLayoutNavigateAction {
   targetPageId: string;
 }
 
-export type ThemeLayoutTabInteraction =
+export interface ThemeLayoutSetVisibilityAction {
+  type: 'setVisibility';
+  targetNodeId: string;
+  visible: boolean;
+}
+
+export interface ThemeLayoutToggleVisibilityAction {
+  type: 'toggleVisibility';
+  targetNodeId: string;
+}
+
+export type ThemeLayoutNodeAction =
   | ThemeLayoutNavigateAction
-  | Record<string, ThemeLayoutNavigateAction>;
+  | ThemeLayoutSetVisibilityAction
+  | ThemeLayoutToggleVisibilityAction;
+
+export type ThemeLayoutTabInteraction = ThemeLayoutNavigateAction | Record<string, ThemeLayoutNavigateAction>;
 
 export interface ThemeLayoutNodeInteractions {
-  onClick?: ThemeLayoutNavigateAction;
-  onActionClick?: ThemeLayoutNavigateAction;
-  onStatusClick?: ThemeLayoutNavigateAction;
+  onClick?: ThemeLayoutNodeAction;
+  onActionClick?: ThemeLayoutNodeAction;
+  onStatusClick?: ThemeLayoutNodeAction;
   onTabClick?: ThemeLayoutTabInteraction;
 }
 
@@ -104,6 +118,23 @@ export interface ThemeLayoutStyleManifest {
   cssVars?: Record<string, string>;
 }
 
+export interface ThemeLayoutWidgetPolicy {
+  enabled?: boolean;
+  allowedLibraries?: string[];
+  allowedRenderers?: string[];
+  allowedCapabilities?: ('chart' | 'animation' | 'diagram')[];
+}
+
+export interface ThemeLayoutDataSource {
+  id: string;
+  kind: 'staticJson' | 'publicJsonEndpoint';
+  description?: string;
+  url?: string;
+  data?: unknown;
+  select?: string;
+  fallback?: unknown;
+}
+
 export interface ThemeLayoutDocument {
   version: number;
   schemaVersion?: number;
@@ -116,6 +147,8 @@ export interface ThemeLayoutDocument {
   pages: ThemeLayoutPage[];
   layout: ThemeLayoutNode;
   dependencies?: ThemeLibraryDependency[];
+  widgetPolicy?: ThemeLayoutWidgetPolicy;
+  dataSources?: ThemeLayoutDataSource[];
   componentTemplates?: Record<string, unknown>;
   cssVars?: Record<string, string>;
   cssAnimations?: Record<string, string> | null;

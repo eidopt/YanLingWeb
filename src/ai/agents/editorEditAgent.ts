@@ -3,30 +3,20 @@ import { autoCompactIfNeeded, createAutoCompactState } from '../core/compact/aut
 import type { AIProvider, ProviderMessage } from '../core/providers/types';
 import { QueryLoop } from '../core/query-loop';
 import { formatUiIntentPlanForPrompt, planUiIntent } from '../planning/ui-intent-router';
-import {
-  EDITOR_EDIT_TOOL_NAMES,
-  editorToolCallToOperations,
-  selectEditorEditTools,
-} from '../tools/editor-edit.tool';
+import { EDITOR_EDIT_TOOL_NAMES, editorToolCallToOperations, selectEditorEditTools } from '../tools/editor-edit.tool';
 import { AgentEventRecorder } from './agentEventRecorder';
 import {
+  applyEditorAiEditInstructions,
+  type ApplyEditorAiEditInstructionsOptions,
+  type ApplyEditorAiEditInstructionsResult,
   buildConversationContextMessages,
   buildEditorStablePrefixContext,
   buildEditorVolatileContext,
-} from '@shared/agent/context/editorContext';
-import type {
-  ApplyEditorAiEditInstructionsOptions,
-  ApplyEditorAiEditInstructionsResult,
-  EditorAiEditInstruction,
-} from '@shared/agent/editor/applyEditorInstructions';
-import {
-  applyEditorAiEditInstructions,
-} from '@shared/agent/editor/applyEditorInstructions';
-import { EDITOR_COPILOT_SYSTEM_PROMPT } from '@shared/agent/prompts/editorCopilotPrompt';
-import {
+  EDITOR_COPILOT_SYSTEM_PROMPT,
+  type EditorAiEditInstruction,
   formatUiDesignSkillContextForPrompt,
   inferUiDesignSkillContext,
-} from '@shared/agent/skills/uiDesignSkillRegistry';
+} from '@shared/agent/browser';
 import type {
   AgentConversationMessage,
   AgentEvalScenario,
@@ -35,13 +25,13 @@ import type {
   ThemeComponentDescriptor,
   ThemeLayoutDocument,
   ThemeLayoutNode,
-} from '@shared/agent/types';
-import { evaluateSemanticAssertions } from '@shared/agent/validation/semanticAssertions';
-import { evaluateUnrelatedDiff } from '@shared/agent/validation/templateDiff';
+} from '@shared/agent/contracts/agent';
 import {
+  evaluateSemanticAssertions,
+  evaluateUnrelatedDiff,
   renderSmokeThemeLayoutDocument,
   validateThemeLayoutDocument,
-} from '@shared/agent/validation/themeLayoutValidator';
+} from '@shared/agent/contracts/validation';
 
 export interface EditorEditAgentOptions {
   provider: AIProvider;
@@ -111,12 +101,7 @@ export class EditorEditAgent {
       '',
       formatUiDesignSkillContextForPrompt(skillContext),
       '',
-      buildEditorVolatileContext(
-        currentDocument,
-        input.pages,
-        input.selectedNode,
-        input.selectedDescriptor,
-      ),
+      buildEditorVolatileContext(currentDocument, input.pages, input.selectedNode, input.selectedDescriptor),
       '',
       'User request:',
       input.prompt,
@@ -132,27 +117,25 @@ export class EditorEditAgent {
     // Compaction inside the loop would change the message prefix mid-session,
     // breaking DeepSeek's prefix caching for subsequent iterations.
     const preCompactState = createAutoCompactState();
-    const compactResult = await autoCompactIfNeeded(
-      messages,
-      this.options.model,
-      preCompactState,
-      {
-        provider: this.options.provider,
-        compactionModel: this.options.compactionModel,
-      },
-    );
+    const compactResult = await autoCompactIfNeeded(messages, this.options.model, preCompactState, {
+      provider: this.options.provider,
+      compactionModel: this.options.compactionModel,
+    });
     if (compactResult.wasCompacted) {
       messages.length = 0;
       messages.push(...compactResult.messages);
     }
 
     const prefixHash = simpleHash(
-      messages.slice(0, 2).map((m) => `${m.role}:${messageContentPreview(m)}`).join('|'),
+      messages
+        .slice(0, 2)
+        .map((m) => `${m.role}:${messageContentPreview(m)}`)
+        .join('|'),
     );
     const conversationDepth = conversationMessages.length;
     console.warn(
-      `[Cache] prefix=${prefixHash} conversationDepth=${conversationDepth}`
-      + ` compacted=${compactResult.wasCompacted}`,
+      `[Cache] prefix=${prefixHash} conversationDepth=${conversationDepth}` +
+        ` compacted=${compactResult.wasCompacted}`,
     );
 
     const editorTools = selectEditorEditTools(input.prompt);
@@ -181,17 +164,13 @@ export class EditorEditAgent {
           const edit = editorToolCallToOperations(name, args);
           const operations = parseOperations(edit.operations);
           const reason = edit.reason;
-          const result = (this.options.editApplier ?? applyEditorAiEditInstructions)(
-            currentDocument,
-            operations,
-            {
-              userPrompt: input.prompt,
-              reason,
-              selectedNodeId: input.selectedNode?.id ?? null,
-              resolveSemanticTarget: (document, target, selectedNodeId) =>
-                resolveSemanticTargetNodeId(document, { target, selectedNodeId }),
-            },
-          );
+          const result = (this.options.editApplier ?? applyEditorAiEditInstructions)(currentDocument, operations, {
+            userPrompt: input.prompt,
+            reason,
+            selectedNodeId: input.selectedNode?.id ?? null,
+            resolveSemanticTarget: (document, target, selectedNodeId) =>
+              resolveSemanticTargetNodeId(document, { target, selectedNodeId }),
+          });
           const isFullSuccess = result.errors.length === 0;
           const hasAppliedOps = result.applied.length > 0;
           const isValidationRollback = result.rollbackReason === 'validation';
@@ -271,8 +250,13 @@ export class EditorEditAgent {
     const unrelatedDiff = evaluateUnrelatedDiff(input.document, currentDocument, input.scenario?.expected);
     const render = renderSmokeThemeLayoutDocument(currentDocument);
     const calledExpectedTool = recorder.toolCalls.some((call) => EDITOR_EDIT_TOOL_NAMES.has(call.name));
-    const passed = !terminalError && calledExpectedTool && validation.valid && semantic.passed && unrelatedDiff.passed
-      && render.passed;
+    const passed =
+      !terminalError &&
+      calledExpectedTool &&
+      validation.valid &&
+      semantic.passed &&
+      unrelatedDiff.passed &&
+      render.passed;
 
     return {
       scenarioId: input.scenarioId ?? input.scenario?.id,
@@ -297,7 +281,7 @@ function simpleHash(input: string): string {
   let hash = 0;
   for (let i = 0; i < input.length; i++) {
     const char = input.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash |= 0; // Convert to 32-bit integer
   }
   return Math.abs(hash).toString(36).slice(0, 8);

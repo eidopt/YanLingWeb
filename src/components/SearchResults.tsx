@@ -2,14 +2,12 @@
 
 import {
   type CreateWithAiResult,
-  type SearchIntentResponse,
   SearchService,
   type SearchTemplatesResult,
   type TemplateSummary,
 } from '../services/SearchService';
-import { useCallback,useState } from 'react';
-
-// ─── Types ────────────────────────────────────────────────────────
+import { useCallback, useMemo } from 'react';
+import { searchResultsStateActions, useSearchResultsSnapshot } from 'state/searchResultsState';
 
 interface SearchResultsProps {
   token?: string | null;
@@ -17,48 +15,36 @@ interface SearchResultsProps {
   onCreateWithAi?: (query: string) => void;
 }
 
-type SearchState =
-  | { status: 'idle' }
-  | { status: 'loading' }
-  | { status: 'results'; results: SearchTemplatesResult }
-  | { status: 'created'; result: CreateWithAiResult }
-  | { status: 'error'; message: string };
-
-// ─── Component ────────────────────────────────────────────────────
-
 export function SearchResults({ token, onSelectTemplate, onCreateWithAi }: SearchResultsProps) {
-  const [query, setQuery] = useState('');
-  const [state, setState] = useState<SearchState>({ status: 'idle' });
-
-  const service = new SearchService(() => token ?? null);
+  const state = useSearchResultsSnapshot();
+  const service = useMemo(() => new SearchService(() => token ?? null), [token]);
 
   const handleSearch = useCallback(async () => {
-    const trimmed = query.trim();
-    if (!trimmed) {return;}
+    const trimmed = state.query.trim();
+    if (!trimmed) {
+      return;
+    }
 
-    setState({ status: 'loading' });
+    searchResultsStateActions.setLoading();
 
     try {
       const result = await service.submit(trimmed);
 
       if (service.isSearchResult(result)) {
-        setState({ status: 'results', results: result });
+        searchResultsStateActions.setResults(result);
       } else if (service.isCreateResult(result)) {
-        setState({ status: 'created', result });
+        searchResultsStateActions.setCreated(result);
         onCreateWithAi?.(result.query);
       }
     } catch (err) {
-      setState({
-        status: 'error',
-        message: err instanceof Error ? err.message : '搜索失败',
-      });
+      searchResultsStateActions.setError(err instanceof Error ? err.message : 'Search failed');
     }
-  }, [query, token, onCreateWithAi]);
+  }, [state.query, service, onCreateWithAi]);
 
   const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        handleSearch();
+    (event: React.KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        void handleSearch();
       }
     },
     [handleSearch],
@@ -66,46 +52,28 @@ export function SearchResults({ token, onSelectTemplate, onCreateWithAi }: Searc
 
   return (
     <div className="search-container">
-      {/* Search Input */}
       <div className="search-input-wrap">
         <input
           type="text"
           className="search-input"
-          placeholder="搜索模板或描述你想要的应用..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search templates or describe the app you want..."
+          value={state.query}
+          onChange={(event) => searchResultsStateActions.setQuery(event.target.value)}
           onKeyDown={handleKeyDown}
         />
-        <button
-          type="button"
-          className="search-button"
-          onClick={handleSearch}
-          disabled={state.status === 'loading'}
-        >
-          {state.status === 'loading' ? '搜索中...' : '搜索'}
+        <button type="button" className="search-button" onClick={handleSearch} disabled={state.status === 'loading'}>
+          {state.status === 'loading' ? 'Searching...' : 'Search'}
         </button>
       </div>
 
-      {/* Results */}
-      {state.status === 'results' && (
-        <SearchResultsList
-          results={state.results}
-          onSelect={onSelectTemplate}
-        />
-      )}
+      {state.status === 'results' && <SearchResultsList results={state.results} onSelect={onSelectTemplate} />}
 
-      {state.status === 'created' && (
-        <CreateResultCard result={state.result} />
-      )}
+      {state.status === 'created' && <CreateResultCard result={state.result} />}
 
-      {state.status === 'error' && (
-        <div className="search-error">{state.message}</div>
-      )}
+      {state.status === 'error' && <div className="search-error">{state.message}</div>}
     </div>
   );
 }
-
-// ─── Search Results List ──────────────────────────────────────────
 
 function SearchResultsList({
   results,
@@ -117,8 +85,8 @@ function SearchResultsList({
   if (results.total === 0) {
     return (
       <div className="search-empty">
-        <p>没有找到匹配的模板</p>
-        <p className="search-empty-hint">试试其他关键词，或直接描述你想要的应用</p>
+        <p>No matching templates found.</p>
+        <p className="search-empty-hint">Try another keyword or describe the app directly.</p>
       </div>
     );
   }
@@ -126,30 +94,18 @@ function SearchResultsList({
   return (
     <div className="search-results">
       <div className="search-results-header">
-        <span>找到 {results.total} 个模板</span>
+        <span>Found {results.total} templates</span>
       </div>
       <div className="search-results-list">
         {results.results.map((template: TemplateSummary) => (
-          <TemplateCard
-            key={template.templateId}
-            template={template}
-            onClick={() => onSelect?.(template.templateId)}
-          />
+          <TemplateCard key={template.templateId} template={template} onClick={() => onSelect?.(template.templateId)} />
         ))}
       </div>
     </div>
   );
 }
 
-// ─── Template Card ────────────────────────────────────────────────
-
-function TemplateCard({
-  template,
-  onClick,
-}: {
-  template: TemplateSummary;
-  onClick?: () => void;
-}) {
+function TemplateCard({ template, onClick }: { template: TemplateSummary; onClick?: () => void }) {
   return (
     <button
       type="button"
@@ -164,25 +120,23 @@ function TemplateCard({
       <p className="template-card-tagline">{template.tagline}</p>
       <div className="template-card-tags">
         {template.tags.slice(0, 3).map((tag: string) => (
-          <span key={tag} className="template-card-tag">{tag}</span>
+          <span key={tag} className="template-card-tag">
+            {tag}
+          </span>
         ))}
       </div>
     </button>
   );
 }
 
-// ─── Create Result Card ───────────────────────────────────────────
-
 function CreateResultCard({ result }: { result: CreateWithAiResult }) {
   return (
     <div className="create-result">
       <div className="create-result-header">
-        <span className="create-result-icon">✨</span>
-        <span>正在跳转到编辑器，AI 将为你生成模板…</span>
+        <span className="create-result-icon">OK</span>
+        <span>Opening the editor. AI will generate a template for you.</span>
       </div>
-      <p className="create-result-desc">
-        基于你的描述 &ldquo;{result.query}&rdquo;
-      </p>
+      <p className="create-result-desc">Based on your description &ldquo;{result.query}&rdquo;</p>
     </div>
   );
 }

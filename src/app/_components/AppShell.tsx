@@ -1,27 +1,27 @@
 'use client';
 
+import { AppErrorBoundary } from './AppErrorBoundary';
 import styles from './AppShell.module.css';
-import { useAppServices } from 'hooks/useAppServices';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 import { AppServicesProvider } from 'services/AppServicesContext';
-import type { AuthUser } from 'services/AuthService';
-import { AUTH_CHANGED_EVENT } from 'services/AuthService';
+import { useAuthUser } from 'state/authState';
 import { Box } from 'ui/base';
 import { FakeGlobalNav } from 'ui/global_nav';
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children }: { children: ReactNode }) {
   return (
     <AppServicesProvider>
-      <AppShellContent>{children}</AppShellContent>
+      <AppErrorBoundary>
+        <AppShellContent>{children}</AppShellContent>
+      </AppErrorBoundary>
     </AppServicesProvider>
   );
 }
 
-function AppShellContent({ children }: { children: React.ReactNode }) {
+function AppShellContent({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const { authService } = useAppServices();
-  const [user, setUser] = useState<AuthUser | null | undefined>(undefined);
+  const user = useAuthUser();
   const isHome = pathname === '/' || pathname === '/builder';
   const isPublicSite = pathname.startsWith('/sites/');
   const isWorkspaceRoute = pathname === '/' || pathname === '/templates';
@@ -30,25 +30,10 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
   const showGlobalNav = !isPublicSite && !isLoggedInWorkspace && !isAuthCheckingWorkspace;
   const useOverlayViewport = isHome && !isLoggedInWorkspace && !isAuthCheckingWorkspace;
 
-  useEffect(() => {
-    const syncUser = () => {
-      setUser(authService.getUser());
-    };
-    syncUser();
-    window.addEventListener(AUTH_CHANGED_EVENT, syncUser);
-    window.addEventListener('storage', syncUser);
-    return () => {
-      window.removeEventListener(AUTH_CHANGED_EVENT, syncUser);
-      window.removeEventListener('storage', syncUser);
-    };
-  }, [authService]);
-
   return (
     <Box className={styles.appShell}>
       {showGlobalNav && <FakeGlobalNav variant={isHome ? 'overlay' : 'default'} />}
-      <Box className={useOverlayViewport ? styles.routeViewportOverlay : styles.routeViewport}>
-        {children}
-      </Box>
+      <Box className={useOverlayViewport ? styles.routeViewportOverlay : styles.routeViewport}>{children}</Box>
     </Box>
   );
 }

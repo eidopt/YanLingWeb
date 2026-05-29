@@ -5,7 +5,9 @@ const MAX_CONTEXT_TOKENS = 500_000;
 const RECENT_CONTEXT_TARGET_TOKENS = 450_000;
 
 export function compactConversation(messages: ProviderMessage[]): ProviderMessage[] {
-  if (tokenCountWithEstimation(messages) <= MAX_CONTEXT_TOKENS) { return messages; }
+  if (tokenCountWithEstimation(messages) <= MAX_CONTEXT_TOKENS) {
+    return messages;
+  }
 
   const system = messages.filter((m) => m.role === 'system');
   const nonSystem = messages.filter((m) => m.role !== 'system');
@@ -27,7 +29,7 @@ export function compactConversation(messages: ProviderMessage[]): ProviderMessag
     {
       role: 'user',
       content: [
-        '[Compaction Summary — prior context compressed]',
+        '[Compaction Summary - prior context compressed]',
         '',
         summary,
         '',
@@ -39,7 +41,9 @@ export function compactConversation(messages: ProviderMessage[]): ProviderMessag
 }
 
 function buildSummary(messages: ProviderMessage[]): string {
-  if (messages.length === 0) { return 'Prior work recorded.'; }
+  if (messages.length === 0) {
+    return 'Prior work recorded.';
+  }
 
   const lines: string[] = [];
   let currentGoal = '';
@@ -53,12 +57,16 @@ function buildSummary(messages: ProviderMessage[]): string {
     }
     if (msg.role === 'tool_call' && msg.toolName === 'generate_template') {
       try {
-        const args = JSON.parse(msg.toolArguments ?? '{}') as { name?: string; category?: string; };
+        const args = JSON.parse(msg.toolArguments ?? '{}') as { name?: string; category?: string };
         lines.push(`- Generated template: ${args.name ?? 'unnamed'} (${args.category ?? ''})`);
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     }
   }
 
-  if (currentGoal) { lines.unshift(`- Goal: ${currentGoal}`); }
+  if (currentGoal) {
+    lines.unshift(`- Goal: ${currentGoal}`);
+  }
   return lines.join('\n') || 'Prior work recorded.';
 }

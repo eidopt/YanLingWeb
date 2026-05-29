@@ -1,15 +1,17 @@
-import js from '@eslint/js'
-import { defineConfig, globalIgnores } from 'eslint/config'
-import reactPlugin from 'eslint-plugin-react'
-import reactHooks from 'eslint-plugin-react-hooks'
-import simpleImportSort from 'eslint-plugin-simple-import-sort'
-import globals from 'globals'
-import tseslint from 'typescript-eslint'
+import js from '@eslint/js';
+import nextPlugin from '@next/eslint-plugin-next';
+import { defineConfig, globalIgnores } from 'eslint/config';
+import reactPlugin from 'eslint-plugin-react';
+import reactHooks from 'eslint-plugin-react-hooks';
+import simpleImportSort from 'eslint-plugin-simple-import-sort';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
 export default defineConfig([
   // --- Ignored paths ---
   globalIgnores([
     '.next/**',
+    '.workbuddy/**',
     'dist',
     'dist-electron',
     'next-env.d.ts',
@@ -19,14 +21,18 @@ export default defineConfig([
     'backend/**',
   ]),
 
+  // Register the plugin globally so Next's build-time ESLint integration can
+  // detect it when it resolves the config file itself.
+  {
+    plugins: {
+      '@next/next': nextPlugin,
+    },
+  },
+
   // --- Base TypeScript rules ---
   {
     files: ['**/*.{ts,tsx}'],
-    extends: [
-      js.configs.recommended,
-      tseslint.configs.recommendedTypeChecked,
-      tseslint.configs.stylisticTypeChecked,
-    ],
+    extends: [js.configs.recommended, tseslint.configs.recommendedTypeChecked, tseslint.configs.stylisticTypeChecked],
     languageOptions: {
       ecmaVersion: 2023,
       globals: {
@@ -40,10 +46,7 @@ export default defineConfig([
     },
     rules: {
       // TypeScript
-      '@typescript-eslint/no-unused-vars': [
-        'error',
-        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
-      ],
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/consistent-type-imports': [
         'error',
         { prefer: 'type-imports', fixStyle: 'separate-type-imports' },
@@ -56,10 +59,7 @@ export default defineConfig([
       '@typescript-eslint/no-unnecessary-condition': 'warn',
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/await-thenable': 'error',
-      '@typescript-eslint/no-misused-promises': [
-        'error',
-        { checksVoidReturn: { attributes: false } },
-      ],
+      '@typescript-eslint/no-misused-promises': ['error', { checksVoidReturn: { attributes: false } }],
 
       // General JS quality
       'no-console': ['warn', { allow: ['warn', 'error'] }],
@@ -114,6 +114,18 @@ export default defineConfig([
     extends: [reactHooks.configs.flat.recommended],
   },
 
+  // --- Next.js ---
+  {
+    name: 'next/core-web-vitals',
+    files: ['src/app/**/*.{ts,tsx}', 'next.config.ts'],
+    settings: {
+      next: {
+        rootDir: import.meta.dirname,
+      },
+    },
+    rules: nextPlugin.flatConfig.coreWebVitals.rules,
+  },
+
   // --- Import sorting ---
   {
     files: ['**/*.{ts,tsx,js,jsx}'],
@@ -124,9 +136,7 @@ export default defineConfig([
       'simple-import-sort/imports': [
         'error',
         {
-          groups: [
-            ['^\\u0000', '^'],
-          ],
+          groups: [['^\\u0000', '^']],
         },
       ],
       'simple-import-sort/exports': 'error',
@@ -145,4 +155,4 @@ export default defineConfig([
       'no-console': 'off',
     },
   },
-])
+]);

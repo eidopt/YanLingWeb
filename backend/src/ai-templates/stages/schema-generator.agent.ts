@@ -1,10 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { CORE_COMPONENTS } from '@shared/agent/fixtures/blankDocument';
-import { STAGE_SCHEMA_GENERATOR_SYSTEM_PROMPT } from '@shared/agent/prompts/templates';
-import type { ThemeLayoutDocument } from '@shared/agent/types';
-import { validateThemeLayoutDocument } from '@shared/agent/validation/themeLayoutValidator';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { validateThemeLayoutDocument } from '@shared/agent/contracts/validation';
+import { CORE_COMPONENTS, STAGE_SCHEMA_GENERATOR_SYSTEM_PROMPT } from '@shared/agent/runtime';
+import { migrateThemeLayoutDocument } from '@shared/theme-layout/migrations';
 
-import { AiService } from '../../ai/ai.service';
+import {
+  AI_TEMPLATE_PIPELINE_PROVIDER,
+  type AiTemplatePipelineProvider,
+} from '../../ai/pipeline-provider.port';
 import { GENERATE_TEMPLATE_TOOL } from '../../ai/tools/generate-template.tool';
 import type {
   DesignerOutput,
@@ -25,14 +27,14 @@ import { runStructuredStage } from '../orchestrator/run-stage';
 export class SchemaGeneratorAgent {
   private readonly logger = new Logger(SchemaGeneratorAgent.name);
 
-  constructor(private readonly aiService: AiService) {}
+  constructor(
+    @Inject(AI_TEMPLATE_PIPELINE_PROVIDER)
+    private readonly aiProvider: AiTemplatePipelineProvider,
+  ) {}
 
-  async run(
-    brief: DesignerOutput,
-    attempt: number,
-  ): Promise<PipelineStageRecord<SchemaOutput>> {
+  async run(brief: DesignerOutput, attempt: number): Promise<PipelineStageRecord<SchemaOutput>> {
     const start = Date.now();
-    const { provider, model, apiKeyConfigured } = this.aiService.getProviderForTemplatePipeline();
+    const { provider, model, apiKeyConfigured } = this.aiProvider.getProviderForTemplatePipeline();
     if (!apiKeyConfigured) {
       throw new Error('AI_API_KEY 未配置 — SchemaGenerator 无法运行');
     }
@@ -71,10 +73,7 @@ export class SchemaGeneratorAgent {
     ].join('\n');
   }
 
-  private parseAndValidate(
-    args: Record<string, unknown>,
-    brief: DesignerOutput,
-  ): SchemaOutput {
+  private parseAndValidate(args: Record<string, unknown>, brief: DesignerOutput): SchemaOutput {
     const templateIdRaw = args.templateId;
     if (typeof templateIdRaw !== 'string' || templateIdRaw.length === 0) {
       throw new Error('generate_template 输入缺少 templateId');
@@ -89,23 +88,24 @@ export class SchemaGeneratorAgent {
     // ThemeLayoutDocument 持久化和 Verifier 读 schema 都期望这些字段也在
     // layoutDocument 内部。合并策略：layoutDocument 内已有则保留，否则用顶层值填。
     const rawDoc = layoutDocumentRaw as Record<string, unknown>;
-    const isNonEmptyString = (v: unknown): v is string =>
-      typeof v === 'string' && v.length > 0;
+    const isNonEmptyString = (v: unknown): v is string => typeof v === 'string' && v.length > 0;
     const isNonEmptyObject = (v: unknown): v is Record<string, unknown> =>
-      !!v && typeof v === 'object' && !Array.isArray(v)
-        && Object.keys(v).length > 0;
-    const isNonEmptyArray = (v: unknown): v is unknown[] =>
-      Array.isArray(v) && v.length > 0;
-    const document = {
+      !!v && typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length > 0;
+    const isNonEmptyArray = (v: unknown): v is unknown[] => Array.isArray(v) && v.length > 0;
+    const documentInput = {
       ...rawDoc,
       version: typeof rawDoc.version === 'number' ? rawDoc.version : 1,
       themeId: isNonEmptyString(rawDoc.themeId) ? rawDoc.themeId : templateIdRaw,
       themeName: isNonEmptyString(rawDoc.themeName)
         ? rawDoc.themeName
-        : isNonEmptyString(args.name) ? args.name : templateIdRaw,
+        : isNonEmptyString(args.name)
+          ? args.name
+          : templateIdRaw,
       description: isNonEmptyString(rawDoc.description)
         ? rawDoc.description
-        : isNonEmptyString(args.description) ? args.description : brief.tagline,
+        : isNonEmptyString(args.description)
+          ? args.description
+          : brief.tagline,
       components: isNonEmptyArray(rawDoc.components)
         ? rawDoc.components
         : Array.isArray(args.components) && args.components.length > 0
@@ -131,18 +131,20 @@ export class SchemaGeneratorAgent {
         : isNonEmptyObject(args.cssAnimations)
           ? args.cssAnimations
           : undefined,
-    } as unknown as ThemeLayoutDocument;
+    };
+    let document = migrateThemeLayoutDocument(documentInput);
 
     // document.layout 必须就是 pages[defaultPageId].layout —— 如果 LLM 给的不一致，
     // 强制对齐。同时如果 defaultPageId 不存在，回退到第一个 page。
     const pages = Array.isArray(document.pages) ? document.pages : [];
-    const defaultPage = pages.find((p) => p.id === document.defaultPageId)
-      ?? pages[0];
+    const fallbackPage = pages.length > 0 ? pages[0] : undefined;
+    const defaultPage = pages.find((p) => p.id === document.defaultPageId) ?? fallbackPage;
     if (defaultPage) {
-      (document as { layout?: unknown; }).layout = defaultPage.layout;
-      if (document.defaultPageId !== defaultPage.id) {
-        (document as { defaultPageId?: string; }).defaultPageId = defaultPage.id;
-      }
+      document = {
+        ...document,
+        layout: defaultPage.layout,
+        defaultPageId: defaultPage.id,
+      };
     }
 
     // failOnUnknownProps=false 容忍 GENERATE_TEMPLATE_TOOL 工具描述里写了

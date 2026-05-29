@@ -1,11 +1,7 @@
-import type {
-  AIProvider,
-  ProviderMessage,
-  ProviderRequest,
-  ProviderStreamEvent,
-  ProviderTool,
-  StreamEventDone,
-} from './providerTypes';
+import type { ProviderMessage, ProviderRequest, ProviderStreamEvent } from '../contracts/provider';
+import type { PendingToolCall, QueryLoopConfig, QueryResult, ToolResult } from '../contracts/queryLoop';
+
+export type { PendingToolCall, QueryLoopConfig, QueryResult, ToolResult, ToolSpec } from '../contracts/queryLoop';
 
 const MAX_ITERATIONS = 20;
 const MAX_API_RETRIES = 3;
@@ -20,54 +16,6 @@ const BYTES_PER_TOKEN = 4;
 const IMAGE_MAX_TOKEN_SIZE = 2000;
 const MICRO_KEEP_RECENT = 6;
 const LARGE_RESULT_THRESHOLD = 1000;
-
-export interface PendingToolCall {
-  id: string;
-  name: string;
-  arguments: string;
-}
-
-export interface ToolResult {
-  output: string;
-  action?: 'done';
-}
-
-export interface ToolSpec {
-  name: string;
-  supportsParallel?: boolean;
-}
-
-export interface QueryLoopConfig {
-  provider: AIProvider;
-  model: string;
-  tools: ProviderTool[];
-  toolSpecs: Map<string, ToolSpec>;
-  toolExecutor: (name: string, args: Record<string, unknown>) => Promise<ToolResult>;
-  onTextDelta: (text: string) => void;
-  onToolEvent: (event: {
-    name: string;
-    status: 'start' | 'done' | 'error';
-    detail?: string;
-  }) => void;
-  onContextCompacted?: () => void;
-  onError?: (msg: string) => void;
-  onUsage?: (
-    usage: NonNullable<StreamEventDone['usage']>,
-    request: ProviderRequest,
-  ) => void | Promise<void>;
-  requestCache?: ProviderRequest['cache'];
-  maxIterations?: number;
-  isCancelled: () => boolean;
-}
-
-export interface QueryResult {
-  messages: ProviderMessage[];
-  finalText: string;
-  iterations: number;
-  stopReason: 'completed' | 'max_iterations' | 'error' | 'cancelled';
-  error?: string;
-  responseId?: string;
-}
 
 function roughTokenCount(content: string): number {
   return Math.round(content.length / BYTES_PER_TOKEN);
@@ -158,14 +106,15 @@ function compactConversation(messages: ProviderMessage[]): ProviderMessage[] {
   const nonSystem = messages.filter((m) => m.role !== 'system');
   const recent = nonSystem.slice(-12);
   const old = nonSystem.slice(0, Math.max(0, nonSystem.length - recent.length));
-  const summary = old
-    .filter((m) => typeof m.content === 'string' && (m.role === 'user' || m.role === 'tool_result'))
-    .slice(-12)
-    .map((m) => {
-      const content = typeof m.content === 'string' ? m.content : '';
-      return `- ${m.role}: ${content.slice(0, 180)}`;
-    })
-    .join('\n') || 'Prior work recorded.';
+  const summary =
+    old
+      .filter((m) => typeof m.content === 'string' && (m.role === 'user' || m.role === 'tool_result'))
+      .slice(-12)
+      .map((m) => {
+        const content = typeof m.content === 'string' ? m.content : '';
+        return `- ${m.role}: ${content.slice(0, 180)}`;
+      })
+      .join('\n') || 'Prior work recorded.';
   return [
     ...system,
     {
@@ -209,8 +158,9 @@ async function executeToolCall(
       break;
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      const retryable = ['timeout', 'network', 'ECONNRESET', 'ETIMEDOUT', '503', '502']
-        .some((item) => message.includes(item));
+      const retryable = ['timeout', 'network', 'ECONNRESET', 'ETIMEDOUT', '503', '502'].some((item) =>
+        message.includes(item),
+      );
 
       if (retryable && retries < MAX_TOOL_RETRIES) {
         retries += 1;
@@ -232,9 +182,8 @@ async function executeToolCalls(
   pendingCalls: PendingToolCall[],
   cfg: QueryLoopConfig,
 ): Promise<{ call: PendingToolCall; result: ToolResult }[]> {
-  const canRunInParallel = pendingCalls.length > 1 && pendingCalls.every((call) => (
-    cfg.toolSpecs.get(call.name)?.supportsParallel === true
-  ));
+  const canRunInParallel =
+    pendingCalls.length > 1 && pendingCalls.every((call) => cfg.toolSpecs.get(call.name)?.supportsParallel === true);
 
   if (canRunInParallel) {
     return Promise.all(pendingCalls.map((call) => executeToolCall(call, cfg)));
@@ -242,7 +191,9 @@ async function executeToolCalls(
 
   const results: { call: PendingToolCall; result: ToolResult }[] = [];
   for (const call of pendingCalls) {
-    if (cfg.isCancelled()) {break;}
+    if (cfg.isCancelled()) {
+      break;
+    }
     results.push(await executeToolCall(call, cfg));
   }
   return results;
@@ -296,7 +247,9 @@ export class QueryLoop {
 
       try {
         for await (const event of this.streamWithRetry(request)) {
-          if (this.cfg.isCancelled()) {break;}
+          if (this.cfg.isCancelled()) {
+            break;
+          }
           switch (event.type) {
             case 'text_delta':
               hasText = true;
@@ -311,10 +264,18 @@ export class QueryLoop {
               isPTL = isPTLError(event.message);
               break;
             case 'done':
-              if (event.stopReason) {stopReason = event.stopReason;}
-              if (event.response_id) {lastResponseId = event.response_id;}
-              if (event.reasoningContent) {reasoningContent = event.reasoningContent;}
-              if (event.usage) {await this.cfg.onUsage?.(event.usage, request);}
+              if (event.stopReason) {
+                stopReason = event.stopReason;
+              }
+              if (event.response_id) {
+                lastResponseId = event.response_id;
+              }
+              if (event.reasoningContent) {
+                reasoningContent = event.reasoningContent;
+              }
+              if (event.usage) {
+                await this.cfg.onUsage?.(event.usage, request);
+              }
               break;
           }
         }
@@ -323,14 +284,16 @@ export class QueryLoop {
         isPTL = isPTLError(apiError);
       }
 
-      if (this.cfg.isCancelled()) {break;}
+      if (this.cfg.isCancelled()) {
+        break;
+      }
 
       if (
-        stopReason === 'max_tokens'
-        && pendingCalls.length === 0
-        && !hasText
-        && !this.maxOutputTokensEscalated
-        && this.maxOutputTokensRecovery < MAX_OUTPUT_TOKENS_RECOVERY
+        stopReason === 'max_tokens' &&
+        pendingCalls.length === 0 &&
+        !hasText &&
+        !this.maxOutputTokensEscalated &&
+        this.maxOutputTokensRecovery < MAX_OUTPUT_TOKENS_RECOVERY
       ) {
         this.maxOutputTokensEscalated = true;
         this.maxOutputTokensRecovery += 1;
@@ -347,10 +310,7 @@ export class QueryLoop {
 
       if (apiError) {
         this.consecutiveErrors += 1;
-        if (
-          this.consecutiveErrors >= MAX_CONSECUTIVE_ERRORS
-          || (!hasText && pendingCalls.length === 0)
-        ) {
+        if (this.consecutiveErrors >= MAX_CONSECUTIVE_ERRORS || (!hasText && pendingCalls.length === 0)) {
           const err = `API错误: ${apiError}`;
           this.cfg.onError?.(err);
           return {
@@ -377,10 +337,10 @@ export class QueryLoop {
       }
 
       if (
-        stopReason === 'max_tokens'
-        && pendingCalls.length === 0
-        && assistantText.trim().length > 0
-        && this.continuationRetries < MAX_CONTINUATION_RETRIES
+        stopReason === 'max_tokens' &&
+        pendingCalls.length === 0 &&
+        assistantText.trim().length > 0 &&
+        this.continuationRetries < MAX_CONTINUATION_RETRIES
       ) {
         continuationParts.push(assistantText);
         current.push({
@@ -394,9 +354,7 @@ export class QueryLoop {
       if (pendingCalls.length === 0) {
         return {
           messages: current,
-          finalText: continuationParts.length > 0
-            ? [...continuationParts, assistantText].join('')
-            : assistantText,
+          finalText: continuationParts.length > 0 ? [...continuationParts, assistantText].join('') : assistantText,
           iterations: this.iterations,
           stopReason: 'completed',
           ...(lastResponseId && { responseId: lastResponseId }),
@@ -407,7 +365,9 @@ export class QueryLoop {
       continuationParts = [];
 
       const toolResults = await executeToolCalls(pendingCalls, this.cfg);
-      if (this.cfg.isCancelled()) {break;}
+      if (this.cfg.isCancelled()) {
+        break;
+      }
 
       for (const { call, result } of toolResults) {
         current.push({
@@ -429,8 +389,8 @@ export class QueryLoop {
 
       const contextTokens = tokenCountWithEstimation(current);
       console.warn(
-        `[QueryLoop] iter=${this.iterations} tools=${pendingCalls.length}`
-        + ` ctx=~${Math.round(contextTokens / 1000)}k tokens`,
+        `[QueryLoop] iter=${this.iterations} tools=${pendingCalls.length}` +
+          ` ctx=~${Math.round(contextTokens / 1000)}k tokens`,
       );
     }
 
@@ -486,7 +446,9 @@ export class QueryLoop {
 
           if (Array.isArray(parsed.errors)) {
             for (const err of parsed.errors) {
-              if (typeof err !== 'string') {continue;}
+              if (typeof err !== 'string') {
+                continue;
+              }
               try {
                 const match = /\{.*\}/.exec(err);
                 if (match) {
@@ -505,10 +467,7 @@ export class QueryLoop {
           }
         }
       } catch {
-        if (
-          tr.result.output.includes('Node not found') ||
-          tr.result.output.includes('AI referenced unknown')
-        ) {
+        if (tr.result.output.includes('Node not found') || tr.result.output.includes('AI referenced unknown')) {
           hasNodeNotFound = true;
         }
       }
@@ -540,7 +499,8 @@ export class QueryLoop {
     if (this.sameToolCount >= MAX_SAME_TOOL_REPEAT) {
       messages.push({
         role: 'user',
-        content: '[系统提示] 你已经连续多次执行相同操作。请换个方法，或直接告知当前问题。如果是无法确定目标节点，请让用户选择。',
+        content:
+          '[系统提示] 你已经连续多次执行相同操作。请换个方法，或直接告知当前问题。如果是无法确定目标节点，请让用户选择。',
       });
       this.sameToolCount = 0;
     }
@@ -550,7 +510,9 @@ export class QueryLoop {
     let lastError: Error | null = null;
 
     for (let attempt = 0; attempt < MAX_API_RETRIES; attempt++) {
-      if (this.cfg.isCancelled()) {return;}
+      if (this.cfg.isCancelled()) {
+        return;
+      }
       try {
         for await (const event of this.cfg.provider.stream(request)) {
           yield event;
@@ -559,21 +521,28 @@ export class QueryLoop {
       } catch (err) {
         lastError = err instanceof Error ? err : new Error(String(err));
         const msg = lastError.message.toLowerCase();
-        const retryable = msg.includes('429') || msg.includes('rate')
-          || msg.includes('500') || msg.includes('503')
-          || msg.includes('timeout') || msg.includes('network');
+        const retryable =
+          msg.includes('429') ||
+          msg.includes('rate') ||
+          msg.includes('500') ||
+          msg.includes('503') ||
+          msg.includes('timeout') ||
+          msg.includes('network');
 
-        if (!retryable || attempt === MAX_API_RETRIES - 1) {throw lastError;}
+        if (!retryable || attempt === MAX_API_RETRIES - 1) {
+          throw lastError;
+        }
         await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, attempt)));
       }
     }
 
-    if (lastError) {throw lastError;}
+    if (lastError) {
+      throw lastError;
+    }
   }
 }
 
 function isPTLError(msg: string): boolean {
   const lower = msg.toLowerCase();
-  return ['prompt_too_long', 'context_length', 'maximum context', 'token limit']
-    .some((p) => lower.includes(p));
+  return ['prompt_too_long', 'context_length', 'maximum context', 'token limit'].some((p) => lower.includes(p));
 }

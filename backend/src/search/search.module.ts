@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from '../auth/auth.module';
-import { Template } from '../templates/entities/template.entity';
+import { TemplatesModule } from '../templates/templates.module';
 import { SearchController } from './search.controller';
 import { SearchService } from './search.service';
 
 @Module({
-  imports: [AuthModule, TypeOrmModule.forFeature([Template])],
+  imports: [AuthModule, TemplatesModule],
   controllers: [SearchController],
   providers: [SearchService],
   exports: [SearchService],

@@ -1,9 +1,7 @@
+import { type HttpClient, resolveHttpClient } from './http/HttpClient';
 import { normalizeVisualAssets } from '@shared/theme-layout/visualAssets';
 import type { TemplateAgentConfig, ThemeSpec } from 'types/theme.types';
-import type {
-  ThemeLayoutDocument,
-  ThemeLayoutDocumentSource,
-} from 'ui/layout/types';
+import type { ThemeLayoutDocument, ThemeLayoutDocumentSource } from 'ui/layout/types';
 import { normalizeThemeLayoutDocument } from 'ui/layout/types';
 import type { ComponentTemplateMap, ThemeRuntime } from 'ui/renderer';
 
@@ -82,8 +80,11 @@ function retryAfterMs(headers: Headers): number | undefined {
 
 export class TemplateService {
   private readonly base = '/api/proxy/templates';
+  private readonly http: HttpClient;
 
-  constructor(private readonly getToken?: () => string | null) {}
+  constructor(clientOrTokenProvider?: HttpClient | (() => string | null)) {
+    this.http = resolveHttpClient(clientOrTokenProvider);
+  }
 
   private toThemeSpec(record: TemplateRecord): ThemeSpec {
     const runtime: ThemeRuntime = {
@@ -92,9 +93,7 @@ export class TemplateService {
       componentTemplates: record.componentTemplates as ComponentTemplateMap,
       ...(record.cssAnimations && { cssAnimations: record.cssAnimations }),
     };
-    const visualAssets = normalizeVisualAssets(
-      record.visualAssets ?? record.agentConfig?.assets?.visualAssets,
-    );
+    const visualAssets = normalizeVisualAssets(record.visualAssets ?? record.agentConfig?.assets?.visualAssets);
     return {
       id: record.templateId,
       recordId: record.id,
@@ -108,8 +107,7 @@ export class TemplateService {
       category: record.category,
       categoryLabel: record.categoryLabel ?? record.category,
       displayCategory: record.displayCategory,
-      displayCategoryLabel: record.displayCategoryLabel
-        ?? record.displayCategory,
+      displayCategoryLabel: record.displayCategoryLabel ?? record.displayCategory,
       platformCategories: [...(record.platformCategories ?? [])],
       platformCategoryLabels: { ...(record.platformCategoryLabels ?? {}) },
       functionalCategories: [...(record.functionalCategories ?? [])],
@@ -118,9 +116,7 @@ export class TemplateService {
       tags: [...(record.tags ?? [])],
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,
-      layoutDocument: normalizeThemeLayoutDocument(
-        record.layoutDocument,
-      ),
+      layoutDocument: normalizeThemeLayoutDocument(record.layoutDocument),
       runtime,
       ...(visualAssets.length > 0 && { visualAssets }),
       ...(record.agentConfig && { agentConfig: record.agentConfig }),
@@ -138,33 +134,18 @@ export class TemplateService {
     return serialized ? `?${serialized}` : '';
   }
 
-  private authHeaders(requireAuth: boolean): HeadersInit {
-    const headers: HeadersInit = {};
-    const token = this.getToken?.();
-    if (requireAuth && token) {
-      headers.authorization = `Bearer ${token}`;
-    }
-    return headers;
-  }
-
-  private async request<T>(
-    path: string,
-    options: RequestInit & { auth?: boolean } = {},
-  ): Promise<T> {
+  private async request<T>(path: string, options: RequestInit & { auth?: boolean } = {}): Promise<T> {
     const { auth = false, headers, ...init } = options;
-    const res = await fetch(`${this.base}${path}`, {
+    const { data, response } = await this.http.json<T & { message?: string }>(`${this.base}${path}`, {
       ...init,
-      headers: {
-        ...this.authHeaders(auth),
-        ...headers,
-      },
+      auth,
+      headers,
     });
-    const data = await res.json().catch(() => ({})) as T & { message?: string };
-    if (!res.ok) {
+    if (!response.ok) {
       throw new TemplateRequestError(
-        data.message ?? `Request failed (${res.status})`,
-        res.status,
-        retryAfterMs(res.headers),
+        data.message ?? `Request failed (${response.status})`,
+        response.status,
+        retryAfterMs(response.headers),
       );
     }
     return data;
@@ -214,20 +195,14 @@ export class TemplateService {
   }
 
   async duplicate(templateId: string): Promise<ThemeSpec> {
-    const record = await this.request<TemplateRecord>(
-      `/${templateId}/duplicate`,
-      {
-        method: 'POST',
-        auth: true,
-      },
-    );
+    const record = await this.request<TemplateRecord>(`/${templateId}/duplicate`, {
+      method: 'POST',
+      auth: true,
+    });
     return this.toThemeSpec(record);
   }
 
-  async saveOwned(
-    templateId: string,
-    input: TemplateSaveInput,
-  ): Promise<ThemeSpec> {
+  async saveOwned(templateId: string, input: TemplateSaveInput): Promise<ThemeSpec> {
     const record = await this.request<TemplateRecord>(`/mine/${templateId}`, {
       method: 'PUT',
       auth: true,

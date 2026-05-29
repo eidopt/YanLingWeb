@@ -1,51 +1,44 @@
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
 
-import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { buildTemplateProfile } from '@shared/agent/template/buildTemplateProfile';
-import type { TemplateProfile } from '@shared/agent/template/templateProfile';
-import { applyTemplateProfileOverride } from '@shared/agent/template/templateProfileOverride';
-import { validateTemplateProfile } from '@shared/agent/template/validateTemplateProfile';
-import type { ThemeLayoutDocument } from '@shared/agent/types';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+  OnModuleInit,
+} from '@nestjs/common';
+import type { ThemeLayoutDocument } from '@shared/agent/contracts/agent';
+import {
+  applyTemplateProfileOverride,
+  buildTemplateProfile,
+  isTemplateProfile,
+  validateTemplateProfile,
+} from '@shared/agent/runtime';
+import { objectToRecord, themeLayoutDocumentToRecord } from '@shared/theme-layout/documentBoundary';
+import { migrateThemeLayoutDocument } from '@shared/theme-layout/migrations';
 import { withThemeLayoutStyleManifest } from '@shared/theme-layout/styleManifest';
 import { mergeVisualAssetsIntoManifest } from '@shared/theme-layout/visualAssets';
-import { IsNull, Repository } from 'typeorm';
 
 import { ConfigService } from '../config/config.service';
 import { deriveTags } from '../shared/derive-tags';
-import {
-  isCssVarRecord,
-  isNonEmptyString,
-  isRecord,
-  isStringRecord,
-} from '../shared/type-guards';
-import { User } from '../users/entities/user.entity';
+import { isCssVarRecord, isNonEmptyString, isRecord, isStringRecord } from '../shared/type-guards';
 import { Template } from './entities/template.entity';
-import { TemplateAgentPermissions } from './entities/template-agent-permissions.entity';
-import { TemplateAssetManifest } from './entities/template-asset-manifest.entity';
-import { TemplateEvaluationSpec } from './entities/template-evaluation-spec.entity';
-import { TemplateProfileGenerated } from './entities/template-profile-generated.entity';
-import { TemplateProfileOverrideEntity } from './entities/template-profile-override.entity';
+import {
+  TEMPLATE_AGENT_KNOWLEDGE_REPOSITORY,
+  TEMPLATE_PERSISTENCE_REPOSITORY,
+  type TemplateAgentConfigInput,
+  type TemplateAgentKnowledgeRepository,
+  type TemplateListFilters,
+  type TemplatePersistenceRepository,
+  type TemplatePersistenceStore,
+} from './repositories';
 import { TEMPLATE_SEED_DATA, type TemplateSeedException } from './seed/template-seed.data';
 import { TemplateAssetService } from './template-asset.service';
 import { TemplateCategoryRegistryService } from './template-category-registry.service';
 import { prepareTemplateLayoutForPersistence } from './template-layout-validation';
 
-interface TemplateListOptions {
-  category?: string;
-  displayCategory?: string;
-  functionalCategory?: string;
-  platformCategory?: string;
-  search?: string;
-}
-
-const PLATFORM_CATEGORIES = new Set([
-  'mini-program',
-  'mobile-app',
-  'tablet-app',
-  'web',
-]);
+const PLATFORM_CATEGORIES = new Set(['mini-program', 'mobile-app', 'tablet-app', 'web']);
 
 const FUNCTIONAL_CATEGORIES = new Set([
   'commerce',
@@ -77,33 +70,6 @@ const DISPLAY_CATEGORIES = new Set([
   'general',
 ]);
 
-/**
- * Build a denormalized searchable text from template fields.
- * Used for efficient LIKE-based search without JSON parsing.
- */
-function buildSearchText(template: {
-  name?: string;
-  tagline?: string;
-  description?: string;
-  tags?: string[];
-  category?: string;
-  displayCategory?: string;
-  functionalCategories?: string[];
-  traits?: string[];
-}): string {
-  const parts = [
-    template.name ?? '',
-    template.tagline ?? '',
-    template.description ?? '',
-    template.category ?? '',
-    template.displayCategory ?? '',
-    ...(template.tags ?? []),
-    ...(template.functionalCategories ?? []),
-    ...(template.traits ?? []),
-  ];
-  return parts.filter(Boolean).join(' ').toLowerCase();
-}
-
 export interface UpdateOwnedTemplateInput {
   name?: string;
   tagline?: string;
@@ -121,6 +87,30 @@ export interface UpdateOwnedTemplateInput {
   visualAssets?: unknown[];
 }
 
+export interface SaveGeneratedTemplateInput {
+  templateId: string;
+  name: string;
+  tagline: string;
+  description: string;
+  category: string;
+  categoryLabel?: string;
+  categoryLabels?: Record<string, string>;
+  displayCategory?: string;
+  displayCategoryLabel?: string;
+  displayCategoryLabels?: Record<string, string>;
+  platformCategories?: string[];
+  platformCategoryLabels?: Record<string, string>;
+  functionalCategories?: string[];
+  functionalCategoryLabels?: Record<string, string>;
+  accent: string;
+  traits: string[];
+  cssVars: Record<string, string>;
+  cssAnimations?: Record<string, string>;
+  visualAssets?: unknown[];
+  componentTemplates: Record<string, unknown>;
+  layoutDocument: Record<string, unknown>;
+}
+
 export interface TemplateAgentConfigDto {
   profileGenerated: Record<string, unknown> | null;
   profileOverride: Record<string, unknown> | null;
@@ -134,74 +124,86 @@ export type TemplateWithAgentConfig = Template & {
   agentConfig?: TemplateAgentConfigDto;
 };
 
-interface TemplateAgentConfigInput {
-  profileGenerated?: Record<string, unknown>;
-  profileOverride?: Record<string, unknown>;
-  assets?: Record<string, unknown>;
-  permissions?: Record<string, unknown>;
-  evaluation?: Record<string, unknown>;
-}
-
 @Injectable()
 export class TemplatesService implements OnModuleInit {
   constructor(
-    @InjectRepository(Template)
-    private readonly repo: Repository<Template>,
-    @InjectRepository(TemplateProfileGenerated)
-    private readonly profileGeneratedRepo: Repository<TemplateProfileGenerated>,
-    @InjectRepository(TemplateProfileOverrideEntity)
-    private readonly profileOverrideRepo: Repository<TemplateProfileOverrideEntity>,
-    @InjectRepository(TemplateAssetManifest)
-    private readonly assetManifestRepo: Repository<TemplateAssetManifest>,
-    @InjectRepository(TemplateAgentPermissions)
-    private readonly agentPermissionsRepo: Repository<TemplateAgentPermissions>,
-    @InjectRepository(TemplateEvaluationSpec)
-    private readonly evaluationSpecRepo: Repository<TemplateEvaluationSpec>,
-    @InjectRepository(User)
-    private readonly userRepo: Repository<User>,
+    @Inject(TEMPLATE_PERSISTENCE_REPOSITORY)
+    private readonly templates: TemplatePersistenceRepository,
+    @Inject(TEMPLATE_AGENT_KNOWLEDGE_REPOSITORY)
+    private readonly agentKnowledge: TemplateAgentKnowledgeRepository,
     private readonly config: ConfigService,
     private readonly templateAssetService: TemplateAssetService,
     private readonly categoryRegistry: TemplateCategoryRegistryService,
   ) {}
 
+  /**
+   * 构建反规范化搜索文本，用于避免查询时解析 JSON。
+   */
+  private buildSearchText(template: {
+    name?: string;
+    tagline?: string;
+    description?: string;
+    tags?: string[];
+    category?: string;
+    displayCategory?: string;
+    functionalCategories?: string[];
+    traits?: string[];
+  }): string {
+    const parts = [
+      template.name ?? '',
+      template.tagline ?? '',
+      template.description ?? '',
+      template.category ?? '',
+      template.displayCategory ?? '',
+      ...(template.tags ?? []),
+      ...(template.functionalCategories ?? []),
+      ...(template.traits ?? []),
+    ];
+    return parts.filter(Boolean).join(' ').toLowerCase();
+  }
+
   async onModuleInit(): Promise<void> {
     await Promise.all(
-      TEMPLATE_SEED_DATA.map((data) =>
-        this.categoryRegistry.ensureTemplateCategories(data)),
+      TEMPLATE_SEED_DATA.map((data) => this.categoryRegistry.ensureTemplateCategories(data)),
     );
-    await this.repo.upsert(
+    await this.templates.upsertTemplates(
       TEMPLATE_SEED_DATA.map((data) => {
-        const displayCategory = data.displayCategory
-          ?? resolveDisplayCategoryFromKey(data.category);
+        const displayCategory =
+          data.displayCategory ?? this.resolveDisplayCategoryFromKey(data.category);
         const tags = deriveTags(data);
-        return this.repo.create({
+        const layoutDocument = prepareTemplateLayoutForPersistence({
+          layoutDocument: data.layoutDocument,
+          componentTemplates: data.componentTemplates,
+          cssVars: data.cssVars,
+        });
+        return this.templates.createTemplate({
           ownerUserId: null,
           sourceTemplateId: null,
           isPublic: true,
           primaryFunctionalCategory: data.functionalCategories?.[0] ?? null,
           displayCategory,
           tags,
-          searchText: buildSearchText({ ...data, displayCategory, tags }),
+          searchText: this.buildSearchText({ ...data, displayCategory, tags }),
           ...data,
-          layoutDocument: withThemeLayoutStyleManifest(
-            data.layoutDocument,
-            data.cssVars,
-          ),
+          layoutDocument: themeLayoutDocumentToRecord(layoutDocument),
         });
-      }) as never,
-      { conflictPaths: ['templateId'], skipUpdateIfNoValuesChanged: true },
+      }),
     );
-    await Promise.all(TEMPLATE_SEED_DATA.map((data) => this.upsertTemplateAgentConfig(
-      data.templateId,
-      {
-        profileGenerated: buildTemplateProfile(
-          withThemeLayoutStyleManifest(
-            data.layoutDocument,
-            data.cssVars,
-          ) as unknown as ThemeLayoutDocument,
-        ) as unknown as Record<string, unknown>,
-      },
-    )));
+    await Promise.all(
+      TEMPLATE_SEED_DATA.map((data) =>
+        this.upsertTemplateAgentConfig(data.templateId, {
+          profileGenerated: objectToRecord(
+            buildTemplateProfile(
+              prepareTemplateLayoutForPersistence({
+                layoutDocument: data.layoutDocument,
+                componentTemplates: data.componentTemplates,
+                cssVars: data.cssVars,
+              }),
+            ),
+          ),
+        }),
+      ),
+    );
     const importedTemplateFiles = await this.importTemplateJsonDirectory();
     await this.repairLegacyOwnedCopies();
     await this.repairTemplateCategoryKeys();
@@ -210,110 +212,47 @@ export class TemplatesService implements OnModuleInit {
   }
 
   async findMarketplace(
-    options: TemplateListOptions = {},
-  ): Promise<{ data: Template[]; total: number; }> {
-    const qb = this.repo.createQueryBuilder('t')
-      .where('t.ownerUserId IS NULL')
-      .andWhere('t.isPublic = :isPublic', { isPublic: true });
-
-    if (options.category) {
-      qb.andWhere('t.category = :category', { category: options.category });
-    }
-    if (options.displayCategory) {
-      qb.andWhere('t.displayCategory = :displayCategory', {
-        displayCategory: options.displayCategory,
-      });
-    }
-    if (options.functionalCategory) {
-      qb.andWhere('t.primaryFunctionalCategory = :fc', { fc: options.functionalCategory });
-    }
-    if (options.platformCategory) {
-      qb.andWhere("t.platformCategories LIKE :pc", { pc: `%${options.platformCategory}%` });
-    }
-    if (options.search) {
-      const q = `%${options.search.toLowerCase()}%`;
-      qb.andWhere(
-        '(LOWER(t.name) LIKE :q OR LOWER(t.tagline) LIKE :q OR LOWER(t.description) LIKE :q OR LOWER(t.searchText) LIKE :q)',
-        { q },
-      );
-    }
-
-    qb.orderBy('t.createdAt', 'ASC');
-    const data = await qb.getMany();
+    options: TemplateListFilters = {},
+  ): Promise<{ data: Template[]; total: number }> {
+    const data = await this.templates.findMarketplace(options);
     return {
-      data: await Promise.all(data.map((template) =>
-        this.categoryRegistry.decorateTemplate(template))),
+      data: await Promise.all(
+        data.map((template) => this.categoryRegistry.decorateTemplate(template)),
+      ),
       total: data.length,
     };
   }
 
   async findOwned(
     ownerUserId: string,
-    options: TemplateListOptions = {},
-  ): Promise<{ data: Template[]; total: number; }> {
-    const qb = this.repo.createQueryBuilder('t')
-      .where('t.ownerUserId = :ownerUserId', { ownerUserId });
-
-    if (options.category) {
-      qb.andWhere('t.category = :category', { category: options.category });
-    }
-    if (options.displayCategory) {
-      qb.andWhere('t.displayCategory = :displayCategory', {
-        displayCategory: options.displayCategory,
-      });
-    }
-    if (options.functionalCategory) {
-      qb.andWhere('t.primaryFunctionalCategory = :fc', { fc: options.functionalCategory });
-    }
-    if (options.platformCategory) {
-      qb.andWhere("t.platformCategories LIKE :pc", { pc: `%${options.platformCategory}%` });
-    }
-    if (options.search) {
-      const q = `%${options.search.toLowerCase()}%`;
-      qb.andWhere(
-        '(LOWER(t.name) LIKE :q OR LOWER(t.tagline) LIKE :q OR LOWER(t.description) LIKE :q OR LOWER(t.searchText) LIKE :q)',
-        { q },
-      );
-    }
-
-    qb.orderBy('t.updatedAt', 'DESC');
-    const data = await qb.getMany();
+    options: TemplateListFilters = {},
+  ): Promise<{ data: Template[]; total: number }> {
+    const data = await this.templates.findOwned(ownerUserId, options);
     return {
-      data: await Promise.all(data.map((template) =>
-        this.categoryRegistry.decorateTemplate(template))),
+      data: await Promise.all(
+        data.map((template) => this.categoryRegistry.decorateTemplate(template)),
+      ),
       total: data.length,
     };
   }
 
-  private filterByPlatformCategory(
-    templates: Template[],
-    platformCategory?: string,
-  ): Template[] {
+  private filterByPlatformCategory(templates: Template[], platformCategory?: string): Template[] {
     const normalizedCategory = platformCategory?.trim();
     if (!normalizedCategory) {
       return templates;
     }
-    return templates.filter((template) =>
-      template.platformCategories.includes(normalizedCategory));
+    return templates.filter((template) => template.platformCategories.includes(normalizedCategory));
   }
 
-  async findRecentOwned(
-    ownerUserId: string,
-    limit = 6,
-  ): Promise<Template[]> {
-    const templates = await this.repo.find({
-      where: { ownerUserId },
-      order: { updatedAt: 'DESC' },
-      take: limit,
-    });
-    return Promise.all(templates.map((template) =>
-      this.categoryRegistry.decorateTemplate(template)));
+  async findRecentOwned(ownerUserId: string, limit = 6): Promise<Template[]> {
+    const templates = await this.templates.findRecentOwned(ownerUserId, limit);
+    return Promise.all(
+      templates.map((template) => this.categoryRegistry.decorateTemplate(template)),
+    );
   }
 
   async findByTemplateId(templateId: string): Promise<TemplateWithAgentConfig> {
-    const template = await this.repo.findOne({
-      where: { templateId, ownerUserId: IsNull(), isPublic: true },
-    });
+    const template = await this.templates.findPublicByTemplateId(templateId);
     if (!template) {
       throw new NotFoundException(`Template "${templateId}" not found`);
     }
@@ -324,22 +263,17 @@ export class TemplatesService implements OnModuleInit {
     ownerUserId: string,
     templateId: string,
   ): Promise<TemplateWithAgentConfig> {
-    const template = await this.repo.findOne({
-      where: { templateId, ownerUserId },
-    });
+    const template = await this.templates.findOwnedByTemplateId(ownerUserId, templateId);
     if (!template) {
       throw new NotFoundException(`Template "${templateId}" not found`);
     }
     return this.attachAgentConfig(template);
   }
 
-  async duplicateForUser(
-    ownerUserId: string,
-    sourceTemplateId: string,
-  ): Promise<Template> {
+  async duplicateForUser(ownerUserId: string, sourceTemplateId: string): Promise<Template> {
     const source = await this.findByTemplateId(sourceTemplateId);
     const copyTemplateId = this.createUserTemplateId(source.templateId, ownerUserId);
-    const copy = this.repo.create({
+    const copy = this.templates.createTemplate({
       templateId: copyTemplateId,
       ownerUserId,
       sourceTemplateId: source.templateId,
@@ -349,10 +283,10 @@ export class TemplatesService implements OnModuleInit {
       description: source.description,
       accent: source.accent,
       category: source.category,
-      displayCategory: source.displayCategory ?? resolveDisplayCategoryFromKey(source.category),
-      primaryFunctionalCategory: source.functionalCategories?.[0] ?? null,
-      platformCategories: [...(source.platformCategories ?? [])],
-      functionalCategories: [...(source.functionalCategories ?? [])],
+      displayCategory: source.displayCategory,
+      primaryFunctionalCategory: source.functionalCategories[0] ?? null,
+      platformCategories: [...source.platformCategories],
+      functionalCategories: [...source.functionalCategories],
       traits: [...source.traits],
       tags: deriveTags(source),
       cssVars: { ...source.cssVars },
@@ -361,8 +295,11 @@ export class TemplatesService implements OnModuleInit {
       layoutDocument: structuredClone(source.layoutDocument),
     });
 
-    const saved = await this.repo.save(copy);
-    await this.copyTemplateAgentConfig(source.templateId, saved.templateId);
+    const saved = await this.templates.runInTransaction(async (store) => {
+      const savedCopy = await store.saveTemplate(copy);
+      await this.copyTemplateAgentConfig(source.templateId, savedCopy.templateId, store);
+      return savedCopy;
+    });
     return this.attachAgentConfig(saved);
   }
 
@@ -372,16 +309,16 @@ export class TemplatesService implements OnModuleInit {
     input: UpdateOwnedTemplateInput,
   ): Promise<Template> {
     const template = await this.findOwnedByTemplateId(ownerUserId, templateId);
-    const assetResolution = input.visualAssets !== undefined
-      ? await this.templateAssetService.resolveVisualAssetsForTemplate(
-        template.templateId,
-        input.layoutDocument ?? template.layoutDocument,
-        input.visualAssets,
-      )
-      : null;
-    const layoutDocumentSource = assetResolution?.layoutDocument
-      ?? input.layoutDocument
-      ?? template.layoutDocument;
+    const assetResolution =
+      input.visualAssets !== undefined
+        ? await this.templateAssetService.resolveVisualAssetsForTemplate(
+            template.templateId,
+            input.layoutDocument ?? template.layoutDocument,
+            input.visualAssets,
+          )
+        : null;
+    const layoutDocumentSource =
+      assetResolution?.layoutDocument ?? input.layoutDocument ?? template.layoutDocument;
     const shouldPrepareLayout =
       input.layoutDocument !== undefined ||
       input.componentTemplates !== undefined ||
@@ -389,14 +326,18 @@ export class TemplatesService implements OnModuleInit {
       input.visualAssets !== undefined;
     const preparedLayoutDocument = shouldPrepareLayout
       ? prepareTemplateLayoutForPersistence({
-        layoutDocument: layoutDocumentSource,
-        componentTemplates: input.componentTemplates ?? template.componentTemplates,
-        cssVars: input.cssVars ?? template.cssVars,
-      })
+          layoutDocument: layoutDocumentSource,
+          componentTemplates: input.componentTemplates ?? template.componentTemplates,
+          cssVars: input.cssVars ?? template.cssVars,
+        })
       : null;
 
-    if (input.name !== undefined) { template.name = input.name; }
-    if (input.tagline !== undefined) { template.tagline = input.tagline; }
+    if (input.name !== undefined) {
+      template.name = input.name;
+    }
+    if (input.tagline !== undefined) {
+      template.tagline = input.tagline;
+    }
     if (input.description !== undefined) {
       template.description = input.description;
     }
@@ -410,18 +351,26 @@ export class TemplatesService implements OnModuleInit {
     }
     if (input.platformCategories !== undefined) {
       input.platformCategories.forEach((category) =>
-        this.assertTemplateCategoryKey(category, 'platformCategories'));
+        this.assertTemplateCategoryKey(category, 'platformCategories'),
+      );
       template.platformCategories = [...input.platformCategories];
     }
     if (input.functionalCategories !== undefined) {
       input.functionalCategories.forEach((category) =>
-        this.assertTemplateCategoryKey(category, 'functionalCategories'));
+        this.assertTemplateCategoryKey(category, 'functionalCategories'),
+      );
       template.functionalCategories = [...input.functionalCategories];
       template.primaryFunctionalCategory = input.functionalCategories[0] ?? null;
     }
-    if (input.traits !== undefined) { template.traits = input.traits; }
-    if (input.tags !== undefined) { template.tags = input.tags; }
-    if (input.cssVars !== undefined) { template.cssVars = input.cssVars; }
+    if (input.traits !== undefined) {
+      template.traits = input.traits;
+    }
+    if (input.tags !== undefined) {
+      template.tags = input.tags;
+    }
+    if (input.cssVars !== undefined) {
+      template.cssVars = input.cssVars;
+    }
     if (input.cssAnimations !== undefined) {
       template.cssAnimations = input.cssAnimations;
     }
@@ -429,38 +378,111 @@ export class TemplatesService implements OnModuleInit {
       template.componentTemplates = input.componentTemplates;
     }
     if (preparedLayoutDocument) {
-      template.layoutDocument = preparedLayoutDocument as unknown as Record<string, unknown>;
+      template.layoutDocument = themeLayoutDocumentToRecord(preparedLayoutDocument);
     }
 
     if (!template.tags.length) {
       template.tags = deriveTags(template);
     }
 
-    template.searchText = buildSearchText(template);
+    template.searchText = this.buildSearchText(template);
     await this.categoryRegistry.ensureTemplateCategories(template);
-    const saved = await this.repo.save(template);
-    if (shouldPrepareLayout) {
-      await this.saveGeneratedProfileForTemplate(saved, true);
-    }
-    if (assetResolution?.manifest) {
-      await this.upsertTemplateAgentConfig(
-        saved.templateId,
-        { assets: assetResolution.manifest as unknown as Record<string, unknown> },
-      );
-    }
+    const saved = await this.templates.runInTransaction(async (store) => {
+      const savedTemplate = await store.saveTemplate(template);
+      if (shouldPrepareLayout) {
+        await this.saveGeneratedProfileForTemplate(savedTemplate, true, store);
+      }
+      if (assetResolution?.manifest) {
+        await this.upsertTemplateAgentConfig(
+          savedTemplate.templateId,
+          {
+            assets: objectToRecord(assetResolution.manifest),
+          },
+          store,
+        );
+      }
+      return savedTemplate;
+    });
     return this.attachAgentConfig(saved);
+  }
+
+  async saveGeneratedTemplate(
+    ownerUserId: string,
+    input: SaveGeneratedTemplateInput,
+  ): Promise<{ templateId: string; action: 'created' | 'updated' }> {
+    const preparedLayout = prepareTemplateLayoutForPersistence({
+      layoutDocument: input.layoutDocument,
+      componentTemplates: input.componentTemplates,
+      cssVars: input.cssVars,
+      requireGeneratedTemplateQuality: true,
+    });
+    this.assertGeneratedTemplateCategoryKeys(input);
+
+    const existing = await this.templates.findByTemplateId(input.templateId);
+    const targetTemplateId = existing
+      ? existing.ownerUserId === ownerUserId
+        ? existing.templateId
+        : await this.createAvailableGeneratedTemplateId(input.templateId, ownerUserId)
+      : input.templateId;
+    const assetResolution = await this.templateAssetService.resolveVisualAssetsForTemplate(
+      targetTemplateId,
+      themeLayoutDocumentToRecord(preparedLayout),
+      input.visualAssets,
+    );
+    const layoutDocument = prepareTemplateLayoutForPersistence({
+      layoutDocument: assetResolution.layoutDocument,
+      componentTemplates: input.componentTemplates,
+      cssVars: input.cssVars,
+      requireGeneratedTemplateQuality: true,
+    });
+    const preparedInput: SaveGeneratedTemplateInput = {
+      ...input,
+      templateId: targetTemplateId,
+      layoutDocument: themeLayoutDocumentToRecord(layoutDocument),
+      ...(assetResolution.visualAssets.length > 0
+        ? { visualAssets: assetResolution.visualAssets }
+        : {}),
+    };
+    await this.categoryRegistry.ensureTemplateCategories(preparedInput, {
+      requireLabelsForUnknown: true,
+    });
+
+    const target =
+      existing?.ownerUserId === ownerUserId
+        ? existing
+        : this.templates.createTemplate({
+            templateId: targetTemplateId,
+            ownerUserId,
+            sourceTemplateId: null,
+            isPublic: false,
+          });
+
+    this.applyGeneratedTemplateInput(target, preparedInput);
+    const saved = await this.templates.runInTransaction(async (store) => {
+      const savedTemplate = await store.saveTemplate(target);
+      await this.saveGeneratedProfileForTemplate(savedTemplate, true, store);
+      if (assetResolution.manifest) {
+        await this.upsertTemplateAgentConfig(
+          savedTemplate.templateId,
+          {
+            assets: objectToRecord(assetResolution.manifest),
+          },
+          store,
+        );
+      }
+      return savedTemplate;
+    });
+    return {
+      templateId: saved.templateId,
+      action: existing?.ownerUserId === ownerUserId ? 'updated' : 'created',
+    };
   }
 
   async getTemplateAgentConfig(
     ownerUserId: string,
     templateId: string,
   ): Promise<TemplateAgentConfigDto> {
-    const template = await this.repo.findOne({
-      where: [
-        { templateId, ownerUserId },
-        { templateId, ownerUserId: IsNull(), isPublic: true },
-      ],
-    });
+    const template = await this.templates.findAccessibleByTemplateId(ownerUserId, templateId);
     if (!template) {
       throw new NotFoundException(`Template "${templateId}" not found`);
     }
@@ -469,63 +491,34 @@ export class TemplatesService implements OnModuleInit {
 
   private async attachAgentConfig<T extends Template>(
     template: T,
-  ): Promise<T & { agentConfig: TemplateAgentConfigDto; }> {
+  ): Promise<T & { agentConfig: TemplateAgentConfigDto }> {
     const decorated = await this.categoryRegistry.decorateTemplate(template);
     return Object.assign(decorated, {
       agentConfig: await this.loadTemplateAgentConfig(template),
     });
   }
 
-  private async loadTemplateAgentConfig(
-    template: Template,
-  ): Promise<TemplateAgentConfigDto> {
+  private async loadTemplateAgentConfig(template: Template): Promise<TemplateAgentConfigDto> {
     const fallbackTemplateId = template.sourceTemplateId ?? undefined;
-    const [
-      profileGenerated,
-      profileOverride,
-      assets,
-      permissions,
-      evaluation,
-    ] = await Promise.all([
-      this.findConfigByTemplateId(
-        this.profileGeneratedRepo,
-        template.templateId,
-        fallbackTemplateId,
-      ),
-      this.findConfigByTemplateId(
-        this.profileOverrideRepo,
-        template.templateId,
-        fallbackTemplateId,
-      ),
-      this.findConfigByTemplateId(
-        this.assetManifestRepo,
-        template.templateId,
-        fallbackTemplateId,
-      ),
-      this.findConfigByTemplateId(
-        this.agentPermissionsRepo,
-        template.templateId,
-        fallbackTemplateId,
-      ),
-      this.findConfigByTemplateId(
-        this.evaluationSpecRepo,
-        template.templateId,
-        fallbackTemplateId,
-      ),
-    ]);
-    const generatedProfile = profileGenerated?.profile
-      ?? buildTemplateProfile(template.layoutDocument as unknown as ThemeLayoutDocument) as unknown as Record<string, unknown>;
-    const profileOverrideRecord = profileOverride?.override ?? null;
+    const records = await this.agentKnowledge.findForTemplate(
+      template.templateId,
+      fallbackTemplateId,
+    );
+    const layoutDocument = this.templateLayoutDocument(template);
+    const generatedProfile =
+      records.profileGenerated ?? objectToRecord(buildTemplateProfile(layoutDocument));
+    const profileOverrideRecord = records.profileOverride;
     let effectiveProfile = generatedProfile;
 
     if (profileOverrideRecord) {
-      try {
-        effectiveProfile = applyTemplateProfileOverride(
-          generatedProfile as unknown as TemplateProfile,
-          profileOverrideRecord,
-        ) as unknown as Record<string, unknown>;
-      } catch {
-        effectiveProfile = generatedProfile;
+      if (isTemplateProfile(generatedProfile)) {
+        try {
+          effectiveProfile = objectToRecord(
+            applyTemplateProfileOverride(generatedProfile, profileOverrideRecord),
+          );
+        } catch {
+          effectiveProfile = generatedProfile;
+        }
       }
     }
 
@@ -533,49 +526,31 @@ export class TemplatesService implements OnModuleInit {
       profileGenerated: generatedProfile,
       profileOverride: profileOverrideRecord,
       effectiveProfile,
-      assets: assets?.manifest ?? null,
-      permissions: permissions?.permissions ?? null,
-      evaluation: evaluation?.evaluation ?? null,
+      assets: records.assets,
+      permissions: records.permissions,
+      evaluation: records.evaluation,
     };
-  }
-
-  private async findConfigByTemplateId<T extends { templateId: string; }>(
-    repo: Repository<T>,
-    templateId: string,
-    fallbackTemplateId?: string,
-  ): Promise<T | null> {
-    const current = await repo.findOne({ where: { templateId } as never });
-    if (current || !fallbackTemplateId) {
-      return current;
-    }
-    return repo.findOne({ where: { templateId: fallbackTemplateId } as never });
   }
 
   private async saveGeneratedProfileForTemplate(
     template: Template,
     overwrite: boolean,
+    store: TemplatePersistenceStore = this.templates,
   ): Promise<void> {
     if (!overwrite) {
-      const exists = await this.profileGeneratedRepo.exists({
-        where: { templateId: template.templateId },
-      });
+      const exists = await store.generatedProfileExists(template.templateId);
       if (exists) {
         return;
       }
     }
 
-    const profile = buildTemplateProfile(
-      template.layoutDocument as unknown as ThemeLayoutDocument,
-    ) as unknown as Record<string, unknown>;
-    await this.upsertTemplateAgentConfig(template.templateId, { profileGenerated: profile });
+    const profile = objectToRecord(buildTemplateProfile(this.templateLayoutDocument(template)));
+    await this.upsertTemplateAgentConfig(template.templateId, { profileGenerated: profile }, store);
   }
 
   private async ensureGeneratedProfilesForExistingTemplates(): Promise<void> {
-    const templates = await this.repo.find();
-    const existing = new Set(
-      (await this.profileGeneratedRepo.find({ select: { templateId: true } }))
-        .map((profile) => profile.templateId),
-    );
+    const templates = await this.templates.findAllTemplates();
+    const existing = new Set(await this.templates.findExistingGeneratedProfileTemplateIds());
 
     for (const template of templates) {
       if (existing.has(template.templateId)) {
@@ -588,109 +563,33 @@ export class TemplatesService implements OnModuleInit {
   private async copyTemplateAgentConfig(
     sourceTemplateId: string,
     targetTemplateId: string,
+    store: TemplatePersistenceStore = this.templates,
   ): Promise<void> {
-    const [
-      profileGenerated,
-      profileOverride,
-      assets,
-      permissions,
-      evaluation,
-    ] = await Promise.all([
-      this.profileGeneratedRepo.findOne({ where: { templateId: sourceTemplateId } }),
-      this.profileOverrideRepo.findOne({ where: { templateId: sourceTemplateId } }),
-      this.assetManifestRepo.findOne({ where: { templateId: sourceTemplateId } }),
-      this.agentPermissionsRepo.findOne({ where: { templateId: sourceTemplateId } }),
-      this.evaluationSpecRepo.findOne({ where: { templateId: sourceTemplateId } }),
-    ]);
+    const records = await store.findAgentConfig(sourceTemplateId);
 
-    await this.upsertTemplateAgentConfig(targetTemplateId, {
-      ...(profileGenerated && {
-        profileGenerated: this.withTemplateId(profileGenerated.profile, targetTemplateId),
-      }),
-      ...(profileOverride && {
-        profileOverride: this.withTemplateId(profileOverride.override, targetTemplateId),
-      }),
-      ...(assets && { assets: this.withTemplateId(assets.manifest, targetTemplateId) }),
-      ...(permissions && {
-        permissions: this.withTemplateId(permissions.permissions, targetTemplateId),
-      }),
-      ...(evaluation && {
-        evaluation: this.withTemplateId(evaluation.evaluation, targetTemplateId),
-      }),
-    });
+    await this.upsertTemplateAgentConfig(
+      targetTemplateId,
+      {
+        ...(records.profileGenerated && { profileGenerated: records.profileGenerated }),
+        ...(records.profileOverride && { profileOverride: records.profileOverride }),
+        ...(records.assets && { assets: records.assets }),
+        ...(records.permissions && { permissions: records.permissions }),
+        ...(records.evaluation && { evaluation: records.evaluation }),
+      },
+      store,
+    );
   }
 
-  private withTemplateId(
-    value: Record<string, unknown>,
-    templateId: string,
-  ): Record<string, unknown> {
-    return { ...structuredClone(value), templateId };
+  private templateLayoutDocument(template: Pick<Template, 'layoutDocument'>): ThemeLayoutDocument {
+    return migrateThemeLayoutDocument(template.layoutDocument);
   }
 
   private async upsertTemplateAgentConfig(
     templateId: string,
     input: TemplateAgentConfigInput,
+    store: TemplatePersistenceStore = this.templates,
   ): Promise<void> {
-    const operations: Promise<unknown>[] = [];
-    if (input.profileGenerated) {
-      const profileVersion = typeof input.profileGenerated.profileVersion === 'string'
-        ? input.profileGenerated.profileVersion
-        : '1.0.0';
-      const templateVersion = typeof input.profileGenerated.templateVersion === 'string'
-        ? input.profileGenerated.templateVersion
-        : '1.0.0';
-      operations.push(this.profileGeneratedRepo.upsert(
-        this.profileGeneratedRepo.create({
-          templateId,
-          templateVersion,
-          profileVersion,
-          profile: this.withTemplateId(input.profileGenerated, templateId),
-        }) as never,
-        { conflictPaths: ['templateId'], skipUpdateIfNoValuesChanged: true },
-      ));
-    }
-    if (input.profileOverride) {
-      const profileVersion = typeof input.profileOverride.profileVersion === 'string'
-        ? input.profileOverride.profileVersion
-        : '1.0.0';
-      operations.push(this.profileOverrideRepo.upsert(
-        this.profileOverrideRepo.create({
-          templateId,
-          profileVersion,
-          override: this.withTemplateId(input.profileOverride, templateId),
-        }) as never,
-        { conflictPaths: ['templateId'], skipUpdateIfNoValuesChanged: true },
-      ));
-    }
-    if (input.assets) {
-      operations.push(this.assetManifestRepo.upsert(
-        this.assetManifestRepo.create({
-          templateId,
-          manifest: this.withTemplateId(input.assets, templateId),
-        }) as never,
-        { conflictPaths: ['templateId'], skipUpdateIfNoValuesChanged: true },
-      ));
-    }
-    if (input.permissions) {
-      operations.push(this.agentPermissionsRepo.upsert(
-        this.agentPermissionsRepo.create({
-          templateId,
-          permissions: this.withTemplateId(input.permissions, templateId),
-        }) as never,
-        { conflictPaths: ['templateId'], skipUpdateIfNoValuesChanged: true },
-      ));
-    }
-    if (input.evaluation) {
-      operations.push(this.evaluationSpecRepo.upsert(
-        this.evaluationSpecRepo.create({
-          templateId,
-          evaluation: this.withTemplateId(input.evaluation, templateId),
-        }) as never,
-        { conflictPaths: ['templateId'], skipUpdateIfNoValuesChanged: true },
-      ));
-    }
-
-    await Promise.all(operations);
+    await store.upsertAgentConfig(templateId, input);
   }
 
   private createUserTemplateId(sourceTemplateId: string, ownerUserId: string) {
@@ -698,36 +597,89 @@ export class TemplatesService implements OnModuleInit {
     return `${sourceTemplateId}-copy-${ownerPrefix}-${Date.now().toString(36)}`;
   }
 
+  private async createAvailableGeneratedTemplateId(
+    baseTemplateId: string,
+    ownerUserId: string,
+  ): Promise<string> {
+    const ownerPrefix = ownerUserId.replace(/-/g, '').slice(0, 8);
+    const base = baseTemplateId.trim() || 'ai-template';
+
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const candidate = `${base}-ai-${ownerPrefix}-${Date.now().toString(36)}${
+        attempt ? `-${attempt}` : ''
+      }`;
+      const exists = await this.templates.existsByTemplateId(candidate);
+      if (!exists) {
+        return candidate;
+      }
+    }
+
+    return `${base}-ai-${ownerPrefix}-${Date.now().toString(36)}-${Math.random()
+      .toString(36)
+      .slice(2, 8)}`;
+  }
+
+  private applyGeneratedTemplateInput(template: Template, input: SaveGeneratedTemplateInput): void {
+    template.name = input.name;
+    template.tagline = input.tagline;
+    template.description = input.description;
+    template.category = input.category;
+    template.displayCategory = input.displayCategory ?? input.category;
+    template.platformCategories = [...(input.platformCategories ?? [])];
+    template.functionalCategories = input.functionalCategories?.length
+      ? [...input.functionalCategories]
+      : [input.category];
+    template.primaryFunctionalCategory = template.functionalCategories[0] ?? null;
+    template.accent = input.accent;
+    template.traits = input.traits;
+    template.tags = deriveTags({
+      ...input,
+      templateId: template.templateId,
+      displayCategory: template.displayCategory,
+    });
+    template.searchText = this.buildSearchText(template);
+    template.cssVars = input.cssVars;
+    template.cssAnimations = input.cssAnimations ?? null;
+    template.componentTemplates = input.componentTemplates;
+    template.layoutDocument = withThemeLayoutStyleManifest(input.layoutDocument, input.cssVars);
+    template.ownerUserId ??= null;
+    template.sourceTemplateId ??= null;
+    template.isPublic = false;
+  }
+
+  private assertGeneratedTemplateCategoryKeys(input: SaveGeneratedTemplateInput): void {
+    this.assertTemplateCategoryKey(input.category, 'category');
+    if (input.displayCategory) {
+      this.assertTemplateCategoryKey(input.displayCategory, 'displayCategory');
+    }
+    input.platformCategories?.forEach((category) =>
+      this.assertTemplateCategoryKey(category, 'platformCategories'),
+    );
+    input.functionalCategories?.forEach((category) =>
+      this.assertTemplateCategoryKey(category, 'functionalCategories'),
+    );
+  }
+
   private async repairLegacyOwnedCopies(): Promise<void> {
-    const users = await this.userRepo.find();
-    if (!users.length) {
+    const userIds = await this.templates.findAllUserIds();
+    if (!userIds.length) {
       return;
     }
 
     const ownerPrefixToUserId = new Map<string, string | null>();
-    for (const user of users) {
-      const prefix = user.id.replace(/-/g, '').slice(0, 8);
-      ownerPrefixToUserId.set(
-        prefix,
-        ownerPrefixToUserId.has(prefix) ? null : user.id,
-      );
+    for (const userId of userIds) {
+      const prefix = userId.replace(/-/g, '').slice(0, 8);
+      ownerPrefixToUserId.set(prefix, ownerPrefixToUserId.has(prefix) ? null : userId);
     }
 
-    const publicSourceIds = new Set(
-      (await this.repo.find({
-        where: { ownerUserId: IsNull(), isPublic: true },
-        select: { templateId: true },
-      })).map((template) => template.templateId),
-    );
+    const publicSourceIds = new Set(await this.templates.findPublicTemplateIds());
 
-    const legacyCopies = await this.repo.find({
-      where: { ownerUserId: IsNull() },
-    });
-    let repaired = false;
+    const legacyCopies = await this.templates.findOwnerlessTemplates();
 
     for (const template of legacyCopies) {
-      const match = /^(?<source>.+)-copy-(?<ownerPrefix>[a-f0-9]{8})-[a-z0-9]+$/i
-        .exec(template.templateId);
+      const match = /^(?<source>.+)-copy-(?<ownerPrefix>[a-f0-9]{8})-[a-z0-9]+$/i.exec(
+        template.templateId,
+      );
       const sourceTemplateId = match?.groups?.source;
       const ownerPrefix = match?.groups?.ownerPrefix;
       if (!sourceTemplateId || !ownerPrefix) {
@@ -745,13 +697,12 @@ export class TemplatesService implements OnModuleInit {
       if (!template.tags.length) {
         template.tags = deriveTags(template);
       }
-      await this.repo.save(template);
-      repaired = true;
+      await this.templates.saveTemplate(template);
     }
   }
 
   private async repairTemplateCategoryKeys(): Promise<void> {
-    const templates = await this.repo.find();
+    const templates = await this.templates.findAllTemplates();
     for (const template of templates) {
       let changed = false;
       const normalizedCategory = this.resolveTemplateCategoryKey(
@@ -769,15 +720,12 @@ export class TemplatesService implements OnModuleInit {
         template.category,
         template.functionalCategories,
       );
-      if (
-        normalizedDisplayCategory &&
-        normalizedDisplayCategory !== template.displayCategory
-      ) {
+      if (normalizedDisplayCategory && normalizedDisplayCategory !== template.displayCategory) {
         template.displayCategory = normalizedDisplayCategory;
         changed = true;
       }
 
-      const primaryFunctionalCategory = template.functionalCategories?.[0] ?? null;
+      const primaryFunctionalCategory = template.functionalCategories[0] ?? null;
       if (template.primaryFunctionalCategory !== primaryFunctionalCategory) {
         template.primaryFunctionalCategory = primaryFunctionalCategory;
         changed = true;
@@ -785,7 +733,7 @@ export class TemplatesService implements OnModuleInit {
 
       await this.categoryRegistry.ensureTemplateCategories(template);
       if (changed) {
-        await this.repo.save(template);
+        await this.templates.saveTemplate(template);
       }
     }
   }
@@ -797,9 +745,9 @@ export class TemplatesService implements OnModuleInit {
     const current = typeof category === 'string' ? category.trim() : '';
     const primaryFunctionalCategory = functionalCategories?.[0]?.trim() ?? '';
     if (
-      hasCjkText(current) &&
+      this.hasCjkText(current) &&
       primaryFunctionalCategory &&
-      !hasCjkText(primaryFunctionalCategory)
+      !this.hasCjkText(primaryFunctionalCategory)
     ) {
       return primaryFunctionalCategory;
     }
@@ -813,18 +761,24 @@ export class TemplatesService implements OnModuleInit {
   ): string {
     const current = typeof displayCategory === 'string' ? displayCategory.trim() : '';
     const primaryFunctionalCategory = functionalCategories?.[0]?.trim() ?? '';
-    if (current && !hasCjkText(current)) {
+    if (current && !this.hasCjkText(current)) {
       if (current !== category && current !== primaryFunctionalCategory) {
         return current;
       }
     }
-    return resolveDisplayCategoryFromKey(
-      primaryFunctionalCategory || category || current || 'general',
-    );
+    const fallbackCategory =
+      primaryFunctionalCategory.length > 0
+        ? primaryFunctionalCategory
+        : typeof category === 'string' && category.length > 0
+          ? category
+          : current.length > 0
+            ? current
+            : 'general';
+    return this.resolveDisplayCategoryFromKey(fallbackCategory);
   }
 
   private assertTemplateCategoryKey(value: string, fieldName: string): void {
-    if (!isTemplateCategoryKey(value)) {
+    if (!this.isTemplateCategoryKey(value)) {
       throw new BadRequestException(`${fieldName} must be an English slug key.`);
     }
   }
@@ -846,17 +800,21 @@ export class TemplatesService implements OnModuleInit {
       .map((entry) => path.join(directory, entry.name))
       .sort();
 
-    // Skip templates listed in import-skip-list.json
+    // 跳过 import-skip-list.json 中列出的模板。
     const skipListPath = path.join(directory, 'import-skip-list.json');
     try {
       const skipContent = await fs.readFile(skipListPath, 'utf8');
-      const skipIds = JSON.parse(skipContent);
+      const skipIds = JSON.parse(skipContent) as unknown;
       if (Array.isArray(skipIds) && skipIds.length > 0) {
-        const skipBasenames = new Set(skipIds.map((id: string) => path.basename(id) + '.json'));
+        const skipBasenames = new Set(
+          skipIds
+            .filter((id): id is string => typeof id === 'string')
+            .map((id) => path.basename(id) + '.json'),
+        );
         jsonFiles = jsonFiles.filter((f) => !skipBasenames.has(path.basename(f)));
       }
     } catch {
-      // No skip list file = process all
+      // 没有跳过列表时处理全部模板。
     }
 
     const importedFiles: string[] = [];
@@ -876,9 +834,9 @@ export class TemplatesService implements OnModuleInit {
     const candidates = configuredDirectory
       ? [configuredDirectory]
       : [
-        path.resolve(process.cwd(), 'templates_json'),
-        path.resolve(process.cwd(), '..', 'templates_json'),
-      ];
+          path.resolve(process.cwd(), 'templates_json'),
+          path.resolve(process.cwd(), '..', 'templates_json'),
+        ];
 
     for (const candidate of candidates) {
       const resolved = path.resolve(candidate);
@@ -888,7 +846,7 @@ export class TemplatesService implements OnModuleInit {
           return resolved;
         }
       } catch {
-        // Missing directory means there are no pending template JSON imports.
+        // 目录不存在表示没有待导入的模板 JSON。
       }
     }
 
@@ -940,46 +898,55 @@ export class TemplatesService implements OnModuleInit {
         agentConfig.assets,
         assetResolution.visualAssets,
       );
-      const layoutDocument = prepareTemplateLayoutForPersistence({
+      const preparedLayoutDocument = prepareTemplateLayoutForPersistence({
         layoutDocument: assetResolution.layoutDocument,
         componentTemplates: data.componentTemplates,
         cssVars: data.cssVars,
         requireGeneratedTemplateQuality: true,
-      }) as unknown as Record<string, unknown>;
-      const generatedProfile = agentConfig.profileGenerated
-        ?? buildTemplateProfile(layoutDocument as unknown as ThemeLayoutDocument) as unknown as Record<string, unknown>;
-      const effectiveProfile = agentConfig.profileOverride
-        ? applyTemplateProfileOverride(
-          generatedProfile as unknown as TemplateProfile,
-          agentConfig.profileOverride,
-        )
-        : generatedProfile;
-      const profileValidation = validateTemplateProfile(
-        layoutDocument as unknown as ThemeLayoutDocument,
-        effectiveProfile as unknown as TemplateProfile,
-      );
+      });
+      const layoutDocument = themeLayoutDocumentToRecord(preparedLayoutDocument);
+      const generatedProfile =
+        agentConfig.profileGenerated ??
+        objectToRecord(buildTemplateProfile(preparedLayoutDocument));
+      let effectiveProfile = generatedProfile;
+      if (agentConfig.profileOverride) {
+        if (!isTemplateProfile(generatedProfile)) {
+          issues.push('template profile generated config is malformed');
+          await this.writeTemplateValidationLog(filePath, issues);
+          return false;
+        }
+        effectiveProfile = objectToRecord(
+          applyTemplateProfileOverride(generatedProfile, agentConfig.profileOverride),
+        );
+      }
+      if (!isTemplateProfile(effectiveProfile)) {
+        issues.push('template profile effective config is malformed');
+        await this.writeTemplateValidationLog(filePath, issues);
+        return false;
+      }
+      const profileValidation = validateTemplateProfile(preparedLayoutDocument, effectiveProfile);
       if (!profileValidation.valid) {
         issues.push(
-          ...profileValidation.errors.map((error) =>
-            `template profile ${error.path}: ${error.message}`),
+          ...profileValidation.errors.map(
+            (error) => `template profile ${error.path}: ${error.message}`,
+          ),
         );
         await this.writeTemplateValidationLog(filePath, issues);
         return false;
       }
       const tags = deriveTags(data);
-      await this.repo.upsert(
-        [this.repo.create({
+      await this.templates.upsertTemplates([
+        this.templates.createTemplate({
           ownerUserId: null,
           sourceTemplateId: null,
           isPublic: true,
           primaryFunctionalCategory: data.functionalCategories?.[0] ?? null,
           tags,
-          searchText: buildSearchText({ ...data, tags }),
+          searchText: this.buildSearchText({ ...data, tags }),
           ...data,
           layoutDocument,
-        })] as never,
-        { conflictPaths: ['templateId'], skipUpdateIfNoValuesChanged: true },
-      );
+        }),
+      ]);
       await this.upsertTemplateAgentConfig(data.templateId, {
         ...agentConfig,
         ...(assetManifest ? { assets: assetManifest } : {}),
@@ -1020,10 +987,7 @@ export class TemplatesService implements OnModuleInit {
       }),
     };
 
-    const sidecarDirectory = path.join(
-      path.dirname(filePath),
-      path.basename(filePath, '.json'),
-    );
+    const sidecarDirectory = path.join(path.dirname(filePath), path.basename(filePath, '.json'));
     const byTemplateIdDirectory = path.join(path.dirname(filePath), templateId);
     const sidecarConfigDirectory = await this.firstExistingDirectory([
       sidecarDirectory,
@@ -1035,10 +999,7 @@ export class TemplatesService implements OnModuleInit {
     const centralizedConfig = await this.readTemplateAgentConfigDirectory(
       path.join(path.dirname(filePath), 'configs'),
       issues,
-      [
-        path.basename(filePath, '.json'),
-        templateId,
-      ],
+      [path.basename(filePath, '.json'), templateId],
     );
 
     return {
@@ -1107,15 +1068,13 @@ export class TemplatesService implements OnModuleInit {
   ): string[] {
     return [
       path.join(directory, legacyFileName),
-      ...[...new Set(flatPrefixes)]
-        .flatMap((prefix) => flatSuffixes.map((suffix) =>
-          path.join(directory, `${prefix}.${suffix}.json`))),
+      ...[...new Set(flatPrefixes)].flatMap((prefix) =>
+        flatSuffixes.map((suffix) => path.join(directory, `${prefix}.${suffix}.json`)),
+      ),
     ];
   }
 
-  private extractTemplateCategoryLabels(
-    parsed: unknown,
-  ): {
+  private extractTemplateCategoryLabels(parsed: unknown): {
     categoryLabel?: string;
     categoryLabels?: Record<string, string>;
     displayCategoryLabel?: string;
@@ -1146,9 +1105,7 @@ export class TemplatesService implements OnModuleInit {
     };
   }
 
-  private async firstExistingDirectory(
-    directories: readonly string[],
-  ): Promise<string | null> {
+  private async firstExistingDirectory(directories: readonly string[]): Promise<string | null> {
     for (const directory of directories) {
       try {
         const stat = await fs.stat(directory);
@@ -1156,7 +1113,7 @@ export class TemplatesService implements OnModuleInit {
           return directory;
         }
       } catch {
-        // Ignore missing optional sidecar directory.
+        // 可选 sidecar 目录不存在时忽略。
       }
     }
     return null;
@@ -1168,9 +1125,7 @@ export class TemplatesService implements OnModuleInit {
     label: string,
   ): Promise<Record<string, unknown> | undefined> {
     const filePath = await this.firstExistingFile(
-      Array.isArray(filePathOrCandidates)
-        ? filePathOrCandidates
-        : [filePathOrCandidates],
+      Array.isArray(filePathOrCandidates) ? filePathOrCandidates : [filePathOrCandidates],
     );
     if (!filePath) {
       return undefined;
@@ -1184,14 +1139,14 @@ export class TemplatesService implements OnModuleInit {
       }
       return parsed;
     } catch (error) {
-      issues.push(`${label} is invalid JSON: ${error instanceof Error ? error.message : String(error)}`);
+      issues.push(
+        `${label} is invalid JSON: ${error instanceof Error ? error.message : String(error)}`,
+      );
       return undefined;
     }
   }
 
-  private async firstExistingFile(
-    filePaths: readonly string[],
-  ): Promise<string | null> {
+  private async firstExistingFile(filePaths: readonly string[]): Promise<string | null> {
     for (const filePath of filePaths) {
       try {
         const stat = await fs.stat(filePath);
@@ -1199,7 +1154,7 @@ export class TemplatesService implements OnModuleInit {
           return filePath;
         }
       } catch {
-        // Missing optional config files are fine.
+        // 可选配置文件不存在时忽略。
       }
     }
     return null;
@@ -1214,10 +1169,7 @@ export class TemplatesService implements OnModuleInit {
     }
   }
 
-  private parseTemplateJsonSeed(
-    value: unknown,
-    issues: string[],
-  ): TemplateSeedException | null {
+  private parseTemplateJsonSeed(value: unknown, issues: string[]): TemplateSeedException | null {
     if (!isRecord(value)) {
       issues.push('Template must be an object.');
       return null;
@@ -1239,9 +1191,8 @@ export class TemplatesService implements OnModuleInit {
     });
 
     const traits = this.parseStringArray(value.traits, 'traits', issues);
-    const tags = value.tags === undefined
-      ? undefined
-      : this.parseStringArray(value.tags, 'tags', issues);
+    const tags =
+      value.tags === undefined ? undefined : this.parseStringArray(value.tags, 'tags', issues);
     const platformCategories = this.parseCategoryArray(
       value.platformCategories,
       'platformCategories',
@@ -1257,12 +1208,9 @@ export class TemplatesService implements OnModuleInit {
     );
     const displayCategory = isNonEmptyString(value.displayCategory)
       ? String(value.displayCategory).trim()
-      : resolveDisplayCategoryFromKey(String(value.category ?? ''));
+      : this.resolveDisplayCategoryFromKey(isNonEmptyString(value.category) ? value.category : '');
 
-    if (
-      functionalCategories.length > 0 &&
-      value.category !== functionalCategories[0]
-    ) {
+    if (functionalCategories.length > 0 && value.category !== functionalCategories[0]) {
       issues.push('category must match functionalCategories[0].');
     }
     if (!isCssVarRecord(value.cssVars)) {
@@ -1274,13 +1222,10 @@ export class TemplatesService implements OnModuleInit {
     if (!isRecord(value.layoutDocument)) {
       issues.push('layoutDocument must be an object.');
     }
-    if (isNonEmptyString(value.category) && !isTemplateCategoryKey(value.category)) {
+    if (isNonEmptyString(value.category) && !this.isTemplateCategoryKey(value.category)) {
       issues.push('category must be an English slug key.');
     }
-    if (
-      isNonEmptyString(displayCategory) &&
-      !isTemplateCategoryKey(displayCategory)
-    ) {
+    if (isNonEmptyString(displayCategory) && !this.isTemplateCategoryKey(displayCategory)) {
       issues.push('displayCategory must be an English slug key.');
     }
     if (issues.length) {
@@ -1300,26 +1245,19 @@ export class TemplatesService implements OnModuleInit {
       traits,
       ...(tags ? { tags } : {}),
       cssVars: value.cssVars as Record<string, string>,
-      cssAnimations: isStringRecord(value.cssAnimations)
-        ? value.cssAnimations
-        : undefined,
+      cssAnimations: isStringRecord(value.cssAnimations) ? value.cssAnimations : undefined,
       componentTemplates: value.componentTemplates as Record<string, unknown>,
       layoutDocument: value.layoutDocument as Record<string, unknown>,
     };
   }
 
-  private parseStringArray(
-    value: unknown,
-    fieldName: string,
-    issues: string[],
-  ): string[] {
+  private parseStringArray(value: unknown, fieldName: string, issues: string[]): string[] {
     if (!Array.isArray(value) || !value.length) {
       issues.push(`${fieldName} must be a non-empty string array.`);
       return [];
     }
     const strings = value.filter(
-      (item): item is string =>
-        typeof item === 'string' && item.trim().length > 0,
+      (item): item is string => typeof item === 'string' && item.trim().length > 0,
     );
     if (strings.length !== value.length) {
       issues.push(`${fieldName} must contain only non-empty strings.`);
@@ -1332,11 +1270,11 @@ export class TemplatesService implements OnModuleInit {
     fieldName: string,
     allowedValues: Set<string>,
     issues: string[],
-    options: { strict?: boolean; } = {},
+    options: { strict?: boolean } = {},
   ): string[] {
     const strings = this.parseStringArray(value, fieldName, issues);
     strings.forEach((item) => {
-      if (!isTemplateCategoryKey(item)) {
+      if (!this.isTemplateCategoryKey(item)) {
         issues.push(`${fieldName} must contain only English slug keys: ${item}.`);
       }
       if (options.strict !== false && !allowedValues.has(item)) {
@@ -1391,10 +1329,7 @@ export class TemplatesService implements OnModuleInit {
       try {
         await fs.rmdir(directory);
       } catch (error) {
-        if (
-          !this.isFsErrorCode(error, 'ENOENT') &&
-          !this.isFsErrorCode(error, 'ENOTEMPTY')
-        ) {
+        if (!this.isFsErrorCode(error, 'ENOENT') && !this.isFsErrorCode(error, 'ENOTEMPTY')) {
           console.warn(
             `[TemplatesService] Could not remove imported sidecar directory ${directory}:`,
             error instanceof Error ? error.message : error,
@@ -1438,10 +1373,7 @@ export class TemplatesService implements OnModuleInit {
     try {
       await fs.rmdir(configDirectory);
     } catch (error) {
-      if (
-        !this.isFsErrorCode(error, 'ENOENT') &&
-        !this.isFsErrorCode(error, 'ENOTEMPTY')
-      ) {
+      if (!this.isFsErrorCode(error, 'ENOENT') && !this.isFsErrorCode(error, 'ENOTEMPTY')) {
         console.warn(
           `[TemplatesService] Could not remove imported config directory ${configDirectory}:`,
           error instanceof Error ? error.message : error,
@@ -1458,24 +1390,20 @@ export class TemplatesService implements OnModuleInit {
         prefixes.push(parsed.templateId);
       }
     } catch {
-      // The root template was already imported successfully; this fallback is best effort.
+      // 根模板已成功导入；这里的回退清理只尽力执行。
     }
     return [...new Set(prefixes)];
   }
 
-  private async resolveImportedTemplateSidecarDirectories(
-    filePath: string,
-  ): Promise<string[]> {
-    const directories = [
-      path.join(path.dirname(filePath), path.basename(filePath, '.json')),
-    ];
+  private async resolveImportedTemplateSidecarDirectories(filePath: string): Promise<string[]> {
+    const directories = [path.join(path.dirname(filePath), path.basename(filePath, '.json'))];
     try {
       const parsed = JSON.parse(await fs.readFile(filePath, 'utf8')) as unknown;
       if (isRecord(parsed) && isNonEmptyString(parsed.templateId)) {
         directories.push(path.join(path.dirname(filePath), parsed.templateId));
       }
     } catch {
-      // The root template was already imported successfully; this fallback is best effort.
+      // 根模板已成功导入；这里的回退清理只尽力执行。
     }
     return [...new Set(directories)];
   }
@@ -1485,14 +1413,11 @@ export class TemplatesService implements OnModuleInit {
       error &&
       typeof error === 'object' &&
       'code' in error &&
-      (error as { code?: unknown; }).code === code,
+      (error as { code?: unknown }).code === code,
     );
   }
 
-  private async writeTemplateValidationLog(
-    filePath: string,
-    issues: string[],
-  ): Promise<void> {
+  private async writeTemplateValidationLog(filePath: string, issues: string[]): Promise<void> {
     const content = [
       `Template JSON import failed for ${path.basename(filePath)}`,
       `Generated at ${new Date().toISOString()}`,
@@ -1507,58 +1432,55 @@ export class TemplatesService implements OnModuleInit {
     try {
       await fs.unlink(this.templateValidationLogPath(filePath));
     } catch {
-      // No previous validation log to remove.
+      // 没有旧校验日志需要删除。
     }
   }
 
   private templateValidationLogPath(filePath: string): string {
-    return path.join(
-      path.dirname(filePath),
-      `${path.basename(filePath, '.json')}.validation.log`,
-    );
+    return path.join(path.dirname(filePath), `${path.basename(filePath, '.json')}.validation.log`);
   }
-}
 
-function hasCjkText(value: string): boolean {
-  return /[\u4e00-\u9fff]/.test(value);
-}
+  private hasCjkText(value: string): boolean {
+    return /[\u4e00-\u9fff]/.test(value);
+  }
 
-function resolveDisplayCategoryFromKey(key: string | null | undefined): string {
-  const normalized = typeof key === 'string' ? key.trim().toLowerCase() : '';
-  if (!normalized) {
-    return 'general';
+  private resolveDisplayCategoryFromKey(key: string | null | undefined): string {
+    const normalized = typeof key === 'string' ? key.trim().toLowerCase() : '';
+    if (!normalized) {
+      return 'general';
+    }
+    if (DISPLAY_CATEGORIES.has(normalized)) {
+      return normalized;
+    }
+    const prefix = normalized.split('-')[0];
+    if (prefix === 'edu') {
+      return 'education';
+    }
+    if (DISPLAY_CATEGORIES.has(prefix)) {
+      return prefix;
+    }
+    if (normalized.includes('booking') || normalized.includes('food-ordering')) {
+      return 'service';
+    }
+    if (normalized.includes('reader') || normalized.includes('news')) {
+      return 'content';
+    }
+    if (normalized.includes('event')) {
+      return 'marketing';
+    }
+    if (normalized.includes('wellness') || normalized.includes('fitness')) {
+      return 'health';
+    }
+    if (normalized.includes('tools')) {
+      return 'utility';
+    }
+    if (normalized.includes('center')) {
+      return 'profile';
+    }
+    return 'other';
   }
-  if (DISPLAY_CATEGORIES.has(normalized)) {
-    return normalized;
-  }
-  const prefix = normalized.split('-')[0];
-  if (prefix === 'edu') {
-    return 'education';
-  }
-  if (DISPLAY_CATEGORIES.has(prefix)) {
-    return prefix;
-  }
-  if (normalized.includes('booking') || normalized.includes('food-ordering')) {
-    return 'service';
-  }
-  if (normalized.includes('reader') || normalized.includes('news')) {
-    return 'content';
-  }
-  if (normalized.includes('event')) {
-    return 'marketing';
-  }
-  if (normalized.includes('wellness') || normalized.includes('fitness')) {
-    return 'health';
-  }
-  if (normalized.includes('tools')) {
-    return 'utility';
-  }
-  if (normalized.includes('center')) {
-    return 'profile';
-  }
-  return 'other';
-}
 
-function isTemplateCategoryKey(value: string): boolean {
-  return /^[a-z0-9][a-z0-9._-]*$/i.test(value) && !hasCjkText(value);
+  private isTemplateCategoryKey(value: string): boolean {
+    return /^[a-z0-9][a-z0-9._-]*$/i.test(value) && !this.hasCjkText(value);
+  }
 }

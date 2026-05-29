@@ -2,39 +2,29 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from '../auth/auth.module';
-import { Template } from '../templates/entities/template.entity';
-import { TemplateAgentPermissions } from '../templates/entities/template-agent-permissions.entity';
-import { TemplateAssetManifest } from '../templates/entities/template-asset-manifest.entity';
-import { TemplateEvaluationSpec } from '../templates/entities/template-evaluation-spec.entity';
-import { TemplateProfileGenerated } from '../templates/entities/template-profile-generated.entity';
-import { TemplateProfileOverrideEntity } from '../templates/entities/template-profile-override.entity';
-import { TemplateAssetService } from '../templates/template-asset.service';
-import { TemplateCategoryRegistryService } from '../templates/template-category-registry.service';
-import { User } from '../users/entities/user.entity';
+import { TemplatesModule } from '../templates/templates.module';
 import { AgentEvalController } from './agent-eval.controller';
 import { AgentRunnerService } from './agent-runner.service';
 import { AiController } from './ai.controller';
 import { AiService } from './ai.service';
 import { AiTokenUsageEvent } from './entities/ai-token-usage.entity';
 import { EditorAiConversation } from './entities/editor-ai-conversation.entity';
+import { AI_TEMPLATE_PIPELINE_PROVIDER } from './pipeline-provider.port';
+import {
+  EDITOR_CONVERSATION_REPOSITORY,
+  TOKEN_USAGE_REPOSITORY,
+  TypeOrmEditorConversationRepository,
+  TypeOrmTokenUsageRepository,
+} from './repositories';
 import { EditorConversationService } from './services/editor-conversation.service';
 import { ProviderLogCompactionService } from './services/provider-log-compaction.service';
 import { TokenUsageService } from './services/token-usage.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      Template,
-      TemplateProfileGenerated,
-      TemplateProfileOverrideEntity,
-      TemplateAssetManifest,
-      TemplateAgentPermissions,
-      TemplateEvaluationSpec,
-      EditorAiConversation,
-      AiTokenUsageEvent,
-      User,
-    ]),
+    TypeOrmModule.forFeature([EditorAiConversation, AiTokenUsageEvent]),
     AuthModule,
+    TemplatesModule,
   ],
   controllers: [AiController, AgentEvalController],
   providers: [
@@ -43,9 +33,19 @@ import { TokenUsageService } from './services/token-usage.service';
     TokenUsageService,
     EditorConversationService,
     ProviderLogCompactionService,
-    TemplateAssetService,
-    TemplateCategoryRegistryService,
+    {
+      provide: EDITOR_CONVERSATION_REPOSITORY,
+      useClass: TypeOrmEditorConversationRepository,
+    },
+    {
+      provide: TOKEN_USAGE_REPOSITORY,
+      useClass: TypeOrmTokenUsageRepository,
+    },
+    {
+      provide: AI_TEMPLATE_PIPELINE_PROVIDER,
+      useExisting: AiService,
+    },
   ],
-  exports: [AiService, AgentRunnerService],
+  exports: [AiService, AgentRunnerService, AI_TEMPLATE_PIPELINE_PROVIDER],
 })
 export class AiModule {}

@@ -1,0 +1,27 @@
+# Dependencies and build output
+node_modules
+.next
+dist
+dist-ssr
+dist-electron
+release
+output
+backend/dist
+templates_json/preview/dist
+
+# Generated and lock files
+pnpm-lock.yaml
+**/package-lock.json
+**/pnpm-lock.yaml
+shared/openapi.json
+*.tsbuildinfo
+
+# Local tooling and reports
+.codex
+.workbuddy
+reports
+*.log
+
+# User/editor files
+.vscode
+.idea
