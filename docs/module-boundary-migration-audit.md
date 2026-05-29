@@ -10,6 +10,24 @@ This audit covers the remaining defect-report boundary items:
 - `9.5` physical split between browser-safe contracts and backend/eval agent
   implementation.
 
+## Decisions (2026-05-29)
+
+Both items are resolved as deliberate boundary decisions rather than open
+migrations:
+
+- **1.2 — accept the documented dual-system boundary.** The backend continues to
+  build CommonJS while `shared/**/*.ts` stays ESM-only (enforced by
+  `pnpm shared:module-format:check`). A full backend ESM migration is **not**
+  pursued. The blocker inventory below is the documented rationale for keeping the
+  boundary, plus the guardrails that keep it from drifting (`shared:module-format:check`,
+  `shared:boundary:check`, `module-boundaries:audit`). Revisit only if a concrete
+  runtime need for backend ESM appears.
+- **9.5 — keep the enforced public-barrel boundary.** The browser/contracts/tools
+  public surfaces plus `shared:boundary:check` are the accepted boundary mechanism.
+  The physical workspace-package split (`shared-contracts`, `theme-layout`,
+  `shared-agent-runtime`, `shared-agent-browser`) is **intentionally deferred**
+  until a concrete need arises; the candidate split below is kept as reference only.
+
 The executable audit entrypoint is:
 
 ```powershell

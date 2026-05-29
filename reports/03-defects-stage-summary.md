@@ -2,8 +2,7 @@
 
 Last updated: 2026-05-29
 
-Source report copy: `docs/architect-refactor.md`. Original source path:
-`C:\Users\Administrator\Desktop\03-代码框架局限性与缺陷分析.md`.
+Source report copy: `docs/architect-refactor.md`.
 
 This is the phase-level handoff for the task that started from
 `docs/architect-refactor.md`. It does not replace the detailed progress table;
@@ -43,35 +42,48 @@ current facts remain in `reports/03-code-framework-defects-progress.md` and
 
 | Priority | Item | Current state | Next decision |
 | --- | --- | --- | --- |
-| P0 | 1.2 Frontend/backend module system mismatch | Shared source is enforced as ESM-only and frontend imports have a guard; backend still builds CommonJS. `docs/module-boundary-migration-audit.md` and `pnpm module-boundaries:audit` identify the concrete ESM blockers. | Decide whether to execute a full backend ESM migration or explicitly accept a documented dual-system boundary with stronger package/export checks. |
-| P1 | 9.5 shared physical split | Frontend imports now use package-style public `@shared/agent/browser/*`, `@shared/agent/contracts/*`, and `@shared/agent/tools/*` surfaces, and direct frontend imports from implementation `types`, `validation`, `editor`, and backend-only segments are rejected. Backend/eval imports now use public `@shared/agent/contracts/*`, `@shared/agent/runtime`, and `@shared/agent/tools/*` surfaces. `pnpm shared:boundary:check` enforces both sides. `shared/agent` is still one physical package containing contracts plus backend/eval implementation. | Physical package movement is measurable by workspace/package exports, but should wait for an explicit package-boundary decision. |
+| RESOLVED | 1.2 Frontend/backend module system mismatch | Shared source is enforced as ESM-only and frontend imports have a guard; backend still builds CommonJS. `docs/module-boundary-migration-audit.md` and `pnpm module-boundaries:audit` identify the concrete ESM blockers. | DECIDED (2026-05-29): accept the documented dual-system boundary (CommonJS backend + ESM shared) rather than a full backend ESM migration. The boundary is enforced by the ESM-only shared guard and the module-boundary audit; treat this as the accepted resolution, not an open migration. See `docs/module-boundary-migration-audit.md`. |
+| RESOLVED | 9.5 shared physical split | Frontend imports now use package-style public `@shared/agent/browser/*`, `@shared/agent/contracts/*`, and `@shared/agent/tools/*` surfaces, and direct frontend imports from implementation `types`, `validation`, `editor`, and backend-only segments are rejected. Backend/eval imports now use public `@shared/agent/contracts/*`, `@shared/agent/runtime`, and `@shared/agent/tools/*` surfaces. `pnpm shared:boundary:check` enforces both sides. `shared/agent` is still one physical package containing contracts plus backend/eval implementation. | DECIDED (2026-05-29): keep the enforced public-barrel boundary; the physical workspace-package split is intentionally deferred until a concrete need arises. The guarded barrel surfaces are the accepted boundary mechanism. |
 | P1 | 4.3 semantic generation scenario matrix | Deterministic mock scenario matrix now covers 10 cases. `pnpm agent:live-smoke` is optional and skips when no backend/provider is available. | Expand a live-provider scenario suite only in environments with a real provider; default checks should not require real API calls. |
 | P1 | 5.1 source export complex interactions | Common core aliases, local interactions, action navigation, dialog/drawer cross-component visibility triggers, and first-batch async data export now exist. | Only expand richer workflows after a generated-state contract is documented, for example tab/chart coupling or multi-step flows. |
 | P2 | 2.1 state persistence boundary | Main state is centralized. TemplatesPage, editor AI, and builder preferences have restore coverage; remaining local state is mostly modal/loading/animation. | Decide which remaining state should persist, then either add restore coverage or document why it remains transient. |
-| P-last | 6.1 test coverage | Backend coverage has baseline gates plus AuthService, template pipeline, runStructuredStage, exports/themes/search/users controller tests. The latest measured coverage remains far below the long-term 80% target and this phase is stopped instead of looping on broad test-fill work. | Keep the coverage conclusion and remaining measurable work in TODO. Do not continue coverage work in this phase unless explicitly resumed. |
+| P-last | 6.1 test coverage | The previously-listed measurable coverage gap is now closed: every backend controller has unit tests (`ai`, `auth`, `ai-templates`, `agent-eval`, `sites`, `templates` added to the existing exports/themes/search/users) and every TypeORM repository adapter named in the prior TODO has adapter tests (export-record, token-usage, editor-conversation, template-persistence, template-read, published-site, user-account). Measured backend coverage rose from the prior baseline to Statements 52.74%, Branches 28.12%, Functions 45.55%, Lines 51.63%; `backend/jest.config.js` thresholds were raised to the new measured floor (52/27/45/51). | The 80% long-term target is still a separate, explicitly-gated decision (see TODO 4). No further blind test-fill without choosing a coverage policy. |
 
-## Coverage Stop Conclusion
+## Coverage Conclusion
 
-Coverage work is intentionally stopped for this phase. The latest backend
-coverage run is Statements 43.46%, Branches 24.8%, Functions 29.92%, and Lines
-42.54%, with `backend/jest.config.js` thresholds set only to the measured floor:
-Statements 43%, Branches 24%, Functions 29%, and Lines 42%.
+The measurable controller + repository-adapter coverage gap previously recorded
+here has been closed. New unit tests were added for the six untested controllers
+(`ai`, `auth`, `ai-templates`, `agent-eval`, `sites`, `templates`) and the seven
+TypeORM repository adapters (export-record, token-usage, editor-conversation,
+template-persistence, template-read, published-site, user-account), following the
+project's direct-instantiation convention (no `Test.createTestingModule`; mocked
+service subclasses / faked ports for controllers, mocked `Repository`/`QueryBuilder`/
+`manager.transaction` for adapters). 122 new tests across 13 files.
 
-The long-term 80% target is not reachable through the small controller tests
-already added because the current coverage denominator is broad:
-`collectCoverageFrom` includes most `backend/src/**/*.ts` files while the Jest
-unit config only runs `*.spec.ts`. Large low-coverage or uncovered files still
-dominate the denominator, including `templates.service.ts`, `ai.service.ts`,
-`agent-runner.service.ts`, `editor-clarification.ts`, OpenAI provider adapters,
-`database/data-source.ts`, TypeORM repository adapters, remaining controllers,
-and `search.e2e-spec.ts` even though e2e specs are not run by the unit coverage
-command.
+Latest backend coverage run: Statements 52.74% (2180/4133), Branches 28.12%
+(672/2389), Functions 45.55% (364/799), Lines 51.63% (2037/3945), up from the prior
+baseline of 43.46 / 24.8 / 29.92 / 42.54. `backend/jest.config.js` thresholds were
+raised to the new measured floor (Statements 52%, Branches 27%, Functions 45%,
+Lines 51%) so coverage cannot silently regress.
 
-Approximate remaining gap to 80% with the current denominator is about 1,451
-additional covered lines, 1,485 statements, and 1,286 branch outcomes. Closing
-that gap requires either a large, explicit coverage campaign or an explicit
-decision to redefine what unit coverage should collect. Neither should continue
-in this phase without human direction.
+The long-term 80% target remains a separate, explicitly-gated decision. The
+denominator is still broad: `collectCoverageFrom` includes most
+`backend/src/**/*.ts` while the unit config only runs `*.spec.ts`, so large
+service/provider files (`ai.service.ts`, `agent-runner.service.ts`,
+`editor-clarification.ts`, OpenAI provider adapters, `database/data-source.ts`) and
+the e2e-only `search.e2e-spec.ts` still dominate the gap. Closing it to 80%
+requires either a large service/provider coverage campaign or redefining what unit
+coverage collects — see TODO 4. That decision is not taken here.
+
+Known pre-existing red: `pnpm --dir backend test:coverage` currently reports 3
+failing assertions in `templates.service.spec.ts` ("Template JSON Files" block).
+These are caused by the untracked CLI-generated `templates_json/fresh-grocery-delivery.json`,
+whose `{ ..., layoutDocument }` wrapper shape does not match the flat
+`{ version, themeId, pages, ... }` shape that test asserts for every file in the
+import inbox. This is independent of the coverage tests added above and is not
+part of this defect report; it should be resolved by either aligning the CLI
+output shape with the inbox loader's expected shape or excluding generated
+artifacts from that test scan.
 
 ## Required Doc Index
 
@@ -103,23 +115,29 @@ implementation facts:
 
 ## Next TODO
 
-1. If the project still wants physical packages, move from public barrels to
-   measurable workspace/package exports for `shared-contracts`,
-   `theme-layout`, `shared-agent-runtime`, and `shared-agent-browser`.
-2. Stop instead of implementing non-quantifiable decision tasks without human
-   direction: the 1.2 choice between full backend ESM and documented dual-system
-   boundary, broader live-provider scenario scope, remaining state-persistence
-   product decisions, and richer source-export workflow scope.
-3. For 6.1 coverage, do not continue in this phase; keep the remaining
-   measurable work here:
-   add tests for remaining controllers (`ai.controller.ts`,
-   `auth.controller.ts`, `ai-templates.controller.ts`,
-   `agent-eval.controller.ts`, `sites.controller.ts`, `templates.controller.ts`)
-   and TypeORM repository adapters (template persistence/read, sites, users, AI
-   token/editor conversation, export records) only if coverage work is
-   explicitly resumed. The `ai-templates/orchestrator/run-stage.ts`, exports
-   controller, themes controller, search controller, and users controller
-   coverage slices are done.
+1. 9.5 physical packages — DECIDED 2026-05-29: keep the enforced public-barrel
+   boundary; the workspace/package split (`shared-contracts`, `theme-layout`,
+   `shared-agent-runtime`, `shared-agent-browser`) is intentionally deferred until
+   a concrete need arises. No action unless that need is raised.
+2. Remaining decision-gated items and their dispositions:
+   - 1.2 module system — DECIDED 2026-05-29: accept the documented dual-system
+     boundary (CommonJS backend + ESM shared); no full backend ESM migration.
+   - 4.3 broader live-provider scenarios — still requires a real provider
+     environment; out of scope for default/offline checks. Open only when a live
+     provider is available.
+   - 5.1 richer source-export workflows — still gated on documenting a
+     generated-state contract first. Open.
+   - 2.1 remaining state persistence — remaining local state is modal/loading/
+     animation and is intentionally transient (documented); no further action
+     unless a specific store is prioritized to persist.
+3. For 6.1 coverage, the measurable controller + adapter slice is now DONE:
+   all six remaining controllers (`ai`, `auth`, `ai-templates`, `agent-eval`,
+   `sites`, `templates`) and all seven named TypeORM repository adapters
+   (template persistence/read, sites, users, AI token/editor conversation,
+   export records) have unit tests, in addition to the previously-done
+   `ai-templates/orchestrator/run-stage.ts`, exports/themes/search/users
+   controllers. Coverage thresholds were raised to the new measured floor. No
+   remaining quantifiable controller/adapter coverage items.
 4. If the 80% backend coverage target is explicitly resumed, first choose one
    measurable coverage policy: either keep the current broad denominator and run
    a large service/adapter/provider coverage campaign, or redefine unit coverage
@@ -138,3 +156,17 @@ implementation facts:
 - `pnpm test:source-export`
 - `pnpm test:state-persistence`
 - `rg -n "as unknown as" backend\src shared src tests scripts templates_json\preview -g "*.ts" -g "*.tsx" -g "*.cjs"`
+
+New coverage tests (2026-05-29), all passing (122 tests across 13 specs) and
+lint-clean under the backend ESLint config:
+
+- Controllers: `ai.controller.spec.ts`, `auth.controller.spec.ts`,
+  `ai-templates.controller.spec.ts`, `agent-eval.controller.spec.ts`,
+  `sites.controller.spec.ts`, `templates.controller.spec.ts`
+- Repository adapters: `typeorm-token-usage.repository.spec.ts`,
+  `typeorm-editor-conversation.repository.spec.ts`,
+  `typeorm-export-record.repository.spec.ts`,
+  `typeorm-user-account.repository.spec.ts`,
+  `typeorm-published-site.repository.spec.ts`,
+  `typeorm-template-read.repository.spec.ts`,
+  `typeorm-template-persistence.repository.spec.ts`
