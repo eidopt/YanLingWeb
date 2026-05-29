@@ -2,44 +2,30 @@
 
 import { templatesPageContent as c } from './TemplatesPage.content';
 import styles from './TemplatesPage.module.css';
-import type {
-  SortKey,
-  TemplatesPageController,
-} from './useTemplatesPageController';
+import type { SortKey, TemplatesPageController } from './useTemplatesPageController';
 import { useCallback, useEffect, useRef } from 'react';
-import {
-  Box,
-  Button,
-  Heading,
-  Inline,
-  Input,
-  Stack,
-  Text,
-} from 'ui/base';
+import { Box, Button, Dropdown, Heading, Inline, Input, Stack, Text } from 'ui/base';
 import { ScrollReveal, StaggerChildren } from 'ui/pages';
 import { ThemeCard } from 'ui/theme_card';
 
 /* ── Sort dropdown ── */
 
-function SortDropdown({
-  value,
-  onChange,
-}: {
-  value: SortKey;
-  onChange: (key: SortKey) => void;
-}) {
+function SortDropdown({ value, onChange }: { value: SortKey; onChange: (key: SortKey) => void }) {
   return (
     <Box className={styles.sortDropdown}>
-      <select
-        className={styles.sortSelect}
+      <Dropdown
         value={value}
-        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => { onChange(e.target.value as SortKey); }}
+        onValueChange={(v) => {
+          onChange(v as SortKey);
+        }}
         aria-label={c.sortLabel}
-      >
-        {Object.entries(c.sortOptions).map(([key, label]) => (
-          <option key={key} value={key}>{c.sortLabel}: {label}</option>
-        ))}
-      </select>
+        size="lg"
+        variant="filled"
+        options={Object.entries(c.sortOptions).map(([key, label]) => ({
+          value: key,
+          label: `${c.sortLabel}: ${label}`,
+        }))}
+      />
     </Box>
   );
 }
@@ -67,13 +53,7 @@ function TemplateSkeleton() {
 
 /* ── Empty state ── */
 
-function EmptyState({
-  onClearSearch,
-  hasActiveFilter,
-}: {
-  onClearSearch: () => void;
-  hasActiveFilter: boolean;
-}) {
+function EmptyState({ onClearSearch, hasActiveFilter }: { onClearSearch: () => void; hasActiveFilter: boolean }) {
   return (
     <Box className={styles.emptyState}>
       <Box className={styles.emptyIcon} aria-hidden="true">
@@ -142,7 +122,9 @@ export function TemplatesPageView({
 
   useEffect(() => {
     document.addEventListener('keydown', handleGlobalKey);
-    return () => { document.removeEventListener('keydown', handleGlobalKey); };
+    return () => {
+      document.removeEventListener('keydown', handleGlobalKey);
+    };
   }, [handleGlobalKey]);
 
   return (
@@ -150,9 +132,13 @@ export function TemplatesPageView({
       {/* ── Header ── */}
       <ScrollReveal variant="fadeDown" duration="base">
         <Stack as="header" className={styles.header} gap="u1-75">
-          <Heading as="h1" size="hero" variant="primary" weight="heavy">{c.title}</Heading>
+          <Heading as="h1" size="hero" variant="primary" weight="heavy">
+            {c.title}
+          </Heading>
           <Box className={styles.subtitle}>
-            <Text size="base" variant="muted">{c.subtitle}</Text>
+            <Text size="base" variant="muted">
+              {c.subtitle}
+            </Text>
           </Box>
 
           {/* Search + Sort row */}
@@ -171,7 +157,9 @@ export function TemplatesPageView({
                 variant="filled"
                 placeholder={`${c.searchPlaceholder} (${c.searchShortcut})`}
                 value={search}
-                onChange={(e) => { setSearch(e.target.value); }}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                }}
                 className={styles.searchInput}
               />
               {search.length > 0 && (
@@ -203,7 +191,9 @@ export function TemplatesPageView({
               <Button
                 key={cat.value}
                 type="button"
-                onClick={() => { setActiveCategory(cat.value); }}
+                onClick={() => {
+                  setActiveCategory(cat.value);
+                }}
                 size="sm"
                 variant={cat.value === activeCategory ? 'tab-active' : 'tab'}
               >
@@ -220,7 +210,13 @@ export function TemplatesPageView({
             <Text size="xs" variant="faint">
               {c.resultCount(filteredTemplates.length)}
               {hasActiveFilter && (
-                <> &middot; <Box as="span" className={styles.filterNote}>已筛选</Box></>
+                <>
+                  {' '}
+                  &middot;{' '}
+                  <Box as="span" className={styles.filterNote}>
+                    已筛选
+                  </Box>
+                </>
               )}
             </Text>
           )}
@@ -232,7 +228,9 @@ export function TemplatesPageView({
 
       {error && (
         <Box className={styles.emptyState}>
-          <Text align="center" size="md" variant="muted">{error}</Text>
+          <Text align="center" size="md" variant="muted">
+            {error}
+          </Text>
         </Box>
       )}
 
@@ -241,22 +239,20 @@ export function TemplatesPageView({
       )}
 
       {!loading && !error && filteredTemplates.length > 0 && (
-        <StaggerChildren staggerDelay={60} maxDelay={600}>
-          <Box className={styles.grid}>
+        <Box className={styles.grid}>
+          <StaggerChildren staggerDelay={60} maxDelay={600} duration="base">
             {filteredTemplates.map((theme) => (
-              <Box
+              <ThemeCard
                 key={theme.id}
-                className="sa-child sa-fade-up sa-duration-base"
-              >
-                <ThemeCard
-                  theme={theme}
-                  onClick={() => { openTemplate(theme); }}
-                  hoverLabel={c.previewHint}
-                />
-              </Box>
+                theme={theme}
+                onClick={() => {
+                  openTemplate(theme);
+                }}
+                hoverLabel={c.previewHint}
+              />
             ))}
-          </Box>
-        </StaggerChildren>
+          </StaggerChildren>
+        </Box>
       )}
     </Stack>
   );

@@ -104,7 +104,7 @@ export function useTemplatesPageController(): TemplatesPageController {
     return categories.map((cat) => ({
       value: cat,
       label: getCategoryLabel(templates, cat),
-      count: counts.get(cat) ?? 0,
+      count: cat === ALL_CATEGORY ? templates.length : (counts.get(cat) ?? 0),
     }));
   }, [templates, categories]);
 
