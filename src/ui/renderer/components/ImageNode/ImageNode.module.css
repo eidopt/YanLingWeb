@@ -4,11 +4,11 @@
   aspect-ratio: 1 / 1;
   width: 100%;
   min-width: 0;
-  background: color-mix(in srgb, var(--accent) 10%, var(--app-neutral-100));
+  background: color-mix(in srgb, var(--accent) 10%, var(--tpl-neutral-100));
 }
 
 .imagePlaceholder {
   border-radius: var(--radius-image, var(--app-unit-2-25));
   aspect-ratio: 1 / 1;
-  background: color-mix(in srgb, var(--accent) 10%, var(--app-neutral-100));
+  background: color-mix(in srgb, var(--accent) 10%, var(--tpl-neutral-100));
 }

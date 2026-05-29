@@ -5,6 +5,7 @@ import type {
   ValidationIssue,
   ValidationResult,
 } from '../types';
+import { validateCssVarsContract } from './cssVarsContract';
 import {
   collectAliases,
   collectNodesById,
@@ -109,6 +110,12 @@ export function validateThemeLayoutDocument(
       );
     }
   });
+
+  if (options.requireThemeContract) {
+    for (const item of validateCssVarsContract(document)) {
+      (item.severity === 'error' ? errors : warnings).push(item);
+    }
+  }
 
   const score = errors.length === 0 ? 1 : 0;
   return { valid: errors.length === 0, errors, warnings, score };

@@ -15,7 +15,7 @@
   top: var(--app-unit-1);
   bottom: var(--app-unit-1);
   width: var(--app-unit-0-25);
-  background: var(--app-border);
+  background: var(--tpl-border);
   border-radius: var(--app-radius-pill);
 }
 
@@ -32,8 +32,8 @@
   width: var(--app-unit-1);
   height: var(--app-unit-1);
   border-radius: var(--app-radius-pill);
-  background: var(--accent, var(--app-color-accent));
-  border: var(--app-unit-0-25) solid var(--app-surface-1);
+  background: var(--accent, var(--tpl-color-accent));
+  border: var(--app-unit-0-25) solid var(--tpl-surface-1);
   box-sizing: border-box;
 }
 
@@ -55,7 +55,7 @@
   left: var(--app-unit-1);
   right: var(--app-unit-1);
   height: var(--app-unit-0-25);
-  background: var(--app-border);
+  background: var(--tpl-border);
   border-radius: var(--app-radius-pill);
 }
 
@@ -75,7 +75,7 @@
   width: var(--app-unit-1);
   height: var(--app-unit-1);
   border-radius: var(--app-radius-pill);
-  background: var(--accent, var(--app-color-accent));
-  border: var(--app-unit-0-25) solid var(--app-surface-1);
+  background: var(--accent, var(--tpl-color-accent));
+  border: var(--app-unit-0-25) solid var(--tpl-surface-1);
   box-sizing: border-box;
 }

@@ -49,6 +49,7 @@
     "test:e2e:browser": "node scripts/run-browser-e2e.cjs",
     "test:state-persistence": "tsx scripts/templates-page-state-persistence-smoke.ts",
     "test:di-container": "tsx scripts/di-container-smoke.ts",
+    "test:css-contract": "tsx scripts/css-vars-contract-smoke.ts",
     "test:source-export": "node scripts/source-export-smoke.cjs",
     "renderer:registry:check": "node scripts/check-renderer-registry.cjs",
     "module-boundaries:audit": "node scripts/audit-module-boundaries.cjs",

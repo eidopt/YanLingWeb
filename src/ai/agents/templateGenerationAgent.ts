@@ -90,9 +90,13 @@ export class TemplateGenerationAgent {
         const candidateDocument = migrateThemeLayoutDocument(
           applyVisualAssetsToLayoutDocument(args.layoutDocument, visualAssets),
         );
-        const validation = validateThemeLayoutDocument(candidateDocument, {
-          componentTemplates: args.componentTemplates,
-        });
+        const validation = validateThemeLayoutDocument(
+          { ...candidateDocument, cssVars: args.cssVars },
+          {
+            componentTemplates: args.componentTemplates,
+            requireThemeContract: true,
+          },
+        );
         if (!validation.valid) {
           call.error = 'Generated template failed validation';
           call.result = { validation };
@@ -130,7 +134,7 @@ export class TemplateGenerationAgent {
     emit('done');
 
     const validation = finalDocument
-      ? validateThemeLayoutDocument(finalDocument)
+      ? validateThemeLayoutDocument(finalDocument, { requireThemeContract: true })
       : {
           valid: false,
           errors: [

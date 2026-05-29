@@ -13,28 +13,30 @@
   gap: var(--app-unit-1);
   width: var(--app-unit-20);
   height: var(--app-unit-16);
-  border: var(--app-unit-0-25) dashed var(--panel-border, var(--app-neutral-300));
+  border: var(--app-unit-0-25) dashed var(--panel-border, var(--tpl-neutral-300));
   border-radius: var(--app-radius-sm);
-  background: var(--surface-muted, var(--app-neutral-50));
+  background: var(--surface-muted, var(--tpl-neutral-50));
   cursor: pointer;
-  transition: border-color 200ms ease, background 200ms ease;
+  transition:
+    border-color 200ms ease,
+    background 200ms ease;
 }
 
 .area:hover {
   border-color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 4%, var(--app-neutral-0));
+  background: color-mix(in srgb, var(--accent) 4%, var(--tpl-neutral-0));
 }
 
 .icon {
   font-size: var(--app-unit-4);
   font-weight: 300;
   line-height: 1;
-  color: var(--text-muted-color, var(--app-neutral-400));
+  color: var(--text-muted-color, var(--tpl-neutral-400));
 }
 
 .label {
   font-size: var(--app-unit-1-75);
-  color: var(--text-muted-color, var(--app-neutral-500));
+  color: var(--text-muted-color, var(--tpl-neutral-500));
 }
 
 .fileInput {

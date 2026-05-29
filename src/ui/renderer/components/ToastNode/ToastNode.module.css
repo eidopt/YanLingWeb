@@ -9,27 +9,27 @@
   gap: var(--app-unit-1);
   padding: var(--app-unit-1-5) var(--app-unit-3);
   border-radius: var(--radius-panel, var(--app-unit-3));
-  background: var(--app-neutral-800);
-  color: var(--app-neutral-0);
+  background: var(--tpl-neutral-800);
+  color: var(--tpl-neutral-0);
   font-size: var(--app-unit-1-75);
   box-shadow: 0 var(--app-unit-2) var(--app-unit-4) rgba(0, 0, 0, 0.2);
   pointer-events: none;
 }
 
 .toast[data-type='info'] {
-  background: var(--app-info, #3b82f6);
+  background: var(--tpl-info, #3b82f6);
 }
 
 .toast[data-type='success'] {
-  background: var(--app-success, #22c55e);
+  background: var(--tpl-success, #22c55e);
 }
 
 .toast[data-type='warning'] {
-  background: var(--app-warning, #f59e0b);
+  background: var(--tpl-warning, #f59e0b);
 }
 
 .toast[data-type='error'] {
-  background: var(--app-error, #ef4444);
+  background: var(--tpl-error, #ef4444);
 }
 
 .icon {

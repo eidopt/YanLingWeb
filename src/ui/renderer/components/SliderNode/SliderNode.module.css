@@ -11,7 +11,7 @@
   width: 100%;
   height: var(--app-unit-1);
   border-radius: var(--app-unit-0-5);
-  background: var(--panel-border, var(--app-neutral-200));
+  background: var(--panel-border, var(--tpl-neutral-200));
   outline: none;
   cursor: pointer;
 }
@@ -45,7 +45,7 @@
 .slider::-moz-range-track {
   height: var(--app-unit-1);
   border-radius: var(--app-unit-0-5);
-  background: var(--panel-border, var(--app-neutral-200));
+  background: var(--panel-border, var(--tpl-neutral-200));
 }
 
 .slider:focus::-webkit-slider-thumb {
@@ -67,13 +67,12 @@
   right: 0;
   height: var(--app-unit-1);
   border-radius: var(--app-unit-0-5);
-  background:
-    linear-gradient(
-      to right,
-      var(--panel-border, var(--app-neutral-200)) 0 var(--range-start),
-      var(--accent) var(--range-start) var(--range-end),
-      var(--panel-border, var(--app-neutral-200)) var(--range-end) 100%
-    );
+  background: linear-gradient(
+    to right,
+    var(--panel-border, var(--tpl-neutral-200)) 0 var(--range-start),
+    var(--accent) var(--range-start) var(--range-end),
+    var(--panel-border, var(--tpl-neutral-200)) var(--range-end) 100%
+  );
 }
 
 .rangeInput {

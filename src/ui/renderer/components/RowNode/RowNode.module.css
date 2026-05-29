@@ -15,8 +15,8 @@
   border-radius: var(--radius-panel, var(--app-unit-3));
   background: var(--panel-bg);
   border: var(--app-unit-0-125) solid var(--panel-border);
-  box-shadow: 0 var(--app-unit-1-5) var(--app-unit-4) var(--app-ink-alpha-10);
-  color: var(--text-body-color, var(--app-neutral-700));
+  box-shadow: 0 var(--app-unit-1-5) var(--app-unit-4) var(--tpl-ink-alpha-10);
+  color: var(--text-body-color, var(--tpl-neutral-700));
 }
 
 .panelAccent {

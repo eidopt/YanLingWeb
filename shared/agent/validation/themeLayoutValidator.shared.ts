@@ -7,6 +7,12 @@ export interface ThemeLayoutValidatorOptions {
   requireValidImageUrls?: boolean;
   requireLocalizedPropLabels?: boolean;
   requireChineseVisibleText?: boolean;
+  /**
+   * 当为 true 时，强制 cssVars 主题色契约（必填键缺失/非法颜色 → error，
+   * 推荐键缺失 → warning）。仅在模板生成的最终校验启用；编辑器流程不启用，
+   * 避免误伤历史文档。见 ./cssVarsContract.ts。
+   */
+  requireThemeContract?: boolean;
 }
 
 const DATA_SELECTOR_PATTERN = /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*$/;

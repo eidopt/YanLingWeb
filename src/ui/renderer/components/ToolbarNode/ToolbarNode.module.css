@@ -5,8 +5,8 @@
   justify-content: space-between;
   gap: var(--app-unit-2);
   padding: var(--app-unit-1-5) var(--app-unit-2);
-  border-bottom: var(--app-unit-0-125) solid var(--app-border);
-  background: var(--app-surface-1);
+  border-bottom: var(--app-unit-0-125) solid var(--tpl-border);
+  background: var(--tpl-surface-1);
   min-height: var(--app-unit-6);
 }
 
@@ -19,7 +19,7 @@
 .toolbarTitle {
   font-size: var(--app-unit-1-75);
   font-weight: 700;
-  color: var(--text-heading-color, var(--app-neutral-900));
+  color: var(--text-heading-color, var(--tpl-neutral-900));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

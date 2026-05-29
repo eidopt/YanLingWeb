@@ -4,8 +4,8 @@
   justify-content: center;
   flex: 0 0 auto;
   vertical-align: middle;
-  background: var(--app-color-danger, #e53e3e);
-  color: var(--app-neutral-0, #fff);
+  background: var(--tpl-color-danger, #e53e3e);
+  color: var(--tpl-neutral-0, #fff);
 }
 
 .badgeCorner {
@@ -36,21 +36,21 @@
 }
 
 .badgeNeutral {
-  background: var(--app-neutral-500, #737373);
+  background: var(--tpl-neutral-500, #737373);
 }
 
 .badgeSuccess {
-  background: var(--app-color-wechat, #07c160);
+  background: var(--tpl-color-wechat, #07c160);
 }
 
 .badgeWarning {
-  background: var(--app-color-orange, #ed6a0c);
+  background: var(--tpl-color-orange, #ed6a0c);
 }
 
 .badgeInfo {
-  background: var(--app-color-sky, #1890ff);
+  background: var(--tpl-color-sky, #1890ff);
 }
 
 .badgeDanger {
-  background: var(--app-color-danger, #e53e3e);
+  background: var(--tpl-color-danger, #e53e3e);
 }

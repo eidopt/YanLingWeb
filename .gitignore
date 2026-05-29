@@ -52,3 +52,7 @@ shared/openapi.json
 *.njsproj
 *.sln
 *.sw?
+
+# Superpowers 可视化 brainstorm 临时文件
+.superpowers/
+.playwright-mcp/

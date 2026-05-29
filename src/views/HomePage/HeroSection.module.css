@@ -8,9 +8,8 @@
   padding: calc(var(--app-unit-12) + var(--app-unit-7)) 7% var(--app-unit-10);
   overflow: hidden;
   background:
-    radial-gradient(ellipse 46% 42% at 82% 28%, rgba(34, 211, 238, 0.06), transparent 62%),
-    radial-gradient(ellipse 48% 44% at 42% 6%, rgba(139, 92, 246, 0.08), transparent 66%),
-    var(--app-gradient-hero),
+    radial-gradient(ellipse 46% 42% at 82% 28%, rgba(251, 146, 60, 0.03), transparent 62%),
+    radial-gradient(ellipse 48% 44% at 42% 6%, rgba(251, 146, 60, 0.04), transparent 66%), var(--app-gradient-hero),
     transparent;
   color: var(--app-text-primary);
 }
@@ -51,7 +50,7 @@
   border: var(--app-unit-0-125) solid color-mix(in srgb, var(--app-color-primary) 18%, transparent);
   border-radius: var(--app-radius-pill);
   background: color-mix(in srgb, var(--app-color-accent) 12%, transparent);
-  box-shadow: 0 0 var(--app-unit-1) rgba(34, 211, 238, 0.16);
+  box-shadow: 0 0 var(--app-unit-1) rgba(249, 115, 22, 0.16);
   color: var(--app-color-accent);
   font-size: var(--app-unit-1-5);
   font-weight: 700;
@@ -117,12 +116,8 @@
   padding: var(--app-unit-1-75);
   border: var(--app-unit-0-125) solid var(--app-border);
   border-radius: var(--app-unit-4);
-  background:
-    linear-gradient(180deg, rgba(13, 18, 32, 0.96), rgba(9, 13, 20, 0.9)),
-    var(--app-surface-1);
-  box-shadow:
-    var(--app-shadow-lg),
-    var(--app-shadow-glow-violet);
+  background: linear-gradient(180deg, rgba(13, 18, 32, 0.96), rgba(9, 13, 20, 0.9)), var(--app-surface-1);
+  box-shadow: var(--app-shadow-lg), var(--app-shadow-glow-violet);
   backdrop-filter: blur(var(--app-unit-2-5)) saturate(150%);
   overflow: hidden;
   animation: editorMockFloat 6s ease-in-out infinite;
@@ -160,9 +155,15 @@
   background: var(--app-border-strong);
 }
 
-.heroEditorDots span:nth-child(1) { background: var(--app-color-danger); }
-.heroEditorDots span:nth-child(2) { background: var(--app-color-warning); }
-.heroEditorDots span:nth-child(3) { background: var(--app-color-success); }
+.heroEditorDots span:nth-child(1) {
+  background: var(--app-color-danger);
+}
+.heroEditorDots span:nth-child(2) {
+  background: var(--app-color-warning);
+}
+.heroEditorDots span:nth-child(3) {
+  background: var(--app-color-success);
+}
 
 .heroEditorMode {
   display: inline-flex;
@@ -231,15 +232,25 @@
   animation: libraryPulse 5.4s ease-in-out infinite;
 }
 
-.heroLibraryCard:nth-of-type(2) { animation-delay: 0.35s; }
-.heroLibraryCard:nth-of-type(3) { animation-delay: 0.7s; }
-.heroLibraryCard:nth-of-type(4) { animation-delay: 1.05s; }
+.heroLibraryCard:nth-of-type(2) {
+  animation-delay: 0.35s;
+}
+.heroLibraryCard:nth-of-type(3) {
+  animation-delay: 0.7s;
+}
+.heroLibraryCard:nth-of-type(4) {
+  animation-delay: 1.05s;
+}
 
 .heroLibraryCard span {
   height: var(--app-unit-5);
   border-radius: var(--app-unit-1-25);
   background:
-    linear-gradient(135deg, color-mix(in srgb, var(--app-color-accent) 18%, transparent), color-mix(in srgb, var(--app-color-primary) 14%, transparent)),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--app-color-accent) 18%, transparent),
+      color-mix(in srgb, var(--app-color-primary) 14%, transparent)
+    ),
     var(--app-surface-1);
 }
 
@@ -320,8 +331,7 @@
   width: min(100%, var(--app-unit-36));
   padding: var(--app-unit-1-5);
   border-radius: var(--app-unit-2-5);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.035));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.035));
   box-shadow:
     0 var(--app-unit-2-5) var(--app-unit-6) var(--app-primary-alpha-02),
     inset 0 0 0 var(--app-unit-0-125) var(--app-border-subtle);
@@ -342,9 +352,7 @@
   gap: var(--app-unit-0-75);
   min-height: var(--app-unit-12);
   padding: var(--app-unit-1-5);
-  background:
-    linear-gradient(135deg, var(--app-color-primary), var(--app-color-accent)),
-    var(--app-color-primary);
+  background: linear-gradient(135deg, var(--app-color-primary), var(--app-color-accent)), var(--app-color-primary);
   animation: generatedHeroMorph 5.8s ease-in-out infinite;
 }
 
@@ -354,8 +362,13 @@
   background: var(--app-white-alpha-08);
 }
 
-.heroGeneratedBlock span:first-child { width: 58%; }
-.heroGeneratedBlock span:last-child  { width: 78%; opacity: 0.58; }
+.heroGeneratedBlock span:first-child {
+  width: 58%;
+}
+.heroGeneratedBlock span:last-child {
+  width: 78%;
+  opacity: 0.58;
+}
 
 .heroGeneratedCards {
   display: grid;
@@ -377,7 +390,9 @@
   animation-delay: 0.18s;
 }
 
-.heroGeneratedCards span:nth-child(3) { animation-delay: 0.36s; }
+.heroGeneratedCards span:nth-child(3) {
+  animation-delay: 0.36s;
+}
 
 .heroGeneratedCta {
   display: flex;
@@ -536,7 +551,9 @@
   animation: inspectorChange 5.8s ease-in-out infinite;
 }
 
-.heroInspectorField:nth-of-type(2) { animation-delay: 0.2s; }
+.heroInspectorField:nth-of-type(2) {
+  animation-delay: 0.2s;
+}
 
 .heroInspectorField span {
   font-size: var(--app-unit-1-25);
@@ -555,7 +572,11 @@
   border: var(--app-unit-0-125) solid color-mix(in srgb, var(--app-color-primary) 20%, transparent);
   border-radius: var(--app-unit-2);
   background:
-    linear-gradient(180deg, color-mix(in srgb, var(--app-color-primary) 8%, transparent), color-mix(in srgb, var(--app-color-accent) 7%, transparent)),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--app-color-primary) 8%, transparent),
+      color-mix(in srgb, var(--app-color-accent) 7%, transparent)
+    ),
     var(--app-surface-1);
   box-shadow: var(--app-shadow-sm);
   animation: chatDockPulse 5.8s ease-in-out infinite;
@@ -645,8 +666,12 @@
   animation: typingDot 1.2s ease-in-out infinite;
 }
 
-.heroTypingDots span:nth-child(2) { animation-delay: 0.16s; }
-.heroTypingDots span:nth-child(3) { animation-delay: 0.32s; }
+.heroTypingDots span:nth-child(2) {
+  animation-delay: 0.16s;
+}
+.heroTypingDots span:nth-child(3) {
+  animation-delay: 0.32s;
+}
 
 .heroStatusDock {
   display: grid;
@@ -686,8 +711,12 @@
   animation: statusProgress 5.8s ease-in-out infinite;
 }
 
-.heroStatusItem:nth-child(2)::before { animation-delay: 0.55s; }
-.heroStatusItem:nth-child(3)::before { animation-delay: 1.1s; }
+.heroStatusItem:nth-child(2)::before {
+  animation-delay: 0.55s;
+}
+.heroStatusItem:nth-child(3)::before {
+  animation-delay: 1.1s;
+}
 
 .heroStatusItem > span {
   position: relative;
@@ -699,8 +728,12 @@
   animation: statusDot 1.8s ease-in-out infinite;
 }
 
-.heroStatusItem:nth-child(2) > span { animation-delay: 0.28s; }
-.heroStatusItem:nth-child(3) > span { animation-delay: 0.56s; }
+.heroStatusItem:nth-child(2) > span {
+  animation-delay: 0.28s;
+}
+.heroStatusItem:nth-child(3) > span {
+  animation-delay: 0.56s;
+}
 
 .heroStatusItem strong,
 .heroStatusItem small {
@@ -720,100 +753,240 @@
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(var(--app-unit-3)); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(var(--app-unit-3));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes editorMockFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(calc(var(--app-unit-1) * -1)); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(calc(var(--app-unit-1) * -1));
+  }
 }
 
 @keyframes libraryPulse {
-  0%, 100% { border-color: var(--app-border-subtle); transform: translateY(0); }
-  46%, 56% { border-color: color-mix(in srgb, var(--app-color-primary) 30%, transparent); transform: translateY(calc(var(--app-unit-0-25) * -1)); }
+  0%,
+  100% {
+    border-color: var(--app-border-subtle);
+    transform: translateY(0);
+  }
+  46%,
+  56% {
+    border-color: color-mix(in srgb, var(--app-color-primary) 30%, transparent);
+    transform: translateY(calc(var(--app-unit-0-25) * -1));
+  }
 }
 
 @keyframes switchDevice {
-  0%, 42%, 100% { transform: translateX(0); }
-  55%, 78% { transform: translateX(var(--app-unit-3)); }
+  0%,
+  42%,
+  100% {
+    transform: translateX(0);
+  }
+  55%,
+  78% {
+    transform: translateX(var(--app-unit-3));
+  }
 }
 
 @keyframes generatedHeroMorph {
-  0%, 100% { min-height: var(--app-unit-12); }
-  50% { min-height: var(--app-unit-14); }
+  0%,
+  100% {
+    min-height: var(--app-unit-12);
+  }
+  50% {
+    min-height: var(--app-unit-14);
+  }
 }
 
 @keyframes cardBuild {
-  0%, 22% { opacity: 0.42; transform: translateY(var(--app-unit-0-75)) scale(0.96); }
-  42%, 100% { opacity: 1; transform: translateY(0) scale(1); }
+  0%,
+  22% {
+    opacity: 0.42;
+    transform: translateY(var(--app-unit-0-75)) scale(0.96);
+  }
+  42%,
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes cardReflow {
-  0%, 24% { opacity: 0.52; transform: translateY(var(--app-unit-0-75)) scale(0.96); }
-  46%, 62% { opacity: 1; transform: translateY(calc(var(--app-unit-1) * -1)) scale(1.04); }
-  80%, 100% { opacity: 1; transform: translateY(0) scale(1); }
+  0%,
+  24% {
+    opacity: 0.52;
+    transform: translateY(var(--app-unit-0-75)) scale(0.96);
+  }
+  46%,
+  62% {
+    opacity: 1;
+    transform: translateY(calc(var(--app-unit-1) * -1)) scale(1.04);
+  }
+  80%,
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes ctaReflow {
-  0%, 38% { transform: translateY(0); }
-  56%, 72% { transform: translateY(var(--app-unit-1)); }
-  88%, 100% { transform: translateY(0); }
+  0%,
+  38% {
+    transform: translateY(0);
+  }
+  56%,
+  72% {
+    transform: translateY(var(--app-unit-1));
+  }
+  88%,
+  100% {
+    transform: translateY(0);
+  }
 }
 
 @keyframes dragComponentIntoCanvas {
-  0%, 18% { opacity: 0; transform: translate3d(calc(var(--app-unit-2-5) * -1), var(--app-unit-0-75), 0) scale(0.88); }
-  28% { opacity: 1; transform: translate3d(var(--app-unit-2-5), var(--app-unit-3), 0) scale(0.96); }
-  48%, 62% { opacity: 1; transform: translate3d(var(--app-unit-16), var(--app-unit-16), 0) scale(1); }
-  80%, 100% { opacity: 0; transform: translate3d(var(--app-unit-16), var(--app-unit-16), 0) scale(0.94); }
+  0%,
+  18% {
+    opacity: 0;
+    transform: translate3d(calc(var(--app-unit-2-5) * -1), var(--app-unit-0-75), 0) scale(0.88);
+  }
+  28% {
+    opacity: 1;
+    transform: translate3d(var(--app-unit-2-5), var(--app-unit-3), 0) scale(0.96);
+  }
+  48%,
+  62% {
+    opacity: 1;
+    transform: translate3d(var(--app-unit-16), var(--app-unit-16), 0) scale(1);
+  }
+  80%,
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--app-unit-16), var(--app-unit-16), 0) scale(0.94);
+  }
 }
 
 @keyframes aiCursorEdit {
-  0%, 100% { transform: translate3d(0, 0, 0); }
-  28% { transform: translate3d(var(--app-unit-20), var(--app-unit-0-75), 0); }
-  58% { transform: translate3d(var(--app-unit-20), var(--app-unit-14), 0); }
-  78% { transform: translate3d(var(--app-unit-6), var(--app-unit-20), 0); }
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  28% {
+    transform: translate3d(var(--app-unit-20), var(--app-unit-0-75), 0);
+  }
+  58% {
+    transform: translate3d(var(--app-unit-20), var(--app-unit-14), 0);
+  }
+  78% {
+    transform: translate3d(var(--app-unit-6), var(--app-unit-20), 0);
+  }
 }
 
 @keyframes dropIndicatorMove {
-  0%, 100% { opacity: 0; transform: translateY(calc(var(--app-unit-0-75) * -1)); }
-  32%, 62% { opacity: 1; transform: translateY(0); }
-  78% { opacity: 0; transform: translateY(var(--app-unit-8)); }
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateY(calc(var(--app-unit-0-75) * -1));
+  }
+  32%,
+  62% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  78% {
+    opacity: 0;
+    transform: translateY(var(--app-unit-8));
+  }
 }
 
 @keyframes typingDot {
-  0%, 100% { opacity: 0.28; transform: translateY(0); }
-  50% { opacity: 1; transform: translateY(calc(var(--app-unit-0-375) * -1)); }
+  0%,
+  100% {
+    opacity: 0.28;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(calc(var(--app-unit-0-375) * -1));
+  }
 }
 
 @keyframes typingCaret {
-  0%, 45% { opacity: 1; }
-  46%, 100% { opacity: 0; }
+  0%,
+  45% {
+    opacity: 1;
+  }
+  46%,
+  100% {
+    opacity: 0;
+  }
 }
 
 @keyframes inputLineTyping {
-  0%, 100% { transform: scaleX(0.38); transform-origin: left; }
-  52% { transform: scaleX(1); transform-origin: left; }
+  0%,
+  100% {
+    transform: scaleX(0.38);
+    transform-origin: left;
+  }
+  52% {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
 }
 
 @keyframes inspectorChange {
-  0%, 100% { background: var(--app-surface-2); transform: translateX(0); }
-  44%, 56% { background: color-mix(in srgb, var(--app-color-primary) 8%, var(--app-surface-1)); transform: translateX(var(--app-unit-0-25)); }
+  0%,
+  100% {
+    background: var(--app-surface-2);
+    transform: translateX(0);
+  }
+  44%,
+  56% {
+    background: color-mix(in srgb, var(--app-color-primary) 8%, var(--app-surface-1));
+    transform: translateX(var(--app-unit-0-25));
+  }
 }
 
 @keyframes chatDockPulse {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(calc(var(--app-unit-0-375) * -1)); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(calc(var(--app-unit-0-375) * -1));
+  }
 }
 
 @keyframes statusProgress {
-  0%, 100% { transform: scaleX(0.32); opacity: 0.46; }
-  50% { transform: scaleX(0.86); opacity: 1; }
+  0%,
+  100% {
+    transform: scaleX(0.32);
+    opacity: 0.46;
+  }
+  50% {
+    transform: scaleX(0.86);
+    opacity: 1;
+  }
 }
 
 @keyframes statusDot {
-  0%, 100% { transform: scale(0.92); }
-  50% { transform: scale(1.12); }
+  0%,
+  100% {
+    transform: scale(0.92);
+  }
+  50% {
+    transform: scale(1.12);
+  }
 }
 
 @media (--app-viewport-desktop) {

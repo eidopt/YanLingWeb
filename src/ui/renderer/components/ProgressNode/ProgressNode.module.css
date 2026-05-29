@@ -14,7 +14,7 @@
 }
 
 .progressNeutral .fill {
-  background: var(--app-neutral-500);
+  background: var(--tpl-neutral-500);
 }
 
 .progressAccent .fill {
@@ -22,13 +22,13 @@
 }
 
 .progressSuccess .fill {
-  background: var(--app-color-wechat);
+  background: var(--tpl-color-wechat);
 }
 
 .progressWarning .fill {
-  background: var(--app-color-orange);
+  background: var(--tpl-color-orange);
 }
 
 .progressInfo .fill {
-  background: var(--app-color-sky);
+  background: var(--tpl-color-sky);
 }

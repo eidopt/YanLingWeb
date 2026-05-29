@@ -50,7 +50,7 @@
 }
 
 .text[data-variant='gradient-warm'] {
-  background: linear-gradient(135deg, #a78bfa 0%, #f472b6 50%, #fb923c 100%);
+  background: linear-gradient(135deg, #f43f5e 0%, #f472b6 50%, #fb923c 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -58,7 +58,7 @@
 }
 
 .text[data-variant='gradient-cool'] {
-  background: linear-gradient(135deg, #22d3ee 0%, #818cf8 50%, #a78bfa 100%);
+  background: linear-gradient(135deg, #fba94c 0%, #fb7185 50%, #f43f5e 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -67,7 +67,9 @@
 
 .text[data-variant='glow'] {
   color: var(--app-color-primary);
-  text-shadow: 0 0 var(--app-unit-2) rgba(139, 92, 246, 0.4), 0 0 var(--app-unit-4) rgba(139, 92, 246, 0.18);
+  text-shadow:
+    0 0 var(--app-unit-2) rgba(244, 63, 94, 0.4),
+    0 0 var(--app-unit-4) rgba(244, 63, 94, 0.18);
 }
 
 .text[data-variant='success'] {

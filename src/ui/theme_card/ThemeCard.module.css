@@ -44,24 +44,31 @@
 
 .cardPreview {
   position: relative;
-  padding: var(--app-unit-1-75);
+  padding: var(--app-unit-1-25);
   background:
-    radial-gradient(circle at 50% 0, color-mix(in srgb, var(--app-color-primary) 18%, transparent), transparent 56%),
-    radial-gradient(circle at 88% 18%, color-mix(in srgb, var(--app-color-accent) 12%, transparent), transparent 44%),
-    linear-gradient(180deg, var(--theme-card-preview-bg, var(--app-surface-2)), var(--theme-card-preview-bg-strong, var(--app-surface-1)));
+    radial-gradient(circle at 50% 0, color-mix(in srgb, var(--app-color-primary) 9%, transparent), transparent 56%),
+    radial-gradient(circle at 88% 18%, color-mix(in srgb, var(--app-color-accent) 7%, transparent), transparent 44%),
+    linear-gradient(
+      180deg,
+      var(--theme-card-preview-bg, var(--app-surface-2)),
+      var(--theme-card-preview-bg-strong, var(--app-surface-1))
+    );
   border-bottom: var(--app-unit-0-125) solid var(--theme-card-divider, var(--app-border-subtle));
 }
 
 .cardThumb {
   position: relative;
   width: 100%;
-  aspect-ratio: 22 / 39;
+  aspect-ratio: 4 / 5;
   overflow: hidden;
-  border-radius: var(--app-radius-xl);
-  background: rgba(9, 13, 20, 0.74);
+  border-radius: var(--app-radius-lg);
+  /* clip-path 可靠裁剪被 transform 缩放的子元素（仅 overflow:hidden 在部分浏览器
+     不会裁掉 transform 子元素的圆角，导致底部出现方角）。 */
+  clip-path: inset(0 round var(--app-radius-lg));
+  background: var(--app-surface-3);
   box-shadow:
     0 0 0 var(--app-unit-0-125) var(--app-border-subtle),
-    0 var(--app-unit-1-5) var(--app-unit-4) rgba(0, 0, 0, 0.34);
+    0 var(--app-unit-1) var(--app-unit-3) rgba(0, 0, 0, 0.2);
   container-type: inline-size;
 }
 
@@ -91,7 +98,7 @@
 
 .card:hover .cardOverlay {
   opacity: 1;
-  background: rgba(9, 13, 20, 0.38);
+  background: color-mix(in srgb, var(--app-color-ink) 42%, transparent);
 }
 
 .cardHoverLabel {

@@ -28,7 +28,7 @@ const LENS_SPEC_COMPLIANCE = [
   '  - categoryLabel / displayCategoryLabel / displayCategoryLabels',
   '  - functionalCategoryLabels / platformCategoryLabels',
   '  - tags / traits（用 brief 检查）',
-  '  - accent（用 cssVars["--color-primary"] 检查）',
+  '  - accent（用 cssVars["--accent"] 检查）',
   '',
   '## 必须检查的硬规则',
   '',
@@ -44,9 +44,14 @@ const LENS_SPEC_COMPLIANCE = [
   '   other）',
   '9. 用户可见文案全简体中文',
   '10. visualAssets 至少 1 项（如果模板包含 core.image 节点）',
+  '11. 主题色契约完整：cssVars 必须显式包含 --accent, --surface, --surface-muted,',
+  '    --text-heading-color, --text-body-color, --text-muted-color, --panel-bg,',
+  '    --panel-border, --border-color（缺任一为 error，渲染器不会回退平台色）',
   '',
   '## 必须检查的设计规则',
   '',
+  '- 不踩 AI 套路：没有「紫蓝渐变铺底 + 通体 glow + 居中卡片网格」的默认审美；',
+  '  主色按品类合理（不是默认紫蓝）；前景/背景对比满足可读性',
   '- archetype 真实落地（fresh 不能用毛玻璃卡，dark-pro 必须深色背景）',
   '- heroMode 真实落地（cover-story 必须有大图 hero，',
   '  metric-dashboard 必须有 progress / statistic）',
@@ -119,10 +124,6 @@ const LENS_BUSINESS_FIDELITY = [
 
 export function buildVerifierSystemPrompt(lens: VerifierLens): string {
   const tail =
-    lens === 'spec-compliance'
-      ? LENS_SPEC_COMPLIANCE
-      : lens === 'diversity'
-        ? LENS_DIVERSITY
-        : LENS_BUSINESS_FIDELITY;
+    lens === 'spec-compliance' ? LENS_SPEC_COMPLIANCE : lens === 'diversity' ? LENS_DIVERSITY : LENS_BUSINESS_FIDELITY;
   return TEMPLATE_PIPELINE_SHARED_SPEC + tail;
 }

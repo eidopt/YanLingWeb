@@ -1,0 +1,112 @@
+/*
+ * Renderer Theme-Color Contract
+ * =============================
+ * The dynamic renderer (core.* components) must NEVER resolve colors from the
+ * platform's `--app-*` brand tokens. Instead every color it reads is a contract
+ * variable that lives in this scope:
+ *   - `--tpl-*`  : the renderer's neutral base palette (decoupled safe defaults)
+ *   - semantic template vars (`--accent`, `--surface`, `--panel-*`, `--text-*-color`,
+ *     `--tag-*`, `--btn-*`) : what a generated template SHOULD provide via its cssVars.
+ *
+ * `.app-render-scope` is applied to the `core.screen` root element. A template's own
+ * cssVars are spread as inline styles on that SAME element, so they always win over
+ * these defaults. Incomplete / legacy templates fall back to this self-contained,
+ * brand-neutral baseline — they never leak the platform's Coral Sunset chrome.
+ *
+ * Defaults are a light neutral palette (white surfaces, dark ink) — this matches the
+ * historical renderer fallback behaviour (which assumed light content).
+ */
+
+.app-render-scope {
+  /* ---- Neutral base palette (decoupled from platform) ---- */
+  --tpl-neutral-0: #ffffff;
+  --tpl-neutral-50: #f8fafc;
+  --tpl-neutral-100: #f1f5f9;
+  --tpl-neutral-200: #e2e8f0;
+  --tpl-neutral-300: #cbd5e1;
+  --tpl-neutral-400: #94a3b8;
+  --tpl-neutral-500: #64748b;
+  --tpl-neutral-600: #475569;
+  --tpl-neutral-700: #334155;
+  --tpl-neutral-800: #1e293b;
+  --tpl-neutral-850: #111827;
+  --tpl-neutral-900: #0f172a;
+
+  /* ---- Surfaces & borders ---- */
+  --tpl-surface-1: #ffffff;
+  --tpl-surface-2: #f1f5f9;
+  --tpl-border: rgba(15, 23, 42, 0.14);
+  --tpl-border-color: rgba(15, 23, 42, 0.14);
+  --tpl-border-subtle: rgba(15, 23, 42, 0.08);
+
+  /* ---- Text ---- */
+  --tpl-text-primary: #1f2937;
+  --tpl-text-secondary: #475569;
+  --tpl-text-tertiary: #64748b;
+  --tpl-text-inverse: #ffffff;
+
+  /* ---- Accent & semantic ---- */
+  --tpl-color-accent: #f4476a;
+  --tpl-color-danger: #dc2626;
+  --tpl-error: #dc2626;
+  --tpl-color-success: #16a34a;
+  --tpl-success: #16a34a;
+  --tpl-color-success-bg: #f0fdf4;
+  --tpl-warning: #d97706;
+  --tpl-color-warning-bg: #fffbeb;
+  --tpl-info: #2563eb;
+  --tpl-color-info-bg: #eff6ff;
+  --tpl-color-black: #000000;
+  --tpl-color-orange: #f97316;
+  --tpl-color-sky: #0ea5e9;
+  --tpl-color-wechat: #07c160;
+
+  /* ---- Alpha helpers ---- */
+  --tpl-ink-alpha-02: rgba(15, 23, 42, 0.02);
+  --tpl-ink-alpha-08: rgba(15, 23, 42, 0.08);
+  --tpl-ink-alpha-10: rgba(15, 23, 42, 0.1);
+  --tpl-white-alpha-04: rgba(255, 255, 255, 0.04);
+  --tpl-white-alpha-80: rgba(255, 255, 255, 0.8);
+
+  /* ====================================================================
+   * Semantic template contract — defaults derived from the base palette.
+   * A generated template SHOULD override all of these via its own cssVars.
+   * ==================================================================== */
+  --accent: var(--tpl-color-accent);
+
+  --surface: var(--tpl-surface-1);
+  --surface-muted: var(--tpl-surface-2);
+
+  --panel-bg: var(--tpl-surface-1);
+  --panel-border: var(--tpl-border-subtle);
+  --panel-accent: color-mix(in srgb, var(--tpl-color-accent) 10%, transparent);
+  --panel-accent-border: color-mix(in srgb, var(--tpl-color-accent) 28%, transparent);
+
+  --text-base: var(--tpl-text-primary);
+  --text-heading-color: var(--tpl-text-primary);
+  --text-subheading-color: var(--tpl-neutral-700);
+  --text-body-color: var(--tpl-neutral-600);
+  --text-caption-color: var(--tpl-neutral-500);
+  --text-overline-color: var(--tpl-neutral-500);
+  --text-muted-color: var(--tpl-neutral-500);
+
+  --btn-pill-bg: var(--tpl-color-accent);
+  --btn-pill-color: var(--tpl-text-inverse);
+
+  /* ---- Tag tones ---- */
+  --tag-neutral-bg: var(--tpl-neutral-100);
+  --tag-neutral-color: var(--tpl-neutral-700);
+  --tag-hot-bg: #fee2e2;
+  --tag-hot-color: #b91c1c;
+  --tag-new-bg: #dcfce7;
+  --tag-new-color: #15803d;
+  --tag-deal-bg: #ffedd5;
+  --tag-info-bg: #dbeafe;
+  --tag-info-color: #1d4ed8;
+  --tag-member-bg: #fef3c7;
+  --tag-member-color: #b45309;
+  --tag-success-bg: #dcfce7;
+  --tag-success-color: #15803d;
+  --tag-warning-bg: #fef3c7;
+  --tag-warning-color: #b45309;
+}

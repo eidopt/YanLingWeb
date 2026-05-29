@@ -12,9 +12,9 @@
 }
 
 .starFilled {
-  color: var(--app-warning, #f59e0b);
+  color: var(--tpl-warning, #f59e0b);
 }
 
 .starEmpty {
-  color: var(--panel-border, var(--app-neutral-300));
+  color: var(--panel-border, var(--tpl-neutral-300));
 }

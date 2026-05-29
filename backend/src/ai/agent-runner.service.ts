@@ -217,6 +217,7 @@ export class AgentRunnerService {
           );
           const validation = validateThemeLayoutDocument(candidateDocument, {
             componentTemplates: args.componentTemplates,
+            requireThemeContract: true,
           });
           if (!validation.valid) {
             toolCall.error = 'Generated template failed validation';
@@ -260,7 +261,7 @@ export class AgentRunnerService {
       emit('done');
 
       const validation = finalDocument
-        ? validateThemeLayoutDocument(finalDocument)
+        ? validateThemeLayoutDocument(finalDocument, { requireThemeContract: true })
         : {
             valid: false,
             errors: [

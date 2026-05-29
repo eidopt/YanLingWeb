@@ -17,10 +17,10 @@
   max-width: min(var(--app-unit-36), calc(100vw - var(--app-unit-4)));
   padding: var(--app-unit-1) var(--app-unit-1-5);
   border-radius: var(--app-unit-1-25);
-  border: var(--app-unit-0-125) solid rgba(139, 92, 246, 0.16);
-  background: rgba(15, 23, 42, 0.92);
+  border: var(--app-unit-0-125) solid var(--app-border);
+  background: var(--app-surface-glass-strong);
   color: var(--app-text-primary);
-  box-shadow: var(--app-shadow-lg), var(--app-shadow-glow-violet);
+  box-shadow: var(--app-shadow-lg);
   font-size: var(--app-font-size-sm);
   line-height: 1.45;
   text-align: center;

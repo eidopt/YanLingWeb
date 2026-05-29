@@ -2,6 +2,5 @@
   width: 100%;
   margin: var(--app-unit-1) 0;
   border: 0;
-  border-top: var(--app-unit-0-125) solid var(--panel-border, var(--app-border));
+  border-top: var(--app-unit-0-125) solid var(--panel-border, var(--tpl-border));
 }
-

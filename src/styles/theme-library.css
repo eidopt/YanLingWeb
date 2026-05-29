@@ -135,119 +135,188 @@
   --app-motion-smooth: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* Theme transition */
-  --app-theme-transition: background 0.4s var(--app-motion-smooth), color 0.3s var(--app-motion-smooth), border-color 0.3s var(--app-motion-smooth), box-shadow 0.3s var(--app-motion-smooth);
+  --app-theme-transition:
+    background 0.4s var(--app-motion-smooth), color 0.3s var(--app-motion-smooth),
+    border-color 0.3s var(--app-motion-smooth), box-shadow 0.3s var(--app-motion-smooth);
 }
 
-/* ===== Dark Theme (default) — Neon Craft ===== */
+/* ===== Dark Theme (default) — Coral Sunset ===== */
 :root {
   color-scheme: dark;
 
-  /* Neon Craft theme */
-  --app-color-ink: #090d14;
-  --app-color-primary: #8b5cf6;
-  --app-color-primary-strong: #a78bfa;
-  --app-color-secondary: #6366f1;
-  --app-color-accent: #22d3ee;
-  --app-color-accent-strong: #67e8f9;
+  /* Coral Sunset theme */
+  --app-color-ink: #1a1714;
+  --app-color-primary: #fb7185;
+  --app-color-primary-strong: #f43f5e;
+  --app-color-secondary: #fb923c;
+  --app-color-accent: #fba94c;
+  --app-color-accent-strong: #fbbf24;
   --app-color-warning: #fbbf24;
-  --app-color-danger: #fb7185;
+  --app-color-danger: #f87171;
   --app-color-success: #34d399;
-  --app-color-info: #22d3ee;
-  --app-brand-gradient: linear-gradient(135deg, #7c3aed 0%, #6366f1 34%, #4f6ef7 66%, #3b82f6 100%);
-  --app-brand-gradient-hover: linear-gradient(135deg, #8b5cf6 0%, #7c6ff7 34%, #6180f8 66%, #5094f7 100%);
-  --app-gradient-hero: linear-gradient(180deg, rgba(124, 58, 237, 0.12) 0%, rgba(99, 102, 241, 0.06) 32%, rgba(9, 13, 20, 0) 72%);
-  --app-gradient-card-glow: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(34, 211, 238, 0.05) 50%, rgba(251, 113, 133, 0.04) 100%);
+  --app-color-info: #fba94c;
+  --app-brand-gradient: linear-gradient(135deg, #f43f5e 0%, #fb7185 38%, #fb923c 70%, #fba94c 100%);
+  --app-brand-gradient-hover: linear-gradient(135deg, #fb5168 0%, #fb8597 38%, #fba05a 70%, #fcb95f 100%);
+  --app-gradient-hero: linear-gradient(
+    180deg,
+    rgba(251, 146, 60, 0.05) 0%,
+    rgba(251, 146, 60, 0.025) 34%,
+    rgba(26, 23, 20, 0) 72%
+  );
+  --app-gradient-card-glow: linear-gradient(
+    135deg,
+    rgba(251, 146, 60, 0.05) 0%,
+    rgba(249, 115, 22, 0.035) 50%,
+    rgba(251, 169, 76, 0.025) 100%
+  );
 
-  --app-bg: #090d14;
-  --app-bg-quiet: #090d14;
-  --app-bg-elevated: rgba(13, 18, 32, 0.76);
-  --app-surface-1: rgba(255, 255, 255, 0.055);
-  --app-surface-2: rgba(255, 255, 255, 0.075);
+  --app-bg: #1a1714;
+  --app-bg-quiet: #161310;
+  --app-bg-elevated: rgba(34, 29, 25, 0.78);
+  --app-surface-1: rgba(255, 255, 255, 0.05);
+  --app-surface-2: rgba(255, 255, 255, 0.07);
   --app-surface-3: rgba(255, 255, 255, 0.1);
-  --app-surface-inverse: #ede8f5;
-  --app-surface-glass: rgba(255, 255, 255, 0.07);
-  --app-surface-glass-strong: rgba(13, 18, 32, 0.88);
+  --app-surface-inverse: #f3e9e4;
+  --app-surface-glass: rgba(255, 255, 255, 0.06);
+  --app-surface-glass-strong: rgba(26, 23, 20, 0.88);
   --app-surface-inverse-soft: rgba(255, 255, 255, 0.08);
   --app-surface-inverse-strong: rgba(255, 255, 255, 0.14);
-  --app-modal-backdrop: rgba(3, 6, 12, 0.66);
-  --app-modal-surface: rgba(13, 18, 32, 0.96);
-  --app-modal-surface-muted: rgba(20, 27, 45, 0.98);
-  --app-modal-border: rgba(237, 232, 245, 0.18);
-  --app-editor-bg: #070b12;
-  --app-editor-panel: #0d1220;
-  --app-editor-panel-raised: #11182a;
-  --app-editor-panel-soft: rgba(17, 24, 42, 0.86);
-  --app-editor-border: rgba(168, 174, 200, 0.18);
-  --app-editor-border-strong: rgba(139, 92, 246, 0.32);
-  --app-border-subtle: rgba(255, 255, 255, 0.09);
-  --app-border: rgba(255, 255, 255, 0.16);
-  --app-border-strong: rgba(255, 255, 255, 0.26);
-  --app-border-inverse-subtle: rgba(9, 13, 20, 0.12);
-  --app-border-inverse: rgba(9, 13, 20, 0.22);
+  --app-modal-backdrop: rgba(12, 9, 7, 0.66);
+  --app-modal-surface: rgba(34, 29, 25, 0.96);
+  --app-modal-surface-muted: rgba(43, 36, 31, 0.98);
+  --app-modal-border: rgba(243, 233, 228, 0.18);
+  --app-editor-bg: #151210;
+  --app-editor-panel: #1f1a16;
+  --app-editor-panel-raised: #261f1a;
+  --app-editor-panel-soft: rgba(31, 26, 22, 0.86);
+  --app-editor-border: rgba(200, 184, 176, 0.18);
+  --app-editor-border-strong: rgba(244, 63, 94, 0.32);
+  --app-border-subtle: rgba(243, 233, 228, 0.08);
+  --app-border: rgba(243, 233, 228, 0.14);
+  --app-border-strong: rgba(243, 233, 228, 0.24);
+  --app-border-inverse-subtle: rgba(26, 23, 20, 0.12);
+  --app-border-inverse: rgba(26, 23, 20, 0.22);
 
-  --app-text-primary: #ede8f5;
-  --app-text-secondary: #a8aec8;
-  --app-text-muted: #858ca8;
-  --app-text-faint: #6c728a;
+  --app-text-primary: #f3e9e4;
+  --app-text-secondary: #c9b8b0;
+  --app-text-muted: #9c8b83;
+  --app-text-faint: #7a6b64;
   --app-text-inverse: #ffffff;
-  --app-text-inverse-muted: rgba(237, 232, 245, 0.76);
-  --app-text-inverse-faint: rgba(237, 232, 245, 0.62);
+  --app-text-inverse-muted: rgba(243, 233, 228, 0.76);
+  --app-text-inverse-faint: rgba(243, 233, 228, 0.62);
 
-  --app-color-danger-strong: #f43f5e;
+  --app-color-danger-strong: #dc2626;
   --app-color-warning-strong: #f59e0b;
   --app-color-warning-ink: #2a1a02;
-  --app-color-danger-border: rgba(251, 113, 133, 0.34);
-  --app-color-danger-bg: rgba(251, 113, 133, 0.12);
+  --app-color-danger-border: rgba(248, 113, 113, 0.34);
+  --app-color-danger-bg: rgba(248, 113, 113, 0.12);
   --app-color-warning-bg: rgba(251, 191, 36, 0.12);
   --app-color-success-bg: rgba(52, 211, 153, 0.12);
-  --app-color-info-bg: rgba(34, 211, 238, 0.12);
-  --app-color-primary-bg: rgba(139, 92, 246, 0.12);
-  --app-color-primary-bg-strong: rgba(99, 102, 241, 0.16);
-  --app-color-section-dark-1: #090d14;
-  --app-color-section-dark-2: #0d1220;
-  --app-color-section-dark-3: #10182b;
+  --app-color-info-bg: rgba(251, 169, 76, 0.12);
+  --app-color-primary-bg: rgba(244, 63, 94, 0.12);
+  --app-color-primary-bg-strong: rgba(249, 115, 22, 0.16);
+  --app-color-section-dark-1: #1a1714;
+  --app-color-section-dark-2: #1f1a16;
+  --app-color-section-dark-3: #261f1a;
 
-  --app-primary-alpha-00: rgba(139, 92, 246, 0);
-  --app-primary-alpha-02: rgba(139, 92, 246, 0.02);
-  --app-primary-alpha-04: rgba(139, 92, 246, 0.04);
-  --app-primary-alpha-05: rgba(139, 92, 246, 0.05);
-  --app-primary-alpha-08: rgba(139, 92, 246, 0.08);
-  --app-primary-alpha-10: rgba(139, 92, 246, 0.1);
-  --app-primary-alpha-12: rgba(139, 92, 246, 0.12);
-  --app-primary-alpha-16: rgba(139, 92, 246, 0.16);
-  --app-primary-alpha-18: rgba(139, 92, 246, 0.18);
-  --app-primary-alpha-20: rgba(139, 92, 246, 0.2);
-  --app-primary-alpha-24: rgba(139, 92, 246, 0.24);
-  --app-primary-alpha-30: rgba(139, 92, 246, 0.3);
-  --app-primary-alpha-50: rgba(139, 92, 246, 0.5);
-  --app-primary-alpha-70: rgba(139, 92, 246, 0.7);
-  --app-primary-alpha-75: rgba(139, 92, 246, 0.75);
-  --app-primary-alpha-80: rgba(139, 92, 246, 0.8);
-  --app-primary-alpha-85: rgba(139, 92, 246, 0.85);
-  --app-primary-alpha-90: rgba(139, 92, 246, 0.9);
-  --app-primary-alpha-95: rgba(139, 92, 246, 0.95);
-  --app-accent-alpha-00: rgba(34, 211, 238, 0);
-  --app-accent-alpha-02: rgba(34, 211, 238, 0.02);
-  --app-accent-alpha-04: rgba(34, 211, 238, 0.04);
-  --app-accent-alpha-05: rgba(34, 211, 238, 0.05);
-  --app-accent-alpha-08: rgba(34, 211, 238, 0.08);
-  --app-accent-alpha-10: rgba(34, 211, 238, 0.1);
-  --app-accent-alpha-12: rgba(34, 211, 238, 0.12);
-  --app-accent-alpha-16: rgba(34, 211, 238, 0.16);
-  --app-accent-alpha-18: rgba(34, 211, 238, 0.18);
-  --app-accent-alpha-20: rgba(34, 211, 238, 0.2);
-  --app-accent-alpha-24: rgba(34, 211, 238, 0.24);
-  --app-accent-alpha-30: rgba(34, 211, 238, 0.3);
-  --app-accent-alpha-50: rgba(34, 211, 238, 0.5);
-  --app-accent-alpha-70: rgba(34, 211, 238, 0.7);
-  --app-accent-alpha-75: rgba(34, 211, 238, 0.75);
-  --app-accent-alpha-80: rgba(34, 211, 238, 0.8);
-  --app-accent-alpha-85: rgba(34, 211, 238, 0.85);
-  --app-accent-alpha-90: rgba(34, 211, 238, 0.9);
-  --app-accent-alpha-95: rgba(34, 211, 238, 0.95);
+  /* 扩展分类色（绝对色，明暗一致；此前仅亮色定义，补齐避免暗色 undefined） */
+  --app-color-black: #000000;
+  --app-color-indigo: #fb7185;
+  --app-color-violet: #fb923c;
+  --app-color-rose: #f43f5e;
+  --app-color-pink: #ec4899;
+  --app-color-orange: #f97316;
+  --app-color-amber: #f59e0b;
+  --app-color-yellow: #fbbf24;
+  --app-color-teal: #14b8a6;
+  --app-color-sky: #0ea5e9;
+  --app-color-wechat: #07c160;
 
-  --app-font-display: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif;
-  --app-font-sans: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif;
+  /* 中性 alpha 叠层（绝对色；此前仅亮色定义，补齐避免暗色 undefined） */
+  --app-white-alpha-00: rgba(255, 255, 255, 0);
+  --app-white-alpha-02: rgba(255, 255, 255, 0.02);
+  --app-white-alpha-04: rgba(255, 255, 255, 0.04);
+  --app-white-alpha-05: rgba(255, 255, 255, 0.05);
+  --app-white-alpha-08: rgba(255, 255, 255, 0.08);
+  --app-white-alpha-10: rgba(255, 255, 255, 0.1);
+  --app-white-alpha-12: rgba(255, 255, 255, 0.12);
+  --app-white-alpha-16: rgba(255, 255, 255, 0.16);
+  --app-white-alpha-18: rgba(255, 255, 255, 0.18);
+  --app-white-alpha-20: rgba(255, 255, 255, 0.2);
+  --app-white-alpha-24: rgba(255, 255, 255, 0.24);
+  --app-white-alpha-30: rgba(255, 255, 255, 0.3);
+  --app-white-alpha-50: rgba(255, 255, 255, 0.5);
+  --app-white-alpha-70: rgba(255, 255, 255, 0.7);
+  --app-white-alpha-75: rgba(255, 255, 255, 0.75);
+  --app-white-alpha-80: rgba(255, 255, 255, 0.8);
+  --app-white-alpha-85: rgba(255, 255, 255, 0.85);
+  --app-white-alpha-90: rgba(255, 255, 255, 0.9);
+  --app-white-alpha-95: rgba(255, 255, 255, 0.95);
+  --app-black-alpha-00: rgba(0, 0, 0, 0);
+  --app-black-alpha-02: rgba(0, 0, 0, 0.02);
+  --app-black-alpha-04: rgba(0, 0, 0, 0.04);
+  --app-black-alpha-05: rgba(0, 0, 0, 0.05);
+  --app-black-alpha-08: rgba(0, 0, 0, 0.08);
+  --app-black-alpha-10: rgba(0, 0, 0, 0.1);
+  --app-black-alpha-12: rgba(0, 0, 0, 0.12);
+  --app-black-alpha-16: rgba(0, 0, 0, 0.16);
+  --app-black-alpha-18: rgba(0, 0, 0, 0.18);
+  --app-black-alpha-20: rgba(0, 0, 0, 0.2);
+  --app-black-alpha-24: rgba(0, 0, 0, 0.24);
+  --app-black-alpha-30: rgba(0, 0, 0, 0.3);
+  --app-black-alpha-50: rgba(0, 0, 0, 0.5);
+  --app-black-alpha-70: rgba(0, 0, 0, 0.7);
+  --app-black-alpha-75: rgba(0, 0, 0, 0.75);
+  --app-black-alpha-80: rgba(0, 0, 0, 0.8);
+  --app-black-alpha-85: rgba(0, 0, 0, 0.85);
+  --app-black-alpha-90: rgba(0, 0, 0, 0.9);
+  --app-black-alpha-95: rgba(0, 0, 0, 0.95);
+
+  --app-primary-alpha-00: rgba(244, 63, 94, 0);
+  --app-primary-alpha-02: rgba(244, 63, 94, 0.02);
+  --app-primary-alpha-04: rgba(244, 63, 94, 0.04);
+  --app-primary-alpha-05: rgba(244, 63, 94, 0.05);
+  --app-primary-alpha-08: rgba(244, 63, 94, 0.08);
+  --app-primary-alpha-10: rgba(244, 63, 94, 0.1);
+  --app-primary-alpha-12: rgba(244, 63, 94, 0.12);
+  --app-primary-alpha-16: rgba(244, 63, 94, 0.16);
+  --app-primary-alpha-18: rgba(244, 63, 94, 0.18);
+  --app-primary-alpha-20: rgba(244, 63, 94, 0.2);
+  --app-primary-alpha-24: rgba(244, 63, 94, 0.24);
+  --app-primary-alpha-30: rgba(244, 63, 94, 0.3);
+  --app-primary-alpha-50: rgba(244, 63, 94, 0.5);
+  --app-primary-alpha-70: rgba(244, 63, 94, 0.7);
+  --app-primary-alpha-75: rgba(244, 63, 94, 0.75);
+  --app-primary-alpha-80: rgba(244, 63, 94, 0.8);
+  --app-primary-alpha-85: rgba(244, 63, 94, 0.85);
+  --app-primary-alpha-90: rgba(244, 63, 94, 0.9);
+  --app-primary-alpha-95: rgba(244, 63, 94, 0.95);
+  --app-accent-alpha-00: rgba(249, 115, 22, 0);
+  --app-accent-alpha-02: rgba(249, 115, 22, 0.02);
+  --app-accent-alpha-04: rgba(249, 115, 22, 0.04);
+  --app-accent-alpha-05: rgba(249, 115, 22, 0.05);
+  --app-accent-alpha-08: rgba(249, 115, 22, 0.08);
+  --app-accent-alpha-10: rgba(249, 115, 22, 0.1);
+  --app-accent-alpha-12: rgba(249, 115, 22, 0.12);
+  --app-accent-alpha-16: rgba(249, 115, 22, 0.16);
+  --app-accent-alpha-18: rgba(249, 115, 22, 0.18);
+  --app-accent-alpha-20: rgba(249, 115, 22, 0.2);
+  --app-accent-alpha-24: rgba(249, 115, 22, 0.24);
+  --app-accent-alpha-30: rgba(249, 115, 22, 0.3);
+  --app-accent-alpha-50: rgba(249, 115, 22, 0.5);
+  --app-accent-alpha-70: rgba(249, 115, 22, 0.7);
+  --app-accent-alpha-75: rgba(249, 115, 22, 0.75);
+  --app-accent-alpha-80: rgba(249, 115, 22, 0.8);
+  --app-accent-alpha-85: rgba(249, 115, 22, 0.85);
+  --app-accent-alpha-90: rgba(249, 115, 22, 0.9);
+  --app-accent-alpha-95: rgba(249, 115, 22, 0.95);
+
+  --app-font-display:
+    var(--font-jakarta), 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Segoe UI', sans-serif;
+  --app-font-sans:
+    var(--font-jakarta), 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Segoe UI', sans-serif;
   --app-font-weight-medium: 600;
   --app-font-weight-bold: 700;
   --app-font-weight-heavy: 800;
@@ -257,13 +326,13 @@
   --app-shadow-sm: 0 var(--app-unit-0-75) var(--app-unit-2-5) rgba(0, 0, 0, 0.34);
   --app-shadow-md: 0 var(--app-unit-2) var(--app-unit-5) rgba(0, 0, 0, 0.42);
   --app-shadow-lg: 0 var(--app-unit-3) var(--app-unit-8) rgba(0, 0, 0, 0.5);
-  --app-shadow-brand-sm: 0 0 var(--app-unit-3) rgba(139, 92, 246, 0.18);
-  --app-shadow-brand-md: 0 var(--app-unit-1) var(--app-unit-3) rgba(139, 92, 246, 0.3);
-  --app-shadow-brand-lg: 0 var(--app-unit-1-5) var(--app-unit-5) rgba(139, 92, 246, 0.42);
-  --app-shadow-glow-violet: 0 0 var(--app-unit-4) rgba(139, 92, 246, 0.25), 0 0 var(--app-unit-8) rgba(139, 92, 246, 0.1);
-  --app-shadow-glow-cyan: 0 0 var(--app-unit-4) rgba(34, 211, 238, 0.2), 0 0 var(--app-unit-8) rgba(34, 211, 238, 0.08);
-  --app-shadow-focus: 0 0 0 var(--app-line-focus) rgba(139, 92, 246, 0.24);
-  --app-focus-ring: #8b5cf6;
+  --app-shadow-brand-sm: 0 0 var(--app-unit-3) rgba(244, 63, 94, 0.18);
+  --app-shadow-brand-md: 0 var(--app-unit-1) var(--app-unit-3) rgba(244, 63, 94, 0.3);
+  --app-shadow-brand-lg: 0 var(--app-unit-1-5) var(--app-unit-5) rgba(244, 63, 94, 0.42);
+  --app-shadow-glow-violet: 0 0 var(--app-unit-4) rgba(244, 63, 94, 0.25), 0 0 var(--app-unit-8) rgba(244, 63, 94, 0.1);
+  --app-shadow-glow-cyan: 0 0 var(--app-unit-4) rgba(249, 115, 22, 0.2), 0 0 var(--app-unit-8) rgba(249, 115, 22, 0.08);
+  --app-shadow-focus: 0 0 0 var(--app-line-focus) rgba(244, 63, 94, 0.24);
+  --app-focus-ring: #fb7185;
   --app-motion-fast: 150ms;
   --app-motion-base: 300ms;
   --app-motion-slow: 500ms;
@@ -274,7 +343,7 @@
   --color-border: var(--app-border);
   --color-hover: rgba(255, 255, 255, 0.06);
   --color-accent: var(--app-color-primary);
-  --color-accent-soft: rgba(139, 92, 246, 0.12);
+  --color-accent-soft: rgba(244, 63, 94, 0.12);
   --color-text: var(--app-text-primary);
   --color-text-secondary: var(--app-text-secondary);
 
@@ -296,47 +365,87 @@
   --c-slate: var(--app-text-muted);
 
   --theme-card-radius: var(--app-radius-2xl);
-  --theme-card-bg: rgba(13, 18, 32, 0.78);
-  --theme-card-preview-bg: rgba(13, 18, 32, 0.9);
-  --theme-card-preview-bg-strong: rgba(26, 35, 58, 0.9);
-  --theme-card-meta-bg: rgba(13, 18, 32, 0.88);
+  --theme-card-bg: rgba(34, 29, 25, 0.78);
+  --theme-card-preview-bg: rgba(31, 26, 22, 0.9);
+  --theme-card-preview-bg-strong: rgba(43, 36, 31, 0.9);
+  --theme-card-meta-bg: rgba(34, 29, 25, 0.88);
   --theme-card-divider: var(--app-border-subtle);
   --theme-card-shadow: none;
   --theme-card-border: var(--app-border-subtle);
-  --theme-card-hover-border: rgba(139, 92, 246, 0.34);
+  --theme-card-hover-border: rgba(244, 63, 94, 0.34);
   --theme-card-hover-shadow: var(--app-shadow-glow-violet);
   --theme-card-name: var(--app-text-primary);
   --theme-card-tagline: var(--app-text-secondary);
 
   /* === Gradient System === */
-  --app-gradient-hero: linear-gradient(180deg, rgba(124, 58, 237, 0.14) 0%, rgba(99, 102, 241, 0.08) 28%, rgba(34, 211, 238, 0.04) 56%, rgba(9, 13, 20, 0) 82%);
-  --app-gradient-card-1: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(34, 211, 238, 0.06) 50%, transparent 100%);
-  --app-gradient-card-2: linear-gradient(135deg, rgba(251, 113, 133, 0.06) 0%, rgba(139, 92, 246, 0.08) 50%, rgba(34, 211, 238, 0.04) 100%);
-  --app-gradient-section: linear-gradient(180deg, rgba(139, 92, 246, 0.04) 0%, transparent 40%, transparent 60%, rgba(34, 211, 238, 0.04) 100%);
-  --app-gradient-divider: linear-gradient(90deg, transparent 0%, rgba(139, 92, 246, 0.36) 20%, rgba(99, 102, 241, 0.4) 50%, rgba(34, 211, 238, 0.32) 80%, transparent 100%);
-  --app-gradient-border: linear-gradient(135deg, rgba(139, 92, 246, 0.5) 0%, rgba(99, 102, 241, 0.4) 34%, rgba(34, 211, 238, 0.45) 66%, rgba(139, 92, 246, 0.5) 100%);
+  --app-gradient-hero: linear-gradient(
+    180deg,
+    rgba(251, 146, 60, 0.04) 0%,
+    rgba(251, 146, 60, 0.02) 32%,
+    rgba(26, 23, 20, 0) 70%
+  );
+  --app-gradient-card-1: linear-gradient(
+    135deg,
+    rgba(244, 63, 94, 0.08) 0%,
+    rgba(249, 115, 22, 0.06) 50%,
+    transparent 100%
+  );
+  --app-gradient-card-2: linear-gradient(
+    135deg,
+    rgba(251, 113, 133, 0.06) 0%,
+    rgba(244, 63, 94, 0.08) 50%,
+    rgba(249, 115, 22, 0.04) 100%
+  );
+  --app-gradient-section: linear-gradient(
+    180deg,
+    rgba(244, 63, 94, 0.04) 0%,
+    transparent 40%,
+    transparent 60%,
+    rgba(249, 115, 22, 0.04) 100%
+  );
+  --app-gradient-divider: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(244, 63, 94, 0.36) 20%,
+    rgba(251, 113, 133, 0.4) 50%,
+    rgba(249, 115, 22, 0.32) 80%,
+    transparent 100%
+  );
+  --app-gradient-border: linear-gradient(
+    135deg,
+    rgba(244, 63, 94, 0.5) 0%,
+    rgba(251, 113, 133, 0.4) 34%,
+    rgba(249, 115, 22, 0.45) 66%,
+    rgba(244, 63, 94, 0.5) 100%
+  );
 
   /* === Glassmorphism Tokens === */
   --app-glass-blur: 16px;
   --app-glass-saturate: 160%;
   --app-color-glass: rgba(255, 255, 255, 0.06);
-  --app-surface-elevated: rgba(20, 27, 45, 0.7);
+  --app-surface-elevated: rgba(38, 31, 26, 0.7);
 
   /* === Decorative Tokens === */
   --app-decoration-gradient: linear-gradient(135deg, var(--app-color-primary), var(--app-color-accent));
   --app-decoration-dot-size: var(--app-unit-0-5);
-  --app-decoration-dot-color: rgba(139, 92, 246, 0.3);
+  --app-decoration-dot-color: rgba(244, 63, 94, 0.3);
 
   /* === Shadow/Glow System === */
-  --app-shadow-glow-cyan: 0 0 var(--app-unit-4) rgba(34, 211, 238, 0.2), 0 0 var(--app-unit-8) rgba(34, 211, 238, 0.08);
-  --app-shadow-glow-rose: 0 0 var(--app-unit-4) rgba(251, 113, 133, 0.18), 0 0 var(--app-unit-8) rgba(251, 113, 133, 0.06);
-  --app-shadow-float: 0 var(--app-unit-2) var(--app-unit-6) rgba(0, 0, 0, 0.5), 0 var(--app-unit-4) var(--app-unit-12) rgba(0, 0, 0, 0.3);
+  --app-shadow-glow-cyan: 0 0 var(--app-unit-4) rgba(249, 115, 22, 0.2), 0 0 var(--app-unit-8) rgba(249, 115, 22, 0.08);
+  --app-shadow-glow-rose:
+    0 0 var(--app-unit-4) rgba(251, 113, 133, 0.18), 0 0 var(--app-unit-8) rgba(251, 113, 133, 0.06);
+  --app-shadow-float:
+    0 var(--app-unit-2) var(--app-unit-6) rgba(0, 0, 0, 0.5), 0 var(--app-unit-4) var(--app-unit-12) rgba(0, 0, 0, 0.3);
   --app-shadow-inset: inset 0 var(--app-unit-0-25) var(--app-unit-0-75) rgba(0, 0, 0, 0.35);
-  --app-shadow-glow-primary: 0 0 var(--app-unit-5) rgba(139, 92, 246, 0.28), 0 0 var(--app-unit-10) rgba(139, 92, 246, 0.12);
-  --app-shadow-glow-accent: 0 0 var(--app-unit-5) rgba(34, 211, 238, 0.22), 0 0 var(--app-unit-10) rgba(34, 211, 238, 0.08);
+  --app-shadow-glow-primary:
+    0 0 var(--app-unit-5) rgba(244, 63, 94, 0.28), 0 0 var(--app-unit-10) rgba(244, 63, 94, 0.12);
+  --app-shadow-glow-accent:
+    0 0 var(--app-unit-5) rgba(249, 115, 22, 0.22), 0 0 var(--app-unit-10) rgba(249, 115, 22, 0.08);
 
   /* === Typography Tokens === */
-  --app-font-display: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif;
+  --app-font-display:
+    var(--font-jakarta), 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Segoe UI', sans-serif;
   --app-font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
 
   /* === Section Dark Overrides === */
@@ -352,19 +461,19 @@
   color-scheme: light;
 
   /* Brand colors */
-  --app-color-ink: #0f172a;
-  --app-color-primary: #7c3aed;
-  --app-color-primary-strong: #6d28d9;
-  --app-color-secondary: #6366f1;
-  --app-color-accent: #06b6d4;
-  --app-color-accent-strong: #0891b2;
+  --app-color-ink: #241418;
+  --app-color-primary: #f43f5e;
+  --app-color-primary-strong: #e11d48;
+  --app-color-secondary: #fb923c;
+  --app-color-accent: #f97316;
+  --app-color-accent-strong: #ea580c;
   --app-color-warning: #f59e0b;
-  --app-color-danger: #ef4444;
+  --app-color-danger: #dc2626;
   --app-color-success: #10b981;
-  --app-color-info: #06b6d4;
+  --app-color-info: #f97316;
   --app-color-black: #000000;
-  --app-color-indigo: #6366f1;
-  --app-color-violet: #8b5cf6;
+  --app-color-indigo: #fb7185;
+  --app-color-violet: #fb923c;
   --app-color-rose: #f43f5e;
   --app-color-pink: #ec4899;
   --app-color-orange: #f97316;
@@ -373,80 +482,80 @@
   --app-color-teal: #14b8a6;
   --app-color-sky: #0ea5e9;
   --app-color-wechat: #07c160;
-  --app-brand-gradient: linear-gradient(135deg, #7c3aed 0%, #6366f1 34%, #4f6ef7 66%, #3b82f6 100%);
-  --app-brand-gradient-hover: linear-gradient(135deg, #8b5cf6 0%, #7c6ff7 34%, #6180f8 66%, #5094f7 100%);
+  --app-brand-gradient: linear-gradient(135deg, #f43f5e 0%, #fb7185 38%, #fb923c 70%, #fba94c 100%);
+  --app-brand-gradient-hover: linear-gradient(135deg, #e11d48 0%, #f43f5e 38%, #f97316 70%, #fb923c 100%);
 
   /* Backgrounds */
-  --app-bg: #f1f5f9;
-  --app-bg-quiet: #f8fafc;
+  --app-bg: #fffbf8;
+  --app-bg-quiet: #fff7f1;
   --app-bg-elevated: #ffffff;
   --app-surface-1: #ffffff;
-  --app-surface-2: #f1f5f9;
-  --app-surface-3: #e2e8f0;
-  --app-surface-inverse: #0f172a;
-  --app-surface-glass: rgba(255, 255, 255, 0.76);
-  --app-surface-glass-strong: rgba(255, 255, 255, 0.94);
-  --app-surface-inverse-soft: rgba(15, 23, 42, 0.06);
-  --app-surface-inverse-strong: rgba(15, 23, 42, 0.12);
+  --app-surface-2: #fdf1ea;
+  --app-surface-3: #f9e4d9;
+  --app-surface-inverse: #241418;
+  --app-surface-glass: rgba(255, 251, 248, 0.76);
+  --app-surface-glass-strong: rgba(255, 251, 248, 0.94);
+  --app-surface-inverse-soft: rgba(36, 20, 24, 0.06);
+  --app-surface-inverse-strong: rgba(36, 20, 24, 0.12);
   --app-surface-elevated: #ffffff;
-  --app-modal-backdrop: rgba(15, 23, 42, 0.4);
+  --app-modal-backdrop: rgba(36, 20, 24, 0.4);
   --app-modal-surface: #ffffff;
-  --app-modal-surface-muted: #f8fafc;
-  --app-modal-border: rgba(15, 23, 42, 0.14);
-  --app-editor-bg: #f8fafc;
+  --app-modal-surface-muted: #fff7f1;
+  --app-modal-border: rgba(36, 20, 24, 0.14);
+  --app-editor-bg: #fff7f1;
   --app-editor-panel: #ffffff;
-  --app-editor-panel-raised: #f1f5f9;
+  --app-editor-panel-raised: #fdf1ea;
   --app-editor-panel-soft: rgba(255, 255, 255, 0.92);
-  --app-editor-border: rgba(15, 23, 42, 0.12);
-  --app-editor-border-strong: rgba(124, 58, 237, 0.28);
+  --app-editor-border: rgba(36, 20, 24, 0.12);
+  --app-editor-border-strong: rgba(244, 63, 94, 0.28);
 
   /* Borders */
-  --app-border-subtle: rgba(15, 23, 42, 0.08);
-  --app-border: rgba(15, 23, 42, 0.14);
-  --app-border-strong: rgba(15, 23, 42, 0.22);
+  --app-border-subtle: rgba(36, 20, 24, 0.07);
+  --app-border: rgba(36, 20, 24, 0.12);
+  --app-border-strong: rgba(36, 20, 24, 0.2);
   --app-border-inverse-subtle: rgba(255, 255, 255, 0.12);
   --app-border-inverse: rgba(255, 255, 255, 0.22);
 
   /* Text */
-  --app-text-primary: #0f172a;
-  --app-text-secondary: #334155;
-  --app-text-muted: #64748b;
-  --app-text-faint: #94a3b8;
+  --app-text-primary: #241418;
+  --app-text-secondary: #5c4a4f;
+  --app-text-muted: #8a7077;
+  --app-text-faint: #b0989e;
   --app-text-inverse: #ffffff;
   --app-text-inverse-muted: rgba(255, 255, 255, 0.78);
   --app-text-inverse-faint: rgba(255, 255, 255, 0.62);
 
   /* Semantic colors */
-  --app-color-danger-strong: #dc2626;
+  --app-color-danger-strong: #b91c1c;
   --app-color-warning-strong: #d97706;
   --app-color-warning-ink: #1c1202;
   --app-color-danger-border: #fecaca;
   --app-color-danger-bg: #fef2f2;
   --app-color-warning-bg: #fefce8;
   --app-color-success-bg: #ecfdf5;
-  --app-color-info-bg: #ecfeff;
-  --app-color-primary-bg: #f5f3ff;
-  --app-color-primary-bg-strong: #ede9fe;
-  --app-color-section-dark-1: #1e1b4b;
-  --app-color-section-dark-2: #312e81;
-  --app-color-section-dark-3: #3730a3;
+  --app-color-info-bg: #fff7ed;
+  --app-color-primary-bg: #fff1f2;
+  --app-color-primary-bg-strong: #ffe4e6;
+  --app-color-section-dark-1: #2a1014;
+  --app-color-section-dark-2: #3b151b;
+  --app-color-section-dark-3: #4a1a22;
 
-  /* Shadows — lighter for light theme */
-  --app-shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
-  --app-shadow-sm: 0 2px 5px rgba(15, 23, 42, 0.06);
-  --app-shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
-  --app-shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.12);
-  --app-shadow-brand-sm: 0 2px 8px rgba(124, 58, 237, 0.15);
-  --app-shadow-brand-md: 0 4px 16px rgba(124, 58, 237, 0.22);
-  --app-shadow-brand-lg: 0 6px 24px rgba(124, 58, 237, 0.28);
-  --app-shadow-glow-violet: 0 0 12px rgba(124, 58, 237, 0.16), 0 0 24px rgba(124, 58, 237, 0.06);
-  --app-shadow-glow-cyan: 0 0 12px rgba(6, 182, 212, 0.14), 0 0 24px rgba(6, 182, 212, 0.05);
-  --app-shadow-float: 0 8px 24px rgba(15, 23, 42, 0.1), 0 16px 48px rgba(15, 23, 42, 0.06);
-  --app-shadow-inset: inset 0 1px 3px rgba(15, 23, 42, 0.06);
-  --app-shadow-glow-primary: 0 0 16px rgba(124, 58, 237, 0.14), 0 0 32px rgba(124, 58, 237, 0.06);
-  --app-shadow-glow-accent: 0 0 16px rgba(6, 182, 212, 0.12), 0 0 32px rgba(6, 182, 212, 0.05);
-  --app-shadow-focus: 0 0 0 3px rgba(124, 58, 237, 0.16);
-  --app-focus-ring: #8b5cf6;
+  /* Shadows — lighter for light theme (warm-tinted) */
+  --app-shadow-xs: 0 1px 2px rgba(80, 30, 30, 0.04);
+  --app-shadow-sm: 0 2px 5px rgba(80, 30, 30, 0.06);
+  --app-shadow-md: 0 4px 12px rgba(80, 30, 30, 0.08);
+  --app-shadow-lg: 0 8px 24px rgba(80, 30, 30, 0.12);
+  --app-shadow-brand-sm: 0 2px 8px rgba(244, 63, 94, 0.15);
+  --app-shadow-brand-md: 0 4px 16px rgba(244, 63, 94, 0.22);
+  --app-shadow-brand-lg: 0 6px 24px rgba(244, 63, 94, 0.28);
+  --app-shadow-glow-violet: 0 0 12px rgba(244, 63, 94, 0.16), 0 0 24px rgba(244, 63, 94, 0.06);
+  --app-shadow-glow-cyan: 0 0 12px rgba(249, 115, 22, 0.14), 0 0 24px rgba(249, 115, 22, 0.05);
+  --app-shadow-float: 0 8px 24px rgba(80, 30, 30, 0.1), 0 16px 48px rgba(80, 30, 30, 0.06);
+  --app-shadow-inset: inset 0 1px 3px rgba(80, 30, 30, 0.06);
+  --app-shadow-glow-primary: 0 0 16px rgba(244, 63, 94, 0.14), 0 0 32px rgba(244, 63, 94, 0.06);
+  --app-shadow-glow-accent: 0 0 16px rgba(249, 115, 22, 0.12), 0 0 32px rgba(249, 115, 22, 0.05);
+  --app-shadow-focus: 0 0 0 3px rgba(244, 63, 94, 0.16);
+  --app-focus-ring: #f43f5e;
 
   /* Alpha palettes */
   --app-white-alpha-00: rgba(255, 255, 255, 0);
@@ -487,56 +596,99 @@
   --app-black-alpha-85: rgba(0, 0, 0, 0.85);
   --app-black-alpha-90: rgba(0, 0, 0, 0.9);
   --app-black-alpha-95: rgba(0, 0, 0, 0.95);
-  --app-primary-alpha-00: rgba(124, 58, 237, 0);
-  --app-primary-alpha-02: rgba(124, 58, 237, 0.02);
-  --app-primary-alpha-04: rgba(124, 58, 237, 0.04);
-  --app-primary-alpha-05: rgba(124, 58, 237, 0.05);
-  --app-primary-alpha-08: rgba(124, 58, 237, 0.08);
-  --app-primary-alpha-10: rgba(124, 58, 237, 0.1);
-  --app-primary-alpha-12: rgba(124, 58, 237, 0.12);
-  --app-primary-alpha-16: rgba(124, 58, 237, 0.16);
-  --app-primary-alpha-18: rgba(124, 58, 237, 0.18);
-  --app-primary-alpha-20: rgba(124, 58, 237, 0.2);
-  --app-primary-alpha-24: rgba(124, 58, 237, 0.24);
-  --app-primary-alpha-30: rgba(124, 58, 237, 0.3);
-  --app-primary-alpha-50: rgba(124, 58, 237, 0.5);
+  --app-primary-alpha-00: rgba(244, 63, 94, 0);
+  --app-primary-alpha-02: rgba(244, 63, 94, 0.02);
+  --app-primary-alpha-04: rgba(244, 63, 94, 0.04);
+  --app-primary-alpha-05: rgba(244, 63, 94, 0.05);
+  --app-primary-alpha-08: rgba(244, 63, 94, 0.08);
+  --app-primary-alpha-10: rgba(244, 63, 94, 0.1);
+  --app-primary-alpha-12: rgba(244, 63, 94, 0.12);
+  --app-primary-alpha-16: rgba(244, 63, 94, 0.16);
+  --app-primary-alpha-18: rgba(244, 63, 94, 0.18);
+  --app-primary-alpha-20: rgba(244, 63, 94, 0.2);
+  --app-primary-alpha-24: rgba(244, 63, 94, 0.24);
+  --app-primary-alpha-30: rgba(244, 63, 94, 0.3);
+  --app-primary-alpha-50: rgba(244, 63, 94, 0.5);
 
-  --app-accent-alpha-00: rgba(6, 182, 212, 0);
-  --app-accent-alpha-02: rgba(6, 182, 212, 0.02);
-  --app-accent-alpha-04: rgba(6, 182, 212, 0.04);
-  --app-accent-alpha-05: rgba(6, 182, 212, 0.05);
-  --app-accent-alpha-08: rgba(6, 182, 212, 0.08);
-  --app-accent-alpha-10: rgba(6, 182, 212, 0.1);
-  --app-accent-alpha-12: rgba(6, 182, 212, 0.12);
-  --app-accent-alpha-16: rgba(6, 182, 212, 0.16);
-  --app-accent-alpha-18: rgba(6, 182, 212, 0.18);
-  --app-accent-alpha-20: rgba(6, 182, 212, 0.2);
-  --app-accent-alpha-24: rgba(6, 182, 212, 0.24);
-  --app-accent-alpha-30: rgba(6, 182, 212, 0.3);
-  --app-accent-alpha-50: rgba(6, 182, 212, 0.5);
+  --app-accent-alpha-00: rgba(249, 115, 22, 0);
+  --app-accent-alpha-02: rgba(249, 115, 22, 0.02);
+  --app-accent-alpha-04: rgba(249, 115, 22, 0.04);
+  --app-accent-alpha-05: rgba(249, 115, 22, 0.05);
+  --app-accent-alpha-08: rgba(249, 115, 22, 0.08);
+  --app-accent-alpha-10: rgba(249, 115, 22, 0.1);
+  --app-accent-alpha-12: rgba(249, 115, 22, 0.12);
+  --app-accent-alpha-16: rgba(249, 115, 22, 0.16);
+  --app-accent-alpha-18: rgba(249, 115, 22, 0.18);
+  --app-accent-alpha-20: rgba(249, 115, 22, 0.2);
+  --app-accent-alpha-24: rgba(249, 115, 22, 0.24);
+  --app-accent-alpha-30: rgba(249, 115, 22, 0.3);
+  --app-accent-alpha-50: rgba(249, 115, 22, 0.5);
 
   /* Gradients — light theme */
-  --app-gradient-hero: linear-gradient(180deg, rgba(124, 58, 237, 0.06) 0%, rgba(99, 102, 241, 0.04) 32%, rgba(241, 245, 249, 0) 72%);
-  --app-gradient-card-glow: linear-gradient(135deg, rgba(124, 58, 237, 0.05) 0%, rgba(6, 182, 212, 0.04) 50%, rgba(239, 68, 68, 0.03) 100%);
-  --app-gradient-card-1: linear-gradient(135deg, rgba(124, 58, 237, 0.06) 0%, rgba(6, 182, 212, 0.04) 50%, transparent 100%);
-  --app-gradient-card-2: linear-gradient(135deg, rgba(239, 68, 68, 0.04) 0%, rgba(124, 58, 237, 0.06) 50%, rgba(6, 182, 212, 0.03) 100%);
-  --app-gradient-section: linear-gradient(180deg, rgba(124, 58, 237, 0.03) 0%, transparent 40%, transparent 60%, rgba(6, 182, 212, 0.03) 100%);
-  --app-gradient-divider: linear-gradient(90deg, transparent 0%, rgba(124, 58, 237, 0.22) 20%, rgba(99, 102, 241, 0.26) 50%, rgba(6, 182, 212, 0.2) 80%, transparent 100%);
-  --app-gradient-border: linear-gradient(135deg, rgba(124, 58, 237, 0.38) 0%, rgba(99, 102, 241, 0.28) 34%, rgba(6, 182, 212, 0.32) 66%, rgba(124, 58, 237, 0.38) 100%);
+  --app-gradient-hero: linear-gradient(
+    180deg,
+    rgba(244, 63, 94, 0.06) 0%,
+    rgba(249, 115, 22, 0.04) 32%,
+    rgba(255, 251, 248, 0) 72%
+  );
+  --app-gradient-card-glow: linear-gradient(
+    135deg,
+    rgba(244, 63, 94, 0.05) 0%,
+    rgba(249, 115, 22, 0.04) 50%,
+    rgba(251, 113, 133, 0.03) 100%
+  );
+  --app-gradient-card-1: linear-gradient(
+    135deg,
+    rgba(244, 63, 94, 0.06) 0%,
+    rgba(249, 115, 22, 0.04) 50%,
+    transparent 100%
+  );
+  --app-gradient-card-2: linear-gradient(
+    135deg,
+    rgba(251, 113, 133, 0.04) 0%,
+    rgba(244, 63, 94, 0.06) 50%,
+    rgba(249, 115, 22, 0.03) 100%
+  );
+  --app-gradient-section: linear-gradient(
+    180deg,
+    rgba(244, 63, 94, 0.03) 0%,
+    transparent 40%,
+    transparent 60%,
+    rgba(249, 115, 22, 0.03) 100%
+  );
+  --app-gradient-divider: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(244, 63, 94, 0.22) 20%,
+    rgba(251, 113, 133, 0.26) 50%,
+    rgba(249, 115, 22, 0.2) 80%,
+    transparent 100%
+  );
+  --app-gradient-border: linear-gradient(
+    135deg,
+    rgba(244, 63, 94, 0.38) 0%,
+    rgba(251, 113, 133, 0.28) 34%,
+    rgba(249, 115, 22, 0.32) 66%,
+    rgba(244, 63, 94, 0.38) 100%
+  );
 
   /* Glassmorphism — light theme */
   --app-glass-blur: 12px;
   --app-glass-saturate: 150%;
-  --app-color-glass: rgba(255, 255, 255, 0.7);
+  --app-color-glass: rgba(255, 251, 248, 0.7);
 
   /* Decorative */
   --app-decoration-gradient: linear-gradient(135deg, var(--app-color-primary), var(--app-color-accent));
   --app-decoration-dot-size: var(--app-unit-0-5);
-  --app-decoration-dot-color: rgba(124, 58, 237, 0.22);
+  --app-decoration-dot-color: rgba(244, 63, 94, 0.22);
 
   /* Typography */
-  --app-font-display: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif;
-  --app-font-sans: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif;
+  --app-font-display:
+    var(--font-jakarta), 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Segoe UI', sans-serif;
+  --app-font-sans:
+    var(--font-jakarta), 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Segoe UI', sans-serif;
   --app-font-weight-medium: 600;
   --app-font-weight-bold: 700;
   --app-font-weight-heavy: 800;
@@ -546,9 +698,9 @@
   --color-surface: var(--app-surface-1);
   --color-surface-muted: var(--app-surface-2);
   --color-border: var(--app-border);
-  --color-hover: rgba(15, 23, 42, 0.04);
+  --color-hover: rgba(36, 20, 24, 0.04);
   --color-accent: var(--app-color-primary);
-  --color-accent-soft: rgba(124, 58, 237, 0.1);
+  --color-accent-soft: rgba(244, 63, 94, 0.1);
   --color-text: var(--app-text-primary);
   --color-text-secondary: var(--app-text-secondary);
 
@@ -580,13 +732,13 @@
 
   --theme-card-radius: var(--app-radius-2xl);
   --theme-card-bg: #ffffff;
-  --theme-card-preview-bg: #f1f5f9;
-  --theme-card-preview-bg-strong: #e2e8f0;
+  --theme-card-preview-bg: #fdf1ea;
+  --theme-card-preview-bg-strong: #f9e4d9;
   --theme-card-meta-bg: #ffffff;
   --theme-card-divider: var(--app-border-subtle);
   --theme-card-shadow: var(--app-shadow-xs);
   --theme-card-border: var(--app-border-subtle);
-  --theme-card-hover-border: rgba(124, 58, 237, 0.28);
+  --theme-card-hover-border: rgba(244, 63, 94, 0.28);
   --theme-card-hover-shadow: var(--app-shadow-brand-md);
   --theme-card-name: var(--app-text-primary);
   --theme-card-tagline: var(--app-text-secondary);
@@ -672,8 +824,12 @@
   border-radius: inherit;
   padding: var(--app-unit-0-125);
   background: var(--app-gradient-border);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
@@ -688,8 +844,12 @@
 }
 
 @keyframes skeletonShimmer {
-  0% { background-position: 100% 0; }
-  100% { background-position: 0 0; }
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
 }
 
 /* Subtle shimmer effect */
@@ -702,20 +862,33 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.06) 45%, rgba(255, 255, 255, 0.12) 50%, rgba(255, 255, 255, 0.06) 55%, transparent 60%);
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.06) 45%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.06) 55%,
+    transparent 60%
+  );
   transform: translateX(-100%);
   animation: shimmerSlide 2.5s ease-in-out infinite;
   pointer-events: none;
 }
 
 @keyframes shimmerSlide {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* Hover lift */
 .app-hover-lift {
-  transition: transform var(--app-motion-base) var(--app-motion-smooth), box-shadow var(--app-motion-base) var(--app-motion-smooth);
+  transition:
+    transform var(--app-motion-base) var(--app-motion-smooth),
+    box-shadow var(--app-motion-base) var(--app-motion-smooth);
 }
 
 .app-hover-lift:hover {
@@ -740,7 +913,7 @@
 
 /* App gradient text warm */
 .app-gradient-text-warm {
-  background: linear-gradient(135deg, #a78bfa 0%, #f472b6 50%, #fb923c 100%);
+  background: linear-gradient(135deg, #f43f5e 0%, #fb7185 50%, #fb923c 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -749,7 +922,7 @@
 
 /* App gradient text cool */
 .app-gradient-text-cool {
-  background: linear-gradient(135deg, #22d3ee 0%, #818cf8 50%, #a78bfa 100%);
+  background: linear-gradient(135deg, #fba94c 0%, #fb7185 50%, #f43f5e 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -758,5 +931,7 @@
 
 /* Glow text */
 .app-text-glow {
-  text-shadow: 0 0 var(--app-unit-3) rgba(139, 92, 246, 0.4), 0 0 var(--app-unit-6) rgba(139, 92, 246, 0.18);
+  text-shadow:
+    0 0 var(--app-unit-3) rgba(244, 63, 94, 0.4),
+    0 0 var(--app-unit-6) rgba(244, 63, 94, 0.18);
 }

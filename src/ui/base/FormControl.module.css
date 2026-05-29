@@ -144,7 +144,7 @@
 .textareaRoot[data-variant='glass'] .textareaControl:focus,
 .multiRoot[data-variant='glass'] .multiTrigger:focus-visible {
   background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(139, 92, 246, 0.4);
+  border-color: rgba(244, 63, 94, 0.4);
 }
 
 .inputRoot[data-tone='success'] .inputFrame,
@@ -174,7 +174,10 @@
 .multiTrigger:focus-visible {
   border-color: var(--app-color-primary);
   background: var(--app-surface-2);
-  box-shadow: var(--app-shadow-focus), var(--app-shadow-brand-sm), 0 0 0 var(--app-unit-0-75) rgba(139, 92, 246, 0.06);
+  box-shadow:
+    var(--app-shadow-focus),
+    var(--app-shadow-brand-sm),
+    0 0 0 var(--app-unit-0-75) rgba(244, 63, 94, 0.06);
   transition:
     border-color var(--app-motion-fast) var(--app-motion-smooth),
     box-shadow var(--app-motion-base) var(--app-motion-smooth),

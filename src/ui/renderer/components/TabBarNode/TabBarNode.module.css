@@ -7,8 +7,8 @@
   left: 0;
   right: 0;
   z-index: 100;
-  background: var(--app-surface-1, var(--app-neutral-0));
-  border-top: 1px solid var(--app-border-color, var(--app-neutral-200));
+  background: var(--tpl-surface-1, var(--tpl-neutral-0));
+  border-top: 1px solid var(--tpl-border-color, var(--tpl-neutral-200));
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
@@ -20,7 +20,7 @@
   flex: 1;
   padding: var(--app-unit-1) 0;
   gap: var(--app-unit-0-25);
-  color: var(--app-text-secondary, var(--app-neutral-500));
+  color: var(--tpl-text-secondary, var(--tpl-neutral-500));
   font-size: var(--app-unit-1);
   cursor: pointer;
   user-select: none;
@@ -28,7 +28,7 @@
 }
 
 .itemActive {
-  color: var(--accent, var(--app-color-wechat));
+  color: var(--accent, var(--tpl-color-wechat));
 }
 
 .icon {

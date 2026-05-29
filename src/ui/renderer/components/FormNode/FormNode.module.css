@@ -17,7 +17,7 @@
 .form :global(.field) > :first-child {
   text-align: var(--form-label-align, right);
   font-weight: 700;
-  color: var(--text-heading-color, var(--app-neutral-900));
+  color: var(--text-heading-color, var(--tpl-neutral-900));
   font-size: var(--app-unit-1-75);
 }
 

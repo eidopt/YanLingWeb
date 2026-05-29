@@ -4,11 +4,11 @@
 }
 
 .bordered {
-  border: 1px solid var(--app-border-color, var(--app-neutral-200));
+  border: 1px solid var(--tpl-border-color, var(--tpl-neutral-200));
   border-radius: var(--app-radius-md, 6px);
   overflow: hidden;
 }
 
 .split > * + * {
-  border-top: 1px solid var(--app-border-color, var(--app-neutral-200));
+  border-top: 1px solid var(--tpl-border-color, var(--tpl-neutral-200));
 }

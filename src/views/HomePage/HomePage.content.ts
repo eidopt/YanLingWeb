@@ -1,19 +1,18 @@
 export const homePageContent = {
   hero: {
-    eyebrow: 'AI Production Workspace',
+    eyebrow: 'AI 驱动 · 全平台可视化生产工作台',
     titleWords: ['把一个想法', '生产成可编辑应用', '再发布到各平台'],
-    sub: '从需求拆解、页面生成、模板匹配、可视化编辑到发布准备，'
-      + '把 AI 起稿和人工精修放进同一个生产工作台。',
+    sub: '从需求拆解、页面生成、模板匹配、可视化编辑到发布准备，' + '把 AI 起稿和人工精修放进同一个生产工作台。',
     ctaPrimary: '打开 AI 工作台',
     ctaSecondary: '查看生产模板',
     hint: '生成后可继续编辑 · 保存为自己的项目资产',
   },
 
   stats: [
-    { value: '3 分钟',  label: '生成首版页面' },
-    { value: '50+',     label: '模板广场版式' },
-    { value: '0 代码',  label: '创建与编辑' },
-    { value: '一键',    label: '代发布上线' },
+    { value: '3 分钟', label: '生成首版页面' },
+    { value: '50+', label: '模板广场版式' },
+    { value: '0 代码', label: '创建与编辑' },
+    { value: '一键', label: '代发布上线' },
   ],
 
   heroStudio: {
@@ -27,7 +26,7 @@ export const homePageContent = {
     sidebarTitle: '组件库',
     sidebarItems: ['Hero', '卡片', '表单', '价格'],
     inspectorItems: [
-      { label: '主题色', value: 'accent token' },
+      { label: '主题色', value: '品牌色 token' },
       { label: '圆角', value: '2x baseUnit' },
       { label: '间距', value: '舒适' },
     ],

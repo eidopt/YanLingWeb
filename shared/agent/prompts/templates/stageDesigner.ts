@@ -25,9 +25,12 @@ const STAGE_DESIGNER_TAIL = [
   '4. 业务场景：一句话锚定（"X 的 Y 服务"）',
   '5. 目标用户画像：一句话',
   '6. 信息架构：3-6 个页面，每页明确用户任务 + 主操作',
-  '7. cssVars 设计 token：主色、辅助色、背景、前景、弱文字、边框、',
-  '   卡片背景、圆角、阴影；按 archetype 需要加 --hero-bg / --metric-card-bg',
-  '   等场景 token',
+  '7. cssVars 设计 token：**按业务品类自选主色**（餐饮暖橙、医疗清爽蓝绿、',
+  '   金融稳重墨色、社交活泼撞色…，不要默认紫蓝），主色1+强调1+中性梯度；',
+  '   **必须完整输出主题色契约必填键**（--accent, --surface, --surface-muted,',
+  '   --text-heading-color, --text-body-color, --text-muted-color, --panel-bg,',
+  '   --panel-border, --border-color），渲染器不会回退到平台色；',
+  '   按 archetype 再加 --hero-bg / --metric-card-bg 等场景 token',
   '8. componentTemplates 草案：列出 2-4 个 biz-* alias 和它们的角色',
   '9. 跨页一致性：bottom tabs label、卡片骨架、tag tone 语义',
   '',
@@ -50,5 +53,4 @@ const STAGE_DESIGNER_TAIL = [
   '调用工具 `submit_template_brief` 一次。不要输出 markdown 或解释文字。',
 ].join('\n');
 
-export const STAGE_DESIGNER_SYSTEM_PROMPT =
-  TEMPLATE_PIPELINE_SHARED_SPEC + STAGE_DESIGNER_TAIL;
+export const STAGE_DESIGNER_SYSTEM_PROMPT = TEMPLATE_PIPELINE_SHARED_SPEC + STAGE_DESIGNER_TAIL;

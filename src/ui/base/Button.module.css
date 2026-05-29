@@ -29,7 +29,7 @@
 .button:focus-visible {
   outline: var(--app-unit-0-25) solid var(--app-focus-ring);
   outline-offset: var(--app-unit-0-25);
-  box-shadow: 0 0 0 var(--app-unit-0-5) rgba(139, 92, 246, 0.15);
+  box-shadow: 0 0 0 var(--app-unit-0-5) rgba(244, 63, 94, 0.15);
 }
 
 .button:hover:not(:disabled) {
@@ -325,8 +325,12 @@
   border-radius: inherit;
   padding: var(--app-unit-0-125);
   background: var(--app-gradient-border);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   z-index: -1;
@@ -358,7 +362,9 @@
 }
 
 @keyframes buttonSpinner {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Primary shimmer effect on hover */
@@ -366,7 +372,14 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.08) 45%, rgba(255, 255, 255, 0.16) 50%, rgba(255, 255, 255, 0.08) 55%, transparent 60%);
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.08) 45%,
+    rgba(255, 255, 255, 0.16) 50%,
+    rgba(255, 255, 255, 0.08) 55%,
+    transparent 60%
+  );
   transform: translateX(-100%);
   transition: none;
   pointer-events: none;
@@ -377,8 +390,12 @@
 }
 
 @keyframes buttonShimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .buttonIcon {

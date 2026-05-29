@@ -11,6 +11,8 @@
  * 内容浓缩自 templates_json/README.md §1–§17。改动会导致缓存全部失效，
  * 修改时务必谨慎并同步更新所有 4 个 stage prompt。
  */
+import { TEMPLATE_DESIGN_PRINCIPLES } from './designPrinciples';
+
 export const TEMPLATE_PIPELINE_SHARED_SPEC = [
   '# 模板生成共享规范',
   '',
@@ -58,7 +60,7 @@ export const TEMPLATE_PIPELINE_SHARED_SPEC = [
   '     `core.carousel` / `core.alert` / `core.toast` / `core.divider` /',
   '     `core.spacer` 等都是叶子',
   '',
-  '## 18 个 core.* 组件',
+  '## core.* 组件清单（含扩展 alias）',
   '',
   'screen, panel, stack, row, grid, text, button, image, progress, tag,',
   'divider, spacer, input, tabs, search, notice, html, widget。扩展 alias 包括：',
@@ -70,14 +72,15 @@ export const TEMPLATE_PIPELINE_SHARED_SPEC = [
   '',
   '## 视觉原型（每个模板必选 1 种贯穿）',
   '',
-  '- fresh（清新标准）：白卡 + 细分隔线，浅灰底 #f5f7fa，',
+  '- fresh（清新标准）：白卡 + 细分隔线，浅中性底，',
   '  圆角 8-12px，轻 shadow',
-  '- immersive（沉浸渐变）：深色渐变全覆盖 hero，毛玻璃卡，',
-  '  圆角 16-24px，glow shadow',
-  '- editorial（杂志排版）：米白底 #faf8f5，无边框无阴影分区，',
+  '- immersive（沉浸大图）：大图 hero + 内容叠层，深色叠加用品牌色低透明，',
+  '  禁止紫蓝霓虹渐变，圆角 16-24px，阴影克制',
+  '- editorial（杂志排版）：米白底，无边框无阴影分区，',
   '  大量使用不同 text variant',
   '- vibrant（活力社交）：彩色圆角卡 20-28px，浅彩底，高饱和主色',
-  '- dark-pro（深色专业）：深色面板 #1a1a2e，霓虹色数据点缀，半透明深卡',
+  '- dark-pro（深色专业）：暖中性深底（非蓝黑 #1a1a2e），单一品牌强调色，',
+  '  克制发光，避免霓虹堆砌',
   '',
   '## 首页入口模式（每个模板必选 1 种，同批次不重复）',
   '',
@@ -154,6 +157,8 @@ export const TEMPLATE_PIPELINE_SHARED_SPEC = [
   '  social / finance / marketing / utility / dashboard / profile / other',
   '  中选',
   '- 所有 key 用英文 slug，中文展示文案写入 *Label / *Labels 字段',
+  '',
+  TEMPLATE_DESIGN_PRINCIPLES,
 ].join('\n');
 
 Object.freeze(TEMPLATE_PIPELINE_SHARED_SPEC);

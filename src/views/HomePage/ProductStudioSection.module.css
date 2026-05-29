@@ -1,9 +1,7 @@
 .productStudioSection {
   position: relative;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse 48% 44% at 88% 24%, rgba(34, 211, 238, 0.04), transparent 62%),
-    transparent;
+  background: radial-gradient(ellipse 48% 44% at 88% 24%, rgba(249, 115, 22, 0.04), transparent 62%), transparent;
 }
 
 .productStudioLayout {
@@ -82,9 +80,15 @@
   background: var(--app-border-strong);
 }
 
-.studioWindowBar span:nth-child(1) { background: var(--app-color-danger); }
-.studioWindowBar span:nth-child(2) { background: var(--app-color-warning); }
-.studioWindowBar span:nth-child(3) { background: var(--app-color-success); }
+.studioWindowBar span:nth-child(1) {
+  background: var(--app-color-danger);
+}
+.studioWindowBar span:nth-child(2) {
+  background: var(--app-color-warning);
+}
+.studioWindowBar span:nth-child(3) {
+  background: var(--app-color-success);
+}
 
 .studioWorkspace {
   display: grid;
@@ -178,9 +182,7 @@
 .canvasHeroBlock {
   min-height: var(--app-unit-16);
   border-radius: var(--app-unit-1-75);
-  background:
-    linear-gradient(135deg, var(--app-color-primary), var(--app-color-accent)),
-    var(--app-color-primary);
+  background: linear-gradient(135deg, var(--app-color-primary), var(--app-color-accent)), var(--app-color-primary);
   animation: previewPulse 3.8s ease-in-out infinite;
 }
 
@@ -208,9 +210,15 @@
   background: var(--app-neutral-200);
 }
 
-.canvasTextLines span:nth-child(1) { width: 70%; }
-.canvasTextLines span:nth-child(2) { width: 88%; }
-.canvasTextLines span:nth-child(3) { width: 56%; }
+.canvasTextLines span:nth-child(1) {
+  width: 70%;
+}
+.canvasTextLines span:nth-child(2) {
+  width: 88%;
+}
+.canvasTextLines span:nth-child(3) {
+  width: 56%;
+}
 
 .layerRow {
   display: flex;
@@ -241,13 +249,25 @@
 }
 
 @keyframes windowFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(calc(var(--app-unit-1) * -1)); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(calc(var(--app-unit-1) * -1));
+  }
 }
 
 @keyframes previewPulse {
-  0%, 100% { filter: saturate(1); transform: scale(1); }
-  50% { filter: saturate(1.18); transform: scale(1.01); }
+  0%,
+  100% {
+    filter: saturate(1);
+    transform: scale(1);
+  }
+  50% {
+    filter: saturate(1.18);
+    transform: scale(1.01);
+  }
 }
 
 @media (--app-viewport-desktop) {

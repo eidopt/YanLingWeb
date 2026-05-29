@@ -3,8 +3,8 @@
   flex-direction: column;
   width: var(--sidebar-width, 240px);
   min-width: 0;
-  border-right: var(--app-unit-0-125) solid var(--app-border);
-  background: var(--app-surface-1);
+  border-right: var(--app-unit-0-125) solid var(--tpl-border);
+  background: var(--tpl-surface-1);
   overflow: hidden;
   transition: width 200ms ease;
 }

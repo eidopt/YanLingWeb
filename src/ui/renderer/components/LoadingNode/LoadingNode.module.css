@@ -10,7 +10,7 @@
 .spinner {
   width: var(--app-unit-5);
   height: var(--app-unit-5);
-  border: var(--app-unit-0-375) solid var(--panel-border, var(--app-neutral-200));
+  border: var(--app-unit-0-375) solid var(--panel-border, var(--tpl-neutral-200));
   border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 600ms linear infinite;
@@ -47,9 +47,9 @@
   border-radius: var(--app-radius-sm);
   background: linear-gradient(
     90deg,
-    var(--panel-border, var(--app-neutral-200)) 25%,
-    var(--app-neutral-100) 50%,
-    var(--panel-border, var(--app-neutral-200)) 75%
+    var(--panel-border, var(--tpl-neutral-200)) 25%,
+    var(--tpl-neutral-100) 50%,
+    var(--panel-border, var(--tpl-neutral-200)) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
@@ -82,5 +82,5 @@
 
 .text {
   font-size: var(--app-unit-1-75);
-  color: var(--text-muted-color, var(--app-neutral-500));
+  color: var(--text-muted-color, var(--tpl-neutral-500));
 }

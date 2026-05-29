@@ -3,8 +3,8 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: var(--app-neutral-200, #e5e5e5);
-  color: var(--app-text-primary, var(--app-neutral-800));
+  background: var(--tpl-neutral-200, #e5e5e5);
+  color: var(--tpl-text-primary, var(--tpl-neutral-800));
   font-weight: 700;
   flex-shrink: 0;
 }

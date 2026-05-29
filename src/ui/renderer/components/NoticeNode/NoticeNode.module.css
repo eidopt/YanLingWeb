@@ -4,7 +4,7 @@
   padding: var(--app-unit-1-5) var(--app-unit-2);
   border-radius: var(--app-unit-2);
   background: var(--note-bg);
-  color: var(--text-subheading-color, var(--app-neutral-800));
+  color: var(--text-subheading-color, var(--tpl-neutral-800));
   font-size: var(--app-unit-1-5);
   font-weight: 700;
   line-height: 1.45;
@@ -21,16 +21,16 @@
 }
 
 .noticeSuccess {
-  --notice-border: color-mix(in srgb, var(--app-color-wechat) 34%, transparent);
-  background: var(--app-color-success-bg);
+  --notice-border: color-mix(in srgb, var(--tpl-color-wechat) 34%, transparent);
+  background: var(--tpl-color-success-bg);
 }
 
 .noticeWarning {
-  --notice-border: color-mix(in srgb, var(--app-color-orange) 34%, transparent);
-  background: var(--app-color-warning-bg);
+  --notice-border: color-mix(in srgb, var(--tpl-color-orange) 34%, transparent);
+  background: var(--tpl-color-warning-bg);
 }
 
 .noticeError {
-  --notice-border: color-mix(in srgb, var(--app-color-danger) 34%, transparent);
-  background: color-mix(in srgb, var(--app-color-danger) 12%, var(--app-surface-1));
+  --notice-border: color-mix(in srgb, var(--tpl-color-danger) 34%, transparent);
+  background: color-mix(in srgb, var(--tpl-color-danger) 12%, var(--tpl-surface-1));
 }

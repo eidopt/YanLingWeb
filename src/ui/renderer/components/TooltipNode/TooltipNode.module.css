@@ -10,8 +10,8 @@
   z-index: 100;
   padding: var(--app-unit-1) var(--app-unit-1-5);
   border-radius: var(--app-unit-1);
-  background: var(--app-neutral-800);
-  color: var(--app-neutral-0);
+  background: var(--tpl-neutral-800);
+  color: var(--tpl-neutral-0);
   font-size: var(--app-unit-1-5);
   line-height: 1.4;
   white-space: nowrap;

@@ -4,7 +4,7 @@
   flex-wrap: wrap;
   gap: var(--app-unit-0-5);
   font-size: var(--app-unit-1-5);
-  color: var(--app-text-secondary, var(--app-neutral-500));
+  color: var(--tpl-text-secondary, var(--tpl-neutral-500));
   line-height: 1.4;
 }
 
@@ -15,7 +15,7 @@
 }
 
 .link {
-  color: var(--accent, var(--app-color-sky));
+  color: var(--accent, var(--tpl-color-sky));
   cursor: pointer;
   text-decoration: none;
 }
@@ -26,10 +26,10 @@
 
 .current {
   font-weight: 700;
-  color: var(--app-text-primary, var(--app-neutral-800));
+  color: var(--tpl-text-primary, var(--tpl-neutral-800));
 }
 
 .separator {
-  color: var(--app-text-tertiary, var(--app-neutral-400));
+  color: var(--tpl-text-tertiary, var(--tpl-neutral-400));
   user-select: none;
 }

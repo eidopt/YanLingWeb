@@ -3,5 +3,5 @@
   border-radius: var(--radius-image, var(--app-unit-2));
   max-height: var(--app-unit-60);
   object-fit: cover;
-  background: var(--app-neutral-100);
+  background: var(--tpl-neutral-100);
 }

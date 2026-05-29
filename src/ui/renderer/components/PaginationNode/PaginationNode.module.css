@@ -13,20 +13,22 @@
   min-width: var(--app-unit-5);
   height: var(--app-unit-5);
   padding: 0 var(--app-unit-1);
-  border: 1px solid var(--app-border-color, var(--app-neutral-200));
+  border: 1px solid var(--tpl-border-color, var(--tpl-neutral-200));
   border-radius: var(--app-radius-md, 6px);
-  background: var(--app-surface-1, var(--app-neutral-0));
-  color: var(--app-text-primary, var(--app-neutral-800));
+  background: var(--tpl-surface-1, var(--tpl-neutral-0));
+  color: var(--tpl-text-primary, var(--tpl-neutral-800));
   font-size: var(--app-unit-1-5);
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
-  transition: border-color 160ms ease, color 160ms ease;
+  transition:
+    border-color 160ms ease,
+    color 160ms ease;
 }
 
 .btn:hover:not(:disabled) {
-  border-color: var(--accent, var(--app-color-sky));
-  color: var(--accent, var(--app-color-sky));
+  border-color: var(--accent, var(--tpl-color-sky));
+  color: var(--accent, var(--tpl-color-sky));
 }
 
 .btn:disabled {
@@ -35,14 +37,14 @@
 }
 
 .active {
-  background: var(--accent, var(--app-color-sky));
-  border-color: var(--accent, var(--app-color-sky));
-  color: var(--app-neutral-0, #fff);
+  background: var(--accent, var(--tpl-color-sky));
+  border-color: var(--accent, var(--tpl-color-sky));
+  color: var(--tpl-neutral-0, #fff);
   font-weight: 700;
 }
 
 .active:hover:not(:disabled) {
-  color: var(--app-neutral-0, #fff);
+  color: var(--tpl-neutral-0, #fff);
 }
 
 .ellipsis {
@@ -51,6 +53,6 @@
   justify-content: center;
   min-width: var(--app-unit-5);
   height: var(--app-unit-5);
-  color: var(--app-text-tertiary, var(--app-neutral-400));
+  color: var(--tpl-text-tertiary, var(--tpl-neutral-400));
   user-select: none;
 }

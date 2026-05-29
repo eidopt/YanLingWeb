@@ -4,15 +4,15 @@ AI 驱动的全平台可视化 UI 搭建平台。用户通过自然语言对话�
 
 ## 技术栈
 
-| 层 | 技术 |
-|------|------|
-| 前端 | Next.js 15 (App Router) + React 19 + TypeScript 6 |
-| 后端 | NestJS 10 + TypeORM + SQLite (better-sqlite3) |
-| 共享 | TypeScript 类型和验证逻辑 |
-| 桌面 | Electron 36 + electron-builder |
-| AI | OpenAI SDK v6 (Responses API) / OpenAI 兼容 (Chat Completions) |
-| 样式 | PostCSS + CSS Modules + CSS 自定义属性（无 Tailwind） |
-| 包管理 | pnpm (monorepo) |
+| 层     | 技术                                                           |
+| ------ | -------------------------------------------------------------- |
+| 前端   | Next.js 15 (App Router) + React 19 + TypeScript 6              |
+| 后端   | NestJS 10 + TypeORM + SQLite (better-sqlite3)                  |
+| 共享   | TypeScript 类型和验证逻辑                                      |
+| 桌面   | Electron 36 + electron-builder                                 |
+| AI     | OpenAI SDK v6 (Responses API) / OpenAI 兼容 (Chat Completions) |
+| 样式   | PostCSS + CSS Modules + CSS 自定义属性（无 Tailwind）          |
+| 包管理 | pnpm (monorepo)                                                |
 
 ## 目录结构
 
@@ -110,48 +110,52 @@ YanLingWeb/
 ### 两种 AI Agent 模式
 
 **模式 1 — 模板生成 (Template Generation)**
+
 - 触发位置：模板广场页面
 - 唯一工具：`generate_template` — 一次性生成完整的多页面 `ThemeLayoutDocument`
 - 运行位置：前端，通过 `BackendProxyProvider` 流式传输到后端
 
 **模式 2 — 编辑器编辑 (Editor Edit)**
+
 - 触发位置：可视化编辑器画布
 - 10 个精确工具：`editor_create_page`, `editor_delete_page`, `editor_insert_node`, `editor_update_props`, `editor_delete_node`, `editor_set_layout`, `editor_set_frame`, `editor_move_node`, `editor_update_interactions`, `editor_sync_navigation`
 - 运行位置：前端或后端均可
 
-### 18 个 core.* UI 组件
+### core.\* UI 组件（注册表共 54 个 alias / 55 个组件目录）
 
-| 别名 | 组件 | 关键 Props |
-|-------|-----------|------------|
-| `core.screen` | 页面根容器 | title, statusTime, headerActionLabel |
-| `core.stack` | 垂直弹性容器 | gap, alignItems |
-| `core.row` | 水平弹性容器 | gap, wrap, justify, align, tone |
-| `core.grid` | CSS Grid 容器 | gap, columns |
-| `core.panel` | 带样式卡片 | gap, tone (default/accent/promo/warm/soft/member/highlight) |
-| `core.text` | 文本 | text, variant (display/heading/subheading/body/caption/price/overline/eyebrow/title/subtitle) |
-| `core.button` | 按钮 | label, variant (primary/secondary/link), disabled |
-| `core.image` | 图片占位符 | — |
-| `core.progress` | 进度条 | value, max, tone (neutral/accent/success/warning/info) |
-| `core.tag` | 状态徽章 | label, tone (neutral/success/warning/info/hot/new/deal/member) |
-| `core.divider` | 分隔线 | — |
-| `core.spacer` | 空白间距 | size |
-| `core.input` | 文本输入框 | placeholder, label |
-| `core.tabs` | 标签栏 | activeTab |
-| `core.search` | 搜索栏 | placeholder, value |
-| `core.notice` | 通知横幅 | text, tone |
-| `core.html` | 原始 HTML 包装器 | tag, style |
-| `core.widget` | 安全三方 Widget | library, renderer, data |
+> 渲染器实际注册 **54 个 `core.*` alias**（`src/ui/renderer/components/registry.tsx`，可用 `pnpm renderer:registry:check` 核对）。下表是最常用的 18 个基础组件；其余为扩展 alias（navbar、tabbar、list、table、timeline、form、carousel、dialog、drawer 等）。
+
+| 别名            | 组件             | 关键 Props                                                                                    |
+| --------------- | ---------------- | --------------------------------------------------------------------------------------------- |
+| `core.screen`   | 页面根容器       | title, statusTime, headerActionLabel                                                          |
+| `core.stack`    | 垂直弹性容器     | gap, alignItems                                                                               |
+| `core.row`      | 水平弹性容器     | gap, wrap, justify, align, tone                                                               |
+| `core.grid`     | CSS Grid 容器    | gap, columns                                                                                  |
+| `core.panel`    | 带样式卡片       | gap, tone (default/accent/promo/warm/soft/member/highlight)                                   |
+| `core.text`     | 文本             | text, variant (display/heading/subheading/body/caption/price/overline/eyebrow/title/subtitle) |
+| `core.button`   | 按钮             | label, variant (primary/secondary/link), disabled                                             |
+| `core.image`    | 图片占位符       | —                                                                                             |
+| `core.progress` | 进度条           | value, max, tone (neutral/accent/success/warning/info)                                        |
+| `core.tag`      | 状态徽章         | label, tone (neutral/success/warning/info/hot/new/deal/member)                                |
+| `core.divider`  | 分隔线           | —                                                                                             |
+| `core.spacer`   | 空白间距         | size                                                                                          |
+| `core.input`    | 文本输入框       | placeholder, label                                                                            |
+| `core.tabs`     | 标签栏           | activeTab                                                                                     |
+| `core.search`   | 搜索栏           | placeholder, value                                                                            |
+| `core.notice`   | 通知横幅         | text, tone                                                                                    |
+| `core.html`     | 原始 HTML 包装器 | tag, style                                                                                    |
+| `core.widget`   | 安全三方 Widget  | library, renderer, data                                                                       |
 
 ### Widget 系统 (core.widget)
 
 支持 4 种安全的三方渲染器，从 esm.sh 动态加载：
 
-| 库 | 渲染器 | 用途 |
-|-----------|----------|-------|
-| echarts | echarts | 交互式图表 |
-| chart.js | chartjs | 图表 |
-| lottie-web | lottie | 矢量动画 |
-| mermaid | mermaid | 图表/流程图 |
+| 库         | 渲染器  | 用途        |
+| ---------- | ------- | ----------- |
+| echarts    | echarts | 交互式图表  |
+| chart.js   | chartjs | 图表        |
+| lottie-web | lottie  | 矢量动画    |
+| mermaid    | mermaid | 图表/流程图 |
 
 安全性通过 `widgetSafety.ts` 强制执行：仅允许 esm.sh URL，白名单包名，禁止脚本/代码注入属性名。
 
@@ -168,6 +172,7 @@ YanLingWeb/
 ### AI 意图路由
 
 在任意 agent 运行之前，`planUiIntent()` 分析用户提示：
+
 - 将意图分类（marketing_site、web_app、mobile_app 等）
 - 识别支持/不支持的能力（18 项能力，标记为 native/composed/unsupported）
 - 选择生成策略（standard_layout_document、compose_existing_components、requires_dynamic_module、clarify_before_generation）

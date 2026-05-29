@@ -51,6 +51,7 @@ export function ScreenNode({ runtime, props, children, nodeLayoutStyle }: Screen
   return (
     <section
       className={cx(
+        'app-render-scope',
         styles.screen,
         isWebSurface && styles.screenWeb,
         !isWebSurface && isMobileScreen && styles.screenMobile,

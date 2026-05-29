@@ -429,8 +429,7 @@
   display: flex;
   overflow: visible;
   border-radius: var(--app-radius-2xl);
-  background:
-    radial-gradient(ellipse 40% 36% at 50% 0%, rgba(139, 92, 246, 0.05), transparent 70%), rgba(0, 0, 0, 0.12);
+  background: radial-gradient(ellipse 40% 36% at 50% 0%, rgba(244, 63, 94, 0.05), transparent 70%), rgba(0, 0, 0, 0.12);
 }
 
 .canvasDrop {
