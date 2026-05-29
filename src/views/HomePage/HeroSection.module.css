@@ -116,7 +116,7 @@
   padding: var(--app-unit-1-75);
   border: var(--app-unit-0-125) solid var(--app-border);
   border-radius: var(--app-unit-4);
-  background: linear-gradient(180deg, rgba(13, 18, 32, 0.96), rgba(9, 13, 20, 0.9)), var(--app-surface-1);
+  background: linear-gradient(180deg, rgba(31, 26, 22, 0.96), rgba(21, 18, 16, 0.9)), var(--app-surface-1);
   box-shadow: var(--app-shadow-lg), var(--app-shadow-glow-violet);
   backdrop-filter: blur(var(--app-unit-2-5)) saturate(150%);
   overflow: hidden;
@@ -342,7 +342,7 @@
   gap: var(--app-unit-1-25);
   overflow: hidden;
   border-radius: var(--app-unit-2);
-  background: rgba(9, 13, 20, 0.82);
+  background: rgba(21, 18, 16, 0.82);
   box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--app-border-subtle);
 }
 
