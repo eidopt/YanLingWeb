@@ -1,15 +1,11 @@
+export type { AvatarProps, AvatarShape, AvatarSize } from './Avatar';
+export { Avatar } from './Avatar';
+export type { BadgeProps, BadgeTone } from './Badge';
+export { Badge } from './Badge';
 export type { BoxProps } from './Box';
 export { Box } from './Box';
-export type {
-  ButtonProps,
-  ButtonSize,
-  ButtonVariant,
-  IconButtonProps,
-} from './Button';
-export {
-  Button,
-  IconButton,
-} from './Button';
+export type { ButtonProps, ButtonSize, ButtonVariant, IconButtonProps } from './Button';
+export { Button, IconButton } from './Button';
 export type { CheckboxProps } from './Checkbox';
 export { Checkbox } from './Checkbox';
 export type { ContainerProps } from './Container';
@@ -24,21 +20,10 @@ export type {
   DividerVariant,
 } from './Divider';
 export { Divider } from './Divider';
-export type {
-  DropdownOption,
-  DropdownProps,
-} from './Dropdown';
+export type { DropdownOption, DropdownProps } from './Dropdown';
 export { Dropdown } from './Dropdown';
-export type {
-  ChoiceOption,
-  FieldSize,
-  FieldTone,
-  FieldVariant,
-  SelectOption,
-} from './formShared';
-export type {
-  GridProps,
-} from './Grid';
+export type { ChoiceOption, FieldSize, FieldTone, FieldVariant, SelectOption } from './formShared';
+export type { GridProps } from './Grid';
 export { Grid } from './Grid';
 export type {
   HeadingFlow,
@@ -54,48 +39,22 @@ export type { InputProps } from './Input';
 export { Input } from './Input';
 export type { LabelProps } from './Label';
 export { Label } from './Label';
-export type {
-  InlineProps,
-  LayoutProps,
-  StackProps,
-} from './Layout';
-export {
-  Inline,
-  Layout,
-  Stack,
-} from './Layout';
-export type {
-  MultiSelectDropdownProps,
-  MultiSelectOption,
-} from './MultiSelectDropdown';
+export type { InlineProps, LayoutProps, StackProps } from './Layout';
+export { Inline, Layout, Stack } from './Layout';
+export type { MultiSelectDropdownProps, MultiSelectOption } from './MultiSelectDropdown';
 export { MultiSelectDropdown } from './MultiSelectDropdown';
-export type {
-  RadioButtonProps,
-  RadioGroupOption,
-  RadioGroupProps,
-} from './RadioButton';
-export {
-  RadioButton,
-  RadioGroup,
-} from './RadioButton';
-export type {
-  DataAttributeProps,
-  SystemElementProps,
-  SystemGap,
-  SystemTextAlign,
-} from './shared';
-export type {
-  SpacerAxis,
-  SpacerElement,
-  SpacerProps,
-} from './Spacer';
+export type { RadioButtonProps, RadioGroupOption, RadioGroupProps } from './RadioButton';
+export { RadioButton, RadioGroup } from './RadioButton';
+export type { DataAttributeProps, SystemElementProps, SystemGap, SystemTextAlign } from './shared';
+export type { SpacerAxis, SpacerElement, SpacerProps } from './Spacer';
 export { Spacer } from './Spacer';
-export type {
-  TextProps,
-  TextSize,
-  TextVariant,
-  TextWeight,
-} from './Text';
+export type { SpinnerProps, SpinnerSize } from './Spinner';
+export { Spinner } from './Spinner';
+export type { SwitchProps, SwitchSize } from './Switch';
+export { Switch } from './Switch';
+export type { TagProps, TagSize, TagTone } from './Tag';
+export { Tag } from './Tag';
+export type { TextProps, TextSize, TextVariant, TextWeight } from './Text';
 export { Text } from './Text';
 export type { TextAreaProps } from './TextArea';
 export { TextArea } from './TextArea';

@@ -8,17 +8,7 @@ import { hashPassword } from 'lib/hash-password';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ApiError } from 'services/UserService';
-import {
-  Box,
-  Button,
-  Divider,
-  Heading,
-  Inline,
-  Input,
-  Label,
-  Stack,
-  Text,
-} from 'ui/base';
+import { Box, Button, Divider, Heading, Inline, Input, Label, Stack, Text } from 'ui/base';
 
 type Tab = 'login' | 'register';
 type View = Tab | 'wechat';
@@ -39,25 +29,37 @@ interface AuthDialogProps {
   successRedirect?: string;
 }
 
-export function AuthDialog({
-  onClose,
-  initialTab = 'login',
-  successRedirect = '/',
-}: AuthDialogProps) {
+export function AuthDialog({ onClose, initialTab = 'login', successRedirect = '/' }: AuthDialogProps) {
   const [view, setView] = useState<View>(initialTab);
+  const [closing, setClosing] = useState(false);
+
+  // Play the exit animation before unmounting (≈ matches authDialogOut duration).
+  const requestClose = (redirect?: string) => {
+    setClosing((alreadyClosing) => {
+      if (!alreadyClosing) {
+        window.setTimeout(() => {
+          onClose(redirect);
+        }, 200);
+      }
+      return true;
+    });
+  };
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) { onClose(); }
+    if (e.target === e.currentTarget) {
+      requestClose();
+    }
   };
 
   return createPortal(
-    <Box className={styles.backdrop} onClick={handleBackdropClick}>
-      <Box className={styles.dialog} role="dialog" aria-modal="true">
-
+    <Box className={styles.backdrop} data-closing={closing ? '' : undefined} onClick={handleBackdropClick}>
+      <Box className={styles.dialog} data-closing={closing ? '' : undefined} role="dialog" aria-modal="true">
         <Box className={styles.closeBtn}>
           <Button
             type="button"
-            onClick={() => onClose()}
+            onClick={() => {
+              requestClose();
+            }}
             aria-label={c.close}
             size="icon-sm"
             variant="icon"
@@ -68,14 +70,18 @@ export function AuthDialog({
 
         <Inline className={styles.brand}>
           <Box className={styles.brandLogo}>✦</Box>
-          <Text as="span" weight="heavy">AppGen AI</Text>
+          <Text as="span" weight="heavy">
+            AppGen AI
+          </Text>
         </Inline>
 
         {view !== 'wechat' && (
           <Inline className={styles.tabs} wrap={false}>
             <Button
               type="button"
-              onClick={() => { setView('login'); }}
+              onClick={() => {
+                setView('login');
+              }}
               fullWidth
               size="sm"
               variant={view === 'login' ? 'tab-active' : 'tab'}
@@ -84,7 +90,9 @@ export function AuthDialog({
             </Button>
             <Button
               type="button"
-              onClick={() => { setView('register'); }}
+              onClick={() => {
+                setView('register');
+              }}
               fullWidth
               size="sm"
               variant={view === 'register' ? 'tab-active' : 'tab'}
@@ -96,27 +104,38 @@ export function AuthDialog({
 
         {view === 'login' && (
           <LoginForm
-            onClose={onClose}
+            onClose={requestClose}
             successRedirect={successRedirect}
-            onSwitch={() => { setView('register'); }}
-            onWechat={() => { setView('wechat'); }}
+            onSwitch={() => {
+              setView('register');
+            }}
+            onWechat={() => {
+              setView('wechat');
+            }}
           />
         )}
         {view === 'register' && (
           <RegisterForm
-            onClose={onClose}
+            onClose={requestClose}
             successRedirect={successRedirect}
-            onSwitch={() => { setView('login'); }}
-            onWechat={() => { setView('wechat'); }}
+            onSwitch={() => {
+              setView('login');
+            }}
+            onWechat={() => {
+              setView('wechat');
+            }}
           />
         )}
         {view === 'wechat' && (
           <WechatQrView
-            onSuccess={(redirect) => { onClose(redirect); }}
-            onBack={() => { setView('login'); }}
+            onSuccess={(redirect) => {
+              requestClose(redirect);
+            }}
+            onBack={() => {
+              setView('login');
+            }}
           />
         )}
-
       </Box>
     </Box>,
     document.body,
@@ -162,8 +181,12 @@ function LoginForm({
   return (
     <Stack className={styles.formWrap}>
       <Stack className={styles.formHeader} gap="xs">
-        <Heading size="md" variant="primary" weight="heavy">{c.login.title}</Heading>
-        <Text size="sm" variant="muted">{c.login.sub}</Text>
+        <Heading size="md" variant="primary" weight="heavy">
+          {c.login.title}
+        </Heading>
+        <Text size="sm" variant="muted">
+          {c.login.sub}
+        </Text>
       </Stack>
 
       <Box className={styles.socialRow}>
@@ -171,7 +194,11 @@ function LoginForm({
           type="button"
           onClick={onWechat}
           fullWidth
-          leadingIcon={<Text as="span" size="lg">💬</Text>}
+          leadingIcon={
+            <Text as="span" size="lg">
+              💬
+            </Text>
+          }
           size="sm"
           variant="secondary"
         >
@@ -180,7 +207,11 @@ function LoginForm({
         <Button
           type="button"
           fullWidth
-          leadingIcon={<Text as="span" size="lg">📱</Text>}
+          leadingIcon={
+            <Text as="span" size="lg">
+              📱
+            </Text>
+          }
           size="sm"
           variant="secondary"
         >
@@ -192,11 +223,19 @@ function LoginForm({
 
       {error && (
         <Box className={styles.errorMsg}>
-          <Text align="center" size="sm" variant="danger" weight="medium">{error}</Text>
+          <Text align="center" size="sm" variant="danger" weight="medium">
+            {error}
+          </Text>
         </Box>
       )}
 
-      <Stack as="form" className={styles.form} onSubmit={(e) => { void handleSubmit(e); }}>
+      <Stack
+        as="form"
+        className={styles.form}
+        onSubmit={(e) => {
+          void handleSubmit(e);
+        }}
+      >
         <Label className={styles.field}>
           <Text as="span" size="sm" variant="secondary" weight="medium">
             {c.login.identifierLabel}
@@ -205,7 +244,9 @@ function LoginForm({
             type="text"
             placeholder={c.login.identifierPlaceholder}
             value={identifier}
-            onChange={(e) => { setIdentifier(e.target.value); }}
+            onChange={(e) => {
+              setIdentifier(e.target.value);
+            }}
             required
             variant="filled"
           />
@@ -219,7 +260,9 @@ function LoginForm({
               type="password"
               placeholder={c.login.passwordPlaceholder}
               value={password}
-              onChange={(e) => { setPassword(e.target.value); }}
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
               required
               variant="filled"
             />
@@ -236,7 +279,9 @@ function LoginForm({
       </Stack>
 
       <Inline className={styles.switchRow} justify="center">
-        <Text as="span" size="sm" variant="muted">{c.login.switchHint}</Text>
+        <Text as="span" size="sm" variant="muted">
+          {c.login.switchHint}
+        </Text>
         <Button type="button" size="xs" variant="link" onClick={onSwitch}>
           {c.login.switchLink}
         </Button>
@@ -297,8 +342,12 @@ function RegisterForm({
   return (
     <Stack className={styles.formWrap}>
       <Stack className={styles.formHeader} gap="xs">
-        <Heading size="md" variant="primary" weight="heavy">{c.register.title}</Heading>
-        <Text size="sm" variant="muted">{c.register.sub}</Text>
+        <Heading size="md" variant="primary" weight="heavy">
+          {c.register.title}
+        </Heading>
+        <Text size="sm" variant="muted">
+          {c.register.sub}
+        </Text>
       </Stack>
 
       <Box className={styles.socialRow}>
@@ -306,7 +355,11 @@ function RegisterForm({
           type="button"
           onClick={onWechat}
           fullWidth
-          leadingIcon={<Text as="span" size="lg">💬</Text>}
+          leadingIcon={
+            <Text as="span" size="lg">
+              💬
+            </Text>
+          }
           size="sm"
           variant="secondary"
         >
@@ -315,7 +368,11 @@ function RegisterForm({
         <Button
           type="button"
           fullWidth
-          leadingIcon={<Text as="span" size="lg">📱</Text>}
+          leadingIcon={
+            <Text as="span" size="lg">
+              📱
+            </Text>
+          }
           size="sm"
           variant="secondary"
         >
@@ -327,11 +384,19 @@ function RegisterForm({
 
       {error && (
         <Box className={styles.errorMsg}>
-          <Text align="center" size="sm" variant="danger" weight="medium">{error}</Text>
+          <Text align="center" size="sm" variant="danger" weight="medium">
+            {error}
+          </Text>
         </Box>
       )}
 
-      <Stack as="form" className={styles.form} onSubmit={(e) => { void handleSubmit(e); }}>
+      <Stack
+        as="form"
+        className={styles.form}
+        onSubmit={(e) => {
+          void handleSubmit(e);
+        }}
+      >
         <Label className={styles.field}>
           <Text as="span" size="sm" variant="secondary" weight="medium">
             {c.register.nameLabel}
@@ -340,7 +405,9 @@ function RegisterForm({
             type="text"
             placeholder={c.register.namePlaceholder}
             value={username}
-            onChange={(e) => { setUsername(e.target.value); }}
+            onChange={(e) => {
+              setUsername(e.target.value);
+            }}
             required
             variant="filled"
           />
@@ -353,7 +420,9 @@ function RegisterForm({
             type="email"
             placeholder={c.register.emailPlaceholder}
             value={email}
-            onChange={(e) => { setEmail(e.target.value); }}
+            onChange={(e) => {
+              setEmail(e.target.value);
+            }}
             variant="filled"
           />
         </Label>
@@ -366,7 +435,9 @@ function RegisterForm({
               type="password"
               placeholder={c.register.passwordPlaceholder}
               value={password}
-              onChange={(e) => { setPassword(e.target.value); }}
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
               required
               variant="filled"
             />
@@ -379,7 +450,9 @@ function RegisterForm({
               type="password"
               placeholder={c.register.confirmPlaceholder}
               value={confirm}
-              onChange={(e) => { setConfirm(e.target.value); }}
+              onChange={(e) => {
+                setConfirm(e.target.value);
+              }}
               required
               variant="filled"
             />
@@ -390,14 +463,20 @@ function RegisterForm({
         </Button>
         <Text align="center" size="xs" variant="faint">
           {c.register.terms}{' '}
-          <Button type="button" size="xs" variant="link">{c.register.termsLink}</Button>
-          {' '}{c.register.and}{' '}
-          <Button type="button" size="xs" variant="link">{c.register.privacyLink}</Button>
+          <Button type="button" size="xs" variant="link">
+            {c.register.termsLink}
+          </Button>{' '}
+          {c.register.and}{' '}
+          <Button type="button" size="xs" variant="link">
+            {c.register.privacyLink}
+          </Button>
         </Text>
       </Stack>
 
       <Inline className={styles.switchRow} justify="center">
-        <Text as="span" size="sm" variant="muted">{c.register.switchHint}</Text>
+        <Text as="span" size="sm" variant="muted">
+          {c.register.switchHint}
+        </Text>
         <Button type="button" size="xs" variant="link" onClick={onSwitch}>
           {c.register.switchLink}
         </Button>

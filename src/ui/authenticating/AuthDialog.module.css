@@ -10,7 +10,11 @@
   align-items: center;
   justify-content: center;
   padding: var(--app-unit-2);
-  animation: fadeIn 0.18s ease;
+  animation: authBackdropIn 0.24s ease both;
+}
+
+.backdrop[data-closing] {
+  animation: authBackdropOut 0.2s ease both;
 }
 
 /* ── Dialog ── */
@@ -28,7 +32,12 @@
   backdrop-filter: blur(var(--app-unit-2-5)) saturate(160%);
   -webkit-backdrop-filter: blur(var(--app-unit-2-5)) saturate(160%);
   overflow: hidden;
-  animation: slideUp 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center bottom;
+  animation: authDialogIn 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.dialog[data-closing] {
+  animation: authDialogOut 0.2s cubic-bezier(0.4, 0, 1, 1) both;
 }
 
 /* ── Close button ── */
@@ -48,7 +57,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 .closeBtn:hover {
   background: var(--app-ink-alpha-02);
@@ -242,7 +253,9 @@
   color: var(--app-text-faint);
   text-decoration: underline;
 }
-.qrOpenLink:hover { color: var(--app-color-primary); }
+.qrOpenLink:hover {
+  color: var(--app-color-primary);
+}
 
 .devHelper {
   background: var(--app-color-warning-bg);
@@ -258,15 +271,57 @@
 
 /* ── Animations ── */
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+@keyframes authBackdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
-@keyframes slideUp {
-  from { opacity: 0; transform: scale(0.94) translateY(var(--app-unit-2)); }
-  to   { opacity: 1; transform: scale(1) translateY(0); }
+@keyframes authBackdropOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes authDialogIn {
+  0% {
+    opacity: 0;
+    transform: translateY(var(--app-unit-4)) scale(0.94);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes authDialogOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(var(--app-unit-2)) scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .backdrop[data-closing],
+  .dialog,
+  .dialog[data-closing] {
+    animation-duration: 0.01ms;
+  }
 }
 
 /* ── Responsive ── */
