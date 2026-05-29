@@ -40,6 +40,25 @@ export function getLibrary(name: string): unknown {
   return libraryCache.get(name);
 }
 
+const preloadedDependencyUrls = new Set<string>();
+
+/**
+ * 预加载：为待加载的 ESM 依赖注入 `<link rel="modulepreload">`，让浏览器在
+ * 实际 `import()` 之前就以更高优先级开始抓取模块，缩短首个 widget 的就绪时间。
+ * 仅在浏览器环境执行，按 URL 去重，纯增量（不改变加载语义）。
+ */
+function preloadDependency(dep: ThemeLibraryDependency): void {
+  if (typeof document === 'undefined' || preloadedDependencyUrls.has(dep.url)) {
+    return;
+  }
+  preloadedDependencyUrls.add(dep.url);
+  const link = document.createElement('link');
+  link.rel = 'modulepreload';
+  link.href = dep.url;
+  link.crossOrigin = 'anonymous';
+  document.head.appendChild(link);
+}
+
 export function useDependencyLoader(
   deps: ThemeLibraryDependency[] | undefined,
   widgetPolicy?: WidgetRuntimePolicy,
@@ -66,6 +85,7 @@ export function useDependencyLoader(
     if (!missing.length) {
       return;
     }
+    missing.forEach(preloadDependency);
     let cancelled = false;
     void Promise.all(missing.map((dep) => loadLibrary(dep, widgetPolicy)))
       .then(() => {

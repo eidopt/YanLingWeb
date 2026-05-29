@@ -13,6 +13,13 @@ export interface ThemeRuntime {
    */
   cssAnimations?: Record<string, string>;
   widgetPolicy?: ThemeLayoutWidgetPolicy;
+  /**
+   * 只读/预览渲染（非编辑器）时为 true。开启后渲染器对屏幕主体的各顶层区块
+   * 应用 CSS `content-visibility` 容器化，让浏览器跳过视口外子树的布局/绘制，
+   * 改善大模板（100+ 节点）长页面的渲染性能。编辑器模式（存在 renderNodeShell）
+   * 下为 false，避免影响节点测量/选区。
+   */
+  staticRender?: boolean;
 }
 
 export interface DynamicThemeNodeShellContext {

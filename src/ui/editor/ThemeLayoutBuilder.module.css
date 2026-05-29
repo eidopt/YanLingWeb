@@ -38,6 +38,34 @@
   min-height: 0;
 }
 
+/* 左侧组件/模板栏：宽屏为常规面板；窄屏收成细条 + 悬浮展开（见媒体查询）。 */
+.librarySlot {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+}
+
+.libraryPanelWrap {
+  flex: 1;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+}
+
+.libraryPanelWrap > * {
+  flex: 1;
+  min-width: 0;
+}
+
+.libraryRail {
+  display: none;
+}
+
+.libraryBackdrop {
+  display: none;
+}
+
 .panel {
   min-width: 0;
   min-height: 0;
@@ -89,7 +117,11 @@
   top: 0;
   z-index: 4;
   padding-bottom: var(--app-unit-0-25);
-  background: linear-gradient(180deg, var(--app-editor-panel), color-mix(in srgb, var(--app-editor-panel) 82%, transparent));
+  background: linear-gradient(
+    180deg,
+    var(--app-editor-panel),
+    color-mix(in srgb, var(--app-editor-panel) 82%, transparent)
+  );
   backdrop-filter: blur(var(--app-unit-1-75));
 }
 
@@ -398,8 +430,7 @@
   overflow: visible;
   border-radius: var(--app-radius-2xl);
   background:
-    radial-gradient(ellipse 40% 36% at 50% 0%, rgba(139, 92, 246, 0.05), transparent 70%),
-    rgba(0, 0, 0, 0.12);
+    radial-gradient(ellipse 40% 36% at 50% 0%, rgba(139, 92, 246, 0.05), transparent 70%), rgba(0, 0, 0, 0.12);
 }
 
 .canvasDrop {
@@ -472,7 +503,9 @@
   border-radius: var(--app-radius-pill);
   background: var(--app-neutral-400);
   cursor: pointer;
-  transition: transform 120ms ease, background-color 120ms ease;
+  transition:
+    transform 120ms ease,
+    background-color 120ms ease;
 }
 
 .canvasDotActive {
@@ -1127,14 +1160,77 @@
 }
 
 @media (--app-viewport-wide) {
+  /* 窄屏：左栏收成细条，画布与右侧 AI 栏拿回空间。 */
   .workspace {
-    grid-template-columns: var(--app-unit-36) minmax(var(--app-unit-4), 1fr) var(--app-unit-4);
+    grid-template-columns: var(--app-unit-5) minmax(var(--app-unit-50), 1fr) var(--app-unit-40);
+  }
+
+  .libraryRail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--app-unit-1-5);
+    width: 100%;
+    height: 100%;
+    padding: var(--app-unit-2) 0;
+    border: var(--app-unit-0-125) solid var(--app-editor-border);
+    border-radius: var(--app-radius-2xl);
+    background: var(--app-editor-panel);
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .libraryRailIcon {
+    font-size: var(--app-unit-2-5);
+    line-height: 1;
+  }
+
+  .libraryRailText {
+    writing-mode: vertical-rl;
+    letter-spacing: 0.12em;
+    font-size: var(--app-unit-1-5);
+    opacity: 0.72;
+  }
+
+  /* 收起态：隐藏完整面板，只留细条。 */
+  .libraryPanelWrap {
+    display: none;
+  }
+
+  /* 展开态：面板悬浮覆盖画布，不挤压画布/右栏。 */
+  .librarySlotOpen .libraryRail {
+    visibility: hidden;
+  }
+
+  .librarySlotOpen .libraryPanelWrap {
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 40;
+    width: var(--app-unit-40);
+    max-width: calc(100vw - var(--app-unit-8));
+    height: 100%;
+    border-radius: var(--app-radius-2xl);
+    box-shadow: 0 var(--app-unit-3) var(--app-unit-8) rgba(0, 0, 0, 0.45);
+  }
+
+  /* 展开时的视觉遮罩：仅用于压暗背景，pointer-events:none 不拦截任何指针事件，
+     因此把组件从悬浮面板拖到画布的操作不受影响；收起由文档级 pointerdown 监听处理。 */
+  .libraryBackdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 35;
+    background: rgba(0, 0, 0, 0.28);
+    pointer-events: none;
   }
 }
 
 @media (--app-viewport-desktop) {
+  /* 仍保持左栏细条；画布与右栏在更窄屏下进一步压缩。 */
   .workspace {
-    grid-template-columns: var(--app-unit-32) minmax(var(--app-unit-36), 1fr) var(--app-unit-36);
+    grid-template-columns: var(--app-unit-5) minmax(var(--app-unit-36), 1fr) var(--app-unit-36);
   }
 
   .previewStage {

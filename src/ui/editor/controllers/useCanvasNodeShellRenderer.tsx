@@ -1,15 +1,10 @@
 import type { ThemeLayoutDocument, ThemeLayoutNode } from '../../layout/types';
 import type { DynamicThemeNodeShellContext } from '../../renderer';
-import {
-  canAcceptNestedDrop,
-  descriptorForAlias,
-  type DropIndicator,
-  getNodeCapabilities,
-} from '../services/layoutBuilderService';
 import { themeLayoutBuilderContent } from '../ThemeLayoutBuilder.content';
 import styles from '../ThemeLayoutBuilder.module.css';
 import type { DraggingNodeSnapshot } from './useCanvasReorder';
 import { cx } from 'base/classname';
+import { canAcceptNestedDrop, descriptorForAlias, type DropIndicator, getNodeCapabilities } from 'domain/template';
 import {
   type CSSProperties,
   type DragEvent,

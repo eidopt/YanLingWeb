@@ -13,16 +13,16 @@
   --radius-base: var(--app-unit-2);
 
   /* ── Derived: typography ─────────────────────────────────────────── */
-  --text-heading-color:    color-mix(in srgb, var(--text-base) 96%, var(--app-neutral-0));
+  --text-heading-color: color-mix(in srgb, var(--text-base) 96%, var(--app-neutral-0));
   --text-subheading-color: color-mix(in srgb, var(--text-base) 84%, var(--app-neutral-0));
-  --text-body-color:       color-mix(in srgb, var(--text-base) 68%, var(--app-neutral-0));
-  --text-caption-color:    color-mix(in srgb, var(--text-base) 56%, var(--app-neutral-0));
-  --text-overline-color:   color-mix(in srgb, var(--text-base) 72%, var(--app-neutral-0));
+  --text-body-color: color-mix(in srgb, var(--text-base) 68%, var(--app-neutral-0));
+  --text-caption-color: color-mix(in srgb, var(--text-base) 56%, var(--app-neutral-0));
+  --text-overline-color: color-mix(in srgb, var(--text-base) 72%, var(--app-neutral-0));
 
   /* ── Derived: shape ──────────────────────────────────────────────── */
   --radius-screen: calc(var(--radius-base) * 1.8);
-  --radius-panel:  calc(var(--radius-base) * 1.5);
-  --radius-image:  calc(var(--radius-base) * 1.1);
+  --radius-panel: calc(var(--radius-base) * 1.5);
+  --radius-image: calc(var(--radius-base) * 1.1);
   --radius-btn: var(--app-radius-pill);
   --radius-tag: var(--app-radius-pill);
 
@@ -32,26 +32,26 @@
   --screen-height-desktop: var(--app-unit-112);
 
   /* ── Derived: accent-tinted components ───────────────────────────── */
-  --btn-pill-bg:    color-mix(in srgb, var(--accent) 10%, var(--app-neutral-0));
+  --btn-pill-bg: color-mix(in srgb, var(--accent) 10%, var(--app-neutral-0));
   --btn-pill-color: color-mix(in srgb, var(--accent) 75%, var(--app-color-black));
-  --tag-hot-bg:     color-mix(in srgb, var(--accent) 15%, var(--app-neutral-0));
-  --tag-hot-color:  color-mix(in srgb, var(--accent) 70%, var(--app-color-black));
-  --tag-new-bg:     color-mix(in srgb, var(--accent) 10%, var(--app-neutral-0));
-  --tag-new-color:  color-mix(in srgb, var(--accent) 65%, var(--app-color-black));
-  --tag-member-bg:  color-mix(in srgb, var(--accent)  8%, var(--app-neutral-0));
+  --tag-hot-bg: color-mix(in srgb, var(--accent) 15%, var(--app-neutral-0));
+  --tag-hot-color: color-mix(in srgb, var(--accent) 70%, var(--app-color-black));
+  --tag-new-bg: color-mix(in srgb, var(--accent) 10%, var(--app-neutral-0));
+  --tag-new-color: color-mix(in srgb, var(--accent) 65%, var(--app-color-black));
+  --tag-member-bg: color-mix(in srgb, var(--accent) 8%, var(--app-neutral-0));
   --tag-member-color: color-mix(in srgb, var(--accent) 55%, var(--app-color-black));
 
   /* ── Fixed: semantic tag colors (meaning shouldn't change) ──────── */
-  --tag-neutral-bg:  var(--app-neutral-100);
+  --tag-neutral-bg: var(--app-neutral-100);
   --tag-neutral-color: var(--app-neutral-500);
-  --tag-success-bg:  var(--app-color-success-bg);
+  --tag-success-bg: var(--app-color-success-bg);
   --tag-success-color: var(--app-color-wechat);
-  --tag-warning-bg:  var(--app-color-warning-bg);
+  --tag-warning-bg: var(--app-color-warning-bg);
   --tag-warning-color: var(--app-color-orange);
-  --tag-info-bg:     var(--app-color-info-bg);
-  --tag-info-color:  var(--app-color-sky);
-  --tag-deal-bg:     var(--app-text-primary);
-  --tag-deal-color:  var(--app-color-danger);
+  --tag-info-bg: var(--app-color-info-bg);
+  --tag-info-color: var(--app-color-sky);
+  --tag-deal-bg: var(--app-text-primary);
+  --tag-deal-color: var(--app-color-danger);
 
   width: min(100%, var(--app-unit-45));
   min-height: var(--app-unit-80);
@@ -85,8 +85,7 @@
   border: var(--app-unit-0-125) solid var(--app-border);
   border-radius: var(--app-unit-3-5);
   background:
-    radial-gradient(circle at top, color-mix(in srgb, var(--accent) 8%, transparent), transparent 34%),
-    var(--surface);
+    radial-gradient(circle at top, color-mix(in srgb, var(--accent) 8%, transparent), transparent 34%), var(--surface);
   box-shadow:
     0 var(--app-unit-3) var(--app-unit-7) var(--app-ink-alpha-02),
     inset 0 var(--app-unit-0-125) 0 var(--app-white-alpha-80),
@@ -97,8 +96,7 @@
   border: var(--app-unit-0-125) solid var(--app-border);
   border-radius: var(--app-unit-4);
   background:
-    radial-gradient(circle at top, color-mix(in srgb, var(--accent) 10%, transparent), transparent 36%),
-    var(--surface);
+    radial-gradient(circle at top, color-mix(in srgb, var(--accent) 10%, transparent), transparent 36%), var(--surface);
   box-shadow:
     0 var(--app-unit-3) var(--app-unit-7) var(--app-ink-alpha-02),
     inset 0 var(--app-unit-0-125) 0 var(--app-white-alpha-80),
@@ -157,10 +155,21 @@
   background: color-mix(in srgb, var(--text-base) 48%, transparent);
 }
 
-.signalIcon span:nth-child(1) { height: var(--app-unit-0-5); opacity: 0.5; }
-.signalIcon span:nth-child(2) { height: var(--app-unit-0-75); opacity: 0.66; }
-.signalIcon span:nth-child(3) { height: var(--app-unit-1);  opacity: 0.82; }
-.signalIcon span:nth-child(4) { height: var(--app-unit-1-25); }
+.signalIcon span:nth-child(1) {
+  height: var(--app-unit-0-5);
+  opacity: 0.5;
+}
+.signalIcon span:nth-child(2) {
+  height: var(--app-unit-0-75);
+  opacity: 0.66;
+}
+.signalIcon span:nth-child(3) {
+  height: var(--app-unit-1);
+  opacity: 0.82;
+}
+.signalIcon span:nth-child(4) {
+  height: var(--app-unit-1-25);
+}
 
 .batteryIcon {
   position: relative;
@@ -302,6 +311,17 @@
   align-content: flex-start;
   gap: var(--app-unit-1-5);
   min-width: 0;
+}
+
+/*
+ * 只读/预览渲染时对顶层区块行启用 content-visibility 容器化：浏览器跳过
+ * 视口外行的布局/绘制，显著降低大模板长页面的渲染成本。仅在 staticRender
+ * 且该行无绝对定位子节点时应用（content-visibility 隐含 contain:layout，
+ * 会成为绝对定位包含块，故含绝对子节点的行不启用）。
+ */
+.viewportRowContained {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 320px;
 }
 
 .footer {

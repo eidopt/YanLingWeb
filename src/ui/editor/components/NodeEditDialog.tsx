@@ -1,19 +1,11 @@
 'use client';
 
-import {
-  getOptionDisplayName,
-  getPropDisplayName,
-} from '../displayText';
-import type {
-  DialogState,
-  DraftLayoutMode,
-  FlatNode,
-  NodeDraft,
-} from '../services/layoutBuilderService';
-import { ALIGN_OPTIONS } from '../services/layoutBuilderService';
+import { getOptionDisplayName, getPropDisplayName } from '../displayText';
 import { themeLayoutBuilderContent } from '../ThemeLayoutBuilder.content';
 import styles from '../ThemeLayoutBuilder.module.css';
 import { cx } from 'base/classname';
+import type { DialogState, DraftLayoutMode, FlatNode, NodeDraft } from 'domain/template';
+import { ALIGN_OPTIONS } from 'domain/template';
 import type { ReactNode } from 'react';
 import {
   Box,
@@ -35,10 +27,7 @@ interface NodeEditDialogProps {
   containerNodes: FlatNode[];
   rootId: string;
   onClose: () => void;
-  onUpdateDraft: <K extends keyof NodeDraft>(
-    key: K,
-    value: NodeDraft[K],
-  ) => void;
+  onUpdateDraft: <K extends keyof NodeDraft>(key: K, value: NodeDraft[K]) => void;
   onUpdateDraftProp: (name: string, value: string | boolean) => void;
   onSave: () => void;
 }
@@ -51,19 +40,24 @@ interface FieldProps {
 }
 
 function RequiredMark() {
-  return <Box as="span" className={styles.required}>*</Box>;
+  return (
+    <Box as="span" className={styles.required}>
+      *
+    </Box>
+  );
 }
 
-function Field({
-  children,
-  label,
-  required = false,
-  wide = false,
-}: FieldProps) {
+function Field({ children, label, required = false, wide = false }: FieldProps) {
   return (
     <Label className={cx(styles.field, wide && styles.fieldWide)}>
       <Text as="span" size="xs" variant="secondary" weight="bold">
-        {label}{required ? <> <RequiredMark /></> : null}
+        {label}
+        {required ? (
+          <>
+            {' '}
+            <RequiredMark />
+          </>
+        ) : null}
       </Text>
       {children}
     </Label>
@@ -115,14 +109,7 @@ interface TextAreaFieldProps {
   wide?: boolean;
 }
 
-function TextAreaField({
-  label,
-  onChange,
-  placeholder,
-  required,
-  value,
-  wide,
-}: TextAreaFieldProps) {
+function TextAreaField({ label, onChange, placeholder, required, value, wide }: TextAreaFieldProps) {
   return (
     <Field label={label} required={required} wide={wide}>
       <TextArea
@@ -145,14 +132,7 @@ interface SelectFieldProps {
   value: string;
 }
 
-function SelectField({
-  disabled,
-  label,
-  onChange,
-  options,
-  required,
-  value,
-}: SelectFieldProps) {
+function SelectField({ disabled, label, onChange, options, required, value }: SelectFieldProps) {
   return (
     <Field label={label} required={required}>
       <Dropdown
@@ -186,8 +166,7 @@ export function NodeEditDialog({
   }
 
   const defaultOption = themeLayoutBuilderContent.dialog.defaultOption;
-  const disabledAbsoluteFields =
-    dialogState.draft.layoutMode !== 'absolute';
+  const disabledAbsoluteFields = dialogState.draft.layoutMode !== 'absolute';
   const alignOptions = [
     { label: defaultOption, value: '' },
     ...ALIGN_OPTIONS.map((option) => ({ label: option, value: option })),
@@ -200,12 +179,7 @@ export function NodeEditDialog({
           <Heading as="h3" size="xs" variant="primary" weight="bold">
             {themeLayoutBuilderContent.dialog.title}
           </Heading>
-          <Button
-            type="button"
-            onClick={onClose}
-            size="sm"
-            variant="secondary"
-          >
+          <Button type="button" onClick={onClose} size="sm" variant="secondary">
             {themeLayoutBuilderContent.dialog.close}
           </Button>
         </Box>
@@ -230,9 +204,7 @@ export function NodeEditDialog({
               <SelectField
                 label={themeLayoutBuilderContent.dialog.slotLabel}
                 value={dialogState.draft.slot}
-                onChange={(value) =>
-                  onUpdateDraft('slot', value as NodeDraft['slot'])
-                }
+                onChange={(value) => onUpdateDraft('slot', value as NodeDraft['slot'])}
                 disabled={dialogState.draft.parentId !== rootId}
                 options={[
                   { label: 'body', value: 'body' },
@@ -244,9 +216,7 @@ export function NodeEditDialog({
                 label="layout.mode"
                 required
                 value={dialogState.draft.layoutMode}
-                onChange={(value) =>
-                  onUpdateDraft('layoutMode', value as DraftLayoutMode)
-                }
+                onChange={(value) => onUpdateDraft('layoutMode', value as DraftLayoutMode)}
                 options={[
                   { label: 'flow', value: 'flow' },
                   { label: 'grid', value: 'grid' },
@@ -273,9 +243,7 @@ export function NodeEditDialog({
                     label="height"
                     value={dialogState.draft.height}
                     onChange={(value) => onUpdateDraft('height', value)}
-                    placeholder={
-                      themeLayoutBuilderContent.dialog.sizeOptionalPlaceholder
-                    }
+                    placeholder={themeLayoutBuilderContent.dialog.sizeOptionalPlaceholder}
                   />
                   <TextInputField
                     label="minWidth"
@@ -318,17 +286,13 @@ export function NodeEditDialog({
                     label="gridColumn"
                     value={dialogState.draft.gridColumn}
                     onChange={(value) => onUpdateDraft('gridColumn', value)}
-                    placeholder={
-                      themeLayoutBuilderContent.dialog.gridColumnPlaceholder
-                    }
+                    placeholder={themeLayoutBuilderContent.dialog.gridColumnPlaceholder}
                   />
                   <TextInputField
                     label="gridRow"
                     value={dialogState.draft.gridRow}
                     onChange={(value) => onUpdateDraft('gridRow', value)}
-                    placeholder={
-                      themeLayoutBuilderContent.dialog.gridRowPlaceholder
-                    }
+                    placeholder={themeLayoutBuilderContent.dialog.gridRowPlaceholder}
                   />
                 </>
               ) : null}
@@ -343,9 +307,7 @@ export function NodeEditDialog({
               <SelectField
                 label="frame.unit"
                 value={dialogState.draft.frameUnit}
-                onChange={(value) =>
-                  onUpdateDraft('frameUnit', value as NodeDraft['frameUnit'])
-                }
+                onChange={(value) => onUpdateDraft('frameUnit', value as NodeDraft['frameUnit'])}
                 disabled={disabledAbsoluteFields}
                 options={[
                   { label: 'px', value: 'px' },
@@ -367,9 +329,7 @@ export function NodeEditDialog({
                   key={key}
                   label={label}
                   value={dialogState.draft[key as keyof NodeDraft] as string}
-                  onChange={(value) =>
-                    onUpdateDraft(key as keyof NodeDraft, value)
-                  }
+                  onChange={(value) => onUpdateDraft(key as keyof NodeDraft, value)}
                   disabled={disabledAbsoluteFields}
                 />
               ))}
@@ -392,14 +352,18 @@ export function NodeEditDialog({
                   <Checkbox
                     key={prop.name}
                     checked={Boolean(value)}
-                    label={(
+                    label={
                       <>
-                        {label}{prop.required ? <> <RequiredMark /></> : null}
+                        {label}
+                        {prop.required ? (
+                          <>
+                            {' '}
+                            <RequiredMark />
+                          </>
+                        ) : null}
                       </>
-                    )}
-                    onCheckedChange={(checked) =>
-                      onUpdateDraftProp(prop.name, checked)
                     }
+                    onCheckedChange={(checked) => onUpdateDraftProp(prop.name, checked)}
                   />
                 );
               }
@@ -411,9 +375,7 @@ export function NodeEditDialog({
                     label={label}
                     required={prop.required}
                     value={toPropFieldValue(value)}
-                    onChange={(nextValue) =>
-                      onUpdateDraftProp(prop.name, nextValue)
-                    }
+                    onChange={(nextValue) => onUpdateDraftProp(prop.name, nextValue)}
                     options={[
                       {
                         label: themeLayoutBuilderContent.dialog.emptyOption,
@@ -435,13 +397,8 @@ export function NodeEditDialog({
                   required={prop.required}
                   wide={isWide}
                   value={toPropFieldValue(value)}
-                  onChange={(nextValue) =>
-                    onUpdateDraftProp(prop.name, nextValue)
-                  }
-                  placeholder={
-                    prop.description ??
-                    themeLayoutBuilderContent.dialog.arrayPlaceholder
-                  }
+                  onChange={(nextValue) => onUpdateDraftProp(prop.name, nextValue)}
+                  placeholder={prop.description ?? themeLayoutBuilderContent.dialog.arrayPlaceholder}
                 />
               ) : (
                 <TextInputField
@@ -449,9 +406,7 @@ export function NodeEditDialog({
                   label={label}
                   required={prop.required}
                   value={toPropFieldValue(value)}
-                  onChange={(nextValue) =>
-                    onUpdateDraftProp(prop.name, nextValue)
-                  }
+                  onChange={(nextValue) => onUpdateDraftProp(prop.name, nextValue)}
                   placeholder={prop.description ?? prop.type}
                 />
               );
@@ -461,25 +416,17 @@ export function NodeEditDialog({
 
         {dialogError ? (
           <Box className={styles.error}>
-            <Text size="sm" variant="danger" weight="bold">{dialogError}</Text>
+            <Text size="sm" variant="danger" weight="bold">
+              {dialogError}
+            </Text>
           </Box>
         ) : null}
 
         <Box className={styles.dialogActions}>
-          <Button
-            type="button"
-            onClick={onClose}
-            size="sm"
-            variant="secondary"
-          >
+          <Button type="button" onClick={onClose} size="sm" variant="secondary">
             {themeLayoutBuilderContent.dialog.cancel}
           </Button>
-          <Button
-            type="button"
-            onClick={onSave}
-            size="sm"
-            variant="primary"
-          >
+          <Button type="button" onClick={onSave} size="sm" variant="primary">
             {themeLayoutBuilderContent.dialog.save}
           </Button>
         </Box>

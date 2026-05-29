@@ -1,14 +1,11 @@
 import type { ThemeComponentDescriptor } from '../../layout/types';
-import { createLibraryPreviewDocument } from '../services/layoutBuilderService';
 import type { LayoutBuilderTheme } from '../types';
 import { useBuilderDocumentState } from './useBuilderDocumentState';
 import { useCanvasDragAndDrop } from './useCanvasDragAndDrop';
 import { useNodeEditDialogController } from './useNodeEditDialogController';
+import { createLibraryPreviewDocument } from 'domain/template';
 
-export function useCanvasEditorController(
-  themes: LayoutBuilderTheme[],
-  initialThemeId?: string,
-) {
+export function useCanvasEditorController(themes: LayoutBuilderTheme[], initialThemeId?: string) {
   const documentState = useBuilderDocumentState(themes, initialThemeId);
   const dialogController = useNodeEditDialogController({
     currentDocument: documentState.currentDocument,
@@ -29,10 +26,7 @@ export function useCanvasEditorController(
   });
 
   function getLibraryPreviewDocument(descriptor: ThemeComponentDescriptor) {
-    return createLibraryPreviewDocument(
-      documentState.activeTheme.layoutDocument,
-      descriptor,
-    );
+    return createLibraryPreviewDocument(documentState.activeTheme.layoutDocument, descriptor);
   }
 
   return {

@@ -1,6 +1,7 @@
 import {
   DynamicThemeRenderer,
   type DynamicThemeScreenPreset,
+  RendererErrorBoundary,
   useDynamicThemeRendererController,
 } from '../renderer';
 import styles from './ThemePreview.module.css';
@@ -11,9 +12,7 @@ interface ThemePreviewProps {
   screenPreset?: DynamicThemeScreenPreset;
 }
 
-export function ThemePreview(
-  { theme, screenPreset = 'mobile' }: ThemePreviewProps,
-) {
+export function ThemePreview({ theme, screenPreset = 'mobile' }: ThemePreviewProps) {
   const controller = useDynamicThemeRendererController({
     layoutDocument: theme.layoutDocument,
     runtime: theme.runtime,
@@ -22,7 +21,9 @@ export function ThemePreview(
 
   return (
     <div className={styles.root}>
-      <DynamicThemeRenderer controller={controller} />
+      <RendererErrorBoundary resetKeys={[theme.id, controller.state.activePageId]}>
+        <DynamicThemeRenderer controller={controller} />
+      </RendererErrorBoundary>
     </div>
   );
 }

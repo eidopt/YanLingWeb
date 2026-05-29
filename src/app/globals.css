@@ -146,3 +146,25 @@ ol {
   color: var(--app-bg);
   cursor: pointer;
 }
+
+.renderer-error-boundary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-2);
+  margin: var(--app-space-3);
+  border: var(--app-unit-0-125) dashed var(--app-border-subtle);
+  border-radius: var(--app-radius-sm);
+  padding: var(--app-space-4);
+  background: var(--app-surface);
+  color: var(--app-text-secondary);
+  font-size: var(--app-font-size-sm);
+  line-height: var(--app-line-body);
+}
+
+.renderer-error-boundary strong {
+  color: var(--app-text-primary);
+}
+
+.renderer-error-boundary p {
+  margin: 0;
+}

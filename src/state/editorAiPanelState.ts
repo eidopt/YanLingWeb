@@ -3,7 +3,7 @@
 import type { EditorAiCacheStats, EditorAiConversationMessage } from 'ai/editor-ai.service';
 import type { UiIntentPlan } from 'ai/planning/ui-intent-router';
 import { useSyncExternalStore } from 'react';
-import { recordStateDebugTransition, registerStateDebugStore } from 'state/stateDebugRegistry';
+import { createPersistentStore } from 'state/createPersistentStore';
 import {
   getBrowserStateStorage,
   readPersistedObject,
@@ -26,7 +26,6 @@ export interface EditorAiPanelSnapshot {
   cacheStats: EditorAiCacheStats | null;
 }
 
-type EditorAiPanelListener = () => void;
 type MessageUpdater = EditorAiPanelMessage[] | ((current: EditorAiPanelMessage[]) => EditorAiPanelMessage[]);
 
 export const EDITOR_AI_PANEL_MAX_STORED_MESSAGES = 40;
@@ -218,107 +217,38 @@ function resolveMessageUpdater(current: EditorAiPanelMessage[], updater: Message
   return typeof updater === 'function' ? updater(current) : updater;
 }
 
-class EditorAiPanelStateStore {
-  private readonly listeners = new Set<EditorAiPanelListener>();
-  private registered = false;
-  private snapshot = INITIAL_SNAPSHOT;
+const store = createPersistentStore<EditorAiPanelSnapshot>({
+  name: STORE_NAME,
+  initialSnapshot: INITIAL_SNAPSHOT,
+  // Snapshot holds nested message arrays + plan/cache objects, so dedup by deep value.
+  areEqual: (a, b) => JSON.stringify(a) === JSON.stringify(b),
+});
 
-  getSnapshot = (): EditorAiPanelSnapshot => this.snapshot;
-
-  getServerSnapshot = (): EditorAiPanelSnapshot => INITIAL_SNAPSHOT;
-
-  subscribe = (listener: EditorAiPanelListener): (() => void) => {
-    this.listeners.add(listener);
-    this.registerDebugStore();
-    return () => {
-      this.listeners.delete(listener);
-    };
-  };
-
-  ensureConversation(conversationKey: string, createMessages: () => EditorAiPanelMessage[], readyStatus: string): void {
-    if (this.snapshot.conversationKey === conversationKey) {
-      return;
-    }
-
-    this.setSnapshot(createInitialSnapshot(conversationKey, createMessages(), readyStatus), false);
+function ensureConversation(
+  conversationKey: string,
+  createMessages: () => EditorAiPanelMessage[],
+  readyStatus: string,
+): void {
+  if (store.peek().conversationKey === conversationKey) {
+    return;
   }
 
-  resetConversation(conversationKey: string, messages: EditorAiPanelMessage[], readyStatus: string): void {
-    this.setSnapshot(createInitialSnapshot(conversationKey, messages, readyStatus));
-  }
-
-  setMessages(updater: MessageUpdater): void {
-    this.update((current) => ({
-      ...current,
-      messages: resolveMessageUpdater(current.messages, updater),
-    }));
-  }
-
-  setPrompt(prompt: string): void {
-    this.update((current) => ({ ...current, prompt }));
-  }
-
-  setStatus(status: string): void {
-    this.update((current) => ({ ...current, status }));
-  }
-
-  setIsRunning(isRunning: boolean): void {
-    this.update((current) => ({ ...current, isRunning }));
-  }
-
-  setIntentPlan(intentPlan: UiIntentPlan | null): void {
-    this.update((current) => ({ ...current, intentPlan }));
-  }
-
-  setCacheStats(cacheStats: EditorAiCacheStats | null): void {
-    this.update((current) => ({ ...current, cacheStats }));
-  }
-
-  private update(updater: (current: EditorAiPanelSnapshot) => EditorAiPanelSnapshot): void {
-    this.setSnapshot(updater(this.snapshot));
-  }
-
-  private setSnapshot(next: EditorAiPanelSnapshot, notify = true): void {
-    if (this.createSnapshotKey(next) === this.createSnapshotKey(this.snapshot)) {
-      return;
-    }
-
-    this.snapshot = next;
-    if (!notify) {
-      return;
-    }
-
-    recordStateDebugTransition(STORE_NAME, this.snapshot);
-    this.listeners.forEach((listener) => {
-      listener();
-    });
-  }
-
-  private registerDebugStore(): void {
-    if (this.registered) {
-      return;
-    }
-
-    registerStateDebugStore(STORE_NAME, this.getSnapshot);
-    this.registered = true;
-  }
-
-  private createSnapshotKey(snapshot: EditorAiPanelSnapshot): string {
-    return JSON.stringify(snapshot);
-  }
+  store.commitSilently(createInitialSnapshot(conversationKey, createMessages(), readyStatus));
 }
-
-const editorAiPanelStateStore = new EditorAiPanelStateStore();
 
 export const editorAiPanelStateActions = {
   resetConversation: (conversationKey: string, messages: EditorAiPanelMessage[], readyStatus: string) =>
-    editorAiPanelStateStore.resetConversation(conversationKey, messages, readyStatus),
-  setMessages: (updater: MessageUpdater) => editorAiPanelStateStore.setMessages(updater),
-  setPrompt: (prompt: string) => editorAiPanelStateStore.setPrompt(prompt),
-  setStatus: (status: string) => editorAiPanelStateStore.setStatus(status),
-  setIsRunning: (isRunning: boolean) => editorAiPanelStateStore.setIsRunning(isRunning),
-  setIntentPlan: (intentPlan: UiIntentPlan | null) => editorAiPanelStateStore.setIntentPlan(intentPlan),
-  setCacheStats: (cacheStats: EditorAiCacheStats | null) => editorAiPanelStateStore.setCacheStats(cacheStats),
+    store.update(createInitialSnapshot(conversationKey, messages, readyStatus)),
+  setMessages: (updater: MessageUpdater) =>
+    store.update((current) => ({
+      ...current,
+      messages: resolveMessageUpdater(current.messages, updater),
+    })),
+  setPrompt: (prompt: string) => store.update((current) => ({ ...current, prompt })),
+  setStatus: (status: string) => store.update((current) => ({ ...current, status })),
+  setIsRunning: (isRunning: boolean) => store.update((current) => ({ ...current, isRunning })),
+  setIntentPlan: (intentPlan: UiIntentPlan | null) => store.update((current) => ({ ...current, intentPlan })),
+  setCacheStats: (cacheStats: EditorAiCacheStats | null) => store.update((current) => ({ ...current, cacheStats })),
 };
 
 export function useEditorAiPanelSnapshot(
@@ -326,11 +256,7 @@ export function useEditorAiPanelSnapshot(
   createInitialMessages: () => EditorAiPanelMessage[],
   readyStatus: string,
 ): EditorAiPanelSnapshot {
-  editorAiPanelStateStore.ensureConversation(conversationKey, createInitialMessages, readyStatus);
+  ensureConversation(conversationKey, createInitialMessages, readyStatus);
 
-  return useSyncExternalStore(
-    editorAiPanelStateStore.subscribe,
-    editorAiPanelStateStore.getSnapshot,
-    editorAiPanelStateStore.getServerSnapshot,
-  );
+  return useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
 }

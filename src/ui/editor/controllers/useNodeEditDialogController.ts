@@ -8,7 +8,7 @@ import {
   type NodeDraft,
   upsertNode,
   validateDraft,
-} from '../services/layoutBuilderService';
+} from 'domain/template';
 import type { Dispatch, SetStateAction } from 'react';
 import { editorNodeDialogStateActions, useEditorNodeDialogSnapshot } from 'state/editorNodeDialogState';
 

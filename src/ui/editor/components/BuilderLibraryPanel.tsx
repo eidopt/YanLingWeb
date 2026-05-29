@@ -1,29 +1,14 @@
 'use client';
 
-import type {
-  ThemeComponentDescriptor,
-  ThemeLayoutDocument,
-} from '../../layout/types';
-import {
-  DynamicThemeRenderer,
-  useDynamicThemeRendererController,
-} from '../../renderer';
+import type { ThemeComponentDescriptor, ThemeLayoutDocument } from '../../layout/types';
+import { DynamicThemeRenderer, RendererErrorBoundary, useDynamicThemeRendererController } from '../../renderer';
 import { getComponentDisplayName } from '../displayText';
 import { themeLayoutBuilderContent } from '../ThemeLayoutBuilder.content';
 import styles from '../ThemeLayoutBuilder.module.css';
 import type { LayoutBuilderTheme } from '../types';
 import { cx } from 'base/classname';
-import {
-  type CSSProperties,
-  type DragEvent,
-  useEffect,
-  useRef,
-} from 'react';
-import {
-  Box,
-  Button,
-  Text,
-} from 'ui/base';
+import { type CSSProperties, type DragEvent, useEffect, useRef } from 'react';
+import { Box, Button, Text } from 'ui/base';
 
 type BuilderSidebarTab = 'components' | 'templates';
 
@@ -35,14 +20,9 @@ interface BuilderLibraryPanelProps {
   activeTemplateId: string;
   layoutDescriptors: ThemeComponentDescriptor[];
   componentDescriptors: ThemeComponentDescriptor[];
-  createLibraryPreviewDocument: (
-    descriptor: ThemeComponentDescriptor,
-  ) => ThemeLayoutDocument;
+  createLibraryPreviewDocument: (descriptor: ThemeComponentDescriptor) => ThemeLayoutDocument;
   onApplyTemplate: (themeId: string) => void;
-  onLibraryDragStart: (
-    alias: string,
-    event: DragEvent<HTMLElement>,
-  ) => void;
+  onLibraryDragStart: (alias: string, event: DragEvent<HTMLElement>) => void;
   onLibraryDragEnd: () => void;
 }
 
@@ -55,13 +35,8 @@ function LibraryCard({
 }: {
   descriptor: ThemeComponentDescriptor;
   activeTheme: LayoutBuilderTheme;
-  createLibraryPreviewDocument: (
-    descriptor: ThemeComponentDescriptor,
-  ) => ThemeLayoutDocument;
-  onLibraryDragStart: (
-    alias: string,
-    event: DragEvent<HTMLElement>,
-  ) => void;
+  createLibraryPreviewDocument: (descriptor: ThemeComponentDescriptor) => ThemeLayoutDocument;
+  onLibraryDragStart: (alias: string, event: DragEvent<HTMLElement>) => void;
   onLibraryDragEnd: () => void;
 }) {
   const previewRef = useRef<HTMLDivElement | null>(null);
@@ -72,10 +47,13 @@ function LibraryCard({
     screenPreset: 'mobile',
   });
 
-  useEffect(() => () => {
-    dragImageRef.current?.remove();
-    dragImageRef.current = null;
-  }, []);
+  useEffect(
+    () => () => {
+      dragImageRef.current?.remove();
+      dragImageRef.current = null;
+    },
+    [],
+  );
 
   function removeDragImage() {
     dragImageRef.current?.remove();
@@ -93,9 +71,7 @@ function LibraryCard({
       dragImage.style.width = `${rect.width}px`;
       dragImage.style.height = `${rect.height}px`;
       document.body.appendChild(dragImage);
-      event.dataTransfer.setDragImage(
-        dragImage, rect.width / 2, rect.height / 2,
-      );
+      event.dataTransfer.setDragImage(dragImage, rect.width / 2, rect.height / 2);
       dragImageRef.current = dragImage;
     }
 
@@ -108,24 +84,16 @@ function LibraryCard({
   }
 
   return (
-    <Box
-      as="article"
-      className={styles.libraryCard}
-      draggable
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-    >
+    <Box as="article" className={styles.libraryCard} draggable onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <Box className={styles.libraryCardHeader}>
         <Text as="strong" size="sm" weight="bold">
           {getComponentDisplayName(descriptor.alias, descriptor.name)}
         </Text>
       </Box>
-      <Box
-        ref={previewRef}
-        className={styles.libraryPreview}
-        style={activeTheme.runtime.cssVars}
-      >
-        <DynamicThemeRenderer controller={rendererController} />
+      <Box ref={previewRef} className={styles.libraryPreview} style={activeTheme.runtime.cssVars}>
+        <RendererErrorBoundary resetKeys={[descriptor.alias, activeTheme.id]}>
+          <DynamicThemeRenderer controller={rendererController} />
+        </RendererErrorBoundary>
       </Box>
     </Box>
   );
@@ -150,15 +118,18 @@ function TemplateCard({
     <Box
       role="button"
       tabIndex={0}
-      className={cx(
-        styles.templateCard,
-        isActive && styles.templateCardActive,
-      )}
+      className={cx(styles.templateCard, isActive && styles.templateCardActive)}
       onClick={onApply}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { onApply(); } }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          onApply();
+        }
+      }}
     >
       <Box className={styles.templateCardHeader}>
-        <Text as="strong" size="sm" weight="bold">{template.name}</Text>
+        <Text as="strong" size="sm" weight="bold">
+          {template.name}
+        </Text>
         <Box
           as="span"
           className={styles.templateBadge}
@@ -172,11 +143,10 @@ function TemplateCard({
       </Box>
 
       <Box className={styles.templateThumbnail}>
-        <Box
-          className={styles.templateThumbnailScale}
-          style={template.runtime.cssVars}
-        >
-          <DynamicThemeRenderer controller={rendererController} />
+        <Box className={styles.templateThumbnailScale} style={template.runtime.cssVars}>
+          <RendererErrorBoundary resetKeys={[template.id]}>
+            <DynamicThemeRenderer controller={rendererController} />
+          </RendererErrorBoundary>
         </Box>
       </Box>
     </Box>
@@ -201,11 +171,7 @@ export function BuilderLibraryPanel({
   };
 
   return (
-    <Box
-      as="aside"
-      className={cx(styles.panel, styles.sidebarPanel)}
-      style={sidebarStyle}
-    >
+    <Box as="aside" className={cx(styles.panel, styles.sidebarPanel)} style={sidebarStyle}>
       <Box className={styles.sidebarStickyTop}>
         <Box className={styles.sidebarTabs}>
           <Button
@@ -244,20 +210,13 @@ export function BuilderLibraryPanel({
         ) : (
           <>
             <Box className={styles.componentTabHeader}>
-              <Box
-                as="span"
-                className={styles.sidebarActiveTag}
-                style={{ backgroundColor: activeTheme.accent }}
-              >
+              <Box as="span" className={styles.sidebarActiveTag} style={{ backgroundColor: activeTheme.accent }}>
                 {activeTheme.tagline}
               </Box>
             </Box>
 
             <Box className={styles.libraryList}>
-              {[
-                ...layoutDescriptors,
-                ...componentDescriptors,
-              ].map((descriptor) => (
+              {[...layoutDescriptors, ...componentDescriptors].map((descriptor) => (
                 <LibraryCard
                   key={descriptor.alias}
                   descriptor={descriptor}

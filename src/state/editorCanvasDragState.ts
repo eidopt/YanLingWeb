@@ -1,8 +1,8 @@
 'use client';
 
+import type { DropIndicator, PointerInteraction } from 'domain/template';
 import { useSyncExternalStore } from 'react';
 import { recordStateDebugTransition, registerStateDebugStore } from 'state/stateDebugRegistry';
-import type { DropIndicator, PointerInteraction } from 'ui/editor/services/layoutBuilderService';
 import type { ThemeLayoutDocument } from 'ui/layout/types';
 
 export interface DraggingNodeSnapshot {

@@ -4,7 +4,7 @@ import { useAppServices } from 'hooks/useAppServices';
 import { useSyncExternalStore } from 'react';
 import type { AuthService, AuthUser } from 'services/AuthService';
 import { AUTH_CHANGED_EVENT } from 'services/AuthService';
-import { recordStateDebugTransition, registerStateDebugStore } from 'state/stateDebugRegistry';
+import { createPersistentStore, type PersistentStore } from 'state/createPersistentStore';
 
 export type AuthStatus = 'checking' | 'anonymous' | 'authenticated';
 
@@ -12,8 +12,6 @@ export interface AuthSnapshot {
   status: AuthStatus;
   user: AuthUser | null;
 }
-
-type AuthStateListener = () => void;
 
 const CHECKING_SNAPSHOT: AuthSnapshot = {
   status: 'checking',
@@ -25,26 +23,37 @@ const ANONYMOUS_SNAPSHOT: AuthSnapshot = {
   user: null,
 };
 
+function areAuthSnapshotsEqual(a: AuthSnapshot, b: AuthSnapshot): boolean {
+  return a.status === b.status && JSON.stringify(a.user) === JSON.stringify(b.user);
+}
+
+/**
+ * Auth is sourced from `authService.getUser()` (not localStorage), and reacts to a
+ * custom `AUTH_CHANGED_EVENT` plus the cross-tab `storage` event. So it uses the
+ * in-memory factory for the shared plumbing (listeners, debug, dedup→record→notify)
+ * and wires its bespoke event listeners + per-service instances on top.
+ */
 class AuthStateStore {
-  private readonly debugName = 'auth';
-  private readonly listeners = new Set<AuthStateListener>();
-  private snapshot: AuthSnapshot = CHECKING_SNAPSHOT;
-  private snapshotKey = 'checking';
+  private readonly store: PersistentStore<AuthSnapshot> = createPersistentStore<AuthSnapshot>({
+    name: 'auth',
+    initialSnapshot: CHECKING_SNAPSHOT,
+    areEqual: areAuthSnapshotsEqual,
+  });
   private listening = false;
 
   constructor(private readonly authService: AuthService) {}
 
-  getSnapshot = (): AuthSnapshot => this.snapshot;
+  getSnapshot = (): AuthSnapshot => this.store.getSnapshot();
 
-  getServerSnapshot = (): AuthSnapshot => CHECKING_SNAPSHOT;
+  getServerSnapshot = (): AuthSnapshot => this.store.getServerSnapshot();
 
-  subscribe = (listener: AuthStateListener): (() => void) => {
-    this.listeners.add(listener);
+  subscribe = (listener: () => void): (() => void) => {
+    const unsubscribe = this.store.subscribe(listener);
     this.startListening();
     this.syncFromStorage();
 
     return () => {
-      this.listeners.delete(listener);
+      unsubscribe();
       this.stopListeningIfIdle();
     };
   };
@@ -56,12 +65,11 @@ class AuthStateStore {
 
     window.addEventListener(AUTH_CHANGED_EVENT, this.syncFromStorage);
     window.addEventListener('storage', this.syncFromStorage);
-    registerStateDebugStore(this.debugName, this.getSnapshot);
     this.listening = true;
   }
 
   private stopListeningIfIdle(): void {
-    if (!this.listening || this.listeners.size > 0 || typeof window === 'undefined') {
+    if (!this.listening || typeof window === 'undefined') {
       return;
     }
 
@@ -72,24 +80,8 @@ class AuthStateStore {
 
   private syncFromStorage = (): void => {
     const user = this.authService.getUser();
-    const next: AuthSnapshot = user ? { status: 'authenticated', user } : ANONYMOUS_SNAPSHOT;
-
-    const nextKey = this.createSnapshotKey(next);
-    if (this.snapshotKey === nextKey) {
-      return;
-    }
-
-    this.snapshot = next;
-    this.snapshotKey = nextKey;
-    recordStateDebugTransition(this.debugName, this.snapshot);
-    this.listeners.forEach((notify) => {
-      notify();
-    });
+    this.store.update(user ? { status: 'authenticated', user } : ANONYMOUS_SNAPSHOT);
   };
-
-  private createSnapshotKey(snapshot: AuthSnapshot): string {
-    return `${snapshot.status}:${JSON.stringify(snapshot.user)}`;
-  }
 }
 
 const storesByAuthService = new WeakMap<AuthService, AuthStateStore>();

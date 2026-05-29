@@ -114,6 +114,86 @@ export default defineConfig([
     extends: [reactHooks.configs.flat.recommended],
   },
 
+  // --- Shared import boundary (frontend) ---
+  // Defense-in-depth alongside scripts/check-shared-boundaries.cjs. The regex
+  // guard only inspects `@shared/agent/...` specifiers; this rule additionally
+  // catches deep RELATIVE imports that reach into backend-only/implementation
+  // shared segments (e.g. `../../shared/agent/validation/foo`).
+  // Frontend (src/**) may import shared ONLY from the public surfaces:
+  //   @shared/agent/browser, @shared/agent/contracts/*, @shared/agent/tools/*,
+  //   @shared/theme-layout/*, @shared/types/*.
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: [
+                // Backend-only / implementation segments via the alias.
+                '@shared/agent/runtime',
+                '@shared/agent/runtime/**',
+                '@shared/agent/compiler',
+                '@shared/agent/compiler/**',
+                '@shared/agent/context',
+                '@shared/agent/context/**',
+                '@shared/agent/validation',
+                '@shared/agent/validation/**',
+                '@shared/agent/prompts',
+                '@shared/agent/prompts/**',
+                '@shared/agent/skills',
+                '@shared/agent/skills/**',
+                '@shared/agent/specs',
+                '@shared/agent/specs/**',
+                '@shared/agent/template',
+                '@shared/agent/template/**',
+                '@shared/agent/editor',
+                '@shared/agent/editor/**',
+                '@shared/agent/fixtures',
+                '@shared/agent/fixtures/**',
+                '@shared/agent/testing',
+                '@shared/agent/testing/**',
+                '@shared/agent/types',
+                '@shared/agent/types/**',
+                // Same segments reached via deep RELATIVE paths that bypass the alias.
+                '**/shared/agent/runtime',
+                '**/shared/agent/runtime/**',
+                '**/shared/agent/compiler',
+                '**/shared/agent/compiler/**',
+                '**/shared/agent/context',
+                '**/shared/agent/context/**',
+                '**/shared/agent/validation',
+                '**/shared/agent/validation/**',
+                '**/shared/agent/prompts',
+                '**/shared/agent/prompts/**',
+                '**/shared/agent/skills',
+                '**/shared/agent/skills/**',
+                '**/shared/agent/specs',
+                '**/shared/agent/specs/**',
+                '**/shared/agent/template',
+                '**/shared/agent/template/**',
+                '**/shared/agent/editor',
+                '**/shared/agent/editor/**',
+                '**/shared/agent/fixtures',
+                '**/shared/agent/fixtures/**',
+                '**/shared/agent/testing',
+                '**/shared/agent/testing/**',
+                '**/shared/agent/types',
+                '**/shared/agent/types/**',
+              ],
+              message:
+                'Frontend code may import shared only from @shared/agent/browser, ' +
+                '@shared/agent/contracts/*, @shared/agent/tools/*, @shared/theme-layout/*, ' +
+                'or @shared/types/*. Backend-only/implementation shared segments are off-limits, ' +
+                'including via deep relative paths.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+
   // --- Next.js ---
   {
     name: 'next/core-web-vitals',

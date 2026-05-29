@@ -6,6 +6,7 @@ import {
   getDefaultPreviewScreenPreset,
   getPreviewScreenPresetOptions,
   isPreviewScreenPresetAllowed,
+  RendererErrorBoundary,
   useDynamicThemeRendererController,
 } from '../renderer';
 import { BuilderLibraryPanel } from './components/BuilderLibraryPanel';
@@ -16,13 +17,13 @@ import { PreviewModeSwitch } from './components/PreviewModeSwitch';
 import { SelectedNodeInspector } from './components/SelectedNodeInspector';
 import { useCanvasEditorController } from './controllers/useCanvasEditorController';
 import { useEditorKeyboardShortcuts } from './controllers/useEditorKeyboardShortcuts';
-import { flattenNodes } from './services/layoutBuilderService';
 import { themeLayoutBuilderContent } from './ThemeLayoutBuilder.content';
 import styles from './ThemeLayoutBuilder.module.css';
 import type { LayoutBuilderTheme } from './types';
 import type { BuilderCanvas } from './types';
 import { cx } from 'base/classname';
-import { useCallback, useEffect, useRef } from 'react';
+import { flattenNodes } from 'domain/template';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   type EditorBuilderInteractionMode,
   editorBuilderUiStateActions,
@@ -265,22 +266,80 @@ export function ThemeLayoutBuilder({
     }, [closeDialog]),
   });
 
+  // 窄屏（≤1280px）下左侧组件/模板栏收成细条，点击展开为悬浮面板；
+  // 点击别处/失去焦点/Esc 自动收起。宽屏不受影响（CSS 媒体查询里此状态无效）。
+  const [libraryExpanded, setLibraryExpanded] = useState(false);
+
+  useEffect(() => {
+    if (!libraryExpanded) {
+      return;
+    }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setLibraryExpanded(false);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [libraryExpanded]);
+
+  useEffect(() => {
+    if (!libraryExpanded) {
+      return;
+    }
+    // 点击面板外的任意位置自动收起。用 pointerdown 监听而非遮罩拦截，
+    // 这样遮罩不会挡住把组件拖到画布的操作（遮罩 pointer-events:none）。
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as Element | null;
+      if (target && !target.closest('[data-library-slot]')) {
+        setLibraryExpanded(false);
+      }
+    };
+    document.addEventListener('pointerdown', onPointerDown, true);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, true);
+    };
+  }, [libraryExpanded]);
+
   return (
     <Box as="main" className={styles.page}>
       <Box as="section" className={styles.workspace}>
-        <BuilderLibraryPanel
-          tab={sidebarTab}
-          onTabChange={setSidebarTab}
-          activeTheme={activeTheme}
-          templates={libraryThemes ?? themes}
-          activeTemplateId={activeTheme.id}
-          layoutDescriptors={layoutDescriptors}
-          componentDescriptors={componentDescriptors}
-          createLibraryPreviewDocument={createLibraryPreviewDocument}
-          onApplyTemplate={handleApplyTemplate}
-          onLibraryDragStart={handleLibraryDragStart}
-          onLibraryDragEnd={handleLibraryDragEnd}
-        />
+        <Box data-library-slot="true" className={cx(styles.librarySlot, libraryExpanded && styles.librarySlotOpen)}>
+          <button
+            type="button"
+            className={styles.libraryRail}
+            onClick={() => setLibraryExpanded((open) => !open)}
+            aria-label={libraryExpanded ? '收起组件与模板面板' : '展开组件与模板面板'}
+            aria-expanded={libraryExpanded}
+          >
+            <span aria-hidden="true" className={styles.libraryRailIcon}>
+              ☰
+            </span>
+            <span className={styles.libraryRailText}>组件 / 模板</span>
+          </button>
+          <Box className={styles.libraryPanelWrap}>
+            <BuilderLibraryPanel
+              tab={sidebarTab}
+              onTabChange={setSidebarTab}
+              activeTheme={activeTheme}
+              templates={libraryThemes ?? themes}
+              activeTemplateId={activeTheme.id}
+              layoutDescriptors={layoutDescriptors}
+              componentDescriptors={componentDescriptors}
+              createLibraryPreviewDocument={createLibraryPreviewDocument}
+              onApplyTemplate={handleApplyTemplate}
+              onLibraryDragStart={(...args: Parameters<typeof handleLibraryDragStart>) => {
+                // 窄屏悬浮态：拖拽开始时收起面板（移除遮罩），让组件能落到画布上。
+                setLibraryExpanded(false);
+                handleLibraryDragStart(...args);
+              }}
+              onLibraryDragEnd={handleLibraryDragEnd}
+            />
+          </Box>
+          {libraryExpanded ? <div aria-hidden="true" className={styles.libraryBackdrop} /> : null}
+        </Box>
 
         <Box
           as="section"
@@ -365,7 +424,11 @@ export function ThemeLayoutBuilder({
                     transform: `scale(${canvasScale})`,
                   }}
                 >
-                  <DynamicThemeRenderer controller={rendererController} />
+                  <RendererErrorBoundary
+                    resetKeys={[activeCanvasId, rendererController.state.activePageId, interactionMode]}
+                  >
+                    <DynamicThemeRenderer controller={rendererController} />
+                  </RendererErrorBoundary>
                 </Box>
               </Box>
             </Box>

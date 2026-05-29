@@ -14,16 +14,10 @@ interface ScreenNodeProps extends CoreNodeProps<ScreenProps> {
 }
 
 export function ScreenNode({ runtime, props, children, nodeLayoutStyle }: ScreenNodeProps) {
-  const screenPreset = props.__screenPreset === 'desktop'
-    ? 'desktop'
-    : props.__screenPreset === 'tablet'
-      ? 'tablet'
-      : 'mobile';
+  const screenPreset =
+    props.__screenPreset === 'desktop' ? 'desktop' : props.__screenPreset === 'tablet' ? 'tablet' : 'mobile';
   const surface = asString(props.surface);
-  const chrome = asString(
-    props.chrome,
-    surface === 'web' ? 'none' : surface === 'mini-program' ? 'wechat' : 'app',
-  );
+  const chrome = asString(props.chrome, surface === 'web' ? 'none' : surface === 'mini-program' ? 'wechat' : 'app');
   const isWebSurface = surface === 'web' || chrome === 'none';
   const isWechatChrome = chrome === 'wechat';
   const isMobileScreen = screenPreset === 'mobile';
@@ -43,19 +37,16 @@ export function ScreenNode({ runtime, props, children, nodeLayoutStyle }: Screen
     bodyChildren.push({ child, row: childRows[index] ?? index + 1 });
   });
 
-  const groupedBodyChildren = bodyChildren.reduce<{ row: number; children: ReactNode[] }[]>(
-    (rows, entry) => {
-      const targetRow = entry.row || rows.length + 1;
-      const currentRow = rows.find((row) => row.row === targetRow);
-      if (currentRow) {
-        currentRow.children.push(entry.child);
-        return rows;
-      }
-      rows.push({ row: targetRow, children: [entry.child] });
+  const groupedBodyChildren = bodyChildren.reduce<{ row: number; children: ReactNode[] }[]>((rows, entry) => {
+    const targetRow = entry.row || rows.length + 1;
+    const currentRow = rows.find((row) => row.row === targetRow);
+    if (currentRow) {
+      currentRow.children.push(entry.child);
       return rows;
-    },
-    [],
-  );
+    }
+    rows.push({ row: targetRow, children: [entry.child] });
+    return rows;
+  }, []);
 
   return (
     <section
@@ -74,27 +65,25 @@ export function ScreenNode({ runtime, props, children, nodeLayoutStyle }: Screen
         height: isWebSurface
           ? undefined
           : isMobileScreen
-          ? 'var(--screen-height, var(--app-unit-80))'
-          : isTabletScreen
-            ? 'var(--screen-height-tablet, calc(var(--app-base-unit) * 128))'
-            : 'var(--screen-height-desktop, var(--app-unit-112))',
+            ? 'var(--screen-height, var(--app-unit-80))'
+            : isTabletScreen
+              ? 'var(--screen-height-tablet, calc(var(--app-base-unit) * 128))'
+              : 'var(--screen-height-desktop, var(--app-unit-112))',
         maxHeight: isWebSurface
           ? undefined
           : isMobileScreen
-          ? 'var(--screen-height, var(--app-unit-80))'
-          : isTabletScreen
-            ? 'var(--screen-height-tablet, calc(var(--app-base-unit) * 128))'
-            : 'var(--screen-height-desktop, var(--app-unit-112))',
+            ? 'var(--screen-height, var(--app-unit-80))'
+            : isTabletScreen
+              ? 'var(--screen-height-tablet, calc(var(--app-base-unit) * 128))'
+              : 'var(--screen-height-desktop, var(--app-unit-112))',
         minHeight: isWebSurface
           ? '100%'
           : isMobileScreen
-          ? undefined
-          : isTabletScreen
-            ? 'var(--screen-height-tablet, calc(var(--app-base-unit) * 128))'
-            : 'var(--screen-height-desktop, var(--app-unit-112))',
-        borderRadius: isWebSurface || isMobileScreen
-          ? undefined
-          : 'var(--radius-screen, var(--app-radius-3xl))',
+            ? undefined
+            : isTabletScreen
+              ? 'var(--screen-height-tablet, calc(var(--app-base-unit) * 128))'
+              : 'var(--screen-height-desktop, var(--app-unit-112))',
+        borderRadius: isWebSurface || isMobileScreen ? undefined : 'var(--radius-screen, var(--app-radius-3xl))',
       }}
     >
       {!isWebSurface ? (
@@ -102,7 +91,10 @@ export function ScreenNode({ runtime, props, children, nodeLayoutStyle }: Screen
           <span className={styles.statusTime}>{asString(props.statusTime, '9:41')}</span>
           <div className={styles.statusIcons}>
             <span className={styles.signalIcon} aria-hidden="true">
-              <span /><span /><span /><span />
+              <span />
+              <span />
+              <span />
+              <span />
             </span>
             <span className={styles.batteryIcon} aria-hidden="true">
               <span className={styles.batteryLevel} />
@@ -118,10 +110,7 @@ export function ScreenNode({ runtime, props, children, nodeLayoutStyle }: Screen
           ) : (
             <span
               className={styles.headerGhost}
-              aria-label={asString(
-                props.headerLeftAriaLabel,
-                dynamicThemeRendererContent.headerLeftAriaLabel,
-              )}
+              aria-label={asString(props.headerLeftAriaLabel, dynamicThemeRendererContent.headerLeftAriaLabel)}
             />
           )}
 
@@ -131,20 +120,16 @@ export function ScreenNode({ runtime, props, children, nodeLayoutStyle }: Screen
             <span className={isWechatChrome && isMobileScreen ? styles.miniProgramCapsuleLabel : styles.headerAction}>
               {asString(props.headerActionLabel)}
             </span>
+          ) : isWechatChrome && isMobileScreen ? (
+            <div className={styles.miniProgramCapsule} aria-hidden="true">
+              <span />
+              <span />
+            </div>
           ) : (
-            isWechatChrome && isMobileScreen ? (
-              <div className={styles.miniProgramCapsule} aria-hidden="true">
-                <span /><span />
-              </div>
-            ) : (
-              <span
-                className={styles.headerGhost}
-                aria-label={asString(
-                  props.headerRightAriaLabel,
-                  dynamicThemeRendererContent.headerRightAriaLabel,
-                )}
-              />
-            )
+            <span
+              className={styles.headerGhost}
+              aria-label={asString(props.headerRightAriaLabel, dynamicThemeRendererContent.headerRightAriaLabel)}
+            />
           )}
         </div>
       ) : null}
@@ -155,15 +140,21 @@ export function ScreenNode({ runtime, props, children, nodeLayoutStyle }: Screen
         style={{ position: props.__hasAbsoluteChildren ? 'relative' : undefined }}
       >
         {groupedBodyChildren.map((row) => (
-          <div key={row.row} className={styles.viewportRow}>
+          <div
+            key={row.row}
+            className={cx(
+              styles.viewportRow,
+              runtime.staticRender && !props.__hasAbsoluteChildren && styles.viewportRowContained,
+            )}
+          >
             {row.children}
           </div>
         ))}
       </div>
 
-      {footerChildren.length > 0
-        ? <div className={cx(styles.footer, isWebSurface && styles.footerWeb)}>{footerChildren}</div>
-        : null}
+      {footerChildren.length > 0 ? (
+        <div className={cx(styles.footer, isWebSurface && styles.footerWeb)}>{footerChildren}</div>
+      ) : null}
     </section>
   );
 }

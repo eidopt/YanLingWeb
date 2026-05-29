@@ -13,6 +13,7 @@ export function createDynamicThemeRendererController({
   const resolvedRuntime = {
     ...runtime,
     widgetPolicy: layoutDocument.widgetPolicy ?? runtime.widgetPolicy,
+    staticRender: renderNodeShell == null,
   };
 
   return {
@@ -48,8 +49,9 @@ export function useDynamicThemeRendererController(
     () => ({
       ...runtime,
       widgetPolicy: layoutDocument.widgetPolicy ?? runtime.widgetPolicy,
+      staticRender: renderNodeShell == null,
     }),
-    [layoutDocument.widgetPolicy, runtime],
+    [layoutDocument.widgetPolicy, runtime, renderNodeShell],
   );
 
   return useMemo(

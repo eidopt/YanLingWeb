@@ -1,25 +1,8 @@
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import type {
-  AgentConversationMessage,
-  AgentPageContext,
-  ThemeComponentDescriptor,
-  ThemeLayoutDocument,
-  ThemeLayoutNode,
-} from '@shared/agent/contracts/agent';
+import type { ThemeLayoutDocument } from '@shared/agent/contracts/agent';
 import {
   type AgentTemplateKnowledgeContext,
-  buildConversationContextMessages,
-  buildEditorMinimalVolatileContext,
-  buildEditorStablePrefixContext,
-  buildEditorTrimmedVolatileContext,
-  compileSemanticEditorInstruction,
-  EDITOR_COPILOT_SYSTEM_PROMPT,
-  formatUiDesignSkillContextForPrompt,
-  inferUiDesignSkillContext,
-  isSemanticEditorInstruction,
   QueryLoop,
-  type SemanticEditorInstruction,
-  summarizeTemplateAgentKnowledge,
   type TemplateProfile,
   type ToolResult,
 } from '@shared/agent/runtime';
@@ -35,15 +18,27 @@ import {
   type TemplateAgentKnowledgeServicePort,
 } from '../templates/template-agent-knowledge.service';
 import { TemplatesService } from '../templates/templates.service';
+import {
+  assertEditorOperations,
+  buildStructuredEditorMessages,
+  checkRateLimit,
+  compileSemanticEditorOperations,
+  EDITOR_AGENT_MAX_ITERATIONS,
+  type EditorAgentStreamRequest,
+  type EditorSseEventPayload,
+  editorToolSpecs,
+  extractClarificationChoiceText,
+  isEditorAgentStreamRequest,
+  type ProviderCacheOptions,
+  type RateLimitEntry,
+  type SaveGeneratedTemplateResult,
+  type StreamRequest,
+  type StreamSseEvent,
+  withRequestScopedCache,
+} from './ai.service.helpers';
 import { OpenAIProvider } from './core/providers/openai.provider';
 import { OpenAICompatibleProvider } from './core/providers/openai-compatible.provider';
-import type {
-  AIProvider,
-  ProviderMessage,
-  ProviderRequest,
-  ProviderStreamEvent,
-  ProviderTool,
-} from './core/providers/types';
+import type { AIProvider, ProviderMessage, ProviderStreamEvent } from './core/providers/types';
 import { buildEditorClarification } from './editor-clarification';
 import { AI_SEMANTIC_TARGETS, type AiSemanticTargetConfig } from './semantic-targets.config';
 import {
@@ -73,89 +68,14 @@ export interface AiConfigDto {
 }
 
 // Re-export types from sub-services for backward compatibility
+export type { EditorAgentStreamRequest, StreamRequest, StreamSseEvent } from './ai.service.helpers';
 export type {
   EditorAiConversationDto,
   SaveEditorAiConversationInput,
 } from './services/editor-conversation.service';
 export type { AiCacheStatsDto } from './services/token-usage.service';
 
-export type StreamRequest = ProviderRequest;
-
-export interface EditorAgentStreamRequest {
-  model?: string;
-  prompt: string;
-  document: ThemeLayoutDocument;
-  pages?: AgentPageContext[];
-  conversation?: AgentConversationMessage[];
-  selectedNode?: ThemeLayoutNode | null;
-  selectedDescriptor?: ThemeComponentDescriptor | null;
-  clarificationChoice?: unknown;
-}
-
-export interface StreamSseEvent {
-  data: string;
-}
-
-interface EditorToolInput {
-  operations?: unknown;
-  reason?: unknown;
-}
-
-interface EditorToolInputWithWarnings extends EditorToolInput {
-  warnings?: string[];
-}
-
-interface RateLimitEntry {
-  count: number;
-  resetAt: number;
-}
-
-interface ProviderCacheOptions {
-  conversationId?: string;
-  previousResponseId?: string;
-}
-
-interface ClarificationChoiceRecord {
-  value?: unknown;
-}
-
-interface RequiredClarificationChoiceRecord {
-  value: string;
-}
-
-interface OperationTypeRecord {
-  type?: unknown;
-}
-
-interface SemanticOperationRecord {
-  type: string;
-}
-
-interface EditorSseEventPayload {
-  type: string;
-  data: unknown;
-}
-
-interface SaveGeneratedTemplateResult {
-  templateId: string;
-  action: 'created' | 'updated';
-}
-
-interface EditorAgentStreamRequestCandidate extends Partial<EditorAgentStreamRequest> {
-  messages?: unknown;
-}
-
-// 简单内存限流器：每个用户在一个窗口内最多 N 次请求。
-const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX = 10;
 const rateLimitMap = new Map<string, RateLimitEntry>();
-const DEFAULT_EDITOR_AGENT_MAX_ITERATIONS = 96;
-const EDITOR_AGENT_MAX_ITERATIONS = (() => {
-  const configured = Number(process.env.EDITOR_AGENT_MAX_ITERATIONS);
-  return Number.isFinite(configured) && configured >= 32
-    ? Math.floor(configured)
-    : DEFAULT_EDITOR_AGENT_MAX_ITERATIONS;
-})();
 
 @Injectable()
 export class AiService {
@@ -207,18 +127,7 @@ export class AiService {
   }
 
   checkRateLimit(userId: string): void {
-    const now = Date.now();
-    const entry = rateLimitMap.get(userId);
-
-    if (!entry || now > entry.resetAt) {
-      rateLimitMap.set(userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-      return;
-    }
-
-    entry.count += 1;
-    if (entry.count > RATE_LIMIT_MAX) {
-      throw new Error(`Rate limit exceeded: max ${RATE_LIMIT_MAX} requests per minute`);
-    }
+    checkRateLimit(rateLimitMap, userId);
   }
 
   getConfig(): AiConfigDto {
@@ -324,7 +233,7 @@ export class AiService {
         complete: () => subscriber.complete(),
       });
 
-      const runner = this.isEditorAgentStreamRequest(req)
+      const runner = isEditorAgentStreamRequest(req)
         ? this.runStructuredEditorStream(ownerUserId, req, subject, cacheOptions)
         : this.runEditorStream(ownerUserId, req, subject, cacheOptions);
       runner.catch((err) => {
@@ -356,7 +265,7 @@ export class AiService {
     }
 
     const model = this.resolveConfiguredModel(req.model);
-    const request = this.withRequestScopedCache({ ...req, model }, cacheOptions);
+    const request = withRequestScopedCache(this.provider, { ...req, model }, cacheOptions);
 
     for await (const event of this.provider.stream(request)) {
       if (event.type === 'done' && event.usage) {
@@ -373,22 +282,6 @@ export class AiService {
     }
 
     subject.complete();
-  }
-
-  private withRequestScopedCache(
-    req: StreamRequest,
-    cacheOptions?: ProviderCacheOptions,
-  ): StreamRequest {
-    if (!(this.provider instanceof OpenAIProvider) || !cacheOptions?.previousResponseId) {
-      return req;
-    }
-
-    return {
-      ...req,
-      cache: {
-        previousResponseId: cacheOptions.previousResponseId,
-      },
-    };
   }
 
   private async ensureTemplateAccessible(ownerUserId: string, templateId: string): Promise<void> {
@@ -453,7 +346,7 @@ export class AiService {
       provider: this.provider,
       model,
       tools: editorTools,
-      toolSpecs: this.editorToolSpecs(editorTools),
+      toolSpecs: editorToolSpecs(editorTools),
       maxIterations: EDITOR_AGENT_MAX_ITERATIONS,
       isCancelled: () => subject.closed,
       onTextDelta: (text) => {
@@ -511,7 +404,6 @@ export class AiService {
     }
 
     const prompt = req.prompt.trim();
-    const skillContext = inferUiDesignSkillContext(prompt);
     const clarification = buildEditorClarification({
       prompt,
       document: req.document,
@@ -528,13 +420,7 @@ export class AiService {
     }
 
     const model = this.resolveConfiguredModel(req.model);
-    const selectedChoiceText =
-      req.clarificationChoice &&
-      typeof req.clarificationChoice === 'object' &&
-      'value' in req.clarificationChoice &&
-      typeof (req.clarificationChoice as ClarificationChoiceRecord).value === 'string'
-        ? (req.clarificationChoice as RequiredClarificationChoiceRecord).value
-        : '';
+    const selectedChoiceText = extractClarificationChoiceText(req.clarificationChoice);
 
     const providerLog = await this.editorConversations.loadEditorProviderLog(
       ownerUserId,
@@ -555,70 +441,25 @@ export class AiService {
       this.provider.name,
       previousResponseId,
     );
-    const fallbackConversation =
-      providerLog.length > 0 ? [] : buildConversationContextMessages(req.conversation);
     const templateKnowledge = await this.loadTemplateAgentKnowledge(
       ownerUserId,
       req.document,
       cacheOptions?.conversationId,
     );
-    const templateKnowledgeContext = summarizeTemplateAgentKnowledge(templateKnowledge);
-    const stableEditorContext = [
-      buildEditorStablePrefixContext(req.document.components),
-      templateKnowledgeContext,
-    ]
-      .filter(Boolean)
-      .join('\n\n');
-    const effectiveTemplateProfile = templateKnowledge.effectiveProfile
-      ? (templateKnowledge.effectiveProfile as TemplateProfile)
-      : undefined;
-    const prefixMessages: StreamRequest['messages'] = [
-      { role: 'system', content: EDITOR_COPILOT_SYSTEM_PROMPT },
-      { role: 'system', content: stableEditorContext },
-    ];
-    const messages: StreamRequest['messages'] = [
-      ...prefixMessages,
-      ...providerLog,
-      ...fallbackConversation,
-      {
-        role: 'user',
-        content: [
-          'Current turn context:',
-          '',
-          formatUiDesignSkillContextForPrompt(skillContext),
-          '',
-          selectedChoiceText
-            ? buildEditorMinimalVolatileContext(
-                req.document,
-                req.pages,
-                req.selectedNode,
-                req.selectedDescriptor,
-              )
-            : buildEditorTrimmedVolatileContext(
-                req.document,
-                req.pages,
-                req.selectedNode,
-                req.selectedDescriptor,
-                prompt,
-              ),
-          selectedChoiceText
-            ? ['', 'Confirmed clarification choice:', selectedChoiceText].join('\n')
-            : '',
-          '',
-          'User request:',
-          prompt,
-        ]
-          .filter(Boolean)
-          .join('\n'),
-      },
-    ];
+    const { prefixMessages, messages, effectiveTemplateProfile } = buildStructuredEditorMessages({
+      req,
+      prompt,
+      selectedChoiceText,
+      providerLog,
+      templateKnowledge,
+    });
 
     const editorTools = selectEditorEditTools([prompt, selectedChoiceText].join('\n'));
     const loop = new QueryLoop({
       provider: this.provider,
       model,
       tools: editorTools,
-      toolSpecs: this.editorToolSpecs(editorTools),
+      toolSpecs: editorToolSpecs(editorTools),
       maxIterations: EDITOR_AGENT_MAX_ITERATIONS,
       isCancelled: () => subject.closed,
       onTextDelta: (text) => {
@@ -671,10 +512,6 @@ export class AiService {
     subject.next({ data: JSON.stringify(event) });
   }
 
-  private editorToolSpecs(tools: readonly ProviderTool[] = EDITOR_EDIT_TOOLS) {
-    return new Map(tools.map((tool) => [tool.name, { name: tool.name }]));
-  }
-
   private executeEditorTool(
     subject: Subject<StreamSseEvent>,
     name: string,
@@ -690,8 +527,8 @@ export class AiService {
 
     try {
       const edit = editorToolCallToOperations(name, args);
-      const compiledEdit = this.compileSemanticEditorOperations(edit, document, profile);
-      this.assertEditorOperations(compiledEdit);
+      const compiledEdit = compileSemanticEditorOperations(edit, document, profile);
+      assertEditorOperations(compiledEdit);
       this.emitEditorEvent(subject, {
         type: 'edit_request',
         data: JSON.stringify(compiledEdit),
@@ -712,58 +549,6 @@ export class AiService {
     }
   }
 
-  private compileSemanticEditorOperations(
-    edit: EditorToolInput,
-    document: ThemeLayoutDocument | undefined,
-    profile: TemplateProfile | undefined,
-  ): EditorToolInputWithWarnings {
-    if (!Array.isArray(edit.operations) || !document) {
-      return edit;
-    }
-
-    const operations: unknown[] = [];
-    const warnings: string[] = [];
-    for (const operation of edit.operations) {
-      if (
-        operation &&
-        typeof operation === 'object' &&
-        typeof (operation as OperationTypeRecord).type === 'string' &&
-        isSemanticEditorInstruction(operation as SemanticOperationRecord)
-      ) {
-        const compiled = compileSemanticEditorInstruction(
-          document,
-          operation as SemanticEditorInstruction,
-          profile,
-        );
-        if (!compiled.success || !compiled.data) {
-          throw new Error(JSON.stringify(compiled.error));
-        }
-        operations.push(...compiled.data.operations);
-        warnings.push(...compiled.data.warnings);
-        continue;
-      }
-      operations.push(operation);
-    }
-
-    return {
-      ...edit,
-      operations,
-      ...(warnings.length ? { warnings } : {}),
-    };
-  }
-
-  private assertEditorOperations(input: EditorToolInput): void {
-    if (!Array.isArray(input.operations)) {
-      throw new Error('editor tool requires an operations array');
-    }
-
-    for (const operation of input.operations) {
-      if (!operation || typeof operation !== 'object') {
-        throw new Error('Each editor operation must be an object');
-      }
-    }
-  }
-
   async saveTemplate(
     ownerUserId: string,
     input: TemplateToolInput,
@@ -771,18 +556,5 @@ export class AiService {
     const result = await this.templatesService.saveGeneratedTemplate(ownerUserId, input);
     this.logger.log(`Template ${result.action}: ${result.templateId}`);
     return result;
-  }
-
-  private isEditorAgentStreamRequest(value: unknown): value is EditorAgentStreamRequest {
-    if (!value || typeof value !== 'object') {
-      return false;
-    }
-    const input = value as EditorAgentStreamRequestCandidate;
-    return (
-      typeof input.prompt === 'string' &&
-      Boolean(input.document) &&
-      typeof input.document === 'object' &&
-      !Array.isArray(input.messages)
-    );
   }
 }
