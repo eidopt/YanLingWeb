@@ -278,13 +278,28 @@ interface TemplateJsonPage {
   };
 }
 
-interface TemplateJsonFile {
+interface TemplateLayoutDocument {
   version: unknown;
   themeId: unknown;
   themeName: unknown;
   pages: TemplateJsonPage[];
   components: unknown;
   defaultPageId: string;
+}
+
+// Import-inbox files use the wrapper shape consumed by `parseTemplateJsonSeed`:
+// top-level template metadata + `componentTemplates`, plus a nested
+// `layoutDocument` holding the actual theme document (version/themeId/pages/...).
+interface TemplateJsonFile {
+  templateId: string;
+  name: string;
+  tagline: string;
+  description: string;
+  accent: string;
+  category: string;
+  displayCategory: string;
+  componentTemplates: Record<string, unknown>;
+  layoutDocument: TemplateLayoutDocument;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -300,7 +315,7 @@ function isTemplateJsonPage(value: unknown): value is TemplateJsonPage {
   );
 }
 
-function isTemplateJsonFile(value: unknown): value is TemplateJsonFile {
+function isTemplateLayoutDocument(value: unknown): value is TemplateLayoutDocument {
   return (
     isRecord(value) &&
     'version' in value &&
@@ -310,6 +325,24 @@ function isTemplateJsonFile(value: unknown): value is TemplateJsonFile {
     value.pages.every(isTemplateJsonPage) &&
     'components' in value &&
     typeof value.defaultPageId === 'string'
+  );
+}
+
+function isTemplateJsonFile(value: unknown): value is TemplateJsonFile {
+  const requiredStrings = [
+    'templateId',
+    'name',
+    'tagline',
+    'description',
+    'accent',
+    'category',
+    'displayCategory',
+  ] as const;
+  return (
+    isRecord(value) &&
+    requiredStrings.every((key) => typeof value[key] === 'string') &&
+    isRecord(value.componentTemplates) &&
+    isTemplateLayoutDocument(value.layoutDocument)
   );
 }
 
@@ -358,21 +391,25 @@ describe('Template JSON Files', () => {
   it('should have required fields in each template', () => {
     for (const file of templateFiles) {
       const template = readTemplateJsonFile(templatesDir, file);
-      expect(template).toHaveProperty('version');
-      expect(template).toHaveProperty('themeId');
-      expect(template).toHaveProperty('themeName');
-      expect(template).toHaveProperty('pages');
-      expect(template).toHaveProperty('components');
-      expect(template).toHaveProperty('defaultPageId');
-      expect(Array.isArray(template.pages)).toBe(true);
-      expect(template.pages.length).toBeGreaterThan(0);
+      expect(template).toHaveProperty('templateId');
+      expect(template).toHaveProperty('componentTemplates');
+      expect(template).toHaveProperty('layoutDocument');
+      const doc = template.layoutDocument;
+      expect(doc).toHaveProperty('version');
+      expect(doc).toHaveProperty('themeId');
+      expect(doc).toHaveProperty('themeName');
+      expect(doc).toHaveProperty('pages');
+      expect(doc).toHaveProperty('components');
+      expect(doc).toHaveProperty('defaultPageId');
+      expect(Array.isArray(doc.pages)).toBe(true);
+      expect(doc.pages.length).toBeGreaterThan(0);
     }
   });
 
   it('should have core.screen as root of each page', () => {
     for (const file of templateFiles) {
       const template = readTemplateJsonFile(templatesDir, file);
-      for (const page of template.pages) {
+      for (const page of template.layoutDocument.pages) {
         expect(page.layout.alias).toBe('core.screen');
       }
     }
@@ -381,8 +418,9 @@ describe('Template JSON Files', () => {
   it('should have matching defaultPageId', () => {
     for (const file of templateFiles) {
       const template = readTemplateJsonFile(templatesDir, file);
-      const pageIds = template.pages.map((p) => p.id);
-      expect(pageIds).toContain(template.defaultPageId);
+      const doc = template.layoutDocument;
+      const pageIds = doc.pages.map((p) => p.id);
+      expect(pageIds).toContain(doc.defaultPageId);
     }
   });
 });

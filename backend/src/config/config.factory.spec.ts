@@ -118,6 +118,34 @@ describe('ConfigFactory validation', () => {
     ).toThrow(/without a path/);
   });
 
+  it('accepts Electron desktop custom-scheme CORS origins (app://)', () => {
+    const config = ConfigFactory.build(
+      {
+        SERVER_FLAVOR: 'production',
+        JWT_SECRET: 'stable-production-secret',
+        DB_SYNCHRONIZE: 'false',
+        CORS_ORIGINS: 'https://app.example.com,app://',
+      },
+      [],
+    );
+
+    expect(config.corsOrigins).toEqual(['https://app.example.com', 'app://']);
+  });
+
+  it('rejects desktop custom-scheme CORS origins that carry a path', () => {
+    expect(() =>
+      ConfigFactory.build(
+        {
+          SERVER_FLAVOR: 'production',
+          JWT_SECRET: 'stable-production-secret',
+          DB_SYNCHRONIZE: 'false',
+          CORS_ORIGINS: 'app://host/path',
+        },
+        [],
+      ),
+    ).toThrow(/without a path/);
+  });
+
   it('rejects incomplete or unsupported database driver configuration', () => {
     expect(() =>
       ConfigFactory.build(
