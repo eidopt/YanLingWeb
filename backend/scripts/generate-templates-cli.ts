@@ -46,6 +46,7 @@ interface CliOptions {
   count?: number;
   match?: string;
   dryRun: boolean;
+  withImages: boolean;
   outputDir: string;
 }
 
@@ -56,6 +57,7 @@ function parseArgs(): CliOptions {
   const projectRoot = join(__dirname, '..', '..');
   const opts: CliOptions = {
     dryRun: false,
+    withImages: false,
     outputDir: join(projectRoot, 'templates_json'),
   };
   for (let i = 0; i < args.length; i++) {
@@ -66,6 +68,8 @@ function parseArgs(): CliOptions {
       opts.match = args[++i];
     } else if (arg === '--dry-run') {
       opts.dryRun = true;
+    } else if (arg === '--with-images') {
+      opts.withImages = true;
     } else if (arg === '--out' && args[i + 1]) {
       opts.outputDir = args[++i];
     }
@@ -160,7 +164,7 @@ async function main(): Promise<void> {
     console.log(`\n${label}`);
 
     try {
-      const result = await service.generate(seed);
+      const result = await service.generateDetailed(seed, { materializeImages: opts.withImages });
 
       // 累加 token 统计。
       const sumStage = (records: { inputTokens: number; outputTokens: number; cacheHitTokens: number }[]): void => {

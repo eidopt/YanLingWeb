@@ -204,6 +204,9 @@ export class ConfigFactory {
     }
 
     this.validateDatabase(config, issues);
+    // Electron 桌面端通过自定义协议（如 app://）加载渲染层时，其请求 Origin 不是
+    // http(s)，需在 CORS 白名单中显式允许。
+    const desktopOriginSchemes = ['app:'];
     for (const origin of config.corsOrigins) {
       if (origin === '*') {
         issues.push('CORS_ORIGINS must not contain wildcard "*".');
@@ -211,8 +214,22 @@ export class ConfigFactory {
       }
       try {
         const parsed = new URL(origin);
-        if (!['http:', 'https:'].includes(parsed.protocol) || parsed.origin !== origin) {
-          issues.push(`CORS origin "${origin}" must be an http(s) origin without a path.`);
+        if (['http:', 'https:'].includes(parsed.protocol)) {
+          if (parsed.origin !== origin) {
+            issues.push(`CORS origin "${origin}" must be an http(s) origin without a path.`);
+          }
+        } else if (desktopOriginSchemes.includes(parsed.protocol)) {
+          // 自定义 scheme 的 URL.origin 恒为 "null"，故按结构校验：不允许 path/query/fragment。
+          const hasPath = parsed.pathname !== '' && parsed.pathname !== '/';
+          if (hasPath || parsed.search !== '' || parsed.hash !== '') {
+            issues.push(
+              `CORS origin "${origin}" must be a desktop (app://) origin without a path.`,
+            );
+          }
+        } else {
+          issues.push(
+            `CORS origin "${origin}" must be an http(s) or desktop (app://) origin without a path.`,
+          );
         }
       } catch {
         issues.push(`CORS origin "${origin}" is not a valid URL origin.`);

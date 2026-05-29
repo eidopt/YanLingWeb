@@ -157,11 +157,11 @@ export class TemplateService {
     displayCategory?: string;
     platformCategory?: string;
   }): Promise<ThemeSpec[]> {
-    const { data } = await this.request<{
-      data: TemplateRecord[];
-      total: number;
-    }>(this.buildQuery(params));
-    return data.map((r) => this.toThemeSpec(r));
+    // HttpClient already unwraps the success envelope's top-level `data`, so the
+    // paginated list endpoint resolves to the TemplateRecord[] array directly
+    // (mirrors fetchRecentMine). The `total` lives in the discarded envelope meta.
+    const records = await this.request<TemplateRecord[]>(this.buildQuery(params));
+    return records.map((r) => this.toThemeSpec(r));
   }
 
   async fetchMine(params?: {
@@ -170,11 +170,8 @@ export class TemplateService {
     displayCategory?: string;
     platformCategory?: string;
   }): Promise<ThemeSpec[]> {
-    const { data } = await this.request<{
-      data: TemplateRecord[];
-      total: number;
-    }>(`/mine${this.buildQuery(params)}`, { auth: true });
-    return data.map((r) => this.toThemeSpec(r));
+    const records = await this.request<TemplateRecord[]>(`/mine${this.buildQuery(params)}`, { auth: true });
+    return records.map((r) => this.toThemeSpec(r));
   }
 
   async fetchRecentMine(): Promise<ThemeSpec[]> {

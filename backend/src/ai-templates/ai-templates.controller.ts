@@ -6,6 +6,10 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AiTemplatesService } from './ai-templates.service';
 import type { PipelineExternalResult, TemplateSeed } from './orchestrator/pipeline.types';
 
+interface GenerateRequestBody extends TemplateSeed {
+  materializeImages?: boolean;
+}
+
 @ApiTags('ai-templates')
 @ApiSecurity('bearer')
 @UseGuards(JwtAuthGuard)
@@ -31,10 +35,17 @@ export class AiTemplatesController {
           enum: ['fresh', 'immersive', 'editorial', 'vibrant', 'dark-pro'],
         },
         forceHeroMode: { type: 'string' },
+        materializeImages: {
+          type: 'boolean',
+          description:
+            '是否立即调 OpenAI Images API 生成 ai-image visualAssets 的真实图片' +
+            '（按张计费，~$0.04/张）。默认 false。',
+        },
       },
     },
   })
-  async generate(@Body() body: TemplateSeed): Promise<PipelineExternalResult> {
-    return this.service.generate(body);
+  async generate(@Body() body: GenerateRequestBody): Promise<PipelineExternalResult> {
+    const { materializeImages, ...seed } = body;
+    return this.service.generate(seed, { materializeImages });
   }
 }
