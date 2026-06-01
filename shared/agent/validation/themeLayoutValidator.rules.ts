@@ -489,7 +489,11 @@ export function validateNode(
       if (!propIssue) {
         return;
       }
-      if (propIssue.code === 'unknown_prop' && !options.failOnUnknownProps) {
+      // biz-* 自定义组件（非 core.*）的 props 是动态的（由 componentTemplate 的 $bind
+      // 决定），不该按固定描述符 schema 做 unknown_prop 严格校验 —— 否则 LLM 无法为每个
+      // biz-* 描述符列全所有 props，反复触发 unknown_prop/missing。这类一律降为 warning。
+      const isBizAlias = typeof node.alias === 'string' && !node.alias.startsWith('core.');
+      if (propIssue.code === 'unknown_prop' && (!options.failOnUnknownProps || isBizAlias)) {
         warnings.push({ ...propIssue, severity: 'warning' });
         return;
       }

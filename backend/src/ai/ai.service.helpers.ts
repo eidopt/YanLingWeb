@@ -94,14 +94,6 @@ export interface EditorAgentStreamRequestCandidate extends Partial<EditorAgentSt
 // 简单内存限流器：每个用户在一个窗口内最多 N 次请求。
 export const RATE_LIMIT_WINDOW_MS = 60_000;
 export const RATE_LIMIT_MAX = 10;
-const DEFAULT_EDITOR_AGENT_MAX_ITERATIONS = 96;
-export const EDITOR_AGENT_MAX_ITERATIONS = (() => {
-  const configured = Number(process.env.EDITOR_AGENT_MAX_ITERATIONS);
-  return Number.isFinite(configured) && configured >= 32
-    ? Math.floor(configured)
-    : DEFAULT_EDITOR_AGENT_MAX_ITERATIONS;
-})();
-
 /**
  * 在共享的内存限流 map 上执行限流检查（与原 checkRateLimit 行为一致）。
  */

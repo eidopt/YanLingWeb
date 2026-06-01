@@ -18,6 +18,29 @@ export interface ServerConfig {
     };
     apiKey?: string;
     baseUrl?: string;
+    /**
+     * Embedding（素材库语义检索）独立配置 —— 不跟随主 chat provider。
+     * 默认走 OpenAI（库里现有向量就是 OpenAI text-embedding-3-small 1536 维算的），
+     * 这样即使主 provider 切到 openai-compatible(DeepSeek 等) 也能用同源向量检索。
+     * model 始终有默认值；apiKey/baseUrl 缺失时 computeEmbedding 安全降级（不崩、不命中）。
+     */
+    embedding: {
+      model: string;
+      apiKey?: string;
+      baseUrl?: string;
+    };
+    /**
+     * 是否允许调用 AI 生图（OpenAI Images API）。默认 true。
+     * 关掉后（AI_IMAGE_GENERATION=off|false|0|no|placeholder）模板配图一律走占位符，
+     * 后端启动导入 / --with-images 都不再现生图，避免长耗时与按张计费。
+     * 注意：已存在的图（asset.url 合法 或 磁盘缓存命中）仍会复用，因为复用是免费的。
+     */
+    imageGenerationEnabled: boolean;
+    /**
+     * 编辑器 agent QueryLoop 的最大迭代次数。默认 96，下限 32（低于则取默认）。
+     * 由 EDITOR_AGENT_MAX_ITERATIONS 配置。
+     */
+    editorAgentMaxIterations: number;
   };
   templates: {
     jsonImport: {
@@ -104,6 +127,33 @@ export class ConfigFactory {
       defaultModel;
     const aiLiteModel = this.read(source, serverFlavor, 'AI_LITE_MODEL');
     const aiImageModel = this.read(source, serverFlavor, 'AI_IMAGE_MODEL');
+    // Embedding 独立配置：默认走 OpenAI（与库现有向量同源），不跟随主 chat provider。
+    // model 始终有默认；key/baseUrl 优先专用 AI_EMBEDDING_*，否则回退 OpenAI，再回退通用 AI_*。
+    const aiEmbeddingModel =
+      this.read(source, serverFlavor, 'AI_EMBEDDING_MODEL') ?? 'text-embedding-3-small';
+    const aiEmbeddingApiKey =
+      this.read(source, serverFlavor, 'AI_EMBEDDING_API_KEY') ??
+      this.read(source, serverFlavor, 'OPENAI_API_KEY') ??
+      this.read(source, serverFlavor, 'AI_API_KEY');
+    const aiEmbeddingBaseUrl =
+      this.read(source, serverFlavor, 'AI_EMBEDDING_BASE_URL') ??
+      this.read(source, serverFlavor, 'OPENAI_BASE_URL') ??
+      this.read(source, serverFlavor, 'AI_BASE_URL');
+    // 生图开关：默认开启；显式设为 off/false/0/no/placeholder 则关闭（走占位符）。
+    const aiImageGenRaw = this.read(source, serverFlavor, 'AI_IMAGE_GENERATION');
+    const imageGenDisabledValues = ['off', 'false', '0', 'no', 'placeholder', 'disabled'];
+    const imageGenerationEnabled =
+      aiImageGenRaw == null || !imageGenDisabledValues.includes(aiImageGenRaw.trim().toLowerCase());
+    // 编辑器 agent 最大迭代次数：默认 96，下限 32。
+    const EDITOR_AGENT_MAX_ITERATIONS_DEFAULT = 96;
+    const EDITOR_AGENT_MAX_ITERATIONS_MIN = 32;
+    const editorAgentMaxRaw = Number(
+      this.read(source, serverFlavor, 'EDITOR_AGENT_MAX_ITERATIONS'),
+    );
+    const editorAgentMaxIterations =
+      Number.isFinite(editorAgentMaxRaw) && editorAgentMaxRaw >= EDITOR_AGENT_MAX_ITERATIONS_MIN
+        ? Math.floor(editorAgentMaxRaw)
+        : EDITOR_AGENT_MAX_ITERATIONS_DEFAULT;
     const databaseDriver = this.readDatabaseDriver(source, serverFlavor);
 
     const config: ServerConfig = {
@@ -115,6 +165,11 @@ export class ConfigFactory {
           ...(aiLiteModel ? { lite: aiLiteModel } : {}),
           ...(aiImageModel ? { image: aiImageModel } : {}),
         },
+        embedding: {
+          model: aiEmbeddingModel,
+          ...(aiEmbeddingApiKey ? { apiKey: aiEmbeddingApiKey } : {}),
+          ...(aiEmbeddingBaseUrl ? { baseUrl: aiEmbeddingBaseUrl } : {}),
+        },
         // Try provider-specific vars (e.g. OPENAI_API_KEY), fall back to generic AI_*
         apiKey:
           this.read(source, serverFlavor, `${prefix}_API_KEY`) ??
@@ -122,6 +177,8 @@ export class ConfigFactory {
         baseUrl:
           this.read(source, serverFlavor, `${prefix}_BASE_URL`) ??
           this.read(source, serverFlavor, 'AI_BASE_URL'),
+        imageGenerationEnabled,
+        editorAgentMaxIterations,
       },
       templates: {
         jsonImport: {

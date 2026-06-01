@@ -50,6 +50,10 @@ const STAGE_SCHEMA_GENERATOR_TAIL = [
   '  status: "pending", provider }`；ai-image 项额外可加 `aspectRatio`，',
   '  placeholder 项额外加 `placeholder: { iconColor: "#xxx" }`',
   '- **`visualAssets: []` 是严重错误**（违反业务真实性要求）',
+  '- **人物/人像默认亚洲（东亚）**：凡涉及人物的 visualAsset（头像、用户、人群、',
+  '  医生/厨师等职业人物），`prompt` 和中文 `alt` 都要写明"亚洲/东亚"',
+  '  （如 prompt 含 "East Asian"、alt 写"亚洲年轻女性头像"），除非业务场景明确',
+  '  面向其它人群。平台默认受众是中文用户，避免默认生成欧美面孔。',
   '- 不要新增 brief 没声明的 cssVars 主色相',
   '',
   '## 校验器硬规则（违反即拒绝）',
@@ -79,9 +83,11 @@ const STAGE_SCHEMA_GENERATOR_TAIL = [
   '- **`layoutDocument.components` 中 alias 不可重复**',
   '- **componentTemplates 的 key 不能 `core.*` 开头**（用 biz-* / brand-* 等业务 slug）',
   '- componentTemplates root 及递归 children 的 alias 必须是 core.*（不能是 biz-*）',
-  '- `layoutDocument.components` 必须列出布局中实际用到的每个 alias',
-  '  （core.* + biz-*），每个含 `{ alias, name(中文), kind, description(中文),',
-  '  props: [{ name, type, label(中文) }] }`',
+  '- `layoutDocument.components` **只需声明布局中用到的 biz-* 自定义 alias**；',
+  '  core.* 标准组件目录由系统自动注入（已带中文 label），你无需也不要逐个列出。',
+  '  每个 biz-* 条目含 `{ alias, name(中文), kind, description(中文),',
+  '  props: [{ name, type, label(中文) }] }`，**每个 prop 的 label 必须是中文**',
+  '  （否则导入校验 missing_localized_prop_label 失败）',
   '',
   '## 落地要点',
   '',
@@ -89,6 +95,10 @@ const STAGE_SCHEMA_GENERATOR_TAIL = [
   '- **`document.layout` 必须直接引用 `pages[0].layout`**（同 id，同结构）',
   '- **`core.tabs` 是叶子节点**：标签数组放 `props.tabs`，',
   '  不要把每个 tab 写成 children 节点',
+  '- **移动端必须有底栏导航**：mini-program / mobile-app 的多页模板，每个主页面',
+  '  （非详情子页）的 `core.screen` 直接子节点里放一个 `core.tabbar`，**必须标',
+  '  `slot: "footer"`**（否则不会固定在屏幕底部、用户无法切页）；`props.items` 为各 tab',
+  '  中文名、`props.icons` 配图标，并用 `interactions.onTabClick` 的 per-tab 映射导航到对应 page。',
   '- 只用共享规范里列出的容器 alias 装 children；其他 alias 一律 leaf',
   '- 至少 5 类视觉元素（不能 panel+text 占绝大多数）',
   '- 列表/卡片至少含 2 类信息（状态/价格/图片/标签/操作）',
@@ -107,5 +117,4 @@ const STAGE_SCHEMA_GENERATOR_TAIL = [
   '直接调用 `generate_template` 工具一次。不要输出 markdown 或额外说明。',
 ].join('\n');
 
-export const STAGE_SCHEMA_GENERATOR_SYSTEM_PROMPT =
-  TEMPLATE_PIPELINE_SHARED_SPEC + STAGE_SCHEMA_GENERATOR_TAIL;
+export const STAGE_SCHEMA_GENERATOR_SYSTEM_PROMPT = TEMPLATE_PIPELINE_SHARED_SPEC + STAGE_SCHEMA_GENERATOR_TAIL;

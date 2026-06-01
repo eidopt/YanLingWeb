@@ -67,6 +67,10 @@ export async function runStructuredStage<T>(
         return { output: JSON.stringify({ accepted: true }), action: 'done' };
       } catch (err) {
         parseError = err instanceof Error ? err : new Error(String(err));
+        // 诊断：把每次工具输入被拒的具体校验错误打出来（默认被当 tool result 喂回 LLM、
+        // 不可见）。便于排查 SchemaGen 为何反复耗尽迭代、栽在哪条校验。
+        // eslint-disable-next-line no-console
+        console.warn(`[stage:${options.tool.name}] 输入被拒 → ${parseError.message}`);
         return {
           output: JSON.stringify({
             error: parseError.message,

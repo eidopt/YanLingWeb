@@ -23,6 +23,7 @@ const fakePipelineProvider: AiTemplatePipelineProvider = {
   getProviderForTemplatePipeline: () => ({
     provider: unusedProvider,
     model: 'test-model',
+    liteModel: 'test-model-lite',
     apiKeyConfigured: false,
   }),
 };

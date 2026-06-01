@@ -7,6 +7,9 @@ function baseConfig(): ServerConfig {
       provider: 'openai',
       model: 'gpt-5.4',
       models: { pro: 'gpt-5.4' },
+      embedding: { model: 'text-embedding-3-small' },
+      imageGenerationEnabled: true,
+      editorAgentMaxIterations: 96,
     },
     templates: {
       jsonImport: {

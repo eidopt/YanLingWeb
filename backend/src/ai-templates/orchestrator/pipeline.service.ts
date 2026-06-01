@@ -80,8 +80,14 @@ export class TemplatePipelineService {
           criticRecord.output.suggestion ??
           `多样性冲突 ${criticRecord.output.conflicts.length} 个，换一个 archetype 或 heroMode`;
         lastError = `critic revise: ${reviseSuggestion}`;
-        this.logger.warn(`attempt ${attempt} critic revise — retrying`);
-        continue;
+        // diversity 是「尽力而为」：前几次 attempt 打回 Designer 重试以优化多样性；
+        // 但**最后一次 attempt 即使仍 revise 也放行到 Schema** —— 不让 diversity 把
+        // attempts 吃光、导致整条生成彻底失败（产出一个稍欠差异化的模板远胜于没有产出）。
+        if (attempt < MAX_PIPELINE_ATTEMPTS) {
+          this.logger.warn(`attempt ${attempt} critic revise — retrying`);
+          continue;
+        }
+        this.logger.warn(`attempt ${attempt} critic revise — 末次放行（diversity best-effort）`);
       }
 
       // Stage 3: Schema Generation

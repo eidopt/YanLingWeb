@@ -82,7 +82,9 @@ export class DiversityCriticAgent {
       };
     }
 
-    const { provider, model, apiKeyConfigured } = this.aiProvider.getProviderForTemplatePipeline();
+    // Critic 语义检查是辅助审查，用 lite 快模型提速。
+    const { provider, liteModel: model, apiKeyConfigured } =
+      this.aiProvider.getProviderForTemplatePipeline();
     if (!apiKeyConfigured) {
       // API key 未配置时退化为只看硬规则的判断。
       this.logger.warn('AI_API_KEY is not configured; Critic skips LLM semantic checks');

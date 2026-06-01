@@ -1,11 +1,11 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { validateThemeLayoutDocument } from '@shared/agent/contracts/validation';
 import { buildVerifierSystemPrompt, type VerifierLens } from '@shared/agent/runtime';
 
 import {
   AI_TEMPLATE_PIPELINE_PROVIDER,
   type AiTemplatePipelineProvider,
 } from '../../ai/pipeline-provider.port';
+import { validateGeneratedTemplateLayout } from '../../templates/template-layout-validation';
 import type {
   DesignerOutput,
   ExistingTemplateSummary,
@@ -50,7 +50,9 @@ export class VerifierAgent {
     const start = Date.now();
     this.logger.debug(`verifier attempt=${attempt} schema=${schema.templateId}`);
 
-    const { provider, model, apiKeyConfigured } = this.aiProvider.getProviderForTemplatePipeline();
+    // Verifier 3 lens 全保留（不砍审查），但用 lite 快模型提速；合法性仍由程序化校验把关。
+    const { provider, liteModel: model, apiKeyConfigured } =
+      this.aiProvider.getProviderForTemplatePipeline();
 
     const usageTotal: StageRunUsage = { inputTokens: 0, outputTokens: 0, cacheHitTokens: 0 };
 
@@ -98,16 +100,18 @@ export class VerifierAgent {
    * 只生成 error 级失败；warning 仍交给 LLM lens 做语义判断。
    */
   private runProgrammaticSpecCheck(schema: SchemaOutput): VerifierVerdict {
-    const validation = validateThemeLayoutDocument(schema.document, {
-      failOnUnknownProps: false,
-      componentTemplates: schema.rawToolInput.componentTemplates as
+    // 与导入端 + schema-gen 同一套成品质量门槛（严格 schema + render smoke），
+    // 保证三处校验不漂移。
+    const check = validateGeneratedTemplateLayout(
+      schema.document,
+      (schema.document as { componentTemplates?: unknown }).componentTemplates as
         | Record<string, unknown>
         | undefined,
-    });
-    if (validation.errors.length === 0) {
+    );
+    if (check.valid) {
       return { lens: 'spec-compliance', pass: true, failures: [], summary: '程序化校验通过' };
     }
-    const failures: VerifierFailure[] = validation.errors.slice(0, 20).map((e) => ({
+    const failures: VerifierFailure[] = check.errors.slice(0, 20).map((e) => ({
       rule: e.code,
       severity: 'error',
       description: e.message,
@@ -117,7 +121,7 @@ export class VerifierAgent {
       lens: 'spec-compliance',
       pass: false,
       failures,
-      summary: `程序化校验 ${validation.errors.length} 个 error`,
+      summary: `程序化校验 ${check.errors.length} 个 error`,
     };
   }
 

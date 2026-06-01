@@ -5,7 +5,10 @@ import {
   type TemplateDiversitySummaryRecord,
   type TemplateReadRepository,
 } from '../templates/repositories/template-read.repository';
-import { TemplateAssetService } from '../templates/template-asset.service';
+import {
+  TemplateAssetService,
+  type TemplateImageStrategy,
+} from '../templates/template-asset.service';
 import { TemplatePipelineService } from './orchestrator/pipeline.service';
 import type {
   ExistingTemplateSummary,
@@ -23,6 +26,17 @@ export interface GenerateOptions {
    * 用户启动后端时 onModuleInit import 会再触发一次生成。
    */
   materializeImages?: boolean;
+  /**
+   * 占位符模式：把产出文档的 visualAssets 一律降级为占位符（不调生图 API，也不查素材库），
+   * 秒级可用。
+   */
+  placeholderImages?: boolean;
+  /**
+   * 素材库模式：从已建 embedding 索引的素材库语义检索最接近的现成图填入，
+   * 命不中才降级占位符，**绝不调 AI 生图**。零成本、秒出、复用预生成图库。
+   */
+  libraryImages?: boolean;
+  // 三者互斥，优先级：placeholderImages > libraryImages > materializeImages。
 }
 
 const ARCHETYPE_TRAIT_PREFIX = 'archetype:';
@@ -114,7 +128,15 @@ export class AiTemplatesService {
     document: PipelineResult['document'],
     options: GenerateOptions,
   ): Promise<PipelineResult['document']> {
-    if (!options.materializeImages) {
+    // 互斥优先级：placeholder > library > generate；三者都没传则不处理图片。
+    const strategy: TemplateImageStrategy | undefined = options.placeholderImages
+      ? 'placeholder'
+      : options.libraryImages
+        ? 'library'
+        : options.materializeImages
+          ? 'generate'
+          : undefined;
+    if (!strategy) {
       return document;
     }
 
@@ -124,11 +146,19 @@ export class AiTemplatesService {
       return document;
     }
 
-    this.logger.log(`${templateId}: materializing ${visualAssetsRaw.length} visual assets...`);
+    const strategyLabel: Record<TemplateImageStrategy, string> = {
+      placeholder: '占位符模式（不生图、不查库）',
+      library: '素材库模式（语义复用现成图，命不中占位、不生图）',
+      generate: 'materializing（库命中优先，命不中调 AI 生图）',
+    };
+    this.logger.log(
+      `${templateId}: ${strategyLabel[strategy]} — ${visualAssetsRaw.length} 个 visualAssets`,
+    );
     const assetResolution = await this.templateAssetService.resolveVisualAssetsForTemplate(
       templateId,
       document as unknown as Record<string, unknown>,
       visualAssetsRaw,
+      { strategy },
     );
 
     // applyVisualAssetsToLayoutDocument 只补丁 core.image 节点的 src/alt/iconColor，

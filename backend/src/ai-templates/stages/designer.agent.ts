@@ -48,6 +48,10 @@ export class DesignerAgent {
     attempt: number,
   ): Promise<PipelineStageRecord<DesignerOutput>> {
     const start = Date.now();
+    // Designer 出的 brief 是喂给 SchemaGen 的质量关键输入，**必须用 pro**：
+    // 降级 lite 会让 brief 注水 → SchemaGen 反复生成不合法文档、耗尽迭代甚至失败
+    // （实测「驴友」用 lite Designer 三次 attempt 全 schema-gen throw 失败）。
+    // 只有纯审查 stage（Critic/Verifier）才安全降级到 lite。
     const { provider, model, apiKeyConfigured } = this.aiProvider.getProviderForTemplatePipeline();
     if (!apiKeyConfigured) {
       throw new Error('AI_API_KEY 未配置 — Designer 无法运行');

@@ -23,7 +23,6 @@ import {
   buildStructuredEditorMessages,
   checkRateLimit,
   compileSemanticEditorOperations,
-  EDITOR_AGENT_MAX_ITERATIONS,
   type EditorAgentStreamRequest,
   type EditorSseEventPayload,
   editorToolSpecs,
@@ -146,11 +145,14 @@ export class AiService {
   getProviderForTemplatePipeline(): {
     provider: AIProvider;
     model: string;
+    liteModel: string;
     apiKeyConfigured: boolean;
   } {
     return {
       provider: this.provider,
       model: this.aiConfig.models.pro,
+      // 辅助 stage 用 lite 提速；未配 lite 时回退 pro（行为不变）。
+      liteModel: this.aiConfig.models.lite ?? this.aiConfig.models.pro,
       apiKeyConfigured: this.apiKeyConfigured,
     };
   }
@@ -347,7 +349,7 @@ export class AiService {
       model,
       tools: editorTools,
       toolSpecs: editorToolSpecs(editorTools),
-      maxIterations: EDITOR_AGENT_MAX_ITERATIONS,
+      maxIterations: this.config.ai.editorAgentMaxIterations,
       isCancelled: () => subject.closed,
       onTextDelta: (text) => {
         this.emitEditorEvent(subject, { type: 'text', data: text });
@@ -460,7 +462,7 @@ export class AiService {
       model,
       tools: editorTools,
       toolSpecs: editorToolSpecs(editorTools),
-      maxIterations: EDITOR_AGENT_MAX_ITERATIONS,
+      maxIterations: this.config.ai.editorAgentMaxIterations,
       isCancelled: () => subject.closed,
       onTextDelta: (text) => {
         this.emitEditorEvent(subject, { type: 'text', data: text });
