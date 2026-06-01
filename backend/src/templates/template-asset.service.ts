@@ -1,7 +1,4 @@
-import { existsSync, promises as fs } from 'node:fs';
-import * as path from 'node:path';
-
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
   applyVisualAssetsToLayoutDocument,
   buildVisualAssetManifest,
@@ -10,9 +7,14 @@ import {
   type VisualAsset,
   type VisualAssetManifest,
 } from '@shared/theme-layout/visualAssets';
-import OpenAI from 'openai';
 
 import { ConfigService } from '../config/config.service';
+import { generateImageBytes } from './image-generation';
+import {
+  type AssetLookupContext,
+  TEMPLATE_ASSET_STORE,
+  type TemplateAssetStore,
+} from './template-asset-store';
 
 export interface ResolvedTemplateVisualAssets {
   visualAssets: VisualAsset[];
@@ -20,26 +22,26 @@ export interface ResolvedTemplateVisualAssets {
   manifest: VisualAssetManifest | null;
 }
 
-interface StoredImage {
-  url: string;
-  storageKey: string;
+/**
+ * 模板图片解析策略：
+ *  - `generate`：素材库命中优先（asset.url → 精确缓存 → 语义索引），命不中才调 AI 生图。
+ *  - `library`：**只从素材库语义取最接近的现成图**，命不中 → 占位符，**绝不生图**（零成本/秒出）。
+ *  - `placeholder`：纯占位符，跳过一切复用与生图。
+ */
+export type TemplateImageStrategy = 'generate' | 'library' | 'placeholder';
+
+export interface ResolveVisualAssetsOptions {
+  /**
+   * 图片解析策略，见 {@link TemplateImageStrategy}。
+   * 不传时按全局配置 `ai.imageGenerationEnabled` 决定：开→`generate`，关→`placeholder`。
+   */
+  strategy?: TemplateImageStrategy;
 }
 
 interface RolePlaceholder {
   title: string;
   iconColor: string;
 }
-
-interface ImageGenerationDataItem {
-  b64_json?: string;
-  url?: string;
-}
-
-interface ImageGenerationResponse {
-  data?: ImageGenerationDataItem[];
-}
-
-const DEFAULT_IMAGE_SIZE = '1024x1024';
 
 const ROLE_PLACEHOLDERS: Record<string, RolePlaceholder> = {
   hero: {
@@ -68,21 +70,29 @@ const ROLE_PLACEHOLDERS: Record<string, RolePlaceholder> = {
 export class TemplateAssetService {
   private readonly logger = new Logger(TemplateAssetService.name);
 
-  constructor(private readonly config: ConfigService) {}
+  constructor(
+    private readonly config: ConfigService,
+    @Inject(TEMPLATE_ASSET_STORE) private readonly store: TemplateAssetStore,
+  ) {}
 
   async resolveVisualAssetsForTemplate(
     templateId: string,
     layoutDocument: Record<string, unknown>,
     value: unknown,
+    options: ResolveVisualAssetsOptions = {},
   ): Promise<ResolvedTemplateVisualAssets> {
     const visualAssets = normalizeVisualAssets(value);
     if (!visualAssets.length) {
       return { visualAssets: [], layoutDocument, manifest: null };
     }
 
+    // 策略：显式传入优先；否则按全局 AI_IMAGE_GENERATION 开关（开→generate，关→placeholder）。
+    const strategy: TemplateImageStrategy =
+      options.strategy ?? (this.config.ai.imageGenerationEnabled ? 'generate' : 'placeholder');
+
     const resolvedAssets: VisualAsset[] = [];
     for (const asset of visualAssets) {
-      resolvedAssets.push(await this.resolveVisualAsset(templateId, asset));
+      resolvedAssets.push(await this.resolveVisualAsset(templateId, asset, strategy));
     }
 
     const resolvedLayoutDocument = applyVisualAssetsToLayoutDocument(
@@ -97,7 +107,11 @@ export class TemplateAssetService {
     };
   }
 
-  private async resolveVisualAsset(templateId: string, asset: VisualAsset): Promise<VisualAsset> {
+  private async resolveVisualAsset(
+    templateId: string,
+    asset: VisualAsset,
+    strategy: TemplateImageStrategy = 'generate',
+  ): Promise<VisualAsset> {
     if (asset.url && isAllowedTemplateImageSrc(asset.url)) {
       return {
         ...asset,
@@ -110,6 +124,33 @@ export class TemplateAssetService {
     if (asset.provider === 'placeholder') {
       return this.withPlaceholderFallback(asset, 'asset requested placeholder provider');
     }
+
+    // 纯占位符策略：跳过一切复用与生图，直接占位。
+    if (strategy === 'placeholder') {
+      return this.withPlaceholderFallback(asset, 'placeholder strategy');
+    }
+
+    // 1) 精确复用：同 templateId/assetId 已存储过的图直接复用，跳过 AI 生图（免费）。
+    const cached = await this.store.findExisting(templateId, asset.id);
+    if (cached) {
+      this.logger.log(`复用已生成图片 ${templateId}/${asset.id}（跳过 AI 生图）`);
+      return { ...asset, provider: asset.provider ?? 'ai-image', status: 'generated', ...cached };
+    }
+
+    // 2) 语义索引复用：按 embedding 命中一张现成的近似图（如给「橘子」复用「水果」图）。
+    const lookup = this.buildLookupContext(asset);
+    const indexed = await this.store.findByIndex?.(lookup);
+    if (indexed) {
+      this.logger.log(`按语义索引复用图片 → ${templateId}/${asset.id}（跳过 AI 生图）`);
+      return { ...asset, provider: asset.provider ?? 'ai-image', status: 'generated', ...indexed };
+    }
+
+    // library 策略：只白嫖素材库，库里没命中就占位、绝不生图。
+    if (strategy === 'library') {
+      return this.withPlaceholderFallback(asset, 'library strategy: no match, not generating');
+    }
+
+    // generate 策略：库未命中 → 调 AI 生图。
 
     const imageModel = this.config.ai.models.image;
     const apiKey = this.config.ai.apiKey;
@@ -124,8 +165,12 @@ export class TemplateAssetService {
     }
 
     try {
-      const imageBytes = await this.generateImageBytes(imageModel, asset);
-      const stored = await this.storeGeneratedImage(templateId, asset.id, imageBytes);
+      const imageBytes = await generateImageBytes(
+        { apiKey, baseUrl: this.config.ai.baseUrl, model: imageModel },
+        this.buildImagePrompt(asset),
+      );
+      // 存储时带上语义 context，存储层可顺便建索引供日后复用。
+      const stored = await this.store.save(templateId, asset.id, imageBytes, lookup);
       return {
         ...asset,
         provider: 'ai-image',
@@ -142,35 +187,6 @@ export class TemplateAssetService {
     }
   }
 
-  private async generateImageBytes(model: string, asset: VisualAsset): Promise<Buffer> {
-    const openai = new OpenAI({
-      apiKey: this.config.ai.apiKey,
-      baseURL: this.config.ai.baseUrl,
-    });
-    const response = await openai.images.generate({
-      model,
-      prompt: this.buildImagePrompt(asset),
-      n: 1,
-      size: DEFAULT_IMAGE_SIZE,
-    });
-    const data = (response as ImageGenerationResponse).data;
-    const image = data?.[0];
-
-    if (image?.b64_json) {
-      return Buffer.from(image.b64_json, 'base64');
-    }
-
-    if (image?.url) {
-      const result = await fetch(image.url);
-      if (!result.ok) {
-        throw new Error(`failed to download generated image (${result.status})`);
-      }
-      return Buffer.from(await result.arrayBuffer());
-    }
-
-    throw new Error('image provider returned no image payload');
-  }
-
   private buildImagePrompt(asset: VisualAsset): string {
     const lines = [
       asset.prompt,
@@ -183,34 +199,16 @@ export class TemplateAssetService {
     return lines.join('\n');
   }
 
-  private async storeGeneratedImage(
-    templateId: string,
-    assetId: string,
-    imageBytes: Buffer,
-  ): Promise<StoredImage> {
-    const assetsRoot = this.resolveTemplateAssetsRoot();
-    const templateSegment = this.safePathSegment(templateId);
-    const assetSegment = this.safePathSegment(assetId);
-    const relativeStorageKey = path.posix.join('generated', templateSegment, `${assetSegment}.png`);
-    const outputPath = path.join(assetsRoot, 'generated', templateSegment, `${assetSegment}.png`);
-
-    await fs.mkdir(path.dirname(outputPath), { recursive: true });
-    await fs.writeFile(outputPath, imageBytes);
-
+  /**
+   * 从 asset 抽出语义检索上下文，供存储层建索引 / 按索引复用。
+   * 当前只透传 role/alt/prompt；category/keywords 留给未来的分类器/规则填充。
+   */
+  private buildLookupContext(asset: VisualAsset): AssetLookupContext {
     return {
-      url: `/template-assets/${relativeStorageKey}`,
-      storageKey: relativeStorageKey,
+      role: asset.role,
+      alt: asset.alt,
+      prompt: asset.prompt,
     };
-  }
-
-  private resolveTemplateAssetsRoot(): string {
-    const publicCandidates = [
-      path.resolve(process.cwd(), 'public'),
-      path.resolve(process.cwd(), '..', 'public'),
-    ];
-    const publicRoot =
-      publicCandidates.find((candidate) => existsSync(candidate)) ?? publicCandidates[0];
-    return path.join(publicRoot, 'template-assets');
   }
 
   private withPlaceholderFallback(asset: VisualAsset, reason: string): VisualAsset {
@@ -225,15 +223,6 @@ export class TemplateAssetService {
         iconColor: asset.placeholder?.iconColor ?? defaults.iconColor,
       },
     };
-  }
-
-  private safePathSegment(value: string): string {
-    const segment = value
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9._-]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-    return segment || 'asset';
   }
 
   private errorMessage(error: unknown): string {

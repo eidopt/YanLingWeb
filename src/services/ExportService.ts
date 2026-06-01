@@ -111,6 +111,38 @@ export function generateScaffoldFiles(
   });
 }
 
+/**
+ * 收集 layoutJson 中所有引用了 `/template-assets/...` 的本地图片路径（去重）。
+ * 遍历整个文档的字符串值，覆盖 core.image.src、avatar.src、carousel.images、
+ * visualAssets[].url 等任意位置。导出时据此把这些图拷进打包项目的 public/，
+ * 让相对 URL 在用户下载的独立项目里照常解析（否则图全裂）。
+ * 纯函数、无 fs，便于测试；实际拷贝由 build-project 路由完成。
+ */
+export function collectTemplateAssetPaths(layoutJson: string): string[] {
+  const found = new Set<string>();
+  const visit = (value: unknown): void => {
+    if (typeof value === 'string') {
+      if (value.startsWith('/template-assets/')) {
+        found.add(value);
+      }
+      return;
+    }
+    if (Array.isArray(value)) {
+      value.forEach(visit);
+      return;
+    }
+    if (value && typeof value === 'object') {
+      Object.values(value).forEach(visit);
+    }
+  };
+  try {
+    visit(JSON.parse(layoutJson));
+  } catch {
+    // layoutJson 解析失败时返回空列表，交给后续 scaffold 校验报错。
+  }
+  return [...found];
+}
+
 function slugify(name: string): string {
   return (
     name

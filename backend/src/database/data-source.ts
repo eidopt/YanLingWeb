@@ -133,6 +133,7 @@ import { EditorAiConversation } from '../ai/entities/editor-ai-conversation.enti
 import { ExportRecord } from '../exports/entities/export-record.entity';
 import { PublishedSite } from '../sites/entities/published-site.entity';
 import { PublishedSiteRevision } from '../sites/entities/published-site-revision.entity';
+import { AssetLibraryImage } from '../templates/entities/asset-library-image.entity';
 import { Template } from '../templates/entities/template.entity';
 import { TemplateAgentPermissions } from '../templates/entities/template-agent-permissions.entity';
 import { TemplateAssetManifest } from '../templates/entities/template-asset-manifest.entity';
@@ -155,6 +156,7 @@ const ALL_ENTITIES = [
   TemplateAssetManifest,
   TemplateAgentPermissions,
   TemplateEvaluationSpec,
+  AssetLibraryImage,
   EditorAiConversation,
   AiTokenUsageEvent,
 ];

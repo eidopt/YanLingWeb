@@ -481,10 +481,15 @@ export class TemplatesService implements OnModuleInit {
         },
         { requireLabelsForUnknown: true },
       );
+      // visualAssets 既可能在 JSON 顶层（旧约定），也可能嵌在 layoutDocument 内
+      // （ThemeLayoutDocument 模型 + CLI buildOutputJson 的位置）。两处都兜底读取，
+      // 否则导入时拿不到 visualAssets → core.image 不会被补 src/iconColor → 全是灰占位。
+      const topLevelVisualAssets = isRecord(parsed) ? parsed.visualAssets : undefined;
+      const nestedVisualAssets = (data.layoutDocument as { visualAssets?: unknown }).visualAssets;
       const assetResolution = await this.templateAssetService.resolveVisualAssetsForTemplate(
         data.templateId,
         data.layoutDocument,
-        isRecord(parsed) ? parsed.visualAssets : undefined,
+        topLevelVisualAssets ?? nestedVisualAssets,
       );
       const assetManifest = mergeVisualAssetsIntoManifest(
         data.templateId,
