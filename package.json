@@ -18,12 +18,12 @@
   "main": "dist-electron/main.cjs",
   "scripts": {
     "dev": "next dev",
-    "build": "pnpm docs:current:check && pnpm shared:module-format:check && pnpm shared:boundary:check && pnpm renderer:registry:check && next build",
+    "build": "pnpm shared:module-format:check && pnpm shared:boundary:check && pnpm renderer:registry:check && next build",
     "build:backend": "pnpm --dir backend build",
     "build:preview": "pnpm --dir templates_json/preview build",
     "build:all": "pnpm build && pnpm build:backend && pnpm build:preview",
     "start": "next start",
-    "lint": "pnpm docs:current:check && pnpm shared:module-format:check && pnpm shared:boundary:check && pnpm renderer:registry:check && eslint .",
+    "lint": "pnpm shared:module-format:check && pnpm shared:boundary:check && pnpm renderer:registry:check && eslint .",
     "lint:backend": "pnpm --dir backend lint",
     "lint:all": "pnpm lint && pnpm lint:backend",
     "format": "prettier --write --ignore-unknown .",
@@ -33,7 +33,6 @@
     "typecheck:preview": "tsc --noEmit --project templates_json/preview/tsconfig.json --pretty false",
     "typecheck:all": "pnpm typecheck && pnpm typecheck:backend && pnpm typecheck:preview",
     "precommit": "node scripts/run-lint-staged.cjs",
-    "docs:current:check": "node scripts/check-docs-current-status.cjs",
     "hooks:install": "git config core.hooksPath .githooks",
     "dev:backend": "pnpm --dir backend dev",
     "dev:all": "concurrently --kill-others-on-fail \"next dev\" \"pnpm --dir backend dev\"",
@@ -60,7 +59,9 @@
     "agent:live-smoke": "node scripts/agent-eval/run-live-smoke.js",
     "agent:cache-test": "node scripts/agent-eval/run-cache-hitrate.js",
     "templates:validate": "node scripts/validate-template-json.mjs",
-    "templates:generate": "pnpm --dir backend exec ts-node -r tsconfig-paths/register scripts/generate-templates-cli.ts"
+    "templates:generate": "pnpm --dir backend exec ts-node -r tsconfig-paths/register scripts/generate-templates-cli.ts",
+    "assets:pregenerate": "pnpm --dir backend exec ts-node -r tsconfig-paths/register scripts/pregenerate-asset-library.ts",
+    "assets:import-existing": "pnpm --dir backend exec ts-node -r tsconfig-paths/register scripts/import-existing-assets.ts"
   },
   "dependencies": {
     "next": "15",

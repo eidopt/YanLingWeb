@@ -40,6 +40,6 @@ always live implementation facts.
 
 When code changes affect architecture, API routes, persistence boundaries,
 renderer/export behavior, package scripts, or verification gates, update
-`current-implementation-status.md` and the defect progress tracker in the same
-change. `pnpm docs:current:check` enforces the current-status entrypoint and key
-known-gap coverage.
+`current-implementation-status.md` and the defect progress tracker
+(`reports/03-code-framework-defects-progress.md`) in the same change, bumping the
+`Last updated:` date on both. This is a review convention, not a build/lint gate.

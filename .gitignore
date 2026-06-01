@@ -16,6 +16,7 @@ dist
 dist-ssr
 dist-electron
 *.local
+.claude/
 
 # Next.js
 .next
@@ -39,6 +40,16 @@ backend/data/*.db-*
 
 # Shared — generated OpenAPI spec (regenerated on backend start)
 shared/openapi.json
+
+# Generated template image assets — regenerated per device via `pnpm assets:pregenerate`
+# (kept out of git: large binaries; the manifest + scripts are committed instead)
+public/template-assets/generated/
+public/template-assets/pool/
+
+# Generated template JSON outputs (produced by `pnpm templates:generate`, imported on backend start)
+/templates_json/*.json
+templates_json/preview/public/templates-index.json
+templates_json/*.validation.log
 
 # Editor directories and files
 .vscode/*
