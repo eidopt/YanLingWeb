@@ -77,7 +77,13 @@ function ThemeNodeView({ runtime, state, node, renderNodeShell, parent, index }:
     __layoutMode: node.layout.mode,
     __parentAlias: parent?.alias,
     __slot: node.slot,
-    __slots: node.children?.map((child) => child.slot ?? 'body') ?? [],
+    // 底栏导航 core.tabbar 兜底归入 footer 槽（固定屏幕底部、不随内容滚动），
+    // 即使 SchemaGen 没显式标 slot:"footer" 也能正确固定 —— 否则 tabbar 混进可滚动
+    // body 区、看起来"没有底栏"。存量与未来模板通治。
+    __slots:
+      node.children?.map(
+        (child) => child.slot ?? (child.alias === 'core.tabbar' ? 'footer' : 'body'),
+      ) ?? [],
     __childFlowRows: node.children?.map((child, childIndex) => child.layout.flowRow ?? childIndex + 1) ?? [],
     __hasAbsoluteChildren: node.children?.some((child) => child.layout.mode === 'absolute') ?? false,
     __applyNodeLayoutStyle: !(renderNodeShell && !isRoot),
