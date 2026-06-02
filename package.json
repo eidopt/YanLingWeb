@@ -27,6 +27,7 @@
     "lint:backend": "pnpm --dir backend lint",
     "lint:all": "pnpm lint && pnpm lint:backend",
     "format": "prettier --write --ignore-unknown .",
+    "format:staged": "node scripts/fix-staged-prettier.cjs",
     "format:check": "prettier --check --ignore-unknown package.json pnpm-workspace.yaml prettier.config.mjs .prettierignore .githooks/pre-commit scripts/run-lint-staged.cjs",
     "typecheck": "tsc --noEmit --pretty false",
     "typecheck:backend": "tsc --noEmit --project backend/tsconfig.json --pretty false",
