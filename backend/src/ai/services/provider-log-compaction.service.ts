@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import type { AiConfigDto } from '../ai.service';
 import type { AIProvider, ProviderMessage, ProviderRequest } from '../core/providers/types';
-import { tokenCountWithEstimation } from '../core/utils/tokens';
+import { getContextWindow, tokenCountWithEstimation } from '../core/utils/tokens';
 
 const MAX_PROVIDER_LOG_TOKENS = 500_000;
 const PROVIDER_LOG_FOLD_TAIL_TOKENS = 180_000;
@@ -20,7 +20,7 @@ interface ProviderLogSummary {
 export class ProviderLogCompactionService {
   private readonly logger = new Logger(ProviderLogCompactionService.name);
   private apiKeyConfigured = false;
-  private aiConfig!: AiConfigDto;
+  private aiConfig?: AiConfigDto;
   private provider!: AIProvider;
 
   configure(aiConfig: AiConfigDto, provider: AIProvider, apiKeyConfigured: boolean): void {
@@ -31,15 +31,16 @@ export class ProviderLogCompactionService {
 
   async foldEditorProviderMessagesByTokenBudget(
     messages: readonly ProviderMessage[],
-    maxTokens = MAX_PROVIDER_LOG_TOKENS,
+    maxTokens?: number,
   ): Promise<ProviderMessage[]> {
     const normalized = this.normalizeProviderMessages(messages);
     const tokens = tokenCountWithEstimation(normalized);
-    if (tokens <= maxTokens) {
+    const tokenBudget = maxTokens ?? this.defaultProviderLogBudget();
+    if (tokens <= tokenBudget) {
       return normalized;
     }
 
-    const boundary = this.providerLogFoldBoundary(normalized);
+    const boundary = this.providerLogFoldBoundary(normalized, this.tailTokenBudget(tokenBudget));
     if (boundary <= 0) {
       this.logger.warn(
         [
@@ -88,7 +89,10 @@ export class ProviderLogCompactionService {
     const serialized = messages
       .map((message, index) => this.serializeProviderMessageForSummary(message, index))
       .join('\n\n---\n\n');
-    const summaryModel = this.aiConfig.models.lite ?? this.aiConfig.models.pro;
+    const summaryModel = this.aiConfig?.models.lite ?? this.aiConfig?.models.pro;
+    if (!summaryModel) {
+      return null;
+    }
     const request: ProviderRequest = {
       model: summaryModel,
       messages: [
@@ -183,6 +187,20 @@ export class ProviderLogCompactionService {
 
   private providerMessageTokenEstimate(message: ProviderMessage): number {
     return tokenCountWithEstimation([message]);
+  }
+
+  private defaultProviderLogBudget(): number {
+    if (!this.aiConfig?.model) {
+      return MAX_PROVIDER_LOG_TOKENS;
+    }
+    return Math.min(
+      getContextWindow(this.aiConfig.model, this.aiConfig.contextWindow),
+      MAX_PROVIDER_LOG_TOKENS,
+    );
+  }
+
+  private tailTokenBudget(maxTokens: number): number {
+    return Math.max(1, Math.min(PROVIDER_LOG_FOLD_TAIL_TOKENS, Math.floor(maxTokens * 0.36)));
   }
 
   private providerLogFoldBoundary(

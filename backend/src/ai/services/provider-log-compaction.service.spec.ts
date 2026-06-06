@@ -24,6 +24,9 @@ class FakeProvider implements AIProvider {
       supportsStructuredOutput: false,
       supportsReasoningEffort: false,
       supportsServerSideContext: false,
+      reasoningMode: 'none',
+      cacheStrategy: 'none',
+      supportsDeveloperRole: false,
     };
   }
 
@@ -134,6 +137,27 @@ describe('ProviderLogCompactionService', () => {
     expect(provider.requests).toHaveLength(1);
     expect(provider.requests[0].model).toBe('gpt-5-lite');
     expect(provider.requests[0].messages[1].content).toContain('Initial editor goal');
+  });
+
+  it('uses configured context window as the default fold budget', async () => {
+    const provider = new FakeProvider([{ type: 'text_delta', text: 'Summary' }]);
+    const service = new ProviderLogCompactionService();
+    service.configure(
+      createAiConfig({ model: 'custom-small-model', contextWindow: 100_000 }),
+      provider,
+      true,
+    );
+
+    const folded = await service.foldEditorProviderMessagesByTokenBudget([
+      { role: 'user', content: 'Initial editor goal' },
+      { role: 'assistant', content: 'x'.repeat(400_000) },
+      { role: 'user', content: 'Recent user instruction' },
+    ]);
+
+    expect(folded).toHaveLength(2);
+    expect(folded[0].content).toContain('Summary');
+    expect(folded[1]).toEqual({ role: 'user', content: 'Recent user instruction' });
+    expect(provider.requests).toHaveLength(1);
   });
 
   it('keeps full history when summary folding is unavailable or fails', async () => {

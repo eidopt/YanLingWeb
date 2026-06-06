@@ -63,6 +63,7 @@ export interface AiConfigDto {
     lite?: string;
     image?: string;
   };
+  contextWindow?: number;
   semanticTargets: AiSemanticTargetConfig[];
 }
 
@@ -100,6 +101,7 @@ export class AiService {
       provider: this.config.ai.provider,
       model: this.config.ai.model,
       models: this.config.ai.models,
+      contextWindow: this.config.ai.contextWindow,
       semanticTargets: AI_SEMANTIC_TARGETS,
     };
 
