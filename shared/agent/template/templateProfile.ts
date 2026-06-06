@@ -124,6 +124,8 @@ export interface ThemeLayoutNodeSemanticMeta {
   slotKey?: string;
   patternKey?: string;
   aiRole?: string;
+  /** Explicit pageKind annotation (takes priority over inference) */
+  pageKind?: string;
 }
 
 export type SemanticThemeLayoutNode = ThemeLayoutNode & {
