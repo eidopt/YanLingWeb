@@ -90,43 +90,53 @@ export class TemplatePipelineService {
         this.logger.warn(`attempt ${attempt} critic revise — 末次放行（diversity best-effort）`);
       }
 
-      // Stage 3: Schema Generation (with independent stage-level retries)
+      // Stage 3: Schema Generation
+      // Pipeline-level retries: re-run schemaGenerator with the same brief,
+      // without going back to Designer. Only fall back to Designer when all
+      // pipeline retries are exhausted.
       let schemaRecord;
       let schemaGenSucceeded = false;
       const SCHEMA_STAGE_RETRIES = 3;
-      for (let stageRetry = 0; stageRetry < SCHEMA_STAGE_RETRIES; stageRetry++) {
-        try {
-          schemaRecord = await this.schemaGenerator.run(brief, attempt);
-          schemaGenSucceeded = true;
-          break;
-        } catch (err) {
-          const msg = err instanceof Error ? err.message : String(err);
-          this.logger.warn(
-            `attempt ${attempt} schema gen stage-retry ${stageRetry + 1}/${SCHEMA_STAGE_RETRIES}: ${msg}`,
-          );
-          if (stageRetry === SCHEMA_STAGE_RETRIES - 1) {
-            reviseSuggestion = `Stage 3 schema generation failed: ${msg}`;
-            lastError = `schema gen throw: ${msg}`;
+      const SCHEMA_PIPELINE_RETRIES = 2;
+      let lastSchemaError: string | undefined;
+
+      for (let pipelineRetry = 0; pipelineRetry <= SCHEMA_PIPELINE_RETRIES; pipelineRetry++) {
+        for (let stageRetry = 0; stageRetry < SCHEMA_STAGE_RETRIES; stageRetry++) {
+          try {
+            schemaRecord = await this.schemaGenerator.run(brief, attempt);
+            schemaGenSucceeded = true;
+            break;
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            lastSchemaError = msg;
+            this.logger.warn(
+              `attempt ${attempt} schemaGen pipeline-retry ${pipelineRetry} stage-retry ${stageRetry + 1}/${SCHEMA_STAGE_RETRIES}: ${msg}`,
+            );
           }
         }
-      }
-      if (!schemaGenSucceeded) {
+        if (schemaGenSucceeded) break;
         this.logger.warn(
-          `attempt ${attempt} schema gen exhausted stage retries — falling back to Designer`,
+          `attempt ${attempt} schemaGen pipeline-retry ${pipelineRetry + 1}/${SCHEMA_PIPELINE_RETRIES + 1} exhausted inner retries — ${pipelineRetry < SCHEMA_PIPELINE_RETRIES ? 'retrying with same brief' : 'falling back to Designer'}`,
         );
+      }
+
+      if (!schemaGenSucceeded) {
+        reviseSuggestion = `Stage 3 schema generation failed: ${lastSchemaError}`;
+        lastError = `schema gen throw: ${lastSchemaError}`;
         continue;
       }
       stages.schema.push(schemaRecord!);
 
       // Stage 4: Verifier (3 lenses concurrently inside)
-      const verifierRecord = await this.verifier.run(brief, schemaRecord.output, existing, attempt);
+      const schemaOutput = schemaRecord!.output;
+      const verifierRecord = await this.verifier.run(brief, schemaOutput, existing, attempt);
       stages.verifier.push(verifierRecord);
 
       const failedLenses = verifierRecord.output.filter((v) => !v.pass);
       if (failedLenses.length === 0) {
         return {
           templateId: brief.templateId,
-          document: schemaRecord.output.document,
+          document: schemaOutput.document,
           brief,
           stages,
           totalDurationMs: Date.now() - pipelineStart,
