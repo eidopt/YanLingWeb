@@ -2,69 +2,80 @@
  * Model Capabilities tests — config-driven, no hardcoded model names.
  * Run: npx vitest run backend/src/ai/core/providers/modelCapabilities.spec.ts
  */
-import { describe, expect, it, afterEach } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { buildCompatibleCapabilities } from './modelCapabilities';
 
 describe('buildCompatibleCapabilities', () => {
-  afterEach(() => {
-    delete process.env.AI_REASONING_MODE;
-    delete process.env.AI_CACHE_STRATEGY;
-    delete process.env.AI_SUPPORTS_DEVELOPER_ROLE;
-  });
-
-  it('returns sensible defaults when no env vars set', () => {
+  it('returns sensible defaults when no overrides provided', () => {
     const caps = buildCompatibleCapabilities();
     expect(caps.supportsStreaming).toBe(true);
     expect(caps.supportsToolCalls).toBe(true);
     expect(caps.reasoningMode).toBe('passthrough');
     expect(caps.cacheStrategy).toBe('none');
     expect(caps.supportsDeveloperRole).toBe(false);
+    expect(caps.extraRequestParams).toBeUndefined();
   });
 
-  it('overrides reasoningMode from AI_REASONING_MODE', () => {
-    process.env.AI_REASONING_MODE = 'required';
-    const caps = buildCompatibleCapabilities();
+  it('applies reasoningMode override', () => {
+    const caps = buildCompatibleCapabilities({ reasoningMode: 'required' });
     expect(caps.reasoningMode).toBe('required');
   });
 
-  it('overrides reasoningMode to none', () => {
-    process.env.AI_REASONING_MODE = 'none';
-    const caps = buildCompatibleCapabilities();
+  it('applies reasoningMode none', () => {
+    const caps = buildCompatibleCapabilities({ reasoningMode: 'none' });
     expect(caps.reasoningMode).toBe('none');
   });
 
-  it('ignores invalid reasoningMode', () => {
-    process.env.AI_REASONING_MODE = 'invalid';
-    const caps = buildCompatibleCapabilities();
-    expect(caps.reasoningMode).toBe('passthrough'); // unchanged
-  });
-
-  it('overrides cacheStrategy from AI_CACHE_STRATEGY', () => {
-    process.env.AI_CACHE_STRATEGY = 'prefix';
-    const caps = buildCompatibleCapabilities();
+  it('applies cacheStrategy override', () => {
+    const caps = buildCompatibleCapabilities({ cacheStrategy: 'prefix' });
     expect(caps.cacheStrategy).toBe('prefix');
   });
 
-  it('overrides cacheStrategy to cache_key', () => {
-    process.env.AI_CACHE_STRATEGY = 'cache_key';
-    const caps = buildCompatibleCapabilities();
+  it('applies cacheStrategy cache_key', () => {
+    const caps = buildCompatibleCapabilities({ cacheStrategy: 'cache_key' });
     expect(caps.cacheStrategy).toBe('cache_key');
   });
 
-  it('overrides supportsDeveloperRole', () => {
-    process.env.AI_SUPPORTS_DEVELOPER_ROLE = 'true';
-    const caps = buildCompatibleCapabilities();
+  it('applies supportsDeveloperRole override', () => {
+    const caps = buildCompatibleCapabilities({ supportsDeveloperRole: true });
     expect(caps.supportsDeveloperRole).toBe(true);
   });
 
+  it('applies extraRequestParams', () => {
+    const caps = buildCompatibleCapabilities({ extraRequestParams: { reasoning_split: true } });
+    expect(caps.extraRequestParams).toEqual({ reasoning_split: true });
+  });
+
+  it('applies extraRequestParams with multiple keys', () => {
+    const caps = buildCompatibleCapabilities({
+      extraRequestParams: { enable_thinking: true, max_tokens: 4096 },
+    });
+    expect(caps.extraRequestParams).toEqual({ enable_thinking: true, max_tokens: 4096 });
+  });
+
+  it('leaves extraRequestParams undefined when not provided', () => {
+    const caps = buildCompatibleCapabilities({ reasoningMode: 'none' });
+    expect(caps.extraRequestParams).toBeUndefined();
+  });
+
   it('all overrides combined', () => {
-    process.env.AI_REASONING_MODE = 'required';
-    process.env.AI_CACHE_STRATEGY = 'prefix';
-    process.env.AI_SUPPORTS_DEVELOPER_ROLE = 'true';
-    const caps = buildCompatibleCapabilities();
+    const caps = buildCompatibleCapabilities({
+      reasoningMode: 'required',
+      cacheStrategy: 'prefix',
+      supportsDeveloperRole: true,
+      extraRequestParams: { enable_thinking: true },
+    });
     expect(caps.reasoningMode).toBe('required');
     expect(caps.cacheStrategy).toBe('prefix');
     expect(caps.supportsDeveloperRole).toBe(true);
+    expect(caps.extraRequestParams).toEqual({ enable_thinking: true });
+  });
+
+  it('does not mutate defaults when overrides are partial', () => {
+    const caps1 = buildCompatibleCapabilities({ reasoningMode: 'none' });
+    const caps2 = buildCompatibleCapabilities();
+    expect(caps2.reasoningMode).toBe('passthrough');
+    expect(caps1.reasoningMode).toBe('none');
   });
 });

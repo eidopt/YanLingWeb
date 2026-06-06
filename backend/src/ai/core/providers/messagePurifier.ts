@@ -64,6 +64,10 @@ function purifyOneMessage(msg: ProviderMessage, targetCaps: ProviderCapabilities
   // 2. developer role handling
   if (needsDeveloperHandling) {
     clean.role = 'system';
+    // Prepend a marker so the LLM can distinguish developer-level instructions
+    // from system-level instructions after the role is downgraded.
+    const content = typeof clean.content === 'string' ? clean.content : '';
+    clean.content = `[Developer Instructions]\n${content}`;
   }
 
   return clean;

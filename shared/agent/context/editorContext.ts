@@ -149,7 +149,7 @@ export function summarizeCanvas(document: ThemeLayoutDocument): string {
 }
 
 /** 从节点 props 推断可读的 displayName，方便 AI 识别节点用途 */
-function inferDisplayName(node: ThemeLayoutNode): string {
+export function inferDisplayName(node: ThemeLayoutNode): string {
   const props = node.props ?? {};
 
   switch (node.alias) {
@@ -198,9 +198,22 @@ function inferDisplayName(node: ThemeLayoutNode): string {
   }
 }
 
-const CONTAINER_ALIASES = new Set(['core.screen', 'core.panel', 'core.stack', 'core.row', 'core.grid', 'core.html']);
+const CONTAINER_ALIASES = new Set([
+  'core.screen',
+  'core.panel',
+  'core.stack',
+  'core.row',
+  'core.grid',
+  'core.html',
+  'core.tabs',
+  'core.form',
+  'core.carousel',
+  'core.dialog',
+  'core.drawer',
+]);
 
-function isContainerNode(node: ThemeLayoutNode): boolean {
+/** 判断节点是否是容器（可接受子元素插入） */
+export function isContainerNode(node: ThemeLayoutNode): boolean {
   return CONTAINER_ALIASES.has(node.alias);
 }
 

@@ -80,8 +80,24 @@ export interface ProviderCapabilities {
    * - 'none': target doesn't recognize reasoning_content (GPT, GLM)
    * - 'passthrough': preserve if present, don't require (DeepSeek, Kimi, Qwen, MiniMax)
    * - 'required': must be present on every assistant message (MiMo)
+   *
+   * For models that need an extra request parameter to enable reasoning output
+   * (e.g. MiniMax needs `reasoning_split: true`), keep mode as 'passthrough'
+   * and set the parameter via `extraRequestParams`.
    */
   reasoningMode: 'none' | 'passthrough' | 'required';
+
+  /**
+   * Extra request parameters injected into every API call for this provider.
+   * Use for model-specific parameters that don't fit into the standard fields.
+   *
+   * Examples:
+   * - MiniMax: `{ reasoning_split: true }` — separate reasoning output
+   * - Qwen:    `{ enable_thinking: true }`  — enable chain-of-thought
+   *
+   * Set via AI_EXTRA_PARAMS env var (JSON string).
+   */
+  extraRequestParams?: Record<string, unknown>;
 
   /**
    * Caching strategy for this provider.

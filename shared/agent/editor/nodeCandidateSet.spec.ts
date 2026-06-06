@@ -10,6 +10,7 @@ import { describe, expect, it } from 'vitest';
 
 import { createCommerceMarketDocument } from '../fixtures/seedDocuments';
 import type { ThemeLayoutNode } from '../types';
+import { inferDisplayName, isContainerNode } from '../context/editorContext';
 
 // ── 当前实现（旧格式）────────────────────────────────────────────────────
 
@@ -38,63 +39,6 @@ function buildNodeIndexOld(root: ThemeLayoutNode): string {
   return lines.join('\n');
 }
 
-// ── 新实现 ───────────────────────────────────────────────────────────────
-
-/** 从节点 props 推断可读的 displayName */
-function inferDisplayName(node: ThemeLayoutNode): string {
-  const props = node.props ?? {};
-
-  switch (node.alias) {
-    case 'core.search':
-      return '搜索框';
-    case 'core.button': {
-      const label = typeof props.label === 'string' ? props.label : '';
-      return label ? `按钮:${label}` : '按钮';
-    }
-    case 'core.text': {
-      const text = typeof props.text === 'string' ? props.text : '';
-      return text ? `文字:${text.slice(0, 20)}` : '文字';
-    }
-    case 'core.notice': {
-      const text = typeof props.text === 'string' ? props.text : '';
-      return text ? `通知:${text.slice(0, 20)}` : '通知';
-    }
-    case 'core.panel': {
-      const title = typeof props.title === 'string' ? props.title : '';
-      return title ? `卡片:${title}` : '卡片';
-    }
-    case 'core.tabs':
-      return node.slot === 'footer' ? '底部导航' : '标签栏';
-    case 'core.tag': {
-      const label = typeof props.label === 'string' ? props.label : '';
-      return label ? `标签:${label}` : '标签';
-    }
-    case 'core.image':
-      return '图片';
-    case 'core.input': {
-      const ph = typeof props.placeholder === 'string' ? props.placeholder : '';
-      return ph ? `输入框:${ph.slice(0, 15)}` : '输入框';
-    }
-    case 'core.screen': {
-      const title = typeof props.title === 'string' ? props.title : '';
-      return title ? `页面:${title}` : '页面';
-    }
-    case 'core.divider':
-      return '分隔线';
-    case 'core.spacer':
-      return '间距';
-    case 'core.progress':
-      return '进度条';
-    default:
-      return node.alias.replace('core.', '');
-  }
-}
-
-/** 判断是否是容器节点 */
-function isContainer(node: ThemeLayoutNode): boolean {
-  return ['core.screen', 'core.panel', 'core.stack', 'core.row', 'core.grid', 'core.html'].includes(node.alias);
-}
-
 /** 构建新的候选集格式 */
 function buildNodeCandidateSet(root: ThemeLayoutNode): string {
   const lines: string[] = ['# 当前页面可编辑节点（编辑时 targetId 必须从下列 ID 中选择）'];
@@ -103,7 +47,7 @@ function buildNodeCandidateSet(root: ThemeLayoutNode): string {
 
   const collect = (node: ThemeLayoutNode, depth: number) => {
     const indent = '    '.repeat(depth);
-    const containerMark = isContainer(node) ? '[C] ' : '    ';
+    const containerMark = isContainerNode(node) ? '[C] ' : '    ';
     const displayName = inferDisplayName(node);
 
     // 提取关键 props 用于消歧

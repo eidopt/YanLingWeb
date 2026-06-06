@@ -63,7 +63,9 @@ class CacheKeyStrategy implements CacheStrategy {
   readonly type = 'cache_key';
 
   applyToRequest<T extends CacheableRequest>(request: T, cacheOpts?: ProviderCacheOptions): T {
-    // Kimi: inject prompt_cache_key for explicit cache control
+    // PLACEHOLDER — Kimi's prompt_cache_key is not yet read by any provider.
+    // When a KimiProvider is implemented, it should read request.cacheKey
+    // and inject it into the API call.
     if (!cacheOpts?.conversationId) {
       return request;
     }
@@ -78,8 +80,9 @@ class CacheControlStrategy implements CacheStrategy {
   readonly type = 'cache_control';
 
   applyToRequest<T extends CacheableRequest>(request: T): T {
-    // Qwen: cache_control marker is applied at message level
+    // PLACEHOLDER — Qwen's cache_control marker should be applied at message level
     // by the provider's convertMessages, not at request level.
+    // When a QwenProvider is implemented, it should inject cache_control into messages.
     return request;
   }
 }

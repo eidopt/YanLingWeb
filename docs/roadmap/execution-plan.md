@@ -375,6 +375,8 @@ _本文档是 `docs/roadmap/README.md` 的执行策略补充，侧重"先做什�
 
 **建议**: 在第一批新增 1.3 SSE 心跳，工期 0.5 天。在 `streamProxy()` 和 `editorStream()` 的 SSE Observable 中添加 5 秒间隔 `:heartbeat\n\n` 注释行。前端无需改动。
 
+**✅ 已修复**: 提取 `startSseHeartbeat(res)` helper 消除重复代码，两个 SSE 端点均接入 5 秒心跳。
+
 **修正后第一批工期**: 2 天 + 0.5 天 = **2.5 天**
 
 ---

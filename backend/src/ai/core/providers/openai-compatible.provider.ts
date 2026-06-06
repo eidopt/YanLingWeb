@@ -1,6 +1,11 @@
 import OpenAI from 'openai';
 import type { ChatCompletionChunk, ChatCompletionTool } from 'openai/resources/index';
 
+import { purifyMessages } from './messagePurifier';
+import {
+  buildCompatibleCapabilities,
+  type CompatibleCapabilitiesOverrides,
+} from './modelCapabilities';
 import type {
   AIProvider,
   ProviderCapabilities,
@@ -9,8 +14,6 @@ import type {
   ProviderStreamEvent,
   ProviderTool,
 } from './types';
-import { purifyMessages } from './messagePurifier';
-import { buildCompatibleCapabilities } from './modelCapabilities';
 
 interface UsageAccumulator {
   inputTokens: number;
@@ -46,10 +49,15 @@ export class OpenAICompatibleProvider implements AIProvider {
   private abortController: AbortController | null = null;
   private readonly caps: ProviderCapabilities;
 
-  constructor(apiKey: string, baseURL?: string, name?: string) {
+  constructor(
+    apiKey: string,
+    baseURL?: string,
+    name?: string,
+    capsOverrides?: CompatibleCapabilitiesOverrides,
+  ) {
     this.name = name ?? 'openai-compatible';
     this.client = new OpenAI({ apiKey, baseURL });
-    this.caps = buildCompatibleCapabilities();
+    this.caps = buildCompatibleCapabilities(capsOverrides);
   }
 
   getCapabilities(): ProviderCapabilities {
@@ -73,6 +81,7 @@ export class OpenAICompatibleProvider implements AIProvider {
         stream: true,
         stream_options: { include_usage: true },
         ...(tools && { tools }),
+        ...this.caps.extraRequestParams,
       });
     } catch (error) {
       yield { type: 'error', message: error instanceof Error ? error.message : String(error) };

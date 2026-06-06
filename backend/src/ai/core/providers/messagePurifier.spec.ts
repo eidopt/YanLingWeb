@@ -2,9 +2,9 @@
  * MessagePurifier tests
  * Run: npx vitest run backend/src/ai/core/providers/messagePurifier.spec.ts
  */
+import type { ProviderCapabilities, ProviderMessage } from '@shared/agent/contracts/provider';
 import { describe, expect, it } from 'vitest';
 
-import type { ProviderCapabilities, ProviderMessage } from '@shared/agent/contracts/provider';
 import { purifyMessages } from './messagePurifier';
 
 // ── Capabilities presets ──────────────────────────────────────────────
@@ -45,7 +45,7 @@ const MIMO_CAPS: ProviderCapabilities = {
   supportsDeveloperRole: false,
 };
 
-const GLM_CAPS: ProviderCapabilities = {
+const _GLM_CAPS: ProviderCapabilities = {
   supportsStreaming: true,
   supportsToolCalls: true,
   supportsParallelToolCalls: true,
@@ -159,13 +159,14 @@ describe('purifyMessages', () => {
       const messages = [developerMsg('instructions')];
       const result = purifyMessages(messages, DEEPSEEK_CAPS);
       expect(result[0].role).toBe('system');
-      expect(result[0].content).toBe('instructions');
+      expect(result[0].content).toBe('[Developer Instructions]\ninstructions');
     });
 
     it('converts developer to system for MiMo', () => {
       const messages = [developerMsg('instructions')];
       const result = purifyMessages(messages, MIMO_CAPS);
       expect(result[0].role).toBe('system');
+      expect(result[0].content).toBe('[Developer Instructions]\ninstructions');
     });
   });
 
@@ -219,7 +220,7 @@ describe('purifyMessages', () => {
       const result = purifyMessages(messages, DEEPSEEK_CAPS);
 
       expect(result[0].role).toBe('system');
-      expect(result[0].content).toBe('You are a copilot');
+      expect(result[0].content).toBe('[Developer Instructions]\nYou are a copilot');
     });
   });
 

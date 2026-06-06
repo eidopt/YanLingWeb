@@ -3,7 +3,7 @@
  *
  * No model names are hardcoded. Capabilities are determined by:
  *   1. Provider type (OpenAI Responses API vs Chat Completions)
- *   2. Optional env var overrides: AI_REASONING_MODE, AI_CACHE_STRATEGY
+ *   2. Config overrides from ConfigFactory (originally from env vars)
  *
  * This means adding a new model requires ZERO code changes — just set
  * AI_PROVIDER, AI_MODEL, AI_BASE_URL, AI_API_KEY in .env.
@@ -23,31 +23,33 @@ const COMPATIBLE_DEFAULTS: ProviderCapabilities = {
   supportsDeveloperRole: false,
 };
 
+export interface CompatibleCapabilitiesOverrides {
+  reasoningMode?: 'none' | 'passthrough' | 'required';
+  cacheStrategy?: 'response_id' | 'prefix' | 'cache_key' | 'cache_control' | 'none';
+  supportsDeveloperRole?: boolean;
+  extraRequestParams?: Record<string, unknown>;
+}
+
 /**
  * Build capabilities for an OpenAI-compatible provider instance.
- * Reads optional overrides from env vars.
+ * Accepts config overrides from ConfigFactory — never reads process.env directly.
  */
-export function buildCompatibleCapabilities(): ProviderCapabilities {
+export function buildCompatibleCapabilities(
+  overrides?: CompatibleCapabilitiesOverrides,
+): ProviderCapabilities {
   const caps = { ...COMPATIBLE_DEFAULTS };
 
-  const reasoningMode = process.env.AI_REASONING_MODE;
-  if (reasoningMode === 'none' || reasoningMode === 'passthrough' || reasoningMode === 'required') {
-    caps.reasoningMode = reasoningMode;
+  if (overrides?.reasoningMode) {
+    caps.reasoningMode = overrides.reasoningMode;
   }
-
-  const cacheStrategy = process.env.AI_CACHE_STRATEGY;
-  if (
-    cacheStrategy === 'response_id' ||
-    cacheStrategy === 'prefix' ||
-    cacheStrategy === 'cache_key' ||
-    cacheStrategy === 'cache_control' ||
-    cacheStrategy === 'none'
-  ) {
-    caps.cacheStrategy = cacheStrategy;
+  if (overrides?.cacheStrategy) {
+    caps.cacheStrategy = overrides.cacheStrategy;
   }
-
-  if (process.env.AI_SUPPORTS_DEVELOPER_ROLE === 'true') {
+  if (overrides?.supportsDeveloperRole) {
     caps.supportsDeveloperRole = true;
+  }
+  if (overrides?.extraRequestParams) {
+    caps.extraRequestParams = overrides.extraRequestParams;
   }
 
   return caps;

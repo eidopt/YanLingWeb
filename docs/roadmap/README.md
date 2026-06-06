@@ -1150,19 +1150,19 @@ interface TemplateProfileUpdater {
 
 ### A. 关键常量速查
 
-| 常量                              | 值                    | 位置                                 | 备注                   |
-| --------------------------------- | --------------------- | ------------------------------------ | ---------------------- |
-| `MAX_ITERATIONS` (QueryLoop)      | 20                    | `query-loop.ts`                      | 前端循环上限           |
-| `MAX_API_RETRIES`                 | 3                     | `query-loop.ts`                      | API 重试次数           |
-| `MAX_CONSECUTIVE_ERRORS`          | 5                     | `query-loop.ts`                      | 连续错误上限           |
-| `MAX_PIPELINE_ATTEMPTS`           | 3                     | `pipeline.service.ts`                | Pipeline 全局重试      |
-| `maxIterations` (SchemaGen)       | 8                     | `schema-generator.agent.ts`          | SchemaGen 单次迭代上限 |
-| `maxIterations` (EditorEditAgent) | 8                     | `editorEditAgent.ts`                 | 编辑器 Agent 迭代上限  |
-| `MAX_PROVIDER_LOG_TOKENS`         | 500,000               | `provider-log-compaction.service.ts` | 日志 token 预算        |
-| `PROVIDER_LOG_FOLD_TAIL_TOKENS`   | 180,000               | `provider-log-compaction.service.ts` | 折叠保留尾部           |
-| `DEFAULT_MAX_CONTEXT_TOKENS`      | 500,000               | `compact.ts`                         | 前端上下文 token 上限  |
-| `COMPACTION_MODEL`                | `'deepseek-v4-flash'` | `compact.ts`                         | **硬编码，需消除**     |
-| `RATE_LIMIT_MAX`                  | 10                    | `ai.service.helpers.ts`              | AI 请求限流            |
+| 常量                              | 值                                 | 位置                                 | 备注                             |
+| --------------------------------- | ---------------------------------- | ------------------------------------ | -------------------------------- |
+| `MAX_ITERATIONS` (QueryLoop)      | 20                                 | `query-loop.ts`                      | 前端循环上限                     |
+| `MAX_API_RETRIES`                 | 3                                  | `query-loop.ts`                      | API 重试次数                     |
+| `MAX_CONSECUTIVE_ERRORS`          | 5                                  | `query-loop.ts`                      | 连续错误上限                     |
+| `MAX_PIPELINE_ATTEMPTS`           | 3                                  | `pipeline.service.ts`                | Pipeline 全局重试                |
+| `maxIterations` (SchemaGen)       | 8                                  | `schema-generator.agent.ts`          | SchemaGen 单次迭代上限           |
+| `maxIterations` (EditorEditAgent) | 8                                  | `editorEditAgent.ts`                 | 编辑器 Agent 迭代上限            |
+| `MAX_PROVIDER_LOG_TOKENS`         | 500,000                            | `provider-log-compaction.service.ts` | 日志 token 预算                  |
+| `PROVIDER_LOG_FOLD_TAIL_TOKENS`   | 180,000                            | `provider-log-compaction.service.ts` | 折叠保留尾部                     |
+| `DEFAULT_MAX_CONTEXT_TOKENS`      | 500,000                            | `compact.ts`                         | 前端上下文 token 上限            |
+| `COMPACTION_MODEL`                | ~~`'deepseek-v4-flash'`~~ (已消除) | `compact.ts`                         | ✅ 已消除 — 模型现在由调用方传入 |
+| `RATE_LIMIT_MAX`                  | 10                                 | `ai.service.helpers.ts`              | AI 请求限流                      |
 
 ### B. 文件影响范围
 
@@ -1277,6 +1277,8 @@ res.setHeader('connection', 'keep-alive');
 但**没有** `setInterval` 心跳实现。Pipeline 生成耗时 30-60 秒，中间零输出，存在连接超时断开风险。
 
 **建议**: 将 SSE 心跳作为 P0 级课题纳入 Phase 1，在 `streamProxy()` 和 `editorStream()` 的 SSE Observable 中添加 5 秒间隔注释行心跳。改动约 0.5 天，前端无需改动（浏览器 `EventSource` 自动忽略注释行但重置超时计时器）。
+
+**✅ 已修复**: 提取 `startSseHeartbeat(res)` helper，两个 SSE 端点均接入 5 秒心跳。
 
 ---
 
