@@ -43,7 +43,7 @@ export function tokenCountWithEstimation(messages: readonly ProviderMessage[]): 
  * Get the context window size for a model.
  * Resolution order:
  *   1. AI_CONTEXT_WINDOW env var (explicit override)
- *   2. Default 128K (safe for all modern models)
+ *   2. Default 1M (all current models support 1M+ context)
  */
 export function getContextWindow(_model: string): number {
   const configured = process.env.AI_CONTEXT_WINDOW;
@@ -51,5 +51,5 @@ export function getContextWindow(_model: string): number {
     const parsed = Number(configured);
     if (Number.isFinite(parsed) && parsed > 0) return parsed;
   }
-  return 128_000;
+  return 1_000_000;
 }
