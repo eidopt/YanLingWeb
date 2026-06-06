@@ -14,8 +14,8 @@ import { ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger
 import { Throttle } from '@nestjs/throttler';
 import type { Request } from 'express';
 
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { CreateExportDto } from './dto/create-export.dto';
+import { JwtAuthGuard } from '../auth/jwtAuth.guard';
+import { CreateExportDto } from './dto/createExport.dto';
 import { ExportsService } from './exports.service';
 
 interface AuthenticatedRequest extends Request {

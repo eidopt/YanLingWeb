@@ -7,7 +7,7 @@ import { User } from '../users/entities/user.entity';
 import { TypeOrmUserAccountRepository, USER_ACCOUNT_REPOSITORY } from '../users/repositories';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { JwtAuthGuard } from './jwt-auth.guard';
+import { JwtAuthGuard } from './jwtAuth.guard';
 
 @Module({
   imports: [

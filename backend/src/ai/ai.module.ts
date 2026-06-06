@@ -3,22 +3,22 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from '../auth/auth.module';
 import { TemplatesModule } from '../templates/templates.module';
-import { AgentEvalController } from './agent-eval.controller';
-import { AgentRunnerService } from './agent-runner.service';
+import { AgentEvalController } from './agentEval.controller';
+import { AgentRunnerService } from './agentRunner.service';
 import { AiController } from './ai.controller';
 import { AiService } from './ai.service';
-import { AiTokenUsageEvent } from './entities/ai-token-usage.entity';
-import { EditorAiConversation } from './entities/editor-ai-conversation.entity';
-import { AI_TEMPLATE_PIPELINE_PROVIDER } from './pipeline-provider.port';
+import { AiTokenUsageEvent } from './entities/aiTokenUsage.entity';
+import { EditorAiConversation } from './entities/editorAiConversation.entity';
+import { AI_TEMPLATE_PIPELINE_PROVIDER } from './pipelineProvider.port';
 import {
   EDITOR_CONVERSATION_REPOSITORY,
   TOKEN_USAGE_REPOSITORY,
   TypeOrmEditorConversationRepository,
   TypeOrmTokenUsageRepository,
 } from './repositories';
-import { EditorConversationService } from './services/editor-conversation.service';
-import { ProviderLogCompactionService } from './services/provider-log-compaction.service';
-import { TokenUsageService } from './services/token-usage.service';
+import { EditorConversationService } from './services/editorConversation.service';
+import { ProviderLogCompactionService } from './services/providerLogCompaction.service';
+import { TokenUsageService } from './services/tokenUsage.service';
 
 @Module({
   imports: [

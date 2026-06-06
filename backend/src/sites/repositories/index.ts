@@ -5,5 +5,5 @@ export {
   type PublishedSiteRevisionPayload,
   type PublishNewSiteInput,
   type RepublishSiteInput,
-} from './published-site.repository';
-export { TypeOrmPublishedSiteRepository } from './typeorm-published-site.repository';
+} from './publishedSite.repository';
+export { TypeOrmPublishedSiteRepository } from './typeormPublishedSite.repository';

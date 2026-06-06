@@ -8,9 +8,9 @@ import type {
   TemplatePublishSnapshot,
   TemplateReadRepository,
   TemplateSearchRecord,
-} from '../templates/repositories/template-read.repository';
-import { PublishedSite } from './entities/published-site.entity';
-import { PublishedSiteRevision } from './entities/published-site-revision.entity';
+} from '../templates/repositories/templateRead.repository';
+import { PublishedSite } from './entities/publishedSite.entity';
+import { PublishedSiteRevision } from './entities/publishedSiteRevision.entity';
 import type {
   PublishedSiteDetailRecord,
   PublishedSiteRepository,

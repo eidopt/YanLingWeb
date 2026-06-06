@@ -2,8 +2,8 @@ import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nest
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 
-import { AuthenticatedRequest } from '../auth/authenticated-request.interface';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { AuthenticatedRequest } from '../auth/authenticatedRequest.interface';
+import { JwtAuthGuard } from '../auth/jwtAuth.guard';
 import { type PublishSiteInput, type RollbackSiteInput, SitesService } from './sites.service';
 
 @ApiTags('sites')

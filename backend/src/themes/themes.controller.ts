@@ -11,8 +11,8 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { CreateThemeDto } from './dto/create-theme.dto';
-import { UpdateThemeDto } from './dto/update-theme.dto';
+import { CreateThemeDto } from './dto/createTheme.dto';
+import { UpdateThemeDto } from './dto/updateTheme.dto';
 import { ThemesService } from './themes.service';
 
 @ApiTags('themes')

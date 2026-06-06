@@ -2,8 +2,8 @@ import { Body, Controller, Get, Param, Post, Put, Query, Req, UseGuards } from '
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 
-import { AuthenticatedRequest } from '../auth/authenticated-request.interface';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { AuthenticatedRequest } from '../auth/authenticatedRequest.interface';
+import { JwtAuthGuard } from '../auth/jwtAuth.guard';
 import { TemplatesService, type UpdateOwnedTemplateInput } from './templates.service';
 
 @ApiTags('templates')

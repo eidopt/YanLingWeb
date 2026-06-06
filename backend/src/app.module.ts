@@ -4,10 +4,10 @@ import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { AiModule } from './ai/ai.module';
-import { AiTemplatesModule } from './ai-templates/ai-templates.module';
+import { AiTemplatesModule } from './ai-templates/aiTemplates.module';
 import { AuthModule } from './auth/auth.module';
-import { ApiExceptionFilter } from './common/filters/api-exception.filter';
-import { ApiResponseInterceptor } from './common/interceptors/api-response.interceptor';
+import { ApiExceptionFilter } from './common/filters/apiException.filter';
+import { ApiResponseInterceptor } from './common/interceptors/apiResponse.interceptor';
 import { ConfigFactory } from './config/config.factory';
 import { ConfigModule } from './config/config.module';
 import { DatabaseModule } from './database/database.module';
