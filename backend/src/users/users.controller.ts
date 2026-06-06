@@ -13,9 +13,9 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { AuthenticatedRequest } from '../auth/authenticated-request.interface';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { AuthenticatedRequest } from '../auth/authenticatedRequest.interface';
+import { JwtAuthGuard } from '../auth/jwtAuth.guard';
+import { UpdateUserDto } from './dto/updateUser.dto';
 import { UsersService } from './users.service';
 
 @ApiTags('users')

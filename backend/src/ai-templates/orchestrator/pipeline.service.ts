@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { DesignerAgent } from '../stages/designer.agent';
-import { DiversityCriticAgent } from '../stages/diversity-critic.agent';
-import { SchemaGeneratorAgent } from '../stages/schema-generator.agent';
+import { DiversityCriticAgent } from '../stages/diversityCritic.agent';
+import { SchemaGeneratorAgent } from '../stages/schemaGenerator.agent';
 import { VerifierAgent } from '../stages/verifier.agent';
 import type {
   CriticVerdict,

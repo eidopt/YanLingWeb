@@ -4,7 +4,7 @@ import { authDialogContent as c } from './AuthDialog.content';
 import styles from './AuthDialog.module.css';
 import { WechatQrView } from './WechatQrView';
 import { useAppServices } from 'hooks/useAppServices';
-import { hashPassword } from 'lib/hash-password';
+import { hashPassword } from 'lib/hashPassword';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ApiError } from 'services/UserService';

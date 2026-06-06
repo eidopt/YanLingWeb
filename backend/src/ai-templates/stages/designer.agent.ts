@@ -4,14 +4,14 @@ import { STAGE_DESIGNER_SYSTEM_PROMPT } from '@shared/agent/runtime';
 import {
   AI_TEMPLATE_PIPELINE_PROVIDER,
   type AiTemplatePipelineProvider,
-} from '../../ai/pipeline-provider.port';
+} from '../../ai/pipelineProvider.port';
 import type {
   DesignerOutput,
   PipelineStageRecord,
   TemplateSeed,
 } from '../orchestrator/pipeline.types';
-import { runStructuredStage } from '../orchestrator/run-stage';
-import { SUBMIT_TEMPLATE_BRIEF_TOOL } from '../tools/submit-template-brief.tool';
+import { runStructuredStage } from '../orchestrator/runStage';
+import { SUBMIT_TEMPLATE_BRIEF_TOOL } from '../tools/submitTemplateBrief.tool';
 
 const VALID_ARCHETYPES = new Set(['fresh', 'immersive', 'editorial', 'vibrant', 'dark-pro']);
 const VALID_HERO_MODES = new Set([

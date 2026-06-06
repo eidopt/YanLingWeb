@@ -1,9 +1,9 @@
-import { resolveSemanticTargetNodeId } from '../../ui/editor/services/semanticTargets';
+﻿import { resolveSemanticTargetNodeId } from '../../ui/editor/services/semanticTargets';
 import { autoCompactIfNeeded, createAutoCompactState } from '../core/compact/autoCompact';
 import type { AIProvider, ProviderMessage } from '../core/providers/types';
-import { QueryLoop } from '../core/query-loop';
-import { formatUiIntentPlanForPrompt, planUiIntent } from '../planning/ui-intent-router';
-import { EDITOR_EDIT_TOOL_NAMES, editorToolCallToOperations, selectEditorEditTools } from '../tools/editor-edit.tool';
+import { QueryLoop } from '../core/queryLoop';
+import { formatUiIntentPlanForPrompt, planUiIntent } from '../planning/uiIntentRouter';
+import { EDITOR_EDIT_TOOL_NAMES, editorToolCallToOperations, selectEditorEditTools } from '../tools/editorEdit.tool';
 import { AgentEventRecorder } from './agentEventRecorder';
 import {
   applyEditorAiEditInstructions,

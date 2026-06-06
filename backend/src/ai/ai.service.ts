@@ -12,11 +12,11 @@ import { ConfigService } from '../config/config.service';
 import {
   TEMPLATE_READ_REPOSITORY,
   type TemplateReadRepository,
-} from '../templates/repositories/template-read.repository';
+} from '../templates/repositories/templateRead.repository';
 import {
   TEMPLATE_AGENT_KNOWLEDGE_SERVICE,
   type TemplateAgentKnowledgeServicePort,
-} from '../templates/template-agent-knowledge.service';
+} from '../templates/templateAgentKnowledge.service';
 import { TemplatesService } from '../templates/templates.service';
 import {
   assertEditorOperations,
@@ -36,24 +36,24 @@ import {
   withRequestScopedCache,
 } from './ai.service.helpers';
 import { OpenAIProvider } from './core/providers/openai.provider';
-import { OpenAICompatibleProvider } from './core/providers/openai-compatible.provider';
+import { OpenAICompatibleProvider } from './core/providers/openaiCompatible.provider';
 import type { AIProvider, ProviderMessage, ProviderStreamEvent } from './core/providers/types';
-import { buildEditorClarification } from './editor-clarification';
-import { AI_SEMANTIC_TARGETS, type AiSemanticTargetConfig } from './semantic-targets.config';
+import { buildEditorClarification } from './editorClarification';
+import { AI_SEMANTIC_TARGETS, type AiSemanticTargetConfig } from './semanticTargets.config';
 import {
   type EditorAiConversationDto,
   EditorConversationService,
   type SaveEditorAiConversationInput,
-} from './services/editor-conversation.service';
-import { ProviderLogCompactionService } from './services/provider-log-compaction.service';
-import { type AiCacheStatsDto, TokenUsageService } from './services/token-usage.service';
+} from './services/editorConversation.service';
+import { ProviderLogCompactionService } from './services/providerLogCompaction.service';
+import { type AiCacheStatsDto, TokenUsageService } from './services/tokenUsage.service';
 import {
   EDITOR_EDIT_TOOL_NAMES,
   EDITOR_EDIT_TOOLS,
   editorToolCallToOperations,
   selectEditorEditTools,
-} from './tools/editor-edit.tool';
-import type { TemplateToolInput } from './tools/generate-template.tool';
+} from './tools/editorEdit.tool';
+import type { TemplateToolInput } from './tools/generateTemplate.tool';
 
 export interface AiConfigDto {
   provider: string;
@@ -71,8 +71,8 @@ export type { EditorAgentStreamRequest, StreamRequest, StreamSseEvent } from './
 export type {
   EditorAiConversationDto,
   SaveEditorAiConversationInput,
-} from './services/editor-conversation.service';
-export type { AiCacheStatsDto } from './services/token-usage.service';
+} from './services/editorConversation.service';
+export type { AiCacheStatsDto } from './services/tokenUsage.service';
 
 const rateLimitMap = new Map<string, RateLimitEntry>();
 
@@ -112,11 +112,11 @@ export class AiService {
       `AI provider: ${this.config.ai.provider} (baseUrl: ${this.config.ai.baseUrl ?? 'default'})`,
     );
 
-    if (this.config.ai.provider === 'openai-compatible') {
+    if (this.config.ai.provider === 'openaiCompatible') {
       this.provider = new OpenAICompatibleProvider(
         apiKey,
         this.config.ai.baseUrl,
-        'openai-compatible',
+        'openaiCompatible',
         {
           reasoningMode: this.config.ai.reasoningMode,
           cacheStrategy: this.config.ai.cacheStrategy,

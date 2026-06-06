@@ -3,7 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
-import { apiVersionAliasMiddleware } from './common/middleware/api-version-alias.middleware';
+import { apiVersionAliasMiddleware } from './common/middleware/apiVersionAlias.middleware';
 import { ConfigService } from './config/config.service';
 
 async function bootstrap() {

@@ -1,4 +1,4 @@
-import type { AuthenticatedRequest } from '../auth/authenticated-request.interface';
+import type { AuthenticatedRequest } from '../auth/authenticatedRequest.interface';
 import { ConfigService } from '../config/config.service';
 import { Template } from './entities/template.entity';
 import type {
@@ -6,8 +6,8 @@ import type {
   TemplateListFilters,
   TemplatePersistenceRepository,
 } from './repositories';
-import { TemplateAssetService } from './template-asset.service';
-import { TemplateCategoryRegistryService } from './template-category-registry.service';
+import { TemplateAssetService } from './templateAsset.service';
+import { TemplateCategoryRegistryService } from './templateCategoryRegistry.service';
 import { TemplatesController } from './templates.controller';
 import {
   TemplatesService,

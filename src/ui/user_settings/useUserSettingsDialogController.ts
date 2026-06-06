@@ -3,7 +3,7 @@
 import { userSettingsDialogContent as c } from './UserSettingsDialog.content';
 import type { UserTokenUsageSummaryDto } from '@shared/types/user.types';
 import { useAppServices } from 'hooks/useAppServices';
-import { hashPassword } from 'lib/hash-password';
+import { hashPassword } from 'lib/hashPassword';
 import { useEffect, useMemo, useState } from 'react';
 import type { AuthUser } from 'services/AuthService';
 

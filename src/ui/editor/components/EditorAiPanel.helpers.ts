@@ -1,8 +1,8 @@
 import type { ThemeLayoutDocument, ThemeLayoutNode } from '../../layout/types';
 import { editorAiPanelContent as c } from './EditorAiPanel.content';
 import type { AgentClarification } from '@shared/agent/contracts/agent';
-import type { EditorAiCacheStats, EditorAiConversationMessage } from 'ai/editor-ai.service';
-import type { UiIntentPlan } from 'ai/planning/ui-intent-router';
+import type { EditorAiCacheStats, EditorAiConversationMessage } from 'ai/editorAi.service';
+import type { UiIntentPlan } from 'ai/planning/uiIntentRouter';
 import { CONTAINER_ALIASES } from 'domain/template';
 import { EDITOR_AI_PANEL_MAX_STORED_MESSAGES, type EditorAiPanelMessage } from 'state/editorAiPanelState';
 

@@ -1,8 +1,8 @@
 import { ForbiddenException } from '@nestjs/common';
 
-import type { TokenUsageRepository } from '../ai/repositories/token-usage.repository';
-import type { AuthenticatedRequest } from '../auth/authenticated-request.interface';
-import type { UpdateUserDto } from './dto/update-user.dto';
+import type { TokenUsageRepository } from '../ai/repositories/tokenUsage.repository';
+import type { AuthenticatedRequest } from '../auth/authenticatedRequest.interface';
+import type { UpdateUserDto } from './dto/updateUser.dto';
 import type { UserAccountRepository } from './repositories';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';

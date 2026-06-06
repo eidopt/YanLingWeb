@@ -4,8 +4,8 @@ import { buildVerifierSystemPrompt, type VerifierLens } from '@shared/agent/runt
 import {
   AI_TEMPLATE_PIPELINE_PROVIDER,
   type AiTemplatePipelineProvider,
-} from '../../ai/pipeline-provider.port';
-import { validateGeneratedTemplateLayout } from '../../templates/template-layout-validation';
+} from '../../ai/pipelineProvider.port';
+import { validateGeneratedTemplateLayout } from '../../templates/templateLayoutValidation';
 import type {
   DesignerOutput,
   ExistingTemplateSummary,
@@ -14,8 +14,8 @@ import type {
   VerifierFailure,
   VerifierVerdict,
 } from '../orchestrator/pipeline.types';
-import { runStructuredStage, type StageRunUsage } from '../orchestrator/run-stage';
-import { SUBMIT_VERIFIER_VERDICT_TOOL } from '../tools/submit-verifier-verdict.tool';
+import { runStructuredStage, type StageRunUsage } from '../orchestrator/runStage';
+import { SUBMIT_VERIFIER_VERDICT_TOOL } from '../tools/submitVerifierVerdict.tool';
 
 const LENSES: readonly VerifierLens[] = [
   'spec-compliance',
