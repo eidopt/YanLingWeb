@@ -41,6 +41,19 @@ export interface ServerConfig {
      * 由 EDITOR_AGENT_MAX_ITERATIONS 配置。
      */
     editorAgentMaxIterations: number;
+
+    // ── Provider capability overrides (for openai-compatible) ──
+
+    /** AI_REASONING_MODE — reasoning_content 处理方式 */
+    reasoningMode?: 'none' | 'passthrough' | 'required';
+    /** AI_CACHE_STRATEGY — 缓存策略 */
+    cacheStrategy?: 'response_id' | 'prefix' | 'cache_key' | 'cache_control' | 'none';
+    /** AI_SUPPORTS_DEVELOPER_ROLE — 是否保留 developer 角色 */
+    supportsDeveloperRole?: boolean;
+    /** AI_CONTEXT_WINDOW — 上下文窗口大小覆盖 */
+    contextWindow?: number;
+    /** AI_EXTRA_PARAMS — 注入到每次 API 请求的额外参数 (JSON) */
+    extraRequestParams?: Record<string, unknown>;
   };
   templates: {
     jsonImport: {
@@ -120,7 +133,9 @@ export class ConfigFactory {
     const aiProvider = configuredProvider === 'openai-compatible' ? 'openai-compatible' : 'openai';
     const prefix = VAR_PREFIX[aiProvider];
 
-    const defaultModel = aiProvider === 'openai-compatible' ? 'deepseek-chat' : 'gpt-5.4';
+    // Latest stable models. v4-pro has 1M context + prefix caching;
+    // GPT-5.5 uses Responses API with stateful caching.
+    const defaultModel = aiProvider === 'openai-compatible' ? 'deepseek-v4-pro' : 'gpt-5.5';
     const aiProModel =
       this.read(source, serverFlavor, 'AI_PRO_MODEL') ??
       this.read(source, serverFlavor, 'AI_MODEL') ??
@@ -179,6 +194,13 @@ export class ConfigFactory {
           this.read(source, serverFlavor, 'AI_BASE_URL'),
         imageGenerationEnabled,
         editorAgentMaxIterations,
+        // ── Provider capability overrides (for openai-compatible) ──
+        reasoningMode: this.readReasoningMode(source, serverFlavor),
+        cacheStrategy: this.readCacheStrategy(source, serverFlavor),
+        supportsDeveloperRole:
+          this.readBoolean(source, serverFlavor, 'AI_SUPPORTS_DEVELOPER_ROLE') ?? false,
+        contextWindow: this.readNumber(source, serverFlavor, 'AI_CONTEXT_WINDOW'),
+        extraRequestParams: this.readJsonRecord(source, serverFlavor, 'AI_EXTRA_PARAMS'),
       },
       templates: {
         jsonImport: {
@@ -420,6 +442,61 @@ export class ConfigFactory {
     }
 
     throw new Error(`Invalid boolean environment variable ${name}: ${value}`);
+  }
+
+  private static readReasoningMode(
+    source: EnvSource,
+    nodeEnv: ServerFlavors,
+  ): 'none' | 'passthrough' | 'required' | undefined {
+    const value = this.read(source, nodeEnv, 'AI_REASONING_MODE');
+    if (!value) {
+      return undefined;
+    }
+    if (value === 'none' || value === 'passthrough' || value === 'required') {
+      return value;
+    }
+    throw new Error(`Invalid AI_REASONING_MODE: ${value}`);
+  }
+
+  private static readCacheStrategy(
+    source: EnvSource,
+    nodeEnv: ServerFlavors,
+  ): 'response_id' | 'prefix' | 'cache_key' | 'cache_control' | 'none' | undefined {
+    const value = this.read(source, nodeEnv, 'AI_CACHE_STRATEGY');
+    if (!value) {
+      return undefined;
+    }
+    if (
+      value === 'response_id' ||
+      value === 'prefix' ||
+      value === 'cache_key' ||
+      value === 'cache_control' ||
+      value === 'none'
+    ) {
+      return value;
+    }
+    throw new Error(`Invalid AI_CACHE_STRATEGY: ${value}`);
+  }
+
+  private static readJsonRecord(
+    source: EnvSource,
+    nodeEnv: ServerFlavors,
+    name: string,
+  ): Record<string, unknown> | undefined {
+    const raw = this.read(source, nodeEnv, name);
+    if (!raw) {
+      return undefined;
+    }
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        return parsed as Record<string, unknown>;
+      }
+      throw new Error(`${name} must be a JSON object.`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Invalid JSON environment variable ${name}: ${message}`);
+    }
   }
 
   private static readDatabaseDriver(

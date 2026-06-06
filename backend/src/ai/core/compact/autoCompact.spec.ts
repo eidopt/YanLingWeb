@@ -19,7 +19,8 @@ describe('autoCompactIfNeeded', () => {
   });
 
   it('compacts over-threshold conversations and resets failure state', async () => {
-    const messages: ProviderMessage[] = [{ role: 'user', content: 'x'.repeat(400_000) }];
+    // Need >500K tokens (threshold = min(contextWindow, 500K)) → 2M chars ≈ 667K tokens
+    const messages: ProviderMessage[] = [{ role: 'user', content: 'x'.repeat(2_000_000) }];
     const compacted: ProviderMessage[] = [{ role: 'user', content: 'summary' }];
 
     const result = await autoCompactIfNeeded(
@@ -35,7 +36,8 @@ describe('autoCompactIfNeeded', () => {
   });
 
   it('backs off after repeated compaction failures', async () => {
-    const messages: ProviderMessage[] = [{ role: 'user', content: 'x'.repeat(400_000) }];
+    // Need >500K tokens to trigger compaction
+    const messages: ProviderMessage[] = [{ role: 'user', content: 'x'.repeat(2_000_000) }];
 
     const failed = await autoCompactIfNeeded(
       messages,

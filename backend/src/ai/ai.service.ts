@@ -117,6 +117,12 @@ export class AiService {
         apiKey,
         this.config.ai.baseUrl,
         'openai-compatible',
+        {
+          reasoningMode: this.config.ai.reasoningMode,
+          cacheStrategy: this.config.ai.cacheStrategy,
+          supportsDeveloperRole: this.config.ai.supportsDeveloperRole,
+          extraRequestParams: this.config.ai.extraRequestParams,
+        },
       );
     } else {
       this.provider = new OpenAIProvider(apiKey, this.config.ai.baseUrl, 'openai');

@@ -9,6 +9,9 @@ const CAPABILITIES: ProviderCapabilities = {
   supportsStructuredOutput: true,
   supportsReasoningEffort: true,
   supportsServerSideContext: false,
+  reasoningMode: 'none',
+  cacheStrategy: 'response_id',
+  supportsDeveloperRole: true,
 };
 
 /**
