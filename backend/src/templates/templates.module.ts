@@ -3,15 +3,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from '../auth/auth.module';
 import { User } from '../users/entities/user.entity';
-import { AssetLibraryService } from './asset-library.service';
-import { AssetLibraryImage } from './entities/asset-library-image.entity';
+import { AssetLibraryService } from './assetLibrary.service';
+import { AssetLibraryImage } from './entities/assetLibraryImage.entity';
 import { Template } from './entities/template.entity';
-import { TemplateAgentPermissions } from './entities/template-agent-permissions.entity';
-import { TemplateAssetManifest } from './entities/template-asset-manifest.entity';
-import { TemplateEvaluationSpec } from './entities/template-evaluation-spec.entity';
-import { TemplateProfileGenerated } from './entities/template-profile-generated.entity';
-import { TemplateProfileOverrideEntity } from './entities/template-profile-override.entity';
-import { PooledTemplateAssetStore } from './pooled-template-asset-store';
+import { TemplateAgentPermissions } from './entities/templateAgentPermissions.entity';
+import { TemplateAssetManifest } from './entities/templateAssetManifest.entity';
+import { TemplateEvaluationSpec } from './entities/templateEvaluationSpec.entity';
+import { TemplateProfileGenerated } from './entities/templateProfileGenerated.entity';
+import { TemplateProfileOverrideEntity } from './entities/templateProfileOverride.entity';
+import { PooledTemplateAssetStore } from './pooledTemplateAssetStore';
 import {
   TEMPLATE_AGENT_KNOWLEDGE_REPOSITORY,
   TEMPLATE_PERSISTENCE_REPOSITORY,
@@ -23,10 +23,10 @@ import {
 import {
   TEMPLATE_AGENT_KNOWLEDGE_SERVICE,
   TemplateAgentKnowledgeService,
-} from './template-agent-knowledge.service';
-import { TemplateAssetService } from './template-asset.service';
-import { LocalDiskTemplateAssetStore, TEMPLATE_ASSET_STORE } from './template-asset-store';
-import { TemplateCategoryRegistryService } from './template-category-registry.service';
+} from './templateAgentKnowledge.service';
+import { TemplateAssetService } from './templateAsset.service';
+import { LocalDiskTemplateAssetStore, TEMPLATE_ASSET_STORE } from './templateAssetStore';
+import { TemplateCategoryRegistryService } from './templateCategoryRegistry.service';
 import { TemplatesController } from './templates.controller';
 import { TemplatesService } from './templates.service';
 

@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 
-import { CreateThemeDto } from './dto/create-theme.dto';
-import { UpdateThemeDto } from './dto/update-theme.dto';
+import { CreateThemeDto } from './dto/createTheme.dto';
+import { UpdateThemeDto } from './dto/updateTheme.dto';
 import { Theme } from './entities/theme.entity';
 import { THEME_REPOSITORY, type ThemeRepository } from './repositories';
 

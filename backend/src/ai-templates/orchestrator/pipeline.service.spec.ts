@@ -2,10 +2,10 @@ import { Logger } from '@nestjs/common';
 import type { ThemeLayoutDocument } from '@shared/agent/contracts/agent';
 import type { AIProvider } from '@shared/agent/contracts/provider';
 
-import type { AiTemplatePipelineProvider } from '../../ai/pipeline-provider.port';
+import type { AiTemplatePipelineProvider } from '../../ai/pipelineProvider.port';
 import { DesignerAgent } from '../stages/designer.agent';
-import { DiversityCriticAgent } from '../stages/diversity-critic.agent';
-import { SchemaGeneratorAgent } from '../stages/schema-generator.agent';
+import { DiversityCriticAgent } from '../stages/diversityCritic.agent';
+import { SchemaGeneratorAgent } from '../stages/schemaGenerator.agent';
 import { VerifierAgent } from '../stages/verifier.agent';
 import { TemplatePipelineService } from './pipeline.service';
 import type {

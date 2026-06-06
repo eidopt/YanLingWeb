@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-import { booleanDefault, createIndexSql, getMigrationDialect, hasColumn } from '../migration-sql';
+import { booleanDefault, createIndexSql, getMigrationDialect, hasColumn } from '../migrationSql';
 
 /**
  * Safe schema upgrade for databases that already existed before the

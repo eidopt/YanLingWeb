@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { AiTokenUsageEvent } from '../ai/entities/ai-token-usage.entity';
+import { AiTokenUsageEvent } from '../ai/entities/aiTokenUsage.entity';
 import { TOKEN_USAGE_REPOSITORY, TypeOrmTokenUsageRepository } from '../ai/repositories';
 import { AuthModule } from '../auth/auth.module';
 import { UsersController } from './users.controller';

@@ -15,15 +15,15 @@ import { ApiBody, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
 
-import { AuthenticatedRequest } from '../auth/authenticated-request.interface';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { AuthenticatedRequest } from '../auth/authenticatedRequest.interface';
+import { JwtAuthGuard } from '../auth/jwtAuth.guard';
 import {
   AiService,
   type EditorAgentStreamRequest,
   type SaveEditorAiConversationInput,
   type StreamRequest,
 } from './ai.service';
-import type { TemplateToolInput } from './tools/generate-template.tool';
+import type { TemplateToolInput } from './tools/generateTemplate.tool';
 
 /** Start a 5-second SSE heartbeat. Returns a cleanup function to stop it. */
 function startSseHeartbeat(res: Response): () => void {

@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 
-import type { CreateThemeDto } from './dto/create-theme.dto';
-import type { UpdateThemeDto } from './dto/update-theme.dto';
+import type { CreateThemeDto } from './dto/createTheme.dto';
+import type { UpdateThemeDto } from './dto/updateTheme.dto';
 import { Theme } from './entities/theme.entity';
 import type { ThemeRepository } from './repositories';
 import { ThemesService } from './themes.service';

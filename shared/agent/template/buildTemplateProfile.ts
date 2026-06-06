@@ -27,25 +27,47 @@ function slug(value: string, fallback = 'item'): string {
 
 function inferPageKind(pageName: string, pageId: string, layout?: ThemeLayoutNode): TemplatePageKind {
   // 1. Explicit meta.pageKind annotation (highest priority)
-  const metaKind = (layout as SemanticThemeLayoutNode | undefined)?.meta?.pageKind;
-  if (metaKind) return metaKind;
+  const metaKind = layout?.meta?.pageKind;
+  if (metaKind) {
+    return metaKind;
+  }
 
   // 2. Name/id regex matching (existing logic)
   const text = `${pageName} ${pageId}`.toLowerCase();
-  if (/home|首页|main/.test(text)) return 'home';
-  if (/order|订单|待收货|配送/.test(text)) return 'order';
-  if (/profile|user|account|我的|个人|会员/.test(text)) return 'profile';
-  if (/product|商品|goods/.test(text)) return 'product';
-  if (/category|分类/.test(text)) return 'category';
-  if (/form|表单/.test(text)) return 'form';
-  if (/detail|详情/.test(text)) return 'detail';
-  if (/dashboard|工作台|后台/.test(text)) return 'dashboard';
-  if (/list|列表/.test(text)) return 'list';
+  if (/home|首页|main/.test(text)) {
+    return 'home';
+  }
+  if (/order|订单|待收货|配送/.test(text)) {
+    return 'order';
+  }
+  if (/profile|user|account|我的|个人|会员/.test(text)) {
+    return 'profile';
+  }
+  if (/product|商品|goods/.test(text)) {
+    return 'product';
+  }
+  if (/category|分类/.test(text)) {
+    return 'category';
+  }
+  if (/form|表单/.test(text)) {
+    return 'form';
+  }
+  if (/detail|详情/.test(text)) {
+    return 'detail';
+  }
+  if (/dashboard|工作台|后台/.test(text)) {
+    return 'dashboard';
+  }
+  if (/list|列表/.test(text)) {
+    return 'list';
+  }
 
   // 3. Structural signal matching (fallback for generic names like "页面1")
   if (layout) {
     const structural = inferPageKindFromStructure(layout);
-    if (structural) return structural;
+    if (structural) {
+      return structural;
+    }
   }
 
   return 'unknown';
@@ -58,32 +80,54 @@ function inferPageKindFromStructure(layout: ThemeLayoutNode): TemplatePageKind |
     const alias = node.alias;
     const props = node.props ?? {};
 
-    if (alias === 'core.form') signals.form = (signals.form ?? 0) + 1;
-    if (alias === 'core.input') signals.input = (signals.input ?? 0) + 1;
-    if (alias === 'core.search') signals.search = (signals.search ?? 0) + 1;
-    if (alias === 'core.avatar') signals.avatar = (signals.avatar ?? 0) + 1;
-    if (alias === 'core.statistic') signals.statistic = (signals.statistic ?? 0) + 1;
-    if (alias === 'core.image') signals.image = (signals.image ?? 0) + 1;
+    if (alias === 'core.form') {
+      signals.form = (signals.form ?? 0) + 1;
+    }
+    if (alias === 'core.input') {
+      signals.input = (signals.input ?? 0) + 1;
+    }
+    if (alias === 'core.search') {
+      signals.search = (signals.search ?? 0) + 1;
+    }
+    if (alias === 'core.avatar') {
+      signals.avatar = (signals.avatar ?? 0) + 1;
+    }
+    if (alias === 'core.statistic') {
+      signals.statistic = (signals.statistic ?? 0) + 1;
+    }
+    if (alias === 'core.image') {
+      signals.image = (signals.image ?? 0) + 1;
+    }
 
     // Price patterns
     if (alias === 'core.text' && typeof props.text === 'string') {
-      if (/[¥$€]\s*\d/.test(props.text)) signals.price = (signals.price ?? 0) + 1;
+      if (/[¥$€]\s*\d/.test(props.text)) {
+        signals.price = (signals.price ?? 0) + 1;
+      }
     }
 
     // Buy/submit buttons
     if (alias === 'core.button' && typeof props.label === 'string') {
-      if (/购买|加购|下单|立即抢|加入购物/.test(props.label)) signals.buyButton = (signals.buyButton ?? 0) + 1;
-      if (/提交|保存|确认|注册|登录/.test(props.label)) signals.submitButton = (signals.submitButton ?? 0) + 1;
+      if (/购买|加购|下单|立即抢|加入购物/.test(props.label)) {
+        signals.buyButton = (signals.buyButton ?? 0) + 1;
+      }
+      if (/提交|保存|确认|注册|登录/.test(props.label)) {
+        signals.submitButton = (signals.submitButton ?? 0) + 1;
+      }
     }
 
     // Order/status tags
     if (alias === 'core.tag' && typeof props.label === 'string') {
-      if (/待付款|待发货|待收货|已完成|已取消/.test(props.label)) signals.orderTag = (signals.orderTag ?? 0) + 1;
+      if (/待付款|待发货|待收货|已完成|已取消/.test(props.label)) {
+        signals.orderTag = (signals.orderTag ?? 0) + 1;
+      }
     }
 
     // Member/profile patterns
     if (alias === 'core.text' && typeof props.text === 'string') {
-      if (/会员|积分|余额|等级|优惠券/.test(props.text)) signals.memberText = (signals.memberText ?? 0) + 1;
+      if (/会员|积分|余额|等级|优惠券/.test(props.text)) {
+        signals.memberText = (signals.memberText ?? 0) + 1;
+      }
     }
   });
 
@@ -168,7 +212,9 @@ function makeUniqueKey(base: string, used: Set<string>): string {
 
 function buildNavigation(document: ThemeLayoutDocument): TemplateProfileNavigation | undefined {
   const pages = document.pages;
-  if (pages.length <= 1) return undefined;
+  if (pages.length <= 1) {
+    return undefined;
+  }
 
   const items = pages.map((page) => ({
     key: slug(page.name, page.id),
@@ -185,16 +231,25 @@ function buildNavigation(document: ThemeLayoutDocument): TemplateProfileNavigati
 
   for (const page of pages) {
     walkNodes(page.layout, (node) => {
-      if (node.alias === 'core.tabbar' && node.slot === 'footer') hasTabbar = true;
-      if (node.alias === 'core.sidebar') hasSidebar = true;
+      if (node.alias === 'core.tabbar' && node.slot === 'footer') {
+        hasTabbar = true;
+      }
+      if (node.alias === 'core.sidebar') {
+        hasSidebar = true;
+      }
     });
   }
 
   let type: TemplateProfileNavigation['type'] = 'bottom_tabs';
-  if (hasSidebar) type = 'side_nav';
-  else if (!isMobile && pages.length > 5) type = 'side_nav';
-  else if (!isMobile) type = 'top_tabs';
-  else if (hasTabbar) type = 'bottom_tabs';
+  if (hasSidebar) {
+    type = 'side_nav';
+  } else if (!isMobile && pages.length > 5) {
+    type = 'side_nav';
+  } else if (!isMobile) {
+    type = 'top_tabs';
+  } else if (hasTabbar) {
+    type = 'bottom_tabs';
+  }
 
   return { type, items };
 }

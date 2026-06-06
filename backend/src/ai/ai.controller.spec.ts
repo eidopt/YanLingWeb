@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Observable, Subject } from 'rxjs';
 
-import type { AuthenticatedRequest } from '../auth/authenticated-request.interface';
+import type { AuthenticatedRequest } from '../auth/authenticatedRequest.interface';
 import { AiController } from './ai.controller';
 import type {
   AiCacheStatsDto,
@@ -13,7 +13,7 @@ import type {
   StreamRequest,
   StreamSseEvent,
 } from './ai.service';
-import type { TemplateToolInput } from './tools/generate-template.tool';
+import type { TemplateToolInput } from './tools/generateTemplate.tool';
 
 interface MockAiService {
   getConfig: jest.Mock<AiConfigDto, []>;

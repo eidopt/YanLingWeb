@@ -24,7 +24,7 @@ import {
   replaceLatestEditStatus,
 } from './EditorAiPanel.helpers';
 import type { AgentClarification, AgentClarificationOption } from '@shared/agent/contracts/agent';
-import type { EditorAiPageContext } from 'ai/editor-ai.service';
+import type { EditorAiPageContext } from 'ai/editorAi.service';
 import { useAppServices } from 'hooks/useAppServices';
 import { type FormEvent, useCallback, useEffect, useRef } from 'react';
 import {

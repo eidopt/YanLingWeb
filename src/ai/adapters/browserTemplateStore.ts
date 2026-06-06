@@ -1,4 +1,4 @@
-import type { TemplateToolInput } from '../tools/generate-template.tool';
+﻿import type { TemplateToolInput } from '../tools/generateTemplate.tool';
 import { type HttpClient, resolveHttpClient } from 'services/http/HttpClient';
 
 export interface GeneratedTemplateSaveResult {

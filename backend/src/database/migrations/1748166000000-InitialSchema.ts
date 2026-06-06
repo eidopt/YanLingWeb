@@ -9,7 +9,7 @@ import {
   timestampColumn,
   uuidPrimaryKey,
   varcharPrimaryKey,
-} from '../migration-sql';
+} from '../migrationSql';
 
 /**
  * Initial schema migration — creates all application tables.

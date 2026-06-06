@@ -1,10 +1,10 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 
-import { AiTokenUsageEvent } from '../ai/entities/ai-token-usage.entity';
+import { AiTokenUsageEvent } from '../ai/entities/aiTokenUsage.entity';
 import type {
   CreateTokenUsageEventInput,
   TokenUsageRepository,
-} from '../ai/repositories/token-usage.repository';
+} from '../ai/repositories/tokenUsage.repository';
 import { User } from './entities/user.entity';
 import type { UserAccountRepository, UserAccountUpdate } from './repositories';
 import { UsersService } from './users.service';

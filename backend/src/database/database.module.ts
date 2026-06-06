@@ -2,7 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { ConfigService } from '../config/config.service';
-import { createDatabaseOptions } from './database-options.factory';
+import { createDatabaseOptions } from './databaseOptions.factory';
 
 @Global()
 @Module({

@@ -1,8 +1,8 @@
 import { Body, Controller, HttpCode, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
-import { AuthenticatedRequest } from '../auth/authenticated-request.interface';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { AuthenticatedRequest } from '../auth/authenticatedRequest.interface';
+import { JwtAuthGuard } from '../auth/jwtAuth.guard';
 import { SearchService } from './search.service';
 
 interface SearchInputBody {

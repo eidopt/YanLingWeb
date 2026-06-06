@@ -12,10 +12,10 @@ import {
   TEMPLATE_READ_REPOSITORY,
   type TemplatePublishSnapshot,
   type TemplateReadRepository,
-} from '../templates/repositories/template-read.repository';
-import { prepareTemplateLayoutForPersistence } from '../templates/template-layout-validation';
-import { PublishedSite } from './entities/published-site.entity';
-import { PublishedSiteRevision } from './entities/published-site-revision.entity';
+} from '../templates/repositories/templateRead.repository';
+import { prepareTemplateLayoutForPersistence } from '../templates/templateLayoutValidation';
+import { PublishedSite } from './entities/publishedSite.entity';
+import { PublishedSiteRevision } from './entities/publishedSiteRevision.entity';
 import {
   PUBLISHED_SITE_REPOSITORY,
   type PublishedSiteRepository,
