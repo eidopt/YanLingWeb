@@ -40,32 +40,9 @@ export function tokenCountWithEstimation(messages: readonly ProviderMessage[]): 
 }
 
 const MODEL_CONTEXT_WINDOWS: Record<string, number> = {
-  // OpenAI
-  'gpt-4o': 128_000,
-  'gpt-4o-mini': 128_000,
-  'gpt-4.1': 1_000_000,
-  'gpt-4.1-mini': 1_000_000,
-  'gpt-4.1-nano': 1_000_000,
-  'gpt-5': 400_000,
-  'gpt-5.4': 400_000,
-  o1: 200_000,
-  'o1-mini': 128_000,
-  'o1-pro': 200_000,
-  o3: 200_000,
-  'o3-mini': 200_000,
-  'o3-pro': 200_000,
-  'o4-mini': 200_000,
-  // Claude
-  'claude-haiku-4-5': 200_000,
-  'claude-sonnet-4-5': 200_000,
-  'claude-sonnet-4-6': 200_000,
-  'claude-opus-4-5': 200_000,
-  // DeepSeek
-  'deepseek-v4-flash': 1_000_000,
-  'deepseek-v4-pro': 1_000_000,
+  'gpt-5.5': 400_000,
   'deepseek-chat': 1_000_000,
   'deepseek-reasoner': 1_000_000,
-  // 国产模型
   'kimi-k2': 128_000,
   'glm-4.6': 128_000,
   mimo: 128_000,

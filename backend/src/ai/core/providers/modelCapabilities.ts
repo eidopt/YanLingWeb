@@ -63,8 +63,7 @@ const QWEN_CAPS: ProviderCapabilities = {
 };
 
 /**
- * GPT via openai-compatible (Azure, proxies).
- * Same as OpenAIProvider but through Chat Completions API.
+ * GPT via openai-compatible (proxies).
  * reasoning_mode: 'none' — GPT doesn't return reasoning_content.
  * cache_strategy: 'none' — previous_response_id is Responses API only.
  */
@@ -77,11 +76,7 @@ const GPT_COMPAT_CAPS: ProviderCapabilities = {
 
 /**
  * Model pattern → capabilities mapping.
- * Patterns are tested against model name with startsWith (case-insensitive).
  * First match wins; order matters.
- *
- * Note: GPT models using the native Responses API go through OpenAIProvider
- * (not here). This entry covers GPT via openai-compatible (Azure, proxies).
  */
 const MODEL_CAPABILITIES_REGISTRY: [string, ProviderCapabilities][] = [
   ['mimo', MIMO_CAPS],
@@ -92,9 +87,6 @@ const MODEL_CAPABILITIES_REGISTRY: [string, ProviderCapabilities][] = [
   ['qwen', QWEN_CAPS],
   ['deepseek', DEEPSEEK_CAPS],
   ['gpt', GPT_COMPAT_CAPS],
-  ['o1', GPT_COMPAT_CAPS],
-  ['o3', GPT_COMPAT_CAPS],
-  ['o4', GPT_COMPAT_CAPS],
 ];
 
 /**

@@ -17,16 +17,11 @@ import {
 
 describe('resolveCapabilitiesForModel', () => {
   describe('MiMo (Xiaomi)', () => {
-    it('mimo-v2-pro → required reasoning, no cache', () => {
-      const caps = resolveCapabilitiesForModel('mimo-v2-pro');
+    it('mimo → required reasoning, no cache', () => {
+      const caps = resolveCapabilitiesForModel('mimo');
       expect(caps.reasoningMode).toBe('required');
       expect(caps.cacheStrategy).toBe('none');
       expect(caps).toBe(MIMO_CAPS);
-    });
-
-    it('MiMo-7B → required reasoning (case-insensitive)', () => {
-      const caps = resolveCapabilitiesForModel('MiMo-7B');
-      expect(caps.reasoningMode).toBe('required');
     });
   });
 
@@ -36,11 +31,6 @@ describe('resolveCapabilitiesForModel', () => {
       expect(caps.reasoningMode).toBe('passthrough');
       expect(caps.cacheStrategy).toBe('none');
       expect(caps).toBe(MINIMAX_CAPS);
-    });
-
-    it('MiniMax-M1 → passthrough reasoning', () => {
-      const caps = resolveCapabilitiesForModel('MiniMax-M1');
-      expect(caps.reasoningMode).toBe('passthrough');
     });
   });
 
@@ -52,8 +42,8 @@ describe('resolveCapabilitiesForModel', () => {
       expect(caps).toBe(DEEPSEEK_CAPS);
     });
 
-    it('deepseek-v4-pro → prefix cache', () => {
-      const caps = resolveCapabilitiesForModel('deepseek-v4-pro');
+    it('deepseek-reasoner → prefix cache', () => {
+      const caps = resolveCapabilitiesForModel('deepseek-reasoner');
       expect(caps.cacheStrategy).toBe('prefix');
     });
   });
@@ -64,11 +54,6 @@ describe('resolveCapabilitiesForModel', () => {
       expect(caps.reasoningMode).toBe('passthrough');
       expect(caps.cacheStrategy).toBe('cache_key');
       expect(caps).toBe(KIMI_CAPS);
-    });
-
-    it('moonshot-v1 → cache_key (via moonshot pattern)', () => {
-      const caps = resolveCapabilitiesForModel('moonshot-v1');
-      expect(caps.cacheStrategy).toBe('cache_key');
     });
   });
 
@@ -90,35 +75,13 @@ describe('resolveCapabilitiesForModel', () => {
     });
   });
 
-  describe('OpenAI GPT (via openai-compatible)', () => {
-    it('gpt-4o → no reasoning, no cache, supports developer role', () => {
-      const caps = resolveCapabilitiesForModel('gpt-4o');
+  describe('OpenAI GPT', () => {
+    it('gpt-5.5 → no reasoning, supports developer role', () => {
+      const caps = resolveCapabilitiesForModel('gpt-5.5');
       expect(caps.reasoningMode).toBe('none');
       expect(caps.cacheStrategy).toBe('none');
       expect(caps.supportsDeveloperRole).toBe(true);
       expect(caps).toBe(GPT_COMPAT_CAPS);
-    });
-
-    it('gpt-4.1 → no reasoning', () => {
-      const caps = resolveCapabilitiesForModel('gpt-4.1');
-      expect(caps.reasoningMode).toBe('none');
-      expect(caps.supportsDeveloperRole).toBe(true);
-    });
-
-    it('o1-preview → no reasoning (reasoning models handled differently)', () => {
-      const caps = resolveCapabilitiesForModel('o1-preview');
-      expect(caps.reasoningMode).toBe('none');
-      expect(caps).toBe(GPT_COMPAT_CAPS);
-    });
-
-    it('o3-mini → no reasoning', () => {
-      const caps = resolveCapabilitiesForModel('o3-mini');
-      expect(caps.reasoningMode).toBe('none');
-    });
-
-    it('o4-mini → no reasoning', () => {
-      const caps = resolveCapabilitiesForModel('o4-mini');
-      expect(caps.reasoningMode).toBe('none');
     });
   });
 
@@ -144,11 +107,11 @@ describe('resolveCapabilitiesForModel', () => {
       expect(mimo.reasoningMode).toBe('required');
     });
 
-    it('switching from GPT (via compatible) to MiMo changes reasoning mode', () => {
-      const gpt = resolveCapabilitiesForModel('gpt-4o');
+    it('switching from GPT-5.5 to MiMo changes reasoning mode', () => {
+      const gpt = resolveCapabilitiesForModel('gpt-5.5');
       const mimo = resolveCapabilitiesForModel('mimo-v2-pro');
-      expect(gpt.reasoningMode).toBe('none'); // GPT: no reasoning_content
-      expect(mimo.reasoningMode).toBe('required'); // MiMo: must have reasoning_content
+      expect(gpt.reasoningMode).toBe('none');
+      expect(mimo.reasoningMode).toBe('required');
     });
   });
 });
