@@ -318,3 +318,90 @@ W9+    ──── 后续迭代
 ---
 
 _本文档是 `docs/roadmap/README.md` 的执行策略补充，侧重"先做什么"而非"做什么"。_
+
+---
+
+## 代码验证修正条目
+
+> **验证日期**: 2026-06-03  
+> **验证方式**: 逐条对照文档描述与实际源码  
+> **说明**: 以下条目指出本文档中与当前代码不一致或需要更新的部分，不修改原文。
+
+### 修正 A：第二批 2.1 "SchemaGen 预修复链" 已实现，应移除
+
+**原文位置**: 第二批：稳基 → 2.1 `preValidateAndFix()` 预修复链
+
+**原文声称**:
+
+```
+当前：LLM 输出 → parseAndValidate() → 失败 → dedupe/autoFix → 反馈 LLM → 重试
+改为：LLM 输出 → dedupe/autoFix → parseAndValidate() → 失败 → 反馈 LLM → 重试
+```
+
+**实际代码** (`backend/src/ai-templates/stages/schema-generator.agent.ts`):
+
+- `autoBizComponents` 在第 162-169 行执行（`parseAndValidate` 方法内部的数据准备）
+- `dedupeNodeIds(document)` 在第 221 行执行
+- `validateGeneratedTemplateLayout(document, ...)` 在第 229 行执行
+
+当前代码已经是"先修复再验证"的顺序。原文声称的"当前"流程与代码不符。
+
+**结论**: 该条目应从执行计划中移除。原预期收益（Pipeline 一次通过率从 ~50% 提升到 65%+）如果已经实现，可作为已完成基线记录。**第二批工期从 5 天减为 4 天。**
+
+---
+
+### 修正 B：第一批 1.1 仅改前端，后端无此问题
+
+**原文位置**: 第一批：止血 → 1.1 消除 `COMPACTION_MODEL` 硬编码
+
+**原文声称**:
+
+> **改动**: `src/ai/core/compact/compact.ts` + `backend/src/ai/core/compact/compact.ts`，各改一行。
+
+**实际情况**:
+
+- `src/ai/core/compact/compact.ts:6` — **有** `COMPACTION_MODEL = 'deepseek-v4-flash'` 硬编码，需改 ✅
+- `backend/src/ai/core/compact/compact.ts` — **无** `COMPACTION_MODEL`。后端使用完全不同的 `compactConversation()` 函数（纯字符串截断，不调用 LLM），无需改 ❌
+
+**结论**: 改动范围缩小为仅前端一个文件。原文"各改一行"应修正为"前端改一行"。
+
+---
+
+### 修正 C：第一批应增加 SSE 心跳（1.3）
+
+**原文位置**: 第一批总工期标注为 2 天，未包含 SSE 心跳
+
+**实际情况**: `backend/src/ai/ai.controller.ts` 的 SSE 端点（`streamProxy` 第 91 行、`editorStream` 第 146 行）仅设置了 `keep-alive` header，**无 setInterval 心跳**。Pipeline 生成 30-60 秒中间零输出，存在超时断开风险。
+
+**建议**: 在第一批新增 1.3 SSE 心跳，工期 0.5 天。在 `streamProxy()` 和 `editorStream()` 的 SSE Observable 中添加 5 秒间隔 `:heartbeat\n\n` 注释行。前端无需改动。
+
+**✅ 已修复**: 提取 `startSseHeartbeat(res)` helper 消除重复代码，两个 SSE 端点均接入 5 秒心跳。
+
+**修正后第一批工期**: 2 天 + 0.5 天 = **2.5 天**
+
+---
+
+### 修正 D：第二批应增加前后端 compaction 策略统一评估（2.5）
+
+**原文位置**: 第二批未涉及前后端 compaction 差异
+
+**实际情况**: 前后端使用完全不同的 compaction 策略：
+
+| 端   | 函数                                                                  | 行为                    |
+| ---- | --------------------------------------------------------------------- | ----------------------- |
+| 前端 | `compactConversationWithLLM()` (`src/ai/core/compact/compact.ts:114`) | 调用 LLM 生成语义摘要   |
+| 后端 | `compactConversation()` (`backend/src/ai/core/compact/compact.ts:7`)  | 纯规则截断 + 字符串摘要 |
+
+后端还有 `ProviderLogCompactionService`（`provider-log-compaction.service.ts`）在 500K token 预算触发时做消息折叠。三套策略行为各异，文档未讨论是否需要统一。
+
+**建议**: 在第二批新增 2.5 评估项（1 天），明确前后端 compaction 是否需要统一、各自的适用场景和边界。
+
+---
+
+### 修正 E：第三批 3.1 国产模型适配 — `reasoning_content` 污染是阻断性问题
+
+**原文位置**: 第三批：补能 → 3.1 ProviderCapabilities 接口 + 逐个适配国产模型
+
+**原文将完整 ProviderCapabilities 放在第三批**，但 `reasoning_content` 跨模型污染（第一批 1.2）的实际修复路径依赖 `reasoningMode` 字段判断目标模型是否需要 reasoning_content。如果第一批 1.2 用硬编码模型名判断（如 `['mimo', 'deepseek'].some(m => targetModel.includes(m))`），则第三批需要回过头重构为基于 `reasoningMode` 的判断。
+
+**建议**: 在第一批 1.2 实施时，直接在 `ProviderCapabilities` 接口中添加 `reasoningMode` 字段（增量添加，不破坏现有 6 个 boolean 字段），这样第一批就能为第三批铺路，避免返工。这不影响第一批工期。
