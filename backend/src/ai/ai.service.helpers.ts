@@ -21,7 +21,7 @@ import {
   type TemplateProfile,
 } from '@shared/agent/runtime';
 
-import { OpenAIProvider } from './core/providers/openai.provider';
+import { createCacheStrategy } from './core/providers/cacheStrategy';
 import type { AIProvider, ProviderRequest, ProviderTool } from './core/providers/types';
 import { EDITOR_EDIT_TOOLS } from './tools/editor-edit.tool';
 
@@ -117,16 +117,9 @@ export function withRequestScopedCache(
   req: StreamRequest,
   cacheOptions?: ProviderCacheOptions,
 ): StreamRequest {
-  if (!(provider instanceof OpenAIProvider) || !cacheOptions?.previousResponseId) {
-    return req;
-  }
-
-  return {
-    ...req,
-    cache: {
-      previousResponseId: cacheOptions.previousResponseId,
-    },
-  };
+  const caps = provider.getCapabilities();
+  const strategy = createCacheStrategy(caps.cacheStrategy);
+  return strategy.applyToRequest(req, cacheOptions);
 }
 
 export function editorToolSpecs(tools: readonly ProviderTool[] = EDITOR_EDIT_TOOLS) {

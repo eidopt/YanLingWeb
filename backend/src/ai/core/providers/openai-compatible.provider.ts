@@ -9,6 +9,7 @@ import type {
   ProviderStreamEvent,
   ProviderTool,
 } from './types';
+import { purifyMessages } from './messagePurifier';
 
 interface UsageAccumulator {
   inputTokens: number;
@@ -31,6 +32,9 @@ const CAPABILITIES: ProviderCapabilities = {
   supportsStructuredOutput: false,
   supportsReasoningEffort: false,
   supportsServerSideContext: false,
+  reasoningMode: 'passthrough',
+  cacheStrategy: 'none',
+  supportsDeveloperRole: false,
 };
 
 function numberProperty(value: object, key: string): number | undefined {
@@ -62,7 +66,9 @@ export class OpenAICompatibleProvider implements AIProvider {
     const abortController = new AbortController();
     this.abortController = abortController;
 
-    const messages = convertMessages(request.messages);
+    // Purify messages for this provider's capabilities before converting
+    const purified = purifyMessages(request.messages, CAPABILITIES);
+    const messages = convertMessages(purified);
     const tools = request.tools ? convertTools(request.tools) : undefined;
 
     let streamIter: AsyncIterable<ChatCompletionChunk>;
