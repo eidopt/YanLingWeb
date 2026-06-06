@@ -12,6 +12,7 @@ import {
   KIMI_CAPS,
   GLM_CAPS,
   QWEN_CAPS,
+  GPT_COMPAT_CAPS,
 } from './modelCapabilities';
 
 describe('resolveCapabilitiesForModel', () => {
@@ -89,6 +90,38 @@ describe('resolveCapabilitiesForModel', () => {
     });
   });
 
+  describe('OpenAI GPT (via openai-compatible)', () => {
+    it('gpt-4o → no reasoning, no cache, supports developer role', () => {
+      const caps = resolveCapabilitiesForModel('gpt-4o');
+      expect(caps.reasoningMode).toBe('none');
+      expect(caps.cacheStrategy).toBe('none');
+      expect(caps.supportsDeveloperRole).toBe(true);
+      expect(caps).toBe(GPT_COMPAT_CAPS);
+    });
+
+    it('gpt-4.1 → no reasoning', () => {
+      const caps = resolveCapabilitiesForModel('gpt-4.1');
+      expect(caps.reasoningMode).toBe('none');
+      expect(caps.supportsDeveloperRole).toBe(true);
+    });
+
+    it('o1-preview → no reasoning (reasoning models handled differently)', () => {
+      const caps = resolveCapabilitiesForModel('o1-preview');
+      expect(caps.reasoningMode).toBe('none');
+      expect(caps).toBe(GPT_COMPAT_CAPS);
+    });
+
+    it('o3-mini → no reasoning', () => {
+      const caps = resolveCapabilitiesForModel('o3-mini');
+      expect(caps.reasoningMode).toBe('none');
+    });
+
+    it('o4-mini → no reasoning', () => {
+      const caps = resolveCapabilitiesForModel('o4-mini');
+      expect(caps.reasoningMode).toBe('none');
+    });
+  });
+
   describe('unknown models', () => {
     it('unknown-model → default passthrough, no cache', () => {
       const caps = resolveCapabilitiesForModel('unknown-model');
@@ -111,13 +144,11 @@ describe('resolveCapabilitiesForModel', () => {
       expect(mimo.reasoningMode).toBe('required');
     });
 
-    it('switching from GPT (not in registry) to MiMo changes reasoning mode', () => {
-      // GPT doesn't go through this registry (uses OpenAIProvider),
-      // but if someone uses it as compatible:
-      const gpt = resolveCapabilitiesForModel('gpt-5.4');
+    it('switching from GPT (via compatible) to MiMo changes reasoning mode', () => {
+      const gpt = resolveCapabilitiesForModel('gpt-4o');
       const mimo = resolveCapabilitiesForModel('mimo-v2-pro');
-      expect(gpt.reasoningMode).toBe('passthrough'); // default
-      expect(mimo.reasoningMode).toBe('required');
+      expect(gpt.reasoningMode).toBe('none'); // GPT: no reasoning_content
+      expect(mimo.reasoningMode).toBe('required'); // MiMo: must have reasoning_content
     });
   });
 });
