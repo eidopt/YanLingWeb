@@ -1,14 +1,17 @@
 /**
- * Model Capabilities Registry
+ * Model Capabilities — derived from provider type + config overrides.
  *
- * Maps model name patterns to their ProviderCapabilities.
- * Used by OpenAICompatibleProvider to determine how to handle
- * reasoning_content, caching, and developer role for each model.
+ * No model names are hardcoded. Capabilities are determined by:
+ *   1. Provider type (OpenAI Responses API vs Chat Completions)
+ *   2. Optional env var overrides: AI_REASONING_MODE, AI_CACHE_STRATEGY
+ *
+ * This means adding a new model requires ZERO code changes — just set
+ * AI_PROVIDER, AI_MODEL, AI_BASE_URL, AI_API_KEY in .env.
  */
 import type { ProviderCapabilities } from '@shared/agent/contracts/provider';
 
-/** Default capabilities for generic OpenAI-compatible models (DeepSeek, etc.) */
-const DEFAULT_COMPATIBLE_CAPS: ProviderCapabilities = {
+/** Safe defaults for Chat Completions compatible providers */
+const COMPATIBLE_DEFAULTS: ProviderCapabilities = {
   supportsStreaming: true,
   supportsToolCalls: true,
   supportsParallelToolCalls: true,
@@ -20,96 +23,32 @@ const DEFAULT_COMPATIBLE_CAPS: ProviderCapabilities = {
   supportsDeveloperRole: false,
 };
 
-/** DeepSeek: passive prefix caching, optional reasoning_content */
-const DEEPSEEK_CAPS: ProviderCapabilities = {
-  ...DEFAULT_COMPATIBLE_CAPS,
-  reasoningMode: 'passthrough',
-  cacheStrategy: 'prefix',
-};
-
-/** MiMo (Xiaomi): reasoning_content mandatory on every assistant message */
-const MIMO_CAPS: ProviderCapabilities = {
-  ...DEFAULT_COMPATIBLE_CAPS,
-  reasoningMode: 'required',
-  cacheStrategy: 'none',
-};
-
-/** MiniMax: passthrough reasoning, thinking.budget_tokens control */
-const MINIMAX_CAPS: ProviderCapabilities = {
-  ...DEFAULT_COMPATIBLE_CAPS,
-  reasoningMode: 'passthrough',
-  cacheStrategy: 'none',
-};
-
-/** Kimi (Moonshot): prompt_cache_key for caching, thinking.type for reasoning */
-const KIMI_CAPS: ProviderCapabilities = {
-  ...DEFAULT_COMPATIBLE_CAPS,
-  reasoningMode: 'passthrough',
-  cacheStrategy: 'cache_key',
-};
-
-/** GLM (Zhipu): no special reasoning or caching */
-const GLM_CAPS: ProviderCapabilities = {
-  ...DEFAULT_COMPATIBLE_CAPS,
-  reasoningMode: 'none',
-  cacheStrategy: 'none',
-};
-
-/** Qwen (Alibaba): cache_control marker, enable_thinking for reasoning */
-const QWEN_CAPS: ProviderCapabilities = {
-  ...DEFAULT_COMPATIBLE_CAPS,
-  reasoningMode: 'passthrough',
-  cacheStrategy: 'cache_control',
-};
-
 /**
- * GPT via openai-compatible (proxies).
- * reasoning_mode: 'none' — GPT doesn't return reasoning_content.
- * cache_strategy: 'none' — previous_response_id is Responses API only.
+ * Build capabilities for an OpenAI-compatible provider instance.
+ * Reads optional overrides from env vars.
  */
-const GPT_COMPAT_CAPS: ProviderCapabilities = {
-  ...DEFAULT_COMPATIBLE_CAPS,
-  reasoningMode: 'none',
-  cacheStrategy: 'none',
-  supportsDeveloperRole: true,
-};
+export function buildCompatibleCapabilities(): ProviderCapabilities {
+  const caps = { ...COMPATIBLE_DEFAULTS };
 
-/**
- * Model pattern → capabilities mapping.
- * First match wins; order matters.
- */
-const MODEL_CAPABILITIES_REGISTRY: [string, ProviderCapabilities][] = [
-  ['mimo', MIMO_CAPS],
-  ['minimax', MINIMAX_CAPS],
-  ['kimi', KIMI_CAPS],
-  ['moonshot', KIMI_CAPS],
-  ['glm', GLM_CAPS],
-  ['qwen', QWEN_CAPS],
-  ['deepseek', DEEPSEEK_CAPS],
-  ['gpt', GPT_COMPAT_CAPS],
-];
-
-/**
- * Resolve capabilities for a given model name.
- * Falls back to DEFAULT_COMPATIBLE_CAPS if no pattern matches.
- */
-export function resolveCapabilitiesForModel(model: string): ProviderCapabilities {
-  const lower = model.toLowerCase();
-  for (const [pattern, caps] of MODEL_CAPABILITIES_REGISTRY) {
-    if (lower.startsWith(pattern) || lower.includes(pattern)) {
-      return caps;
-    }
+  const reasoningMode = process.env.AI_REASONING_MODE;
+  if (reasoningMode === 'none' || reasoningMode === 'passthrough' || reasoningMode === 'required') {
+    caps.reasoningMode = reasoningMode;
   }
-  return DEFAULT_COMPATIBLE_CAPS;
-}
 
-export {
-  DEFAULT_COMPATIBLE_CAPS,
-  DEEPSEEK_CAPS,
-  MIMO_CAPS,
-  MINIMAX_CAPS,
-  KIMI_CAPS,
-  GLM_CAPS,
-  QWEN_CAPS,
-  GPT_COMPAT_CAPS,
-};
+  const cacheStrategy = process.env.AI_CACHE_STRATEGY;
+  if (
+    cacheStrategy === 'response_id' ||
+    cacheStrategy === 'prefix' ||
+    cacheStrategy === 'cache_key' ||
+    cacheStrategy === 'cache_control' ||
+    cacheStrategy === 'none'
+  ) {
+    caps.cacheStrategy = cacheStrategy;
+  }
+
+  if (process.env.AI_SUPPORTS_DEVELOPER_ROLE === 'true') {
+    caps.supportsDeveloperRole = true;
+  }
+
+  return caps;
+}

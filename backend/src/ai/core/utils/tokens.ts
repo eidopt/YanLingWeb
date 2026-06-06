@@ -39,24 +39,17 @@ export function tokenCountWithEstimation(messages: readonly ProviderMessage[]): 
   return Math.ceil(total * (4 / 3));
 }
 
-const MODEL_CONTEXT_WINDOWS: Record<string, number> = {
-  'gpt-5.5': 400_000,
-  'deepseek-v4-pro': 1_000_000,
-  'deepseek-v4-flash': 1_000_000,
-  'kimi-v2.6': 128_000,
-  'glm-5.1': 128_000,
-  'mimo-v2.5-pro': 128_000,
-  'mimo-v2.5-flash': 128_000,
-  'minimax-m3': 1_000_000,
-  'qwen-3.7': 128_000,
-};
-
-export function getContextWindow(model: string): number {
-  const lower = model.toLowerCase();
-  for (const [key, size] of Object.entries(MODEL_CONTEXT_WINDOWS)) {
-    if (lower.startsWith(key)) {
-      return size;
-    }
+/**
+ * Get the context window size for a model.
+ * Resolution order:
+ *   1. AI_CONTEXT_WINDOW env var (explicit override)
+ *   2. Default 128K (safe for all modern models)
+ */
+export function getContextWindow(_model: string): number {
+  const configured = process.env.AI_CONTEXT_WINDOW;
+  if (configured) {
+    const parsed = Number(configured);
+    if (Number.isFinite(parsed) && parsed > 0) return parsed;
   }
-  return 200_000;
+  return 128_000;
 }

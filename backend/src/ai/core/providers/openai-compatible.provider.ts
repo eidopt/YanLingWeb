@@ -10,7 +10,7 @@ import type {
   ProviderTool,
 } from './types';
 import { purifyMessages } from './messagePurifier';
-import { resolveCapabilitiesForModel } from './modelCapabilities';
+import { buildCompatibleCapabilities } from './modelCapabilities';
 
 interface UsageAccumulator {
   inputTokens: number;
@@ -27,17 +27,7 @@ type CompatibleAssistantMessageParam = OpenAI.Chat.ChatCompletionAssistantMessag
 };
 
 /** Default capabilities — used when no model-specific override is found */
-const DEFAULT_CAPABILITIES: ProviderCapabilities = {
-  supportsStreaming: true,
-  supportsToolCalls: true,
-  supportsParallelToolCalls: true,
-  supportsStructuredOutput: false,
-  supportsReasoningEffort: false,
-  supportsServerSideContext: false,
-  reasoningMode: 'passthrough',
-  cacheStrategy: 'none',
-  supportsDeveloperRole: false,
-};
+// (removed: capabilities now built dynamically via buildCompatibleCapabilities)
 
 function numberProperty(value: object, key: string): number | undefined {
   const item = (value as Record<string, unknown>)[key];
@@ -56,11 +46,10 @@ export class OpenAICompatibleProvider implements AIProvider {
   private abortController: AbortController | null = null;
   private readonly caps: ProviderCapabilities;
 
-  constructor(apiKey: string, baseURL?: string, name?: string, model?: string) {
+  constructor(apiKey: string, baseURL?: string, name?: string) {
     this.name = name ?? 'openai-compatible';
     this.client = new OpenAI({ apiKey, baseURL });
-    // Resolve model-specific capabilities, falling back to defaults
-    this.caps = model ? resolveCapabilitiesForModel(model) : DEFAULT_CAPABILITIES;
+    this.caps = buildCompatibleCapabilities();
   }
 
   getCapabilities(): ProviderCapabilities {
