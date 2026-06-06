@@ -1215,3 +1215,90 @@ W16  ────┴─── Phase 3 集成验收
 ---
 
 _本文档将随项目进展持续更新，每个 Phase 完成后标记验收结果。_
+
+---
+
+## 代码验证修正条目
+
+> **验证日期**: 2026-06-03  
+> **验证方式**: 逐条对照文档描述与实际源码  
+> **说明**: 以下条目指出本文档中与当前代码不一致或需要更新的部分，不修改原文。
+
+### 修正 A：P1-1 "SchemaGen 预修复链" 课题已实现
+
+**原文位置**: P1-1 Pipeline 成功率提升 → 1.2 根因分析 → 根因 1
+
+**原文声称**: `dedupeNodeIds()` 和 `autoBizComponents()` 在 `parseAndValidate()` 之后才执行，导致本可自动修复的问题白白浪费 LLM 重试。
+
+**实际代码** (`backend/src/ai-templates/stages/schema-generator.agent.ts`):
+
+- `autoBizComponents` 逻辑在第 162-169 行执行（属于 `parseAndValidate` 内部的数据准备阶段）
+- `dedupeNodeIds(document)` 在第 221 行执行
+- `validateGeneratedTemplateLayout(document, ...)` 在第 229 行执行
+
+两者均**早于**验证调用，代码注释（第 218-220 行）也明确说明了意图："机械补全而非让 LLM 重试"。
+
+**结论**: 该课题已实现，建议标记为 ✅ 已完成或从后续计划中移除。
+
+---
+
+### 修正 B：COMPACTION_MODEL 硬编码仅存在于前端
+
+**原文位置**: P0-1 → 1.2 根因分析 → 根因 4；附录 A 关键常量速查
+
+**原文引用**:
+
+```typescript
+// compact.ts 第 6 行
+const COMPACTION_MODEL = 'deepseek-v4-flash';
+```
+
+**实际情况**: 项目中存在**两个** `compact.ts`，行为完全不同：
+
+| 文件                                             | 行为                                                                 | 有 COMPACTION_MODEL 硬编码？ |
+| ------------------------------------------------ | -------------------------------------------------------------------- | ---------------------------- |
+| `src/ai/core/compact/compact.ts`（前端）         | 使用 LLM 生成摘要（`compactConversationWithLLM`），第 6 行硬编码模型 | ✅ 是                        |
+| `backend/src/ai/core/compact/compact.ts`（后端） | 纯字符串截断的简单 `compactConversation()`，不调用 LLM               | ❌ 无                        |
+
+**结论**: 修正时只需改前端 `src/ai/core/compact/compact.ts` 第 6 行。后端 compaction 不涉及此问题。建议在附录 B "文件影响范围" 中将 P0-1 对 `compact.ts` 的描述明确标注为"前端"。
+
+---
+
+### 修正 C：SSE 心跳机制缺失，建议提前到 Phase 1
+
+**原文位置**: 未在任何 Phase 中提及 SSE 心跳
+
+**实际情况**: `backend/src/ai/ai.controller.ts` 的 `streamProxy()`（第 91-94 行）和 `editorStream()`（第 144-146 行）仅设置了 HTTP header：
+
+```typescript
+res.setHeader('connection', 'keep-alive');
+```
+
+但**没有** `setInterval` 心跳实现。Pipeline 生成耗时 30-60 秒，中间零输出，存在连接超时断开风险。
+
+**建议**: 将 SSE 心跳作为 P0 级课题纳入 Phase 1，在 `streamProxy()` 和 `editorStream()` 的 SSE Observable 中添加 5 秒间隔注释行心跳。改动约 0.5 天，前端无需改动（浏览器 `EventSource` 自动忽略注释行但重置超时计时器）。
+
+---
+
+### 修正 D：前后端 compaction 策略不一致
+
+**原文位置**: P0-2 缓存策略抽象与稳定化
+
+**原文聚焦**: 前端 `compact.ts` 的 system 消息修改问题和后端 `provider-log-compaction.service.ts` 的折叠问题。
+
+**遗漏**: 文档未讨论前后端 compaction 策略本身的差异：
+
+| 端   | 策略                                                   | 文件                                       |
+| ---- | ------------------------------------------------------ | ------------------------------------------ |
+| 前端 | `compactConversationWithLLM()` — 调用 LLM 生成语义摘要 | `src/ai/core/compact/compact.ts:114`       |
+| 后端 | `compactConversation()` — 纯字符串截断 + 简单规则摘要  | `backend/src/ai/core/compact/compact.ts:7` |
+
+两套策略行为差异较大（LLM 摘要 vs 规则截断），且后端还叠加了 `ProviderLogCompactionService` 的消息折叠（token 预算 500K 触发）。建议在 P0-2 中增加前后端 compaction 策略统一评估的课题。
+
+---
+
+### 修正 E：P0-3 SSE 协议 — Phase 3 时间线与正文不一致
+
+**原文位置**: 附录 D 里程碑时间线 vs Phase 3 进阶
+
+附录 D 的时间线将 P0-3 结构化 SSE 放在 W3-W4（Phase 1），但正文 P0-3 章节将其列为 Phase 1 的课题（W3-W5）。Phase 3 的 P2-1/P2-2 是独立课题。此处不构成代码层面的错误，但若采纳修正 C 将心跳提前，建议重新规划 P0-3 的分期：心跳 → Phase 1 第一批（W1），结构化事件 → Phase 1 后期或 Phase 2（W4-W5）。

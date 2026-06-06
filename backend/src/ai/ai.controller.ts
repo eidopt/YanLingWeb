@@ -97,23 +97,32 @@ export class AiController {
     }
     res.flushHeaders();
 
+    const heartbeat = setInterval(() => {
+      res.write(':heartbeat\n\n');
+      this.flushResponse(res);
+    }, 5_000);
+    const clearHeartbeat = () => clearInterval(heartbeat);
+
     const subscription = this.aiService.stream(req.user.sub, body, cacheOptions).subscribe({
       next: (event) => {
         res.write(`data: ${event.data}\n\n`);
         this.flushResponse(res);
       },
       error: (err: unknown) => {
+        clearHeartbeat();
         const message = err instanceof Error ? err.message : String(err);
         res.write(`data: ${JSON.stringify({ type: 'error', message })}\n\n`);
         this.flushResponse(res);
         res.end();
       },
       complete: () => {
+        clearHeartbeat();
         res.end();
       },
     });
 
     req.on('close', () => {
+      clearHeartbeat();
       subscription.unsubscribe();
     });
   }
@@ -154,23 +163,32 @@ export class AiController {
     }
     res.flushHeaders();
 
+    const heartbeat = setInterval(() => {
+      res.write(':heartbeat\n\n');
+      this.flushResponse(res);
+    }, 5_000);
+    const clearHeartbeat = () => clearInterval(heartbeat);
+
     const subscription = this.aiService.streamEditor(req.user.sub, body, cacheOptions).subscribe({
       next: (event) => {
         res.write(`data: ${event.data}\n\n`);
         this.flushResponse(res);
       },
       error: (err: unknown) => {
+        clearHeartbeat();
         const message = err instanceof Error ? err.message : String(err);
         res.write(`data: ${JSON.stringify({ type: 'error', data: message })}\n\n`);
         this.flushResponse(res);
         res.end();
       },
       complete: () => {
+        clearHeartbeat();
         res.end();
       },
     });
 
     req.on('close', () => {
+      clearHeartbeat();
       subscription.unsubscribe();
     });
   }

@@ -3,7 +3,6 @@ import { getContextWindow, tokenCountWithEstimation } from '../utils/tokens';
 
 const DEFAULT_MAX_CONTEXT_TOKENS = 500_000;
 const RECENT_CONTEXT_TARGET_RATIO = 0.8; // keep 80% of max as recent context target
-const COMPACTION_MODEL = 'deepseek-v4-flash';
 
 const COMPACTION_SYSTEM_PROMPT = [
   'You are a conversation compactor. Summarize the following conversation history into a concise, structured summary.',
@@ -11,18 +10,14 @@ const COMPACTION_SYSTEM_PROMPT = [
   'Rules:',
   '- Preserve ALL tool call results, especially node IDs, page IDs, and operation outcomes.',
   '- Preserve ALL error messages and their context.',
-  '- Preserve the user\'s original requests and intent.',
+  "- Preserve the user's original requests and intent.",
   '- Do NOT invent information that was not in the conversation.',
   '- Use bullet points for clarity.',
   '- Structure: User Requests → Operations Performed → Results/Errors → Current State.',
 ].join('\n');
 
 function valueToString(value: unknown, fallback = ''): string {
-  if (
-    typeof value === 'string' ||
-    typeof value === 'number' ||
-    typeof value === 'boolean'
-  ) {
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
     return String(value);
   }
   return fallback;
@@ -59,11 +54,7 @@ export function getRecentContextTarget(model?: string): number {
  * The benefit is that subsequent requests after compaction will have a
  * stable, shorter prefix that caches well.
  */
-export function applyCompaction(
-  messages: ProviderMessage[],
-  summary: string,
-  model?: string,
-): ProviderMessage[] {
+export function applyCompaction(messages: ProviderMessage[], summary: string, model?: string): ProviderMessage[] {
   const system = messages.filter((m) => m.role === 'system');
   const nonSystem = messages.filter((m) => m.role !== 'system');
   const recentTarget = getRecentContextTarget(model);
@@ -79,30 +70,19 @@ export function applyCompaction(
     recent.unshift(nonSystem[index]);
   }
 
-  // Append compaction summary to the LAST system message.
-  // This changes the system message content (breaks prefix cache once),
-  // but avoids inserting new messages before the conversation history.
-  // Subsequent requests will have a stable, shorter prefix.
-  const compactedSystem = [...system];
+  // Insert compaction summary as a SEPARATE system message after the existing ones.
+  // This preserves the original system message content (keeping prefix cache stable)
+  // while still providing the compaction context to the LLM.
   const compactionNote = [
-    '',
     '[Compaction — prior context compressed]',
     '',
     summary,
     '',
-    '[Continue from here. Do not repeat completed work. '
-      + 'If a tool was already called, do not call it again with the same intent.]',
+    '[Continue from here. Do not repeat completed work. ' +
+      'If a tool was already called, do not call it again with the same intent.]',
   ].join('\n');
 
-  if (compactedSystem.length > 0) {
-    const lastIndex = compactedSystem.length - 1;
-    compactedSystem[lastIndex] = {
-      ...compactedSystem[lastIndex],
-      content: messageContentToString(compactedSystem[lastIndex].content) + compactionNote,
-    };
-  } else {
-    compactedSystem.push({ role: 'system', content: compactionNote });
-  }
+  const compactedSystem = [...system, { role: 'system' as const, content: compactionNote }];
 
   return [...compactedSystem, ...recent];
 }
@@ -114,7 +94,7 @@ export function applyCompaction(
 export async function compactConversationWithLLM(
   messages: ProviderMessage[],
   provider: AIProvider,
-  model: string = COMPACTION_MODEL,
+  model: string,
 ): Promise<ProviderMessage[]> {
   if (!needsCompaction(messages, model)) {
     return messages;
@@ -203,15 +183,12 @@ function buildTranscript(messages: ProviderMessage[]): string {
   return lines.join('\n');
 }
 
-async function generateSummary(
-  provider: AIProvider,
-  model: string,
-  transcript: string,
-): Promise<string> {
+async function generateSummary(provider: AIProvider, model: string, transcript: string): Promise<string> {
   const maxTranscriptChars = 50_000;
-  const truncatedTranscript = transcript.length > maxTranscriptChars
-    ? transcript.slice(-maxTranscriptChars) // Keep the most recent part
-    : transcript;
+  const truncatedTranscript =
+    transcript.length > maxTranscriptChars
+      ? transcript.slice(-maxTranscriptChars) // Keep the most recent part
+      : transcript;
 
   let summary = '';
 
@@ -268,7 +245,9 @@ function buildFallbackSummary(messages: ProviderMessage[]): string {
         } else if (parsed.errors?.length) {
           errors.push(...parsed.errors.map((e) => e.slice(0, 100)));
         }
-      } catch { /* non-JSON content */ }
+      } catch {
+        /* non-JSON content */
+      }
     }
   }
 
@@ -295,8 +274,11 @@ function buildFallbackSummaryFromTranscript(transcript: string): string {
 }
 
 function tryParseArgs(raw: string): Record<string, unknown> {
-  try { return JSON.parse(raw) as Record<string, unknown>; }
-  catch { return {}; }
+  try {
+    return JSON.parse(raw) as Record<string, unknown>;
+  } catch {
+    return {};
+  }
 }
 
 function buildToolDetail(name: string, args: Record<string, unknown>): string {
@@ -312,10 +294,9 @@ function buildToolDetail(name: string, args: Record<string, unknown>): string {
     case 'editor_create_page':
       return `name=${valueToString(args.name, '?')}`;
     case 'editor_create_page_from_reference':
-      return [
-        `name=${valueToString(args.name, '?')}`,
-        `reference=${valueToString(args.referencePageId, '?')}`,
-      ].join(' ');
+      return [`name=${valueToString(args.name, '?')}`, `reference=${valueToString(args.referencePageId, '?')}`].join(
+        ' ',
+      );
     case 'editor_delete_page':
       return `page=${valueToString(args.pageId, '?')}`;
     case 'editor_sync_navigation':
