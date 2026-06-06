@@ -4,6 +4,8 @@
 > **创建日期**: 2026-06-03  
 > **基准分支**: main  
 > **前置文档**: `.workbuddy/KNOWLEDGE_BASE.md`, `docs/agent-low-code-generation-plan.md`, `reports/03-code-framework-defects-progress.md`
+>
+> **下一步计划**: [`next-steps-plan.md`](./next-steps-plan.md) — 基于可行性调研的实施排序，聚焦 Agent 效率提升
 
 ---
 
