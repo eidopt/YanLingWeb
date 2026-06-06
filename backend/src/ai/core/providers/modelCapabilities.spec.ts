@@ -17,17 +17,23 @@ import {
 
 describe('resolveCapabilitiesForModel', () => {
   describe('MiMo (Xiaomi)', () => {
-    it('mimo → required reasoning, no cache', () => {
-      const caps = resolveCapabilitiesForModel('mimo');
+    it('mimo-v2.5-pro → required reasoning, no cache', () => {
+      const caps = resolveCapabilitiesForModel('mimo-v2.5-pro');
       expect(caps.reasoningMode).toBe('required');
       expect(caps.cacheStrategy).toBe('none');
+      expect(caps).toBe(MIMO_CAPS);
+    });
+
+    it('mimo-v2.5-flash → required reasoning', () => {
+      const caps = resolveCapabilitiesForModel('mimo-v2.5-flash');
+      expect(caps.reasoningMode).toBe('required');
       expect(caps).toBe(MIMO_CAPS);
     });
   });
 
   describe('MiniMax', () => {
-    it('minimax-m2.7 → passthrough reasoning, no cache', () => {
-      const caps = resolveCapabilitiesForModel('minimax-m2.7');
+    it('minimax-m3 → passthrough reasoning, no cache', () => {
+      const caps = resolveCapabilitiesForModel('minimax-m3');
       expect(caps.reasoningMode).toBe('passthrough');
       expect(caps.cacheStrategy).toBe('none');
       expect(caps).toBe(MINIMAX_CAPS);
@@ -35,22 +41,23 @@ describe('resolveCapabilitiesForModel', () => {
   });
 
   describe('DeepSeek', () => {
-    it('deepseek-chat → passthrough reasoning, prefix cache', () => {
-      const caps = resolveCapabilitiesForModel('deepseek-chat');
+    it('deepseek-v4-pro → passthrough reasoning, prefix cache', () => {
+      const caps = resolveCapabilitiesForModel('deepseek-v4-pro');
       expect(caps.reasoningMode).toBe('passthrough');
       expect(caps.cacheStrategy).toBe('prefix');
       expect(caps).toBe(DEEPSEEK_CAPS);
     });
 
-    it('deepseek-reasoner → prefix cache', () => {
-      const caps = resolveCapabilitiesForModel('deepseek-reasoner');
+    it('deepseek-v4-flash → prefix cache', () => {
+      const caps = resolveCapabilitiesForModel('deepseek-v4-flash');
       expect(caps.cacheStrategy).toBe('prefix');
+      expect(caps).toBe(DEEPSEEK_CAPS);
     });
   });
 
   describe('Kimi (Moonshot)', () => {
-    it('kimi-k2 → passthrough reasoning, cache_key', () => {
-      const caps = resolveCapabilitiesForModel('kimi-k2');
+    it('kimi-v2.6 → passthrough reasoning, cache_key', () => {
+      const caps = resolveCapabilitiesForModel('kimi-v2.6');
       expect(caps.reasoningMode).toBe('passthrough');
       expect(caps.cacheStrategy).toBe('cache_key');
       expect(caps).toBe(KIMI_CAPS);
@@ -58,8 +65,8 @@ describe('resolveCapabilitiesForModel', () => {
   });
 
   describe('GLM (Zhipu)', () => {
-    it('glm-4.6 → no reasoning, no cache', () => {
-      const caps = resolveCapabilitiesForModel('glm-4.6');
+    it('glm-5.1 → no reasoning, no cache', () => {
+      const caps = resolveCapabilitiesForModel('glm-5.1');
       expect(caps.reasoningMode).toBe('none');
       expect(caps.cacheStrategy).toBe('none');
       expect(caps).toBe(GLM_CAPS);
@@ -67,8 +74,8 @@ describe('resolveCapabilitiesForModel', () => {
   });
 
   describe('Qwen (Alibaba)', () => {
-    it('qwen3-235b → passthrough reasoning, cache_control', () => {
-      const caps = resolveCapabilitiesForModel('qwen3-235b');
+    it('qwen-3.7 → passthrough reasoning, cache_control', () => {
+      const caps = resolveCapabilitiesForModel('qwen-3.7');
       expect(caps.reasoningMode).toBe('passthrough');
       expect(caps.cacheStrategy).toBe('cache_control');
       expect(caps).toBe(QWEN_CAPS);
@@ -101,15 +108,15 @@ describe('resolveCapabilitiesForModel', () => {
 
   describe('cross-model switch capabilities', () => {
     it('switching from DeepSeek to MiMo changes reasoning mode', () => {
-      const ds = resolveCapabilitiesForModel('deepseek-chat');
-      const mimo = resolveCapabilitiesForModel('mimo-v2-pro');
+      const ds = resolveCapabilitiesForModel('deepseek-v4-pro');
+      const mimo = resolveCapabilitiesForModel('mimo-v2.5-pro');
       expect(ds.reasoningMode).toBe('passthrough');
       expect(mimo.reasoningMode).toBe('required');
     });
 
     it('switching from GPT-5.5 to MiMo changes reasoning mode', () => {
       const gpt = resolveCapabilitiesForModel('gpt-5.5');
-      const mimo = resolveCapabilitiesForModel('mimo-v2-pro');
+      const mimo = resolveCapabilitiesForModel('mimo-v2.5-pro');
       expect(gpt.reasoningMode).toBe('none');
       expect(mimo.reasoningMode).toBe('required');
     });

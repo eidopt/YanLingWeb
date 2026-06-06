@@ -41,13 +41,14 @@ export function tokenCountWithEstimation(messages: readonly ProviderMessage[]): 
 
 const MODEL_CONTEXT_WINDOWS: Record<string, number> = {
   'gpt-5.5': 400_000,
-  'deepseek-chat': 1_000_000,
-  'deepseek-reasoner': 1_000_000,
-  'kimi-k2': 128_000,
-  'glm-4.6': 128_000,
-  mimo: 128_000,
-  'minimax-m2.7': 1_000_000,
-  qwen3: 128_000,
+  'deepseek-v4-pro': 1_000_000,
+  'deepseek-v4-flash': 1_000_000,
+  'kimi-v2.6': 128_000,
+  'glm-5.1': 128_000,
+  'mimo-v2.5-pro': 128_000,
+  'mimo-v2.5-flash': 128_000,
+  'minimax-m3': 1_000_000,
+  'qwen-3.7': 128_000,
 };
 
 export function getContextWindow(model: string): number {

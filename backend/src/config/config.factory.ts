@@ -120,7 +120,7 @@ export class ConfigFactory {
     const aiProvider = configuredProvider === 'openai-compatible' ? 'openai-compatible' : 'openai';
     const prefix = VAR_PREFIX[aiProvider];
 
-    const defaultModel = aiProvider === 'openai-compatible' ? 'deepseek-chat' : 'gpt-5.4';
+    const defaultModel = aiProvider === 'openai-compatible' ? 'deepseek-v4-pro' : 'gpt-5.5';
     const aiProModel =
       this.read(source, serverFlavor, 'AI_PRO_MODEL') ??
       this.read(source, serverFlavor, 'AI_MODEL') ??
