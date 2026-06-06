@@ -52,12 +52,17 @@ const MODEL_CONTEXT_WINDOWS: Record<string, number> = {
   'deepseek-reasoner': 1_000_000,
   'kimi-k2': 128_000,
   'glm-4.6': 128_000,
+  mimo: 128_000,
+  'minimax-m2.7': 1_000_000,
+  qwen3: 128_000,
 };
 
 export function getContextWindow(model: string): number {
   const lower = model.toLowerCase();
   for (const [key, size] of Object.entries(MODEL_CONTEXT_WINDOWS)) {
-    if (lower.startsWith(key)) {return size;}
+    if (lower.startsWith(key)) {
+      return size;
+    }
   }
   return 200_000;
 }

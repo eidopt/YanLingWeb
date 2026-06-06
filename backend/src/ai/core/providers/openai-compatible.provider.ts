@@ -10,6 +10,7 @@ import type {
   ProviderTool,
 } from './types';
 import { purifyMessages } from './messagePurifier';
+import { resolveCapabilitiesForModel } from './modelCapabilities';
 
 interface UsageAccumulator {
   inputTokens: number;
@@ -25,7 +26,8 @@ type CompatibleAssistantMessageParam = OpenAI.Chat.ChatCompletionAssistantMessag
   reasoning_content?: string;
 };
 
-const CAPABILITIES: ProviderCapabilities = {
+/** Default capabilities — used when no model-specific override is found */
+const DEFAULT_CAPABILITIES: ProviderCapabilities = {
   supportsStreaming: true,
   supportsToolCalls: true,
   supportsParallelToolCalls: true,
@@ -52,14 +54,17 @@ export class OpenAICompatibleProvider implements AIProvider {
   readonly name: string;
   private client: OpenAI;
   private abortController: AbortController | null = null;
+  private readonly caps: ProviderCapabilities;
 
-  constructor(apiKey: string, baseURL?: string, name?: string) {
+  constructor(apiKey: string, baseURL?: string, name?: string, model?: string) {
     this.name = name ?? 'openai-compatible';
     this.client = new OpenAI({ apiKey, baseURL });
+    // Resolve model-specific capabilities, falling back to defaults
+    this.caps = model ? resolveCapabilitiesForModel(model) : DEFAULT_CAPABILITIES;
   }
 
   getCapabilities(): ProviderCapabilities {
-    return CAPABILITIES;
+    return this.caps;
   }
 
   async *stream(request: ProviderRequest): AsyncIterable<ProviderStreamEvent> {
@@ -67,7 +72,7 @@ export class OpenAICompatibleProvider implements AIProvider {
     this.abortController = abortController;
 
     // Purify messages for this provider's capabilities before converting
-    const purified = purifyMessages(request.messages, CAPABILITIES);
+    const purified = purifyMessages(request.messages, this.caps);
     const messages = convertMessages(purified);
     const tools = request.tools ? convertTools(request.tools) : undefined;
 

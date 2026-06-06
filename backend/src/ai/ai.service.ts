@@ -117,6 +117,7 @@ export class AiService {
         apiKey,
         this.config.ai.baseUrl,
         'openai-compatible',
+        this.config.ai.model,
       );
     } else {
       this.provider = new OpenAIProvider(apiKey, this.config.ai.baseUrl, 'openai');
