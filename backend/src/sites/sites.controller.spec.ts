@@ -1,5 +1,5 @@
-import type { AuthenticatedRequest } from '../auth/authenticated-request.interface';
-import type { TemplateReadRepository } from '../templates/repositories/template-read.repository';
+import type { AuthenticatedRequest } from '../auth/authenticatedRequest.interface';
+import type { TemplateReadRepository } from '../templates/repositories/templateRead.repository';
 import type { PublishedSiteRepository } from './repositories';
 import { SitesController } from './sites.controller';
 import {

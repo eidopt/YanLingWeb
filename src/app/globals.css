@@ -1,6 +1,6 @@
-@import '../styles/theme-library.css';
-@import '../styles/render-contract.css';
-@import '../styles/scroll-animations.css';
+@import '../styles/themeLibrary.css';
+@import '../styles/renderContract.css';
+@import '../styles/scrollAnimations.css';
 
 *,
 *::before,

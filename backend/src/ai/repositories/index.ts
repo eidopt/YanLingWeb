@@ -2,11 +2,11 @@ export {
   type CreateEditorConversationInput,
   EDITOR_CONVERSATION_REPOSITORY,
   type EditorConversationRepository,
-} from './editor-conversation.repository';
+} from './editorConversation.repository';
 export {
   type CreateTokenUsageEventInput,
   TOKEN_USAGE_REPOSITORY,
   type TokenUsageRepository,
-} from './token-usage.repository';
-export { TypeOrmEditorConversationRepository } from './typeorm-editor-conversation.repository';
-export { TypeOrmTokenUsageRepository } from './typeorm-token-usage.repository';
+} from './tokenUsage.repository';
+export { TypeOrmEditorConversationRepository } from './typeormEditorConversation.repository';
+export { TypeOrmTokenUsageRepository } from './typeormTokenUsage.repository';

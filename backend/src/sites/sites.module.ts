@@ -3,8 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from '../auth/auth.module';
 import { TemplatesModule } from '../templates/templates.module';
-import { PublishedSite } from './entities/published-site.entity';
-import { PublishedSiteRevision } from './entities/published-site-revision.entity';
+import { PublishedSite } from './entities/publishedSite.entity';
+import { PublishedSiteRevision } from './entities/publishedSiteRevision.entity';
 import { PUBLISHED_SITE_REPOSITORY, TypeOrmPublishedSiteRepository } from './repositories';
 import { SitesController } from './sites.controller';
 import { SitesService } from './sites.service';

@@ -4,7 +4,7 @@ import { Throttle } from '@nestjs/throttler';
 
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { OAuthCallbackDto } from './dto/oauth-callback.dto';
+import { OAuthCallbackDto } from './dto/oauthCallback.dto';
 import { RegisterDto } from './dto/register.dto';
 
 @ApiTags('users')

@@ -1,8 +1,8 @@
-import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
-
 import type { ThemeLayoutDocument, ThemeLayoutNode } from '../types';
 import { buildTemplateProfile } from './buildTemplateProfile';
+/* eslint-disable @typescript-eslint/no-floating-promises */
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 
 function expect(actual: unknown) {
   return {

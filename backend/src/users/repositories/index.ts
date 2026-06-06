@@ -1,4 +1,4 @@
-export { TypeOrmUserAccountRepository } from './typeorm-user-account.repository';
+export { TypeOrmUserAccountRepository } from './typeormUserAccount.repository';
 export {
   type CreateLocalUserInput,
   type CreateOAuthUserInput,
@@ -7,4 +7,4 @@ export {
   USER_ACCOUNT_REPOSITORY,
   type UserAccountRepository,
   type UserAccountUpdate,
-} from './user-account.repository';
+} from './userAccount.repository';

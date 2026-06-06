@@ -4,8 +4,8 @@ import { buildVerifierSystemPrompt, type VerifierLens } from '@shared/agent/runt
 import {
   AI_TEMPLATE_PIPELINE_PROVIDER,
   type AiTemplatePipelineProvider,
-} from '../../ai/pipeline-provider.port';
-import { validateGeneratedTemplateLayout } from '../../templates/template-layout-validation';
+} from '../../ai/pipelineProvider.port';
+import { validateGeneratedTemplateLayout } from '../../templates/templateLayoutValidation';
 import type {
   DesignerOutput,
   ExistingTemplateSummary,
@@ -14,8 +14,8 @@ import type {
   VerifierFailure,
   VerifierVerdict,
 } from '../orchestrator/pipeline.types';
-import { runStructuredStage, type StageRunUsage } from '../orchestrator/run-stage';
-import { SUBMIT_VERIFIER_VERDICT_TOOL } from '../tools/submit-verifier-verdict.tool';
+import { runStructuredStage, type StageRunUsage } from '../orchestrator/runStage';
+import { SUBMIT_VERIFIER_VERDICT_TOOL } from '../tools/submitVerifierVerdict.tool';
 
 const LENSES: readonly VerifierLens[] = [
   'spec-compliance',
@@ -51,8 +51,11 @@ export class VerifierAgent {
     this.logger.debug(`verifier attempt=${attempt} schema=${schema.templateId}`);
 
     // Verifier 3 lens 全保留（不砍审查），但用 lite 快模型提速；合法性仍由程序化校验把关。
-    const { provider, liteModel: model, apiKeyConfigured } =
-      this.aiProvider.getProviderForTemplatePipeline();
+    const {
+      provider,
+      liteModel: model,
+      apiKeyConfigured,
+    } = this.aiProvider.getProviderForTemplatePipeline();
 
     const usageTotal: StageRunUsage = { inputTokens: 0, outputTokens: 0, cacheHitTokens: 0 };
 

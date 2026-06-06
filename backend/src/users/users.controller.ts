@@ -13,9 +13,9 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { AuthenticatedRequest } from '../auth/authenticated-request.interface';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { AuthenticatedRequest } from '../auth/authenticatedRequest.interface';
+import { JwtAuthGuard } from '../auth/jwtAuth.guard';
+import { UpdateUserDto } from './dto/updateUser.dto';
 import { UsersService } from './users.service';
 
 @ApiTags('users')
@@ -33,10 +33,7 @@ export class UsersController {
   @Get(':id/token-usage')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get AI token usage summary for the current user' })
-  getTokenUsage(
-    @Param('id') id: string,
-    @Req() req: AuthenticatedRequest,
-  ) {
+  getTokenUsage(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     this.assertSelf(req, id);
     return this.service.getTokenUsageSummary(id);
   }
@@ -45,10 +42,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get user profile by ID' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  findOne(
-    @Param('id') id: string,
-    @Req() req: AuthenticatedRequest,
-  ) {
+  findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     this.assertSelf(req, id);
     return this.service.findById(id);
   }
@@ -56,11 +50,7 @@ export class UsersController {
   @Put(':id')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Update user profile' })
-  update(
-    @Param('id') id: string,
-    @Body() dto: UpdateUserDto,
-    @Req() req: AuthenticatedRequest,
-  ) {
+  update(@Param('id') id: string, @Body() dto: UpdateUserDto, @Req() req: AuthenticatedRequest) {
     this.assertSelf(req, id);
     return this.service.update(id, dto);
   }
@@ -69,10 +59,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete user account' })
-  remove(
-    @Param('id') id: string,
-    @Req() req: AuthenticatedRequest,
-  ) {
+  remove(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     this.assertSelf(req, id);
     return this.service.remove(id);
   }

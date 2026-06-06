@@ -1,4 +1,4 @@
-@import './theme-library.css';
+@import './themeLibrary.css';
 
 *,
 *::before,
@@ -27,7 +27,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   overflow-y: auto;
-  transition: background 0.4s var(--app-motion-smooth), color 0.3s var(--app-motion-smooth);
+  transition:
+    background 0.4s var(--app-motion-smooth),
+    color 0.3s var(--app-motion-smooth);
 }
 
 body::before,

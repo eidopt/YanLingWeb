@@ -1,7 +1,7 @@
 'use client';
 
-import type { EditorAiCacheStats, EditorAiConversationMessage } from 'ai/editor-ai.service';
-import type { UiIntentPlan } from 'ai/planning/ui-intent-router';
+import type { EditorAiCacheStats, EditorAiConversationMessage } from 'ai/editorAi.service';
+import type { UiIntentPlan } from 'ai/planning/uiIntentRouter';
 import { useSyncExternalStore } from 'react';
 import { createPersistentStore } from 'state/createPersistentStore';
 import {

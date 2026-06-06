@@ -227,7 +227,9 @@ function buildNodeCandidateSet(root: ThemeLayoutNode): string {
   const MAX_LINES = 80;
 
   const collect = (node: ThemeLayoutNode, depth: number) => {
-    if (count >= MAX_LINES) return;
+    if (count >= MAX_LINES) {
+      return;
+    }
     const indent = '  '.repeat(depth);
     const containerMark = isContainerNode(node) ? '[C] ' : '    ';
     const displayName = inferDisplayName(node);

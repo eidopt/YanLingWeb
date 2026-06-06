@@ -6,8 +6,8 @@ import { objectToRecord, themeLayoutDocumentToRecord } from '@shared/theme-layou
 import { mergeVisualAssetsIntoManifest } from '@shared/theme-layout/visualAssets';
 
 import { ConfigService } from '../config/config.service';
-import { deriveTags } from '../shared/derive-tags';
-import { isRecord } from '../shared/type-guards';
+import { deriveTags } from '../shared/deriveTags';
+import { isRecord } from '../shared/typeGuards';
 import { Template } from './entities/template.entity';
 import {
   TEMPLATE_AGENT_KNOWLEDGE_REPOSITORY,
@@ -29,14 +29,14 @@ import {
   type TemplateAgentConfigDto,
   templateLayoutDocument,
   type UpdateOwnedTemplateInput,
-} from './template-agent-config.helpers';
-import { TemplateAssetService } from './template-asset.service';
+} from './templateAgentConfig.helpers';
+import { TemplateAssetService } from './templateAsset.service';
 import {
   assertTemplateCategoryKey,
   buildTemplateSearchText,
   createUserTemplateId,
-} from './template-category.helpers';
-import { TemplateCategoryRegistryService } from './template-category-registry.service';
+} from './templateCategory.helpers';
+import { TemplateCategoryRegistryService } from './templateCategoryRegistry.service';
 import {
   deleteImportedTemplateSidecars,
   extractTemplateCategoryLabels,
@@ -46,14 +46,14 @@ import {
   resolveTemplateJsonDirectory,
   validateImportedTemplateProfile,
   writeTemplateValidationLog,
-} from './template-json-import.helpers';
-import { prepareTemplateLayoutForPersistence } from './template-layout-validation';
+} from './templateJsonImport.helpers';
+import { prepareTemplateLayoutForPersistence } from './templateLayoutValidation';
 import {
   ensureGeneratedProfilesForExistingTemplates,
   repairLegacyOwnedCopies,
   repairTemplateCategoryKeys,
   seedBuiltinTemplates,
-} from './template-maintenance.helpers';
+} from './templateMaintenance.helpers';
 
 export type { SaveGeneratedTemplateInput, TemplateAgentConfigDto, UpdateOwnedTemplateInput };
 
@@ -419,7 +419,7 @@ export class TemplatesService implements OnModuleInit {
       .sort();
 
     // 跳过 import-skip-list.json 中列出的模板。
-    const skipListPath = path.join(directory, 'import-skip-list.json');
+    const skipListPath = path.join(directory, 'importSkipList.json');
     try {
       const skipContent = await fs.readFile(skipListPath, 'utf8');
       const skipIds = JSON.parse(skipContent) as unknown;
