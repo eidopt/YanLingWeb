@@ -52,11 +52,7 @@ export async function autoCompactIfNeeded(
 
     if (options?.provider && !options.forceSynchronous) {
       // LLM-based semantic compaction
-      compacted = await compactConversationWithLLM(
-        messages,
-        options.provider,
-        options.compactionModel,
-      );
+      compacted = await compactConversationWithLLM(messages, options.provider, options.compactionModel ?? model);
     } else {
       // Synchronous fallback
       compacted = compactConversation(messages, model);

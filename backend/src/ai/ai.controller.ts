@@ -25,6 +25,14 @@ import {
 } from './ai.service';
 import type { TemplateToolInput } from './tools/generate-template.tool';
 
+/** Start a 5-second SSE heartbeat. Returns a cleanup function to stop it. */
+function startSseHeartbeat(res: Response): () => void {
+  const timer = setInterval(() => {
+    res.write(':heartbeat\n\n');
+  }, 5_000);
+  return () => clearInterval(timer);
+}
+
 @ApiTags('ai')
 @ApiSecurity('bearer')
 @UseGuards(JwtAuthGuard)
@@ -97,23 +105,28 @@ export class AiController {
     }
     res.flushHeaders();
 
+    const stopHeartbeat = startSseHeartbeat(res);
+
     const subscription = this.aiService.stream(req.user.sub, body, cacheOptions).subscribe({
       next: (event) => {
         res.write(`data: ${event.data}\n\n`);
         this.flushResponse(res);
       },
       error: (err: unknown) => {
+        stopHeartbeat();
         const message = err instanceof Error ? err.message : String(err);
         res.write(`data: ${JSON.stringify({ type: 'error', message })}\n\n`);
         this.flushResponse(res);
         res.end();
       },
       complete: () => {
+        stopHeartbeat();
         res.end();
       },
     });
 
     req.on('close', () => {
+      stopHeartbeat();
       subscription.unsubscribe();
     });
   }
@@ -154,23 +167,28 @@ export class AiController {
     }
     res.flushHeaders();
 
+    const stopHeartbeat = startSseHeartbeat(res);
+
     const subscription = this.aiService.streamEditor(req.user.sub, body, cacheOptions).subscribe({
       next: (event) => {
         res.write(`data: ${event.data}\n\n`);
         this.flushResponse(res);
       },
       error: (err: unknown) => {
+        stopHeartbeat();
         const message = err instanceof Error ? err.message : String(err);
         res.write(`data: ${JSON.stringify({ type: 'error', data: message })}\n\n`);
         this.flushResponse(res);
         res.end();
       },
       complete: () => {
+        stopHeartbeat();
         res.end();
       },
     });
 
     req.on('close', () => {
+      stopHeartbeat();
       subscription.unsubscribe();
     });
   }
