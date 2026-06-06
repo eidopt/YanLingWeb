@@ -133,9 +133,8 @@ export class ConfigFactory {
     const aiProvider = configuredProvider === 'openai-compatible' ? 'openai-compatible' : 'openai';
     const prefix = VAR_PREFIX[aiProvider];
 
-    // Stable defaults. deepseek-v4-pro has 1M context + prefix caching;
-    // gpt-5 is the conservative OpenAI Responses API alias.
-    const defaultModel = aiProvider === 'openai-compatible' ? 'deepseek-v4-pro' : 'gpt-5';
+    // Latest stable models. Both defaults use 1M context.
+    const defaultModel = aiProvider === 'openai-compatible' ? 'deepseek-v4-pro' : 'gpt-5.5';
     const aiProModel =
       this.read(source, serverFlavor, 'AI_PRO_MODEL') ??
       this.read(source, serverFlavor, 'AI_MODEL') ??
