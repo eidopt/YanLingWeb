@@ -1,8 +1,8 @@
-import type { TemplateStore } from '../adapters/browserTemplateStore';
+﻿import type { TemplateStore } from '../adapters/browserTemplateStore';
 import type { AIProvider, ProviderMessage, ProviderTool } from '../core/providers/types';
-import { QueryLoop } from '../core/query-loop';
-import { formatUiIntentPlanForPrompt, planUiIntent } from '../planning/ui-intent-router';
-import { GENERATE_TEMPLATE_TOOL, isTemplateToolInput } from '../tools/generate-template.tool';
+import { QueryLoop } from '../core/queryLoop';
+import { formatUiIntentPlanForPrompt, planUiIntent } from '../planning/uiIntentRouter';
+import { GENERATE_TEMPLATE_TOOL, isTemplateToolInput } from '../tools/generateTemplate.tool';
 import { AgentEventRecorder } from './agentEventRecorder';
 import {
   formatUiDesignSkillContextForPrompt,

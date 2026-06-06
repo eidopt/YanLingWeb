@@ -23,7 +23,7 @@ import {
 
 import { createCacheStrategy } from './core/providers/cacheStrategy';
 import type { AIProvider, ProviderRequest, ProviderTool } from './core/providers/types';
-import { EDITOR_EDIT_TOOLS } from './tools/editor-edit.tool';
+import { EDITOR_EDIT_TOOLS } from './tools/editorEdit.tool';
 
 export type StreamRequest = ProviderRequest;
 
