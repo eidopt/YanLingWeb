@@ -3,7 +3,7 @@ import { themeLayoutDocumentToRecord } from '@shared/theme-layout/documentBounda
 import { deriveTags } from '../shared/derive-tags';
 import type { Template } from './entities/template.entity';
 import type { TemplatePersistenceRepository, TemplatePersistenceStore } from './repositories';
-import { TEMPLATE_SEED_DATA } from './seed/template-seed.data';
+import { TEMPLATE_SEED_DATA } from './seed/templateSeed.data';
 import { buildGeneratedProfileInput } from './template-agent-config.helpers';
 import {
   buildTemplateSearchText,

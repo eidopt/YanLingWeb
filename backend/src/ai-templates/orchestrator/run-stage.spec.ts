@@ -24,6 +24,9 @@ const capabilities: ProviderCapabilities = {
   supportsStructuredOutput: false,
   supportsReasoningEffort: false,
   supportsServerSideContext: false,
+  reasoningMode: 'none',
+  cacheStrategy: 'none',
+  supportsDeveloperRole: false,
 };
 
 const resultTool: ProviderTool = {
