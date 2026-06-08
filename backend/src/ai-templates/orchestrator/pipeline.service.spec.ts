@@ -316,30 +316,94 @@ describe('TemplatePipelineService', () => {
     expect(schemaGenerator.runMock.mock.calls).toEqual([[revisedBrief, 2]]);
   });
 
-  it('retries from designer when schema generation throws', async () => {
+  it('retries schemaGen internally without going back to Designer', async () => {
     const { service, designer, critic, schemaGenerator, verifier } = createHarness();
     const seed: TemplateSeed = { prompt: 'clinic booking' };
-    const firstBrief = createBrief({ templateId: 'template-1' });
-    const revisedBrief = createBrief({ templateId: 'template-2' });
+    const brief = createBrief({ templateId: 'template-1' });
+    const schema = createSchema('template-1');
+    designer.runMock.mockResolvedValueOnce(stage(1, brief));
+    critic.runMock.mockResolvedValue(stage(1, { verdict: 'pass', conflicts: [] }));
+    // SchemaGen: 1st call fails, 2nd call succeeds (pipeline-retry 0, stage-retry 1)
+    schemaGenerator.runMock
+      .mockRejectedValueOnce(new Error('validation error'))
+      .mockResolvedValueOnce(stage(1, schema));
+    verifier.runMock.mockResolvedValueOnce(stage(1, passVerdicts()));
+
+    const result = await service.generate(seed, []);
+
+    // Designer only called ONCE — not retried
+    expect(designer.runMock).toHaveBeenCalledTimes(1);
+    expect(designer.runMock.mock.calls[0]).toEqual([seed, undefined, 1]);
+    // SchemaGen called twice (1 fail + 1 success within same attempt)
+    expect(schemaGenerator.runMock).toHaveBeenCalledTimes(2);
+    expect(schemaGenerator.runMock.mock.calls[0]).toEqual([brief, 1]);
+    expect(schemaGenerator.runMock.mock.calls[1]).toEqual([brief, 1]);
+    // Pipeline succeeded on attempt 1
+    expect(result.totalAttempts).toBe(1);
+    expect(result.templateId).toBe('template-1');
+  });
+
+  it('retries schemaGen across pipeline retries before succeeding', async () => {
+    const { service, designer, critic, schemaGenerator, verifier } = createHarness();
+    const seed: TemplateSeed = { prompt: 'clinic booking' };
+    const brief = createBrief({ templateId: 'template-1' });
+    const schema = createSchema('template-1');
+    designer.runMock.mockResolvedValueOnce(stage(1, brief));
+    critic.runMock.mockResolvedValue(stage(1, { verdict: 'pass', conflicts: [] }));
+    // Pipeline-retry 0: 3 inner retries all fail
+    // Pipeline-retry 1: 1st inner retry succeeds
+    schemaGenerator.runMock
+      .mockRejectedValueOnce(new Error('dup ID 1'))
+      .mockRejectedValueOnce(new Error('dup ID 2'))
+      .mockRejectedValueOnce(new Error('dup ID 3'))
+      .mockResolvedValueOnce(stage(1, schema));
+    verifier.runMock.mockResolvedValueOnce(stage(1, passVerdicts()));
+
+    const result = await service.generate(seed, []);
+
+    // Designer only called ONCE
+    expect(designer.runMock).toHaveBeenCalledTimes(1);
+    // SchemaGen called 4 times (3 fail in retry 0 + 1 success in retry 1)
+    expect(schemaGenerator.runMock).toHaveBeenCalledTimes(4);
+    // All calls use the same brief and attempt
+    for (const call of schemaGenerator.runMock.mock.calls) {
+      expect(call).toEqual([brief, 1]);
+    }
+    // Pipeline succeeded on attempt 1
+    expect(result.totalAttempts).toBe(1);
+  });
+
+  it('falls back to Designer when all schemaGen pipeline retries are exhausted', async () => {
+    const { service, designer, critic, schemaGenerator, verifier } = createHarness();
+    const seed: TemplateSeed = { prompt: 'clinic booking' };
+    const brief1 = createBrief({ templateId: 'template-1' });
+    const brief2 = createBrief({ templateId: 'template-2' });
     const schema = createSchema('template-2');
     designer.runMock
-      .mockResolvedValueOnce(stage(1, firstBrief))
-      .mockResolvedValueOnce(stage(2, revisedBrief));
+      .mockResolvedValueOnce(stage(1, brief1))
+      .mockResolvedValueOnce(stage(2, brief2));
     critic.runMock.mockResolvedValue(stage(1, { verdict: 'pass', conflicts: [] }));
-    schemaGenerator.runMock
-      .mockRejectedValueOnce(new Error('invalid generated document'))
-      .mockResolvedValueOnce(stage(2, schema));
+    // Attempt 1: SchemaGen fails 3×3=9 times (all pipeline + inner retries)
+    for (let i = 0; i < 9; i++) {
+      schemaGenerator.runMock.mockRejectedValueOnce(new Error(`error ${i}`));
+    }
+    // Attempt 2: SchemaGen succeeds on first try
+    schemaGenerator.runMock.mockResolvedValueOnce(stage(2, schema));
     verifier.runMock.mockResolvedValueOnce(stage(2, passVerdicts()));
 
-    await expect(service.generate(seed, [])).resolves.toMatchObject({
-      templateId: 'template-2',
-      totalAttempts: 2,
-    });
+    const result = await service.generate(seed, []);
+
+    // Designer called twice (attempt 1 + attempt 2 after fallback)
+    expect(designer.runMock).toHaveBeenCalledTimes(2);
+    expect(designer.runMock.mock.calls[0]).toEqual([seed, undefined, 1]);
     expect(designer.runMock.mock.calls[1]).toEqual([
       seed,
-      'Stage 3 schema generation failed: invalid generated document',
+      expect.stringContaining('Stage 3 schema generation failed:') as string,
       2,
     ]);
+    // SchemaGen called 10 times (9 in attempt 1 + 1 in attempt 2)
+    expect(schemaGenerator.runMock).toHaveBeenCalledTimes(10);
+    expect(result.totalAttempts).toBe(2);
   });
 
   it('throws with last schema after verifier retry exhaustion', async () => {

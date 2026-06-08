@@ -148,29 +148,109 @@ export function summarizeCanvas(document: ThemeLayoutDocument): string {
   return lines.join('\n');
 }
 
-function buildNodeIndex(root: ThemeLayoutNode): string {
-  const lines: string[] = [];
-  let count = 0;
-  const MAX_INDEX_LINES = 50;
+/** 从节点 props 推断可读的 displayName，方便 AI 识别节点用途 */
+export function inferDisplayName(node: ThemeLayoutNode): string {
+  const props = node.props ?? {};
 
-  const collect = (node: ThemeLayoutNode, parentId?: string) => {
-    if (count >= MAX_INDEX_LINES) {
-      return;
+  switch (node.alias) {
+    case 'core.search':
+      return '搜索框';
+    case 'core.button': {
+      const label = typeof props.label === 'string' ? props.label : '';
+      return label ? `按钮:${label}` : '按钮';
     }
-    const propSummary = Object.entries(node.props ?? {})
-      .filter(([, v]) => typeof v === 'string' || typeof v === 'number')
-      .map(([k, v]) => `${k}=${String(v).slice(0, 30)}`)
-      .slice(0, 2)
-      .join(', ');
-    const parentInfo = parentId ? `, parent=${parentId.slice(0, 8)}` : '';
-    lines.push(`  ${node.id.slice(0, 8)} | ${node.alias}${parentInfo} | ${propSummary || 'no text props'}`);
+    case 'core.text': {
+      const text = typeof props.text === 'string' ? props.text : '';
+      return text ? `文字:${text.slice(0, 20)}` : '文字';
+    }
+    case 'core.notice': {
+      const text = typeof props.text === 'string' ? props.text : '';
+      return text ? `通知:${text.slice(0, 20)}` : '通知';
+    }
+    case 'core.panel': {
+      const title = typeof props.title === 'string' ? props.title : '';
+      return title ? `卡片:${title}` : '卡片';
+    }
+    case 'core.tabs':
+      return node.slot === 'footer' ? '底部导航' : '标签栏';
+    case 'core.tag': {
+      const label = typeof props.label === 'string' ? props.label : '';
+      return label ? `标签:${label}` : '标签';
+    }
+    case 'core.image':
+      return '图片';
+    case 'core.input': {
+      const ph = typeof props.placeholder === 'string' ? props.placeholder : '';
+      return ph ? `输入框:${ph.slice(0, 15)}` : '输入框';
+    }
+    case 'core.screen': {
+      const title = typeof props.title === 'string' ? props.title : '';
+      return title ? `页面:${title}` : '页面';
+    }
+    case 'core.divider':
+      return '分隔线';
+    case 'core.spacer':
+      return '间距';
+    case 'core.progress':
+      return '进度条';
+    default:
+      return node.alias.replace('core.', '');
+  }
+}
+
+const CONTAINER_ALIASES = new Set([
+  'core.screen',
+  'core.panel',
+  'core.stack',
+  'core.row',
+  'core.grid',
+  'core.html',
+  'core.tabs',
+  'core.form',
+  'core.carousel',
+  'core.dialog',
+  'core.drawer',
+]);
+
+/** 判断节点是否是容器（可接受子元素插入） */
+export function isContainerNode(node: ThemeLayoutNode): boolean {
+  return CONTAINER_ALIASES.has(node.alias);
+}
+
+/**
+ * 构建节点候选集：完整 ID + displayName + 缩进层级 + 容器标记。
+ * 替代原来的 buildNodeIndex（截断 ID 到 8 字符的平铺列表）。
+ */
+function buildNodeCandidateSet(root: ThemeLayoutNode): string {
+  const lines: string[] = ['# Edit: pick targetId from below. Insert: pick [C] parentId from below.'];
+  let count = 0;
+  const MAX_LINES = 80;
+
+  const collect = (node: ThemeLayoutNode, depth: number) => {
+    if (count >= MAX_LINES) return;
+    const indent = '  '.repeat(depth);
+    const containerMark = isContainerNode(node) ? '[C] ' : '    ';
+    const displayName = inferDisplayName(node);
+
+    // 关键消歧 props
+    const keyProps: string[] = [];
+    if (node.props?.variant && typeof node.props.variant === 'string') {
+      keyProps.push(`variant=${node.props.variant}`);
+    }
+    if (node.props?.tone && typeof node.props.tone === 'string') {
+      keyProps.push(`tone=${node.props.tone}`);
+    }
+    const propsHint = keyProps.length > 0 ? ` {${keyProps.join(', ')}}` : '';
+
+    lines.push(`${indent}${containerMark}${node.id} (${node.alias}) — ${displayName}${propsHint}`);
     count += 1;
-    node.children?.forEach((c) => collect(c, node.id));
+    node.children?.forEach((child) => collect(child, depth + 1));
   };
 
-  collect(root);
-  if (count >= MAX_INDEX_LINES) {
-    lines.push(`  ... ${count - MAX_INDEX_LINES} more nodes omitted`);
+  collect(root, 0);
+
+  if (count >= MAX_LINES) {
+    lines.push(`  ... ${count - MAX_LINES} more nodes omitted`);
   }
   return lines.join('\n');
 }
@@ -375,8 +455,8 @@ export function buildEditorVolatileContext(
     'Current canvas outline:',
     summarizeCanvas(document),
     '',
-    'Node ID Quick Reference (use these exact IDs in tool calls):',
-    buildNodeIndex(document.layout),
+    'Editable nodes (use exact full IDs in tool calls; [C] = container, can be parentId for insert):',
+    buildNodeCandidateSet(document.layout),
     '',
     'Semantic Landmarks (use these as fallback via semanticTarget):',
     formatEditorSemanticTargetLandmarks(document.layout),
