@@ -1,6 +1,6 @@
-import type { ThemeLayoutDocument } from '@shared/agent/contracts/agent';
 import { buildTemplateProfile, getSeedDocument } from '@shared/agent/runtime';
 import { executeSemanticTool } from '@shared/agent/tools/semanticToolExecutor';
+import type { ThemeLayoutDocument } from '@shared/agent/types';
 
 function makeDoc(): ThemeLayoutDocument {
   return structuredClone(getSeedDocument('commerceMarket'));
