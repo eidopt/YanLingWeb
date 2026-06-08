@@ -27,6 +27,8 @@ import {
   QueryLoop,
   resolveEditorSemanticTarget,
 } from '@shared/agent/runtime';
+import { executeSemanticTool } from '@shared/agent/tools/semanticToolExecutor';
+import { assertSemanticToolName, isSemanticTool } from '@shared/agent/tools/semanticTools';
 import { migrateThemeLayoutDocument } from '@shared/theme-layout/migrations';
 import { withThemeLayoutStyleManifest } from '@shared/theme-layout/styleManifest';
 
@@ -401,6 +403,22 @@ export class AgentRunnerService {
         if (!EDITOR_EDIT_TOOL_NAMES.has(name)) {
           toolCall.error = `Unexpected tool: ${name}`;
           return { output: JSON.stringify({ error: toolCall.error }) };
+        }
+
+        if (isSemanticTool(name)) {
+          assertSemanticToolName(name);
+          // executeSemanticTool mutates the document in place via applyCompiledOperationsAtomic,
+          // so finalDocument is already updated when this returns.
+          const result = await executeSemanticTool(
+            name,
+            args,
+            finalDocument ?? getSeedDocument(scenario.startDocument),
+            { sessionId: `eval-${String(toolCall.seq)}` },
+          );
+          toolCall.result = result;
+          return {
+            output: JSON.stringify(result),
+          };
         }
 
         const edit = editorToolCallToOperations(name, args);
