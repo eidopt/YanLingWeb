@@ -39,27 +39,15 @@ export function tokenCountWithEstimation(messages: readonly ProviderMessage[]): 
   return Math.ceil(total * (4 / 3));
 }
 
-const MODEL_CONTEXT_WINDOWS: Record<string, number> = {
-  'claude-haiku-4-5': 200_000,
-  'claude-sonnet-4-5': 200_000,
-  'claude-sonnet-4-6': 200_000,
-  'claude-opus-4-5': 200_000,
-  'gpt-5': 400_000,
-  'gpt-5.4': 400_000,
-  'deepseek-v4-flash': 1_000_000,
-  'deepseek-v4-pro': 1_000_000,
-  'deepseek-chat': 1_000_000,
-  'deepseek-reasoner': 1_000_000,
-  'kimi-k2': 128_000,
-  'glm-4.6': 128_000,
-};
-
-export function getContextWindow(model: string): number {
-  const lower = model.toLowerCase();
-  for (const [key, size] of Object.entries(MODEL_CONTEXT_WINDOWS)) {
-    if (lower.startsWith(key)) {
-      return size;
-    }
+/**
+ * Get the context window size for a model.
+ * Resolution order:
+ *   1. `override` parameter (from ConfigFactory -> config.ai.contextWindow)
+ *   2. Default 1M context for all configured models
+ */
+export function getContextWindow(_model: string, override?: number): number {
+  if (override && Number.isFinite(override) && override > 0) {
+    return override;
   }
-  return 200_000;
+  return 1_000_000;
 }

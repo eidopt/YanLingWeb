@@ -63,6 +63,7 @@ export interface AiConfigDto {
     lite?: string;
     image?: string;
   };
+  contextWindow?: number;
   semanticTargets: AiSemanticTargetConfig[];
 }
 
@@ -100,6 +101,7 @@ export class AiService {
       provider: this.config.ai.provider,
       model: this.config.ai.model,
       models: this.config.ai.models,
+      contextWindow: this.config.ai.contextWindow,
       semanticTargets: AI_SEMANTIC_TARGETS,
     };
 
@@ -117,6 +119,12 @@ export class AiService {
         apiKey,
         this.config.ai.baseUrl,
         'openai-compatible',
+        {
+          reasoningMode: this.config.ai.reasoningMode,
+          cacheStrategy: this.config.ai.cacheStrategy,
+          supportsDeveloperRole: this.config.ai.supportsDeveloperRole,
+          extraRequestParams: this.config.ai.extraRequestParams,
+        },
       );
     } else {
       this.provider = new OpenAIProvider(apiKey, this.config.ai.baseUrl, 'openai');

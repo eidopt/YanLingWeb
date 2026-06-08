@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 
+import { purifyMessages } from './messagePurifier';
 import type {
   AIProvider,
   ContentPart,
@@ -104,6 +105,9 @@ const CAPABILITIES: ProviderCapabilities = {
   supportsStructuredOutput: true,
   supportsReasoningEffort: true,
   supportsServerSideContext: false,
+  reasoningMode: 'none',
+  cacheStrategy: 'response_id',
+  supportsDeveloperRole: true,
 };
 
 function isOpenAIStreamIterable(value: unknown): value is AsyncIterable<OpenAIStreamEvent> {
@@ -132,7 +136,9 @@ export class OpenAIProvider implements AIProvider {
     const abortController = new AbortController();
     this.abortController = abortController;
 
-    const { instructions, input } = convertMessages(request.messages);
+    // Purify messages for this provider's capabilities before converting
+    const purified = purifyMessages(request.messages, CAPABILITIES);
+    const { instructions, input } = convertMessages(purified);
     const tools = request.tools ? convertTools(request.tools) : undefined;
 
     const requestParams: Record<string, unknown> = {

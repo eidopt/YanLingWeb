@@ -74,6 +74,43 @@ export interface ProviderCapabilities {
   supportsStructuredOutput: boolean;
   supportsReasoningEffort: boolean;
   supportsServerSideContext: boolean;
+
+  /**
+   * How to handle reasoning_content in conversation history.
+   * - 'none': target doesn't recognize reasoning_content (GPT, GLM)
+   * - 'passthrough': preserve if present, optional for the provider (DeepSeek, Kimi, Qwen, MiniMax)
+   * - 'required': must be present on every assistant message (MiMo)
+   *
+   * For models that need an extra request parameter to enable reasoning output
+   * (e.g. MiniMax needs `reasoning_split: true`), keep mode as 'passthrough'
+   * and set the parameter via `extraRequestParams`.
+   */
+  reasoningMode: 'none' | 'passthrough' | 'required';
+
+  /**
+   * Extra request parameters injected into every API call for this provider.
+   * Use for model-specific parameters that don't fit into the standard fields.
+   *
+   * Examples:
+   * - MiniMax: `{ reasoning_split: true }` — separate reasoning output
+   * - Qwen:    `{ enable_thinking: true }`  — enable chain-of-thought
+   *
+   * Set via AI_EXTRA_PARAMS env var (JSON string).
+   */
+  extraRequestParams?: Record<string, unknown>;
+
+  /**
+   * Caching strategy for this provider.
+   * - 'response_id': GPT — previous_response_id + store: true
+   * - 'prefix': DeepSeek — passive prefix matching, observe prompt_cache_hit_tokens
+   * - 'cache_key': Kimi — prompt_cache_key parameter, response cached_tokens
+   * - 'cache_control': Qwen — cache_control: {type: "ephemeral"} marker
+   * - 'none': MiMo, GLM, MiniMax — no cache support
+   */
+  cacheStrategy: 'response_id' | 'prefix' | 'cache_key' | 'cache_control' | 'none';
+
+  /** Whether to preserve the developer role (true) or merge into system (false). */
+  supportsDeveloperRole: boolean;
 }
 
 export interface AIProvider {

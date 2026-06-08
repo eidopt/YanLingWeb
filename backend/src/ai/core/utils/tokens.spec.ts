@@ -22,9 +22,15 @@ describe('token estimation helpers', () => {
     expect(tokenCountWithEstimation([message])).toBe(2676);
   });
 
-  it('matches known provider context windows and falls back conservatively', () => {
-    expect(getContextWindow('GPT-5.4-latest')).toBe(400_000);
+  it('returns 1M default for all models', () => {
+    expect(getContextWindow('GPT-5.5-latest')).toBe(1_000_000);
     expect(getContextWindow('deepseek-reasoner')).toBe(1_000_000);
-    expect(getContextWindow('unknown-model')).toBe(200_000);
+    expect(getContextWindow('unknown-model')).toBe(1_000_000);
+  });
+
+  it('respects contextWindow override from config', () => {
+    expect(getContextWindow('any-model', 200_000)).toBe(200_000);
+    expect(getContextWindow('any-model', 0)).toBe(1_000_000); // ignored (not > 0)
+    expect(getContextWindow('any-model', undefined)).toBe(1_000_000);
   });
 });

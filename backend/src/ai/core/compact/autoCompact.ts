@@ -14,8 +14,8 @@ export function createAutoCompactState(): AutoCompactState {
   return { compacted: false, turnCounter: 0, consecutiveFailures: 0 };
 }
 
-export function getAutoCompactThreshold(model: string): number {
-  return Math.min(getContextWindow(model), COMPACT_CONTEXT_TOKEN_LIMIT);
+export function getAutoCompactThreshold(model: string, contextWindowOverride?: number): number {
+  return Math.min(getContextWindow(model, contextWindowOverride), COMPACT_CONTEXT_TOKEN_LIMIT);
 }
 
 export function autoCompactIfNeeded(
@@ -23,7 +23,7 @@ export function autoCompactIfNeeded(
   model: string,
   state: AutoCompactState,
   compactFn: (msgs: ProviderMessage[]) => ProviderMessage[],
-): Promise<{ messages: ProviderMessage[]; state: AutoCompactState; wasCompacted: boolean; }> {
+): Promise<{ messages: ProviderMessage[]; state: AutoCompactState; wasCompacted: boolean }> {
   if (state.consecutiveFailures >= MAX_FAILURES) {
     return Promise.resolve({
       messages,

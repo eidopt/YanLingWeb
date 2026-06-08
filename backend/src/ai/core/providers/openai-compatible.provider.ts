@@ -1,6 +1,11 @@
 import OpenAI from 'openai';
 import type { ChatCompletionChunk, ChatCompletionTool } from 'openai/resources/index';
 
+import { purifyMessages } from './messagePurifier';
+import {
+  buildCompatibleCapabilities,
+  type CompatibleCapabilitiesOverrides,
+} from './modelCapabilities';
 import type {
   AIProvider,
   ProviderCapabilities,
@@ -24,14 +29,8 @@ type CompatibleAssistantMessageParam = OpenAI.Chat.ChatCompletionAssistantMessag
   reasoning_content?: string;
 };
 
-const CAPABILITIES: ProviderCapabilities = {
-  supportsStreaming: true,
-  supportsToolCalls: true,
-  supportsParallelToolCalls: true,
-  supportsStructuredOutput: false,
-  supportsReasoningEffort: false,
-  supportsServerSideContext: false,
-};
+/** Default capabilities — used when no model-specific override is found */
+// (removed: capabilities now built dynamically via buildCompatibleCapabilities)
 
 function numberProperty(value: object, key: string): number | undefined {
   const item = (value as Record<string, unknown>)[key];
@@ -48,21 +47,30 @@ export class OpenAICompatibleProvider implements AIProvider {
   readonly name: string;
   private client: OpenAI;
   private abortController: AbortController | null = null;
+  private readonly caps: ProviderCapabilities;
 
-  constructor(apiKey: string, baseURL?: string, name?: string) {
+  constructor(
+    apiKey: string,
+    baseURL?: string,
+    name?: string,
+    capsOverrides?: CompatibleCapabilitiesOverrides,
+  ) {
     this.name = name ?? 'openai-compatible';
     this.client = new OpenAI({ apiKey, baseURL });
+    this.caps = buildCompatibleCapabilities(capsOverrides);
   }
 
   getCapabilities(): ProviderCapabilities {
-    return CAPABILITIES;
+    return this.caps;
   }
 
   async *stream(request: ProviderRequest): AsyncIterable<ProviderStreamEvent> {
     const abortController = new AbortController();
     this.abortController = abortController;
 
-    const messages = convertMessages(request.messages);
+    // Purify messages for this provider's capabilities before converting
+    const purified = purifyMessages(request.messages, this.caps);
+    const messages = convertMessages(purified);
     const tools = request.tools ? convertTools(request.tools) : undefined;
 
     let streamIter: AsyncIterable<ChatCompletionChunk>;
@@ -73,6 +81,7 @@ export class OpenAICompatibleProvider implements AIProvider {
         stream: true,
         stream_options: { include_usage: true },
         ...(tools && { tools }),
+        ...this.caps.extraRequestParams,
       });
     } catch (error) {
       yield { type: 'error', message: error instanceof Error ? error.message : String(error) };
@@ -234,7 +243,7 @@ function convertMessages(messages: ProviderMessage[]): OpenAI.Chat.ChatCompletio
           role: 'assistant',
           content,
         };
-        if (msg.reasoningContent) {
+        if (typeof msg.reasoningContent === 'string') {
           assistantMsg.reasoning_content = msg.reasoningContent;
         }
         result.push(assistantMsg);
@@ -263,7 +272,7 @@ function convertMessages(messages: ProviderMessage[]): OpenAI.Chat.ChatCompletio
             },
           ],
         };
-        if (msg.reasoningContent) {
+        if (typeof msg.reasoningContent === 'string') {
           assistantMsg.reasoning_content = msg.reasoningContent;
         }
         result.push(assistantMsg);
