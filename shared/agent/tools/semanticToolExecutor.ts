@@ -77,7 +77,15 @@ export async function executeSemanticTool(
   const compiled = compileSemanticEditorInstruction(document, instruction, profile);
 
   if (!compiled.success || !compiled.data) {
-    return compiled;
+    return {
+      success: false,
+      error: compiled.error ?? {
+        code: 'compile_failed',
+        reason: 'Unknown compile error',
+        recoverable: false,
+      },
+      warnings: compiled.warnings,
+    };
   }
 
   if (options.dryRun) {

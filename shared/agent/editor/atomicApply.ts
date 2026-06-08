@@ -52,7 +52,8 @@ export async function applyCompiledOperationsAtomic(
       success: false,
       error: {
         code: 'apply_failed',
-        reason: execution.error?.reason ?? 'Unknown atomic apply failure',
+        reason:
+          execution.error && 'reason' in execution.error ? execution.error.reason : 'Unknown atomic apply failure',
         partialSuccess: false,
         recoverable: false,
       },
