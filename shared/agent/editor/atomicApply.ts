@@ -62,21 +62,9 @@ export async function applyCompiledOperationsAtomic(
   // Copy mutated state back into the caller's document reference.
   // AtomicOperationManager works on an internal clone to keep rollback possible;
   // the caller expects the original document to reflect the applied changes.
+  // Object.assign copies all enumerable own properties, picking up future schema additions.
   const mutated = execution.data;
-  document.themeId = mutated.themeId;
-  document.themeName = mutated.themeName;
-  document.version = mutated.version;
-  document.description = mutated.description;
-  document.pageName = mutated.pageName;
-  document.defaultPageId = mutated.defaultPageId;
-  document.components = mutated.components;
-  document.pages = mutated.pages;
-  document.layout = mutated.layout;
-  document.componentTemplates = mutated.componentTemplates;
-  document.dependencies = mutated.dependencies;
-  document.cssVars = mutated.cssVars;
-  document.cssAnimations = mutated.cssAnimations;
-  document.style = mutated.style;
+  Object.assign(document, mutated);
 
   return {
     success: true,
