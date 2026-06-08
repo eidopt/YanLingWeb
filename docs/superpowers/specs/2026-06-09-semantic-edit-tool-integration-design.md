@@ -11,27 +11,27 @@
 
 ### 1.1 已完成的基础设施（无需重做）
 
-| 组件                                         | 文件                                                                          | 状态                                |
-| -------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------- |
-| 5 个语义工具定义                             | `shared/agent/tools/editorEditTools.ts:311-372`                               | ✅ 完成                             |
-| `EDITOR_SEMANTIC_TOOLS` 集合                 | `shared/agent/tools/editorEditTools.ts:374-380`                               | ✅ 完成                             |
-| 语义编译器                                   | `shared/agent/compiler/semanticInstructionCompiler.ts`                        | ✅ 完成（5 种指令全部实现）         |
-| 编译错误类型（含候选项）                     | `shared/agent/errors/agentErrors.ts:1-16`                                     | ✅ 完成（15 种结构化错误码）        |
-| 原子操作管理器                               | `shared/agent/editor/atomicOperations.ts`                                     | ✅ 完成（`AtomicOperationManager`） |
-| `applyEditorAiEditInstructions` 识别语义指令 | `shared/agent/editor/applyEditorInstructions.ts:151-179`                      | ✅ 完成                             |
-| 工具定义前后端 re-export                     | `backend/src/ai/tools/editorEdit.tool.ts` + `src/ai/tools/editorEdit.tool.ts` | ✅ 完成                             |
-| Editor Prompt 引导                           | `shared/agent/prompts/editorCopilotPrompt.ts`                                 | ✅ 完成                             |
-| `summarizeTemplateProfile` 工具函数          | `shared/agent/context/editorContext.ts:325`                                   | ✅ 完成                             |
+| 组件 | 文件 | 状态 |
+|------|------|------|
+| 5 个语义工具定义 | `shared/agent/tools/editorEditTools.ts:311-372` | ✅ 完成 |
+| `EDITOR_SEMANTIC_TOOLS` 集合 | `shared/agent/tools/editorEditTools.ts:374-380` | ✅ 完成 |
+| 语义编译器 | `shared/agent/compiler/semanticInstructionCompiler.ts` | ✅ 完成（5 种指令全部实现） |
+| 编译错误类型（含候选项） | `shared/agent/errors/agentErrors.ts:1-16` | ✅ 完成（15 种结构化错误码） |
+| 原子操作管理器 | `shared/agent/editor/atomicOperations.ts` | ✅ 完成（`AtomicOperationManager`） |
+| `applyEditorAiEditInstructions` 识别语义指令 | `shared/agent/editor/applyEditorInstructions.ts:151-179` | ✅ 完成 |
+| 工具定义前后端 re-export | `backend/src/ai/tools/editorEdit.tool.ts` + `src/ai/tools/editorEdit.tool.ts` | ✅ 完成 |
+| Editor Prompt 引导 | `shared/agent/prompts/editorCopilotPrompt.ts` | ✅ 完成 |
+| `summarizeTemplateProfile` 工具函数 | `shared/agent/context/editorContext.ts:325` | ✅ 完成 |
 
 ### 1.2 缺失的关键环节
 
-| 缺失                   | 当前问题                                                                                                                  | 影响                                                      |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| 统一执行入口           | 没有 `executeSemanticTool()` 包装函数                                                                                     | 5 个语义工具和 9 个低级工具混在同一路径，dry-run 无法独立 |
-| dry-run 模式           | `applyEditorAiEditInstructions` 不支持预览                                                                                | AI 无法在执行前确认编译结果                               |
-| 显式原子应用           | 现有 `applyEditorAiEditInstructions` 是 ad-hoc 原子（验证失败回滚到原始 doc），但缺独立的 `applyCompiledOperationsAtomic` | 撤销快照不显式保留，UI undo 难做                          |
-| Profile 注入到 context | `summarizeTemplateProfile` 存在但未注入到 AI context                                                                      | AI 看不到可用 slotKey/patternKey/regionKey                |
-| 端到端测试             | 无 spec 文件                                                                                                              | 无法验证语义路径端到端可工作                              |
+| 缺失 | 当前问题 | 影响 |
+|------|---------|------|
+| 统一执行入口 | 没有 `executeSemanticTool()` 包装函数 | 5 个语义工具和 9 个低级工具混在同一路径，dry-run 无法独立 |
+| dry-run 模式 | `applyEditorAiEditInstructions` 不支持预览 | AI 无法在执行前确认编译结果 |
+| 显式原子应用 | 现有 `applyEditorAiEditInstructions` 是 ad-hoc 原子（验证失败回滚到原始 doc），但缺独立的 `applyCompiledOperationsAtomic` | 撤销快照不显式保留，UI undo 难做 |
+| Profile 注入到 context | `summarizeTemplateProfile` 存在但未注入到 AI context | AI 看不到可用 slotKey/patternKey/regionKey |
+| 端到端测试 | 无 spec 文件 | 无法验证语义路径端到端可工作 |
 
 ---
 
@@ -74,13 +74,11 @@
 ```
 
 **关键边界**：
-
 - `semanticToolExecutor.ts` 只暴露 1 个函数 `executeSemanticTool()`
 - `atomicApply.ts` 只暴露 1 个函数 `applyCompiledOperationsAtomic()`，复用 `AtomicOperationManager`
 - Agent runner 仅在工具名属于 `EDITOR_SEMANTIC_TOOLS` 时调用 executor，其余走旧路径
 
 **与现有的关系**：
-
 - 不修改 `applyEditorAiEditInstructions`（9 个低级工具仍走它）
 - 不修改 `compileSemanticEditorInstruction`（已完整）
 - 不修改 `editorEditTools.ts` 工具定义
@@ -119,10 +117,10 @@ export interface ExecuteSemanticToolOptions {
 
 export interface ApplyResult {
   applied: boolean;
-  snapshot?: ThemeLayoutDocument; // 操作前快照（用于撤销）
+  snapshot?: ThemeLayoutDocument;     // 操作前快照（用于撤销）
   appliedOperations: EditorAiEditInstruction[];
   warnings: string[];
-  preview?: CompiledSemanticInstruction['operations']; // dryRun 时填充
+  preview?: CompiledSemanticInstruction['operations'];  // dryRun 时填充
 }
 
 /**
@@ -139,7 +137,6 @@ export async function executeSemanticTool(
 ```
 
 **实现要点**：
-
 - 内部 `buildInstructionFromToolCall(toolName, params)` 把 tool 参数映射到 `SemanticEditorInstruction` discriminated union
 - dry-run 模式下：调用 compiler 但不调用 atomic apply；返回 `{ preview: compiled.operations, warnings }`
 - 任何步骤失败 → 直接返回 `AgentEditError`（已含 `availableSlots` / `availablePatterns` / `availablePageKinds` / `availableRegions` 等候选项）
@@ -149,7 +146,10 @@ export async function executeSemanticTool(
 ```typescript
 // shared/agent/editor/atomicApply.ts
 
-import { atomicOperationManager, type OperationStep } from './atomicOperations';
+import {
+  atomicOperationManager,
+  type OperationStep,
+} from './atomicOperations';
 import type { AgentEditResult } from '../errors/agentErrors';
 import type { CompiledSemanticInstruction } from '../compiler/semanticInstructionCompiler';
 import { applyEditorAiEditInstructions } from './applyEditorInstructions';
@@ -175,7 +175,6 @@ export function applyCompiledOperationsAtomic(
 ```
 
 **实现细节**：
-
 ```typescript
 async function applyCompiledOperationsAtomic(compiled, document, options) {
   const steps: OperationStep<ThemeLayoutDocument>[] = compiled.operations.map((op, i) => ({
@@ -188,22 +187,22 @@ async function applyCompiledOperationsAtomic(compiled, document, options) {
       }
       return result.document;
     },
-    rollback: (doc) => doc, // AtomicOperationManager 已用 snapshot 整体回滚
+    rollback: (doc) => doc,  // AtomicOperationManager 已用 snapshot 整体回滚
   }));
-
+  
   const sessionId = options?.sessionId ?? 'unknown';
   const opId = atomicOperationManager.createAtomicOperation(document, sessionId, steps);
   const execution = await atomicOperationManager.executeAtomicOperation(opId);
-
+  
   if (!execution.success || !execution.data) {
-    return execution; // 已自动回滚
+    return execution;  // 已自动回滚
   }
-
+  
   return {
     success: true,
     data: {
       applied: true,
-      snapshot: document, // 保留原始 doc 用于撤销
+      snapshot: document,  // 保留原始 doc 用于撤销
       appliedOperations: compiled.operations,
       warnings: compiled.warnings,
     },
@@ -214,7 +213,6 @@ async function applyCompiledOperationsAtomic(compiled, document, options) {
 ### 3.3 Agent Runner 集成
 
 **改动**：
-
 - `backend/src/ai/agentRunner.service.ts:392-421` 的 `toolExecutor`
 - `src/ai/agents/editorEditAgent.ts:160-167` 的 `toolExecutor`
 
@@ -237,7 +235,7 @@ toolExecutor: async (name, args) => {
     );
     return { output: JSON.stringify(result) };
   }
-
+  
   // 旧分支：9 个低级工具走原路径（不变）
   const edit = editorToolCallToOperations(name, args);
   const result = applyEditorAiEditInstructions(currentDocument, edit.operations, {...});
@@ -267,17 +265,13 @@ export function buildTemplateProfileSummary(profile: TemplateProfile): string {
     ...profile.pages.map((p) => `- ${p.pageKind}: pageId=${p.pageId}, name=${p.name}`),
     '',
     '### 可用区域（regionKey，replaceable=true）',
-    ...profile.regions
-      .filter((r) => r.replaceable)
-      .map((r) => `- ${r.regionKey}: page=${r.pageKey}, nodeId=${r.nodeId}`),
+    ...profile.regions.filter((r) => r.replaceable).map((r) => `- ${r.regionKey}: page=${r.pageKey}, nodeId=${r.nodeId}`),
     '',
     '### 可编辑槽位（slotKey，最多 30 个）',
     ...profile.slots.slice(0, 30).map((s) => `- ${s.slotKey}: ${s.component} props=[${s.editableProps.join(',')}]`),
     '',
     '### 可填充模式（patternKey）',
-    ...profile.patterns.map(
-      (p) => `- ${p.patternKey}: fields=[${p.fields.map((f) => f.fieldKey).join(',')}], maxItems=${p.maxItems ?? 50}`,
-    ),
+    ...profile.patterns.map((p) => `- ${p.patternKey}: fields=[${p.fields.map((f) => f.fieldKey).join(',')}], maxItems=${p.maxItems ?? 50}`),
   ].join('\n');
 }
 ```
@@ -297,20 +291,19 @@ contextBlocks.push(profileSummary);
 
 所有错误必须返回**结构化错误**（已含候选项），让 AI 能自我纠正，不抛 raw exception。
 
-| 阶段         | 失败场景                 | 返回错误                                          | AI 的下一步                  |
-| ------------ | ------------------------ | ------------------------------------------------- | ---------------------------- |
-| 参数解析     | 工具名不属于语义工具     | throw → AgentRunner 兜底                          | 不应发生                     |
-| 编译         | slot 不存在              | `slot_not_found` + `availableSlots`               | 改用 availableSlots 中的 key |
-| 编译         | pattern 不存在           | `pattern_not_found` + `availablePatterns`         | 同上                         |
-| 编译         | pageKind 不存在          | `page_kind_not_found` + `availablePageKinds`      | 同上                         |
-| 编译         | region 不存在/不可替换   | `region_not_found` + `availableRegions`           | 同上                         |
-| 编译         | props 不在 editableProps | `invalid_props` + `invalidProps` + `allowedProps` | 改用 allowedProps            |
-| dry-run      | 任何编译错误             | 同上                                              | 同上                         |
-| atomic apply | apply 抛异常             | `apply_failed` + `partialSuccess: false`          | 文档已自动回滚，重试或换工具 |
-| atomic apply | 回滚失败                 | `atomic_rollback_failed`                          | 严重错误，停止               |
+| 阶段 | 失败场景 | 返回错误 | AI 的下一步 |
+|------|---------|---------|-----------|
+| 参数解析 | 工具名不属于语义工具 | throw → AgentRunner 兜底 | 不应发生 |
+| 编译 | slot 不存在 | `slot_not_found` + `availableSlots` | 改用 availableSlots 中的 key |
+| 编译 | pattern 不存在 | `pattern_not_found` + `availablePatterns` | 同上 |
+| 编译 | pageKind 不存在 | `page_kind_not_found` + `availablePageKinds` | 同上 |
+| 编译 | region 不存在/不可替换 | `region_not_found` + `availableRegions` | 同上 |
+| 编译 | props 不在 editableProps | `invalid_props` + `invalidProps` + `allowedProps` | 改用 allowedProps |
+| dry-run | 任何编译错误 | 同上 | 同上 |
+| atomic apply | apply 抛异常 | `apply_failed` + `partialSuccess: false` | 文档已自动回滚，重试或换工具 |
+| atomic apply | 回滚失败 | `atomic_rollback_failed` | 严重错误，停止 |
 
 **关键不变量**：
-
 - `partialSuccess: false` 时，`document` 一定等于初始 document（已 snapshot+rollback）
 - 所有错误**类型化**（`AgentEditError`），不抛 `Error` 对象
 - 任何错误**不阻塞** AI 继续推理；只返回错误信息让 AI 决定
@@ -339,20 +332,20 @@ backend/src/ai/tools/
 
 ### 5.2 12 个测试用例分布
 
-| #   | 测试                                 | 期望行为                                                 | 归属文件                                    |
-| --- | ------------------------------------ | -------------------------------------------------------- | ------------------------------------------- |
-| 1   | update_slot 基础（修改 hero 标题）   | success, snapshot 保留                                   | semanticToolExecutor.spec                   |
-| 2   | update_slot 非法 prop                | `invalid_props` + `invalidProps` + `allowedProps`        | semanticToolExecutor.spec                   |
-| 3   | update_slot slotKey 不存在           | `slot_not_found` + `availableSlots`                      | semanticToolExecutor.spec                   |
-| 4   | fill_pattern 3 个商品卡片            | success + clone_pattern_items 产生 3 个 node             | semanticToolExecutor.spec                   |
-| 5   | fill_pattern 100 items               | 触发 `maxItems` 限制（仅保留 50） + warning              | semanticToolExecutor.spec                   |
-| 6   | create_page_from_kind (order)        | success，新 page 出现在 document.pages                   | semanticToolExecutor.spec                   |
-| 7   | create_page_from_kind 不存在         | `page_kind_not_found` + `availablePageKinds`             | semanticToolExecutor.spec                   |
-| 8   | replace_section 成功                 | success                                                  | atomicApply.spec                            |
-| 9   | replace_section 不可替换 region      | `region_not_found`/`compile_failed` + `availableRegions` | atomicApply.spec                            |
-| 10  | submit_page_spec 创建完整页          | 分解为多个 op，全部 success                              | atomicApply.spec                            |
-| 11  | 原子性：中途失败                     | document 状态 == 初始状态，partialSuccess=false          | atomicApply.spec                            |
-| 12  | E2E：AI 调用语义工具到 document 变更 | 完整链路                                                 | backend/src/ai/tools/semantic-tools.spec.ts |
+| # | 测试 | 期望行为 | 归属文件 |
+|---|------|---------|---------|
+| 1 | update_slot 基础（修改 hero 标题） | success, snapshot 保留 | semanticToolExecutor.spec |
+| 2 | update_slot 非法 prop | `invalid_props` + `invalidProps` + `allowedProps` | semanticToolExecutor.spec |
+| 3 | update_slot slotKey 不存在 | `slot_not_found` + `availableSlots` | semanticToolExecutor.spec |
+| 4 | fill_pattern 3 个商品卡片 | success + clone_pattern_items 产生 3 个 node | semanticToolExecutor.spec |
+| 5 | fill_pattern 100 items | 触发 `maxItems` 限制（仅保留 50） + warning | semanticToolExecutor.spec |
+| 6 | create_page_from_kind (order) | success，新 page 出现在 document.pages | semanticToolExecutor.spec |
+| 7 | create_page_from_kind 不存在 | `page_kind_not_found` + `availablePageKinds` | semanticToolExecutor.spec |
+| 8 | replace_section 成功 | success | atomicApply.spec |
+| 9 | replace_section 不可替换 region | `region_not_found`/`compile_failed` + `availableRegions` | atomicApply.spec |
+| 10 | submit_page_spec 创建完整页 | 分解为多个 op，全部 success | atomicApply.spec |
+| 11 | 原子性：中途失败 | document 状态 == 初始状态，partialSuccess=false | atomicApply.spec |
+| 12 | E2E：AI 调用语义工具到 document 变更 | 完整链路 | backend/src/ai/tools/semantic-tools.spec.ts |
 
 ### 5.3 测试基础设施
 
@@ -444,13 +437,13 @@ backend/src/ai/tools/
 
 ## 8. 风险与缓解
 
-| 风险                                                                            | 影响                   | 缓解                                                                |
-| ------------------------------------------------------------------------------- | ---------------------- | ------------------------------------------------------------------- |
+| 风险 | 影响 | 缓解 |
+|------|------|------|
 | `AtomicOperationManager` 的 `applyEditorAiEditInstructions` 调用会修改 doc 状态 | 多次调用可能污染原 doc | 已在 `applyEditorAiEditInstructions` 内部 `cloneDocument`，无副作用 |
-| Profile 注入到 context 增加 token 数                                            | AI 响应成本上升        | 限制 30 slots + 16 patterns，已是合理预算                           |
-| AI 不遵守"优先语义工具"规则                                                     | 语义路径不被使用       | 现有 prompt 已强调；新 prompt 注入 profile 摘要会增强引导           |
-| dry-run 返回的 preview 与实际 apply 不一致                                      | 用户被误导             | 复用 compiler，确保两次走同一代码路径                               |
-| E2E 测试需要 mock provider                                                      | 测试复杂               | 用现有 `shared/agent/testing/mockProvider.ts`                       |
+| Profile 注入到 context 增加 token 数 | AI 响应成本上升 | 限制 30 slots + 16 patterns，已是合理预算 |
+| AI 不遵守"优先语义工具"规则 | 语义路径不被使用 | 现有 prompt 已强调；新 prompt 注入 profile 摘要会增强引导 |
+| dry-run 返回的 preview 与实际 apply 不一致 | 用户被误导 | 复用 compiler，确保两次走同一代码路径 |
+| E2E 测试需要 mock provider | 测试复杂 | 用现有 `shared/agent/testing/mockProvider.ts` |
 
 ---
 
