@@ -41,8 +41,9 @@
 
 **Phase 1 范围外**（明确不做）:
 
-- 不改 `openaiCompatible.provider.ts` 内部 `ProviderStreamEvent` 类型
+- 不改 `openaiCompatible.provider.ts` 的 `ProviderStreamEvent` 类型契约（联合类型**可加 `reasoning_delta` 新分支**，但老变体和 `done.reasoningContent` 聚合字段必须保留）
 - 不改 `ProviderMessage` / `ProviderRequest` 类型
+- 不改 `ProviderCapabilities` 既有字段（不新增 `emitsReasoningDelta` 之类标记，provider 自行决定是否 yield）
 - 不引入异步流控 / back-pressure
 - 不写 metrics / Sentry 上报
 - 不在 E2E 测断连重连 / heartbeat
@@ -145,7 +146,12 @@ export interface SseTokenUsage {
 export type SseEventPayloadByType = {
   text_delta: { text: string };
   tool_call: { id: string; name: string; arguments: string };
-  done: { usage?: SseTokenUsage; stopReason?: 'end_turn' | 'max_tokens'; response_id?: string };
+  done: {
+    usage?: SseTokenUsage;
+    stopReason?: 'end_turn' | 'max_tokens';
+    response_id?: string;
+    reasoningContent?: string;
+  };
   error: { message: string; schema_error?: boolean; originalType?: string; truncated?: boolean };
   tool_start: { name: string; toolCallId?: string; ts: string };
   tool_done: { name: string; toolCallId?: string; durationMs: number };
@@ -308,6 +314,7 @@ function convertEnvelopeToProviderEvent(e: SseEventEnvelope<SseEventType, any>):
         usage: e.payload.usage,
         stopReason: e.payload.stopReason,
         response_id: e.payload.response_id,
+        reasoningContent: e.payload.reasoningContent,
       };
     case 'error':
       return { type: 'error', message: e.payload.message };
@@ -495,8 +502,7 @@ T4.  [红] serializeSseEvent 接受所有 12 个 SseEventType 字符串字面量
 T5.  [红] 改 ai.service.ts runStream: emitStreamEvent 不再调, 改用 emitSseEvent('text_delta', ...)
        → ai.controller.spec.ts 既有 streamProxy case 失败（原本 JSON 是 {type:'text'}, 现在带 envelope）
 T6.  [绿] 改回 streamProxy case 的断言, 改用 parseSseEnvelope
-T7.  [红] 改 runStructuredEditorStream 的 reasoning 处理:
-       钩入 onProviderEvent（暂时 mock 一个伪 reasoningContent）→ 触发 emitSseEvent('reasoning_delta',...)
+T7.  [红] 给 `shared/agent/contracts/provider.ts` 的 `ProviderStreamEvent` 联合添加 `reasoning_delta` 变体 `{ type: 'reasoning_delta'; text: string }`；改 `openaiCompatible.provider.ts:138-141`：除了累加 `reasoningBuffer`，每收到一个 reasoning chunk 就 `yield { type: 'reasoning_delta', text: delta }`；改 `runStream` / `runStructuredEditorStream` 把 `reasoning_delta` ProviderStreamEvent 包 envelope
 T8.  [绿] reasoning_delta 在 SSE 串里能被 controller spec 拆到
 T9.  [红] usage_summary: runStream 在 done 之前先发 usage_summary
 T10. [绿] controller spec 验证 done 之前一条是 usage_summary
@@ -556,13 +562,13 @@ T21. [绿] 去掉 page.route mock, 真实后端跑通一次, console 输出确�
 
 ## 7. 风险与缓解
 
-| 风险                                                                                | 影响                                      | 缓解策略                                                                                                    |
-| ----------------------------------------------------------------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Envelope 改造引入 TypeScript 类型循环引用（shared 包被 backend 和 frontend 同时引） | 构建失败                                  | shared/agent/contracts/sseEvents.ts 严格只用 `type` 关键字 + 原始类型，不 import 任何 backend/frontend 模块 |
-| OpenAICompatibleProvider 改 `onReasoningDelta` 回调破坏其他 provider                | 现有 OpenAI provider 不发 reasoning_delta | 用 `ProviderCapabilities` 加可选 `emitsReasoningDelta` 标记；只对支持的 provider 注入回调                   |
-| 现有 queryLoop 收到新事件 type 报错                                                 | 上层 `QueryLoop` 不识别                   | `ProviderStreamEvent` 类型不变；envelope 在 Provider 内部拆，老类型映射回去                                 |
-| PipelineService 内部 try/catch 吞掉 stage 事件回调异常                              | 测试偶发失败                              | onPipelineStageEvent 回调内 try/catch，错误走 logger.warn                                                   |
-| Playwright 启动 Next.js dev 太慢（>30s）                                            | E2E 卡死                                  | `webServer` 配置 `timeout: 60_000, reuseExistingServer: true`；先手动启动 dev 再跑测试                      |
+| 风险                                                                                | 影响                                      | 缓解策略                                                                                                                                                                                                                                  |
+| ----------------------------------------------------------------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Envelope 改造引入 TypeScript 类型循环引用（shared 包被 backend 和 frontend 同时引） | 构建失败                                  | shared/agent/contracts/sseEvents.ts 严格只用 `type` 关键字 + 原始类型，不 import 任何 backend/frontend 模块                                                                                                                               |
+| OpenAICompatibleProvider 实时 yield reasoning_delta 破坏其他 provider               | 现有 OpenAI provider 不发 reasoning_delta | `ProviderStreamEvent` 联合加 `reasoning_delta` 变体（向后兼容，老消费者不消费新分支即可）；只 `openaiCompatible` provider 实时 yield；OpenAI provider 不发此事件；`done.reasoningContent` 仍保留作为聚合兜底（取 `reasoningBuffer` 末值） |
+| 现有 queryLoop 收到新事件 type 报错                                                 | 上层 `QueryLoop` 不识别                   | `ProviderStreamEvent` 类型不变（仅加分支）；envelope 在 `BackendProxyProvider` 内部拆，老类型映射回去；新类型仅通过 `onStructuredEvent` 订阅口流出                                                                                        |
+| PipelineService 内部 try/catch 吞掉 stage 事件回调异常                              | 测试偶发失败                              | onPipelineStageEvent 回调内 try/catch，错误走 logger.warn                                                                                                                                                                                 |
+| Playwright 启动 Next.js dev 太慢（>30s）                                            | E2E 卡死                                  | `webServer` 配置 `timeout: 60_000, reuseExistingServer: true`；先手动启动 dev 再跑测试                                                                                                                                                    |
 
 ---
 
