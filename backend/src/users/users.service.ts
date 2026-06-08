@@ -10,8 +10,8 @@ import * as bcrypt from 'bcrypt';
 import {
   TOKEN_USAGE_REPOSITORY,
   type TokenUsageRepository,
-} from '../ai/repositories/token-usage.repository';
-import { UpdateUserDto } from './dto/update-user.dto';
+} from '../ai/repositories/tokenUsage.repository';
+import { UpdateUserDto } from './dto/updateUser.dto';
 import { User } from './entities/user.entity';
 import { USER_ACCOUNT_REPOSITORY, type UserAccountRepository } from './repositories';
 

@@ -1,5 +1,5 @@
-import type { CreateThemeDto } from '../dto/create-theme.dto';
-import type { UpdateThemeDto } from '../dto/update-theme.dto';
+import type { CreateThemeDto } from '../dto/createTheme.dto';
+import type { UpdateThemeDto } from '../dto/updateTheme.dto';
 import type { Theme } from '../entities/theme.entity';
 
 export const THEME_REPOSITORY = Symbol('THEME_REPOSITORY');

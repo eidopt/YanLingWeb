@@ -1,3 +1,4 @@
+/* eslint-disable no-console, @typescript-eslint/no-base-to-string, @typescript-eslint/no-floating-promises, @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unused-vars, @typescript-eslint/restrict-template-expressions */
 /**
  * NodeCandidateSet PoC
  *
@@ -6,12 +7,11 @@
  *
  * 运行: npx vitest shared/agent/editor/nodeCandidateSet.spec.ts
  */
-import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
-
+import { inferDisplayName, isContainerNode } from '../context/editorContext';
 import { createCommerceMarketDocument } from '../fixtures/seedDocuments';
 import type { ThemeLayoutNode } from '../types';
-import { inferDisplayName, isContainerNode } from '../context/editorContext';
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 
 function containsValue(actual: unknown, expected: unknown): boolean {
   if (typeof actual === 'string') {
@@ -64,7 +64,9 @@ function buildNodeIndexOld(root: ThemeLayoutNode): string {
   const MAX_INDEX_LINES = 50;
 
   const collect = (node: ThemeLayoutNode, parentId?: string) => {
-    if (count >= MAX_INDEX_LINES) return;
+    if (count >= MAX_INDEX_LINES) {
+      return;
+    }
     const propSummary = Object.entries(node.props ?? {})
       .filter(([, v]) => typeof v === 'string' || typeof v === 'number')
       .map(([k, v]) => `${k}=${String(v).slice(0, 30)}`)

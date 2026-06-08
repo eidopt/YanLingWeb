@@ -5,7 +5,7 @@ import {
   TEMPLATE_READ_REPOSITORY,
   type TemplateReadRepository,
   type TemplateSearchRecord,
-} from '../templates/repositories/template-read.repository';
+} from '../templates/repositories/templateRead.repository';
 
 type IntentMode = SearchIntentResponse['mode'];
 

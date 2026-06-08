@@ -3,8 +3,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import type {
   TemplateReadRepository,
   TemplateSearchRecord,
-} from '../templates/repositories/template-read.repository';
-import { TEMPLATE_READ_REPOSITORY } from '../templates/repositories/template-read.repository';
+} from '../templates/repositories/templateRead.repository';
+import { TEMPLATE_READ_REPOSITORY } from '../templates/repositories/templateRead.repository';
 import { SearchService } from './search.service';
 
 // ─── Mock Data ────────────────────────────────────────────────────

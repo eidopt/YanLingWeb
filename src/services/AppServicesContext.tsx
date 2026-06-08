@@ -1,7 +1,7 @@
 'use client';
 
-import { EditorAiService } from 'ai/editor-ai.service';
-import { TemplateAiService } from 'ai/template-ai.service';
+import { EditorAiService } from 'ai/editorAi.service';
+import { TemplateAiService } from 'ai/templateAi.service';
 import { createContext, type ReactNode, useMemo } from 'react';
 import { AuthService } from 'services/AuthService';
 import { FetchHttpClient, type HttpClient } from 'services/http/HttpClient';

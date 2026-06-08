@@ -9,7 +9,7 @@ export interface BackendOAuthProviderConfig {
 
 export interface ServerConfig {
   ai: {
-    provider: 'openai' | 'openai-compatible';
+    provider: 'openai' | 'openaiCompatible';
     model: string;
     models: {
       pro: string;
@@ -127,14 +127,15 @@ export class ConfigFactory {
     // Build provider-specific env var mapping
     const VAR_PREFIX: Record<string, string> = {
       openai: 'OPENAI',
-      'openai-compatible': 'DEEPSEEK',
+      openaiCompatible: 'DEEPSEEK',
     };
     const configuredProvider = this.read(source, serverFlavor, 'AI_PROVIDER');
-    const aiProvider = configuredProvider === 'openai-compatible' ? 'openai-compatible' : 'openai';
+    const aiProvider = configuredProvider === 'openaiCompatible' ? 'openaiCompatible' : 'openai';
     const prefix = VAR_PREFIX[aiProvider];
 
-    // Latest stable models. Both defaults use 1M context.
-    const defaultModel = aiProvider === 'openai-compatible' ? 'deepseek-v4-pro' : 'gpt-5.5';
+    // Latest stable models. v4-pro has 1M context + prefix caching;
+    // GPT-5.5 uses Responses API with stateful caching.
+    const defaultModel = aiProvider === 'openaiCompatible' ? 'deepseek-v4-pro' : 'gpt-5.5';
     const aiProModel =
       this.read(source, serverFlavor, 'AI_PRO_MODEL') ??
       this.read(source, serverFlavor, 'AI_MODEL') ??

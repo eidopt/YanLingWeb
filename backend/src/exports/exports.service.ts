@@ -3,13 +3,13 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 
-import { CreateExportDto } from './dto/create-export.dto';
-import { ExportRecord } from './entities/export-record.entity';
+import { CreateExportDto } from './dto/createExport.dto';
+import { ExportRecord } from './entities/exportRecord.entity';
 import {
   EXPORT_RECORD_REPOSITORY,
   type ExportRecordListResult,
   type ExportRecordRepository,
-} from './repositories/export-record.repository';
+} from './repositories/exportRecord.repository';
 
 @Injectable()
 export class ExportsService {

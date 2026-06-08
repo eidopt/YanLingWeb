@@ -11,8 +11,8 @@ import type {
   TemplatePersistenceStore,
 } from './repositories';
 import type { TemplateAgentKnowledgeRepository } from './repositories';
-import { TemplateAssetService } from './template-asset.service';
-import { TemplateCategoryRegistryService } from './template-category-registry.service';
+import { TemplateAssetService } from './templateAsset.service';
+import { TemplateCategoryRegistryService } from './templateCategoryRegistry.service';
 import { TemplatesService } from './templates.service';
 
 interface PersistenceHarness {

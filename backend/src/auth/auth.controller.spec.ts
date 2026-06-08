@@ -5,7 +5,7 @@ import type { UserAccountRepository } from '../users/repositories';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import type { LoginDto } from './dto/login.dto';
-import type { OAuthCallbackDto } from './dto/oauth-callback.dto';
+import type { OAuthCallbackDto } from './dto/oauthCallback.dto';
 import type { RegisterDto } from './dto/register.dto';
 
 type AuthChallenge = ReturnType<AuthService['issueChallenge']>;

@@ -1,6 +1,6 @@
 export default {
   plugins: [
-    './scripts/postcss-custom-media-from-theme.cjs',
+    './scripts/postcssCustomMediaFromTheme.cjs',
     'next/dist/compiled/postcss-flexbugs-fixes',
     [
       'next/dist/compiled/postcss-preset-env',

@@ -5,7 +5,7 @@ import {
   getMigrationDialect,
   timestampColumn,
   uuidPrimaryKey,
-} from '../migration-sql';
+} from '../migrationSql';
 
 export class TemplateAgentConfigTables1748166200000 implements MigrationInterface {
   name = 'TemplateAgentConfigTables1748166200000';

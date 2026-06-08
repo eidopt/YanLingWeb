@@ -78,7 +78,7 @@ export interface ProviderCapabilities {
   /**
    * How to handle reasoning_content in conversation history.
    * - 'none': target doesn't recognize reasoning_content (GPT, GLM)
-   * - 'passthrough': preserve if present, optional for the provider (DeepSeek, Kimi, Qwen, MiniMax)
+   * - 'passthrough': preserve if present; field is optional (DeepSeek, Kimi, Qwen, MiniMax)
    * - 'required': must be present on every assistant message (MiMo)
    *
    * For models that need an extra request parameter to enable reasoning output

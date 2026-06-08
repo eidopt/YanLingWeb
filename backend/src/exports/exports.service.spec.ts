@@ -2,13 +2,13 @@
 
 import { NotFoundException } from '@nestjs/common';
 
-import { ExportRecord } from './entities/export-record.entity';
+import { ExportRecord } from './entities/exportRecord.entity';
 import { ExportsService } from './exports.service';
 import type {
   CreateExportRecordInput,
   ExportRecordListResult,
   ExportRecordRepository,
-} from './repositories/export-record.repository';
+} from './repositories/exportRecord.repository';
 
 function makeExportRecord(overrides: Partial<ExportRecord> = {}): ExportRecord {
   return {
