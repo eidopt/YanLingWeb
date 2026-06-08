@@ -39,6 +39,15 @@ export function tokenCountWithEstimation(messages: readonly ProviderMessage[]): 
   return Math.ceil(total * (4 / 3));
 }
 
-export function getContextWindow(_model: string): number {
+/**
+ * Get the context window size for a model.
+ * Resolution order:
+ *   1. `override` parameter (from ConfigFactory -> config.ai.contextWindow)
+ *   2. Default 1M context for all configured models
+ */
+export function getContextWindow(_model: string, override?: number): number {
+  if (override && Number.isFinite(override) && override > 0) {
+    return override;
+  }
   return 1_000_000;
 }
