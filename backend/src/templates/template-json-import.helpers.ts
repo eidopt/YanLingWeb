@@ -12,7 +12,7 @@ import { objectToRecord } from '@shared/theme-layout/documentBoundary';
 
 import { isCssVarRecord, isNonEmptyString, isRecord, isStringRecord } from '../shared/type-guards';
 import type { TemplateAgentConfigInput } from './repositories';
-import type { TemplateSeedException } from './seed/template-seed.data';
+import type { TemplateSeedException } from './seed/templateSeed.data';
 import { isTemplateCategoryKey, resolveDisplayCategoryFromKey } from './template-category.helpers';
 
 const PLATFORM_CATEGORIES = new Set(['mini-program', 'mobile-app', 'tablet-app', 'web']);
