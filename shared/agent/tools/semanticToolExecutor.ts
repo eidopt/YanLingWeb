@@ -63,10 +63,6 @@ function buildInstruction(name: SemanticToolName, params: Record<string, unknown
         },
         select: params.select as boolean | undefined,
       };
-    default: {
-      const _exhaustive: never = name;
-      throw new Error(`Unhandled semantic tool: ${String(_exhaustive)}`);
-    }
   }
 }
 
@@ -81,11 +77,7 @@ export async function executeSemanticTool(
   const compiled = compileSemanticEditorInstruction(document, instruction, profile);
 
   if (!compiled.success || !compiled.data) {
-    return {
-      success: false,
-      error: compiled.error,
-      warnings: compiled.warnings,
-    };
+    return compiled;
   }
 
   if (options.dryRun) {
