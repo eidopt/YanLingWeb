@@ -17,6 +17,14 @@
 | **④** | P1-2 导航类型多样化        | 0.5 天 | ✅ 容易 | buildNavigation 硬编码 `'bottom_tabs'`，检测 core.tabbar/core.sidebar 即可                 |
 | **⑤** | P0-3 结构化 SSE（一期）    | 3 天   | ⚠️ 中等 | 心跳已完成。剩余是事件类型定义 + 后端发出 + 前端 console 透传                              |
 
+> **✅ 已完成状态更新**（2026-06-08）：
+>
+> - **① Pipeline 单阶段重试**: ✅ 已在 PR #8 (`split/pr2-02-editor-template-pipeline`) 中实现。`pipeline.service.ts` 已改为双层重试（3 内层 × 3 外层），7/7 测试通过。
+> - **② SchemaGen prompt 强化**: ✅ 已在 PR #8 中实现。`stageSchemaGenerator.ts` 已添加 Critical Rules（Node ID 全局唯一、componentTemplates 声明、Props 约束）。
+> - **③ pageKind 推断增强**: ✅ 已在 PR #8 中实现。`buildTemplateProfile.ts` 已添加结构化信号评分（product/form/profile/category/dashboard），阈值 0.6。
+> - **④ 导航类型多样化**: ✅ 已在 PR #8 中实现。`buildNavigation` 已支持 bottom_tabs/side_nav/top_tabs 自动检测。
+> - **⑤ 结构化 SSE**: ⏳ 待实施（Phase 2 计划）。
+
 ---
 
 ## ① P1-1 Pipeline 单阶段重试
