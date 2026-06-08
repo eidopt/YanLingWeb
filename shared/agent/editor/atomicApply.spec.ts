@@ -71,4 +71,33 @@ describe('applyCompiledOperationsAtomic', () => {
     assert.deepEqual(result.data?.appliedOperations, []);
     assert.deepEqual(doc, before);
   });
+
+  it('propagates nested props mutation to caller doc via Object.assign', async () => {
+    const doc = getSeedDocument('commerceMarket') as ThemeLayoutDocument;
+    // Snapshot the original props for the target node so we can confirm a new
+    // prop key is added rather than overwriting a pre-existing one.
+    const beforeNode = doc.pages[0].layout.children?.find((c) => c.id === 'home-title');
+    const beforeProps = beforeNode?.props ? { ...beforeNode.props } : {};
+    const compiled = compiledWith({
+      type: 'update_props',
+      nodeId: 'home-title',
+      props: { as: 'h1' },
+      select: true,
+    });
+
+    const result = await applyCompiledOperationsAtomic(compiled, doc, { sessionId: 'test-4' });
+
+    assert.equal(result.success, true);
+    const updatedNode = doc.pages[0].layout.children?.find((c) => c.id === 'home-title');
+    // The new prop must be visible on the caller's document reference, which
+    // confirms Object.assign correctly propagates inner-object mutations.
+    assert.equal(updatedNode?.props?.as, 'h1');
+    // The inner props object on the caller's doc must be the same reference
+    // shared by the mutated tree (no copy happened), preserving the mutation.
+    assert.strictEqual(updatedNode?.props, doc.pages[0].layout.children?.find((c) => c.id === 'home-title')?.props);
+    // Pre-existing props should not be wiped out.
+    for (const [key, value] of Object.entries(beforeProps)) {
+      assert.deepEqual(updatedNode?.props?.[key], value, `existing prop ${key} should be preserved`);
+    }
+  });
 });
