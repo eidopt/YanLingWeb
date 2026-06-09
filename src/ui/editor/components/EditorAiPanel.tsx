@@ -352,6 +352,7 @@ export function EditorAiPanel({
       await editorAiService.editCanvas({
         prompt: trimmedPrompt,
         document: currentDocument,
+        getCurrentDocument: () => currentDocument,
         pages,
         conversation,
         conversationId: providerConversationId,

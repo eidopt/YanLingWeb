@@ -13,15 +13,34 @@ import {
 import type { ThemeComponentDescriptor, ThemeLayoutDocument, ThemeLayoutNode } from 'ui/layout/types';
 
 export interface EditorAiEvent {
-  type: 'text' | 'intent_plan' | 'tool_start' | 'tool_done' | 'edit_applied' | 'clarification' | 'error' | 'done';
+  type:
+    | 'text'
+    | 'intent_plan'
+    | 'tool_start'
+    | 'tool_done'
+    | 'edit_applied'
+    | 'clarification'
+    | 'reasoning'
+    | 'usage_summary'
+    | 'error'
+    | 'done';
   data: string;
   terminal?: boolean;
+}
+
+export interface EditorAiSnapshot {
+  id: string;
+  document: ThemeLayoutDocument;
+  description: string;
+  createdAt: string;
 }
 
 export interface EditorAiEditCanvasOptions {
   prompt: string;
   model?: string;
   document: ThemeLayoutDocument;
+  getCurrentDocument: () => ThemeLayoutDocument;
+  onSnapshot?: (snapshot: EditorAiSnapshot) => void;
   pages?: EditorAiPageContext[];
   conversation?: EditorAiConversationMessage[];
   conversationId?: string;
@@ -111,7 +130,7 @@ function getToolEventName(data: unknown): string {
 }
 
 function getPayloadField(event: BackendEditorEvent, field: string): unknown {
-  if (event && typeof event === 'object' && 'payload' in event) {
+  if (typeof event === 'object' && 'payload' in event) {
     const payload = (event as { payload?: unknown }).payload;
     if (payload && typeof payload === 'object' && field in payload) {
       return (payload as Record<string, unknown>)[field];
@@ -379,7 +398,44 @@ export class EditorAiService {
           case 'done':
             onEvent({ type: 'done', data: '' });
             return;
-          // 跳过 reasoning_delta / usage_summary 等结构化事件 (不影响 UI 流程)
+          case 'reasoning_delta': {
+            const payload = event.payload as { delta?: unknown } | undefined;
+            const delta = typeof payload?.delta === 'string' ? payload.delta : '';
+            onEvent({ type: 'reasoning', data: delta });
+            break;
+          }
+          case 'usage_summary': {
+            const payload = event.payload as
+              | {
+                  model?: unknown;
+                  usage?: unknown;
+                  totalCostUsd?: unknown;
+                }
+              | undefined;
+            const model = typeof payload?.model === 'string' ? payload.model : '';
+            const usage = (payload?.usage ?? {}) as {
+              inputTokens?: number;
+              outputTokens?: number;
+              cacheHitTokens?: number;
+              cacheMissTokens?: number;
+            };
+            const totalCostUsd = typeof payload?.totalCostUsd === 'number' ? payload.totalCostUsd : undefined;
+            onEvent({
+              type: 'usage_summary',
+              data: JSON.stringify({
+                model,
+                usage: {
+                  inputTokens: usage.inputTokens ?? 0,
+                  outputTokens: usage.outputTokens ?? 0,
+                  cacheHitTokens: usage.cacheHitTokens,
+                  cacheMissTokens: usage.cacheMissTokens,
+                },
+                totalCostUsd,
+              }),
+            });
+            break;
+          }
+          // 跳过其他未识别的 envelope 事件
           default:
             break;
         }
