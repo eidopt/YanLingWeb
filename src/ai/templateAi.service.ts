@@ -5,7 +5,15 @@ import type { AgentEvent } from '@shared/agent/contracts/agent';
 import { type HttpClient, resolveHttpClient } from 'services/http/HttpClient';
 
 export interface AiGenerateEvent {
-  type: 'text' | 'intent_plan' | 'tool_start' | 'tool_done' | 'template_saved' | 'pipeline_stage' | 'error' | 'done';
+  type:
+    | 'text'
+    | 'intent_plan'
+    | 'tool_start'
+    | 'tool_done'
+    | 'template_saved'
+    | 'pipeline_stage'
+    | 'error'
+    | 'done';
   data: string;
 }
 
@@ -67,23 +75,14 @@ export class TemplateAiService {
   private provider: BackendProxyProvider;
   private static defaultModel: string | null = null;
   private readonly http: HttpClient;
-  /**
-   * Per-call sequence token. Incremented at the top of every `generate()` call;
-   * the `onStructuredEvent` callback closure captures the call's own token and
-   * drops envelopes that arrive after a newer call has started. This protects
-   * against a stale callback (from a previous `generate()`) firing into the
-   * current call's onEvent.
-   */
-  private generateCallToken = 0;
 
   constructor(
     private readonly getToken: () => string | null,
     private readonly onAuthExpired?: () => void,
     httpClient?: HttpClient,
-    provider?: BackendProxyProvider,
   ) {
     this.http = httpClient ?? resolveHttpClient(getToken);
-    this.provider = provider ?? new BackendProxyProvider(getToken, onAuthExpired, this.http);
+    this.provider = new BackendProxyProvider(getToken, onAuthExpired, this.http);
   }
 
   static async fetchConfig(token: string | null, httpClient = resolveHttpClient(() => token)): Promise<string> {
@@ -105,20 +104,12 @@ export class TemplateAiService {
   }
 
   async generate(opts: GenerateTemplateOptions): Promise<void> {
-    const { prompt, model, onEvent, signal } = opts;
+    const cfgModel = await TemplateAiService.fetchConfig(this.getToken(), this.http);
+    const { prompt, model = cfgModel, onEvent, signal } = opts;
     let cancelled = false;
 
-    // Bump the per-call sequence token BEFORE the await so the captured closure
-    // is installed synchronously at the top of the call. The token check inside
-    // the closure drops envelopes that arrive after a newer generate() call has
-    // started and replaced `this.provider.onStructuredEvent`.
-    const myToken = ++this.generateCallToken;
-    const activeProvider = this.provider;
-    activeProvider.resetConversation();
-    activeProvider.onStructuredEvent = (envelope) => {
-      if (myToken !== this.generateCallToken) {
-        return; // stale call, drop
-      }
+    this.provider.resetConversation();
+    this.provider.onStructuredEvent = (envelope) => {
       if (envelope.type === 'pipeline_stage_start' || envelope.type === 'pipeline_stage_end') {
         const phase = envelope.type === 'pipeline_stage_start' ? 'start' : 'end';
         onEvent({
@@ -129,16 +120,14 @@ export class TemplateAiService {
     };
     const cancelOnAbort = () => {
       cancelled = true;
-      activeProvider.cancel();
+      this.provider.cancel();
     };
     signal?.addEventListener('abort', cancelOnAbort, { once: true });
 
     try {
-      const cfgModel = await TemplateAiService.fetchConfig(this.getToken(), this.http);
-      const effectiveModel = model ?? cfgModel;
       const agent = new TemplateGenerationAgent({
-        provider: activeProvider,
-        model: effectiveModel,
+        provider: this.provider,
+        model,
         templateStore: new BrowserTemplateStore(this.getToken, this.http),
         persist: true,
         isCancelled: () => cancelled,
