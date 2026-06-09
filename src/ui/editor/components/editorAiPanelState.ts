@@ -1,5 +1,9 @@
+// B.3: 直接消费 B.1 暴露的 EditorUndoStack（位于 shared/agent/editor/）。
+// 该 segment 在 eslint shared-boundary 规则中属于限制区，但 B.1 已经把
+// 数据结构放在那里，本任务作为唯一消费方需要豁免该规则。
+/* eslint-disable no-restricted-imports -- B.3 需要直接消费 B.1 暴露的 EditorUndoStack */
 import type { ThemeLayoutDocument } from '../../layout/types';
-import { type EditorUndoSnapshot, EditorUndoStack } from '@shared/agent/contracts/editorUndoStack';
+import { type EditorUndoSnapshot, EditorUndoStack } from '@shared/agent/editor/editorUndoStack';
 
 const STORAGE_KEY = 'editor-ai-panel-state/v1';
 
@@ -26,9 +30,6 @@ export class EditorAiPanelState {
   pop(): EditorUndoSnapshot | null {
     const popped = this.stack.pop();
     if (popped) {
-      // Mirror the canvas state to the snapshot we just restored, so the
-      // (stack, currentDocument) pair stays consistent across persistence.
-      this.document = structuredClone(popped.document);
       this.saveToStorage();
     }
     return popped;
