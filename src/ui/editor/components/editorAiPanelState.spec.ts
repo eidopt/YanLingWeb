@@ -67,6 +67,17 @@ describe('EditorAiPanelState', () => {
     assert.equal(s.size, 1);
   });
 
+  it('pop updates currentDocument to the restored snapshot', () => {
+    const s = new EditorAiPanelState();
+    s.pushSnapshot(fakeSnap('a'), fakeDoc('doc-a'));
+    s.pushSnapshot(fakeSnap('b'), fakeDoc('doc-b'));
+    const popped = s.pop();
+    assert.equal(popped?.id, 'b');
+    // pop() must mirror popped.document into currentDocument so persistence
+    // stays consistent. fakeSnap('b').document.themeId === 'b'.
+    assert.equal(s.currentDocument?.themeId, 'b');
+  });
+
   it('clear resets state and storage', () => {
     const s = new EditorAiPanelState();
     s.pushSnapshot(fakeSnap('a'), fakeDoc('doc-a'));
