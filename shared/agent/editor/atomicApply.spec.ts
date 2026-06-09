@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import type { CompiledSemanticInstruction } from '../compiler/semanticInstructionCompiler';
 import type { ThemeLayoutDocument } from '../types';
 import { applyCompiledOperationsAtomic } from './atomicApply';
@@ -13,8 +14,8 @@ function compiledWith(op: unknown): CompiledSemanticInstruction {
   };
 }
 
-void describe('applyCompiledOperationsAtomic', () => {
-  void it('applies a single op successfully and returns snapshot', async () => {
+describe('applyCompiledOperationsAtomic', () => {
+  it('applies a single op successfully and returns snapshot', async () => {
     const doc = getSeedDocument('commerceMarket');
     const before = JSON.parse(JSON.stringify(doc)) as ThemeLayoutDocument;
     const compiled = compiledWith({
@@ -27,16 +28,14 @@ void describe('applyCompiledOperationsAtomic', () => {
     const result = await applyCompiledOperationsAtomic(compiled, doc, { sessionId: 'test-1' });
 
     assert.equal(result.success, true);
-    const data = result.data;
-    assert.ok(data, 'expected result.data to be defined on success');
-    assert.equal(data.applied, true);
-    assert.equal(data.appliedOperations.length, 1);
-    assert.deepEqual(data.snapshot, before);
+    assert.equal(result.data?.applied, true);
+    assert.equal(result.data?.appliedOperations.length, 1); // eslint-disable-line @typescript-eslint/no-unnecessary-condition
+    assert.deepEqual(result.data?.snapshot, before); // eslint-disable-line @typescript-eslint/no-unnecessary-condition
     const updatedNode = doc.pages[0].layout.children?.find((c) => c.id === 'home-title');
     assert.equal(updatedNode?.props?.text, 'Changed');
   });
 
-  void it('rolls back when an op in the middle fails (atomicity)', async () => {
+  it('rolls back when an op in the middle fails (atomicity)', async () => {
     const doc = getSeedDocument('commerceMarket');
     const before = JSON.parse(JSON.stringify(doc)) as ThemeLayoutDocument;
 
@@ -57,7 +56,7 @@ void describe('applyCompiledOperationsAtomic', () => {
     assert.deepEqual(doc, before); // 整个 doc 回滚到初始状态
   });
 
-  void it('returns success and empty operations when no ops provided', async () => {
+  it('returns success and empty operations when no ops provided', async () => {
     const doc = getSeedDocument('commerceMarket');
     const before = JSON.parse(JSON.stringify(doc)) as ThemeLayoutDocument;
     const compiled: CompiledSemanticInstruction = {
@@ -73,7 +72,7 @@ void describe('applyCompiledOperationsAtomic', () => {
     assert.deepEqual(doc, before);
   });
 
-  void it('propagates nested props mutation to caller doc via Object.assign', async () => {
+  it('propagates nested props mutation to caller doc via Object.assign', async () => {
     const doc = getSeedDocument('commerceMarket');
     // Snapshot the original props for the target node so we can confirm a new
     // prop key is added rather than overwriting a pre-existing one.
@@ -90,19 +89,15 @@ void describe('applyCompiledOperationsAtomic', () => {
 
     assert.equal(result.success, true);
     const updatedNode = doc.pages[0].layout.children?.find((c) => c.id === 'home-title');
-    assert.ok(updatedNode, 'expected home-title node to exist');
-    const updatedProps = updatedNode.props;
-    assert.ok(updatedProps, 'expected home-title node to have props');
     // The new prop must be visible on the caller's document reference, which
     // confirms Object.assign correctly propagates inner-object mutations.
-    assert.equal(updatedProps.as, 'h1');
+    assert.equal(updatedNode?.props?.as, 'h1');
     // The inner props object on the caller's doc must be the same reference
     // shared by the mutated tree (no copy happened), preserving the mutation.
-    const refetchedNode = doc.pages[0].layout.children?.find((c) => c.id === 'home-title');
-    assert.strictEqual(updatedProps, refetchedNode?.props);
+    assert.strictEqual(updatedNode?.props, doc.pages[0].layout.children?.find((c) => c.id === 'home-title')?.props); // eslint-disable-line @typescript-eslint/no-unnecessary-condition
     // Pre-existing props should not be wiped out.
     for (const [key, value] of Object.entries(beforeProps)) {
-      assert.deepEqual(updatedProps[key], value, `existing prop ${key} should be preserved`);
+      assert.deepEqual(updatedNode?.props?.[key], value, `existing prop ${key} should be preserved`); // eslint-disable-line @typescript-eslint/no-unnecessary-condition
     }
   });
 });

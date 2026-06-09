@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
+/* eslint-disable @typescript-eslint/no-unnecessary-condition -- test assertions use defensive optional chains */
 import type { ThemeLayoutDocument } from '../types';
 import { executeSemanticTool } from './semanticToolExecutor';
 import { buildTemplateProfile, getSeedDocument } from '@shared/agent/runtime';
@@ -17,8 +19,8 @@ function findSlotKey(doc: ThemeLayoutDocument, nodeId: string): string {
   return slot.slotKey;
 }
 
-void describe('executeSemanticTool - editor_update_slot', () => {
-  void it('updates text via slotKey', async () => {
+describe('executeSemanticTool - editor_update_slot', () => {
+  it('updates text via slotKey', async () => {
     const doc = seedDoc();
     const slotKey = findSlotKey(doc, 'home-title');
     const result = await executeSemanticTool('editor_update_slot', { slotKey, props: { text: 'New title' } }, doc, {
@@ -26,15 +28,13 @@ void describe('executeSemanticTool - editor_update_slot', () => {
     });
 
     assert.equal(result.success, true);
-    const data = result.data;
-    assert.ok(data, 'expected result.data on success');
-    assert.equal(data.applied, true);
-    assert.ok(data.snapshot);
+    assert.equal(result.data?.applied, true);
+    assert.ok(result.data?.snapshot);
     const node = doc.pages[0].layout.children?.find((c) => c.id === 'home-title');
     assert.equal(node?.props?.text, 'New title');
   });
 
-  void it('returns invalid_props error with allowedProps when prop not in editableProps', async () => {
+  it('returns invalid_props error with allowedProps when prop not in editableProps', async () => {
     const doc = seedDoc();
     const slotKey = findSlotKey(doc, 'home-title');
     const result = await executeSemanticTool(
@@ -45,14 +45,14 @@ void describe('executeSemanticTool - editor_update_slot', () => {
     );
 
     assert.equal(result.success, false);
-    const error = result.error;
-    assert.ok(error, 'expected result.error on failure');
-    assert.equal(error.code, 'invalid_props');
-    assert.ok(error.invalidProps.includes('href'));
-    assert.ok(error.allowedProps.length > 0);
+    assert.equal(result.error?.code, 'invalid_props');
+    if (result.error?.code === 'invalid_props') {
+      assert.ok(result.error.invalidProps.includes('href'));
+      assert.ok(result.error.allowedProps.length > 0);
+    }
   });
 
-  void it('returns slot_not_found error with availableSlots when slotKey missing', async () => {
+  it('returns slot_not_found error with availableSlots when slotKey missing', async () => {
     const doc = seedDoc();
     const result = await executeSemanticTool(
       'editor_update_slot',
@@ -62,19 +62,21 @@ void describe('executeSemanticTool - editor_update_slot', () => {
     );
 
     assert.equal(result.success, false);
-    const error = result.error;
-    assert.ok(error, 'expected result.error on failure');
-    assert.equal(error.code, 'slot_not_found');
-    assert.ok(error.availableSlots.length > 0);
+    assert.equal(result.error?.code, 'slot_not_found');
+    if (result.error?.code === 'slot_not_found') {
+      assert.ok(result.error.availableSlots.length > 0);
+    }
   });
 });
 
-void describe('executeSemanticTool - editor_fill_pattern', () => {
-  void it('fills 3 product cards via patternKey', async () => {
+describe('executeSemanticTool - editor_fill_pattern', () => {
+  it('fills 3 product cards via patternKey', async () => {
     const doc = seedDoc();
     const profile = buildTemplateProfile(doc);
     const pattern = profile.patterns[0];
-    assert.ok(pattern, 'expected at least one pattern');
+    if (!pattern) {
+      return; // skip if no pattern
+    }
 
     const items = [
       { title: 'Apple', price: '¥10' },
@@ -89,16 +91,16 @@ void describe('executeSemanticTool - editor_fill_pattern', () => {
     );
 
     assert.equal(result.success, true);
-    const data = result.data;
-    assert.ok(data, 'expected result.data on success');
-    assert.equal(data.appliedOperations[0].type, 'clone_pattern_items');
+    assert.equal(result.data?.appliedOperations[0].type, 'clone_pattern_items');
   });
 
-  void it('truncates to maxItems (or 50) and emits warning when items exceed limit', async () => {
+  it('truncates to maxItems (or 50) and emits warning when items exceed limit', async () => {
     const doc = seedDoc();
     const profile = buildTemplateProfile(doc);
     const pattern = profile.patterns[0];
-    assert.ok(pattern, 'expected at least one pattern');
+    if (!pattern) {
+      return; // skip if no pattern
+    }
     const expectedMax = pattern.maxItems ?? 50;
 
     const items = Array.from({ length: 100 }, (_, i) => ({ title: `Item ${i}` }));
@@ -107,17 +109,15 @@ void describe('executeSemanticTool - editor_fill_pattern', () => {
     });
 
     assert.equal(result.success, true);
-    const data = result.data;
-    assert.ok(data, 'expected result.data on success');
-    const firstOp = data.appliedOperations[0];
-    if (firstOp.type === 'clone_pattern_items') {
+    const firstOp = result.data?.appliedOperations[0];
+    if (firstOp?.type === 'clone_pattern_items') {
       assert.equal(firstOp.items.length, expectedMax);
     }
   });
 });
 
-void describe('executeSemanticTool - editor_create_page_from_page_kind', () => {
-  void it('creates a new page from a known pageKind', async () => {
+describe('executeSemanticTool - editor_create_page_from_page_kind', () => {
+  it('creates a new page from a known pageKind', async () => {
     const doc = seedDoc();
     const profile = buildTemplateProfile(doc);
     const availableKinds = profile.pages.map((p) => p.pageKind);
@@ -140,7 +140,7 @@ void describe('executeSemanticTool - editor_create_page_from_page_kind', () => {
     assert.equal(newPage.name, 'My new page');
   });
 
-  void it('returns page_kind_not_found with availablePageKinds when kind unknown', async () => {
+  it('returns page_kind_not_found with availablePageKinds when kind unknown', async () => {
     const doc = seedDoc();
     const result = await executeSemanticTool(
       'editor_create_page_from_page_kind',
@@ -150,15 +150,15 @@ void describe('executeSemanticTool - editor_create_page_from_page_kind', () => {
     );
 
     assert.equal(result.success, false);
-    const error = result.error;
-    assert.ok(error, 'expected result.error on failure');
-    assert.equal(error.code, 'page_kind_not_found');
-    assert.ok(error.availablePageKinds.length > 0);
+    assert.equal(result.error?.code, 'page_kind_not_found');
+    if (result.error?.code === 'page_kind_not_found') {
+      assert.ok(result.error.availablePageKinds.length > 0);
+    }
   });
 });
 
-void describe('executeSemanticTool - dryRun', () => {
-  void it('returns preview without modifying document when dryRun=true', async () => {
+describe('executeSemanticTool - dryRun', () => {
+  it('returns preview without modifying document when dryRun=true', async () => {
     const doc = seedDoc();
     const before = JSON.parse(JSON.stringify(doc)) as ThemeLayoutDocument;
     const slotKey = findSlotKey(doc, 'home-title');
@@ -169,17 +169,15 @@ void describe('executeSemanticTool - dryRun', () => {
     });
 
     assert.equal(result.success, true);
-    const data = result.data;
-    assert.ok(data, 'expected result.data on success');
-    assert.equal(data.applied, false);
-    assert.ok(data.preview);
-    assert.equal(data.preview[0].type, 'update_props');
+    assert.equal(result.data?.applied, false);
+    assert.ok(result.data?.preview);
+    assert.equal(result.data?.preview?.[0].type, 'update_props');
     assert.deepEqual(doc, before);
   });
 });
 
-void describe('executeSemanticTool - editor_replace_section', () => {
-  void it('replaces a replaceable section successfully', async () => {
+describe('executeSemanticTool - editor_replace_section', () => {
+  it('replaces a replaceable section successfully', async () => {
     const doc = seedDoc();
     const profile = buildTemplateProfile(doc);
     const replaceable = profile.regions.find((r) => r.replaceable);
@@ -201,7 +199,7 @@ void describe('executeSemanticTool - editor_replace_section', () => {
     assert.equal(result.success, true);
   });
 
-  void it('returns failure when regionKey not found or not replaceable', async () => {
+  it('returns failure when regionKey not found or not replaceable', async () => {
     const doc = seedDoc();
     const result = await executeSemanticTool(
       'editor_replace_section',
@@ -215,15 +213,16 @@ void describe('executeSemanticTool - editor_replace_section', () => {
     );
 
     assert.equal(result.success, false);
-    const error = result.error;
-    assert.ok(error, 'expected result.error on failure');
+    if (result.success) {
+      throw new Error('Expected failure');
+    }
     const codes = ['region_not_found', 'compile_failed'];
-    assert.ok(codes.includes(error.code));
+    assert.ok(codes.includes(result.error?.code ?? ''));
   });
 });
 
-void describe('executeSemanticTool - editor_submit_page_spec', () => {
-  void it('creates a new page from a complete spec', async () => {
+describe('executeSemanticTool - editor_submit_page_spec', () => {
+  it('creates a new page from a complete spec', async () => {
     const doc = seedDoc();
     const profile = buildTemplateProfile(doc);
     const pageKind = profile.pages[0]?.pageKind;

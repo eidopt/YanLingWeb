@@ -251,12 +251,14 @@ function buildNavigation(document: ThemeLayoutDocument): TemplateProfileNavigati
   const { hasSidebar, hasTabbar } = detectNavigationComponents(pages);
 
   let type: TemplateProfileNavigation['type'] = 'bottom_tabs';
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- hasSidebar is mutated in walkNodes callback
   if (hasSidebar) {
     type = 'side_nav';
   } else if (!isMobile && pages.length > 5) {
     type = 'side_nav';
   } else if (!isMobile) {
     type = 'top_tabs';
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- hasTabbar is mutated in walkNodes callback
   } else if (hasTabbar) {
     type = 'bottom_tabs';
   }
