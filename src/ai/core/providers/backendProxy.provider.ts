@@ -165,20 +165,21 @@ export class BackendProxyProvider implements AIProvider {
         if (!parsed.ok) {
           // 静默 skip + console.warn, 不断流
 
-          process.stderr.write(`[SSE] skip envelope: ${parsed.reason}\n`);
+          console.warn(`[SSE] skip envelope: ${parsed.reason}`);
           continue;
         }
         const envelope = parsed.envelope;
         if (NEW_STRUCTURED_SSE_EVENT_TYPES.has(envelope.type)) {
-          // 新类型: 调 onStructuredEvent 订阅口
+          // 新类型: 调 onStructuredEvent 订阅口 + console.log
           this.onStructuredEvent?.(envelope);
-          process.stdout.write(`[SSE] ${envelope.type} ${JSON.stringify(envelope.payload)}\n`);
+          // eslint-disable-next-line no-console
+          console.log('[SSE]', envelope.type, envelope.payload);
           continue;
         }
         // 老类型: 拆 envelope, 转回原 ProviderStreamEvent 形状 yield 出去
         const legacy = convertEnvelopeToLegacyProviderEvent(envelope);
         if (legacy === null) {
-          process.stderr.write(`[SSE] cannot convert envelope type: ${envelope.type}\n`);
+          console.warn(`[SSE] cannot convert envelope type: ${envelope.type}`);
           continue;
         }
         if (legacy.type === 'done') {
