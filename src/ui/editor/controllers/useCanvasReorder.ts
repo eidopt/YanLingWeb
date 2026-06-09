@@ -83,7 +83,7 @@ export function useCanvasReorder({
   }
 
   function getNodeRectSnapshot(nodeId: string, fallbackElement?: HTMLDivElement | null) {
-    if (nodeId in dragRectSnapshotsRef.current) {
+    if (Object.hasOwn(dragRectSnapshotsRef.current, nodeId)) {
       return dragRectSnapshotsRef.current[nodeId];
     }
 
