@@ -27,9 +27,11 @@ void describe('applyCompiledOperationsAtomic', () => {
     const result = await applyCompiledOperationsAtomic(compiled, doc, { sessionId: 'test-1' });
 
     assert.equal(result.success, true);
-    assert.equal(result.data?.applied, true);
-    assert.equal(result.data?.appliedOperations.length, 1); // eslint-disable-line @typescript-eslint/no-unnecessary-condition
-    assert.deepEqual(result.data?.snapshot, before); // eslint-disable-line @typescript-eslint/no-unnecessary-condition
+    const data = result.data;
+    assert.ok(data, 'expected result.data to be defined on success');
+    assert.equal(data.applied, true);
+    assert.equal(data.appliedOperations.length, 1);
+    assert.deepEqual(data.snapshot, before);
     const updatedNode = doc.pages[0].layout.children?.find((c) => c.id === 'home-title');
     assert.equal(updatedNode?.props?.text, 'Changed');
   });
@@ -88,15 +90,19 @@ void describe('applyCompiledOperationsAtomic', () => {
 
     assert.equal(result.success, true);
     const updatedNode = doc.pages[0].layout.children?.find((c) => c.id === 'home-title');
+    assert.ok(updatedNode, 'expected home-title node to exist');
+    const updatedProps = updatedNode.props;
+    assert.ok(updatedProps, 'expected home-title node to have props');
     // The new prop must be visible on the caller's document reference, which
     // confirms Object.assign correctly propagates inner-object mutations.
-    assert.equal(updatedNode?.props?.as, 'h1');
+    assert.equal(updatedProps.as, 'h1');
     // The inner props object on the caller's doc must be the same reference
     // shared by the mutated tree (no copy happened), preserving the mutation.
-    assert.strictEqual(updatedNode?.props, doc.pages[0].layout.children?.find((c) => c.id === 'home-title')?.props); // eslint-disable-line @typescript-eslint/no-unnecessary-condition
+    const refetchedNode = doc.pages[0].layout.children?.find((c) => c.id === 'home-title');
+    assert.strictEqual(updatedProps, refetchedNode?.props);
     // Pre-existing props should not be wiped out.
     for (const [key, value] of Object.entries(beforeProps)) {
-      assert.deepEqual(updatedNode?.props?.[key], value, `existing prop ${key} should be preserved`); // eslint-disable-line @typescript-eslint/no-unnecessary-condition
+      assert.deepEqual(updatedProps[key], value, `existing prop ${key} should be preserved`);
     }
   });
 });
