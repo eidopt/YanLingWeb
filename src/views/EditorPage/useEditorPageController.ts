@@ -12,6 +12,12 @@ import type { BuilderCanvas, LayoutBuilderTheme } from 'ui/editor/types';
 
 const EMPTY_TEMPLATES: ThemeSpec[] = [];
 
+/** Minimal shape of a `pipeline_stage` SSE event for the view's progress consumer. */
+export interface PipelineStageEvent {
+  type: string;
+  data: string;
+}
+
 export interface EditorPageController {
   loading: boolean;
   generating: boolean;
@@ -20,6 +26,8 @@ export interface EditorPageController {
   libraryTemplates: ThemeSpec[];
   initialThemeId: string | undefined;
   handleCanvasesChange: (canvases: BuilderCanvas[], activeCanvasId: string, activeTheme: LayoutBuilderTheme) => void;
+  /** Register a listener for `pipeline_stage` events emitted during template generation. */
+  onPipelineEvent: (listener: (event: PipelineStageEvent) => void) => () => void;
 }
 
 export function useEditorPageController(): EditorPageController {
@@ -32,6 +40,7 @@ export function useEditorPageController(): EditorPageController {
   const { templateService, templateAiService } = useAppServices();
   const state = useEditorPageSnapshot();
   const autosaveRef = useRef<EditorAutosaveScheduler | null>(null);
+  const pipelineListenersRef = useRef<Set<(event: PipelineStageEvent) => void>>(new Set());
   const loadKey = ownedTemplateId ?? '';
   const generationKey = `${autoGenerate ? 'auto' : 'manual'}:${promptParam}`;
   const shouldGenerate = autoGenerate && !!promptParam;
@@ -84,6 +93,11 @@ export function useEditorPageController(): EditorPageController {
       prompt: promptParam,
       signal: abort.signal,
       onEvent: (event) => {
+        if (event.type === 'pipeline_stage') {
+          for (const listener of pipelineListenersRef.current) {
+            listener(event);
+          }
+        }
         if (event.type === 'template_saved') {
           try {
             const data = JSON.parse(event.data) as { templateId?: string };
@@ -159,6 +173,13 @@ export function useEditorPageController(): EditorPageController {
     [ownedTemplateId],
   );
 
+  const onPipelineEvent = useCallback((listener: (event: PipelineStageEvent) => void): (() => void) => {
+    pipelineListenersRef.current.add(listener);
+    return () => {
+      pipelineListenersRef.current.delete(listener);
+    };
+  }, []);
+
   return {
     loading,
     generating,
@@ -167,5 +188,6 @@ export function useEditorPageController(): EditorPageController {
     libraryTemplates: marketTemplates,
     initialThemeId: ownedTemplateId ?? themeId,
     handleCanvasesChange,
+    onPipelineEvent,
   };
 }
