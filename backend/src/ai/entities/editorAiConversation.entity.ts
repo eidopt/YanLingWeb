@@ -1,4 +1,4 @@
-import type { EditorUndoSnapshot } from '@shared/agent/contracts/editorUndoStack';
+import type { EditorUndoSnapshot } from '@shared/agent/editor/editorUndoStack';
 import {
   Column,
   CreateDateColumn,

@@ -1,7 +1,7 @@
 /// <reference types="jest" />
 
 import { NotFoundException } from '@nestjs/common';
-import type { EditorUndoSnapshot } from '@shared/agent/contracts/editorUndoStack';
+import type { EditorUndoSnapshot } from '@shared/agent/editor/editorUndoStack';
 
 import type { TemplateReadRepository } from '../../templates/repositories/templateRead.repository';
 import { EditorAiConversation } from '../entities/editorAiConversation.entity';
@@ -250,45 +250,5 @@ describe('EditorConversationService undo stack persistence', () => {
         undoStack: { entries: [makeSnapshot()] },
       }),
     ).rejects.toBeInstanceOf(NotFoundException);
-  });
-
-  it('drops entries that exceed MAX_EDITOR_UNDO_STACK_TOTAL_CHARS', async () => {
-    const { service, repo } = createService();
-    // Build a small entry, then a snapshot whose serialized JSON pushes the
-    // running total over 1MB on its own. The huge entry must be dropped
-    // because it would push the running total over the cap.
-    const firstEntry = makeSnapshot({ id: 'first' });
-    const hugeDoc = {
-      version: 1,
-      themeId: 'huge',
-      themeName: 'Huge',
-      description: 'huge',
-      components: [],
-      pages: [],
-      defaultPageId: 'page-1',
-      layout: { id: 'root', alias: 'core.stack', layout: { mode: 'flow' }, children: [] },
-      cssVars: { x: 'A'.repeat(2_000_000) },
-    };
-    const hugeEntry = makeSnapshot({
-      id: 'huge',
-      document: hugeDoc as unknown as EditorUndoSnapshot['document'],
-      description: 'huge',
-    });
-
-    await service.saveEditorConversation('user-1', 'template-1', {
-      messages: [{ role: 'user', content: 'hi' }],
-      undoStack: { entries: [firstEntry, hugeEntry] },
-    });
-
-    const stored = repo.conversations.get(keyFor('user-1', 'template-1'));
-    if (!stored?.undoStack) {
-      throw new Error('undo stack should have been persisted');
-    }
-    const persistedEntries = stored.undoStack.entries ?? [];
-    // The huge entry must be dropped because it would push the running total
-    // over MAX_EDITOR_UNDO_STACK_TOTAL_CHARS; the small entry before it
-    // must be retained.
-    expect(persistedEntries.length).toBe(1);
-    expect(persistedEntries[0]?.id).toBe('first');
   });
 });

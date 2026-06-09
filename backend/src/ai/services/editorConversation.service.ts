@@ -1,5 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import type { EditorUndoSnapshot } from '@shared/agent/contracts/editorUndoStack';
+import type { EditorUndoSnapshot } from '@shared/agent/editor/editorUndoStack';
 
 import {
   TEMPLATE_READ_REPOSITORY,
@@ -34,7 +34,6 @@ const MAX_EDITOR_CONVERSATION_MESSAGE_CHARS = 40_000;
 const EDITOR_PROVIDER_SESSION_TTL_MS = 30 * 60_000;
 const EDITOR_PROVIDER_SESSION_EXPIRY_SAFETY_MS = 60_000;
 const MAX_EDITOR_UNDO_STACK_ENTRIES = 20;
-const MAX_EDITOR_UNDO_STACK_TOTAL_CHARS = 1_000_000;
 
 @Injectable()
 export class EditorConversationService {
@@ -271,34 +270,11 @@ export class EditorConversationService {
 
     const value = undoStack as Record<string, unknown>;
     const rawEntries = value.entries;
-
-    if (!Array.isArray(rawEntries)) {
-      return { entries: [] };
-    }
-
-    // Per-entry shape filter (existing logic).
-    const objectEntries = rawEntries.filter(
-      (entry): entry is Record<string, unknown> => !!entry && typeof entry === 'object',
-    );
-
-    // Size cap — compute running total of JSON.stringify(entry).length and drop
-    // entries that push the total over MAX_EDITOR_UNDO_STACK_TOTAL_CHARS. Apply
-    // BEFORE the count cap so the count cap doesn't silently mask oversized payloads.
-    let runningTotal = 0;
-    const sizeFiltered: Record<string, unknown>[] = [];
-    for (const entry of objectEntries) {
-      const size = JSON.stringify(entry).length;
-      if (runningTotal + size > MAX_EDITOR_UNDO_STACK_TOTAL_CHARS) {
-        break;
-      }
-      sizeFiltered.push(entry);
-      runningTotal += size;
-    }
-
-    // Count cap.
-    const entries = sizeFiltered.slice(
-      -MAX_EDITOR_UNDO_STACK_ENTRIES,
-    ) as unknown as EditorUndoSnapshot[];
+    const entries: EditorUndoSnapshot[] = Array.isArray(rawEntries)
+      ? (rawEntries
+          .filter((entry): entry is Record<string, unknown> => !!entry && typeof entry === 'object')
+          .slice(-MAX_EDITOR_UNDO_STACK_ENTRIES) as unknown as EditorUndoSnapshot[])
+      : [];
 
     const maxSizeRaw = value.maxSize;
     const maxSize =

@@ -4,10 +4,8 @@ import { DataSource, type MigrationInterface } from 'typeorm';
 import { InitialSchema1748166000000 } from './1748166000000-InitialSchema';
 import * as existingDbUpgrade from './1748166100000-SchemaUpgradeForExistingDbs';
 import { TemplateAgentConfigTables1748166200000 } from './1748166200000-TemplateAgentConfigTables';
-// prettier-ignore
-import {
-  EditorAiConversationUndoStack1748166300000,
-} from './1748166300000-EditorAiConversationUndoStack';
+// eslint-disable-next-line max-len
+import { EditorAiConversationUndoStack1748166300000 } from './1748166300000-EditorAiConversationUndoStack';
 
 const SchemaUpgradeForExistingDbs = existingDbUpgrade.SchemaUpgradeForExistingDbs1748166100000;
 
