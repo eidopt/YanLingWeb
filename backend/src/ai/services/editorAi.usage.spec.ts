@@ -7,10 +7,8 @@ import { firstValueFrom, toArray } from 'rxjs';
 
 import type { ConfigService } from '../../config/config.service';
 import type { TemplateReadRepository } from '../../templates/repositories/templateRead.repository';
-// prettier-ignore
-import type {
-  TemplateAgentKnowledgeServicePort,
-} from '../../templates/templateAgentKnowledge.service';
+// eslint-disable-next-line max-len
+import type { TemplateAgentKnowledgeServicePort } from '../../templates/templateAgentKnowledge.service';
 import type { TemplatesService } from '../../templates/templates.service';
 import { AiService } from '../ai.service';
 import type { AIProvider, ProviderStreamEvent } from '../core/providers/types';
