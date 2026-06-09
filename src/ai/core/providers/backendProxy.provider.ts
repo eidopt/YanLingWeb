@@ -46,7 +46,7 @@ export class BackendProxyProvider implements AIProvider {
     private readonly getToken: () => string | null,
     private readonly onAuthExpired?: () => void,
     httpClient?: HttpClient,
-    private readonly onStructuredEvent?: (envelope: SseEventEnvelope<SseEventType, unknown>) => void,
+    public onStructuredEvent?: (envelope: SseEventEnvelope<SseEventType, unknown>) => void,
   ) {
     this.http = httpClient ?? resolveHttpClient(getToken);
   }

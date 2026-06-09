@@ -5,7 +5,15 @@ import type { AgentEvent } from '@shared/agent/contracts/agent';
 import { type HttpClient, resolveHttpClient } from 'services/http/HttpClient';
 
 export interface AiGenerateEvent {
-  type: 'text' | 'intent_plan' | 'tool_start' | 'tool_done' | 'template_saved' | 'error' | 'done';
+  type:
+    | 'text'
+    | 'intent_plan'
+    | 'tool_start'
+    | 'tool_done'
+    | 'template_saved'
+    | 'pipeline_stage'
+    | 'error'
+    | 'done';
   data: string;
 }
 
@@ -101,6 +109,15 @@ export class TemplateAiService {
     let cancelled = false;
 
     this.provider.resetConversation();
+    this.provider.onStructuredEvent = (envelope) => {
+      if (envelope.type === 'pipeline_stage_start' || envelope.type === 'pipeline_stage_end') {
+        const phase = envelope.type === 'pipeline_stage_start' ? 'start' : 'end';
+        onEvent({
+          type: 'pipeline_stage',
+          data: JSON.stringify({ phase, ...(envelope.payload as Record<string, unknown>) }),
+        });
+      }
+    };
     const cancelOnAbort = () => {
       cancelled = true;
       this.provider.cancel();
