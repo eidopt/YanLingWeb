@@ -137,6 +137,7 @@ describe('EditorConversationService repository boundary', () => {
     ).resolves.toEqual({
       templateId: 'template-1',
       messages: [],
+      undoStack: null,
       updatedAt: null,
     });
     expect(conversations.removed).toEqual(['template-1']);

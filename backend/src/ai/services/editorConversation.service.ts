@@ -1,4 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import type { EditorUndoSnapshot } from '@shared/agent/editor/editorUndoStack';
 
 import {
   TEMPLATE_READ_REPOSITORY,
@@ -7,6 +8,7 @@ import {
 import type { ProviderMessage } from '../core/providers/types';
 import {
   type EditorAiConversationMessageRecord,
+  type EditorAiConversationUndoStackRecord,
   type EditorAiProviderSessionRecord,
 } from '../entities/editorAiConversation.entity';
 import {
@@ -18,17 +20,20 @@ import { ProviderLogCompactionService } from './providerLogCompaction.service';
 export interface EditorAiConversationDto {
   templateId: string;
   messages: EditorAiConversationMessageRecord[];
+  undoStack: EditorAiConversationUndoStackRecord | null;
   updatedAt: string | null;
 }
 
 export interface SaveEditorAiConversationInput {
   messages?: unknown;
+  undoStack?: EditorAiConversationUndoStackRecord | null;
 }
 
 const MAX_EDITOR_CONVERSATION_CONTEXT_CHARS = 500_000;
 const MAX_EDITOR_CONVERSATION_MESSAGE_CHARS = 40_000;
 const EDITOR_PROVIDER_SESSION_TTL_MS = 30 * 60_000;
 const EDITOR_PROVIDER_SESSION_EXPIRY_SAFETY_MS = 60_000;
+const MAX_EDITOR_UNDO_STACK_ENTRIES = 20;
 
 @Injectable()
 export class EditorConversationService {
@@ -62,6 +67,7 @@ export class EditorConversationService {
     return {
       templateId,
       messages: conversation?.messages ?? [],
+      undoStack: conversation?.undoStack ?? null,
       updatedAt: conversation?.updatedAt.toISOString() ?? null,
     };
   }
@@ -73,13 +79,16 @@ export class EditorConversationService {
   ): Promise<EditorAiConversationDto> {
     await this.ensureTemplateAccessible(ownerUserId, templateId);
     const messages = this.normalizeEditorConversationMessages(input.messages);
+    const undoStack = this.normalizeUndoStack(input.undoStack);
     const existing = await this.conversations.findByOwnerAndTemplate(ownerUserId, templateId);
 
-    if (!messages.length) {
+    // If the caller is clearing both messages and undo stack, the row is empty
+    // and we can safely drop the conversation to keep the table tidy.
+    if (!messages.length && undoStack === null) {
       if (existing) {
         await this.conversations.remove(existing);
       }
-      return { templateId, messages: [], updatedAt: null };
+      return { templateId, messages: [], undoStack: null, updatedAt: null };
     }
 
     const conversation =
@@ -90,11 +99,17 @@ export class EditorConversationService {
       });
     conversation.messages = messages;
     conversation.providerSession ??= null;
+    // If the caller omitted `undoStack` in the input, preserve any existing
+    // server-side stack. Only overwrite when an explicit value (including null)
+    // is provided.
+    conversation.undoStack =
+      input.undoStack === undefined ? (conversation.undoStack ?? null) : undoStack;
     const saved = await this.conversations.save(conversation);
 
     return {
       templateId,
       messages: saved.messages,
+      undoStack: saved.undoStack ?? null,
       updatedAt: saved.updatedAt.toISOString(),
     };
   }
@@ -243,6 +258,34 @@ export class EditorConversationService {
       totalChars = nextTotal;
     }
     return retained;
+  }
+
+  private normalizeUndoStack(undoStack: unknown): EditorAiConversationUndoStackRecord | null {
+    if (undoStack === null || undoStack === undefined) {
+      return null;
+    }
+    if (typeof undoStack !== 'object') {
+      return null;
+    }
+
+    const value = undoStack as Record<string, unknown>;
+    const rawEntries = value.entries;
+    const entries: EditorUndoSnapshot[] = Array.isArray(rawEntries)
+      ? (rawEntries
+          .filter((entry): entry is Record<string, unknown> => !!entry && typeof entry === 'object')
+          .slice(-MAX_EDITOR_UNDO_STACK_ENTRIES) as unknown as EditorUndoSnapshot[])
+      : [];
+
+    const maxSizeRaw = value.maxSize;
+    const maxSize =
+      typeof maxSizeRaw === 'number' && Number.isFinite(maxSizeRaw) && maxSizeRaw > 0
+        ? Math.min(Math.floor(maxSizeRaw), MAX_EDITOR_UNDO_STACK_ENTRIES)
+        : undefined;
+
+    return {
+      ...(maxSize !== undefined ? { maxSize } : {}),
+      entries,
+    };
   }
 
   private isProviderSessionFresh(

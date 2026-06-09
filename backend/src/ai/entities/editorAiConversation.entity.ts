@@ -1,3 +1,4 @@
+import type { EditorUndoSnapshot } from '@shared/agent/editor/editorUndoStack';
 import {
   Column,
   CreateDateColumn,
@@ -24,6 +25,11 @@ export interface EditorAiProviderSessionRecord {
   updatedAt: string;
 }
 
+export interface EditorAiConversationUndoStackRecord {
+  maxSize?: number;
+  entries?: EditorUndoSnapshot[];
+}
+
 @Entity('editor_ai_conversations')
 @Unique(['ownerUserId', 'templateId'])
 @Index(['ownerUserId', 'updatedAt'])
@@ -45,6 +51,9 @@ export class EditorAiConversation {
 
   @Column({ type: 'simple-json', nullable: true })
   providerSession: EditorAiProviderSessionRecord | null;
+
+  @Column({ type: 'simple-json', nullable: true })
+  undoStack: EditorAiConversationUndoStackRecord | null;
 
   @CreateDateColumn()
   createdAt: Date;

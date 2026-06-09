@@ -160,6 +160,7 @@ describe('AiController', () => {
       const dto: EditorAiConversationDto = {
         templateId: 'tpl-1',
         messages: [],
+        undoStack: null,
         updatedAt: null,
       };
       service.getEditorConversation.mockResolvedValue(dto);
@@ -178,6 +179,7 @@ describe('AiController', () => {
       const dto: EditorAiConversationDto = {
         templateId: 'tpl-5',
         messages: [],
+        undoStack: null,
         updatedAt: '2026-05-29T00:00:00.000Z',
       };
       service.saveEditorConversation.mockResolvedValue(dto);
