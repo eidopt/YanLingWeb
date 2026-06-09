@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-floating-promises -- node:test's `it()` returns a Promise that the test runner consumes */
 import {
   PipelineProgress,
   type PipelineProgressStage,
@@ -8,22 +7,22 @@ import {
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-describe('PipelineProgress', () => {
-  it('exports a function component', () => {
+void describe('PipelineProgress', () => {
+  void it('exports a function component', () => {
     assert.equal(typeof PipelineProgress, 'function');
   });
 
-  it('PipelineStageName covers all 4 pipeline stages', () => {
+  void it('PipelineStageName covers all 4 pipeline stages', () => {
     const stages: PipelineStageName[] = ['designer', 'critic', 'schema', 'verifier'];
     assert.equal(stages.length, 4);
   });
 
-  it('PipelineStageStatus covers pending, running, ok, failed', () => {
+  void it('PipelineStageStatus covers pending, running, ok, failed', () => {
     const statuses: PipelineStageStatus[] = ['pending', 'running', 'ok', 'failed'];
     assert.equal(statuses.length, 4);
   });
 
-  it('PipelineProgressStage accepts all required fields', () => {
+  void it('PipelineProgressStage accepts all required fields', () => {
     const stage: PipelineProgressStage = {
       stage: 'designer',
       status: 'running',
@@ -34,7 +33,7 @@ describe('PipelineProgress', () => {
     assert.equal(stage.attempt, 1);
   });
 
-  it('PipelineProgressStage accepts optional durationMs and error', () => {
+  void it('PipelineProgressStage accepts optional durationMs and error', () => {
     const stage: PipelineProgressStage = {
       stage: 'critic',
       status: 'failed',
