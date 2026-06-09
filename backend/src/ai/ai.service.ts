@@ -47,6 +47,7 @@ import {
 } from './services/editorConversation.service';
 import { ProviderLogCompactionService } from './services/providerLogCompaction.service';
 import { type AiCacheStatsDto, TokenUsageService } from './services/tokenUsage.service';
+import { serializeSseEvent } from './sse/sseEnvelope';
 import {
   EDITOR_EDIT_TOOL_NAMES,
   EDITOR_EDIT_TOOLS,
@@ -287,6 +288,10 @@ export class AiService {
           'stream',
           this.aiConfig.provider,
         );
+        // 在 done 之前先发 usage_summary, 让前端能独立消费
+        subject.next({
+          data: serializeSseEvent('usage_summary', { model, usage: event.usage }),
+        });
       }
       this.emitStreamEvent(subject, event);
     }
@@ -316,7 +321,32 @@ export class AiService {
   }
 
   private emitStreamEvent(subject: Subject<StreamSseEvent>, event: ProviderStreamEvent): void {
-    subject.next({ data: JSON.stringify(event) });
+    const type =
+      event.type === 'reasoning_delta'
+        ? 'reasoning_delta'
+        : event.type === 'text_delta'
+          ? 'text_delta'
+          : event.type === 'tool_call'
+            ? 'tool_call'
+            : event.type === 'done'
+              ? 'done'
+              : 'error';
+    const payload =
+      event.type === 'reasoning_delta'
+        ? { delta: event.text }
+        : event.type === 'text_delta'
+          ? { text: event.text }
+          : event.type === 'tool_call'
+            ? { id: event.id, name: event.name, arguments: event.arguments }
+            : event.type === 'done'
+              ? {
+                  ...(event.usage ? { usage: event.usage } : {}),
+                  ...(event.stopReason ? { stopReason: event.stopReason } : {}),
+                  ...(event.response_id ? { response_id: event.response_id } : {}),
+                  ...(event.reasoningContent ? { reasoningContent: event.reasoningContent } : {}),
+                }
+              : { message: event.message };
+    subject.next({ data: serializeSseEvent(type, payload as never) });
   }
 
   private async runEditorStream(

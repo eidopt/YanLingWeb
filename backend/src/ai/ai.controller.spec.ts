@@ -243,8 +243,15 @@ describe('AiController', () => {
       expect(res.setHeader).toHaveBeenCalledWith('x-conversation-id', 'conv-9');
       expect(res.flushHeaders).toHaveBeenCalled();
 
-      subject.next({ data: '{"type":"text"}' });
-      expect(res.write).toHaveBeenCalledWith('data: {"type":"text"}\n\n');
+      subject.next({
+        data: JSON.stringify({
+          schema: 'sse.v1',
+          type: 'text_delta',
+          ts: '2026-06-09T00:00:00.000Z',
+          payload: { text: 'hi' },
+        }),
+      });
+      expect(res.write).toHaveBeenCalledWith(expect.stringContaining('"type":"text_delta"'));
       expect(res.flush).toHaveBeenCalled();
 
       subject.complete();
