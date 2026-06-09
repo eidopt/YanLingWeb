@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises -- node:test's `it()` returns a Promise that the test runner consumes */
-/* eslint-disable no-restricted-imports -- B.3 测试需要直接消费 shared/agent/editor/editorUndoStack 类型 */
 import type { ThemeLayoutDocument } from '../../layout/types';
 import { EditorAiPanelState } from './editorAiPanelState';
-import type { EditorUndoSnapshot } from '@shared/agent/editor/editorUndoStack';
+import type { EditorUndoSnapshot } from '@shared/agent/contracts/editorUndoStack';
 import assert from 'node:assert/strict';
 import { beforeEach, describe, it } from 'node:test';
 
