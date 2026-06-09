@@ -1,9 +1,10 @@
-import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
-import { EditorUndoStack, DEFAULT_UNDO_STACK_SIZE } from './editorUndoStack';
+/* eslint-disable @typescript-eslint/no-floating-promises -- node:test's `it()` returns a Promise that the test runner consumes */
 import type { ThemeLayoutDocument } from '../types';
+import { DEFAULT_UNDO_STACK_SIZE, EditorUndoStack } from './editorUndoStack';
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 
-const fakeDoc = (id: string): ThemeLayoutDocument => ({ themeId: id } as unknown as ThemeLayoutDocument);
+const fakeDoc = (id: string): ThemeLayoutDocument => ({ themeId: id }) as unknown as ThemeLayoutDocument;
 
 describe('EditorUndoStack', () => {
   it('starts empty', () => {
@@ -31,7 +32,13 @@ describe('EditorUndoStack', () => {
       stack.push({ id: `s${i}`, document: fakeDoc(`d${i}`), description: `edit ${i}`, createdAt: 't' });
     }
     assert.equal(stack.size, 3);
-    assert.equal(stack.list().map((s) => s.id).join(','), 's4,s3,s2');
+    assert.equal(
+      stack
+        .list()
+        .map((s) => s.id)
+        .join(','),
+      's4,s3,s2',
+    );
   });
 
   it('uses default max size of 20', () => {
@@ -48,7 +55,13 @@ describe('EditorUndoStack', () => {
     stack.push({ id: 'a', document: fakeDoc('a'), description: 'a', createdAt: 't' });
     stack.push({ id: 'b', document: fakeDoc('b'), description: 'b', createdAt: 't' });
     stack.push({ id: 'c', document: fakeDoc('c'), description: 'c', createdAt: 't' });
-    assert.equal(stack.list().map((s) => s.id).join(','), 'c,b,a');
+    assert.equal(
+      stack
+        .list()
+        .map((s) => s.id)
+        .join(','),
+      'c,b,a',
+    );
   });
 
   it('peek returns the most recent without removing', () => {
