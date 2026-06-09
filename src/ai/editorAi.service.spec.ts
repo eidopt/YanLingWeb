@@ -14,7 +14,7 @@ function createMockDocument(): ThemeLayoutDocument {
     components: [],
     defaultPageId: 'p1',
     pages: [],
-    layout: { id: 'root', layout: {}, children: [] },
+    layout: { id: 'root', alias: 'core.screen', layout: { mode: 'flow' }, children: [] },
   };
 }
 

@@ -1,12 +1,12 @@
 export const SSE_EVENT_SCHEMA_VERSION = 'sse.v1' as const;
 
-export type SseEventEnvelope<T extends SseEventType, P> = {
+export interface SseEventEnvelope<T extends SseEventType, P> {
   schema: typeof SSE_EVENT_SCHEMA_VERSION;
   type: T;
   /** ISO 8601 timestamp emitted at serialization time */
   ts: string;
   payload: P;
-};
+}
 
 export type SseEventType =
   // 现有 (兼容)
@@ -33,7 +33,7 @@ export interface SseTokenUsage {
   cacheMissTokens?: number;
 }
 
-export type SseEventPayloadByType = {
+export interface SseEventPayloadByType {
   text_delta: { text: string };
   tool_call: { id: string; name: string; arguments: string };
   done: {
@@ -66,7 +66,7 @@ export type SseEventPayloadByType = {
   usage_summary: { model: string; usage: SseTokenUsage; totalCostUsd?: number };
   clarification: { question: string; options: { label: string; value: string }[] };
   edit_request: { data: string };
-};
+}
 
 /** 老 ProviderStreamEvent 之外的 8 个新事件 type 集合 (前端订阅口过滤用) */
 export const NEW_STRUCTURED_SSE_EVENT_TYPES: ReadonlySet<SseEventType> = new Set([

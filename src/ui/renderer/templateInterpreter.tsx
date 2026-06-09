@@ -40,7 +40,7 @@ export function renderComponentTemplate(
   componentTemplates: ComponentTemplateMap,
   runtime: ThemeRuntime,
 ): ReactNode {
-  if (!Object.hasOwn(componentTemplates, alias)) {
+  if (!(alias in componentTemplates)) {
     return null;
   }
   const template = componentTemplates[alias];
