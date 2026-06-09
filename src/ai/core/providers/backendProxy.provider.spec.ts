@@ -3,19 +3,22 @@ import type { ProviderStreamEvent } from './types';
 import { SSE_EVENT_SCHEMA_VERSION } from '@shared/agent/contracts/sseEvents';
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import type { HttpStreamEvent, HttpStreamResult } from 'services/http/HttpClient';
+import type { HttpClient, HttpStreamEvent } from 'services/http/HttpClient';
 
-interface MockHttpClient {
-  stream: (path: string, options?: RequestInit) => Promise<HttpStreamResult>;
-}
+type MockHttpClient = Pick<HttpClient, 'json' | 'stream'>;
 
 function createMockHttpClient(rawDataLines: string[]): MockHttpClient {
-  const events: AsyncIterable<HttpStreamEvent> = (function* () {
+  async function* generate(): AsyncGenerator<HttpStreamEvent> {
     for (const data of rawDataLines) {
-      yield Promise.resolve({ data });
+      await Promise.resolve();
+      yield { data };
     }
-  })();
+  }
+  const events: AsyncIterable<HttpStreamEvent> = {
+    [Symbol.asyncIterator]: () => generate(),
+  };
   return {
+    json: () => Promise.reject(new Error('not used in this spec')),
     stream: () =>
       Promise.resolve({
         response: { ok: true, status: 200, headers: new Map() } as unknown as Response,
