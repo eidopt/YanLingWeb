@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises -- node:test's `it()` returns a Promise that the test runner consumes */
 import { parsePipelineEvent, PipelineStore } from './pipelineStore';
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -7,8 +8,8 @@ function makeEvent(data: Record<string, unknown>): { type: string; data: string 
   return { type: 'pipeline_stage', data: JSON.stringify(data) };
 }
 
-void describe('parsePipelineEvent', () => {
-  void it('parses a valid start event', () => {
+describe('parsePipelineEvent', () => {
+  it('parses a valid start event', () => {
     const result = parsePipelineEvent(makeEvent({ phase: 'start', stage: 'designer', attempt: 1 }));
     assert.ok(result !== null);
     assert.equal(result.phase, 'start');
@@ -17,7 +18,7 @@ void describe('parsePipelineEvent', () => {
     assert.equal(result.status, undefined);
   });
 
-  void it('parses a valid end event with ok status', () => {
+  it('parses a valid end event with ok status', () => {
     const result = parsePipelineEvent(
       makeEvent({ phase: 'end', stage: 'critic', attempt: 2, status: 'ok', durationMs: 1500 }),
     );
@@ -28,7 +29,7 @@ void describe('parsePipelineEvent', () => {
     assert.equal(result.durationMs, 1500);
   });
 
-  void it('parses a valid end event with failed status', () => {
+  it('parses a valid end event with failed status', () => {
     const result = parsePipelineEvent(
       makeEvent({ phase: 'end', stage: 'schema', attempt: 1, status: 'failed', error: 'validation error' }),
     );
@@ -37,37 +38,37 @@ void describe('parsePipelineEvent', () => {
     assert.equal(result.error, 'validation error');
   });
 
-  void it('returns null for invalid phase', () => {
+  it('returns null for invalid phase', () => {
     const result = parsePipelineEvent(makeEvent({ phase: 'middle', stage: 'designer', attempt: 1 }));
     assert.equal(result, null);
   });
 
-  void it('returns null for unknown stage', () => {
+  it('returns null for unknown stage', () => {
     const result = parsePipelineEvent(makeEvent({ phase: 'start', stage: 'unknown', attempt: 1 }));
     assert.equal(result, null);
   });
 
-  void it('returns null for non-JSON data', () => {
+  it('returns null for non-JSON data', () => {
     const result = parsePipelineEvent({ type: 'pipeline_stage', data: 'not json {' });
     assert.equal(result, null);
   });
 
-  void it('defaults attempt to 0 when missing', () => {
+  it('defaults attempt to 0 when missing', () => {
     const result = parsePipelineEvent(makeEvent({ phase: 'start', stage: 'verifier' }));
     assert.ok(result !== null);
     assert.equal(result.attempt, 0);
   });
 });
 
-void describe('PipelineStore', () => {
-  void it('starts with empty state', () => {
+describe('PipelineStore', () => {
+  it('starts with empty state', () => {
     const store = new PipelineStore();
     const state = store.getSnapshot();
     assert.deepEqual(state.stages, []);
     assert.equal(state.currentAttempt, undefined);
   });
 
-  void it('applyEvent updates stage status to running on start', () => {
+  it('applyEvent updates stage status to running on start', () => {
     const store = new PipelineStore();
     store.applyEvent(makeEvent({ phase: 'start', stage: 'designer', attempt: 1 }));
     const state = store.getSnapshot();
@@ -77,7 +78,7 @@ void describe('PipelineStore', () => {
     assert.equal(state.currentAttempt, 1);
   });
 
-  void it('applyEvent updates stage status to ok on end', () => {
+  it('applyEvent updates stage status to ok on end', () => {
     const store = new PipelineStore();
     store.applyEvent(makeEvent({ phase: 'start', stage: 'designer', attempt: 1 }));
     store.applyEvent(makeEvent({ phase: 'end', stage: 'designer', attempt: 1, status: 'ok', durationMs: 500 }));
@@ -87,7 +88,7 @@ void describe('PipelineStore', () => {
     assert.equal(state.stages[0].durationMs, 500);
   });
 
-  void it('applyEvent updates stage status to failed on end', () => {
+  it('applyEvent updates stage status to failed on end', () => {
     const store = new PipelineStore();
     store.applyEvent(makeEvent({ phase: 'start', stage: 'schema', attempt: 1 }));
     store.applyEvent(makeEvent({ phase: 'end', stage: 'schema', attempt: 1, status: 'failed', error: 'bad schema' }));
@@ -96,7 +97,7 @@ void describe('PipelineStore', () => {
     assert.equal(state.stages[0].error, 'bad schema');
   });
 
-  void it('multiple stages accumulate independently', () => {
+  it('multiple stages accumulate independently', () => {
     const store = new PipelineStore();
     store.applyEvent(makeEvent({ phase: 'start', stage: 'designer', attempt: 1 }));
     store.applyEvent(makeEvent({ phase: 'start', stage: 'critic', attempt: 1 }));
@@ -108,7 +109,7 @@ void describe('PipelineStore', () => {
     assert.equal(state.stages[1].status, 'running');
   });
 
-  void it('same stage event replaces previous entry', () => {
+  it('same stage event replaces previous entry', () => {
     const store = new PipelineStore();
     store.applyEvent(makeEvent({ phase: 'start', stage: 'designer', attempt: 1 }));
     store.applyEvent(makeEvent({ phase: 'end', stage: 'designer', attempt: 1, status: 'ok' }));
@@ -117,7 +118,7 @@ void describe('PipelineStore', () => {
     assert.equal(state.stages[0].status, 'ok');
   });
 
-  void it('notifies listeners on applyEvent', () => {
+  it('notifies listeners on applyEvent', () => {
     const store = new PipelineStore();
     let callCount = 0;
     const unsub = store.subscribe(() => {
@@ -128,7 +129,7 @@ void describe('PipelineStore', () => {
     unsub();
   });
 
-  void it('reset clears state to empty', () => {
+  it('reset clears state to empty', () => {
     const store = new PipelineStore();
     store.applyEvent(makeEvent({ phase: 'start', stage: 'designer', attempt: 1 }));
     store.applyEvent(makeEvent({ phase: 'start', stage: 'critic', attempt: 1 }));
@@ -138,7 +139,7 @@ void describe('PipelineStore', () => {
     assert.equal(state.currentAttempt, undefined);
   });
 
-  void it('reset notifies listeners', () => {
+  it('reset notifies listeners', () => {
     const store = new PipelineStore();
     store.applyEvent(makeEvent({ phase: 'start', stage: 'designer', attempt: 1 }));
     let resetNotified = false;
@@ -150,7 +151,7 @@ void describe('PipelineStore', () => {
     unsub();
   });
 
-  void it('reset is no-op when already empty', () => {
+  it('reset is no-op when already empty', () => {
     const store = new PipelineStore();
     let notified = false;
     const unsub = store.subscribe(() => {
