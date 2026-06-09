@@ -1,3 +1,4 @@
+/* eslint-disable no-console -- CLI smoke test needs stdout output */
 /**
  * Smoke test — cssVars 主题色契约校验器
  * 运行：pnpm test:css-contract
@@ -24,10 +25,10 @@ let passed = 0;
 function check(name: string, fn: () => void) {
   fn();
   passed += 1;
-  process.stdout.write(`  ✓ ${name}\n`);
+  console.log(`  ✓ ${name}`);
 }
 
-process.stdout.write('cssVars contract smoke:\n');
+console.log('cssVars contract smoke:');
 
 check('完整契约 → 无 error 无 warning', () => {
   const issues = validateCssVarsContract({ cssVars: makeComplete() });
@@ -79,4 +80,4 @@ check('var()/transparent 视为合法颜色', () => {
   assert.equal(issues.length, 0, JSON.stringify(issues));
 });
 
-process.stdout.write(`\n✅ cssVars contract smoke passed (${passed} checks)\n`);
+console.log(`\n✅ cssVars contract smoke passed (${passed} checks)`);
