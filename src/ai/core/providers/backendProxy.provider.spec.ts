@@ -27,14 +27,14 @@ function createMockHttpClient(rawDataLines: string[]): MockHttpClient {
   };
 }
 
-/* eslint-disable no-console */
 void describe('BackendProxyProvider envelope handling', () => {
-  void it('calls onStructuredEvent handler for tool_start envelope and logs to console (T18)', async () => {
+  void it('calls onStructuredEvent handler for tool_start envelope and logs to stdout (T18)', async () => {
     const onStructuredEvent: { type: string; payload: unknown }[] = [];
-    const consoleLogSpy: unknown[][] = [];
-    const originalLog = console.log;
-    console.log = (...args: unknown[]) => {
-      consoleLogSpy.push(args);
+    const stdoutSpy: string[] = [];
+    const originalWrite: typeof process.stdout.write = process.stdout.write.bind(process.stdout);
+    process.stdout.write = (chunk: string | Uint8Array): boolean => {
+      stdoutSpy.push(typeof chunk === 'string' ? chunk : new TextDecoder().decode(chunk));
+      return true;
     };
     try {
       const httpClient = createMockHttpClient([
@@ -68,8 +68,8 @@ void describe('BackendProxyProvider envelope handling', () => {
         ts: '2026-06-09T00:00:00.000Z',
       });
       assert.ok(
-        consoleLogSpy.some((args) => args[0] === '[SSE]' && args[1] === 'tool_start' && typeof args[2] === 'object'),
-        'expected console.log to be called with [SSE, tool_start, payload]',
+        stdoutSpy.some((line) => line.includes('[SSE]') && line.includes('tool_start')),
+        'expected stdout to contain [SSE] tool_start log',
       );
       const doneEv = events.find((e) => e.type === 'done');
       assert.deepEqual(doneEv, {
@@ -80,7 +80,7 @@ void describe('BackendProxyProvider envelope handling', () => {
         reasoningContent: undefined,
       });
     } finally {
-      console.log = originalLog;
+      process.stdout.write = originalWrite;
     }
   });
 
@@ -118,10 +118,11 @@ void describe('BackendProxyProvider envelope handling', () => {
   });
 
   void it('skips invalid envelope without yielding (T16 衍生)', async () => {
-    const consoleWarnSpy: unknown[][] = [];
-    const originalWarn = console.warn;
-    console.warn = (...args: unknown[]) => {
-      consoleWarnSpy.push(args);
+    const stderrSpy: string[] = [];
+    const originalStderr: typeof process.stderr.write = process.stderr.write.bind(process.stderr);
+    process.stderr.write = (chunk: string | Uint8Array): boolean => {
+      stderrSpy.push(typeof chunk === 'string' ? chunk : new TextDecoder().decode(chunk));
+      return true;
     };
     try {
       const httpClient = createMockHttpClient([
@@ -134,10 +135,12 @@ void describe('BackendProxyProvider envelope handling', () => {
         events.push(ev);
       }
       assert.equal(events.length, 0);
-      assert.ok(consoleWarnSpy.length > 0, 'expected console.warn to be called for invalid envelope');
+      assert.ok(
+        stderrSpy.some((line) => line.includes('[SSE] skip envelope')),
+        'expected stderr to contain skip envelope log',
+      );
     } finally {
-      console.warn = originalWarn;
+      process.stderr.write = originalStderr;
     }
   });
 });
-/* eslint-enable no-console */

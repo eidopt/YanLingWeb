@@ -1,5 +1,4 @@
 #!/usr/bin/env tsx
-/* eslint-disable no-console -- CLI runner needs stdout output */
 import fs from 'node:fs';
 
 interface GoldenEnvelope {
@@ -49,8 +48,8 @@ function loadEnvelopes(filePath: string, isGolden: boolean): GoldenEnvelope[] {
     const isJsonl = filePath.endsWith('.jsonl');
     return isJsonl ? loadJsonl(text) : loadJsonArray(text);
   } catch (err) {
-    console.error(`Failed to load ${isGolden ? 'golden' : 'actual'} file: ${filePath}`);
-    console.error(err instanceof Error ? err.message : String(err));
+    process.stderr.write(`Failed to load ${isGolden ? 'golden' : 'actual'} file: ${filePath}\n`);
+    process.stderr.write(`${err instanceof Error ? err.message : String(err)}\n`);
     process.exit(1);
   }
 }
@@ -78,7 +77,7 @@ function main(): void {
   const goldenPath = process.argv[2];
   const actualPath = process.argv[3];
   if (!goldenPath || !actualPath) {
-    console.error('Usage: tsx scripts/agentEvalEnvelope.ts <golden.json|jsonl> <actual.jsonl>');
+    process.stderr.write('Usage: tsx scripts/agentEvalEnvelope.ts <golden.json|jsonl> <actual.jsonl>\n');
     process.exit(1);
   }
 
@@ -87,40 +86,40 @@ function main(): void {
 
   const result = compareEnvelopes(golden, actual);
 
-  console.log(`Golden: ${golden.length} events`);
-  console.log(`Actual: ${actual.length} events`);
+  process.stdout.write(`Golden: ${golden.length} events\n`);
+  process.stdout.write(`Actual: ${actual.length} events\n`);
 
   if (!result.lengthMatches) {
-    console.error(`Length mismatch: golden=${golden.length} actual=${actual.length}`);
+    process.stderr.write(`Length mismatch: golden=${golden.length} actual=${actual.length}\n`);
     process.exit(1);
   }
   if (!result.typeMatches) {
-    console.error('Type sequence mismatch:');
+    process.stderr.write('Type sequence mismatch:\n');
     const goldenTypes = golden.map((e) => e.type);
     const actualTypes = actual.map((e) => e.type);
     for (let i = 0; i < Math.max(goldenTypes.length, actualTypes.length); i++) {
       if (goldenTypes[i] !== actualTypes[i]) {
-        console.error(`  [${i}] golden=${goldenTypes[i]} actual=${actualTypes[i]}`);
+        process.stderr.write(`  [${i}] golden=${goldenTypes[i]} actual=${actualTypes[i]}\n`);
       }
     }
     process.exit(1);
   }
   if (result.payloadDiffs > 0) {
-    console.error(`❌ Payload diffs: ${result.payloadDiffs} of ${golden.length} events differ`);
+    process.stderr.write(`❌ Payload diffs: ${result.payloadDiffs} of ${golden.length} events differ\n`);
     let shown = 0;
     const compareLen = Math.min(golden.length, actual.length);
     for (let i = 0; i < compareLen && shown < 3; i++) {
       if (JSON.stringify(golden[i].payload) !== JSON.stringify(actual[i].payload)) {
         const goldenStr = JSON.stringify(golden[i].payload).slice(0, 100);
         const actualStr = JSON.stringify(actual[i].payload).slice(0, 100);
-        console.error(`  [${i}] expected=${goldenStr} actual=${actualStr}`);
+        process.stderr.write(`  [${i}] expected=${goldenStr} actual=${actualStr}\n`);
         shown++;
       }
     }
     process.exit(1);
   }
 
-  console.log('Match: all envelopes identical');
+  process.stdout.write('Match: all envelopes identical\n');
   process.exit(0);
 }
 
