@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unnecessary-condition -- test assertions use defensive optional chains */
 import type { ThemeLayoutDocument } from '../types';
 import { executeSemanticTool } from './semanticToolExecutor';
 import { buildTemplateProfile, getSeedDocument } from '@shared/agent/runtime';
@@ -27,8 +26,10 @@ void describe('executeSemanticTool - editor_update_slot', () => {
     });
 
     assert.equal(result.success, true);
-    assert.equal(result.data?.applied, true);
-    assert.ok(result.data?.snapshot);
+    const data = result.data;
+    assert.ok(data, 'expected result.data on success');
+    assert.equal(data.applied, true);
+    assert.ok(data.snapshot);
     const node = doc.pages[0].layout.children?.find((c) => c.id === 'home-title');
     assert.equal(node?.props?.text, 'New title');
   });
@@ -44,11 +45,11 @@ void describe('executeSemanticTool - editor_update_slot', () => {
     );
 
     assert.equal(result.success, false);
-    assert.equal(result.error?.code, 'invalid_props');
-    if (result.error?.code === 'invalid_props') {
-      assert.ok(result.error.invalidProps.includes('href'));
-      assert.ok(result.error.allowedProps.length > 0);
-    }
+    const error = result.error;
+    assert.ok(error, 'expected result.error on failure');
+    assert.equal(error.code, 'invalid_props');
+    assert.ok(error.invalidProps.includes('href'));
+    assert.ok(error.allowedProps.length > 0);
   });
 
   void it('returns slot_not_found error with availableSlots when slotKey missing', async () => {
@@ -61,10 +62,10 @@ void describe('executeSemanticTool - editor_update_slot', () => {
     );
 
     assert.equal(result.success, false);
-    assert.equal(result.error?.code, 'slot_not_found');
-    if (result.error?.code === 'slot_not_found') {
-      assert.ok(result.error.availableSlots.length > 0);
-    }
+    const error = result.error;
+    assert.ok(error, 'expected result.error on failure');
+    assert.equal(error.code, 'slot_not_found');
+    assert.ok(error.availableSlots.length > 0);
   });
 });
 
@@ -73,9 +74,7 @@ void describe('executeSemanticTool - editor_fill_pattern', () => {
     const doc = seedDoc();
     const profile = buildTemplateProfile(doc);
     const pattern = profile.patterns[0];
-    if (!pattern) {
-      return; // skip if no pattern
-    }
+    assert.ok(pattern, 'expected at least one pattern');
 
     const items = [
       { title: 'Apple', price: '¥10' },
@@ -90,16 +89,16 @@ void describe('executeSemanticTool - editor_fill_pattern', () => {
     );
 
     assert.equal(result.success, true);
-    assert.equal(result.data?.appliedOperations[0].type, 'clone_pattern_items');
+    const data = result.data;
+    assert.ok(data, 'expected result.data on success');
+    assert.equal(data.appliedOperations[0].type, 'clone_pattern_items');
   });
 
   void it('truncates to maxItems (or 50) and emits warning when items exceed limit', async () => {
     const doc = seedDoc();
     const profile = buildTemplateProfile(doc);
     const pattern = profile.patterns[0];
-    if (!pattern) {
-      return; // skip if no pattern
-    }
+    assert.ok(pattern, 'expected at least one pattern');
     const expectedMax = pattern.maxItems ?? 50;
 
     const items = Array.from({ length: 100 }, (_, i) => ({ title: `Item ${i}` }));
@@ -108,8 +107,10 @@ void describe('executeSemanticTool - editor_fill_pattern', () => {
     });
 
     assert.equal(result.success, true);
-    const firstOp = result.data?.appliedOperations[0];
-    if (firstOp?.type === 'clone_pattern_items') {
+    const data = result.data;
+    assert.ok(data, 'expected result.data on success');
+    const firstOp = data.appliedOperations[0];
+    if (firstOp.type === 'clone_pattern_items') {
       assert.equal(firstOp.items.length, expectedMax);
     }
   });
@@ -149,10 +150,10 @@ void describe('executeSemanticTool - editor_create_page_from_page_kind', () => {
     );
 
     assert.equal(result.success, false);
-    assert.equal(result.error?.code, 'page_kind_not_found');
-    if (result.error?.code === 'page_kind_not_found') {
-      assert.ok(result.error.availablePageKinds.length > 0);
-    }
+    const error = result.error;
+    assert.ok(error, 'expected result.error on failure');
+    assert.equal(error.code, 'page_kind_not_found');
+    assert.ok(error.availablePageKinds.length > 0);
   });
 });
 
@@ -168,9 +169,11 @@ void describe('executeSemanticTool - dryRun', () => {
     });
 
     assert.equal(result.success, true);
-    assert.equal(result.data?.applied, false);
-    assert.ok(result.data?.preview);
-    assert.equal(result.data?.preview?.[0].type, 'update_props');
+    const data = result.data;
+    assert.ok(data, 'expected result.data on success');
+    assert.equal(data.applied, false);
+    assert.ok(data.preview);
+    assert.equal(data.preview[0].type, 'update_props');
     assert.deepEqual(doc, before);
   });
 });
@@ -212,11 +215,10 @@ void describe('executeSemanticTool - editor_replace_section', () => {
     );
 
     assert.equal(result.success, false);
-    if (result.success) {
-      throw new Error('Expected failure');
-    }
+    const error = result.error;
+    assert.ok(error, 'expected result.error on failure');
     const codes = ['region_not_found', 'compile_failed'];
-    assert.ok(codes.includes(result.error?.code ?? ''));
+    assert.ok(codes.includes(error.code));
   });
 });
 
