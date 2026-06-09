@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import {
   type CaseHandler,
   indent,
@@ -77,7 +76,13 @@ const compileVideo: CaseHandler = ({ node, props, nextContext, context, classNam
   const style = styleAttr(node);
   return {
     ...nextContext,
-    code: `${indent(context.depth)}<video className="${className}"${src ? ` src=${JSON.stringify(src)}` : ''}${poster ? ` poster=${JSON.stringify(poster)}` : ''}${props.autoplay ? ' autoPlay' : ''}${props.controls !== false ? ' controls' : ''}${style ? ` ${style}` : ''} />`,
+    code:
+      `${indent(context.depth)}<video className="${className}"` +
+      `${src ? ` src=${JSON.stringify(src)}` : ''}` +
+      `${poster ? ` poster=${JSON.stringify(poster)}` : ''}` +
+      `${props.autoplay ? ' autoPlay' : ''}` +
+      `${props.controls !== false ? ' controls' : ''}` +
+      `${style ? ` ${style}` : ''} />`,
   };
 };
 
@@ -86,7 +91,12 @@ const compileAudio: CaseHandler = ({ node, props, nextContext, context, classNam
   const style = styleAttr(node);
   return {
     ...nextContext,
-    code: `${indent(context.depth)}<audio className="${className}"${src ? ` src=${JSON.stringify(src)}` : ''}${props.autoplay ? ' autoPlay' : ''}${props.controls !== false ? ' controls' : ''}${style ? ` ${style}` : ''} />`,
+    code:
+      `${indent(context.depth)}<audio className="${className}"` +
+      `${src ? ` src=${JSON.stringify(src)}` : ''}` +
+      `${props.autoplay ? ' autoPlay' : ''}` +
+      `${props.controls !== false ? ' controls' : ''}` +
+      `${style ? ` ${style}` : ''} />`,
   };
 };
 
@@ -113,12 +123,21 @@ const compileAvatar: CaseHandler = ({ node, props, nextContext, context, classNa
   if (src) {
     return {
       ...nextContext,
-      code: `${indent(context.depth)}<img className="${className}" data-size="${size}" data-shape="${shape}" src=${JSON.stringify(src)} alt=${JSON.stringify(text || 'avatar')}${style ? ` ${style}` : ''} />`,
+      code:
+        `${indent(context.depth)}<img className="${className}"` +
+        ` data-size="${size}" data-shape="${shape}"` +
+        ` src=${JSON.stringify(src)}` +
+        ` alt=${JSON.stringify(text || 'avatar')}` +
+        `${style ? ` ${style}` : ''} />`,
     };
   }
   return {
     ...nextContext,
-    code: `${indent(context.depth)}<span className="${className}" data-size="${size}" data-shape="${shape}"${style ? ` ${style}` : ''}>{${JSON.stringify((text || '?').charAt(0))}}</span>`,
+    code:
+      `${indent(context.depth)}<span className="${className}"` +
+      ` data-size="${size}" data-shape="${shape}"` +
+      `${style ? ` ${style}` : ''}` +
+      `>{${JSON.stringify((text || '?').charAt(0))}}</span>`,
   };
 };
 

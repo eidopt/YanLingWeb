@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import {
   attrs,
   type CaseArgs,
@@ -179,7 +178,9 @@ const compileBreadcrumb: CaseHandler = ({ node, props, nextContext, context, cla
   const parts: string[] = [];
   items.forEach((item, i) => {
     parts.push(
-      `${indent(context.depth + 1)}<span className="breadcrumb-item${i === items.length - 1 ? ' active' : ''}">{${JSON.stringify(item)}}</span>`,
+      `${indent(context.depth + 1)}<span className="breadcrumb-item${
+        i === items.length - 1 ? ' active' : ''
+      }">{${JSON.stringify(item)}}</span>`,
     );
     if (i < items.length - 1) {
       parts.push(`${indent(context.depth + 1)}<span className="breadcrumb-sep">{${JSON.stringify(sep)}}</span>`);

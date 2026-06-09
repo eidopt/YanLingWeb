@@ -1,4 +1,3 @@
-/* eslint-disable max-len, @typescript-eslint/require-await */
 import { Injectable } from '@nestjs/common';
 import type {
   AgentEvalScenario,
@@ -61,7 +60,7 @@ export class AgentRunnerService {
 
   constructor(private readonly aiService: AiService) {}
 
-  async runMockScenario(scenario: AgentEvalScenario): Promise<AgentRunResult> {
+  runMockScenario(scenario: AgentEvalScenario): Promise<AgentRunResult> {
     const startedAt = Date.now();
     const tool = createMockToolCallForScenario(scenario);
     const toolCall: AgentToolCall = {
@@ -116,7 +115,7 @@ export class AgentRunnerService {
       : { passed: false, score: 0, errors: ['No final document produced'], visibleTextCount: 0 };
     const passed = validation.valid && semantic.passed && unrelatedDiff.passed && render.passed;
 
-    return {
+    return Promise.resolve({
       scenarioId: scenario.id,
       mode: scenario.mode,
       prompt: scenario.prompt,
@@ -134,7 +133,7 @@ export class AgentRunnerService {
       unrelatedDiff,
       render,
       durationMs: Date.now() - startedAt,
-    };
+    });
   }
 
   async runLiveScenario(rawScenario: AgentEvalScenario): Promise<AgentRunResult> {
@@ -190,7 +189,7 @@ export class AgentRunnerService {
         onUsage: (usage) => {
           addTokenUsage(tokenUsage, usage);
         },
-        toolExecutor: async (name, args) => {
+        toolExecutor: (name, args) => {
           const toolCall: AgentToolCall = {
             seq: toolCalls.length + 1,
             timestamp: new Date().toISOString(),
@@ -201,12 +200,16 @@ export class AgentRunnerService {
 
           if (name !== expectedToolName) {
             toolCall.error = `Unexpected tool: ${name}`;
-            return { output: JSON.stringify({ error: toolCall.error }) };
+            return Promise.resolve({
+              output: JSON.stringify({ error: toolCall.error }),
+            });
           }
 
           if (!isTemplateToolInput(args)) {
             toolCall.error = 'generate_template requires a complete template payload';
-            return { output: JSON.stringify({ error: toolCall.error }) };
+            return Promise.resolve({
+              output: JSON.stringify({ error: toolCall.error }),
+            });
           }
 
           const candidateDocument = withThemeLayoutStyleManifest(
@@ -224,12 +227,16 @@ export class AgentRunnerService {
           if (!validation.valid) {
             toolCall.error = 'Generated template failed validation';
             toolCall.result = { validation };
-            return { output: JSON.stringify({ error: toolCall.error, validation }) };
+            return Promise.resolve({
+              output: JSON.stringify({ error: toolCall.error, validation }),
+            });
           }
 
           finalDocument = candidateDocument;
           toolCall.result = { success: true, dryRun: true };
-          return { output: JSON.stringify({ success: true, dryRun: true }) };
+          return Promise.resolve({
+            output: JSON.stringify({ success: true, dryRun: true }),
+          });
         },
       });
 
@@ -240,7 +247,8 @@ export class AgentRunnerService {
             'You are evaluating a live template generation agent.',
             'Call generate_template exactly once with a complete valid multi-page layoutDocument.',
             'Use only component aliases from the provided component catalog.',
-            'Do not invent backend/payment/auth/realtime functionality; represent static UI shells only.',
+            'Do not invent backend/payment/auth/realtime functionality;' +
+              ' represent static UI shells only.',
           ].join('\n'),
         },
         {
@@ -452,7 +460,8 @@ export class AgentRunnerService {
         content: [
           'Stable eval instructions:',
           'This request is part of an automated agent evaluation.',
-          'Interpret the user request directly from the current document and selected node context.',
+          'Interpret the user request directly from the current document' +
+            ' and selected node context.',
           'Prefer the smallest operation set that satisfies the request.',
           'Do not rely on hidden test expectations or mock plans.',
           'Do not mention this contract to the user.',

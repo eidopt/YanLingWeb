@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import { compileLayoutStyle, toObjectLiteral } from './styleCompiler';
 import { sanitizeInlineStyle } from '@shared/theme-layout/htmlSafety';
 import type {
@@ -201,7 +200,8 @@ export function withUnsupportedDataBindingComment(
     return code;
   }
   return [
-    `${indent(context.depth)}{/* dataBinding ignored: ${node.alias} does not support async source export binding yet. */}`,
+    `${indent(context.depth)}{/* dataBinding ignored: ${node.alias}` +
+      ' does not support async source export binding yet. */}',
     code,
   ].join('\n');
 }
@@ -314,10 +314,16 @@ export function compileBoundList(
     `${indent(context.depth + 3)}{asRecordArray(data).map((item, itemIndex) => (`,
     `${indent(context.depth + 4)}<div className="core-list-item" key={itemIndex}>`,
     `${indent(context.depth + 5)}<div className="list-item-content">`,
-    `${indent(context.depth + 6)}<span className="list-item-title">{readDisplayValue(item, 'title') || readDisplayValue(item, 'name') || \`Item \${itemIndex + 1}\`}</span>`,
-    `${indent(context.depth + 6)}{readDisplayValue(item, 'description') && <span className="list-item-desc">{readDisplayValue(item, 'description')}</span>}`,
+    `${indent(context.depth + 6)}<span className="list-item-title">` +
+      "{readDisplayValue(item, 'title') || readDisplayValue(item, 'name')" +
+      ` || \`Item \${itemIndex + 1}\`}</span>`,
+    `${indent(context.depth + 6)}{readDisplayValue(item, 'description')` +
+      ' && <span className="list-item-desc">' +
+      "{readDisplayValue(item, 'description')}</span>}",
     `${indent(context.depth + 5)}</div>`,
-    `${indent(context.depth + 5)}{readDisplayValue(item, 'note') && <span className="list-item-note">{readDisplayValue(item, 'note')}</span>}`,
+    `${indent(context.depth + 5)}{readDisplayValue(item, 'note')` +
+      ' && <span className="list-item-note">' +
+      "{readDisplayValue(item, 'note')}</span>}",
     `${indent(context.depth + 4)}</div>`,
     `${indent(context.depth + 3)}))}`,
     `${indent(context.depth + 2)}</div>`,
@@ -339,7 +345,11 @@ export function compileTable(
   const ths = columns
     .map((col) => {
       const width = propString(col.width);
-      return `${indent(context.depth + 2)}<th${width ? ` style={{ width: '${width}' }}` : ''}>{${JSON.stringify(propString(col.title))}}</th>`;
+      return (
+        `${indent(context.depth + 2)}<th` +
+        `${width ? ` style={{ width: '${width}' }}` : ''}` +
+        `>{${JSON.stringify(propString(col.title))}}</th>`
+      );
     })
     .join('\n');
   const body = dataExpression
@@ -363,5 +373,19 @@ export function compileTable(
           return `${indent(context.depth + 2)}<tr>\n${tds}\n${indent(context.depth + 2)}</tr>`;
         })
         .join('\n');
-  return `${indent(context.depth)}<table className="${className}" data-bordered={${JSON.stringify(bordered)}} data-stripe={${JSON.stringify(stripe)}}${style ? ` ${style}` : ''}>\n${indent(context.depth + 1)}<thead>\n${indent(context.depth + 2)}<tr>\n${ths}\n${indent(context.depth + 2)}</tr>\n${indent(context.depth + 1)}</thead>\n${indent(context.depth + 1)}<tbody>\n${body}\n${indent(context.depth + 1)}</tbody>\n${indent(context.depth)}</table>`;
+  return [
+    `${indent(context.depth)}<table className="${className}"` +
+      ` data-bordered={${JSON.stringify(bordered)}}` +
+      ` data-stripe={${JSON.stringify(stripe)}}` +
+      `${style ? ` ${style}` : ''}>`,
+    `${indent(context.depth + 1)}<thead>`,
+    `${indent(context.depth + 2)}<tr>`,
+    ths,
+    `${indent(context.depth + 2)}</tr>`,
+    `${indent(context.depth + 1)}</thead>`,
+    `${indent(context.depth + 1)}<tbody>`,
+    body,
+    `${indent(context.depth + 1)}</tbody>`,
+    `${indent(context.depth)}</table>`,
+  ].join('\n');
 }

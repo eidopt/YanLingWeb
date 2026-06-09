@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import type { ProviderTool } from '../contracts/provider';
 
 export interface TemplateToolInput {
@@ -117,7 +116,8 @@ The template uses a component tree system with 55 core components.
 - core.radio: radio button (props: label, checked, disabled, group)
 - core.switch: toggle (props: checked, disabled, label)
 - core.rate: star rating (props: value, count, size, disabled)
-- core.slider: slider input (props: value, min, max, step, range, startValue, endValue). When range is true, set startValue/endValue for a two-thumb selected interval.
+- core.slider: slider input (props: value, min, max, step, range, startValue, endValue).
+  When range is true, set startValue/endValue for a two-thumb selected interval.
 - core.datepicker: date input (props: value, format, placeholder)
 - core.timepicker: time input (props: value, format, placeholder)
 - core.upload: file upload (props: accept, multiple, maxCount, actionLabel)
@@ -130,7 +130,8 @@ The template uses a component tree system with 55 core components.
   - library: dependency name declared in layoutDocument.dependencies.
   - allowed libraries/renderers:
     - echarts + renderer "echarts": data is an ECharts option object or { option: {...} }.
-    - chart.js or chartjs + renderer "chartjs": data is a Chart.js config object or { config: {...} }; use dependency URL https://esm.sh/chart.js/auto.
+    - chart.js or chartjs + renderer "chartjs": data is a Chart.js config object
+      or { config: {...} }; use dependency URL https://esm.sh/chart.js/auto.
     - lottie-web or lottie + renderer "lottie": data must include { animationData: {...}, loop?, autoplay? }.
     - mermaid + renderer "mermaid": data must include { definition: "graph TD; ..." } or { diagram: "..." }.
   - Never generate custom JavaScript, code strings, script URLs, inline scripts, or arbitrary module bodies.
@@ -250,8 +251,11 @@ Generated-template quality rules:
       },
       displayCategory: {
         type: 'string',
-        description:
-          'Coarse frontend display category: commerce|service|content|education|health|social|finance|marketing|utility|dashboard|profile|other.',
+        description: [
+          'Coarse frontend display category:',
+          'commerce|service|content|education|health|social|finance|marketing|',
+          'utility|dashboard|profile|other.',
+        ].join(' '),
       },
       displayCategoryLabel: {
         type: 'string',
@@ -290,8 +294,10 @@ Generated-template quality rules:
       },
       cssVars: {
         type: 'object',
-        description:
-          'CSS custom properties map. Include brand tokens plus semantic/component-level tokens, not only one accent color.',
+        description: [
+          'CSS custom properties map. Include brand tokens plus',
+          'semantic/component-level tokens, not only one accent color.',
+        ].join(' '),
       },
       cssAnimations: {
         type: 'object',
@@ -299,8 +305,11 @@ Generated-template quality rules:
       },
       visualAssets: {
         type: 'array',
-        description:
-          'Optional image generation/fallback manifest. Each item should include id, nodeId, pageId, role, prompt, alt, status, provider, and optional url or placeholder.',
+        description: [
+          'Optional image generation/fallback manifest. Each item should include',
+          'id, nodeId, pageId, role, prompt, alt, status, provider,',
+          'and optional url or placeholder.',
+        ].join(' '),
         items: {
           type: 'object',
           properties: {
@@ -320,8 +329,10 @@ Generated-template quality rules:
       },
       componentTemplates: {
         type: 'object',
-        description:
-          'Reusable custom aliases for domain-specific UI modules. Prefer a few expressive modules over color-only generic panels.',
+        description: [
+          'Reusable custom aliases for domain-specific UI modules.',
+          'Prefer a few expressive modules over color-only generic panels.',
+        ].join(' '),
       },
       layoutDocument: {
         type: 'object',

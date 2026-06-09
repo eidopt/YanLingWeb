@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import {
   type CaseHandler,
   clampPercent,
@@ -114,7 +113,12 @@ const compileBadge: CaseHandler = ({ node, props, nextContext, context, classNam
   const style = styleAttr(node);
   return {
     ...nextContext,
-    code: `${indent(context.depth)}<span className="${className}" data-tone="${tone}" data-dot={${JSON.stringify(dot)}}${style ? ` ${style}` : ''}>${display ? `{${JSON.stringify(display)}}` : ''}</span>`,
+    code:
+      `${indent(context.depth)}<span className="${className}"` +
+      ` data-tone="${tone}"` +
+      ` data-dot={${JSON.stringify(dot)}}` +
+      `${style ? ` ${style}` : ''}` +
+      `>${display ? `{${JSON.stringify(display)}}` : ''}</span>`,
   };
 };
 
@@ -194,7 +198,11 @@ const compileStatistic: CaseHandler = ({ node, props, nextContext, context, clas
   parts.push(`${indent(context.depth + 1)}</span>`);
   return {
     ...nextContext,
-    code: `${indent(context.depth)}<div className="${className}"${style ? ` ${style}` : ''}>\n${parts.join('\n')}\n${indent(context.depth)}</div>`,
+    code: [
+      `${indent(context.depth)}<div className="${className}"${style ? ` ${style}` : ''}>`,
+      ...parts,
+      `${indent(context.depth)}</div>`,
+    ].join('\n'),
   };
 };
 
@@ -218,7 +226,11 @@ const compileEmpty: CaseHandler = ({ node, props, nextContext, context, classNam
   }
   return {
     ...nextContext,
-    code: `${indent(context.depth)}<div className="${className}"${style ? ` ${style}` : ''}>\n${parts.join('\n')}\n${indent(context.depth)}</div>`,
+    code: [
+      `${indent(context.depth)}<div className="${className}"${style ? ` ${style}` : ''}>`,
+      ...parts,
+      `${indent(context.depth)}</div>`,
+    ].join('\n'),
   };
 };
 
@@ -234,7 +246,13 @@ const compileSkeleton: CaseHandler = ({ node, props, nextContext, context, class
   }
   return {
     ...nextContext,
-    code: `${indent(context.depth)}<div className="${className}" data-animated={${JSON.stringify(animated)}}${style ? ` ${style}` : ''}>\n${bars.join('\n')}\n${indent(context.depth)}</div>`,
+    code: [
+      `${indent(context.depth)}<div className="${className}"` +
+        ` data-animated={${JSON.stringify(animated)}}` +
+        `${style ? ` ${style}` : ''}>`,
+      ...bars,
+      `${indent(context.depth)}</div>`,
+    ].join('\n'),
   };
 };
 
@@ -244,7 +262,12 @@ const compileTooltip: CaseHandler = ({ node, props, nextContext, context, classN
   const style = styleAttr(node);
   return {
     ...nextContext,
-    code: `${indent(context.depth)}<span className="${className}" data-tooltip=${JSON.stringify(text)} data-placement="${placement}"${style ? ` ${style}` : ''}>{${JSON.stringify(text)}}</span>`,
+    code:
+      `${indent(context.depth)}<span className="${className}"` +
+      ` data-tooltip=${JSON.stringify(text)}` +
+      ` data-placement="${placement}"` +
+      `${style ? ` ${style}` : ''}` +
+      `>{${JSON.stringify(text)}}</span>`,
   };
 };
 
@@ -254,7 +277,11 @@ const compileToast: CaseHandler = ({ node, props, nextContext, context, classNam
   const style = styleAttr(node);
   return {
     ...nextContext,
-    code: `${indent(context.depth)}<div className="${className}" data-type="${type}" role="alert"${style ? ` ${style}` : ''}>{${JSON.stringify(message)}}</div>`,
+    code:
+      `${indent(context.depth)}<div className="${className}"` +
+      ` data-type="${type}" role="alert"` +
+      `${style ? ` ${style}` : ''}` +
+      `>{${JSON.stringify(message)}}</div>`,
   };
 };
 
@@ -285,12 +312,23 @@ const compileLoading: CaseHandler = ({ node, props, nextContext, context, classN
   if (type === 'skeleton') {
     return {
       ...nextContext,
-      code: `${indent(context.depth)}<div className="${className}" data-type="skeleton" data-size="${size}"${style ? ` ${style}` : ''}><div className="skeleton-line" /><div className="skeleton-line" /><div className="skeleton-line" /></div>`,
+      code:
+        `${indent(context.depth)}<div className="${className}"` +
+        ` data-type="skeleton" data-size="${size}"` +
+        `${style ? ` ${style}` : ''}>` +
+        '<div className="skeleton-line" />' +
+        '<div className="skeleton-line" />' +
+        '<div className="skeleton-line" /></div>',
     };
   }
   return {
     ...nextContext,
-    code: `${indent(context.depth)}<div className="${className}" data-type="spinner" data-size="${size}"${style ? ` ${style}` : ''}><span className="spinner" />${text ? `<span>{${JSON.stringify(text)}}</span>` : ''}</div>`,
+    code:
+      `${indent(context.depth)}<div className="${className}"` +
+      ` data-type="spinner" data-size="${size}"` +
+      `${style ? ` ${style}` : ''}>` +
+      '<span className="spinner" />' +
+      `${text ? `<span>{${JSON.stringify(text)}}</span>` : ''}</div>`,
   };
 };
 

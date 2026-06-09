@@ -118,9 +118,14 @@ export class TemplatePipelineService {
         if (schemaRecord) {
           break;
         }
+        const retryAction =
+          pipelineRetry < SCHEMA_PIPELINE_RETRIES
+            ? 'retrying with same brief'
+            : 'falling back to Designer';
         this.logger.warn(
-          // eslint-disable-next-line max-len
-          `attempt ${attempt} schemaGen pipeline-retry ${pipelineRetry + 1}/${SCHEMA_PIPELINE_RETRIES + 1} exhausted inner retries — ${pipelineRetry < SCHEMA_PIPELINE_RETRIES ? 'retrying with same brief' : 'falling back to Designer'}`,
+          `attempt ${attempt} schemaGen pipeline-retry` +
+            ` ${pipelineRetry + 1}/${SCHEMA_PIPELINE_RETRIES + 1}` +
+            ` exhausted inner retries — ${retryAction}`,
         );
       }
 

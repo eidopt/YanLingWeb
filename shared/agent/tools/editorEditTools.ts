@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import type { ProviderTool } from '../contracts/provider';
 
 export type AgentProviderTool = ProviderTool;
@@ -310,7 +309,8 @@ export const EDITOR_SYNC_NAVIGATION_TOOL = tool('editor_sync_navigation', 'Sync 
 
 export const EDITOR_SUBMIT_PAGE_SPEC_TOOL = tool(
   'editor_submit_page_spec',
-  'Submit a high-level PageSpec. Use this first for page creation or broad page updates. Do not include real nodeId values.',
+  'Submit a high-level PageSpec. Use this first for page creation or broad page updates.' +
+    ' Do not include real nodeId values.',
   ['spec'],
   {
     spec: { type: 'object', description: 'PageSpec with intent, pageKind/pageKey, title, sections, and navigation.' },
