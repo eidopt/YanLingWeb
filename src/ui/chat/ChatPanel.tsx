@@ -45,6 +45,9 @@ export interface ChatPanelProps {
   onClarificationCustomSubmit?: (value: string, message: ChatMessage) => void;
   messagesEndRef?: RefObject<HTMLDivElement | null>;
   renderAfterMessages?: ReactNode;
+  undoButtonLabel?: string;
+  onUndo?: () => void;
+  undoAvailableCount?: number;
 }
 
 const markdownComponents: Components = {
@@ -129,6 +132,9 @@ export function ChatPanel({
   onClarificationCustomSubmit,
   messagesEndRef,
   renderAfterMessages,
+  undoButtonLabel,
+  onUndo,
+  undoAvailableCount,
 }: ChatPanelProps) {
   const [customValues, setCustomValues] = useState<Record<string, string>>({});
 
@@ -270,6 +276,21 @@ export function ChatPanel({
           variant="filled"
         />
         <Box className={styles.actions}>
+          {onUndo ? (
+            <Box className={styles.undoButton}>
+              <Button
+                type="button"
+                onClick={onUndo}
+                disabled={disabled || isRunning || !undoAvailableCount}
+                title="撤销 (Ctrl+Z)"
+                size="sm"
+                variant="secondary"
+              >
+                {undoButtonLabel ?? '撤销'}
+                {undoAvailableCount !== undefined && undoAvailableCount > 0 ? ` (${undoAvailableCount})` : ''}
+              </Button>
+            </Box>
+          ) : null}
           {isRunning ? (
             <Button type="button" onClick={onCancel} size="sm" variant="secondary">
               {cancelLabel}

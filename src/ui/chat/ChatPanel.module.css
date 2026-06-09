@@ -305,6 +305,10 @@
   gap: var(--app-unit-1);
 }
 
+.undoButton {
+  margin-right: auto;
+}
+
 @keyframes cursorPulse {
   0%,
   45% {
