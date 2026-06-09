@@ -1,29 +1,15 @@
 /**
- * Minimal jest type declarations for spec files in the src tree.
+ * Minimal node:test type declarations for spec files in the src tree.
  *
- * Project has no frontend jest config; runtime globals are provided by
- * the runFrontendSpec.ts polyfill script. This file supplies compile-time
- * types for describe / it / expect so typecheck passes.
+ * Project has no frontend jest config; spec files use node:test
+ * + node:assert/strict so they can run via `node --import tsx --test`.
+ * This file augments the global scope with describe/it/assert aliases
+ * so the import style stays consistent.
  */
 
 declare global {
-  function describe(name: string, fn: () => void): void;
+  function describe(name: string, fn: () => void | Promise<void>): void;
   function it(name: string, fn: () => void | Promise<void>): void;
-  function expect<T>(value: T): {
-    toBe(expected: T): void;
-    toEqual(expected: unknown): void;
-    toHaveLength(expected: number): void;
-    toHaveBeenCalled(): void;
-    toHaveBeenCalledWith(...args: unknown[]): void;
-    toHaveBeenCalledTimes(n: number): void;
-    toContain(substr: string): void;
-    not: {
-      toBe(expected: unknown): void;
-      toEqual(expected: unknown): void;
-      toHaveBeenCalled(): void;
-      toContain(substr: string): void;
-    };
-  };
 }
 
 export {};

@@ -1,4 +1,10 @@
 ﻿import { backendProxyProviderContent as c } from './backendProxy.provider.content';
+import {
+  NEW_STRUCTURED_SSE_EVENT_TYPES,
+  parseSseEnvelope,
+  type SseEventEnvelope,
+  type SseEventType,
+} from './backendProxy.provider.events';
 import type { AIProvider, ProviderCapabilities, ProviderRequest, ProviderStreamEvent } from './types';
 import { type HttpClient, resolveHttpClient } from 'services/http/HttpClient';
 
@@ -34,11 +40,13 @@ export class BackendProxyProvider implements AIProvider {
   /**
    * @param getToken 返回当前 JWT token；未登录时返回 null。
    * @param onAuthExpired 后端返回 401 时触发；调用方应清理登录态并跳转登录。
+   * @param onStructuredEvent 后端 envelope 流中的新结构化事件 (tool_start / pipeline_stage_* / ...) 触发；老事件仍 yield 为 ProviderStreamEvent 形状。
    */
   constructor(
     private readonly getToken: () => string | null,
     private readonly onAuthExpired?: () => void,
     httpClient?: HttpClient,
+    private readonly onStructuredEvent?: (envelope: SseEventEnvelope<SseEventType, unknown>) => void,
   ) {
     this.http = httpClient ?? resolveHttpClient(getToken);
   }
@@ -150,20 +158,36 @@ export class BackendProxyProvider implements AIProvider {
         if (this.aborted) {
           break;
         }
-        try {
-          const event = JSON.parse(streamEvent.data) as ProviderStreamEvent;
-          if (event.type === 'done') {
-            // 如果 done 事件包含 response ID，则记录下来；provider 可能把它放在 usage metadata 中。
-            if (hasResponseId(event)) {
-              this.previousResponseIdsByConversation.set(conversationId, event.response_id);
-            }
-            yield event;
-            return;
-          }
-          yield event;
-        } catch {
-          // 跳过格式异常的行。
+        const parsed = parseSseEnvelope(streamEvent.data);
+        if (!parsed.ok) {
+          // 静默 skip + console.warn, 不断流
+           
+          console.warn(`[SSE] skip envelope: ${parsed.reason}`);
+          continue;
         }
+        const envelope = parsed.envelope;
+        if (NEW_STRUCTURED_SSE_EVENT_TYPES.has(envelope.type)) {
+          // 新类型: 调 onStructuredEvent 订阅口 + console.log
+          this.onStructuredEvent?.(envelope);
+          // eslint-disable-next-line no-console
+          console.log('[SSE]', envelope.type, envelope.payload);
+          continue;
+        }
+        // 老类型: 拆 envelope, 转回原 ProviderStreamEvent 形状 yield 出去
+        const legacy = convertEnvelopeToLegacyProviderEvent(envelope);
+        if (legacy === null) {
+           
+          console.warn(`[SSE] cannot convert envelope type: ${envelope.type}`);
+          continue;
+        }
+        if (legacy.type === 'done') {
+          if (hasResponseId(legacy)) {
+            this.previousResponseIdsByConversation.set(conversationId, legacy.response_id);
+          }
+          yield legacy;
+          return;
+        }
+        yield legacy;
       }
     } catch (err) {
       // cancel() 会跨方法修改 this.aborted；TS 只能看到当前方法体。
@@ -185,4 +209,45 @@ export class BackendProxyProvider implements AIProvider {
 
 function hasResponseId(event: ProviderStreamEvent): event is ProviderStreamEvent & { response_id: string } {
   return 'response_id' in event && typeof event.response_id === 'string';
+}
+
+function convertEnvelopeToLegacyProviderEvent(
+  e: SseEventEnvelope<SseEventType, unknown>,
+): ProviderStreamEvent | null {
+  switch (e.type) {
+    case 'text_delta': {
+      const payload = e.payload as { text: string };
+      return { type: 'text_delta', text: payload.text };
+    }
+    case 'tool_call': {
+      const payload = e.payload as { id: string; name: string; arguments: string };
+      return {
+        type: 'tool_call',
+        id: payload.id,
+        name: payload.name,
+        arguments: payload.arguments,
+      };
+    }
+    case 'done': {
+      const payload = e.payload as {
+        usage?: { inputTokens: number; outputTokens: number };
+        stopReason?: 'end_turn' | 'max_tokens';
+        response_id?: string;
+        reasoningContent?: string;
+      };
+      return {
+        type: 'done',
+        usage: payload.usage,
+        stopReason: payload.stopReason,
+        response_id: payload.response_id,
+        reasoningContent: payload.reasoningContent,
+      };
+    }
+    case 'error': {
+      const payload = e.payload as { message: string };
+      return { type: 'error', message: payload.message };
+    }
+    default:
+      return null; // 新类型不转换
+  }
 }
