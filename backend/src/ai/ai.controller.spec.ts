@@ -232,10 +232,15 @@ describe('AiController', () => {
       controller.streamProxy(body, req, asResponse(res));
 
       expect(service.checkRateLimit).toHaveBeenCalledWith('user-1');
-      expect(service.stream).toHaveBeenCalledWith('user-1', body, {
-        conversationId: 'conv-9',
-        previousResponseId: 'resp-9',
-      });
+      expect(service.stream).toHaveBeenCalledWith(
+        'user-1',
+        body,
+        {
+          conversationId: 'conv-9',
+          previousResponseId: 'resp-9',
+        },
+        expect.any(Function),
+      );
       expect(res.setHeader).toHaveBeenCalledWith(
         'content-type',
         'text/event-stream; charset=utf-8',
@@ -268,10 +273,15 @@ describe('AiController', () => {
 
       controller.streamProxy(body, req, asResponse(res));
 
-      expect(service.stream).toHaveBeenCalledWith('user-1', body, {
-        conversationId: undefined,
-        previousResponseId: undefined,
-      });
+      expect(service.stream).toHaveBeenCalledWith(
+        'user-1',
+        body,
+        {
+          conversationId: undefined,
+          previousResponseId: undefined,
+        },
+        expect.any(Function),
+      );
       expect(res.setHeader).not.toHaveBeenCalledWith('x-conversation-id', expect.anything());
     });
 
