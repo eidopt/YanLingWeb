@@ -133,11 +133,15 @@ export class OpenAICompatibleProvider implements AIProvider {
           continue;
         }
 
-        // 1. Capture reasoning_content (accumulated — DeepSeek streams it per-char)
+        // 1. Capture reasoning_content (accumulated — DeepSeek streams it per-char).
+        //    Yield each chunk incrementally as reasoning_delta so the frontend can stream
+        //    chain-of-thought in real time. reasoningBuffer is still preserved for the
+        //    final done event as an aggregate fallback.
         const delta = choice.delta as Record<string, string | undefined>;
         const reasoningDelta = delta.reasoning_content;
         if (reasoningDelta) {
           reasoningBuffer += reasoningDelta;
+          yield { type: 'reasoning_delta', text: reasoningDelta };
         }
 
         // 2. Text delta — don't emit reasoning content as text
