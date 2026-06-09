@@ -60,6 +60,7 @@ export class AiController {
   }
 
   @Put('editor-conversations/:templateId')
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
   @ApiOperation({ summary: 'Persist editor AI conversation for one template' })
   saveEditorConversation(
     @Param('templateId') templateId: string,
