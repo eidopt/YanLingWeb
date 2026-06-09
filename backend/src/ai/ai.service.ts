@@ -25,7 +25,6 @@ import {
   checkRateLimit,
   compileSemanticEditorOperations,
   type EditorAgentStreamRequest,
-  type EditorSseEventPayload,
   editorToolSpecs,
   extractClarificationChoiceText,
   isEditorAgentStreamRequest,
