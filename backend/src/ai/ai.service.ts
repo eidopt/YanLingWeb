@@ -439,7 +439,7 @@ export class AiService {
             name: event.name,
             durationMs: 0,
           });
-        } else if (event.status === 'error') {
+        } else {
           this.emitEditorEvent(subject, 'tool_error', {
             name: event.name,
             error: event.detail ?? event.name,
@@ -581,7 +581,7 @@ export class AiService {
             name: event.name,
             durationMs: 0,
           });
-        } else if (event.status === 'error') {
+        } else {
           this.emitEditorEvent(subject, 'tool_error', {
             name: event.name,
             error: event.detail ?? event.name,

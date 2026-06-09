@@ -326,7 +326,8 @@ function summarizeRecordKeys(label: string, value: Record<string, unknown> | nul
 export function buildTemplateProfileSummary(profile: TemplateProfile): string {
   return [
     '## 模板语义索引（TemplateProfile 摘要）',
-    '优先使用语义工具：editor_update_slot / editor_fill_pattern / editor_create_page_from_page_kind / editor_replace_section / editor_submit_page_spec',
+    '优先使用语义工具：editor_update_slot / editor_fill_pattern / ' +
+      'editor_create_page_from_page_kind / editor_replace_section / editor_submit_page_spec',
     '',
     '### 可用页面类型（pageKind）',
     ...profile.pages.map((p) => `- ${p.pageKind}: pageId=${p.pageId}, name=${p.name}`),

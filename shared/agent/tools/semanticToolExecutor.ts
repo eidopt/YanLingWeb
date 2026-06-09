@@ -1,10 +1,10 @@
-import type { AgentEditResult } from '../errors/agentErrors';
 import {
   compileSemanticEditorInstruction,
   type SemanticEditorInstruction,
 } from '../compiler/semanticInstructionCompiler';
-import { buildTemplateProfile } from '../template/buildTemplateProfile';
 import { applyCompiledOperationsAtomic, type ApplyResult } from '../editor/atomicApply';
+import type { AgentEditResult } from '../errors/agentErrors';
+import { buildTemplateProfile } from '../template/buildTemplateProfile';
 import type { ThemeLayoutDocument } from '../types';
 import type { SemanticToolName } from './semanticTools';
 
@@ -21,16 +21,16 @@ function buildInstruction(name: SemanticToolName, params: Record<string, unknown
     case 'editor_update_slot':
       return {
         type: 'update_slot',
-        slotKey: String(params.slotKey ?? ''),
-        props: (params.props as Record<string, unknown>) ?? {},
+        slotKey: typeof params.slotKey === 'string' ? params.slotKey : '',
+        props: params.props as Record<string, unknown>,
         pageKey: typeof params.pageKey === 'string' ? params.pageKey : undefined,
         select: params.select as boolean | undefined,
       };
     case 'editor_fill_pattern':
       return {
         type: 'fill_pattern',
-        patternKey: String(params.patternKey ?? ''),
-        items: (params.items as Record<string, unknown>[]) ?? [],
+        patternKey: typeof params.patternKey === 'string' ? params.patternKey : '',
+        items: params.items as Record<string, unknown>[],
         replaceExisting: params.replaceExisting as boolean | undefined,
         pageKey: typeof params.pageKey === 'string' ? params.pageKey : undefined,
         select: params.select as boolean | undefined,
@@ -38,8 +38,8 @@ function buildInstruction(name: SemanticToolName, params: Record<string, unknown
     case 'editor_create_page_from_page_kind':
       return {
         type: 'create_page_from_page_kind',
-        pageKind: String(params.pageKind ?? ''),
-        name: String(params.name ?? ''),
+        pageKind: typeof params.pageKind === 'string' ? params.pageKind : '',
+        name: typeof params.name === 'string' ? params.name : '',
         contentIntent: typeof params.contentIntent === 'string' ? params.contentIntent : undefined,
         activate: params.activate as boolean | undefined,
         select: params.select as boolean | undefined,
@@ -48,9 +48,9 @@ function buildInstruction(name: SemanticToolName, params: Record<string, unknown
     case 'editor_replace_section':
       return {
         type: 'replace_section',
-        regionKey: String(params.regionKey ?? ''),
-        sectionKind: String(params.sectionKind ?? ''),
-        content: (params.content as Record<string, unknown>) ?? undefined,
+        regionKey: typeof params.regionKey === 'string' ? params.regionKey : '',
+        sectionKind: typeof params.sectionKind === 'string' ? params.sectionKind : '',
+        content: params.content as Record<string, unknown> | undefined,
         patternKey: typeof params.patternKey === 'string' ? params.patternKey : undefined,
         pageKey: typeof params.pageKey === 'string' ? params.pageKey : undefined,
         select: params.select as boolean | undefined,

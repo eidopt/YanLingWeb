@@ -74,77 +74,83 @@ function inferPageKind(pageName: string, pageId: string, layout?: ThemeLayoutNod
 }
 
 function inferPageKindFromStructure(layout: ThemeLayoutNode): TemplatePageKind | null {
-  const signals: Record<string, number> = {};
+  const signals = {
+    form: 0,
+    input: 0,
+    search: 0,
+    avatar: 0,
+    statistic: 0,
+    image: 0,
+    price: 0,
+    buyButton: 0,
+    submitButton: 0,
+    orderTag: 0,
+    memberText: 0,
+  };
 
   walkNodes(layout, (node) => {
     const alias = node.alias;
     const props = node.props ?? {};
 
     if (alias === 'core.form') {
-      signals.form = (signals.form ?? 0) + 1;
+      signals.form += 1;
     }
     if (alias === 'core.input') {
-      signals.input = (signals.input ?? 0) + 1;
+      signals.input += 1;
     }
     if (alias === 'core.search') {
-      signals.search = (signals.search ?? 0) + 1;
+      signals.search += 1;
     }
     if (alias === 'core.avatar') {
-      signals.avatar = (signals.avatar ?? 0) + 1;
+      signals.avatar += 1;
     }
     if (alias === 'core.statistic') {
-      signals.statistic = (signals.statistic ?? 0) + 1;
+      signals.statistic += 1;
     }
     if (alias === 'core.image') {
-      signals.image = (signals.image ?? 0) + 1;
+      signals.image += 1;
     }
 
     // Price patterns
     if (alias === 'core.text' && typeof props.text === 'string') {
       if (/[¥$€]\s*\d/.test(props.text)) {
-        signals.price = (signals.price ?? 0) + 1;
+        signals.price += 1;
       }
     }
 
     // Buy/submit buttons
     if (alias === 'core.button' && typeof props.label === 'string') {
       if (/购买|加购|下单|立即抢|加入购物/.test(props.label)) {
-        signals.buyButton = (signals.buyButton ?? 0) + 1;
+        signals.buyButton += 1;
       }
       if (/提交|保存|确认|注册|登录/.test(props.label)) {
-        signals.submitButton = (signals.submitButton ?? 0) + 1;
+        signals.submitButton += 1;
       }
     }
 
     // Order/status tags
     if (alias === 'core.tag' && typeof props.label === 'string') {
       if (/待付款|待发货|待收货|已完成|已取消/.test(props.label)) {
-        signals.orderTag = (signals.orderTag ?? 0) + 1;
+        signals.orderTag += 1;
       }
     }
 
     // Member/profile patterns
     if (alias === 'core.text' && typeof props.text === 'string') {
       if (/会员|积分|余额|等级|优惠券/.test(props.text)) {
-        signals.memberText = (signals.memberText ?? 0) + 1;
+        signals.memberText += 1;
       }
     }
   });
 
   // Score each pageKind
   const scores: Record<string, number> = {
-    product: Math.min(
-      1,
-      (signals.price ?? 0) * 0.35 + (signals.buyButton ?? 0) * 0.35 + Math.min(1, (signals.image ?? 0) / 2) * 0.15,
-    ),
-    form: Math.min(
-      1,
-      (signals.form ?? 0) * 0.4 + Math.min(1, (signals.input ?? 0) / 2) * 0.3 + (signals.submitButton ?? 0) * 0.3,
-    ),
-    profile: Math.min(1, (signals.avatar ?? 0) * 0.4 + (signals.memberText ?? 0) * 0.3),
-    order: Math.min(1, (signals.orderTag ?? 0) * 0.5 + Math.min(1, (signals.image ?? 0) / 3) * 0.2),
-    dashboard: Math.min(1, (signals.statistic ?? 0) * 0.5),
-    category: Math.min(1, (signals.search ?? 0) * 0.3 + Math.min(1, (signals.image ?? 0) / 3) * 0.3),
+    product: Math.min(1, signals.price * 0.35 + signals.buyButton * 0.35 + Math.min(1, signals.image / 2) * 0.15),
+    form: Math.min(1, signals.form * 0.4 + Math.min(1, signals.input / 2) * 0.3 + signals.submitButton * 0.3),
+    profile: Math.min(1, signals.avatar * 0.4 + signals.memberText * 0.3),
+    order: Math.min(1, signals.orderTag * 0.5 + Math.min(1, signals.image / 3) * 0.2),
+    dashboard: Math.min(1, signals.statistic * 0.5),
+    category: Math.min(1, signals.search * 0.3 + Math.min(1, signals.image / 3) * 0.3),
   };
 
   const best = Object.entries(scores).sort((a, b) => b[1] - a[1])[0];
@@ -241,12 +247,14 @@ function buildNavigation(document: ThemeLayoutDocument): TemplateProfileNavigati
   }
 
   let type: TemplateProfileNavigation['type'] = 'bottom_tabs';
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- hasSidebar is mutated in walkNodes callback
   if (hasSidebar) {
     type = 'side_nav';
   } else if (!isMobile && pages.length > 5) {
     type = 'side_nav';
   } else if (!isMobile) {
     type = 'top_tabs';
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- hasTabbar is mutated in walkNodes callback
   } else if (hasTabbar) {
     type = 'bottom_tabs';
   }

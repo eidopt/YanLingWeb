@@ -1,3 +1,6 @@
+import type { ThemeLayoutDocument } from '@shared/agent/contracts/agent';
+import { Subject } from 'rxjs';
+
 import type { AuthenticatedRequest } from '../auth/authenticatedRequest.interface';
 import { AiController } from './ai.controller';
 import type {
@@ -6,10 +9,8 @@ import type {
   StreamRequest,
   StreamSseEvent,
 } from './ai.service';
-import type { TemplateToolInput } from './tools/generateTemplate.tool';
 import { serializeSseEvent } from './sse/sseEnvelope';
-import { Subject } from 'rxjs';
-import type { ThemeLayoutDocument } from '@shared/agent/contracts/agent';
+import type { TemplateToolInput } from './tools/generateTemplate.tool';
 
 interface MockAiService {
   getConfig: jest.Mock;
@@ -79,28 +80,37 @@ describe('SSE envelope E2E (T20/T21)', () => {
     controller.streamProxy(body, req, res as unknown as Parameters<AiController['streamProxy']>[2]);
 
     expect(service.stream).toHaveBeenCalledTimes(1);
-    const args = service.stream.mock.calls[0]!;
+    const args = service.stream.mock.calls[0] as unknown[];
     expect(args[0]).toBe('user-1');
     expect(args[1]).toEqual(body);
 
     eventSubject.next({
-      data: serializeSseEvent('tool_start', { name: 'foo', ts: '2026-06-09T00:00:00.000Z' }),
+      data: serializeSseEvent('tool_start', {
+        name: 'foo',
+        ts: '2026-06-09T00:00:00.000Z',
+      }),
     });
-    eventSubject.next({ data: serializeSseEvent('text_delta', { text: 'hi' }) });
+    eventSubject.next({
+      data: serializeSseEvent('text_delta', { text: 'hi' }),
+    });
     eventSubject.next({
       data: serializeSseEvent('clarification', {
         question: 'which?',
         options: [{ label: 'A', value: 'a' }],
       }),
     });
-    eventSubject.next({ data: serializeSseEvent('done', { stopReason: 'end_turn' }) });
+    eventSubject.next({
+      data: serializeSseEvent('done', { stopReason: 'end_turn' }),
+    });
     eventSubject.complete();
 
-    const writeCalls = res.write.mock.calls.map((c) => c[0] as string);
-    const dataLines = writeCalls.filter((s) => s.startsWith('data: '));
+    const writeCalls = res.write.mock.calls.map((c: unknown[]) => c[0] as string);
+    const dataLines = writeCalls.filter((s: string) => s.startsWith('data: '));
     expect(dataLines.length).toBeGreaterThanOrEqual(4);
 
-    const envelopes = dataLines.map((line) => JSON.parse(line.replace(/^data: /, '').trim()));
+    const envelopes = dataLines.map(
+      (line: string) => JSON.parse(line.replace(/^data: /, '').trim()) as Record<string, unknown>,
+    );
 
     expect(envelopes[0]).toMatchObject({
       schema: 'sse.v1',
@@ -145,12 +155,16 @@ describe('SSE envelope E2E (T20/T21)', () => {
       document: {} as ThemeLayoutDocument,
     };
 
-    controller.editorStream(body, req, res as unknown as Parameters<AiController['editorStream']>[2]);
+    const resArg = res as unknown as Parameters<AiController['editorStream']>[2];
+    controller.editorStream(body, req, resArg);
 
     expect(service.streamEditor).toHaveBeenCalledTimes(1);
 
     eventSubject.next({
-      data: serializeSseEvent('pipeline_stage_start', { stage: 'designer', attempt: 1 }),
+      data: serializeSseEvent('pipeline_stage_start', {
+        stage: 'designer',
+        attempt: 1,
+      }),
     });
     eventSubject.next({
       data: serializeSseEvent('pipeline_stage_end', {
@@ -160,16 +174,29 @@ describe('SSE envelope E2E (T20/T21)', () => {
         status: 'ok',
       }),
     });
-    eventSubject.next({ data: serializeSseEvent('done', { stopReason: 'end_turn' }) });
+    eventSubject.next({
+      data: serializeSseEvent('done', { stopReason: 'end_turn' }),
+    });
     eventSubject.complete();
 
-    const writeCalls = res.write.mock.calls.map((c) => c[0] as string);
-    const dataLines = writeCalls.filter((s) => s.startsWith('data: '));
-    const envelopes = dataLines.map((line) => JSON.parse(line.replace(/^data: /, '').trim()));
+    const writeCalls = res.write.mock.calls.map((c: unknown[]) => c[0] as string);
+    const dataLines = writeCalls.filter((s: string) => s.startsWith('data: '));
+    const envelopes = dataLines.map(
+      (line: string) => JSON.parse(line.replace(/^data: /, '').trim()) as Record<string, unknown>,
+    );
 
-    expect(envelopes[0]).toMatchObject({ type: 'pipeline_stage_start', payload: { stage: 'designer' } });
-    expect(envelopes[1]).toMatchObject({ type: 'pipeline_stage_end', payload: { stage: 'designer' } });
-    expect(envelopes[2]).toMatchObject({ type: 'done', payload: { stopReason: 'end_turn' } });
+    expect(envelopes[0]).toMatchObject({
+      type: 'pipeline_stage_start',
+      payload: { stage: 'designer' },
+    });
+    expect(envelopes[1]).toMatchObject({
+      type: 'pipeline_stage_end',
+      payload: { stage: 'designer' },
+    });
+    expect(envelopes[2]).toMatchObject({
+      type: 'done',
+      payload: { stopReason: 'end_turn' },
+    });
     expect(res.end).toHaveBeenCalled();
   });
 });

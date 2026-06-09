@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
+/* eslint-disable @typescript-eslint/no-unnecessary-condition -- test assertions use defensive optional chains */
+import type { ThemeLayoutDocument } from '../types';
 import { executeSemanticTool } from './semanticToolExecutor';
 import { buildTemplateProfile, getSeedDocument } from '@shared/agent/runtime';
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import type { ThemeLayoutDocument } from '../types';
 
 function seedDoc(): ThemeLayoutDocument {
-  return getSeedDocument('commerceMarket') as ThemeLayoutDocument;
+  return getSeedDocument('commerceMarket');
 }
 
 function findSlotKey(doc: ThemeLayoutDocument, nodeId: string): string {
@@ -159,7 +160,7 @@ describe('executeSemanticTool - editor_create_page_from_page_kind', () => {
 describe('executeSemanticTool - dryRun', () => {
   it('returns preview without modifying document when dryRun=true', async () => {
     const doc = seedDoc();
-    const before = JSON.parse(JSON.stringify(doc));
+    const before = JSON.parse(JSON.stringify(doc)) as ThemeLayoutDocument;
     const slotKey = findSlotKey(doc, 'home-title');
 
     const result = await executeSemanticTool('editor_update_slot', { slotKey, props: { text: 'Preview only' } }, doc, {
