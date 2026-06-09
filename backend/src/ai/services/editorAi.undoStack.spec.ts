@@ -1,7 +1,7 @@
 /// <reference types="jest" />
 
 import { NotFoundException } from '@nestjs/common';
-import type { EditorUndoSnapshot } from '@shared/agent/editor/editorUndoStack';
+import type { EditorUndoSnapshot } from '@shared/agent/contracts/editorUndoStack';
 
 import type { TemplateReadRepository } from '../../templates/repositories/templateRead.repository';
 import { EditorAiConversation } from '../entities/editorAiConversation.entity';

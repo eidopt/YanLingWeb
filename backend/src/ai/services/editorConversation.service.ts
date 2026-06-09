@@ -1,5 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import type { EditorUndoSnapshot } from '@shared/agent/editor/editorUndoStack';
+import type { EditorUndoSnapshot } from '@shared/agent/contracts/editorUndoStack';
 
 import {
   TEMPLATE_READ_REPOSITORY,
