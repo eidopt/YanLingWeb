@@ -23,6 +23,7 @@ export interface QueryLoopConfig {
   toolSpecs: Map<string, ToolSpec>;
   toolExecutor: (name: string, args: Record<string, unknown>) => Promise<ToolResult>;
   onTextDelta: (text: string) => void;
+  onReasoningDelta?: (delta: string) => void;
   onToolEvent: (event: { name: string; status: 'start' | 'done' | 'error'; detail?: string }) => void;
   onContextCompacted?: () => void;
   onError?: (msg: string) => void;

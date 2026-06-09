@@ -9,7 +9,7 @@ interface ParsedEnvelope {
   payload: Record<string, unknown>;
 }
 
-const ALL_12_TYPES: SseEventType[] = [
+const ALL_13_TYPES: SseEventType[] = [
   'text_delta',
   'tool_call',
   'done',
@@ -22,6 +22,7 @@ const ALL_12_TYPES: SseEventType[] = [
   'pipeline_stage_end',
   'usage_summary',
   'clarification',
+  'edit_request',
 ];
 
 describe('serializeSseEvent', () => {
@@ -58,14 +59,14 @@ describe('serializeSseEvent', () => {
     expect(parsed.payload.originalType).toBe('text_delta');
   });
 
-  it('accepts all 12 SseEventType string literals as type argument (T4)', () => {
-    // 类型守卫: 这个测试在编译期就保证所有 12 个 type 都能通过 serializeSseEvent
+  it('accepts all 13 SseEventType string literals as type argument (T4)', () => {
+    // 类型守卫: 这个测试在编译期就保证所有 13 个 type 都能通过 serializeSseEvent
     // 运行时: 跑一次确保不抛
-    for (const type of ALL_12_TYPES) {
+    for (const type of ALL_13_TYPES) {
       const payload = makeEmptyPayload(type);
       expect(() => serializeSseEvent(type, payload as never)).not.toThrow();
     }
-    expect(ALL_12_TYPES).toHaveLength(12);
+    expect(ALL_13_TYPES).toHaveLength(13);
   });
 });
 
@@ -95,5 +96,7 @@ function makeEmptyPayload(type: SseEventType): unknown {
       return { model: 'm', usage: { inputTokens: 0, outputTokens: 0 } };
     case 'clarification':
       return { question: '', options: [] };
+    case 'edit_request':
+      return { data: '{}' };
   }
 }

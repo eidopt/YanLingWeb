@@ -22,7 +22,9 @@ export type SseEventType =
   | 'pipeline_stage_start'
   | 'pipeline_stage_end'
   | 'usage_summary'
-  | 'clarification';
+  | 'clarification'
+  // 编辑器流专属:edit_request 携带 editor 实际应用的 operations
+  | 'edit_request';
 
 export interface SseTokenUsage {
   inputTokens: number;
@@ -63,6 +65,7 @@ export type SseEventPayloadByType = {
   };
   usage_summary: { model: string; usage: SseTokenUsage; totalCostUsd?: number };
   clarification: { question: string; options: { label: string; value: string }[] };
+  edit_request: { data: string };
 };
 
 /** 老 ProviderStreamEvent 之外的 8 个新事件 type 集合 (前端订阅口过滤用) */

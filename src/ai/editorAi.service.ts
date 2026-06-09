@@ -88,6 +88,8 @@ export interface EditorAiCacheStats {
 interface BackendEditorEvent {
   type: string;
   data?: unknown;
+  schema?: string;
+  payload?: unknown;
 }
 
 function eventDataToString(data: unknown): string {
@@ -106,6 +108,16 @@ function getToolEventName(data: unknown): string {
     return typeof name === 'string' ? name : eventDataToString(data);
   }
   return eventDataToString(data);
+}
+
+function getPayloadField(event: BackendEditorEvent, field: string): unknown {
+  if (event && typeof event === 'object' && 'payload' in event) {
+    const payload = (event as { payload?: unknown }).payload;
+    if (payload && typeof payload === 'object' && field in payload) {
+      return (payload as Record<string, unknown>)[field];
+    }
+  }
+  return undefined;
 }
 
 function normalizeConversationHistory(messages: unknown): EditorAiConversationMessage[] {
@@ -330,6 +342,50 @@ export class EditorAiService {
   ): Promise<void> {
     for await (const streamEvent of events) {
       const event = JSON.parse(streamEvent.data) as BackendEditorEvent;
+      // Phase 1 envelope 格式: { schema: 'sse.v1', type, ts, payload }
+      if (event.schema === 'sse.v1') {
+        switch (event.type) {
+          case 'text_delta':
+            onEvent({ type: 'text', data: eventDataToString(getPayloadField(event, 'text')) });
+            break;
+          case 'tool_start':
+            onEvent({ type: 'tool_start', data: getToolEventName(getPayloadField(event, 'name')) });
+            break;
+          case 'tool_done':
+            onEvent({ type: 'tool_done', data: getToolEventName(getPayloadField(event, 'name')) });
+            break;
+          case 'tool_error':
+            onEvent({ type: 'error', data: eventDataToString(getPayloadField(event, 'error')) });
+            break;
+          case 'clarification':
+            onEvent({
+              type: 'clarification',
+              data: eventDataToString({
+                question: getPayloadField(event, 'question'),
+                options: getPayloadField(event, 'options'),
+              }),
+            });
+            break;
+          case 'edit_request':
+            this.applyBackendEditRequest(getPayloadField(event, 'data'), onEvent, applyInstructions, applyOptions);
+            break;
+          case 'error':
+            onEvent({
+              type: 'error',
+              data: eventDataToString(getPayloadField(event, 'message')),
+              terminal: true,
+            });
+            break;
+          case 'done':
+            onEvent({ type: 'done', data: '' });
+            return;
+          // 跳过 reasoning_delta / usage_summary 等结构化事件 (不影响 UI 流程)
+          default:
+            break;
+        }
+        continue;
+      }
+      // 兼容未带 envelope 的旧事件 (理论上不应该再出现, 但保留 fallback)
       switch (event.type) {
         case 'text':
           onEvent({ type: 'text', data: eventDataToString(event.data) });

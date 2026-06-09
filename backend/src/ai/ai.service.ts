@@ -1,5 +1,6 @@
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import type { ThemeLayoutDocument } from '@shared/agent/contracts/agent';
+import { type SseEventType } from '@shared/agent/contracts/sseEvents';
 import {
   type AgentTemplateKnowledgeContext,
   QueryLoop,
@@ -249,7 +250,7 @@ export class AiService {
         : this.runEditorStream(ownerUserId, req, subject, cacheOptions);
       runner.catch((err) => {
         const msg = err instanceof Error ? err.message : String(err);
-        this.emitEditorEvent(subject, { type: 'error', data: msg });
+        this.emitEditorEvent(subject, 'error', { message: msg });
         subject.complete();
       });
 
@@ -356,11 +357,10 @@ export class AiService {
     cacheOptions?: ProviderCacheOptions,
   ): Promise<void> {
     if (!this.apiKeyConfigured) {
-      this.emitEditorEvent(subject, {
-        type: 'error',
-        data: 'AI_API_KEY is not configured on the backend.',
+      this.emitEditorEvent(subject, 'error', {
+        message: 'AI_API_KEY is not configured on the backend.',
       });
-      this.emitEditorEvent(subject, { type: 'done', data: '' });
+      this.emitEditorEvent(subject, 'done', {});
       subject.complete();
       return;
     }
@@ -382,6 +382,14 @@ export class AiService {
       this.provider.name,
       previousResponseId,
     );
+    let lastUsage:
+      | {
+          inputTokens: number;
+          outputTokens: number;
+          cacheHitTokens?: number;
+          cacheMissTokens?: number;
+        }
+      | undefined;
     const loop = new QueryLoop({
       provider: this.provider,
       model,
@@ -390,24 +398,40 @@ export class AiService {
       maxIterations: this.config.ai.editorAgentMaxIterations,
       isCancelled: () => subject.closed,
       onTextDelta: (text) => {
-        this.emitEditorEvent(subject, { type: 'text', data: text });
+        this.emitEditorEvent(subject, 'text_delta', { text });
+      },
+      onReasoningDelta: (delta) => {
+        this.emitEditorEvent(subject, 'reasoning_delta', { delta });
       },
       onToolEvent: (event) => {
         if (event.status === 'start') {
-          this.emitEditorEvent(subject, { type: 'tool_start', data: event.name });
+          this.emitEditorEvent(subject, 'tool_start', {
+            name: event.name,
+            ts: new Date().toISOString(),
+          });
         } else if (event.status === 'done') {
-          this.emitEditorEvent(subject, { type: 'tool_done', data: event.name });
+          this.emitEditorEvent(subject, 'tool_done', {
+            name: event.name,
+            durationMs: 0,
+          });
+        } else if (event.status === 'error') {
+          this.emitEditorEvent(subject, 'tool_error', {
+            name: event.name,
+            error: event.detail ?? event.name,
+          });
         }
       },
       onError: (msg) => {
-        this.emitEditorEvent(subject, { type: 'error', data: msg });
+        this.emitEditorEvent(subject, 'error', { message: msg });
       },
-      onUsage: (usage) =>
-        this.tokenUsageService
+      onUsage: (usage) => {
+        lastUsage = usage;
+        return this.tokenUsageService
           .recordTokenUsage(ownerUserId, model, usage, 'editor', this.aiConfig.provider)
           .then(() => {
             this.tokenUsageService.logCacheUsage(ownerUserId, model, usage, 'editor');
-          }),
+          });
+      },
       requestCache: previousResponseId ? { previousResponseId } : undefined,
       toolExecutor: (name, args) => this.executeEditorTool(subject, name, args),
     });
@@ -421,9 +445,12 @@ export class AiService {
       result.responseId ?? previousResponseId,
     );
     if (result.stopReason === 'error') {
-      this.emitEditorEvent(subject, { type: 'error', data: result.error ?? 'Unknown error' });
+      this.emitEditorEvent(subject, 'error', { message: result.error ?? 'Unknown error' });
     }
-    this.emitEditorEvent(subject, { type: 'done', data: '' });
+    if (lastUsage) {
+      this.emitEditorEvent(subject, 'usage_summary', { model, usage: lastUsage });
+    }
+    this.emitEditorEvent(subject, 'done', { stopReason: result.stopReason });
     subject.complete();
   }
 
@@ -434,11 +461,10 @@ export class AiService {
     cacheOptions?: ProviderCacheOptions,
   ): Promise<void> {
     if (!this.apiKeyConfigured) {
-      this.emitEditorEvent(subject, {
-        type: 'error',
-        data: 'AI_API_KEY is not configured on the backend.',
+      this.emitEditorEvent(subject, 'error', {
+        message: 'AI_API_KEY is not configured on the backend.',
       });
-      this.emitEditorEvent(subject, { type: 'done', data: '' });
+      this.emitEditorEvent(subject, 'done', {});
       subject.complete();
       return;
     }
@@ -453,8 +479,11 @@ export class AiService {
       clarificationChoice: req.clarificationChoice,
     });
     if (clarification) {
-      this.emitEditorEvent(subject, { type: 'clarification', data: clarification });
-      this.emitEditorEvent(subject, { type: 'done', data: '' });
+      this.emitEditorEvent(subject, 'clarification', {
+        question: clarification.question,
+        options: clarification.options,
+      });
+      this.emitEditorEvent(subject, 'done', {});
       subject.complete();
       return;
     }
@@ -495,6 +524,14 @@ export class AiService {
     });
 
     const editorTools = selectEditorEditTools([prompt, selectedChoiceText].join('\n'));
+    let lastUsage:
+      | {
+          inputTokens: number;
+          outputTokens: number;
+          cacheHitTokens?: number;
+          cacheMissTokens?: number;
+        }
+      | undefined;
     const loop = new QueryLoop({
       provider: this.provider,
       model,
@@ -503,26 +540,40 @@ export class AiService {
       maxIterations: this.config.ai.editorAgentMaxIterations,
       isCancelled: () => subject.closed,
       onTextDelta: (text) => {
-        this.emitEditorEvent(subject, { type: 'text', data: text });
+        this.emitEditorEvent(subject, 'text_delta', { text });
+      },
+      onReasoningDelta: (delta) => {
+        this.emitEditorEvent(subject, 'reasoning_delta', { delta });
       },
       onToolEvent: (event) => {
         if (event.status === 'start') {
-          this.emitEditorEvent(subject, { type: 'tool_start', data: event.name });
+          this.emitEditorEvent(subject, 'tool_start', {
+            name: event.name,
+            ts: new Date().toISOString(),
+          });
         } else if (event.status === 'done') {
-          this.emitEditorEvent(subject, { type: 'tool_done', data: event.name });
-        } else {
-          this.emitEditorEvent(subject, { type: 'tool_error', data: event.detail ?? event.name });
+          this.emitEditorEvent(subject, 'tool_done', {
+            name: event.name,
+            durationMs: 0,
+          });
+        } else if (event.status === 'error') {
+          this.emitEditorEvent(subject, 'tool_error', {
+            name: event.name,
+            error: event.detail ?? event.name,
+          });
         }
       },
       onError: (msg) => {
-        this.emitEditorEvent(subject, { type: 'error', data: msg });
+        this.emitEditorEvent(subject, 'error', { message: msg });
       },
-      onUsage: (usage) =>
-        this.tokenUsageService
+      onUsage: (usage) => {
+        lastUsage = usage;
+        return this.tokenUsageService
           .recordTokenUsage(ownerUserId, model, usage, 'editor', this.aiConfig.provider)
           .then(() => {
             this.tokenUsageService.logCacheUsage(ownerUserId, model, usage, 'editor');
-          }),
+          });
+      },
       requestCache: previousResponseId ? { previousResponseId } : undefined,
       toolExecutor: (name, args) =>
         this.executeEditorTool(subject, name, args, req.document, effectiveTemplateProfile),
@@ -542,14 +593,21 @@ export class AiService {
       result.responseId ?? previousResponseId,
     );
     if (result.stopReason === 'error') {
-      this.emitEditorEvent(subject, { type: 'error', data: result.error ?? 'Unknown error' });
+      this.emitEditorEvent(subject, 'error', { message: result.error ?? 'Unknown error' });
     }
-    this.emitEditorEvent(subject, { type: 'done', data: '' });
+    if (lastUsage) {
+      this.emitEditorEvent(subject, 'usage_summary', { model, usage: lastUsage });
+    }
+    this.emitEditorEvent(subject, 'done', { stopReason: result.stopReason });
     subject.complete();
   }
 
-  private emitEditorEvent(subject: Subject<StreamSseEvent>, event: EditorSseEventPayload): void {
-    subject.next({ data: JSON.stringify(event) });
+  private emitEditorEvent(
+    subject: Subject<StreamSseEvent>,
+    type: SseEventType,
+    payload: unknown,
+  ): void {
+    subject.next({ data: serializeSseEvent(type, payload as never) });
   }
 
   private executeEditorTool(
@@ -569,8 +627,7 @@ export class AiService {
       const edit = editorToolCallToOperations(name, args);
       const compiledEdit = compileSemanticEditorOperations(edit, document, profile);
       assertEditorOperations(compiledEdit);
-      this.emitEditorEvent(subject, {
-        type: 'edit_request',
+      this.emitEditorEvent(subject, 'edit_request', {
         data: JSON.stringify(compiledEdit),
       });
       return Promise.resolve({
