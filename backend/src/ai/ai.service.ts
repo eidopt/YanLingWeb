@@ -29,6 +29,7 @@ import {
   editorToolSpecs,
   extractClarificationChoiceText,
   isEditorAgentStreamRequest,
+  type PipelineStagePayload,
   type ProviderCacheOptions,
   type RateLimitEntry,
   type SaveGeneratedTemplateResult,
@@ -70,7 +71,12 @@ export interface AiConfigDto {
 }
 
 // Re-export types from sub-services for backward compatibility
-export type { EditorAgentStreamRequest, StreamRequest, StreamSseEvent } from './ai.service.helpers';
+export type {
+  EditorAgentStreamRequest,
+  PipelineStagePayload,
+  StreamRequest,
+  StreamSseEvent,
+} from './ai.service.helpers';
 export type {
   EditorAiConversationDto,
   SaveEditorAiConversationInput,
@@ -204,11 +210,18 @@ export class AiService {
     return this.tokenUsageService.getCacheStats(ownerUserId);
   }
 
+  /** 临时存储 runStream 期间的 stage 回调 — 真正的调用方是 AiController.streamProxy */
+  private readonly activeStreamStageCallbacks = new WeakMap<
+    StreamRequest,
+    ((phase: 'start' | 'end', payload: PipelineStagePayload) => void) | undefined
+  >();
+
   /** Proxy a streaming OpenAI-compatible Responses API request, forwarding events as SSE */
   stream(
     ownerUserId: string,
     req: StreamRequest,
     cacheOptions?: ProviderCacheOptions,
+    onPipelineStageEvent?: (phase: 'start' | 'end', payload: PipelineStagePayload) => void,
   ): Observable<StreamSseEvent> {
     return new Observable<StreamSseEvent>((subscriber) => {
       const subject = new Subject<StreamSseEvent>();
@@ -218,6 +231,18 @@ export class AiService {
         complete: () => subscriber.complete(),
       });
 
+      // 包装回调: 调用方传 onPipelineStageEvent 时, 内部用 try/catch 防止吞掉异常
+      const safeOnStage = onPipelineStageEvent
+        ? (phase: 'start' | 'end', payload: PipelineStagePayload) => {
+            try {
+              onPipelineStageEvent(phase, payload);
+            } catch (e) {
+              this.logger.warn(`onPipelineStageEvent threw: ${(e as Error).message}`);
+            }
+          }
+        : undefined;
+      this.activeStreamStageCallbacks.set(req, safeOnStage);
+
       void this.runStream(ownerUserId, req, subject, cacheOptions).catch((err) => {
         const msg = err instanceof Error ? err.message : String(err);
         this.emitStreamEvent(subject, { type: 'error', message: msg });
@@ -226,6 +251,7 @@ export class AiService {
 
       return () => {
         relay.unsubscribe();
+        this.activeStreamStageCallbacks.delete(req);
         subject.complete();
       };
     });

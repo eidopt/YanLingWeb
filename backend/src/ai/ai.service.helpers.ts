@@ -82,6 +82,16 @@ export interface EditorSseEventPayload {
   data: unknown;
 }
 
+export type PipelineStageName = 'designer' | 'critic' | 'schema' | 'verifier';
+
+export interface PipelineStagePayload {
+  stage: PipelineStageName;
+  attempt: number;
+  durationMs?: number;
+  status?: 'ok' | 'failed';
+  error?: string;
+}
+
 export interface SaveGeneratedTemplateResult {
   templateId: string;
   action: 'created' | 'updated';
