@@ -4,6 +4,7 @@ import type { AgentClarification } from '@shared/agent/contracts/agent';
 import type { EditorAiCacheStats, EditorAiConversationMessage } from 'ai/editorAi.service';
 import type { UiIntentPlan } from 'ai/planning/uiIntentRouter';
 import { CONTAINER_ALIASES } from 'domain/template';
+import type { Dispatch, SetStateAction } from 'react';
 import { EDITOR_AI_PANEL_MAX_STORED_MESSAGES, type EditorAiPanelMessage } from 'state/editorAiPanelState';
 
 export type EditorAiMessage = EditorAiPanelMessage;
@@ -288,4 +289,24 @@ export function buildCacheStatsBadges(stats: EditorAiCacheStats | null): string[
     c.cache.hitTokens(formatTokenCount(stats.totalCacheHitTokens)),
     c.cache.recentRequests(stats.recentRequests.length),
   ];
+}
+
+export function appendAssistantReasoning(
+  messageId: string,
+  delta: string,
+  setMessages: Dispatch<SetStateAction<EditorAiMessage[]>>,
+): void {
+  setMessages((current) =>
+    current.map((m) => (m.id === messageId ? { ...m, reasoningDelta: `${m.reasoningDelta ?? ''}${delta}` } : m)),
+  );
+}
+
+export function buildReasoningAccumulator(messages: readonly EditorAiMessage[]): string {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const m = messages[i];
+    if (m.role === 'assistant' && m.reasoningDelta) {
+      return m.reasoningDelta;
+    }
+  }
+  return '';
 }

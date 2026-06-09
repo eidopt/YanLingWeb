@@ -2,7 +2,7 @@
 
 import styles from './ChatPanel.module.css';
 import type { AgentClarificationOption } from '@shared/agent/contracts/agent';
-import { type FormEvent, type KeyboardEvent, type RefObject, useState } from 'react';
+import { type FormEvent, type KeyboardEvent, type ReactNode, type RefObject, useState } from 'react';
 import type { Components } from 'react-markdown';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -44,6 +44,7 @@ export interface ChatPanelProps {
   onClarificationSelect?: (option: AgentClarificationOption, message: ChatMessage) => void;
   onClarificationCustomSubmit?: (value: string, message: ChatMessage) => void;
   messagesEndRef?: RefObject<HTMLDivElement | null>;
+  renderAfterMessages?: ReactNode;
 }
 
 const markdownComponents: Components = {
@@ -127,6 +128,7 @@ export function ChatPanel({
   onClarificationSelect,
   onClarificationCustomSubmit,
   messagesEndRef,
+  renderAfterMessages,
 }: ChatPanelProps) {
   const [customValues, setCustomValues] = useState<Record<string, string>>({});
 
@@ -253,6 +255,8 @@ export function ChatPanel({
         ))}
         <Box ref={messagesEndRef} />
       </Box>
+
+      {renderAfterMessages}
 
       <Box as="form" className={styles.form} onSubmit={onSubmit}>
         <TextArea

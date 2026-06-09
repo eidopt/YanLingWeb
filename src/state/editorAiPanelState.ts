@@ -14,6 +14,7 @@ import type { ChatMessage } from 'ui/chat/ChatPanel';
 
 export interface EditorAiPanelMessage extends ChatMessage {
   clarificationPrompt?: string;
+  reasoningDelta?: string;
 }
 
 export interface EditorAiPanelSnapshot {
@@ -109,6 +110,7 @@ function readEditorAiPanelMessage(value: unknown): EditorAiPanelMessage | null {
     role,
     text,
     streaming: record.streaming === true,
+    reasoningDelta: typeof record.reasoningDelta === 'string' ? record.reasoningDelta : undefined,
   };
 }
 
@@ -118,11 +120,17 @@ export function normalizeEditorAiPanelStoredMessages(
   return messages
     .filter(isCompletedConversationMessage)
     .slice(-EDITOR_AI_PANEL_MAX_STORED_MESSAGES)
-    .map((message) => ({
-      id: message.id,
-      role: message.role,
-      text: message.text,
-    }));
+    .map((message) => {
+      const normalized: EditorAiPanelMessage & { role: EditorAiConversationMessage['role'] } = {
+        id: message.id,
+        role: message.role,
+        text: message.text,
+      };
+      if (message.reasoningDelta) {
+        normalized.reasoningDelta = message.reasoningDelta;
+      }
+      return normalized;
+    });
 }
 
 export function restoreEditorAiPanelConversationMessages(

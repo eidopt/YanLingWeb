@@ -8,10 +8,12 @@ import type {
 } from '../services/aiEditInstructions';
 import { editorAiPanelContent as c } from './EditorAiPanel.content';
 import {
+  appendAssistantReasoning,
   buildApplyFailureClarification,
   buildCacheStatsBadges,
   buildMessagesFromConversation,
   buildProviderConversationId,
+  buildReasoningAccumulator,
   CACHE_STATS_REFRESH_INTERVAL_MS,
   createMessageId,
   describeAppliedEdits,
@@ -38,6 +40,7 @@ import {
   useEditorAiPanelSnapshot,
 } from 'state/editorAiPanelState';
 import { type ChatMessage, ChatPanel } from 'ui/chat/ChatPanel';
+import { ReasoningPanel } from 'ui/chat/ReasoningPanel';
 
 interface EditorAiPanelProps {
   templateId?: string;
@@ -382,6 +385,10 @@ export function EditorAiPanel({
             case 'text':
               appendAssistantDelta(assistantMessageId, event.data);
               break;
+            case 'reasoning': {
+              appendAssistantReasoning(assistantMessageId, event.data, setMessages);
+              break;
+            }
             case 'tool_start':
               setStatus(c.status.editingCanvas);
               break;
@@ -510,6 +517,7 @@ export function EditorAiPanel({
       onClarificationSelect={handleClarificationSelect}
       onClarificationCustomSubmit={handleClarificationCustomSubmit}
       messagesEndRef={messagesEndRef}
+      renderAfterMessages={<ReasoningPanel content={buildReasoningAccumulator(messages)} label={c.reasoning.label} />}
     />
   );
 }

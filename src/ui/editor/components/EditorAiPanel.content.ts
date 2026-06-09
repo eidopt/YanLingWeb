@@ -63,4 +63,7 @@ export const editorAiPanelContent = {
     failed: '执行失败',
     stopped: '已停止',
   },
+  reasoning: {
+    label: 'AI 推理过程',
+  },
 } as const;
