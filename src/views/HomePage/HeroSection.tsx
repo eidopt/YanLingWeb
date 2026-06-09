@@ -3,11 +3,7 @@
 import styles from './HeroSection.module.css';
 import { homePageContent as c } from './HomePage.content';
 import { useCallback } from 'react';
-import {
-  Box,
-  Heading,
-  Text,
-} from 'ui/base';
+import { Box, Heading, Text } from 'ui/base';
 import { PageButton } from 'ui/pages';
 
 interface HeroSectionProps {
@@ -15,10 +11,7 @@ interface HeroSectionProps {
   onCtaSecondary: () => void;
 }
 
-export function HeroSection({
-  onCtaPrimary,
-  onCtaSecondary,
-}: HeroSectionProps) {
+export function HeroSection({ onCtaPrimary, onCtaSecondary }: HeroSectionProps) {
   const scrollToNext = useCallback(() => {
     const next = document.querySelector('[data-section="stats"]');
     if (next) {
@@ -41,21 +34,17 @@ export function HeroSection({
           <Box as="span" className={styles.eyebrowDot} />
           {c.hero.eyebrow}
         </Box>
-        <Heading
-          as="h1"
-          flow="stack"
-          size="showcase"
-          spacing="hero"
-          variant="primary"
-          weight="heavy"
-        >
-          {c.hero.titleWords.map((word, i) => (
-            // eslint-disable-next-line react/no-array-index-key -- static content, no stable key available
-            <Box key={i} as="span" className={styles.heroTitleLine}>{word}</Box>
+        <Heading as="h1" flow="stack" size="showcase" spacing="hero" variant="primary" weight="heavy">
+          {c.hero.titleWords.map((word) => (
+            <Box key={word} as="span" className={styles.heroTitleLine}>
+              {word}
+            </Box>
           ))}
         </Heading>
         <Box className={styles.heroSub}>
-          <Text size="lead" variant="secondary">{c.hero.sub}</Text>
+          <Text size="lead" variant="secondary">
+            {c.hero.sub}
+          </Text>
         </Box>
         <Box className={styles.heroBtns}>
           <PageButton onClick={onCtaPrimary} showArrow>
@@ -66,7 +55,9 @@ export function HeroSection({
           </PageButton>
         </Box>
         <Box className={styles.heroHint}>
-          <Text size="xs" variant="muted">{c.hero.hint}</Text>
+          <Text size="xs" variant="muted">
+            {c.hero.hint}
+          </Text>
         </Box>
       </Box>
 
@@ -78,7 +69,9 @@ export function HeroSection({
               <Box as="span" />
               <Box as="span" />
             </Box>
-            <Text as="strong" size="sm" weight="bold">{c.heroStudio.canvasTitle}</Text>
+            <Text as="strong" size="sm" weight="bold">
+              {c.heroStudio.canvasTitle}
+            </Text>
             <Box className={styles.heroEditorMode}>
               <Box as="span">编辑</Box>
               <Box as="span">预览</Box>
@@ -87,13 +80,13 @@ export function HeroSection({
 
           <Box className={styles.heroEditorWorkspace}>
             <Box as="aside" className={styles.heroEditorLibrary}>
-              <Box className={styles.heroPanelTitle}>
-                {c.heroStudio.sidebarTitle}
-              </Box>
-              {c.heroStudio.sidebarItems.map(item => (
+              <Box className={styles.heroPanelTitle}>{c.heroStudio.sidebarTitle}</Box>
+              {c.heroStudio.sidebarItems.map((item) => (
                 <Box key={item} className={styles.heroLibraryCard}>
                   <Box as="span" />
-                  <Text as="strong" size="xs" weight="bold">{item}</Text>
+                  <Text as="strong" size="xs" weight="bold">
+                    {item}
+                  </Text>
                 </Box>
               ))}
             </Box>
@@ -127,7 +120,9 @@ export function HeroSection({
                   </Box>
                   <Box className={styles.heroDraggedComponent}>
                     <Box as="span" />
-                    <Text as="strong" size="xs" weight="bold">预约表单</Text>
+                    <Text as="strong" size="xs" weight="bold">
+                      预约表单
+                    </Text>
                   </Box>
                   <Box className={styles.heroEditCursor}>AI</Box>
                   <Box className={styles.heroDropIndicator} />
@@ -141,18 +136,20 @@ export function HeroSection({
                   <Box as="span" />
                   <Box as="span" />
                 </Box>
-                <Text as="strong" weight="bold">+</Text>
+                <Text as="strong" weight="bold">
+                  +
+                </Text>
               </Box>
             </Box>
 
             <Box as="aside" className={styles.heroEditorInspector}>
-              <Box className={styles.heroPanelTitle}>
-                {c.heroStudio.editorTitle}
-              </Box>
-              {c.heroStudio.inspectorItems.slice(0, 2).map(item => (
+              <Box className={styles.heroPanelTitle}>{c.heroStudio.editorTitle}</Box>
+              {c.heroStudio.inspectorItems.slice(0, 2).map((item) => (
                 <Box key={item.label} className={styles.heroInspectorField}>
                   <Box as="span">{item.label}</Box>
-                  <Text as="strong" size="xs" weight="bold">{item.value}</Text>
+                  <Text as="strong" size="xs" weight="bold">
+                    {item.value}
+                  </Text>
                 </Box>
               ))}
               <Box className={styles.heroEditorChat}>
@@ -176,15 +173,16 @@ export function HeroSection({
           </Box>
         </Box>
         <Box className={styles.heroStatusDock} aria-hidden="true">
-          {c.heroStudio.statusItems.map(item => (
-            <Box
-              key={item.label}
-              className={styles.heroStatusItem}
-            >
+          {c.heroStudio.statusItems.map((item) => (
+            <Box key={item.label} className={styles.heroStatusItem}>
               <Box as="span" />
               <Box>
-                <Text as="strong" size="xs" weight="bold">{item.label}</Text>
-                <Text as="small" size="xs" variant="muted">{item.value}</Text>
+                <Text as="strong" size="xs" weight="bold">
+                  {item.label}
+                </Text>
+                <Text as="small" size="xs" variant="muted">
+                  {item.value}
+                </Text>
               </Box>
             </Box>
           ))}
@@ -192,13 +190,7 @@ export function HeroSection({
       </Box>
 
       {/* Scroll indicator */}
-      <Box
-        aria-hidden="true"
-        className="scroll-indicator"
-        onClick={scrollToNext}
-        role="button"
-        tabIndex={-1}
-      >
+      <Box aria-hidden="true" className="scroll-indicator" onClick={scrollToNext} role="button" tabIndex={-1}>
         <Box className="scroll-indicator-line" />
         <Box className="scroll-indicator-dot" />
       </Box>

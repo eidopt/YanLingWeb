@@ -27,7 +27,8 @@ function resolveProps(
 function renderTemplateNode(node: TemplateNode, outerProps: Record<string, unknown>, runtime: ThemeRuntime): ReactNode {
   const resolvedProps = resolveProps(node.props, outerProps);
   const childNodes: ReactNode[] = (node.children ?? []).map((child, i) => (
-    // eslint-disable-next-line react/no-array-index-key
+    // children are template-defined and lack stable ids; alias + position is the best available key
+    // eslint-disable-next-line react/no-array-index-key -- template nodes have no stable id
     <Fragment key={i}>{renderTemplateNode(child, outerProps, runtime)}</Fragment>
   ));
   return renderCoreAlias(runtime, node.alias, resolvedProps, childNodes);

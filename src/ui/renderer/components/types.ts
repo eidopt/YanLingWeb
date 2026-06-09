@@ -8,8 +8,7 @@ import type { CSSProperties, ReactNode } from 'react';
  * alongside the template-defined props. Components access both through
  * the same props object, using valueResolvers for safe extraction.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface CoreNodeProps<T = Record<string, any>> {
+export interface CoreNodeProps<T = Record<string, unknown>> {
   props: T;
   children: ReactNode[];
   nodeLayoutStyle: CSSProperties;
