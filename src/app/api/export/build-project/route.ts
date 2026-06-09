@@ -9,23 +9,11 @@ import type { ExportBuildPayload } from 'types/export.types';
 const OUTPUT_DIR = path.join(process.cwd(), 'output', 'react-source-exports');
 
 export async function POST(req: NextRequest) {
-  const payload = await req.json() as ExportBuildPayload;
-  const {
-    projectName,
-    layoutJson,
-    themeId,
-    runtimeCssVars,
-    runtimeCssAnimations,
-  } = payload;
+  const payload = (await req.json()) as ExportBuildPayload;
+  const { projectName, layoutJson, themeId, runtimeCssVars, runtimeCssAnimations } = payload;
   const projectDir = path.join(OUTPUT_DIR, projectName);
 
-  const files = generateScaffoldFiles(
-    layoutJson,
-    themeId,
-    projectName,
-    runtimeCssVars,
-    runtimeCssAnimations,
-  );
+  const files = generateScaffoldFiles(layoutJson, themeId, projectName, runtimeCssVars, runtimeCssAnimations);
   for (const file of files) {
     const filePath = path.join(projectDir, file.relativePath);
     await fs.mkdir(path.dirname(filePath), { recursive: true });
@@ -72,8 +60,9 @@ function runViteBuild(projectDir: string): Promise<string> {
     });
 
     let stderr = '';
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- stderr may be null depending on spawn stdio config
-    proc.stderr?.on('data', (chunk: Buffer) => { stderr += chunk.toString(); });
+    proc.stderr.on('data', (chunk: Buffer) => {
+      stderr += chunk.toString();
+    });
 
     proc.on('close', (code) => {
       if (code === 0) {

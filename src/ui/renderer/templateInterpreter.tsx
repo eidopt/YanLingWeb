@@ -1,22 +1,10 @@
 import { renderCoreAlias } from './coreAliases';
-import type {
-  ComponentTemplateMap,
-  TemplateNode,
-  TemplatePropValue,
-} from './templateTypes';
+import type { ComponentTemplateMap, TemplateNode, TemplatePropValue } from './templateTypes';
 import type { ThemeRuntime } from './types';
 import { Fragment, type ReactNode } from 'react';
 
-function resolveValue(
-  value: TemplatePropValue,
-  outerProps: Record<string, unknown>,
-): unknown {
-  if (
-    typeof value === 'object' &&
-    value !== null &&
-    !Array.isArray(value) &&
-    '$bind' in value
-  ) {
+function resolveValue(value: TemplatePropValue, outerProps: Record<string, unknown>): unknown {
+  if (typeof value === 'object' && value !== null && !Array.isArray(value) && '$bind' in value) {
     return outerProps[(value as { $bind: string }).$bind];
   }
   return value;
@@ -27,24 +15,20 @@ function resolveProps(
   outerProps: Record<string, unknown>,
 ): Record<string, unknown> {
   const resolved: Record<string, unknown> = { __applyNodeLayoutStyle: false };
-  if (!templateProps) {return resolved;}
+  if (!templateProps) {
+    return resolved;
+  }
   for (const [key, value] of Object.entries(templateProps)) {
     resolved[key] = resolveValue(value, outerProps);
   }
   return resolved;
 }
 
-function renderTemplateNode(
-  node: TemplateNode,
-  outerProps: Record<string, unknown>,
-  runtime: ThemeRuntime,
-): ReactNode {
+function renderTemplateNode(node: TemplateNode, outerProps: Record<string, unknown>, runtime: ThemeRuntime): ReactNode {
   const resolvedProps = resolveProps(node.props, outerProps);
   const childNodes: ReactNode[] = (node.children ?? []).map((child, i) => (
     // eslint-disable-next-line react/no-array-index-key
-    <Fragment key={i}>
-      {renderTemplateNode(child, outerProps, runtime)}
-    </Fragment>
+    <Fragment key={i}>{renderTemplateNode(child, outerProps, runtime)}</Fragment>
   ));
   return renderCoreAlias(runtime, node.alias, resolvedProps, childNodes);
 }
@@ -55,8 +39,9 @@ export function renderComponentTemplate(
   componentTemplates: ComponentTemplateMap,
   runtime: ThemeRuntime,
 ): ReactNode {
+  if (!Object.hasOwn(componentTemplates, alias)) {
+    return null;
+  }
   const template = componentTemplates[alias];
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- alias may not be in the map at runtime
-  if (!template) {return null;}
   return renderTemplateNode(template.root, outerProps, runtime);
 }

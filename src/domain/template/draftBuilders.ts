@@ -11,14 +11,9 @@ import type {
   ThemeLayoutNode,
 } from 'ui/layout/types';
 
-function buildDefaultPropValue(
-  themeId: string,
-  descriptor: ThemeComponentDescriptor,
-  prop: LayoutPropDescriptor,
-) {
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- themeId may not be in registry at runtime
-  const aliasOverrides = SAMPLE_PROP_OVERRIDES[themeId]?.[descriptor.alias];
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- defensive guard
+function buildDefaultPropValue(themeId: string, descriptor: ThemeComponentDescriptor, prop: LayoutPropDescriptor) {
+  const themeOverrides = Object.hasOwn(SAMPLE_PROP_OVERRIDES, themeId) ? SAMPLE_PROP_OVERRIDES[themeId] : undefined;
+  const aliasOverrides = themeOverrides?.[descriptor.alias];
   if (aliasOverrides && Object.hasOwn(aliasOverrides, prop.name)) {
     return aliasOverrides[prop.name];
   }
@@ -71,15 +66,9 @@ function buildDefaultPropValue(
   }
 }
 
-export function buildDefaultProps(
-  themeId: string,
-  descriptor: ThemeComponentDescriptor,
-) {
+export function buildDefaultProps(themeId: string, descriptor: ThemeComponentDescriptor) {
   return Object.fromEntries(
-    descriptor.props.map((prop) => [
-      prop.name,
-      buildDefaultPropValue(themeId, descriptor, prop),
-    ]),
+    descriptor.props.map((prop) => [prop.name, buildDefaultPropValue(themeId, descriptor, prop)]),
   );
 }
 
@@ -111,13 +100,8 @@ export function defaultFlowAlignSelf(descriptor: ThemeComponentDescriptor) {
   return descriptor.alias === 'core.notice' ? 'start' : '';
 }
 
-export function defaultAbsoluteWidth(
-  descriptor: ThemeComponentDescriptor,
-) {
-  if (
-    descriptor.alias === 'svc-text' ||
-    descriptor.alias === 'com-text'
-  ) {
+export function defaultAbsoluteWidth(descriptor: ThemeComponentDescriptor) {
+  if (descriptor.alias === 'svc-text' || descriptor.alias === 'com-text') {
     return '180';
   }
 
@@ -185,16 +169,12 @@ export function buildLayoutFromDraft(draft: NodeDraft): LayoutNodeLayout {
     maxHeight: parseSizeField(draft.maxHeight),
     gridColumn: draft.gridColumn || undefined,
     gridRow: draft.gridRow || undefined,
-    alignSelf:
-      (draft.alignSelf || undefined) as LayoutNodeLayout['alignSelf'],
-    justifySelf:
-      (draft.justifySelf || undefined) as LayoutNodeLayout['justifySelf'],
+    alignSelf: (draft.alignSelf || undefined) as LayoutNodeLayout['alignSelf'],
+    justifySelf: (draft.justifySelf || undefined) as LayoutNodeLayout['justifySelf'],
   };
 }
 
-export function buildFrameFromDraft(
-  draft: NodeDraft,
-): LayoutNodeFrame | undefined {
+export function buildFrameFromDraft(draft: NodeDraft): LayoutNodeFrame | undefined {
   if (draft.layoutMode !== 'absolute') {
     return undefined;
   }
@@ -214,10 +194,7 @@ export function buildFrameFromDraft(
   };
 }
 
-export function buildPropsFromValues(
-  descriptor: ThemeComponentDescriptor,
-  values: Record<string, string | boolean>,
-) {
+export function buildPropsFromValues(descriptor: ThemeComponentDescriptor, values: Record<string, string | boolean>) {
   const nextProps: Record<string, unknown> = {};
 
   descriptor.props.forEach((prop) => {
@@ -250,17 +227,11 @@ export function buildPropsFromValues(
   return nextProps;
 }
 
-export function buildPropsFromDraft(
-  descriptor: ThemeComponentDescriptor,
-  draft: NodeDraft,
-) {
+export function buildPropsFromDraft(descriptor: ThemeComponentDescriptor, draft: NodeDraft) {
   return buildPropsFromValues(descriptor, draft.props);
 }
 
-export function validateDraft(
-  descriptor: ThemeComponentDescriptor,
-  draft: NodeDraft,
-) {
+export function validateDraft(descriptor: ThemeComponentDescriptor, draft: NodeDraft) {
   for (const prop of descriptor.props) {
     const value = draft.props[prop.name];
     if (prop.required) {
@@ -269,9 +240,7 @@ export function validateDraft(
       }
 
       if (typeof value !== 'string' || !value.trim()) {
-        return themeLayoutBuilderContent.validation.requiredProp(
-          getPropDisplayName(prop),
-        );
+        return themeLayoutBuilderContent.validation.requiredProp(getPropDisplayName(prop));
       }
     }
   }
@@ -280,19 +249,11 @@ export function validateDraft(
     return themeLayoutBuilderContent.validation.parentRequired;
   }
 
-  if (
-    draft.layoutMode === 'absolute' &&
-    !draft.frameX.trim() &&
-    !draft.frameLeft.trim()
-  ) {
+  if (draft.layoutMode === 'absolute' && !draft.frameX.trim() && !draft.frameLeft.trim()) {
     return themeLayoutBuilderContent.validation.absoluteXRequired;
   }
 
-  if (
-    draft.layoutMode === 'absolute' &&
-    !draft.frameY.trim() &&
-    !draft.frameTop.trim()
-  ) {
+  if (draft.layoutMode === 'absolute' && !draft.frameY.trim() && !draft.frameTop.trim()) {
     return themeLayoutBuilderContent.validation.absoluteYRequired;
   }
 
@@ -307,8 +268,7 @@ export function createDraft(
   dropPoint?: { x: number; y: number },
   flowRow = 0,
 ): NodeDraft {
-  const layoutMode: DraftLayoutMode =
-    slot === 'footer' ? 'flow' : dropPoint ? 'absolute' : 'flow';
+  const layoutMode: DraftLayoutMode = slot === 'footer' ? 'flow' : dropPoint ? 'absolute' : 'flow';
   const isAbsolute = layoutMode === 'absolute';
 
   return {
@@ -347,16 +307,10 @@ export function createDraftFromNode(
   node: ThemeLayoutNode,
   parentId: string,
 ): NodeDraft {
-  const propEntries: [string, string | boolean][] =
-    descriptor.props.map((prop) => {
-      const rawValue = node.props?.[prop.name];
-      return [
-        prop.name,
-        prop.type === 'boolean'
-          ? Boolean(rawValue)
-          : toFieldString(rawValue),
-      ];
-    });
+  const propEntries: [string, string | boolean][] = descriptor.props.map((prop) => {
+    const rawValue = node.props?.[prop.name];
+    return [prop.name, prop.type === 'boolean' ? Boolean(rawValue) : toFieldString(rawValue)];
+  });
 
   return {
     nodeId: node.id,
@@ -402,8 +356,6 @@ export function buildNodeFromDraft(
     layout: buildLayoutFromDraft(draft),
     frame: buildFrameFromDraft(draft),
     props: buildPropsFromDraft(descriptor, draft),
-    children: CONTAINER_ALIASES.has(descriptor.alias) || descriptor.kind === 'layout'
-      ? (children ?? [])
-      : undefined,
+    children: CONTAINER_ALIASES.has(descriptor.alias) || descriptor.kind === 'layout' ? (children ?? []) : undefined,
   };
 }

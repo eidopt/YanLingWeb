@@ -1,14 +1,6 @@
-import {
-  buildDefaultProps,
-  buildPropsFromValues,
-  defaultFlowWidth,
-} from './draftBuilders';
+import { buildDefaultProps, buildPropsFromValues, defaultFlowWidth } from './draftBuilders';
 import { createNodeId, descriptorForAlias, toFieldString } from './nodeOperations';
-import type {
-  ThemeComponentDescriptor,
-  ThemeLayoutDocument,
-  ThemeLayoutNode,
-} from 'ui/layout/types';
+import type { ThemeComponentDescriptor, ThemeLayoutDocument, ThemeLayoutNode } from 'ui/layout/types';
 import { normalizeThemeLayoutDocument } from 'ui/layout/types';
 
 function getPreviewThemeAliases(themeId: string) {
@@ -39,23 +31,11 @@ export function createLibrarySampleNode(
   };
 }
 
-export function createLibrarySampleChildren(
-  document: ThemeLayoutDocument,
-  containerAlias: string,
-): ThemeLayoutNode[] {
+export function createLibrarySampleChildren(document: ThemeLayoutDocument, containerAlias: string): ThemeLayoutNode[] {
   const previewThemeAliases = getPreviewThemeAliases(document.themeId);
-  const textDescriptor = descriptorForAlias(
-    document,
-    previewThemeAliases.text,
-  );
-  const actionDescriptor = descriptorForAlias(
-    document,
-    previewThemeAliases.action,
-  );
-  const chipDescriptor = descriptorForAlias(
-    document,
-    previewThemeAliases.chip,
-  );
+  const textDescriptor = descriptorForAlias(document, previewThemeAliases.text);
+  const actionDescriptor = descriptorForAlias(document, previewThemeAliases.action);
+  const chipDescriptor = descriptorForAlias(document, previewThemeAliases.chip);
 
   if (!textDescriptor || !actionDescriptor) {
     return [];
@@ -69,21 +49,9 @@ export function createLibrarySampleChildren(
       undefined,
       1,
     ),
-    createLibrarySampleNode(
-      document.themeId,
-      actionDescriptor,
-      { variant: 'primary' },
-      undefined,
-      2,
-    ),
+    createLibrarySampleNode(document.themeId, actionDescriptor, { variant: 'primary' }, undefined, 2),
     containerAlias === 'core.stack' && chipDescriptor
-      ? createLibrarySampleNode(
-          document.themeId,
-          chipDescriptor,
-          undefined,
-          undefined,
-          3,
-        )
+      ? createLibrarySampleNode(document.themeId, chipDescriptor, undefined, undefined, 3)
       : null,
   ].filter((node): node is ThemeLayoutNode => Boolean(node));
 }
@@ -116,14 +84,8 @@ export function createLibraryPreviewDocument(
   const previewPageId = document.defaultPageId;
   const previewPageName = document.pageName ?? '组件预览';
 
-  if (
-    descriptor.alias === 'core.panel' ||
-    descriptor.alias === 'core.stack'
-  ) {
-    const previewChildren = createLibrarySampleChildren(
-      document,
-      descriptor.alias,
-    ).map((child, index) => {
+  if (descriptor.alias === 'core.panel' || descriptor.alias === 'core.stack') {
+    const previewChildren = createLibrarySampleChildren(document, descriptor.alias).map((child, index) => {
       const childDescriptor = descriptorForAlias(document, child.alias);
       if (!childDescriptor) {
         return child;
@@ -136,11 +98,9 @@ export function createLibraryPreviewDocument(
         Object.fromEntries(
           childDescriptor.props.map((prop) => [
             prop.name,
-            /* eslint-disable @typescript-eslint/no-unnecessary-condition -- child.props may be undefined at runtime */
             typeof child.props?.[prop.name] === 'boolean'
-              ? Boolean(child.props?.[prop.name])
+              ? Boolean(child.props[prop.name])
               : toFieldString(child.props?.[prop.name]),
-            /* eslint-enable @typescript-eslint/no-unnecessary-condition */
           ]),
         ),
       );
@@ -169,11 +129,7 @@ export function createLibraryPreviewDocument(
     });
   }
 
-  const previewLayout = createLibraryPreviewNode(
-    document.themeId,
-    descriptor,
-    descriptor.alias,
-  );
+  const previewLayout = createLibraryPreviewNode(document.themeId, descriptor, descriptor.alias);
 
   return normalizeThemeLayoutDocument({
     ...document,

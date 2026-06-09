@@ -301,11 +301,9 @@ export function createCanvasesFromTheme(theme: LayoutBuilderTheme): BuilderCanva
 export function createCanvasFromTheme(theme: LayoutBuilderTheme, index: number, blank = false): BuilderCanvas {
   const defaultName = blank
     ? createCanvasName(index)
-    : /* eslint-disable @typescript-eslint/prefer-nullish-coalescing -- 空字符串需要继续回退到下一个选项 */
-      theme.layoutDocument.pageName?.trim() ||
-      theme.layoutDocument.layout.props?.title?.toString().trim() ||
+    : (theme.layoutDocument.pageName?.trim() ?? '') ||
+      (theme.layoutDocument.layout.props?.title?.toString().trim() ?? '') ||
       theme.name;
-  /* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
   const document = blank ? createBlankDocument(theme.layoutDocument) : cloneDocument(theme.layoutDocument);
   document.pageName = defaultName;
 

@@ -142,9 +142,7 @@ export function ThemeLayoutBuilder({
   const defaultPageName =
     activeCanvas.defaultName ||
     themeLayoutBuilderContent.preview.defaultPageName(activeCanvasIndex >= 0 ? activeCanvasIndex + 1 : 1);
-  /* eslint-disable @typescript-eslint/no-unnecessary-condition -- pageName/name may be undefined at runtime despite the type */
-  const currentPageName = activeCanvas.document.pageName ?? activeCanvas.name ?? defaultPageName;
-  /* eslint-enable @typescript-eslint/no-unnecessary-condition */
+  const currentPageName = (activeCanvas.document.pageName ?? '') || activeCanvas.name || defaultPageName;
   const isPreviewMode = interactionMode === 'preview';
   const documentForRender = previewDocument ?? currentDocument;
 

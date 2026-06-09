@@ -1,5 +1,5 @@
 import { buildTemplateStyleProfile } from '../../theme-layout/styleProfile';
-import type { ThemeLayoutDocument, ThemeLayoutNode } from '../types';
+import type { ThemeLayoutDocument, ThemeLayoutNode, ThemeLayoutPage } from '../types';
 import {
   CONTAINER_ALIASES,
   EDITABLE_PROPS_BY_ALIAS,
@@ -181,6 +181,22 @@ function walkNodes(
   semanticNode.children?.forEach((child) => walkNodes(child, visitor, semanticNode));
 }
 
+function detectNavigationComponents(pages: ThemeLayoutPage[]): { hasSidebar: boolean; hasTabbar: boolean } {
+  let hasTabbar = false;
+  let hasSidebar = false;
+  for (const page of pages) {
+    walkNodes(page.layout, (node) => {
+      if (node.alias === 'core.tabbar' && node.slot === 'footer') {
+        hasTabbar = true;
+      }
+      if (node.alias === 'core.sidebar') {
+        hasSidebar = true;
+      }
+    });
+  }
+  return { hasSidebar, hasTabbar };
+}
+
 function nodeContains(root: ThemeLayoutNode, nodeId: string): boolean {
   if (root.id === nodeId) {
     return true;
@@ -232,29 +248,15 @@ function buildNavigation(document: ThemeLayoutDocument): TemplateProfileNavigati
   // Infer navigation type from component structure
   const devices = inferDevice(document);
   const isMobile = devices.includes('mobile') || devices.includes('miniapp');
-  let hasTabbar = false;
-  let hasSidebar = false;
-
-  for (const page of pages) {
-    walkNodes(page.layout, (node) => {
-      if (node.alias === 'core.tabbar' && node.slot === 'footer') {
-        hasTabbar = true;
-      }
-      if (node.alias === 'core.sidebar') {
-        hasSidebar = true;
-      }
-    });
-  }
+  const { hasSidebar, hasTabbar } = detectNavigationComponents(pages);
 
   let type: TemplateProfileNavigation['type'] = 'bottom_tabs';
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- hasSidebar is mutated in walkNodes callback
   if (hasSidebar) {
     type = 'side_nav';
   } else if (!isMobile && pages.length > 5) {
     type = 'side_nav';
   } else if (!isMobile) {
     type = 'top_tabs';
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- hasTabbar is mutated in walkNodes callback
   } else if (hasTabbar) {
     type = 'bottom_tabs';
   }

@@ -16,17 +16,14 @@ export function serializeCanvases(
   runtimeCssVars?: Record<string, string>,
   runtimeCssAnimations?: Record<string, string>,
 ): string {
-  const first = canvases[0];
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- defensive guard; array may be empty at runtime
-  if (!first) {
+  if (canvases.length === 0) {
     throw new Error('No canvases to export.');
   }
+  const first = canvases[0];
 
   const pages = canvases.map((canvas) => ({
     id: canvas.document.defaultPageId,
-    /* eslint-disable @typescript-eslint/prefer-nullish-coalescing -- empty string should fall through */
-    name: canvas.name || canvas.document.pageName || canvas.document.defaultPageId,
-    /* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
+    name: canvas.name || (canvas.document.pageName ?? '') || canvas.document.defaultPageId,
     layout: canvas.document.layout,
   }));
 

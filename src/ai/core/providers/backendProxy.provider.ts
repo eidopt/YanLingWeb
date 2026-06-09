@@ -32,6 +32,11 @@ export class BackendProxyProvider implements AIProvider {
   private aborted = false;
   private abortController: AbortController | null = null;
 
+  /** 检查是否已被 cancel() 中止；封装为方法以避免 TS 控制流分析误判。 */
+  private isAborted(): boolean {
+    return this.aborted;
+  }
+
   /** 当前会话标识；编辑器聊天会按模板设置。 */
   private conversationId: string | null = null;
   /** 每个会话最近一次 LLM 响应 ID。 */
@@ -153,15 +158,13 @@ export class BackendProxyProvider implements AIProvider {
 
     try {
       for await (const streamEvent of events) {
-        // cancel() 会从其他方法修改 this.aborted，TS 无法识别跨方法变更。
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        if (this.aborted) {
+        if (this.isAborted()) {
           break;
         }
         const parsed = parseSseEnvelope(streamEvent.data);
         if (!parsed.ok) {
           // 静默 skip + console.warn, 不断流
-           
+
           console.warn(`[SSE] skip envelope: ${parsed.reason}`);
           continue;
         }
@@ -176,7 +179,6 @@ export class BackendProxyProvider implements AIProvider {
         // 老类型: 拆 envelope, 转回原 ProviderStreamEvent 形状 yield 出去
         const legacy = convertEnvelopeToLegacyProviderEvent(envelope);
         if (legacy === null) {
-           
           console.warn(`[SSE] cannot convert envelope type: ${envelope.type}`);
           continue;
         }
@@ -190,9 +192,7 @@ export class BackendProxyProvider implements AIProvider {
         yield legacy;
       }
     } catch (err) {
-      // cancel() 会跨方法修改 this.aborted；TS 只能看到当前方法体。
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (!this.aborted && !abortController.signal.aborted) {
+      if (!this.isAborted() && !abortController.signal.aborted) {
         throw err;
       }
     } finally {
@@ -211,9 +211,7 @@ function hasResponseId(event: ProviderStreamEvent): event is ProviderStreamEvent
   return 'response_id' in event && typeof event.response_id === 'string';
 }
 
-function convertEnvelopeToLegacyProviderEvent(
-  e: SseEventEnvelope<SseEventType, unknown>,
-): ProviderStreamEvent | null {
+function convertEnvelopeToLegacyProviderEvent(e: SseEventEnvelope<SseEventType, unknown>): ProviderStreamEvent | null {
   switch (e.type) {
     case 'text_delta': {
       const payload = e.payload as { text: string };
