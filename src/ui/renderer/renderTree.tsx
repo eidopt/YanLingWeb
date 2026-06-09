@@ -41,7 +41,7 @@ function resolveTabClickHandler(interaction: ThemeLayoutTabInteraction | undefin
   }
 
   return (tab: string) => {
-    if (!isNavigateAction(interaction) && !Object.hasOwn(interaction, tab)) {
+    if (!isNavigateAction(interaction) && !(tab in interaction)) {
       return;
     }
     const targetInteraction = isNavigateAction(interaction) ? interaction : interaction[tab];

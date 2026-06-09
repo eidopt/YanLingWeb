@@ -12,9 +12,9 @@ import type {
 } from 'ui/layout/types';
 
 function buildDefaultPropValue(themeId: string, descriptor: ThemeComponentDescriptor, prop: LayoutPropDescriptor) {
-  const themeOverrides = Object.hasOwn(SAMPLE_PROP_OVERRIDES, themeId) ? SAMPLE_PROP_OVERRIDES[themeId] : undefined;
+  const themeOverrides = themeId in SAMPLE_PROP_OVERRIDES ? SAMPLE_PROP_OVERRIDES[themeId] : undefined;
   const aliasOverrides = themeOverrides?.[descriptor.alias];
-  if (aliasOverrides && Object.hasOwn(aliasOverrides, prop.name)) {
+  if (aliasOverrides && prop.name in aliasOverrides) {
     return aliasOverrides[prop.name];
   }
 
