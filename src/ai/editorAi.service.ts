@@ -335,10 +335,17 @@ export class EditorAiService {
         throw new Error(text || `HTTP ${String(response.status)}`);
       }
 
-      await this.consumeEditorEventStream(events, onEvent, applyInstructions, {
-        userPrompt: prompt,
-        selectedNodeId: selectedNode?.id ?? null,
-      });
+      await this.consumeEditorEventStream(
+        events,
+        onEvent,
+        applyInstructions,
+        {
+          userPrompt: prompt,
+          selectedNodeId: selectedNode?.id ?? null,
+        },
+        opts.getCurrentDocument,
+        opts.onSnapshot,
+      );
     } catch (err) {
       if (!signal?.aborted) {
         onEvent({
@@ -358,6 +365,8 @@ export class EditorAiService {
     onEvent: (event: EditorAiEvent) => void,
     applyInstructions: EditorAiEditCanvasOptions['applyInstructions'],
     applyOptions: ApplyEditorAiEditInstructionsOptions,
+    getCurrentDocument: () => ThemeLayoutDocument,
+    onSnapshot: EditorAiEditCanvasOptions['onSnapshot'],
   ): Promise<void> {
     for await (const streamEvent of events) {
       const event = JSON.parse(streamEvent.data) as BackendEditorEvent;
@@ -386,7 +395,14 @@ export class EditorAiService {
             });
             break;
           case 'edit_request':
-            this.applyBackendEditRequest(getPayloadField(event, 'data'), onEvent, applyInstructions, applyOptions);
+            this.applyBackendEditRequest(
+              getPayloadField(event, 'data'),
+              onEvent,
+              applyInstructions,
+              applyOptions,
+              getCurrentDocument,
+              onSnapshot,
+            );
             break;
           case 'error':
             onEvent({
@@ -456,7 +472,14 @@ export class EditorAiService {
           onEvent({ type: 'clarification', data: eventDataToString(event.data) });
           break;
         case 'edit_request':
-          this.applyBackendEditRequest(event.data, onEvent, applyInstructions, applyOptions);
+          this.applyBackendEditRequest(
+            event.data,
+            onEvent,
+            applyInstructions,
+            applyOptions,
+            getCurrentDocument,
+            onSnapshot,
+          );
           break;
         case 'tool_error':
           onEvent({ type: 'error', data: eventDataToString(event.data) });
@@ -478,6 +501,8 @@ export class EditorAiService {
     onEvent: (event: EditorAiEvent) => void,
     applyInstructions: EditorAiEditCanvasOptions['applyInstructions'],
     applyOptions: ApplyEditorAiEditInstructionsOptions,
+    getCurrentDocument: () => ThemeLayoutDocument,
+    onSnapshot: EditorAiEditCanvasOptions['onSnapshot'],
   ): void {
     const args =
       typeof data === 'string'
@@ -485,6 +510,16 @@ export class EditorAiService {
         : (data as { operations?: unknown; reason?: unknown });
     const instructions = Array.isArray(args.operations) ? (args.operations as readonly EditorAiEditInstruction[]) : [];
     const reason = typeof args.reason === 'string' ? args.reason : undefined;
+    // B.2: 在 apply 前压栈 undo 快照, 以便 UI 提供撤销
+    if (onSnapshot) {
+      const currentDoc = getCurrentDocument();
+      onSnapshot({
+        id: `undo-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+        document: structuredClone(currentDoc),
+        description: reason ?? 'AI 编辑',
+        createdAt: new Date().toISOString(),
+      });
+    }
     const result = applyInstructions(instructions, {
       ...applyOptions,
       reason,
