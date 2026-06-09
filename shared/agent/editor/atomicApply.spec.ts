@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-floating-promises */
 import type { CompiledSemanticInstruction } from '../compiler/semanticInstructionCompiler';
 import type { ThemeLayoutDocument } from '../types';
 import { applyCompiledOperationsAtomic } from './atomicApply';
@@ -14,8 +13,8 @@ function compiledWith(op: unknown): CompiledSemanticInstruction {
   };
 }
 
-describe('applyCompiledOperationsAtomic', () => {
-  it('applies a single op successfully and returns snapshot', async () => {
+void describe('applyCompiledOperationsAtomic', () => {
+  void it('applies a single op successfully and returns snapshot', async () => {
     const doc = getSeedDocument('commerceMarket');
     const before = JSON.parse(JSON.stringify(doc)) as ThemeLayoutDocument;
     const compiled = compiledWith({
@@ -35,7 +34,7 @@ describe('applyCompiledOperationsAtomic', () => {
     assert.equal(updatedNode?.props?.text, 'Changed');
   });
 
-  it('rolls back when an op in the middle fails (atomicity)', async () => {
+  void it('rolls back when an op in the middle fails (atomicity)', async () => {
     const doc = getSeedDocument('commerceMarket');
     const before = JSON.parse(JSON.stringify(doc)) as ThemeLayoutDocument;
 
@@ -56,7 +55,7 @@ describe('applyCompiledOperationsAtomic', () => {
     assert.deepEqual(doc, before); // 整个 doc 回滚到初始状态
   });
 
-  it('returns success and empty operations when no ops provided', async () => {
+  void it('returns success and empty operations when no ops provided', async () => {
     const doc = getSeedDocument('commerceMarket');
     const before = JSON.parse(JSON.stringify(doc)) as ThemeLayoutDocument;
     const compiled: CompiledSemanticInstruction = {
@@ -72,7 +71,7 @@ describe('applyCompiledOperationsAtomic', () => {
     assert.deepEqual(doc, before);
   });
 
-  it('propagates nested props mutation to caller doc via Object.assign', async () => {
+  void it('propagates nested props mutation to caller doc via Object.assign', async () => {
     const doc = getSeedDocument('commerceMarket');
     // Snapshot the original props for the target node so we can confirm a new
     // prop key is added rather than overwriting a pre-existing one.

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-floating-promises -- node:test's `it()` returns a Promise that the test runner consumes */
 import type { ThemeLayoutDocument } from '../../layout/types';
 import { EditorAiPanelState } from './editorAiPanelState';
 import type { EditorUndoSnapshot } from '@shared/agent/contracts/editorUndoStack';
@@ -34,7 +33,7 @@ const localStorageStub = {
 
 const STORAGE_KEY = 'editor-ai-panel-state/v1';
 
-describe('EditorAiPanelState', () => {
+void describe('EditorAiPanelState', () => {
   beforeEach(() => {
     memory.clear();
     // 在 Node 单测中临时挂载最小化的 window 桩
@@ -42,14 +41,14 @@ describe('EditorAiPanelState', () => {
     windowRef.window = { localStorage: localStorageStub };
   });
 
-  it('starts empty', () => {
+  void it('starts empty', () => {
     const s = new EditorAiPanelState();
     assert.equal(s.size, 0);
     assert.equal(s.currentDocument, null);
     assert.equal(s.peek(), null);
   });
 
-  it('pushSnapshot stores stack and current doc', () => {
+  void it('pushSnapshot stores stack and current doc', () => {
     const s = new EditorAiPanelState();
     s.pushSnapshot(fakeSnap('a'), fakeDoc('doc-a'));
     assert.equal(s.size, 1);
@@ -57,7 +56,7 @@ describe('EditorAiPanelState', () => {
     assert.equal(s.peek()?.id, 'a');
   });
 
-  it('pop removes latest snapshot and persists', () => {
+  void it('pop removes latest snapshot and persists', () => {
     const s = new EditorAiPanelState();
     s.pushSnapshot(fakeSnap('a'), fakeDoc('doc-a'));
     s.pushSnapshot(fakeSnap('b'), fakeDoc('doc-b'));
@@ -66,7 +65,7 @@ describe('EditorAiPanelState', () => {
     assert.equal(s.size, 1);
   });
 
-  it('pop updates currentDocument to the restored snapshot', () => {
+  void it('pop updates currentDocument to the restored snapshot', () => {
     const s = new EditorAiPanelState();
     s.pushSnapshot(fakeSnap('a'), fakeDoc('doc-a'));
     s.pushSnapshot(fakeSnap('b'), fakeDoc('doc-b'));
@@ -77,7 +76,7 @@ describe('EditorAiPanelState', () => {
     assert.equal(s.currentDocument?.themeId, 'b');
   });
 
-  it('clear resets state and storage', () => {
+  void it('clear resets state and storage', () => {
     const s = new EditorAiPanelState();
     s.pushSnapshot(fakeSnap('a'), fakeDoc('doc-a'));
     s.clear();
