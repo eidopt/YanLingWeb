@@ -59,6 +59,7 @@
     "agent:evaluate": "node scripts/agent-eval/runAgentEval.js",
     "agent:live-smoke": "node scripts/agent-eval/runLiveSmoke.js",
     "agent:cache-test": "node scripts/agent-eval/runCacheHitrate.js",
+    "agent:eval:envelope": "tsx scripts/agentEvalEnvelope.ts",
     "templates:validate": "node scripts/validateTemplateJson.mjs",
     "templates:generate": "pnpm --dir backend exec ts-node -r tsconfig-paths/register scripts/generate-templates-cli.ts",
     "assets:pregenerate": "pnpm --dir backend exec ts-node -r tsconfig-paths/register scripts/pregenerate-asset-library.ts",

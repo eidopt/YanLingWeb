@@ -1,0 +1,73 @@
+[
+  {
+    "schema": "sse.v1",
+    "type": "pipeline_stage_start",
+    "ts": "2026-06-09T00:00:00.000Z",
+    "payload": { "stage": "designer", "attempt": 1 }
+  },
+  {
+    "schema": "sse.v1",
+    "type": "tool_start",
+    "ts": "2026-06-09T00:00:00.100Z",
+    "payload": { "name": "generate_template", "toolCallId": "tc-1", "ts": "2026-06-09T00:00:00.100Z" }
+  },
+  {
+    "schema": "sse.v1",
+    "type": "tool_done",
+    "ts": "2026-06-09T00:00:05.000Z",
+    "payload": { "name": "generate_template", "toolCallId": "tc-1", "durationMs": 4900 }
+  },
+  {
+    "schema": "sse.v1",
+    "type": "pipeline_stage_end",
+    "ts": "2026-06-09T00:00:05.500Z",
+    "payload": { "stage": "designer", "attempt": 1, "durationMs": 5500, "status": "ok" }
+  },
+  {
+    "schema": "sse.v1",
+    "type": "pipeline_stage_start",
+    "ts": "2026-06-09T00:00:06.000Z",
+    "payload": { "stage": "critic", "attempt": 1 }
+  },
+  {
+    "schema": "sse.v1",
+    "type": "pipeline_stage_end",
+    "ts": "2026-06-09T00:00:11.000Z",
+    "payload": { "stage": "critic", "attempt": 1, "durationMs": 5000, "status": "ok" }
+  },
+  {
+    "schema": "sse.v1",
+    "type": "pipeline_stage_start",
+    "ts": "2026-06-09T00:00:12.000Z",
+    "payload": { "stage": "schema", "attempt": 1 }
+  },
+  {
+    "schema": "sse.v1",
+    "type": "pipeline_stage_end",
+    "ts": "2026-06-09T00:00:13.000Z",
+    "payload": { "stage": "schema", "attempt": 1, "durationMs": 1000, "status": "ok" }
+  },
+  {
+    "schema": "sse.v1",
+    "type": "pipeline_stage_start",
+    "ts": "2026-06-09T00:00:14.000Z",
+    "payload": { "stage": "verifier", "attempt": 1 }
+  },
+  {
+    "schema": "sse.v1",
+    "type": "pipeline_stage_end",
+    "ts": "2026-06-09T00:00:15.000Z",
+    "payload": { "stage": "verifier", "attempt": 1, "durationMs": 1000, "status": "ok" }
+  },
+  {
+    "schema": "sse.v1",
+    "type": "usage_summary",
+    "ts": "2026-06-09T00:00:16.000Z",
+    "payload": {
+      "model": "claude-opus-4-6",
+      "usage": { "inputTokens": 5000, "outputTokens": 3000 },
+      "totalCostUsd": 0.045
+    }
+  },
+  { "schema": "sse.v1", "type": "done", "ts": "2026-06-09T00:00:16.500Z", "payload": { "stopReason": "end_turn" } }
+]
