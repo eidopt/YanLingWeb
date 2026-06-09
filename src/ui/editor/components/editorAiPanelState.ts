@@ -30,6 +30,9 @@ export class EditorAiPanelState {
   pop(): EditorUndoSnapshot | null {
     const popped = this.stack.pop();
     if (popped) {
+      // Mirror the canvas state to the snapshot we just restored, so the
+      // (stack, currentDocument) pair stays consistent across persistence.
+      this.document = structuredClone(popped.document);
       this.saveToStorage();
     }
     return popped;
