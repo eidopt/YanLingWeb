@@ -9,6 +9,11 @@
  *  2. autoBizComponents — auto-complete biz-* component descriptors
  *  3. removeUnknownProps — strip props not declared in component catalog
  *  4. fixImageUrls — normalize/fix invalid image URLs
+ *
+ * For biz-* (custom reusable templates) whose descriptor has empty props,
+ * `removeUnknownProps` still strips obviously bogus prop names by using a
+ * conservative whitelist of common UI prop keys. Real editable prop names
+ * from `componentTemplates[alias].propNames` (if present) take precedence.
  */
 
 import { CORE_COMPONENTS } from '@shared/agent/runtime';
@@ -41,7 +46,7 @@ export function preValidateAndFix(
   }
 
   // 3. Remove unknown props
-  const removedCount = removeUnknownProps(rawDoc);
+  const removedCount = removeUnknownProps(rawDoc, componentTemplates);
   if (removedCount > 0) {
     fixes.push(`Auto-removed ${removedCount} unknown props`);
   }
@@ -150,10 +155,56 @@ export function autoBizComponents(
 }
 
 /**
+ * Conservative whitelist of prop names allowed on biz-* (custom reusable
+ * template) nodes whose auto-generated descriptor has no declared props.
+ * Keeps obviously-bogus LLM output (random camelCase, `foobar`, etc.) from
+ * leaking through while preserving common editable UI fields.
+ */
+const FALLBACK_BIZ_PROP_WHITELIST: ReadonlySet<string> = new Set([
+  'text',
+  'label',
+  'title',
+  'subtitle',
+  'description',
+  'content',
+  'src',
+  'alt',
+  'href',
+  'value',
+  'placeholder',
+  'tone',
+  'variant',
+  'icon',
+  'iconName',
+  'color',
+  'size',
+  'align',
+  'gap',
+  'disabled',
+  'loading',
+  'badge',
+  'max',
+  'min',
+  'onClick',
+  'onActionClick',
+  'onTabClick',
+]);
+
+/**
  * Remove props that are not declared in the component catalog.
+ *
+ * For core.* nodes: only declared prop names are kept.
+ * For biz-* nodes: declared prop names are kept; if the descriptor declares
+ *   none, a conservative whitelist of common UI prop names is used.
+ * For nodes whose alias is not in the catalog at all: props are left alone
+ *   (we don't know what's safe to strip).
+ *
  * Returns the count of removed props.
  */
-export function removeUnknownProps(document: Record<string, unknown>): number {
+export function removeUnknownProps(
+  document: Record<string, unknown>,
+  componentTemplates?: Record<string, unknown>,
+): number {
   const components = Array.isArray(document.components)
     ? (document.components as Record<string, unknown>[])
     : [];
@@ -187,9 +238,35 @@ export function removeUnknownProps(document: Record<string, unknown>): number {
     const n = node as { alias?: string; props?: Record<string, unknown>; children?: unknown[] };
     if (typeof n.alias === 'string' && n.props && typeof n.props === 'object') {
       const allowed = propTypesByAlias.get(n.alias);
-      if (allowed && allowed.size > 0) {
+
+      if (allowed === undefined) {
+        // Alias not in catalog — leave props alone; downstream validator decides.
+      } else if (allowed.size > 0) {
+        // Strict: only declared names survive
         for (const key of Object.keys(n.props)) {
           if (!allowed.has(key)) {
+            delete n.props[key];
+            removedCount++;
+          }
+        }
+      } else if (componentTemplates && n.alias in componentTemplates) {
+        // biz-* with no declared props: use declared `propNames` from the
+        // template if present, otherwise fall back to the conservative whitelist.
+        const declared = (componentTemplates[n.alias] as { propNames?: unknown } | null)?.propNames;
+        const allowedNames =
+          Array.isArray(declared) && declared.length > 0
+            ? new Set(declared.filter((n): n is string => typeof n === 'string'))
+            : FALLBACK_BIZ_PROP_WHITELIST;
+        for (const key of Object.keys(n.props)) {
+          if (!allowedNames.has(key)) {
+            delete n.props[key];
+            removedCount++;
+          }
+        }
+      } else {
+        // Empty declared-props alias not in componentTemplates — apply fallback.
+        for (const key of Object.keys(n.props)) {
+          if (!FALLBACK_BIZ_PROP_WHITELIST.has(key)) {
             delete n.props[key];
             removedCount++;
           }

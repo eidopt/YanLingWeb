@@ -141,6 +141,89 @@ describe('removeUnknownProps', () => {
     const count = removeUnknownProps(doc);
     expect(count).toBe(0);
   });
+
+  it('strips unknown props on biz-* nodes via fallback whitelist', () => {
+    const doc = {
+      components: [{ alias: 'biz-promo-card', props: [] }],
+      componentTemplates: {
+        'biz-promo-card': { displayName: '促销卡片' },
+      },
+      pages: [
+        {
+          id: 'p1',
+          layout: {
+            id: 'root',
+            alias: 'biz-promo-card',
+            // Common editable props + obvious LLM garbage
+            props: {
+              title: '限时',
+              label: '立即查看',
+              foobarGarbage: 'should go',
+              randomCamelCaseField: 42,
+            },
+          },
+        },
+      ],
+    };
+    const count = removeUnknownProps(doc, doc.componentTemplates);
+    expect(count).toBe(2);
+    const layout = (doc.pages[0] as { layout: { props: Record<string, unknown> } }).layout;
+    expect(layout.props.title).toBe('限时');
+    expect(layout.props.label).toBe('立即查看');
+    expect(layout.props.foobarGarbage).toBeUndefined();
+    expect(layout.props.randomCamelCaseField).toBeUndefined();
+  });
+
+  it('uses declared propNames on biz-* nodes when available', () => {
+    const doc = {
+      components: [{ alias: 'biz-custom', props: [] }],
+      componentTemplates: {
+        'biz-custom': { displayName: '自定义', propNames: ['headline', 'cta'] },
+      },
+      pages: [
+        {
+          id: 'p1',
+          layout: {
+            id: 'root',
+            alias: 'biz-custom',
+            props: {
+              headline: 'Hi',
+              cta: 'Go',
+              title: 'Not in propNames',
+              label: 'Not in propNames',
+            },
+          },
+        },
+      ],
+    };
+    const count = removeUnknownProps(doc, doc.componentTemplates);
+    expect(count).toBe(2);
+    const layout = (doc.pages[0] as { layout: { props: Record<string, unknown> } }).layout;
+    expect(layout.props.headline).toBe('Hi');
+    expect(layout.props.cta).toBe('Go');
+    expect(layout.props.title).toBeUndefined();
+    expect(layout.props.label).toBeUndefined();
+  });
+
+  it('leaves props alone for unknown alias not in catalog', () => {
+    const doc = {
+      components: [{ alias: 'core.text', props: [{ name: 'text' }] }],
+      pages: [
+        {
+          id: 'p1',
+          layout: {
+            id: 'root',
+            alias: 'totally-unknown-alias',
+            props: { anything: 'goes' },
+          },
+        },
+      ],
+    };
+    const count = removeUnknownProps(doc);
+    expect(count).toBe(0);
+    const layout = (doc.pages[0] as { layout: { props: Record<string, unknown> } }).layout;
+    expect(layout.props.anything).toBe('goes');
+  });
 });
 
 describe('fixImageUrls', () => {

@@ -74,8 +74,7 @@ export async function autoCompactIfNeeded(
   }
 
   // Cache-aware compaction decision
-  const { getContextWindow } = await import('../utils/tokens');
-  const { tokenCountWithEstimation } = await import('../utils/tokens');
+  const { getContextWindow, tokenCountWithEstimation } = await import('../utils/tokens');
   const maxTokens = getContextWindow(model);
   const decision = decideCompaction({
     currentTokenCount: tokenCountWithEstimation(messages),
