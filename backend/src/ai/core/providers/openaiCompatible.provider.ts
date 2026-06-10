@@ -222,10 +222,17 @@ function convertMessages(messages: ProviderMessage[]): OpenAI.Chat.ChatCompletio
   for (const msg of messages) {
     switch (msg.role) {
       case 'system':
-      case 'developer':
+      case 'developer': {
         // Chat Completions uses 'system' for both system and developer messages
-        result.push({ role: 'system', content: msg.content as string });
+        // Use a plain object to allow passing through extra fields like cache_control
+        const systemMsg = {
+          role: 'system' as const,
+          content: msg.content as string,
+          ...(msg.cacheControl ? { cache_control: msg.cacheControl } : {}),
+        };
+        result.push(systemMsg);
         break;
+      }
 
       case 'user': {
         const content =
