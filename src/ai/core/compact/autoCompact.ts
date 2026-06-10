@@ -1,6 +1,7 @@
 import type { AIProvider, ProviderMessage } from '../providers/types';
 import { compactConversation, compactConversationWithLLM, needsCompaction } from './compact';
 import { type CompactionStrategy, decideCompaction } from './compactionDecision';
+import { microcompactMessages } from './microCompact';
 
 const MAX_FAILURES = 3;
 
@@ -101,7 +102,7 @@ export async function autoCompactIfNeeded(
 
     if (decision.strategy === 'micro') {
       // Micro compact: truncate large tool results without changing system prefix
-      compacted = compactConversation(messages, model);
+      compacted = microcompactMessages(messages);
     } else if (options?.provider && !options.forceSynchronous) {
       // Full: LLM-based semantic compaction
       compacted = await compactConversationWithLLM(messages, options.provider, options.compactionModel ?? model);

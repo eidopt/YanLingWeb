@@ -2,8 +2,22 @@
 
 > **版本**: v2.0
 > **日期**: 2026-06-03
-> **状态**: 已实现
-> **关联**: `docs/roadmap/README.md` P0-1, `docs/roadmap/execution-plan.md` 第三批
+> **状态**: 已实现，配置驱动方案为当前标准
+> **关联**: `docs/roadmap/README.md` P0-1, `docs/roadmap/pr-plan.md` #14
+
+---
+
+## 0. 当前结论
+
+当前实现采用配置驱动的 `OpenAICompatibleProvider`，不再要求为 MiMo、MiniMax、Qwen、Kimi 分别创建独立 Provider 类。新增模型优先通过以下配置表达能力：
+
+- `AI_REASONING_MODE`
+- `AI_CACHE_STRATEGY`
+- `AI_SUPPORTS_DEVELOPER_ROLE`
+- `AI_CONTEXT_WINDOW`
+- `AI_EXTRA_PARAMS`
+
+只有当模型 API 语义无法通过这些字段表达时，才新增模型专属 Provider。
 
 ---
 
@@ -142,21 +156,21 @@ AI_API_KEY=sk-xxx
 
 ## 4. 已实现的文件
 
-| 文件                                                          | 改动                                                                                                        |
-| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `shared/agent/contracts/provider.ts`                          | `ProviderCapabilities` 新增 `reasoningMode`、`cacheStrategy`、`extraRequestParams`、`supportsDeveloperRole` |
-| `backend/src/ai/core/providers/messagePurifier.ts`            | 新增 — 消息净化器                                                                                           |
-| `backend/src/ai/core/providers/cacheStrategy.ts`              | 新增 — 缓存策略接口 + 5 个实现                                                                              |
-| `backend/src/ai/core/providers/modelCapabilities.ts`          | 新增 — 从 ConfigFactory 配置构建 capabilities（不读 process.env）                                           |
-| `backend/src/ai/core/providers/openai-compatible.provider.ts` | 改造 — 接入 MessagePurifier + 接收 config 注入的 capabilities                                               |
-| `backend/src/ai/core/providers/openai.provider.ts`            | 改造 — 接入 MessagePurifier + 声明 capabilities                                                             |
-| `backend/src/ai/ai.service.ts`                                | 改造 — 创建 Provider 时传入 config.ai 的能力配置                                                            |
-| `backend/src/ai/ai.service.helpers.ts`                        | 改造 — `withRequestScopedCache()` 用策略模式替代 `instanceof`                                               |
-| `backend/src/ai/ai.controller.ts`                             | 改造 — 提取 `startSseHeartbeat()` helper 消除重复代码                                                       |
-| `backend/src/config/config.factory.ts`                        | 扩展 — `ServerConfig.ai` 新增 5 个能力字段 + 3 个解析方法                                                   |
-| `backend/src/ai/core/utils/tokens.ts`                         | 改造 — 默认 1M，接收 `contextWindow` 配置覆盖                                                               |
-| `src/ai/core/utils/tokens.ts`                                 | 改造 — 删除硬编码表，默认 1M                                                                                |
-| `shared/agent/context/editorContext.ts`                       | 改造 — 节点候选集 + 导出 `inferDisplayName`/`isContainerNode`                                               |
+| 文件                                                         | 改动                                                                                                        |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `shared/agent/contracts/provider.ts`                         | `ProviderCapabilities` 新增 `reasoningMode`、`cacheStrategy`、`extraRequestParams`、`supportsDeveloperRole` |
+| `backend/src/ai/core/providers/messagePurifier.ts`           | 新增 — 消息净化器                                                                                           |
+| `backend/src/ai/core/providers/cacheStrategy.ts`             | 新增 — 缓存策略接口 + 5 个实现                                                                              |
+| `backend/src/ai/core/providers/modelCapabilities.ts`         | 新增 — 从 ConfigFactory 配置构建 capabilities（不读 process.env）                                           |
+| `backend/src/ai/core/providers/openaiCompatible.provider.ts` | 改造 — 接入 MessagePurifier + 接收 config 注入的 capabilities                                               |
+| `backend/src/ai/core/providers/openai.provider.ts`           | 改造 — 接入 MessagePurifier + 声明 capabilities                                                             |
+| `backend/src/ai/ai.service.ts`                               | 改造 — 创建 Provider 时传入 config.ai 的能力配置                                                            |
+| `backend/src/ai/ai.service.helpers.ts`                       | 改造 — `withRequestScopedCache()` 用策略模式替代 `instanceof`                                               |
+| `backend/src/ai/ai.controller.ts`                            | 改造 — 提取 `startSseHeartbeat()` helper 消除重复代码                                                       |
+| `backend/src/config/config.factory.ts`                       | 扩展 — `ServerConfig.ai` 新增 5 个能力字段 + 3 个解析方法                                                   |
+| `backend/src/ai/core/utils/tokens.ts`                        | 改造 — 默认 1M，接收 `contextWindow` 配置覆盖                                                               |
+| `src/ai/core/utils/tokens.ts`                                | 改造 — 删除硬编码表，默认 1M                                                                                |
+| `shared/agent/context/editorContext.ts`                      | 改造 — 节点候选集 + 导出 `inferDisplayName`/`isContainerNode`                                               |
 
 ---
 

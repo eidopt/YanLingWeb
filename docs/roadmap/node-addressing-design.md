@@ -2,7 +2,22 @@
 
 > **版本**: v1.0  
 > **日期**: 2026-06-03  
-> **状态**: 设计 + PoC 验证
+> **状态**: 已实现并归档
+
+---
+
+## 0. 当前实现状态
+
+本文档保留为设计背景，不再作为未完成任务清单。节点定位候选集已经落到 `shared/agent/context/editorContext.ts`，相关回归测试在 `shared/agent/editor/nodeCandidateSet.spec.ts`。
+
+已完成内容：
+
+- 完整 Node ID 输出，不再截断到 8 字符。
+- `inferDisplayName()` 用组件类型和 props 生成可读名称。
+- `buildNodeCandidateSet()` 输出带缩进层级、displayName、容器标记和可用组件列表的候选集。
+- Prompt 语义区分编辑已有节点和新建节点。
+
+---
 
 ---
 
@@ -222,27 +237,27 @@ function inferDisplayName(node: ThemeLayoutNode): string {
 
 ### Phase 1: 修复硬伤（0.5 天）
 
-- [ ] 移除 `buildNodeIndex` 中的 `slice(0, 8)` 截断
-- [ ] 确保所有 ID 完整展示
+- [x] 移除 `buildNodeIndex` 中的 `slice(0, 8)` 截断
+- [x] 确保所有 ID 完整展示
 
 ### Phase 2: 改造上下文格式（1 天）
 
-- [ ] 实现 `inferDisplayName()`
-- [ ] 实现 `buildNodeCandidateSet()` 替代 `buildNodeIndex()`
-- [ ] 输出格式: 缩进层级 + displayName + [C] 容器标记
-- [ ] 底部附加"可用组件"列表
+- [x] 实现 `inferDisplayName()`
+- [x] 实现 `buildNodeCandidateSet()` 替代 `buildNodeIndex()`
+- [x] 输出格式: 缩进层级 + displayName + [C] 容器标记
+- [x] 底部附加"可用组件"列表
 
 ### Phase 3: 改造 system prompt（0.5 天）
 
-- [ ] 教 AI 使用候选集中的完整 ID
-- [ ] 区分编辑（选 ID）和新建（造 ID）
-- [ ] 强调 targetId 必须精确匹配候选集
+- [x] 教 AI 使用候选集中的完整 ID
+- [x] 区分编辑（选 ID）和新建（造 ID）
+- [x] 强调 targetId 必须精确匹配候选集
 
 ### Phase 4: 端到端验证（1 天）
 
-- [ ] 用 commerce-market 文档测试 AI 选对 ID 的准确率
-- [ ] 对比新旧格式下的首次选择准确率
-- [ ] 验证新建节点场景
+- [x] 用候选集回归样例测试 AI 选对 ID 的准确率
+- [x] 对比新旧格式下的首次选择准确率
+- [x] 验证新建节点场景
 
 ---
 
