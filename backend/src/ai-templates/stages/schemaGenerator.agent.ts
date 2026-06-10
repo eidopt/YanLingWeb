@@ -14,6 +14,7 @@ import type {
   SchemaOutput,
 } from '../orchestrator/pipeline.types';
 import { runStructuredStage } from '../orchestrator/runStage';
+import { preValidateAndFix } from './preValidateFix';
 
 /**
  * Stage 3 — Schema Generator
@@ -62,8 +63,8 @@ export class SchemaGeneratorAgent {
   }
 
   /**
-   * 跨所有 page 全局去重节点 id（schema 要求全局唯一）。首个保留原 id，后续重复者
-   * 重命名为 `${id}-2`/`-3`… 直到唯一。componentTemplates 是独立命名空间、不在此处理。
+   * @deprecated — Use preValidateAndFix() from ./preValidateFix instead.
+   * Kept temporarily for backward compatibility with any direct callers.
    */
   private dedupeNodeIds(document: { pages?: unknown }): void {
     const seen = new Set<string>();
@@ -149,24 +150,10 @@ export class SchemaGeneratorAgent {
         ? args.componentTemplates
         : {};
 
-    // 自动补：componentTemplates 里定义了、但 components 目录没声明的 biz-* alias，
-    // 自动生成最小描述符（props:[]，过 requireLocalizedPropLabels）。这消除 SchemaGen
-    // 最高频的 missing_component_descriptor 重试 —— LLM 常忘了在 components 目录声明
-    // 它在 componentTemplates 定义的 biz-* 模块，本该机械补全而非让它重试 8 次。
-    const declaredAliases = new Set<string>([
-      ...CORE_COMPONENTS.map((c) => c.alias),
-      ...customComponents
-        .map((c) => (c as { alias?: unknown }).alias)
-        .filter((a): a is string => typeof a === 'string'),
-    ]);
-    const autoBizComponents = Object.entries(resolvedComponentTemplates)
-      .filter(([alias]) => !declaredAliases.has(alias))
-      .map(([alias, ct]) => {
-        const dn = (ct as { displayName?: unknown } | null)?.displayName;
-        const displayName = typeof dn === 'string' ? dn : alias;
-        return { alias, name: displayName, kind: 'layout', description: displayName, props: [] };
-      });
-    const components = [...CORE_COMPONENTS, ...customComponents, ...autoBizComponents];
+    // Auto-complete biz-* component descriptors.
+    // preValidateAndFix will handle this + dedupe + removeUnknownProps + fixImageUrls
+    // after the document is assembled below.
+    const components = [...CORE_COMPONENTS, ...customComponents];
 
     const documentInput = {
       ...rawDoc,
@@ -215,10 +202,17 @@ export class SchemaGeneratorAgent {
       };
     }
 
-    // 自动去重节点 id：LLM 高频生成跨页重复 id（实测 duplicate_node_id 是 SchemaGen
-    // 反复耗尽迭代的主因）。保留首个原 id、只给后续重复的重命名 —— targetNodeId 引用
-    // 在 id 重复时本就歧义/解析到首个，去重后仍指首个，不破坏引用。机械补全而非让 LLM 重试。
-    this.dedupeNodeIds(document);
+    // Pre-validate fix chain: dedupe IDs, auto-biz, remove unknown props, fix image URLs.
+    // Runs BEFORE formal validation to mechanically fix common LLM output issues,
+    // reducing unnecessary LLM retries.
+    const preFixResult = preValidateAndFix(
+      document as unknown as Record<string, unknown>,
+      resolvedComponentTemplates,
+    );
+    document = preFixResult.document as unknown as typeof document;
+    if (preFixResult.fixes.length > 0) {
+      this.logger.debug(`preValidateAndFix applied: ${preFixResult.fixes.join('; ')}`);
+    }
 
     // 用与导入端 (prepareTemplateLayoutForPersistence, requireGeneratedTemplateQuality)
     // 完全一致的成品质量门槛校验 —— 严格 unknownProps + 图片 URL / 本地化 / 中文文案

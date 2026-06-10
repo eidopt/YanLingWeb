@@ -72,10 +72,18 @@ export interface DiversityConflict {
   description: string;
 }
 
+export type ReviseAction =
+  | { type: 'add_section'; afterRegion: string; sectionKind: string }
+  | { type: 'replace_section'; regionKey: string; newKind: string }
+  | { type: 'adjust_layout'; regionKey: string; direction: 'row' | 'column' }
+  | { type: 'improve_contrast'; regionKey: string; suggestion: string };
+
 export interface CriticVerdict {
   verdict: 'pass' | 'revise';
   conflicts: DiversityConflict[];
   suggestion?: string;
+  /** Structured revise actions for targeted fixes (optional, used by SchemaGen). */
+  reviseActions?: ReviseAction[];
 }
 
 export interface SchemaOutput {
