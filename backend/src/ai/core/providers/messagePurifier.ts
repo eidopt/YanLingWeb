@@ -31,8 +31,15 @@ function purifyOneMessage(msg: ProviderMessage, targetCaps: ProviderCapabilities
   const needsRequiredFill =
     msg.role === 'assistant' && targetCaps.reasoningMode === 'required' && !hasReasoning;
 
+  // cache_control is only meaningful for providers whose cacheStrategy is
+  // 'cache_control' (Qwen). For any other target, drop the marker so the
+  // vendor-specific field is not forwarded to providers that don't understand
+  // it. Belt-and-suspenders: convertMessages also gates this.
+  const needsCacheControlStrip =
+    msg.cacheControl !== undefined && targetCaps.cacheStrategy !== 'cache_control';
+
   // Fast path: nothing to purify
-  if (!hasReasoning && !needsDeveloperHandling && !needsRequiredFill) {
+  if (!hasReasoning && !needsDeveloperHandling && !needsRequiredFill && !needsCacheControlStrip) {
     return msg;
   }
 
@@ -68,6 +75,11 @@ function purifyOneMessage(msg: ProviderMessage, targetCaps: ProviderCapabilities
     // from system-level instructions after the role is downgraded.
     const content = typeof clean.content === 'string' ? clean.content : '';
     clean.content = `[Developer Instructions]\n${content}`;
+  }
+
+  // 3. cache_control stripping (defense in depth: convertMessages also gates)
+  if (needsCacheControlStrip) {
+    delete clean.cacheControl;
   }
 
   return clean;

@@ -70,7 +70,7 @@ export class OpenAICompatibleProvider implements AIProvider {
 
     // Purify messages for this provider's capabilities before converting
     const purified = purifyMessages(request.messages, this.caps);
-    const messages = convertMessages(purified);
+    const messages = convertMessages(purified, this.caps);
     const tools = request.tools ? convertTools(request.tools) : undefined;
 
     let streamIter: AsyncIterable<ChatCompletionChunk>;
@@ -216,8 +216,22 @@ export class OpenAICompatibleProvider implements AIProvider {
 
 // ── Message conversion ──────────────────────────────────────────────────
 
-function convertMessages(messages: ProviderMessage[]): OpenAI.Chat.ChatCompletionMessageParam[] {
+/**
+ * Convert purified ProviderMessage[] to OpenAI Chat Completions format.
+ *
+ * @param targetCaps the target provider's capabilities. The
+ *   `cache_control` field is only emitted on the wire when the target
+ *   provider's `cacheStrategy` is `'cache_control'` (Qwen). For any other
+ *   cache strategy the field is dropped at this layer even if a previous
+ *   pipeline stage set it — defense in depth against leaking unsupported
+ *   vendor-specific fields to non-supporting providers.
+ */
+function convertMessages(
+  messages: ProviderMessage[],
+  targetCaps: ProviderCapabilities,
+): OpenAI.Chat.ChatCompletionMessageParam[] {
   const result: OpenAI.Chat.ChatCompletionMessageParam[] = [];
+  const supportsCacheControl = targetCaps.cacheStrategy === 'cache_control';
 
   for (const msg of messages) {
     switch (msg.role) {
@@ -228,7 +242,7 @@ function convertMessages(messages: ProviderMessage[]): OpenAI.Chat.ChatCompletio
         const systemMsg = {
           role: 'system' as const,
           content: msg.content as string,
-          ...(msg.cacheControl ? { cache_control: msg.cacheControl } : {}),
+          ...(supportsCacheControl && msg.cacheControl ? { cache_control: msg.cacheControl } : {}),
         };
         result.push(systemMsg);
         break;

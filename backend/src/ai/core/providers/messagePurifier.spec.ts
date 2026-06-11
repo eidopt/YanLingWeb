@@ -237,4 +237,43 @@ describe('purifyMessages', () => {
       expect(result[0]).not.toBe(original);
     });
   });
+
+  describe('cache_control gating (Qwen-only)', () => {
+    // Build a system message carrying the cacheControl marker that
+    // CacheControlStrategy.applyToMessages would have injected.
+    function sysWithCacheControl(content: string): ProviderMessage {
+      return { role: 'system', content, cacheControl: { type: 'ephemeral' } };
+    }
+
+    it('strips cacheControl when target cacheStrategy is not "cache_control"', () => {
+      // GPT (response_id) — should drop the marker
+      const gptResult = purifyMessages([sysWithCacheControl('you are helpful')], GPT_CAPS);
+      expect(gptResult[0].cacheControl).toBeUndefined();
+
+      // DeepSeek (prefix) — should drop the marker
+      const dsResult = purifyMessages([sysWithCacheControl('you are helpful')], DEEPSEEK_CAPS);
+      expect(dsResult[0].cacheControl).toBeUndefined();
+
+      // MiMo (none) — should drop the marker
+      const mimoResult = purifyMessages([sysWithCacheControl('you are helpful')], MIMO_CAPS);
+      expect(mimoResult[0].cacheControl).toBeUndefined();
+    });
+
+    it('preserves cacheControl when target cacheStrategy is "cache_control" (Qwen)', () => {
+      const QWEN_CAPS: ProviderCapabilities = {
+        ...DEEPSEEK_CAPS,
+        cacheStrategy: 'cache_control',
+      };
+      const result = purifyMessages([sysWithCacheControl('you are helpful')], QWEN_CAPS);
+      expect(result[0].cacheControl).toEqual({ type: 'ephemeral' });
+    });
+
+    it('does not mutate original message when stripping cacheControl', () => {
+      const original = sysWithCacheControl('you are helpful');
+      const messages = [original];
+      purifyMessages(messages, GPT_CAPS);
+      // Original still carries the marker (purify is non-mutating)
+      expect(original.cacheControl).toEqual({ type: 'ephemeral' });
+    });
+  });
 });
