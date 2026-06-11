@@ -17,6 +17,8 @@ export interface ProviderMessage {
   toolName?: string;
   toolArguments?: string;
   reasoningContent?: string;
+  /** Cache control marker for providers that support message-level caching (e.g. Qwen). */
+  cacheControl?: { type: string };
 }
 
 export interface ProviderTool {

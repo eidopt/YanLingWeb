@@ -27,6 +27,12 @@ export interface CacheStrategy {
 
   /** Inject cache hints into the request before sending to the provider. */
   applyToRequest<T extends CacheableRequest>(request: T, cacheOpts?: ProviderCacheOptions): T;
+
+  /** Inject cache markers into messages (e.g. Qwen cache_control). Default: no-op. */
+  applyToMessages(
+    messages: import('@shared/agent/contracts/provider').ProviderMessage[],
+    cacheOpts?: ProviderCacheOptions,
+  ): import('@shared/agent/contracts/provider').ProviderMessage[];
 }
 
 // ── Implementations ──────────────────────────────────────────────────
@@ -43,6 +49,12 @@ class ResponseIdCacheStrategy implements CacheStrategy {
       cache: { previousResponseId: cacheOpts.previousResponseId },
     };
   }
+
+  applyToMessages(
+    messages: import('@shared/agent/contracts/provider').ProviderMessage[],
+  ): import('@shared/agent/contracts/provider').ProviderMessage[] {
+    return messages;
+  }
 }
 
 class PrefixCacheStrategy implements CacheStrategy {
@@ -53,15 +65,18 @@ class PrefixCacheStrategy implements CacheStrategy {
     // Observe usage.prompt_cache_hit_tokens in responses.
     return request;
   }
+
+  applyToMessages(
+    messages: import('@shared/agent/contracts/provider').ProviderMessage[],
+  ): import('@shared/agent/contracts/provider').ProviderMessage[] {
+    return messages;
+  }
 }
 
 class CacheKeyStrategy implements CacheStrategy {
   readonly type = 'cache_key';
 
   applyToRequest<T extends CacheableRequest>(request: T, cacheOpts?: ProviderCacheOptions): T {
-    // PLACEHOLDER — Kimi's prompt_cache_key is not yet read by any provider.
-    // When a KimiProvider is implemented, it should read request.cacheKey
-    // and inject it into the API call.
     if (!cacheOpts?.conversationId) {
       return request;
     }
@@ -70,16 +85,35 @@ class CacheKeyStrategy implements CacheStrategy {
       cacheKey: cacheOpts.conversationId,
     };
   }
+
+  applyToMessages(
+    messages: import('@shared/agent/contracts/provider').ProviderMessage[],
+  ): import('@shared/agent/contracts/provider').ProviderMessage[] {
+    // Kimi uses request-level cache_key, no message-level changes needed.
+    return messages;
+  }
 }
 
 class CacheControlStrategy implements CacheStrategy {
   readonly type = 'cache_control';
 
   applyToRequest<T extends CacheableRequest>(request: T): T {
-    // PLACEHOLDER — Qwen's cache_control marker should be applied at message level
-    // by the provider's convertMessages, not at request level.
-    // When a QwenProvider is implemented, it should inject cache_control into messages.
     return request;
+  }
+
+  applyToMessages(
+    messages: import('@shared/agent/contracts/provider').ProviderMessage[],
+  ): import('@shared/agent/contracts/provider').ProviderMessage[] {
+    // Qwen: inject cache_control: { type: 'ephemeral' } on the first two system messages.
+    // This enables Qwen's explicit prefix caching (5 min TTL).
+    let systemCount = 0;
+    return messages.map((msg) => {
+      if (msg.role === 'system' && systemCount < 2) {
+        systemCount++;
+        return { ...msg, cacheControl: { type: 'ephemeral' } };
+      }
+      return msg;
+    });
   }
 }
 
@@ -88,6 +122,12 @@ class NoCacheStrategy implements CacheStrategy {
 
   applyToRequest<T extends CacheableRequest>(request: T): T {
     return request;
+  }
+
+  applyToMessages(
+    messages: import('@shared/agent/contracts/provider').ProviderMessage[],
+  ): import('@shared/agent/contracts/provider').ProviderMessage[] {
+    return messages;
   }
 }
 

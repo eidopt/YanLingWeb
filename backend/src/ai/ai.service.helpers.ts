@@ -129,7 +129,9 @@ export function withRequestScopedCache(
 ): StreamRequest {
   const caps = provider.getCapabilities();
   const strategy = createCacheStrategy(caps.cacheStrategy);
-  return strategy.applyToRequest(req, cacheOptions);
+  const withRequest = strategy.applyToRequest(req, cacheOptions);
+  const withMessages = strategy.applyToMessages(withRequest.messages, cacheOptions);
+  return { ...withRequest, messages: withMessages };
 }
 
 export function editorToolSpecs(tools: readonly ProviderTool[] = EDITOR_EDIT_TOOLS) {
