@@ -175,4 +175,95 @@ describe('EditorConversationService repository boundary', () => {
       NotFoundException,
     );
   });
+
+  // PR-E: 跨 session cache 上下文持久化
+  describe('cache context persistence (PR-E)', () => {
+    it('loadLastPrefixHash returns null when no row exists', async () => {
+      const { service } = createService();
+      await expect(service.loadLastPrefixHash('user-1', 'template-1')).resolves.toBeNull();
+    });
+
+    it('loadLastPrefixHash returns null when the field is empty or malformed', async () => {
+      const { service, conversations } = createService();
+      // 没有字段
+      conversations.conversations.set(
+        keyFor('user-1', 'template-1'),
+        createConversation({ ownerUserId: 'user-1', templateId: 'template-1' }),
+      );
+      await expect(service.loadLastPrefixHash('user-1', 'template-1')).resolves.toBeNull();
+
+      // 长度不对
+      conversations.conversations.set(
+        keyFor('user-1', 'template-1'),
+        createConversation({
+          ownerUserId: 'user-1',
+          templateId: 'template-1',
+          lastPrefixHash: 'short',
+        }),
+      );
+      await expect(service.loadLastPrefixHash('user-1', 'template-1')).resolves.toBeNull();
+    });
+
+    it('saveCacheContext writes lastPrefixHash and cacheContext with updatedAt', async () => {
+      const { service, conversations } = createService();
+      await service.saveCacheContext('user-1', 'template-1', 'a1b2c3d4e5f60718', {
+        provider: 'openai',
+        model: 'gpt-test',
+        cacheStrategy: 'response_id',
+        lastCompactionStrategy: null,
+        lastCacheHitRate: 0.42,
+      });
+      const row = conversations.conversations.get(keyFor('user-1', 'template-1'));
+      expect(row?.lastPrefixHash).toBe('a1b2c3d4e5f60718');
+      expect(row?.cacheContext).toMatchObject({
+        provider: 'openai',
+        model: 'gpt-test',
+        cacheStrategy: 'response_id',
+        lastCompactionStrategy: null,
+        lastCacheHitRate: 0.42,
+      });
+      expect(typeof row?.cacheContext?.updatedAt).toBe('string');
+    });
+
+    it('saveCacheContext round-trips through loadLastPrefixHash', async () => {
+      const { service } = createService();
+      await service.saveCacheContext('user-1', 'template-1', 'abcdef0123456789', {
+        provider: 'openaiCompatible',
+        model: 'deepseek-v3',
+        cacheStrategy: 'prefix',
+        lastCompactionStrategy: 'skip',
+        lastCacheHitRate: null,
+      });
+      await expect(service.loadLastPrefixHash('user-1', 'template-1')).resolves.toBe(
+        'abcdef0123456789',
+      );
+    });
+
+    it('saveCacheContext rejects malformed prefixHash (no write)', async () => {
+      const { service, conversations } = createService();
+      await service.saveCacheContext('user-1', 'template-1', 'not-hex', {
+        provider: 'openai',
+        model: 'gpt-test',
+        cacheStrategy: 'none',
+        lastCompactionStrategy: null,
+        lastCacheHitRate: null,
+      });
+      expect(conversations.conversations.has(keyFor('user-1', 'template-1'))).toBe(false);
+    });
+
+    it('saveCompactSummary persists trimmed summary within char cap', async () => {
+      const { service, conversations } = createService();
+      const longSummary = 'x'.repeat(10_000);
+      await service.saveCompactSummary('user-1', 'template-1', longSummary);
+      const row = conversations.conversations.get(keyFor('user-1', 'template-1'));
+      expect(row?.compactSummary).toHaveLength(8_000);
+    });
+
+    it('saveCompactSummary stores null when called with empty string', async () => {
+      const { service, conversations } = createService();
+      await service.saveCompactSummary('user-1', 'template-1', '');
+      const row = conversations.conversations.get(keyFor('user-1', 'template-1'));
+      expect(row?.compactSummary).toBeNull();
+    });
+  });
 });

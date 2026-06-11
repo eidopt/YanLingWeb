@@ -7,6 +7,7 @@ import {
 } from '../../templates/repositories/templateRead.repository';
 import type { ProviderMessage } from '../core/providers/types';
 import {
+  type EditorAiCacheContextRecord,
   type EditorAiConversationMessageRecord,
   type EditorAiConversationUndoStackRecord,
   type EditorAiProviderSessionRecord,
@@ -35,6 +36,7 @@ const EDITOR_PROVIDER_SESSION_TTL_MS = 30 * 60_000;
 const EDITOR_PROVIDER_SESSION_EXPIRY_SAFETY_MS = 60_000;
 const MAX_EDITOR_UNDO_STACK_ENTRIES = 20;
 const MAX_EDITOR_UNDO_STACK_TOTAL_CHARS = 1_000_000;
+const MAX_COMPACT_SUMMARY_CHARS = 8_000;
 
 @Injectable()
 export class EditorConversationService {
@@ -204,6 +206,82 @@ export class EditorConversationService {
       });
     conversation.providerMessages =
       await this.compactionService.foldEditorProviderMessagesByTokenBudget(messages);
+    conversation.providerSession ??= null;
+    await this.conversations.save(conversation);
+  }
+
+  // ── PR-E: 跨 session 状态持久化 ───────────────────────────────
+  // 把 cache 诊断相关的 3 个字段 (lastPrefixHash, cacheContext, compactSummary)
+  // 抽成独立方法, 由 ai.service 在每轮结束 (与每轮开始之前) 调用, 不与
+  // 既有 messages/undoStack 写入路径耦合.
+
+  /**
+   * 取上次发送的 prefix 摘要 (16-hex), 用于在 ai.service 中计算 `prefixChanged`.
+   * 若会话不存在或该字段为空, 返回 null.
+   */
+  async loadLastPrefixHash(ownerUserId: string, templateId: string): Promise<string | null> {
+    await this.ensureTemplateAccessible(ownerUserId, templateId);
+    const conversation = await this.conversations.findByOwnerAndTemplate(ownerUserId, templateId);
+    const value = conversation?.lastPrefixHash ?? null;
+    return typeof value === 'string' && /^[0-9a-f]{16}$/.test(value) ? value : null;
+  }
+
+  /**
+   * 把本轮 prefix 摘要写回; 同时刷新 cacheContext 快照.
+   *  - prefixHash: hashJson(prefixMessages) 的 16-hex 结果
+   *  - context: { provider, model, cacheStrategy, lastCompactionStrategy, lastCacheHitRate, updatedAt }
+   * compactSummary 不在此处写入, 留给将来的 PR.
+   */
+  async saveCacheContext(
+    ownerUserId: string,
+    templateId: string,
+    prefixHash: string,
+    context: Omit<EditorAiCacheContextRecord, 'updatedAt'>,
+  ): Promise<void> {
+    await this.ensureTemplateAccessible(ownerUserId, templateId);
+    if (!/^[0-9a-f]{16}$/.test(prefixHash)) {
+      return;
+    }
+    const existing = await this.conversations.findByOwnerAndTemplate(ownerUserId, templateId);
+    const conversation =
+      existing ??
+      this.conversations.create({
+        ownerUserId,
+        templateId,
+        messages: [],
+      });
+    conversation.lastPrefixHash = prefixHash;
+    conversation.cacheContext = {
+      ...context,
+      updatedAt: new Date().toISOString(),
+    };
+    conversation.providerSession ??= null;
+    await this.conversations.save(conversation);
+  }
+
+  /**
+   * 写 compactSummary (语义摘要), 限制长度避免膨胀.
+   * 留作未来 PR 接入: 目前 ai.service 暂未调用, 先把路径打通 + 加测试.
+   */
+  async saveCompactSummary(
+    ownerUserId: string,
+    templateId: string,
+    summary: string,
+  ): Promise<void> {
+    await this.ensureTemplateAccessible(ownerUserId, templateId);
+    const trimmed =
+      summary.length > MAX_COMPACT_SUMMARY_CHARS
+        ? summary.slice(0, MAX_COMPACT_SUMMARY_CHARS)
+        : summary;
+    const existing = await this.conversations.findByOwnerAndTemplate(ownerUserId, templateId);
+    const conversation =
+      existing ??
+      this.conversations.create({
+        ownerUserId,
+        templateId,
+        messages: [],
+      });
+    conversation.compactSummary = trimmed.length > 0 ? trimmed : null;
     conversation.providerSession ??= null;
     await this.conversations.save(conversation);
   }

@@ -527,6 +527,16 @@ export class AiService {
       model,
       this.provider.name,
     );
+    // PR-E: 读取上次发送的 prefix 摘要, 供本轮 cache_diagnostic 计算 prefixChanged 用.
+    // 没有 conversationId (旧客户端) 或会话首次发送时, 返回 null → prefixChanged = false.
+    const resolvedTemplateId = EditorConversationService.templateIdFromConversationId(
+      cacheOptions?.conversationId,
+    );
+    const lastPrefixHash = resolvedTemplateId
+      ? await this.editorConversations
+          .loadLastPrefixHash(ownerUserId, resolvedTemplateId)
+          .catch(() => null)
+      : null;
     const previousResponseId =
       cacheOptions?.previousResponseId ?? persistedSession?.previousResponseId;
     await this.editorConversations.saveEditorProviderSession(
@@ -626,8 +636,8 @@ export class AiService {
     }
     // 缓存诊断 (P0 可观测性): 每轮结束后 emit 一次, 前端可用于诊断 cache 命中率与 prefix 稳定性.
     // 字段含义详见 shared/agent/contracts/sseEvents.ts 的 cache_diagnostic payload.
-    // 注: editor 流当前未启用 autoCompact, 故 compactionStrategy 固定为 null;
-    // prefixChanged 需要跨轮历史比较, 留给后续 PR-E (持久化 lastPrefixHash) 联动.
+    // PR-E 接入: prefixChanged 与 lastPrefixHash 真实联动; compactionStrategy 仍为 null
+    // (editor 流暂未启用 autoCompact).
     {
       const prefixHash = hashJson(prefixMessages);
       const hit = lastUsage?.cacheHitTokens;
@@ -636,12 +646,38 @@ export class AiService {
         typeof hit === 'number' && typeof miss === 'number' && hit + miss > 0
           ? hit / (hit + miss)
           : null;
+      const prefixChanged = lastPrefixHash !== null && lastPrefixHash !== prefixHash;
       this.emitEditorEvent(subject, 'cache_diagnostic', {
         prefixHash,
         cacheHitRate,
         compactionStrategy: null,
-        prefixChanged: false,
+        prefixChanged,
       });
+      // PR-E 持久化: 把本轮 prefix 摘要 + cache 快照写回 DB, 供下次启动时比较.
+      // 失败仅记录, 不中断主流程 (诊断数据是 best-effort).
+      if (resolvedTemplateId) {
+        try {
+          const providerCaps = this.provider.getCapabilities();
+          await this.editorConversations.saveCacheContext(
+            ownerUserId,
+            resolvedTemplateId,
+            prefixHash,
+            {
+              provider: this.provider.name,
+              model,
+              cacheStrategy: providerCaps.cacheStrategy,
+              lastCompactionStrategy: null,
+              lastCacheHitRate: cacheHitRate,
+            },
+          );
+        } catch (err) {
+          this.logger.warn(
+            `saveCacheContext failed for ${resolvedTemplateId}: ${
+              err instanceof Error ? err.message : String(err)
+            }`,
+          );
+        }
+      }
     }
     this.emitEditorEvent(subject, 'done', { stopReason: result.stopReason });
     subject.complete();

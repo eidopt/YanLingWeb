@@ -1,4 +1,5 @@
 import type {
+  EditorAiCacheContextRecord,
   EditorAiConversation,
   EditorAiConversationUndoStackRecord,
 } from '../entities/editorAiConversation.entity';
@@ -12,6 +13,9 @@ export interface CreateEditorConversationInput {
   providerMessages?: EditorAiConversation['providerMessages'];
   providerSession?: EditorAiConversation['providerSession'];
   undoStack?: EditorAiConversation['undoStack'];
+  compactSummary?: EditorAiConversation['compactSummary'];
+  lastPrefixHash?: EditorAiConversation['lastPrefixHash'];
+  cacheContext?: EditorAiConversation['cacheContext'];
 }
 
 export interface EditorConversationRepository {
@@ -24,4 +28,4 @@ export interface EditorConversationRepository {
   ): Promise<EditorAiConversation | null>;
 }
 
-export type { EditorAiConversationUndoStackRecord };
+export type { EditorAiCacheContextRecord, EditorAiConversationUndoStackRecord };
