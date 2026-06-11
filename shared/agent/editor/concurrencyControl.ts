@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import type { AgentEditResult } from '../errors/agentErrors';
 import type { ThemeLayoutDocument } from '../types';
 
@@ -41,7 +40,12 @@ export class ConcurrencyControl {
       }
       return {
         success: false,
-        error: { code: 'apply_failed', reason: `Document locked by ${existing.lockedBy}: ${existing.operation}`, partialSuccess: false, recoverable: false },
+        error: {
+          code: 'apply_failed',
+          reason: `Document locked by ${existing.lockedBy}: ${existing.operation}`,
+          partialSuccess: false,
+          recoverable: false,
+        },
       };
     }
 
@@ -69,7 +73,9 @@ export class ConcurrencyControl {
 
   initializeVersion(document: ThemeLayoutDocument): VersionedDocumentState {
     const existing = this.versions.get(document.themeId);
-    if (existing) {return existing;}
+    if (existing) {
+      return existing;
+    }
     const state = {
       documentId: document.themeId,
       version: document.version,
@@ -86,7 +92,15 @@ export class ConcurrencyControl {
     if (actual === expectedVersion) {
       return { success: true, data: { currentVersion: actual } };
     }
-    return { success: false, error: { code: 'version_conflict', expected: expectedVersion, actual, recoverable: true } };
+    return {
+      success: false,
+      error: {
+        code: 'version_conflict',
+        expected: expectedVersion,
+        actual,
+        recoverable: true,
+      },
+    };
   }
 
   incrementVersion(document: ThemeLayoutDocument): VersionedDocumentState {

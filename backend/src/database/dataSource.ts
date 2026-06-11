@@ -139,8 +139,10 @@ import { TemplateAgentPermissions } from '../templates/entities/templateAgentPer
 import { TemplateAssetManifest } from '../templates/entities/templateAssetManifest.entity';
 import { TemplateEvaluationSpec } from '../templates/entities/templateEvaluationSpec.entity';
 import { TemplateProfileGenerated } from '../templates/entities/templateProfileGenerated.entity';
-// eslint-disable-next-line max-len
-import { TemplateProfileOverrideEntity } from '../templates/entities/templateProfileOverride.entity';
+// prettier-ignore
+import {
+  TemplateProfileOverrideEntity,
+} from '../templates/entities/templateProfileOverride.entity';
 import { Theme } from '../themes/entities/theme.entity';
 import { User } from '../users/entities/user.entity';
 

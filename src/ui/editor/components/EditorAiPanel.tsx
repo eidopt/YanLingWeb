@@ -8,10 +8,12 @@ import type {
 } from '../services/aiEditInstructions';
 import { editorAiPanelContent as c } from './EditorAiPanel.content';
 import {
+  appendAssistantReasoning,
   buildApplyFailureClarification,
   buildCacheStatsBadges,
   buildMessagesFromConversation,
   buildProviderConversationId,
+  buildReasoningAccumulator,
   CACHE_STATS_REFRESH_INTERVAL_MS,
   createMessageId,
   describeAppliedEdits,
@@ -23,10 +25,11 @@ import {
   parseIntentPlan,
   replaceLatestEditStatus,
 } from './EditorAiPanel.helpers';
+import { EditorAiPanelState } from './editorAiPanelState';
 import type { AgentClarification, AgentClarificationOption } from '@shared/agent/contracts/agent';
 import type { EditorAiPageContext } from 'ai/editorAi.service';
 import { useAppServices } from 'hooks/useAppServices';
-import { type FormEvent, useCallback, useEffect, useRef } from 'react';
+import { type FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import {
   buildEditorAiPanelConversationContext,
   buildEditorAiPanelConversationStorageKey,
@@ -38,6 +41,7 @@ import {
   useEditorAiPanelSnapshot,
 } from 'state/editorAiPanelState';
 import { type ChatMessage, ChatPanel } from 'ui/chat/ChatPanel';
+import { ReasoningPanel } from 'ui/chat/ReasoningPanel';
 
 interface EditorAiPanelProps {
   templateId?: string;
@@ -50,6 +54,8 @@ interface EditorAiPanelProps {
     instructions: readonly EditorAiEditInstruction[],
     options?: ApplyEditorAiEditInstructionsOptions,
   ) => ApplyEditorAiEditInstructionsResult;
+  undoState?: EditorAiPanelState;
+  onUndo?: () => void;
 }
 
 export function EditorAiPanel({
@@ -60,8 +66,14 @@ export function EditorAiPanel({
   selectedDescriptor,
   disabled = false,
   onApplyInstructions,
+  undoState,
+  onUndo,
 }: EditorAiPanelProps) {
   const { editorAiService } = useAppServices();
+  // 本地兜底的 undo 状态：当父组件未注入时使用（便于单测/独立使用），正常流程下由 ThemeLayoutBuilder 注入。
+  const [localUndoState] = useState(() => new EditorAiPanelState());
+  const panelStateRef = useRef<EditorAiPanelState>(undoState ?? localUndoState);
+  const [, setUndoVersion] = useState(0);
   const conversationTemplateId = templateId ?? currentDocument.themeId;
   const templateConversationKey = buildEditorAiPanelConversationStorageKey(conversationTemplateId);
   const providerConversationId = buildProviderConversationId(conversationTemplateId);
@@ -352,6 +364,7 @@ export function EditorAiPanel({
       await editorAiService.editCanvas({
         prompt: trimmedPrompt,
         document: currentDocument,
+        getCurrentDocument: () => currentDocument,
         pages,
         conversation,
         conversationId: providerConversationId,
@@ -359,6 +372,11 @@ export function EditorAiPanel({
         selectedDescriptor,
         clarificationChoice,
         applyInstructions: onApplyInstructions,
+        // B.3: B.2 会在 edit_request 前由 EditorAiService 主动压栈；这里只负责消费快照。
+        onSnapshot: (snapshot) => {
+          panelStateRef.current.pushSnapshot(snapshot, currentDocument);
+          setUndoVersion((value) => value + 1);
+        },
         signal: abortController.signal,
         onEvent: (event) => {
           if (finished || (receivedClarification && event.type !== 'done')) {
@@ -381,6 +399,10 @@ export function EditorAiPanel({
             case 'text':
               appendAssistantDelta(assistantMessageId, event.data);
               break;
+            case 'reasoning': {
+              appendAssistantReasoning(assistantMessageId, event.data, setMessages);
+              break;
+            }
             case 'tool_start':
               setStatus(c.status.editingCanvas);
               break;
@@ -479,6 +501,19 @@ export function EditorAiPanel({
     setStatus(c.status.stopped);
   }
 
+  function handleUndo() {
+    if (isRunning || disabled) {
+      return;
+    }
+    if (onUndo) {
+      onUndo();
+    } else {
+      // 当父组件未提供 onUndo 时，仅出栈，不修改画布。
+      panelStateRef.current.pop();
+      setUndoVersion((value) => value + 1);
+    }
+  }
+
   const capabilityBadges = intentPlan
     ? [
         intentPlan.primaryCategory,
@@ -509,6 +544,10 @@ export function EditorAiPanel({
       onClarificationSelect={handleClarificationSelect}
       onClarificationCustomSubmit={handleClarificationCustomSubmit}
       messagesEndRef={messagesEndRef}
+      renderAfterMessages={<ReasoningPanel content={buildReasoningAccumulator(messages)} label={c.reasoning.label} />}
+      undoButtonLabel="撤销"
+      onUndo={handleUndo}
+      undoAvailableCount={panelStateRef.current.size}
     />
   );
 }

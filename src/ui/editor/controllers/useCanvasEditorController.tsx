@@ -36,6 +36,7 @@ export function useCanvasEditorController(themes: LayoutBuilderTheme[], initialT
     setActiveCanvasId: documentState.setActiveCanvasId,
     activeTheme: documentState.activeTheme,
     currentDocument: documentState.currentDocument,
+    setEditorDocument: documentState.setEditorDocument,
     containerNodes: documentState.containerNodes,
     selectedNode: documentState.selectedNode,
     selectedDescriptor: documentState.selectedDescriptor,

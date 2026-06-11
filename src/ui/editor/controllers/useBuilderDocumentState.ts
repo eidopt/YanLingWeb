@@ -39,14 +39,12 @@ export { applyAiEditInstructionsToCanvases } from './useBuilderDocumentState.app
 
 export function useBuilderDocumentState(themes: LayoutBuilderTheme[], initialThemeId?: string) {
   const initialTheme = (initialThemeId ? themes.find((t) => t.id === initialThemeId) : undefined) ?? themes[0];
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- 未开启 noUncheckedIndexedAccess 时，运行时 themes[0] 仍可能是 undefined
-  const initialScreenPreset = initialTheme ? getDefaultPreviewScreenPreset(initialTheme.platformCategories) : 'mobile';
+  const initialScreenPreset = getDefaultPreviewScreenPreset(initialTheme.platformCategories);
   const documentSessionKey = `${initialThemeId ?? ''}:${themes.map((theme) => theme.id).join('|')}`;
   const { canvases, activeCanvasId, selectedNodeId, screenPreset } = useEditorDocumentSnapshot(
     documentSessionKey,
     () => {
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- 未开启 noUncheckedIndexedAccess 时，运行时 themes[0] 仍可能是 undefined
-      const initialCanvases = initialTheme ? createCanvasesFromTheme(initialTheme) : [];
+      const initialCanvases = createCanvasesFromTheme(initialTheme);
       return {
         sessionKey: documentSessionKey,
         canvases: initialCanvases,
@@ -75,11 +73,6 @@ export function useBuilderDocumentState(themes: LayoutBuilderTheme[], initialThe
 
   const activeCanvas = canvases.find((canvas) => canvas.id === activeCanvasId) ?? canvases[0];
   const activeTheme = themes.find((theme) => theme.id === activeCanvas.themeId) ?? themes[0];
-
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- 防御式保护；数组元素运行时可能是 undefined
-  if (!activeTheme || !activeCanvas) {
-    throw new Error('Theme layout builder requires at least one theme.');
-  }
 
   const currentDocument = activeCanvas.document;
   const flatNodes = flattenNodes(currentDocument.layout);
@@ -353,18 +346,12 @@ export function useBuilderDocumentState(themes: LayoutBuilderTheme[], initialThe
 
   function applyTemplateToActiveCanvas(themeId: string) {
     const nextTheme = themes.find((theme) => theme.id === themeId) ?? themes[0];
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- 防御式保护
-    if (!nextTheme) {
-      return;
-    }
-
     const nextCanvases = createCanvasesFromTheme(nextTheme);
     const defaultPageId = nextTheme.layoutDocument.defaultPageId;
     const defaultCanvas =
       nextCanvases.find((canvas) => canvas.document.defaultPageId === defaultPageId) ?? nextCanvases[0];
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- nextCanvases[0] 运行时可能是 undefined
-    const nextActiveCanvasId = defaultCanvas?.id ?? '';
+    const nextActiveCanvasId = defaultCanvas.id;
     canvasesRef.current = nextCanvases;
     activeCanvasIdRef.current = nextActiveCanvasId;
     setDocumentSnapshot((current) => ({

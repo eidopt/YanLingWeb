@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import type {
   AgentClarification,
   AgentClarificationOption,
@@ -229,7 +228,9 @@ function buildNodeOptions(candidates: NodeCandidate[]): AgentClarificationOption
       id: candidate.node.id,
       label: nodeLabel(candidate),
       description: nodeDescription(candidate),
-      value: `User selected node ${candidate.node.id} (${candidate.node.alias}) as the exact edit target.`,
+      value:
+        `User selected node ${candidate.node.id}` +
+        ` (${candidate.node.alias}) as the exact edit target.`,
       target: {
         nodeId: candidate.node.id,
         alias: candidate.node.alias,

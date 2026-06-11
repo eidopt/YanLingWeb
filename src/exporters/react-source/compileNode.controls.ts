@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import {
   attrs,
   type CaseHandler,
@@ -109,13 +108,28 @@ const compileSelect: CaseHandler = ({ node, props, nextContext, context }) => {
   const opts = options
     .map((o) => `${indent(context.depth + 2)}<option value=${JSON.stringify(o)}>{${JSON.stringify(o)}}</option>`)
     .join('\n');
-  const select = `<select className="core-select" defaultValue=${JSON.stringify(value)} aria-label=${JSON.stringify(label || placeholder || 'Select')}>\n${placeholder ? `${indent(context.depth + 1)}<option value="" disabled>{${JSON.stringify(placeholder)}}</option>\n` : ''}${opts}\n${indent(context.depth + 1)}</select>`;
+  const select = [
+    `<select className="core-select" defaultValue=${JSON.stringify(value)}`,
+    ` aria-label=${JSON.stringify(label || placeholder || 'Select')}>`,
+    placeholder
+      ? `${indent(context.depth + 1)}<option value="" disabled>{${JSON.stringify(placeholder)}}</option>`
+      : '',
+    opts,
+    `${indent(context.depth + 1)}</select>`,
+  ]
+    .filter(Boolean)
+    .join('\n');
   if (!label) {
     return { ...nextContext, code: `${indent(context.depth)}${select}` };
   }
   return {
     ...nextContext,
-    code: `${indent(context.depth)}<label className="core-field"${style ? ` ${style}` : ''}>\n${indent(context.depth + 1)}<span className="core-field-label">{${JSON.stringify(label)}}</span>\n${indent(context.depth + 1)}${select}\n${indent(context.depth)}</label>`,
+    code: [
+      `${indent(context.depth)}<label className="core-field"${style ? ` ${style}` : ''}>`,
+      `${indent(context.depth + 1)}<span className="core-field-label">{${JSON.stringify(label)}}</span>`,
+      `${indent(context.depth + 1)}${select}`,
+      `${indent(context.depth)}</label>`,
+    ].join('\n'),
   };
 };
 
@@ -126,7 +140,12 @@ const compileCheckbox: CaseHandler = ({ node, props, nextContext, context, class
   const style = styleAttr(node);
   return {
     ...nextContext,
-    code: `${indent(context.depth)}<label className="${className}"${style ? ` ${style}` : ''}><input type="checkbox"${checked ? ' defaultChecked' : ''}${disabled ? ' disabled' : ''} /><span className="checkbox-box" /><span>{${JSON.stringify(label)}}</span></label>`,
+    code:
+      `${indent(context.depth)}<label className="${className}"${style ? ` ${style}` : ''}>` +
+      `<input type="checkbox"${checked ? ' defaultChecked' : ''}` +
+      `${disabled ? ' disabled' : ''} />` +
+      '<span className="checkbox-box" />' +
+      `<span>{${JSON.stringify(label)}}</span></label>`,
   };
 };
 
@@ -138,7 +157,13 @@ const compileRadio: CaseHandler = ({ node, props, nextContext, context, classNam
   const style = styleAttr(node);
   return {
     ...nextContext,
-    code: `${indent(context.depth)}<label className="${className}"${style ? ` ${style}` : ''}><input type="radio" name=${JSON.stringify(group)}${checked ? ' defaultChecked' : ''}${disabled ? ' disabled' : ''} /><span className="radio-dot" /><span>{${JSON.stringify(label)}}</span></label>`,
+    code:
+      `${indent(context.depth)}<label className="${className}"${style ? ` ${style}` : ''}>` +
+      `<input type="radio" name=${JSON.stringify(group)}` +
+      `${checked ? ' defaultChecked' : ''}` +
+      `${disabled ? ' disabled' : ''} />` +
+      '<span className="radio-dot" />' +
+      `<span>{${JSON.stringify(label)}}</span></label>`,
   };
 };
 
@@ -187,7 +212,11 @@ const compileSlider: CaseHandler = ({ node, props, nextContext, context, classNa
   const style = styleAttr(node);
   return {
     ...nextContext,
-    code: `${indent(context.depth)}<input className="${className}" type="range" min={${min}} max={${max}} step={${step}} defaultValue={${value}}${style ? ` ${style}` : ''} />`,
+    code:
+      `${indent(context.depth)}<input className="${className}"` +
+      ` type="range" min={${min}} max={${max}}` +
+      ` step={${step}} defaultValue={${value}}` +
+      `${style ? ` ${style}` : ''} />`,
   };
 };
 
@@ -197,7 +226,11 @@ const compileDatepicker: CaseHandler = ({ node, props, nextContext, context, cla
   const style = styleAttr(node);
   return {
     ...nextContext,
-    code: `${indent(context.depth)}<input className="${className}" type="date"${value ? ` defaultValue=${JSON.stringify(value)}` : ''} placeholder=${JSON.stringify(placeholder)}${style ? ` ${style}` : ''} />`,
+    code:
+      `${indent(context.depth)}<input className="${className}"` +
+      ` type="date"${value ? ` defaultValue=${JSON.stringify(value)}` : ''}` +
+      ` placeholder=${JSON.stringify(placeholder)}` +
+      `${style ? ` ${style}` : ''} />`,
   };
 };
 
@@ -207,7 +240,11 @@ const compileTimepicker: CaseHandler = ({ node, props, nextContext, context, cla
   const style = styleAttr(node);
   return {
     ...nextContext,
-    code: `${indent(context.depth)}<input className="${className}" type="time"${value ? ` defaultValue=${JSON.stringify(value)}` : ''} placeholder=${JSON.stringify(placeholder)}${style ? ` ${style}` : ''} />`,
+    code:
+      `${indent(context.depth)}<input className="${className}"` +
+      ` type="time"${value ? ` defaultValue=${JSON.stringify(value)}` : ''}` +
+      ` placeholder=${JSON.stringify(placeholder)}` +
+      `${style ? ` ${style}` : ''} />`,
   };
 };
 
@@ -232,7 +269,12 @@ const compileUpload: CaseHandler = ({ node, props, nextContext, context, classNa
   const style = styleAttr(node);
   return {
     ...nextContext,
-    code: `${indent(context.depth)}<div className="${className}"${style ? ` ${style}` : ''}><input type="file" className="upload-input"${accept ? ` accept=${JSON.stringify(accept)}` : ''}${multiple ? ' multiple' : ''} /><span className="upload-label">{${JSON.stringify(actionLabel)}}</span></div>`,
+    code:
+      `${indent(context.depth)}<div className="${className}"${style ? ` ${style}` : ''}>` +
+      `<input type="file" className="upload-input"` +
+      `${accept ? ` accept=${JSON.stringify(accept)}` : ''}` +
+      `${multiple ? ' multiple' : ''} />` +
+      `<span className="upload-label">{${JSON.stringify(actionLabel)}}</span></div>`,
   };
 };
 

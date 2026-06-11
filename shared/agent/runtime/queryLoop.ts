@@ -256,6 +256,9 @@ export class QueryLoop {
               textChunks.push(event.text);
               this.cfg.onTextDelta(event.text);
               break;
+            case 'reasoning_delta':
+              this.cfg.onReasoningDelta?.(event.text);
+              break;
             case 'tool_call':
               pendingCalls.push({ id: event.id, name: event.name, arguments: event.arguments });
               break;

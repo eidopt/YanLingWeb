@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  createContext,
-  type ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 
 export type AppTheme = 'dark' | 'light';
 
@@ -23,10 +16,14 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 function getStoredTheme(): AppTheme {
-  if (typeof window === 'undefined') {return 'dark';}
+  if (typeof window === 'undefined') {
+    return 'dark';
+  }
   try {
     const stored = localStorage.getItem(THEME_STORAGE_KEY);
-    if (stored === 'light' || stored === 'dark') {return stored;}
+    if (stored === 'light' || stored === 'dark') {
+      return stored;
+    }
   } catch {
     // localStorage unavailable
   }
@@ -34,7 +31,9 @@ function getStoredTheme(): AppTheme {
 }
 
 function applyTheme(theme: AppTheme) {
-  if (typeof document === 'undefined') {return;}
+  if (typeof document === 'undefined') {
+    return;
+  }
   if (theme === 'light') {
     document.body.setAttribute(THEME_ATTR, 'light');
   } else {
@@ -48,7 +47,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const stored = getStoredTheme();
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    // Hydration sync: read stored theme from localStorage once on mount
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional one-time hydration sync from localStorage
     setThemeState(stored);
     applyTheme(stored);
     setMounted(true);
@@ -82,19 +82,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     return <>{children}</>;
   }
 
-  return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme(): ThemeContextValue {
   const ctx = useContext(ThemeContext);
   if (!ctx) {
     // Graceful fallback for pages rendered outside the ThemeProvider (e.g. error pages)
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    return { theme: 'dark', toggleTheme: () => {}, setTheme: () => {} };
+    return { theme: 'dark', toggleTheme: () => undefined, setTheme: () => undefined };
   }
   return ctx;
 }

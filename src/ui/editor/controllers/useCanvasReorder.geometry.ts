@@ -93,13 +93,11 @@ export function resolveSiblingDropTarget(
   for (let index = 0; index < orderedChildren.length; index += 1) {
     const currentChild = orderedChildren[index];
     const currentMetrics = getAxisMetrics(currentChild.rect, axis);
-    const previousChild = orderedChildren[index - 1];
-    const nextChild = orderedChildren[index + 1];
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- array[-1] is undefined at runtime; TypeScript doesn't model this without noUncheckedIndexedAccess
+    const previousChild = index > 0 ? orderedChildren[index - 1] : undefined;
+    const nextChild = index < orderedChildren.length - 1 ? orderedChildren[index + 1] : undefined;
     const previousSeam = previousChild
       ? (getAxisMetrics(previousChild.rect, axis).end + currentMetrics.start) / 2
       : null;
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- array[length] is undefined at runtime
     const nextSeam = nextChild ? (currentMetrics.end + getAxisMetrics(nextChild.rect, axis).start) / 2 : null;
 
     if (pointer >= currentMetrics.start && pointer <= currentMetrics.end) {
@@ -119,11 +117,7 @@ export function resolveSiblingDropTarget(
         };
       }
 
-      if (
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- array[-1] is undefined at runtime
-        !previousChild &&
-        pointer <= currentMetrics.start + SIBLING_SEAM_TOLERANCE
-      ) {
+      if (!previousChild && pointer <= currentMetrics.start + SIBLING_SEAM_TOLERANCE) {
         return {
           nodeId: currentChild.nodeId,
           position: 'before' as const,
@@ -131,11 +125,7 @@ export function resolveSiblingDropTarget(
         };
       }
 
-      if (
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- array[length] is undefined at runtime
-        !nextChild &&
-        pointer >= currentMetrics.end - SIBLING_SEAM_TOLERANCE
-      ) {
+      if (!nextChild && pointer >= currentMetrics.end - SIBLING_SEAM_TOLERANCE) {
         return {
           nodeId: currentChild.nodeId,
           position: 'after' as const,
@@ -146,7 +136,6 @@ export function resolveSiblingDropTarget(
       return dropIndicator?.axis === axis ? dropIndicator : null;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- array[length] is undefined at runtime
     if (!nextChild) {
       continue;
     }

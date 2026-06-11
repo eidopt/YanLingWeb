@@ -23,6 +23,7 @@ import {
   type SaveEditorAiConversationInput,
   type StreamRequest,
 } from './ai.service';
+import { serializeSseEvent } from './sse/sseEnvelope';
 import type { TemplateToolInput } from './tools/generateTemplate.tool';
 
 /** Start a 5-second SSE heartbeat. Returns a cleanup function to stop it. */
@@ -59,6 +60,7 @@ export class AiController {
   }
 
   @Put('editor-conversations/:templateId')
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
   @ApiOperation({ summary: 'Persist editor AI conversation for one template' })
   saveEditorConversation(
     @Param('templateId') templateId: string,
@@ -107,23 +109,31 @@ export class AiController {
 
     const stopHeartbeat = startSseHeartbeat(res);
 
-    const subscription = this.aiService.stream(req.user.sub, body, cacheOptions).subscribe({
-      next: (event) => {
-        res.write(`data: ${event.data}\n\n`);
+    const subscription = this.aiService
+      .stream(req.user.sub, body, cacheOptions, (phase, payload) => {
+        // 注入 pipeline stage 事件, 包 envelope 后写入 SSE
+        const type = phase === 'start' ? 'pipeline_stage_start' : 'pipeline_stage_end';
+        const data = serializeSseEvent(type, payload as never);
+        res.write(`data: ${data}\n\n`);
         this.flushResponse(res);
-      },
-      error: (err: unknown) => {
-        stopHeartbeat();
-        const message = err instanceof Error ? err.message : String(err);
-        res.write(`data: ${JSON.stringify({ type: 'error', message })}\n\n`);
-        this.flushResponse(res);
-        res.end();
-      },
-      complete: () => {
-        stopHeartbeat();
-        res.end();
-      },
-    });
+      })
+      .subscribe({
+        next: (event) => {
+          res.write(`data: ${event.data}\n\n`);
+          this.flushResponse(res);
+        },
+        error: (err: unknown) => {
+          stopHeartbeat();
+          const message = err instanceof Error ? err.message : String(err);
+          res.write(`data: ${JSON.stringify({ type: 'error', message })}\n\n`);
+          this.flushResponse(res);
+          res.end();
+        },
+        complete: () => {
+          stopHeartbeat();
+          res.end();
+        },
+      });
 
     req.on('close', () => {
       stopHeartbeat();

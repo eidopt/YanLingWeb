@@ -56,26 +56,25 @@ export async function runStructuredStage<T>(
     model: options.model,
     tools: [options.tool],
     toolSpecs,
-    // eslint-disable-next-line @typescript-eslint/require-await
-    toolExecutor: async (name, args): Promise<ToolResult> => {
+    toolExecutor: (name, args): Promise<ToolResult> => {
       if (name !== options.tool.name) {
-        return { output: JSON.stringify({ error: `unknown tool: ${name}` }) };
+        return Promise.resolve({ output: JSON.stringify({ error: `unknown tool: ${name}` }) });
       }
       try {
         captured = options.parse(args);
         parseError = undefined;
-        return { output: JSON.stringify({ accepted: true }), action: 'done' };
+        return Promise.resolve({ output: JSON.stringify({ accepted: true }), action: 'done' });
       } catch (err) {
         parseError = err instanceof Error ? err : new Error(String(err));
         // 诊断：把每次工具输入被拒的具体校验错误打出来（默认被当 tool result 喂回 LLM、
         // 不可见）。便于排查 SchemaGen 为何反复耗尽迭代、栽在哪条校验。
         console.warn(`[stage:${options.tool.name}] 输入被拒 → ${parseError.message}`);
-        return {
+        return Promise.resolve({
           output: JSON.stringify({
             error: parseError.message,
             hint: '重新调用工具，修正参数后再次提交',
           }),
-        };
+        });
       }
     },
     onTextDelta: () => undefined,

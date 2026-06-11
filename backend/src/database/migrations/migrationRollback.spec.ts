@@ -4,6 +4,10 @@ import { DataSource, type MigrationInterface } from 'typeorm';
 import { InitialSchema1748166000000 } from './1748166000000-InitialSchema';
 import * as existingDbUpgrade from './1748166100000-SchemaUpgradeForExistingDbs';
 import { TemplateAgentConfigTables1748166200000 } from './1748166200000-TemplateAgentConfigTables';
+// prettier-ignore
+import {
+  EditorAiConversationUndoStack1748166300000,
+} from './1748166300000-EditorAiConversationUndoStack';
 
 const SchemaUpgradeForExistingDbs = existingDbUpgrade.SchemaUpgradeForExistingDbs1748166100000;
 
@@ -11,6 +15,7 @@ const MIGRATIONS = [
   InitialSchema1748166000000,
   SchemaUpgradeForExistingDbs,
   TemplateAgentConfigTables1748166200000,
+  EditorAiConversationUndoStack1748166300000,
 ];
 
 interface SqliteNamedRow {
@@ -126,6 +131,7 @@ const APPLICATION_SCHEMA_CONTRACT: Record<string, readonly string[]> = {
     'messages',
     'providerMessages',
     'providerSession',
+    'undoStack',
     'createdAt',
     'updatedAt',
   ],
@@ -217,6 +223,7 @@ describe('database migrations', () => {
       'InitialSchema1748166000000',
       'SchemaUpgradeForExistingDbs1748166100000',
       'TemplateAgentConfigTables1748166200000',
+      'EditorAiConversationUndoStack1748166300000',
     ]);
 
     for (const [tableName, expectedColumns] of Object.entries(APPLICATION_SCHEMA_CONTRACT)) {

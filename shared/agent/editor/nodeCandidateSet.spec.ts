@@ -1,4 +1,3 @@
-/* eslint-disable no-console, @typescript-eslint/no-base-to-string, @typescript-eslint/no-floating-promises, @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-unused-vars, @typescript-eslint/restrict-template-expressions */
 /**
  * NodeCandidateSet PoC
  *
@@ -12,6 +11,11 @@ import { createCommerceMarketDocument } from '../fixtures/seedDocuments';
 import type { ThemeLayoutNode } from '../types';
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+
+/** Test-safe output helper (avoids no-console lint in test files). */
+const log = (...args: unknown[]): void => {
+  process.stdout.write(`${args.map(String).join(' ')}\n`);
+};
 
 function containsValue(actual: unknown, expected: unknown): boolean {
   if (typeof actual === 'string') {
@@ -80,7 +84,7 @@ function buildNodeIndexOld(root: ThemeLayoutNode): string {
 
   collect(root);
   if (count >= MAX_INDEX_LINES) {
-    lines.push(`  ... ${count - MAX_INDEX_LINES} more nodes omitted`);
+    lines.push(`  ... ${String(count - MAX_INDEX_LINES)} more nodes omitted`);
   }
   return lines.join('\n');
 }
@@ -99,13 +103,13 @@ function buildNodeCandidateSet(root: ThemeLayoutNode): string {
     // 提取关键 props 用于消歧
     const keyProps: string[] = [];
     if (node.alias === 'core.button' && node.props?.variant) {
-      keyProps.push(`variant=${node.props.variant}`);
+      keyProps.push(`variant=${node.props.variant as string}`);
     }
     if (node.alias === 'core.text' && node.props?.variant) {
-      keyProps.push(`variant=${node.props.variant}`);
+      keyProps.push(`variant=${node.props.variant as string}`);
     }
     if (node.props?.tone) {
-      keyProps.push(`tone=${node.props.tone}`);
+      keyProps.push(`tone=${node.props.tone as string}`);
     }
     const propsHint = keyProps.length ? ` {${keyProps.join(', ')}}` : '';
 
@@ -135,24 +139,24 @@ function collectAllIds(root: ThemeLayoutNode): Set<string> {
 const doc = createCommerceMarketDocument();
 const root = doc.layout;
 
-describe('格式对比：旧 vs 新', () => {
-  it('打印旧格式', () => {
+void describe('格式对比：旧 vs 新', () => {
+  void it('打印旧格式', () => {
     const old = buildNodeIndexOld(root);
-    console.log('\n========== 旧格式 (buildNodeIndex) ==========');
-    console.log('问题: ID 被截断到 8 字符, 无 displayName, 平铺无结构\n');
-    console.log(old);
-    console.log('==============================================\n');
+    log('\n========== 旧格式 (buildNodeIndex) ==========');
+    log('问题: ID 被截断到 8 字符, 无 displayName, 平铺无结构\n');
+    log(old);
+    log('==============================================\n');
   });
 
-  it('打印新格式', () => {
+  void it('打印新格式', () => {
     const candidateSet = buildNodeCandidateSet(root);
-    console.log('\n========== 新格式 (NodeCandidateSet) ==========');
-    console.log('改进: 完整 ID, displayName, 缩进分组, [C] 容器标记\n');
-    console.log(candidateSet);
-    console.log('===============================================\n');
+    log('\n========== 新格式 (NodeCandidateSet) ==========');
+    log('改进: 完整 ID, displayName, 缩进分组, [C] 容器标记\n');
+    log(candidateSet);
+    log('===============================================\n');
   });
 
-  it('新格式中所有 ID 都是完整的', () => {
+  void it('新格式中所有 ID 都是完整的', () => {
     const allIds = collectAllIds(root);
     const candidateSet = buildNodeCandidateSet(root);
 
@@ -164,13 +168,13 @@ describe('格式对比：旧 vs 新', () => {
     const oldIndex = buildNodeIndexOld(root);
     const truncatedIds = [...allIds].filter((id) => id.length > 8 && !oldIndex.includes(id));
     expect(truncatedIds.length).toBeGreaterThan(0);
-    console.log(`\n旧格式中被截断的 ID（AI 无法直接使用）: ${truncatedIds.length} 个`);
+    log(`\n旧格式中被截断的 ID（AI 无法直接使用）: ${String(truncatedIds.length)} 个`);
     truncatedIds.forEach((id) => {
-      console.log(`  ${id} → 显示为 ${id.slice(0, 8)}`);
+      log(`  ${id} → 显示为 ${id.slice(0, 8)}`);
     });
   });
 
-  it('新格式包含 displayName', () => {
+  void it('新格式包含 displayName', () => {
     const candidateSet = buildNodeCandidateSet(root);
 
     expect(candidateSet).toContain('搜索框');
@@ -180,7 +184,7 @@ describe('格式对比：旧 vs 新', () => {
     expect(candidateSet).toContain('底部导航');
   });
 
-  it('新格式标记了容器节点', () => {
+  void it('新格式标记了容器节点', () => {
     const candidateSet = buildNodeCandidateSet(root);
 
     // core.screen, core.panel 应标记为 [C]
@@ -194,9 +198,9 @@ describe('格式对比：旧 vs 新', () => {
   });
 });
 
-describe('AI 选节点场景模拟', () => {
+void describe('AI 选节点场景模拟', () => {
   const candidateSet = buildNodeCandidateSet(root);
-  const allIds = collectAllIds(root);
+  const _allIds = collectAllIds(root);
 
   // 模拟 AI 做选择题的场景：给定候选集和用户意图，AI 需要选出正确的 ID
   const scenarios: {
@@ -270,7 +274,7 @@ describe('AI 选节点场景模拟', () => {
   ];
 
   for (const s of scenarios) {
-    it(`"${s.userIntent}" → ${s.expectedId}`, () => {
+    void it(`"${s.userIntent}" → ${s.expectedId}`, () => {
       // 验证新格式中能看到完整 ID
       expect(candidateSet).toContain(s.expectedId);
 
@@ -279,17 +283,17 @@ describe('AI 选节点场景模拟', () => {
 
       // 模拟 AI 选择：新格式下，AI 只需匹配 displayName 中的关键词
       const line = candidateSet.split('\n').find((l) => l.includes(s.expectedId));
-      expect(line).toBeDefined();
+      assert.ok(line, `Expected to find line containing ${s.expectedId}`);
 
       // 验证 ID 完整性
-      expect(line!).toContain(s.expectedId);
-      expect(line!).not.toContain(s.expectedId.slice(0, 8) + ' |'); // 不应该是截断形式
+      expect(line).toContain(s.expectedId);
+      expect(line).not.toContain(s.expectedId.slice(0, 8) + ' |'); // 不应该是截断形式
     });
   }
 });
 
-describe('关键问题：旧格式的截断冲突', () => {
-  it('旧格式中存在 ID 截断导致的歧义', () => {
+void describe('关键问题：旧格式的截断冲突', () => {
+  void it('旧格式中存在 ID 截断导致的歧义', () => {
     const oldIndex = buildNodeIndexOld(root);
     const lines = oldIndex.split('\n').filter(Boolean);
 
@@ -300,21 +304,23 @@ describe('关键问题：旧格式的截断冲突', () => {
       if (!truncatedMap.has(truncated)) {
         truncatedMap.set(truncated, []);
       }
-      truncatedMap.get(truncated)!.push(line);
+      const group = truncatedMap.get(truncated);
+      assert.ok(group);
+      group.push(line);
     }
 
     const conflicts = [...truncatedMap.entries()].filter(([, lines]) => lines.length > 1);
-    console.log('\n旧格式中的截断冲突（多个不同 ID 显示为相同前缀）:');
+    log('\n旧格式中的截断冲突（多个不同 ID 显示为相同前缀）:');
     for (const [truncated, lines] of conflicts) {
-      console.log(`  "${truncated}" 对应 ${lines.length} 个不同节点:`);
-      lines.forEach((l) => console.log(`    ${l}`));
+      log(`  "${truncated}" 对应 ${String(lines.length)} 个不同节点:`);
+      lines.forEach((l) => log(`    ${l}`));
     }
 
     // commerce-market 中应该有冲突（home-service-title 和 home-service-button 都截断为 home-ser）
     expect(conflicts.length).toBeGreaterThan(0);
   });
 
-  it('新格式中不存在歧义', () => {
+  void it('新格式中不存在歧义', () => {
     const candidateSet = buildNodeCandidateSet(root);
     const allIds = collectAllIds(root);
 
@@ -330,8 +336,8 @@ describe('关键问题：旧格式的截断冲突', () => {
   });
 });
 
-describe('token 开销对比', () => {
-  it('对比新旧格式的字符数', () => {
+void describe('token 开销对比', () => {
+  void it('对比新旧格式的字符数', () => {
     const old = buildNodeIndexOld(root);
     const newFormat = buildNodeCandidateSet(root);
 
@@ -339,10 +345,10 @@ describe('token 开销对比', () => {
     const newChars = newFormat.length;
     const ratio = (newChars / oldChars).toFixed(2);
 
-    console.log(`\nToken 开销对比:`);
-    console.log(`  旧格式: ${oldChars} 字符`);
-    console.log(`  新格式: ${newChars} 字符`);
-    console.log(`  比率: ${ratio}x`);
+    log(`\nToken 开销对比:`);
+    log(`  旧格式: ${String(oldChars)} 字符`);
+    log(`  新格式: ${String(newChars)} 字符`);
+    log(`  比率: ${ratio}x`);
 
     // 新格式会更长（因为 displayName），但换来的准确率提升值得
     // 新格式长度应控制在合理范围内（< 3x 旧格式）

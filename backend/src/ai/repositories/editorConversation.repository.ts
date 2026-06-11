@@ -1,4 +1,7 @@
-import type { EditorAiConversation } from '../entities/editorAiConversation.entity';
+import type {
+  EditorAiConversation,
+  EditorAiConversationUndoStackRecord,
+} from '../entities/editorAiConversation.entity';
 
 export const EDITOR_CONVERSATION_REPOSITORY = Symbol('EDITOR_CONVERSATION_REPOSITORY');
 
@@ -8,6 +11,7 @@ export interface CreateEditorConversationInput {
   messages?: EditorAiConversation['messages'];
   providerMessages?: EditorAiConversation['providerMessages'];
   providerSession?: EditorAiConversation['providerSession'];
+  undoStack?: EditorAiConversation['undoStack'];
 }
 
 export interface EditorConversationRepository {
@@ -19,3 +23,5 @@ export interface EditorConversationRepository {
     templateId: string,
   ): Promise<EditorAiConversation | null>;
 }
+
+export type { EditorAiConversationUndoStackRecord };

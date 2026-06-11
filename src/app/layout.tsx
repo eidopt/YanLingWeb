@@ -21,7 +21,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="zh-CN" className={jakarta.variable} suppressHydrationWarning>
       <head>
         <script
-          // eslint-disable-next-line react/no-danger
+          // Theme init script must run synchronously before paint to prevent flash; dangerouslySetInnerHTML is required
+          // eslint-disable-next-line react/no-danger -- hardcoded static string, no user input
           dangerouslySetInnerHTML={{
             __html: [
               `try{var t=localStorage.getItem('app-theme');`,

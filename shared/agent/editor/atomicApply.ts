@@ -1,8 +1,8 @@
-import { atomicOperationManager, type OperationStep } from './atomicOperations';
-import type { AgentEditResult } from '../errors/agentErrors';
 import type { CompiledSemanticInstruction } from '../compiler/semanticInstructionCompiler';
-import { applyEditorAiEditInstructions } from './applyEditorInstructions';
+import type { AgentEditResult } from '../errors/agentErrors';
 import type { ThemeLayoutDocument } from '../types';
+import { applyEditorAiEditInstructions } from './applyEditorInstructions';
+import { atomicOperationManager, type OperationStep } from './atomicOperations';
 
 export interface AtomicApplyOptions {
   sessionId?: string;

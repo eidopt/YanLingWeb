@@ -2,7 +2,7 @@
 
 import styles from './ChatPanel.module.css';
 import type { AgentClarificationOption } from '@shared/agent/contracts/agent';
-import { type FormEvent, type KeyboardEvent, type RefObject, useState } from 'react';
+import { type FormEvent, type KeyboardEvent, type ReactNode, type RefObject, useState } from 'react';
 import type { Components } from 'react-markdown';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -44,6 +44,10 @@ export interface ChatPanelProps {
   onClarificationSelect?: (option: AgentClarificationOption, message: ChatMessage) => void;
   onClarificationCustomSubmit?: (value: string, message: ChatMessage) => void;
   messagesEndRef?: RefObject<HTMLDivElement | null>;
+  renderAfterMessages?: ReactNode;
+  undoButtonLabel?: string;
+  onUndo?: () => void;
+  undoAvailableCount?: number;
 }
 
 const markdownComponents: Components = {
@@ -127,6 +131,10 @@ export function ChatPanel({
   onClarificationSelect,
   onClarificationCustomSubmit,
   messagesEndRef,
+  renderAfterMessages,
+  undoButtonLabel,
+  onUndo,
+  undoAvailableCount,
 }: ChatPanelProps) {
   const [customValues, setCustomValues] = useState<Record<string, string>>({});
 
@@ -254,6 +262,8 @@ export function ChatPanel({
         <Box ref={messagesEndRef} />
       </Box>
 
+      {renderAfterMessages}
+
       <Box as="form" className={styles.form} onSubmit={onSubmit}>
         <TextArea
           className={styles.inputArea}
@@ -266,6 +276,21 @@ export function ChatPanel({
           variant="filled"
         />
         <Box className={styles.actions}>
+          {onUndo ? (
+            <Box className={styles.undoButton}>
+              <Button
+                type="button"
+                onClick={onUndo}
+                disabled={disabled || isRunning || !undoAvailableCount}
+                title="撤销 (Ctrl+Z)"
+                size="sm"
+                variant="secondary"
+              >
+                {undoButtonLabel ?? '撤销'}
+                {undoAvailableCount !== undefined && undoAvailableCount > 0 ? ` (${undoAvailableCount})` : ''}
+              </Button>
+            </Box>
+          ) : null}
           {isRunning ? (
             <Button type="button" onClick={onCancel} size="sm" variant="secondary">
               {cancelLabel}

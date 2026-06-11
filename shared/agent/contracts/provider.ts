@@ -30,6 +30,11 @@ export interface StreamEventTextDelta {
   text: string;
 }
 
+export interface StreamEventReasoningDelta {
+  type: 'reasoning_delta';
+  text: string;
+}
+
 export interface StreamEventToolCall {
   type: 'tool_call';
   id: string;
@@ -55,7 +60,12 @@ export interface StreamEventError {
   message: string;
 }
 
-export type ProviderStreamEvent = StreamEventTextDelta | StreamEventToolCall | StreamEventDone | StreamEventError;
+export type ProviderStreamEvent =
+  | StreamEventTextDelta
+  | StreamEventReasoningDelta
+  | StreamEventToolCall
+  | StreamEventDone
+  | StreamEventError;
 
 export interface ProviderRequest {
   model: string;

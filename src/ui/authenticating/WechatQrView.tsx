@@ -1,21 +1,13 @@
-"use client";
+'use client';
 
-import styles from "./AuthDialog.module.css";
-import { wechatQrViewContent as c } from "./WechatQrView.content";
-import type { AuthResponseDto } from "@shared/types/user.types";
-import { useAppServices } from "hooks/useAppServices";
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Box,
-  Button,
-  Heading,
-  Inline,
-  Input,
-  Stack,
-  Text,
-} from 'ui/base';
+import styles from './AuthDialog.module.css';
+import { wechatQrViewContent as c } from './WechatQrView.content';
+import type { AuthResponseDto } from '@shared/types/user.types';
+import { useAppServices } from 'hooks/useAppServices';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Box, Button, Heading, Inline, Input, Stack, Text } from 'ui/base';
 
-const WECHAT_AUTH_CHANNEL = "wechat_oauth";
+const WECHAT_AUTH_CHANNEL = 'wechat_oauth';
 const QR_TTL_MS = 4.5 * 60 * 1000; // refresh before 5-min WeChat expiry
 
 interface WechatQrViewProps {
@@ -61,7 +53,7 @@ export function WechatQrView({ onSuccess, onBack }: WechatQrViewProps) {
     const channel = new BroadcastChannel(WECHAT_AUTH_CHANNEL);
     channel.onmessage = (evt: MessageEvent<AuthResponseDto>) => {
       authService.save(evt.data);
-      onSuccess("/editor");
+      onSuccess('/editor');
     };
     return () => {
       channel.close();
@@ -71,26 +63,27 @@ export function WechatQrView({ onSuccess, onBack }: WechatQrViewProps) {
   // Handle same-tab callback (when no popup was opened)
   useEffect(() => {
     const handler = (evt: StorageEvent) => {
-      if (evt.key !== "wechat_auth_result" || !evt.newValue) {
+      if (evt.key !== 'wechat_auth_result' || !evt.newValue) {
         return;
       }
       try {
         const authData = JSON.parse(evt.newValue) as AuthResponseDto;
         authService.save(authData);
-        localStorage.removeItem("wechat_auth_result");
-        onSuccess("/editor");
+        localStorage.removeItem('wechat_auth_result');
+        onSuccess('/editor');
       } catch {
         // ignore
       }
     };
-    window.addEventListener("storage", handler);
+    window.addEventListener('storage', handler);
     return () => {
-      window.removeEventListener("storage", handler);
+      window.removeEventListener('storage', handler);
     };
   }, [authService, onSuccess]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- initial and scheduled QR refresh intentionally updates view state
+    // Data fetching effect — fetchQr internally updates component state as a side effect
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- async fetch callback updates state intentionally
     void fetchQr();
     return () => {
       if (refreshTimer.current) {
@@ -113,8 +106,12 @@ export function WechatQrView({ onSuccess, onBack }: WechatQrViewProps) {
       </Box>
 
       <Stack className={styles.formHeader} gap="xs">
-        <Heading size="md" variant="primary" weight="heavy">{c.title}</Heading>
-        <Text size="sm" variant="muted">{c.subtitle}</Text>
+        <Heading size="md" variant="primary" weight="heavy">
+          {c.title}
+        </Heading>
+        <Text size="sm" variant="muted">
+          {c.subtitle}
+        </Text>
       </Stack>
 
       <Box className={styles.qrBox}>
@@ -126,13 +123,10 @@ export function WechatQrView({ onSuccess, onBack }: WechatQrViewProps) {
 
         {!loading && error && (
           <Stack className={styles.qrError}>
-            <Text align="center" size="sm" variant="danger">{error}</Text>
-            <Button
-              type="button"
-              onClick={() => void fetchQr()}
-              size="sm"
-              variant="outline"
-            >
+            <Text align="center" size="sm" variant="danger">
+              {error}
+            </Text>
+            <Button type="button" onClick={() => void fetchQr()} size="sm" variant="outline">
               {c.refresh}
             </Button>
           </Stack>
@@ -149,8 +143,12 @@ export function WechatQrView({ onSuccess, onBack }: WechatQrViewProps) {
             />
             {scanned && (
               <Stack className={styles.qrScannedOverlay} gap="sm">
-                <Text as="span" size="3xl" variant="success">✓</Text>
-                <Text size="sm" variant="success" weight="bold">{c.scanned}</Text>
+                <Text as="span" size="3xl" variant="success">
+                  ✓
+                </Text>
+                <Text size="sm" variant="success" weight="bold">
+                  {c.scanned}
+                </Text>
               </Stack>
             )}
           </>
@@ -159,13 +157,10 @@ export function WechatQrView({ onSuccess, onBack }: WechatQrViewProps) {
 
       {!loading && !error && (
         <Stack className={styles.qrHints} gap="sm">
-          <Text align="center" size="sm" variant="muted">{c.hint}</Text>
-          <Button
-            type="button"
-            onClick={() => void fetchQr()}
-            size="xs"
-            variant="link"
-          >
+          <Text align="center" size="sm" variant="muted">
+            {c.hint}
+          </Text>
+          <Button type="button" onClick={() => void fetchQr()} size="xs" variant="link">
             {c.expiredRefresh}
           </Button>
         </Stack>
@@ -173,34 +168,21 @@ export function WechatQrView({ onSuccess, onBack }: WechatQrViewProps) {
 
       {/* Fallback: open in browser */}
       {qrUrl && (
-        <a
-          href={qrUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.qrOpenLink}
-        >
+        <a href={qrUrl} target="_blank" rel="noopener noreferrer" className={styles.qrOpenLink}>
           {c.openInBrowser}
         </a>
       )}
 
       {/* Dev helper: simulate callback during development */}
-      {process.env.NODE_ENV === "development" && state && (
-        <DevCallbackHelper state={state} onSuccess={onSuccess} />
-      )}
+      {process.env.NODE_ENV === 'development' && state && <DevCallbackHelper state={state} onSuccess={onSuccess} />}
     </Stack>
   );
 }
 
 /* ── Dev helper — only rendered in development ── */
-function DevCallbackHelper({
-  state,
-  onSuccess,
-}: {
-  state: string;
-  onSuccess: (redirect: string) => void;
-}) {
+function DevCallbackHelper({ state, onSuccess }: { state: string; onSuccess: (redirect: string) => void }) {
   const { authService, userService } = useAppServices();
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState('');
 
   const handleSimulate = async () => {
     if (!code.trim()) {
@@ -208,12 +190,12 @@ function DevCallbackHelper({
     }
     try {
       const result = await userService.submitOAuthCallback({
-        provider: "wechat",
+        provider: 'wechat',
         code: code.trim(),
         state,
       });
       authService.save(result);
-      onSuccess("/editor");
+      onSuccess('/editor');
     } catch (err) {
       alert(err instanceof Error ? err.message : c.error.oauthFailed);
     }
@@ -221,7 +203,9 @@ function DevCallbackHelper({
 
   return (
     <Stack className={styles.devHelper} gap="sm">
-      <Text size="xs" variant="warning" weight="bold">{c.dev.title}</Text>
+      <Text size="xs" variant="warning" weight="bold">
+        {c.dev.title}
+      </Text>
       <Inline gap="u0-8" wrap={false}>
         <Input
           value={code}

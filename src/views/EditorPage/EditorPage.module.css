@@ -13,6 +13,15 @@
   justify-content: center;
 }
 
+.statusBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-width: 480px;
+  padding: 1.5rem;
+}
+
 .statusText {
   font-size: 14px;
   color: var(--app-text-2);
@@ -21,4 +30,9 @@
 .errorText {
   font-size: 14px;
   color: var(--app-danger);
+}
+
+.pipelineWrapper {
+  width: 100%;
+  margin-top: 0.5rem;
 }

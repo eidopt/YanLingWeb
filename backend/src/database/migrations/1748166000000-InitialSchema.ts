@@ -305,6 +305,7 @@ export class InitialSchema1748166000000 implements MigrationInterface {
         "messages" text NOT NULL DEFAULT ('[]'),
         "providerMessages" text NOT NULL DEFAULT ('[]'),
         "providerSession" text,
+        "undoStack" text,
         ${createdAt},
         ${updatedAt},
         CONSTRAINT "UQ_editor_ai_conversations_ownerUserId_templateId"

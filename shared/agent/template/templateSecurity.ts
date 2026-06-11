@@ -1,4 +1,3 @@
-/* eslint-disable no-control-regex */
 const KEY_PATTERN = /^[a-zA-Z][a-zA-Z0-9_.-]{2,127}$/;
 const SENSITIVE_PATTERNS = [
   /api[_-]?key/i,
@@ -14,12 +13,15 @@ export function validateSemanticKeyFormat(key: string): boolean {
 }
 
 export function sanitizeSemanticInput(input: string, maxLength = 500): string {
-  return input
-    .replace(/[\x01-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
-    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
-    .replace(/javascript:/gi, '')
-    .trim()
-    .slice(0, maxLength);
+  return (
+    input
+      // eslint-disable-next-line no-control-regex -- intentionally stripping C0/C1 control chars for input sanitization
+      .replace(/[\x01-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+      .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+      .replace(/javascript:/gi, '')
+      .trim()
+      .slice(0, maxLength)
+  );
 }
 
 export function maskNodeId(nodeId: string): string {
@@ -43,9 +45,9 @@ export function containsSensitiveData(value: unknown): boolean {
     return value.some((item) => containsSensitiveData(item));
   }
   if (typeof value === 'object') {
-    return Object.entries(value as Record<string, unknown>).some(([key, item]) => (
-      SENSITIVE_PATTERNS.some((pattern) => pattern.test(key)) || containsSensitiveData(item)
-    ));
+    return Object.entries(value as Record<string, unknown>).some(
+      ([key, item]) => SENSITIVE_PATTERNS.some((pattern) => pattern.test(key)) || containsSensitiveData(item),
+    );
   }
   return false;
 }

@@ -178,14 +178,11 @@ export function getThemeLayoutPages(document: ThemeLayoutDocumentSource): ThemeL
     throw new Error(`Theme layout document "${document.themeId}"` + ' is missing both pages and layout.');
   }
 
-  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- empty string should fall through
-  const fallbackPageId = document.defaultPageId?.trim() || document.layout.id;
+  const fallbackPageId = (document.defaultPageId?.trim() ?? '') || document.layout.id;
   return [
     {
       id: fallbackPageId,
-      /* eslint-disable @typescript-eslint/prefer-nullish-coalescing -- empty string should fall through */
-      name: document.pageName?.trim() || resolvePageName(document.layout, fallbackPageId),
-      /* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
+      name: (document.pageName?.trim() ?? '') || resolvePageName(document.layout, fallbackPageId),
       layout: document.layout,
     },
   ];
@@ -217,8 +214,7 @@ export function normalizeThemeLayoutDocument(document: ThemeLayoutDocumentSource
     schemaVersion: document.schemaVersion,
     themeId: document.themeId,
     themeName: document.themeName,
-    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- empty string should fall through
-    pageName: document.pageName?.trim() || activePage.name,
+    pageName: (document.pageName?.trim() ?? '') || activePage.name,
     description: document.description,
     components: [...document.components],
     defaultPageId: activePage.id,

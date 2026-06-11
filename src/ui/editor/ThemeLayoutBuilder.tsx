@@ -11,6 +11,7 @@ import {
 } from '../renderer';
 import { BuilderLibraryPanel } from './components/BuilderLibraryPanel';
 import { EditorAiPanel } from './components/EditorAiPanel';
+import { EditorAiPanelState } from './components/editorAiPanelState';
 import { InteractionModeToggle } from './components/InteractionModeToggle';
 import { NodeEditDialog } from './components/NodeEditDialog';
 import { PreviewModeSwitch } from './components/PreviewModeSwitch';
@@ -101,6 +102,7 @@ export function ThemeLayoutBuilder({
     setActiveCanvasId,
     activeTheme,
     currentDocument,
+    setEditorDocument,
     selectedNode,
     selectedDescriptor,
     layoutDescriptors,
@@ -140,11 +142,24 @@ export function ThemeLayoutBuilder({
   const defaultPageName =
     activeCanvas.defaultName ||
     themeLayoutBuilderContent.preview.defaultPageName(activeCanvasIndex >= 0 ? activeCanvasIndex + 1 : 1);
-  /* eslint-disable @typescript-eslint/no-unnecessary-condition -- pageName/name may be undefined at runtime despite the type */
-  const currentPageName = activeCanvas.document.pageName ?? activeCanvas.name ?? defaultPageName;
-  /* eslint-enable @typescript-eslint/no-unnecessary-condition */
+  const currentPageName = (activeCanvas.document.pageName ?? '') || activeCanvas.name || defaultPageName;
   const isPreviewMode = interactionMode === 'preview';
   const documentForRender = previewDocument ?? currentDocument;
+
+  // B.3: AI 面板的 undo 状态（localStorage 持久化），由父组件托管以实现跨组件触发 undo。
+  const [undoState] = useState(() => new EditorAiPanelState());
+
+  const handleUndo = useCallback(() => {
+    if (isPreviewMode) {
+      return;
+    }
+    const snapshot = undoState.pop();
+    if (!snapshot) {
+      return;
+    }
+    // 撤销：把快照里的 document 写回当前画布。setEditorDocument 内部会触发重渲染。
+    setEditorDocument(snapshot.document);
+  }, [isPreviewMode, setEditorDocument, undoState]);
 
   useEffect(() => {
     if (!isPreviewScreenPresetAllowed(screenPreset, activeTheme.platformCategories)) {
@@ -284,6 +299,20 @@ export function ThemeLayoutBuilder({
       window.removeEventListener('keydown', onKeyDown);
     };
   }, [libraryExpanded]);
+
+  // B.3: 全局 Ctrl/Cmd+Z 触发 undo
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && !event.shiftKey && (event.key === 'z' || event.key === 'Z')) {
+        event.preventDefault();
+        handleUndo();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [handleUndo]);
 
   useEffect(() => {
     if (!libraryExpanded) {
@@ -503,6 +532,8 @@ export function ThemeLayoutBuilder({
               selectedDescriptor={isPreviewMode ? null : selectedDescriptor}
               disabled={isPreviewMode}
               onApplyInstructions={applyAiEditInstructions}
+              undoState={undoState}
+              onUndo={handleUndo}
             />
           </Box>
         </Box>

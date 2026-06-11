@@ -83,10 +83,8 @@ export function useCanvasReorder({
   }
 
   function getNodeRectSnapshot(nodeId: string, fallbackElement?: HTMLDivElement | null) {
-    const snapshot = dragRectSnapshotsRef.current[nodeId];
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- map value may be undefined at runtime
-    if (snapshot) {
-      return snapshot;
+    if (nodeId in dragRectSnapshotsRef.current) {
+      return dragRectSnapshotsRef.current[nodeId];
     }
 
     if (!fallbackElement) {

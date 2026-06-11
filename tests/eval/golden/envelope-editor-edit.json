@@ -1,0 +1,44 @@
+[
+  {
+    "schema": "sse.v1",
+    "type": "text_delta",
+    "ts": "2026-06-09T00:00:00.000Z",
+    "payload": { "text": "让我想想这个修改..." }
+  },
+  {
+    "schema": "sse.v1",
+    "type": "reasoning_delta",
+    "ts": "2026-06-09T00:00:00.100Z",
+    "payload": { "delta": "用户希望添加一个按钮" }
+  },
+  {
+    "schema": "sse.v1",
+    "type": "tool_start",
+    "ts": "2026-06-09T00:00:00.500Z",
+    "payload": { "name": "editor_insert_node", "toolCallId": "tc-2", "ts": "2026-06-09T00:00:00.500Z" }
+  },
+  {
+    "schema": "sse.v1",
+    "type": "edit_request",
+    "ts": "2026-06-09T00:00:01.000Z",
+    "payload": {
+      "data": "{ \"operations\": [{ \"type\": \"insert\", \"alias\": \"core.button\", \"parentId\": \"root\" }] }"
+    }
+  },
+  {
+    "schema": "sse.v1",
+    "type": "tool_done",
+    "ts": "2026-06-09T00:00:02.000Z",
+    "payload": { "name": "editor_insert_node", "toolCallId": "tc-2", "durationMs": 1500 }
+  },
+  {
+    "schema": "sse.v1",
+    "type": "usage_summary",
+    "ts": "2026-06-09T00:00:03.000Z",
+    "payload": {
+      "model": "claude-opus-4-6",
+      "usage": { "inputTokens": 2000, "outputTokens": 500, "cacheHitTokens": 1500, "cacheMissTokens": 500 }
+    }
+  },
+  { "schema": "sse.v1", "type": "done", "ts": "2026-06-09T00:00:03.500Z", "payload": { "stopReason": "end_turn" } }
+]

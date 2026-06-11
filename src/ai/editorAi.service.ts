@@ -13,15 +13,34 @@ import {
 import type { ThemeComponentDescriptor, ThemeLayoutDocument, ThemeLayoutNode } from 'ui/layout/types';
 
 export interface EditorAiEvent {
-  type: 'text' | 'intent_plan' | 'tool_start' | 'tool_done' | 'edit_applied' | 'clarification' | 'error' | 'done';
+  type:
+    | 'text'
+    | 'intent_plan'
+    | 'tool_start'
+    | 'tool_done'
+    | 'edit_applied'
+    | 'clarification'
+    | 'reasoning'
+    | 'usage_summary'
+    | 'error'
+    | 'done';
   data: string;
   terminal?: boolean;
+}
+
+export interface EditorAiSnapshot {
+  id: string;
+  document: ThemeLayoutDocument;
+  description: string;
+  createdAt: string;
 }
 
 export interface EditorAiEditCanvasOptions {
   prompt: string;
   model?: string;
   document: ThemeLayoutDocument;
+  getCurrentDocument: () => ThemeLayoutDocument;
+  onSnapshot?: (snapshot: EditorAiSnapshot) => void;
   pages?: EditorAiPageContext[];
   conversation?: EditorAiConversationMessage[];
   conversationId?: string;
@@ -88,6 +107,8 @@ export interface EditorAiCacheStats {
 interface BackendEditorEvent {
   type: string;
   data?: unknown;
+  schema?: string;
+  payload?: unknown;
 }
 
 function eventDataToString(data: unknown): string {
@@ -106,6 +127,16 @@ function getToolEventName(data: unknown): string {
     return typeof name === 'string' ? name : eventDataToString(data);
   }
   return eventDataToString(data);
+}
+
+function getPayloadField(event: BackendEditorEvent, field: string): unknown {
+  if (typeof event === 'object' && 'payload' in event) {
+    const payload = (event as { payload?: unknown }).payload;
+    if (payload && typeof payload === 'object' && field in payload) {
+      return (payload as Record<string, unknown>)[field];
+    }
+  }
+  return undefined;
 }
 
 function normalizeConversationHistory(messages: unknown): EditorAiConversationMessage[] {
@@ -304,10 +335,17 @@ export class EditorAiService {
         throw new Error(text || `HTTP ${String(response.status)}`);
       }
 
-      await this.consumeEditorEventStream(events, onEvent, applyInstructions, {
-        userPrompt: prompt,
-        selectedNodeId: selectedNode?.id ?? null,
-      });
+      await this.consumeEditorEventStream(
+        events,
+        onEvent,
+        applyInstructions,
+        {
+          userPrompt: prompt,
+          selectedNodeId: selectedNode?.id ?? null,
+        },
+        opts.getCurrentDocument,
+        opts.onSnapshot,
+      );
     } catch (err) {
       if (!signal?.aborted) {
         onEvent({
@@ -327,9 +365,99 @@ export class EditorAiService {
     onEvent: (event: EditorAiEvent) => void,
     applyInstructions: EditorAiEditCanvasOptions['applyInstructions'],
     applyOptions: ApplyEditorAiEditInstructionsOptions,
+    getCurrentDocument: () => ThemeLayoutDocument,
+    onSnapshot: EditorAiEditCanvasOptions['onSnapshot'],
   ): Promise<void> {
     for await (const streamEvent of events) {
       const event = JSON.parse(streamEvent.data) as BackendEditorEvent;
+      // Phase 1 envelope 格式: { schema: 'sse.v1', type, ts, payload }
+      if (event.schema === 'sse.v1') {
+        switch (event.type) {
+          case 'text_delta':
+            onEvent({ type: 'text', data: eventDataToString(getPayloadField(event, 'text')) });
+            break;
+          case 'tool_start':
+            onEvent({ type: 'tool_start', data: getToolEventName(getPayloadField(event, 'name')) });
+            break;
+          case 'tool_done':
+            onEvent({ type: 'tool_done', data: getToolEventName(getPayloadField(event, 'name')) });
+            break;
+          case 'tool_error':
+            onEvent({ type: 'error', data: eventDataToString(getPayloadField(event, 'error')) });
+            break;
+          case 'clarification':
+            onEvent({
+              type: 'clarification',
+              data: eventDataToString({
+                question: getPayloadField(event, 'question'),
+                options: getPayloadField(event, 'options'),
+              }),
+            });
+            break;
+          case 'edit_request':
+            this.applyBackendEditRequest(
+              getPayloadField(event, 'data'),
+              onEvent,
+              applyInstructions,
+              applyOptions,
+              getCurrentDocument,
+              onSnapshot,
+            );
+            break;
+          case 'error':
+            onEvent({
+              type: 'error',
+              data: eventDataToString(getPayloadField(event, 'message')),
+              terminal: true,
+            });
+            break;
+          case 'done':
+            onEvent({ type: 'done', data: '' });
+            return;
+          case 'reasoning_delta': {
+            const payload = event.payload as { delta?: unknown } | undefined;
+            const delta = typeof payload?.delta === 'string' ? payload.delta : '';
+            onEvent({ type: 'reasoning', data: delta });
+            break;
+          }
+          case 'usage_summary': {
+            const payload = event.payload as
+              | {
+                  model?: unknown;
+                  usage?: unknown;
+                  totalCostUsd?: unknown;
+                }
+              | undefined;
+            const model = typeof payload?.model === 'string' ? payload.model : '';
+            const usage = (payload?.usage ?? {}) as {
+              inputTokens?: number;
+              outputTokens?: number;
+              cacheHitTokens?: number;
+              cacheMissTokens?: number;
+            };
+            const totalCostUsd = typeof payload?.totalCostUsd === 'number' ? payload.totalCostUsd : undefined;
+            onEvent({
+              type: 'usage_summary',
+              data: JSON.stringify({
+                model,
+                usage: {
+                  inputTokens: usage.inputTokens ?? 0,
+                  outputTokens: usage.outputTokens ?? 0,
+                  cacheHitTokens: usage.cacheHitTokens,
+                  cacheMissTokens: usage.cacheMissTokens,
+                },
+                totalCostUsd,
+              }),
+            });
+            break;
+          }
+          // 跳过其他未识别的 envelope 事件
+          default:
+            break;
+        }
+        continue;
+      }
+      // 兼容未带 envelope 的旧事件 (理论上不应该再出现, 但保留 fallback)
       switch (event.type) {
         case 'text':
           onEvent({ type: 'text', data: eventDataToString(event.data) });
@@ -344,7 +472,14 @@ export class EditorAiService {
           onEvent({ type: 'clarification', data: eventDataToString(event.data) });
           break;
         case 'edit_request':
-          this.applyBackendEditRequest(event.data, onEvent, applyInstructions, applyOptions);
+          this.applyBackendEditRequest(
+            event.data,
+            onEvent,
+            applyInstructions,
+            applyOptions,
+            getCurrentDocument,
+            onSnapshot,
+          );
           break;
         case 'tool_error':
           onEvent({ type: 'error', data: eventDataToString(event.data) });
@@ -366,6 +501,8 @@ export class EditorAiService {
     onEvent: (event: EditorAiEvent) => void,
     applyInstructions: EditorAiEditCanvasOptions['applyInstructions'],
     applyOptions: ApplyEditorAiEditInstructionsOptions,
+    getCurrentDocument: () => ThemeLayoutDocument,
+    onSnapshot: EditorAiEditCanvasOptions['onSnapshot'],
   ): void {
     const args =
       typeof data === 'string'
@@ -373,6 +510,16 @@ export class EditorAiService {
         : (data as { operations?: unknown; reason?: unknown });
     const instructions = Array.isArray(args.operations) ? (args.operations as readonly EditorAiEditInstruction[]) : [];
     const reason = typeof args.reason === 'string' ? args.reason : undefined;
+    // B.2: 在 apply 前压栈 undo 快照, 以便 UI 提供撤销
+    if (onSnapshot) {
+      const currentDoc = getCurrentDocument();
+      onSnapshot({
+        id: `undo-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+        document: structuredClone(currentDoc),
+        description: reason ?? 'AI 编辑',
+        createdAt: new Date().toISOString(),
+      });
+    }
     const result = applyInstructions(instructions, {
       ...applyOptions,
       reason,

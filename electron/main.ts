@@ -10,13 +10,9 @@ const isDev = !app.isPackaged;
 
 // ── Directory paths ──────────────────────────────────────────────────────────
 // PROJECT_ROOT: the ai-app source root, used to locate node_modules and src/.
-const PROJECT_ROOT = isDev
-  ? path.join(__dirname, '..')
-  : app.getAppPath();
+const PROJECT_ROOT = isDev ? path.join(__dirname, '..') : app.getAppPath();
 
-const OUTPUT_DIR = isDev
-  ? path.join(PROJECT_ROOT, 'output')
-  : path.join(app.getPath('documents'), 'ai-app-exports');
+const OUTPUT_DIR = isDev ? path.join(PROJECT_ROOT, 'output') : path.join(app.getPath('documents'), 'ai-app-exports');
 
 const SRC_DIR = path.join(PROJECT_ROOT, 'src');
 
@@ -36,7 +32,9 @@ function isPortFree(port: number): Promise<boolean> {
 
 async function findFreePort(preferred: number): Promise<number> {
   for (let port = preferred; port < preferred + 100; port++) {
-    if (await isPortFree(port)) {return port;}
+    if (await isPortFree(port)) {
+      return port;
+    }
   }
   throw new Error('No free port found');
 }
@@ -46,7 +44,10 @@ function waitForPort(port: number, timeout = 30_000): Promise<void> {
     const deadline = Date.now() + timeout;
     const check = () => {
       const socket = net.createConnection({ port, host: '127.0.0.1' });
-      socket.once('connect', () => { socket.destroy(); resolve(); });
+      socket.once('connect', () => {
+        socket.destroy();
+        resolve();
+      });
       socket.once('error', () => {
         socket.destroy();
         if (Date.now() > deadline) {
@@ -123,7 +124,9 @@ void app.whenReady().then(async () => {
 
 app.on('window-all-closed', () => {
   nextServerProcess?.kill();
-  if (process.platform !== 'darwin') {app.quit();}
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
 });
 
 app.on('will-quit', () => {
@@ -131,31 +134,30 @@ app.on('will-quit', () => {
 });
 
 app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {void createWindow();}
+  if (BrowserWindow.getAllWindows().length === 0) {
+    void createWindow();
+  }
 });
 
 // ── Export IPC handlers ──────────────────────────────────────────────────────
 
 function registerExportHandlers() {
   // Ensure the output directory exists on startup
-  void fs.mkdir(OUTPUT_DIR, { recursive: true }).catch(
-    (_err: unknown) => { /* noop: directory may already exist */ },
-  );
+  void fs.mkdir(OUTPUT_DIR, { recursive: true }).catch((_err: unknown) => {
+    /* noop: directory may already exist */
+  });
 
   /**
    * export:saveJson
    * Writes the layout.json to output/<filename>.
    * Returns the absolute path of the saved file.
    */
-  ipcMain.handle(
-    'export:saveJson',
-    async (_event, filename: string, content: string) => {
-      await fs.mkdir(OUTPUT_DIR, { recursive: true });
-      const filePath = path.join(OUTPUT_DIR, filename);
-      await fs.writeFile(filePath, content, 'utf-8');
-      return filePath;
-    },
-  );
+  ipcMain.handle('export:saveJson', async (_event, filename: string, content: string) => {
+    await fs.mkdir(OUTPUT_DIR, { recursive: true });
+    const filePath = path.join(OUTPUT_DIR, filename);
+    await fs.writeFile(filePath, content, 'utf-8');
+    return filePath;
+  });
 
   /**
    * export:buildProject
@@ -165,61 +167,38 @@ function registerExportHandlers() {
    *   3. Run `vite build` inside the scaffold directory
    *   4. Return the absolute path to the dist/ output
    */
-  ipcMain.handle(
-    'export:buildProject',
-    async (_event, payload: ExportBuildPayload) => {
-      const {
-        projectName,
-        layoutJson,
-        themeId,
-        runtimeCssVars,
-        runtimeCssAnimations,
-      } = payload;
-      const projectDir = path.join(OUTPUT_DIR, projectName);
+  ipcMain.handle('export:buildProject', async (_event, payload: ExportBuildPayload) => {
+    const { projectName, layoutJson, themeId, runtimeCssVars, runtimeCssAnimations } = payload;
+    const projectDir = path.join(OUTPUT_DIR, projectName);
 
-      // 1. Generate and write scaffold files
-      const files = generateScaffoldFiles(
-        layoutJson,
-        themeId,
-        projectName,
-        runtimeCssVars,
-        runtimeCssAnimations,
-      );
-      for (const file of files) {
-        const filePath = path.join(projectDir, file.relativePath);
-        await fs.mkdir(path.dirname(filePath), { recursive: true });
+    // 1. Generate and write scaffold files
+    const files = generateScaffoldFiles(layoutJson, themeId, projectName, runtimeCssVars, runtimeCssAnimations);
+    for (const file of files) {
+      const filePath = path.join(projectDir, file.relativePath);
+      await fs.mkdir(path.dirname(filePath), { recursive: true });
 
-        // Replace __SRC_DIR__ placeholder with the real absolute path
-        const fileContent = file.content.replace(
-          /__SRC_DIR__/g,
-          SRC_DIR.replace(/\\/g, '/'),
-        );
-        await fs.writeFile(filePath, fileContent, 'utf-8');
-      }
+      // Replace __SRC_DIR__ placeholder with the real absolute path
+      const fileContent = file.content.replace(/__SRC_DIR__/g, SRC_DIR.replace(/\\/g, '/'));
+      await fs.writeFile(filePath, fileContent, 'utf-8');
+    }
 
-      // 2. Run vite build inside the scaffold directory.
-      // We use `ELECTRON_RUN_AS_NODE=1` + the Electron binary to invoke the
-      // vite CLI script — this avoids depending on a system-level `node`.
-      const viteScript = path.join(
-        PROJECT_ROOT, 'node_modules', 'vite', 'bin', 'vite.js',
-      );
-      await runScript(viteScript, ['build'], projectDir);
+    // 2. Run vite build inside the scaffold directory.
+    // We use `ELECTRON_RUN_AS_NODE=1` + the Electron binary to invoke the
+    // vite CLI script — this avoids depending on a system-level `node`.
+    const viteScript = path.join(PROJECT_ROOT, 'node_modules', 'vite', 'bin', 'vite.js');
+    await runScript(viteScript, ['build'], projectDir);
 
-      const distDir = path.join(projectDir, 'dist');
-      return distDir;
-    },
-  );
+    const distDir = path.join(projectDir, 'dist');
+    return distDir;
+  });
 
   /**
    * export:openFolder
    * Opens a directory in Finder / Explorer.
    */
-  ipcMain.handle(
-    'export:openFolder',
-    async (_event, folderPath: string) => {
-      await shell.openPath(folderPath);
-    },
-  );
+  ipcMain.handle('export:openFolder', async (_event, folderPath: string) => {
+    await shell.openPath(folderPath);
+  });
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -229,29 +208,20 @@ function registerExportHandlers() {
  * `ELECTRON_RUN_AS_NODE=1` makes Electron behave like a plain Node.js
  * process, so we don't need a separate system Node installation.
  */
-function runScript(
-  scriptPath: string,
-  args: string[],
-  cwd: string,
-): Promise<void> {
+function runScript(scriptPath: string, args: string[], cwd: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    const proc = spawn(
-      process.execPath,
-      [scriptPath, ...args],
-      {
-        cwd,
-        stdio: ['ignore', 'pipe', 'pipe'],
-        env: {
-          ...process.env,
-          ELECTRON_RUN_AS_NODE: '1',
-          FORCE_COLOR: '0',
-        },
+    const proc = spawn(process.execPath, [scriptPath, ...args], {
+      cwd,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: {
+        ...process.env,
+        ELECTRON_RUN_AS_NODE: '1',
+        FORCE_COLOR: '0',
       },
-    );
+    });
 
     let stderr = '';
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- stderr may be null depending on spawn stdio config
-    proc.stderr?.on('data', (chunk: Buffer) => {
+    proc.stderr.on('data', (chunk: Buffer) => {
       stderr += chunk.toString();
     });
 

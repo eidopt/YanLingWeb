@@ -24,7 +24,10 @@ interface MockAiService {
     [string, string, SaveEditorAiConversationInput]
   >;
   checkRateLimit: jest.Mock<void, [string]>;
-  stream: jest.Mock<Observable<StreamSseEvent>, [string, StreamRequest, unknown]>;
+  stream: jest.Mock<
+    Observable<StreamSseEvent>,
+    [string, StreamRequest, unknown, (phase: 'start' | 'end', payload: unknown) => void]
+  >;
   streamEditor: jest.Mock<
     Observable<StreamSseEvent>,
     [string, StreamRequest | EditorAgentStreamRequest, unknown]
@@ -62,7 +65,10 @@ function createService(): MockAiService {
       [string, string, SaveEditorAiConversationInput]
     >(),
     checkRateLimit: jest.fn<void, [string]>(),
-    stream: jest.fn<Observable<StreamSseEvent>, [string, StreamRequest, unknown]>(),
+    stream: jest.fn<
+      Observable<StreamSseEvent>,
+      [string, StreamRequest, unknown, (phase: 'start' | 'end', payload: unknown) => void]
+    >(),
     streamEditor: jest.fn<
       Observable<StreamSseEvent>,
       [string, StreamRequest | EditorAgentStreamRequest, unknown]
@@ -154,6 +160,7 @@ describe('AiController', () => {
       const dto: EditorAiConversationDto = {
         templateId: 'tpl-1',
         messages: [],
+        undoStack: null,
         updatedAt: null,
       };
       service.getEditorConversation.mockResolvedValue(dto);
@@ -172,6 +179,7 @@ describe('AiController', () => {
       const dto: EditorAiConversationDto = {
         templateId: 'tpl-5',
         messages: [],
+        undoStack: null,
         updatedAt: '2026-05-29T00:00:00.000Z',
       };
       service.saveEditorConversation.mockResolvedValue(dto);
@@ -232,10 +240,15 @@ describe('AiController', () => {
       controller.streamProxy(body, req, asResponse(res));
 
       expect(service.checkRateLimit).toHaveBeenCalledWith('user-1');
-      expect(service.stream).toHaveBeenCalledWith('user-1', body, {
-        conversationId: 'conv-9',
-        previousResponseId: 'resp-9',
-      });
+      expect(service.stream).toHaveBeenCalledWith(
+        'user-1',
+        body,
+        {
+          conversationId: 'conv-9',
+          previousResponseId: 'resp-9',
+        },
+        expect.any(Function),
+      );
       expect(res.setHeader).toHaveBeenCalledWith(
         'content-type',
         'text/event-stream; charset=utf-8',
@@ -243,8 +256,15 @@ describe('AiController', () => {
       expect(res.setHeader).toHaveBeenCalledWith('x-conversation-id', 'conv-9');
       expect(res.flushHeaders).toHaveBeenCalled();
 
-      subject.next({ data: '{"type":"text"}' });
-      expect(res.write).toHaveBeenCalledWith('data: {"type":"text"}\n\n');
+      subject.next({
+        data: JSON.stringify({
+          schema: 'sse.v1',
+          type: 'text_delta',
+          ts: '2026-06-09T00:00:00.000Z',
+          payload: { text: 'hi' },
+        }),
+      });
+      expect(res.write).toHaveBeenCalledWith(expect.stringContaining('"type":"text_delta"'));
       expect(res.flush).toHaveBeenCalled();
 
       subject.complete();
@@ -261,10 +281,15 @@ describe('AiController', () => {
 
       controller.streamProxy(body, req, asResponse(res));
 
-      expect(service.stream).toHaveBeenCalledWith('user-1', body, {
-        conversationId: undefined,
-        previousResponseId: undefined,
-      });
+      expect(service.stream).toHaveBeenCalledWith(
+        'user-1',
+        body,
+        {
+          conversationId: undefined,
+          previousResponseId: undefined,
+        },
+        expect.any(Function),
+      );
       expect(res.setHeader).not.toHaveBeenCalledWith('x-conversation-id', expect.anything());
     });
 
@@ -297,6 +322,51 @@ describe('AiController', () => {
       req.closeHandlers[0]();
       subject.next({ data: 'late' });
       expect(res.write).not.toHaveBeenCalled();
+    });
+
+    it('forwards pipeline_stage_start/end events from the service callback (T11/T14)', () => {
+      const { controller, service } = createHarness();
+      const subject = new Subject<StreamSseEvent>();
+      // 捕获 controller 传给 service 的 stage 回调, 主动调用
+      let stageCallback:
+        | ((
+            phase: 'start' | 'end',
+            payload: {
+              stage: 'designer' | 'critic' | 'schema' | 'verifier';
+              attempt: number;
+              durationMs?: number;
+              status?: 'ok' | 'failed';
+              error?: string;
+            },
+          ) => void)
+        | undefined;
+      service.stream.mockImplementation((_user, _req, _cache, onPipelineStageEvent) => {
+        stageCallback = onPipelineStageEvent;
+        return subject.asObservable();
+      });
+      const req = createStreamRequest();
+      const res = createResponse();
+      const body = { messages: [] } as unknown as StreamRequest;
+
+      controller.streamProxy(body, req, asResponse(res));
+
+      // 主动触发 4 个 stage 事件
+      stageCallback?.('start', { stage: 'designer', attempt: 1 });
+      stageCallback?.('end', { stage: 'designer', attempt: 1, durationMs: 250, status: 'ok' });
+      stageCallback?.('start', { stage: 'critic', attempt: 1 });
+      stageCallback?.('end', { stage: 'critic', attempt: 1, durationMs: 180, status: 'ok' });
+
+      // 检查 res.write 被调用 4 次, 都是 envelope
+      const writeCalls: string[] = res.write.mock.calls.map((c: unknown[]) => String(c[0]));
+      expect(writeCalls).toHaveLength(4);
+      const [first, second, third, fourth] = writeCalls;
+      expect(first).toContain('"type":"pipeline_stage_start"');
+      expect(first).toContain('"stage":"designer"');
+      expect(second).toContain('"type":"pipeline_stage_end"');
+      expect(second).toContain('"durationMs":250');
+      expect(third).toContain('"type":"pipeline_stage_start"');
+      expect(third).toContain('"stage":"critic"');
+      expect(fourth).toContain('"type":"pipeline_stage_end"');
     });
   });
 
@@ -343,8 +413,15 @@ describe('AiController', () => {
       expect(res.setHeader).toHaveBeenCalledWith('x-conversation-id', 'conv-2');
       expect(res.flushHeaders).toHaveBeenCalled();
 
-      subject.next({ data: '{"type":"text","data":"hi"}' });
-      expect(res.write).toHaveBeenCalledWith('data: {"type":"text","data":"hi"}\n\n');
+      subject.next({
+        data: JSON.stringify({
+          schema: 'sse.v1',
+          type: 'text_delta',
+          ts: '2026-06-09T00:00:00.000Z',
+          payload: { text: 'hi' },
+        }),
+      });
+      expect(res.write).toHaveBeenCalledWith(expect.stringContaining('"type":"text_delta"'));
 
       subject.complete();
       expect(res.end).toHaveBeenCalled();
