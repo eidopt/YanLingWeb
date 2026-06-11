@@ -163,9 +163,8 @@ export class BackendProxyProvider implements AIProvider {
         }
         const parsed = parseSseEnvelope(streamEvent.data);
         if (!parsed.ok) {
-          // 静默 skip + console.warn, 不断流
-
-          console.warn(`[SSE] skip envelope: ${parsed.reason}`);
+          // 静默 skip + console.warn, 不断流 — 但把截断后的 raw 数据附上便于生产排查
+          console.warn(`[SSE] skip envelope (${parsed.reason}): ${truncateForLog(streamEvent.data, 200)}`);
           continue;
         }
         const envelope = parsed.envelope;
@@ -209,6 +208,14 @@ export class BackendProxyProvider implements AIProvider {
 
 function hasResponseId(event: ProviderStreamEvent): event is ProviderStreamEvent & { response_id: string } {
   return 'response_id' in event && typeof event.response_id === 'string';
+}
+
+/** 截断字符串用于 warn 日志，防止超大 payload 撑爆 stdout。 */
+function truncateForLog(value: string, maxLen: number): string {
+  if (value.length <= maxLen) {
+    return value;
+  }
+  return `${value.slice(0, maxLen)}…(+${value.length - maxLen} chars)`;
 }
 
 function convertEnvelopeToLegacyProviderEvent(e: SseEventEnvelope<SseEventType, unknown>): ProviderStreamEvent | null {
