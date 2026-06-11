@@ -51,6 +51,7 @@
     "test:di-container": "tsx scripts/diContainerSmoke.ts",
     "test:css-contract": "tsx scripts/cssVarsContractSmoke.ts",
     "test:source-export": "node scripts/sourceExportSmoke.cjs",
+    "test:shared": "tsx --test shared/agent/contracts/editorUndoStack.spec.ts shared/agent/editor/atomicApply.spec.ts shared/agent/editor/nodeCandidateSet.spec.ts shared/agent/template/buildTemplateProfile.spec.ts shared/agent/tools/semanticToolExecutor.spec.ts shared/agent/tools/semanticTools.spec.ts shared/agent/compiler/semanticInstructionCompiler.spec.ts src/ai/core/compact/autoCompact.spec.ts src/ai/core/compact/compactionDecision.spec.ts",
     "renderer:registry:check": "node scripts/checkRendererRegistry.cjs",
     "module-boundaries:audit": "node scripts/auditModuleBoundaries.cjs",
     "shared:module-format:check": "node scripts/checkSharedModuleFormat.cjs",
