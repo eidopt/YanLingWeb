@@ -14,7 +14,7 @@ import type {
   SchemaOutput,
 } from '../orchestrator/pipeline.types';
 import { runStructuredStage } from '../orchestrator/runStage';
-import { preValidateAndFix } from './preValidateFix';
+import { autoBizComponents, preValidateAndFix } from './preValidateFix';
 
 /**
  * Stage 3 — Schema Generator
@@ -150,10 +150,21 @@ export class SchemaGeneratorAgent {
         ? args.componentTemplates
         : {};
 
-    // Auto-complete biz-* component descriptors.
-    // preValidateAndFix will handle this + dedupe + removeUnknownProps + fixImageUrls
-    // after the document is assembled below.
-    const components = [...CORE_COMPONENTS, ...customComponents];
+    // Auto-complete biz-* component descriptors BEFORE building `documentInput`
+    // so that `migrateThemeLayoutDocument` sees the final components catalog.
+    // `preValidateAndFix` (called below) is idempotent and will not re-add
+    // descriptors that are already in `components` because
+    // `autoBizComponents` skips aliases that are already in
+    // `declaredAliases`. The remaining chain steps it runs (dedupe,
+    // removeUnknownProps, fixDangerousUrls) still need to execute, so we
+    // keep the call.
+    const preDocForBiz = {
+      components: customComponents,
+      componentTemplates: resolvedComponentTemplates,
+    };
+    autoBizComponents(preDocForBiz, resolvedComponentTemplates);
+    const autoAdded = preDocForBiz.components;
+    const components = [...CORE_COMPONENTS, ...autoAdded];
 
     const documentInput = {
       ...rawDoc,
@@ -202,9 +213,10 @@ export class SchemaGeneratorAgent {
       };
     }
 
-    // Pre-validate fix chain: dedupe IDs, auto-biz, remove unknown props, fix image URLs.
-    // Runs BEFORE formal validation to mechanically fix common LLM output issues,
-    // reducing unnecessary LLM retries.
+    // Pre-validate fix chain: dedupe IDs, auto-biz (idempotent no-op now
+    // because we pre-populated `components` above), remove unknown props,
+    // fix dangerous URLs. Runs BEFORE formal validation to mechanically fix
+    // common LLM output issues, reducing unnecessary LLM retries.
     const preFixResult = preValidateAndFix(
       document as unknown as Record<string, unknown>,
       resolvedComponentTemplates,

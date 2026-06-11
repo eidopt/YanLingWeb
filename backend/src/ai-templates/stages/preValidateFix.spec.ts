@@ -7,7 +7,7 @@
 import {
   autoBizComponents,
   dedupeNodeIds,
-  fixImageUrls,
+  fixDangerousUrls,
   preValidateAndFix,
   removeUnknownProps,
 } from './preValidateFix';
@@ -99,6 +99,38 @@ describe('autoBizComponents', () => {
     const doc = { components: [{ alias: 'core.text', props: [] }] };
     const count = autoBizComponents(doc);
     expect(count).toBe(0);
+  });
+
+  // Security: defense in depth — autoBizComponents must not be tricked into
+  // registering arbitrary LLM-supplied aliases as new top-level components.
+  it('rejects aliases that do not match the biz-* namespace pattern', () => {
+    const doc = {
+      components: [{ alias: 'core.text', props: [] }],
+      componentTemplates: {
+        'evil-injection': { displayName: 'Evil' },
+        'core.spoofed': { displayName: 'Spoof' },
+        '../../etc/passwd': { displayName: 'Path' },
+        'biz.promo-card': { displayName: 'Promo' },
+      },
+    };
+    const count = autoBizComponents(doc);
+    expect(count).toBe(1);
+    const components = doc.components as { alias: string }[];
+    expect(components.map((c) => c.alias)).toEqual(['core.text', 'biz.promo-card']);
+  });
+
+  it('accepts biz-* namespace variants (dot, dash, underscore, mixed case)', () => {
+    const doc = {
+      components: [],
+      componentTemplates: {
+        'biz-promo-card': { displayName: 'A' },
+        'biz.promo_card': { displayName: 'B' },
+        'biz.PromoCard': { displayName: 'C' },
+        'biz.promo123': { displayName: 'D' },
+      },
+    };
+    const count = autoBizComponents(doc);
+    expect(count).toBe(4);
   });
 });
 
@@ -226,7 +258,7 @@ describe('removeUnknownProps', () => {
   });
 });
 
-describe('fixImageUrls', () => {
+describe('fixDangerousUrls', () => {
   it('replaces data: URIs with placeholder', () => {
     const doc = {
       pages: [
@@ -245,7 +277,7 @@ describe('fixImageUrls', () => {
         },
       ],
     };
-    const count = fixImageUrls(doc);
+    const count = fixDangerousUrls(doc);
     expect(count).toBe(1);
     const layout = doc.pages[0].layout as { children: { props: { src: string } }[] };
     expect(layout.children[0].props.src).toContain('placehold.co');
@@ -264,7 +296,7 @@ describe('fixImageUrls', () => {
         },
       ],
     };
-    const count = fixImageUrls(doc);
+    const count = fixDangerousUrls(doc);
     expect(count).toBe(1);
   });
 
@@ -281,7 +313,7 @@ describe('fixImageUrls', () => {
         },
       ],
     };
-    const count = fixImageUrls(doc);
+    const count = fixDangerousUrls(doc);
     expect(count).toBe(0);
   });
 
@@ -298,7 +330,99 @@ describe('fixImageUrls', () => {
         },
       ],
     };
-    const count = fixImageUrls(doc);
+    const count = fixDangerousUrls(doc);
+    expect(count).toBe(0);
+  });
+
+  // Security: scheme casing differential — LLM might emit `JavaScript:` or
+  // `DATA:` to bypass naive case-sensitive startsWith checks.
+  it('rejects mixed-case scheme variants (case-insensitive)', () => {
+    const doc = {
+      pages: [
+        {
+          id: 'p1',
+          layout: { id: 'a', alias: 'core.image', props: { src: 'JavaScript:alert(1)' } },
+        },
+        {
+          id: 'p2',
+          layout: { id: 'b', alias: 'core.image', props: { src: 'DATA:image/png;base64,abc' } },
+        },
+        {
+          id: 'p3',
+          layout: { id: 'c', alias: 'core.image', props: { src: 'VbScript:msgbox(1)' } },
+        },
+        {
+          id: 'p4',
+          layout: { id: 'd', alias: 'core.image', props: { src: '\tjavascript:alert(1)' } },
+        },
+      ],
+    };
+    const count = fixDangerousUrls(doc);
+    expect(count).toBe(4);
+  });
+
+  // Security: protocol-relative `//` could be smuggled to bypass same-origin
+  // checks when the page is served from http and `//evil.com/x.png` resolves
+  // to evil.com without an explicit scheme.
+  it('rejects protocol-relative URLs starting with //', () => {
+    const doc = {
+      pages: [
+        { id: 'p1', layout: { id: 'a', alias: 'core.image', props: { src: '//evil.com/x.png' } } },
+      ],
+    };
+    const count = fixDangerousUrls(doc);
+    expect(count).toBe(1);
+  });
+
+  // Security: sanitizer scope — any alias with a URL-shaped prop must be
+  // scanned, not just `core.image.src`.
+  it('scans URL-shaped props on any alias (defense in depth)', () => {
+    const doc = {
+      pages: [
+        {
+          id: 'p1',
+          layout: {
+            id: 'root',
+            children: [
+              {
+                id: 'link',
+                alias: 'core.html',
+                props: { href: 'javascript:alert(1)' },
+              },
+              {
+                id: 'video',
+                alias: 'core.video',
+                props: { poster: 'data:image/png;base64,abc' },
+              },
+              {
+                id: 'biz-link',
+                alias: 'biz-cta',
+                props: { to: 'JavaScript:fetch("/leak")' },
+              },
+            ],
+          },
+        },
+      ],
+    };
+    const count = fixDangerousUrls(doc);
+    expect(count).toBe(3);
+  });
+
+  // Sanity: mailto: and tel: are common safe schemes and should pass.
+  it('preserves mailto: and tel: schemes', () => {
+    const doc = {
+      pages: [
+        {
+          id: 'p1',
+          layout: { id: 'a', alias: 'core.html', props: { href: 'mailto:hi@example.com' } },
+        },
+        {
+          id: 'p2',
+          layout: { id: 'b', alias: 'core.html', props: { href: 'tel:+15551234567' } },
+        },
+      ],
+    };
+    const count = fixDangerousUrls(doc);
     expect(count).toBe(0);
   });
 });
