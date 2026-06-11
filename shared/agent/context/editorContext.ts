@@ -1,4 +1,5 @@
 import { formatEditorSemanticTargetLandmarks } from '../editor/semanticTargetResolver';
+import { buildTemplateProfile } from '../template/buildTemplateProfile';
 import type { TemplateProfile } from '../template/templateProfile';
 import type {
   AgentConversationMessage,
@@ -322,6 +323,29 @@ function summarizeRecordKeys(label: string, value: Record<string, unknown> | nul
   return `- ${label}: keys=${keys.length ? keys.join(', ') : 'none'}`;
 }
 
+export function buildTemplateProfileSummary(profile: TemplateProfile): string {
+  return [
+    '## 模板语义索引（TemplateProfile 摘要）',
+    '优先使用语义工具：editor_update_slot / editor_fill_pattern / editor_create_page_from_page_kind / editor_replace_section / editor_submit_page_spec',
+    '',
+    '### 可用页面类型（pageKind）',
+    ...profile.pages.map((p) => `- ${p.pageKind}: pageId=${p.pageId}, name=${p.name}`),
+    '',
+    '### 可用区域（regionKey，replaceable=true）',
+    ...profile.regions
+      .filter((r) => r.replaceable)
+      .map((r) => `- ${r.regionKey}: page=${r.pageKey}, nodeId=${r.nodeId}`),
+    '',
+    '### 可编辑槽位（slotKey，最多 30 个）',
+    ...profile.slots.slice(0, 30).map((s) => `- ${s.slotKey}: ${s.component} props=[${s.editableProps.join(',')}]`),
+    '',
+    '### 可填充模式（patternKey）',
+    ...profile.patterns.map(
+      (p) => `- ${p.patternKey}: fields=[${p.fields.map((f) => f.fieldKey).join(',')}], maxItems=${p.maxItems ?? 50}`,
+    ),
+  ].join('\n');
+}
+
 function summarizeTemplateProfile(profile: TemplateProfile): string {
   const lines: string[] = [
     `- templateId=${profile.templateId}`,
@@ -463,6 +487,8 @@ export function buildEditorVolatileContext(
     'Semantic Landmarks (use these as fallback via semanticTarget):',
     formatEditorSemanticTargetLandmarks(document.layout),
     depsSection,
+    '',
+    buildTemplateProfileSummary(buildTemplateProfile(document)),
   ]
     .filter(Boolean)
     .join('\n');

@@ -32,6 +32,8 @@ import {
   renderSmokeThemeLayoutDocument,
   validateThemeLayoutDocument,
 } from '@shared/agent/contracts/validation';
+import { executeSemanticTool } from '@shared/agent/tools/semanticToolExecutor';
+import { assertSemanticToolName, isSemanticTool } from '@shared/agent/tools/semanticTools';
 
 export interface EditorEditAgentOptions {
   provider: AIProvider;
@@ -154,11 +156,33 @@ export class EditorEditAgent {
         terminalError = message;
         emit('error', message);
       },
-      toolExecutor: (name, args) => {
+      toolExecutor: async (name, args) => {
         const call = recorder.toolCall(name, args);
         if (!EDITOR_EDIT_TOOL_NAMES.has(name)) {
           call.error = `Unknown tool: ${name}`;
           return Promise.resolve({ output: JSON.stringify({ error: call.error }) });
+        }
+        if (isSemanticTool(name)) {
+          assertSemanticToolName(name);
+          // executeSemanticTool mutates the document in place via applyCompiledOperationsAtomic,
+          // so currentDocument is already updated when this returns.
+          try {
+            const result = await executeSemanticTool(name, args, currentDocument, {
+              sessionId: `agent-${Date.now()}`,
+            });
+            call.result = result;
+            emit('edit_applied', {
+              success: result.success,
+              applied: result.success ? (result.data?.appliedOperations ?? []) : [],
+              errors: result.success ? [] : [String(result.error?.code ?? 'unknown')],
+            });
+            return Promise.resolve({ output: JSON.stringify(result) });
+          } catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            call.error = message;
+            emit('error', message);
+            return Promise.resolve({ output: JSON.stringify({ error: message }) });
+          }
         }
         try {
           const edit = editorToolCallToOperations(name, args);
