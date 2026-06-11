@@ -31,6 +31,7 @@ function startSseHeartbeat(res: Response): () => void {
   const timer = setInterval(() => {
     res.write(':heartbeat\n\n');
   }, 5_000);
+  timer.unref();
   return () => clearInterval(timer);
 }
 
