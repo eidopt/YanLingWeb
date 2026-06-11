@@ -23,6 +23,8 @@ export type SseEventType =
   | 'pipeline_stage_end'
   | 'usage_summary'
   | 'clarification'
+  // 缓存诊断：每轮结束后 + compaction 触发时 emit
+  | 'cache_diagnostic'
   // 编辑器流专属:edit_request 携带 editor 实际应用的 operations
   | 'edit_request';
 
@@ -65,10 +67,20 @@ export interface SseEventPayloadByType {
   };
   usage_summary: { model: string; usage: SseTokenUsage; totalCostUsd?: number };
   clarification: { question: string; options: { label: string; value: string }[] };
+  cache_diagnostic: {
+    /** SHA-256 (前 16 hex) of the system+tools prefix as sent to the provider. */
+    prefixHash: string;
+    /** Computed as cacheHitTokens / (cacheHitTokens + cacheMissTokens); null if no usage. */
+    cacheHitRate: number | null;
+    /** Compaction strategy used this turn, if any. */
+    compactionStrategy: 'skip' | 'micro' | 'full' | null;
+    /** Whether the prefix hash changed since the previous turn. */
+    prefixChanged: boolean;
+  };
   edit_request: { data: string };
 }
 
-/** 老 ProviderStreamEvent 之外的 8 个新事件 type 集合 (前端订阅口过滤用) */
+/** 老 ProviderStreamEvent 之外的 9 个新事件 type 集合 (前端订阅口过滤用) */
 export const NEW_STRUCTURED_SSE_EVENT_TYPES: ReadonlySet<SseEventType> = new Set([
   'tool_start',
   'tool_done',
@@ -78,4 +90,5 @@ export const NEW_STRUCTURED_SSE_EVENT_TYPES: ReadonlySet<SseEventType> = new Set
   'pipeline_stage_end',
   'usage_summary',
   'clarification',
+  'cache_diagnostic',
 ]);

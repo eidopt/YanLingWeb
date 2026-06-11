@@ -9,7 +9,7 @@ interface ParsedEnvelope {
   payload: Record<string, unknown>;
 }
 
-const ALL_13_TYPES: SseEventType[] = [
+const ALL_14_TYPES: SseEventType[] = [
   'text_delta',
   'tool_call',
   'done',
@@ -23,6 +23,7 @@ const ALL_13_TYPES: SseEventType[] = [
   'usage_summary',
   'clarification',
   'edit_request',
+  'cache_diagnostic',
 ];
 
 describe('serializeSseEvent', () => {
@@ -59,14 +60,31 @@ describe('serializeSseEvent', () => {
     expect(parsed.payload.originalType).toBe('text_delta');
   });
 
-  it('accepts all 13 SseEventType string literals as type argument (T4)', () => {
-    // 类型守卫: 这个测试在编译期就保证所有 13 个 type 都能通过 serializeSseEvent
+  it('accepts all 14 SseEventType string literals as type argument (T4)', () => {
+    // 类型守卫: 这个测试在编译期就保证所有 14 个 type 都能通过 serializeSseEvent
     // 运行时: 跑一次确保不抛
-    for (const type of ALL_13_TYPES) {
+    for (const type of ALL_14_TYPES) {
       const payload = makeEmptyPayload(type);
       expect(() => serializeSseEvent(type, payload as never)).not.toThrow();
     }
-    expect(ALL_13_TYPES).toHaveLength(13);
+    expect(ALL_14_TYPES).toHaveLength(14);
+  });
+
+  it('serializes cache_diagnostic payload with prefix hash and hit rate (PR-A)', () => {
+    const json = serializeSseEvent('cache_diagnostic', {
+      prefixHash: 'a1b2c3d4e5f60718',
+      cacheHitRate: 0.87,
+      compactionStrategy: 'skip',
+      prefixChanged: false,
+    });
+    const parsed = JSON.parse(json) as ParsedEnvelope;
+    expect(parsed.type).toBe('cache_diagnostic');
+    expect(parsed.payload).toEqual({
+      prefixHash: 'a1b2c3d4e5f60718',
+      cacheHitRate: 0.87,
+      compactionStrategy: 'skip',
+      prefixChanged: false,
+    });
   });
 });
 
@@ -98,5 +116,12 @@ function makeEmptyPayload(type: SseEventType): unknown {
       return { question: '', options: [] };
     case 'edit_request':
       return { data: '{}' };
+    case 'cache_diagnostic':
+      return {
+        prefixHash: 'a1b2c3d4e5f60718',
+        cacheHitRate: 0.5,
+        compactionStrategy: 'skip',
+        prefixChanged: false,
+      };
   }
 }

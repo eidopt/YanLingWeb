@@ -97,6 +97,15 @@ export function EditorAiPanel({
   const { resetConversation, setMessages, setPrompt, setStatus, setIsRunning, setIntentPlan, setCacheStats } =
     editorAiPanelStateActions;
 
+  // 最近一次 cache_diagnostic 事件 (P0 可观测性): 每轮更新一次, 用于面板顶部 badge.
+  // 字段: prefixHash (sha256 16-hex), cacheHitRate (0..1 or null), compactionStrategy, prefixChanged.
+  const [latestCacheDiagnostic, setLatestCacheDiagnostic] = useState<{
+    prefixHash: string;
+    cacheHitRate: number | null;
+    compactionStrategy: 'skip' | 'micro' | 'full' | null;
+    prefixChanged: boolean;
+  } | null>(null);
+
   const refreshCacheStats = useCallback(async () => {
     try {
       const nextStats = await editorAiService.fetchCacheStats();
@@ -437,6 +446,35 @@ export function EditorAiPanel({
             case 'done':
               finishActiveRun(receivedClarification ? c.status.awaitingChoice : c.status.ready);
               break;
+            case 'cache_diagnostic':
+              {
+                // 透传 JSON 在 onEvent 中已被 JSON.stringify 过, 解析后更新最近一次诊断.
+                try {
+                  const parsed = JSON.parse(event.data) as {
+                    prefixHash?: unknown;
+                    cacheHitRate?: unknown;
+                    compactionStrategy?: unknown;
+                    prefixChanged?: unknown;
+                  };
+                  if (typeof parsed.prefixHash === 'string') {
+                    setLatestCacheDiagnostic({
+                      prefixHash: parsed.prefixHash,
+                      cacheHitRate:
+                        typeof parsed.cacheHitRate === 'number' ? parsed.cacheHitRate : null,
+                      compactionStrategy:
+                        parsed.compactionStrategy === 'skip' ||
+                        parsed.compactionStrategy === 'micro' ||
+                        parsed.compactionStrategy === 'full'
+                          ? parsed.compactionStrategy
+                          : null,
+                      prefixChanged: Boolean(parsed.prefixChanged),
+                    });
+                  }
+                } catch {
+                  // ignore parse errors — diagnostic is best-effort UI
+                }
+              }
+              break;
           }
         },
       });
@@ -522,6 +560,19 @@ export function EditorAiPanel({
       ].slice(0, 3)
     : [];
   const cacheStatsBadges = buildCacheStatsBadges(cacheStats);
+  // 把最近一次 cache_diagnostic 折叠为单条 badge, 便于在面板顶部一目了然.
+  // 格式: "cache:abc12345 · 87% · skip" (命中率为 0..1 → 百分比; 策略为 null 时省略)
+  const cacheDiagnosticBadge = latestCacheDiagnostic
+    ? [
+        `cache:${latestCacheDiagnostic.prefixHash.slice(0, 8)}`,
+        latestCacheDiagnostic.cacheHitRate !== null
+          ? `${Math.round(latestCacheDiagnostic.cacheHitRate * 100)}%`
+          : '—',
+        ...(latestCacheDiagnostic.compactionStrategy
+          ? [latestCacheDiagnostic.compactionStrategy]
+          : []),
+      ].join(' · ')
+    : null;
 
   return (
     <ChatPanel
@@ -536,7 +587,7 @@ export function EditorAiPanel({
       cancelLabel={c.cancel}
       disabled={disabled}
       isRunning={isRunning}
-      badges={[...cacheStatsBadges, ...capabilityBadges]}
+      badges={[...cacheStatsBadges, ...(cacheDiagnosticBadge ? [cacheDiagnosticBadge] : []), ...capabilityBadges]}
       streamingLabel={c.streamingPending}
       onInputChange={setPrompt}
       onSubmit={handleSubmit}
