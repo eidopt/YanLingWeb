@@ -19,6 +19,7 @@ import {
   type TemplateAgentKnowledgeServicePort,
 } from '../templates/templateAgentKnowledge.service';
 import { TemplatesService } from '../templates/templates.service';
+import { hashJson } from './agentRunner.helpers';
 import {
   assertEditorOperations,
   buildStructuredEditorMessages,
@@ -622,6 +623,25 @@ export class AiService {
     }
     if (lastUsage) {
       this.emitEditorEvent(subject, 'usage_summary', { model, usage: lastUsage });
+    }
+    // 缓存诊断 (P0 可观测性): 每轮结束后 emit 一次, 前端可用于诊断 cache 命中率与 prefix 稳定性.
+    // 字段含义详见 shared/agent/contracts/sseEvents.ts 的 cache_diagnostic payload.
+    // 注: editor 流当前未启用 autoCompact, 故 compactionStrategy 固定为 null;
+    // prefixChanged 需要跨轮历史比较, 留给后续 PR-E (持久化 lastPrefixHash) 联动.
+    {
+      const prefixHash = hashJson(prefixMessages);
+      const hit = lastUsage?.cacheHitTokens;
+      const miss = lastUsage?.cacheMissTokens;
+      const cacheHitRate =
+        typeof hit === 'number' && typeof miss === 'number' && hit + miss > 0
+          ? hit / (hit + miss)
+          : null;
+      this.emitEditorEvent(subject, 'cache_diagnostic', {
+        prefixHash,
+        cacheHitRate,
+        compactionStrategy: null,
+        prefixChanged: false,
+      });
     }
     this.emitEditorEvent(subject, 'done', { stopReason: result.stopReason });
     subject.complete();

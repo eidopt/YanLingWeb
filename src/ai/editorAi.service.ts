@@ -22,6 +22,7 @@ export interface EditorAiEvent {
     | 'clarification'
     | 'reasoning'
     | 'usage_summary'
+    | 'cache_diagnostic'
     | 'error'
     | 'done';
   data: string;
@@ -447,6 +448,34 @@ export class EditorAiService {
                   cacheMissTokens: usage.cacheMissTokens,
                 },
                 totalCostUsd,
+              }),
+            });
+            break;
+          }
+          case 'cache_diagnostic': {
+            // 缓存诊断 (P0 可观测性): 携带 prefix hash + cache hit rate.
+            // 透传为 JSON, 面板侧负责展示; 非终止事件.
+            const payload = event.payload as
+              | {
+                  prefixHash?: unknown;
+                  cacheHitRate?: unknown;
+                  compactionStrategy?: unknown;
+                  prefixChanged?: unknown;
+                }
+              | undefined;
+            onEvent({
+              type: 'cache_diagnostic',
+              data: JSON.stringify({
+                prefixHash: typeof payload?.prefixHash === 'string' ? payload.prefixHash : '',
+                cacheHitRate:
+                  typeof payload?.cacheHitRate === 'number' ? payload.cacheHitRate : null,
+                compactionStrategy:
+                  payload?.compactionStrategy === 'skip' ||
+                  payload?.compactionStrategy === 'micro' ||
+                  payload?.compactionStrategy === 'full'
+                    ? payload.compactionStrategy
+                    : null,
+                prefixChanged: Boolean(payload?.prefixChanged),
               }),
             });
             break;
