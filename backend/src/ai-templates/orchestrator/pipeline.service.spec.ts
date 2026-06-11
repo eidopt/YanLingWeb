@@ -460,4 +460,44 @@ describe('TemplatePipelineService', () => {
       3,
     ]);
   });
+
+  // PR-B.1: structured revise actions must surface in the next Designer attempt
+  describe('buildCriticReviseSuggestion (PR-B.1)', () => {
+    it('returns just the suggestion when reviseActions is empty or absent', () => {
+      expect(
+        TemplatePipelineService.buildCriticReviseSuggestion({
+          verdict: 'revise',
+          conflicts: [],
+          suggestion: '换一个 archetype',
+        }),
+      ).toBe('换一个 archetype');
+
+      expect(
+        TemplatePipelineService.buildCriticReviseSuggestion({
+          verdict: 'revise',
+          conflicts: [],
+          reviseActions: [],
+        }),
+      ).toBe('多样性冲突 0 个，换一个 archetype 或 heroMode');
+    });
+
+    it('appends typed bullet lines for each reviseAction variant', () => {
+      const result = TemplatePipelineService.buildCriticReviseSuggestion({
+        verdict: 'revise',
+        conflicts: [],
+        suggestion: '请按以下结构化动作修订',
+        reviseActions: [
+          { type: 'add_section', afterRegion: 'hero', sectionKind: 'metrics' },
+          { type: 'replace_section', regionKey: 'banner', newKind: 'card-grid' },
+          { type: 'adjust_layout', regionKey: 'cta', direction: 'row' },
+          { type: 'improve_contrast', regionKey: 'footer', suggestion: '提高主色亮度' },
+        ],
+      });
+      expect(result).toContain('请按以下结构化动作修订');
+      expect(result).toContain('[add_section] 在 hero 之后新增 section: metrics');
+      expect(result).toContain('[replace_section] 将 banner 替换为 card-grid');
+      expect(result).toContain('[adjust_layout] 将 cta 调整为 row');
+      expect(result).toContain('[improve_contrast] footer: 提高主色亮度');
+    });
+  });
 });

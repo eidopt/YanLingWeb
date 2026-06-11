@@ -2,6 +2,7 @@
 
 import { writeReports } from './reportWriter.js';
 import { createMockTemplateDocument } from './runtimeFixtures.js';
+import { classifyFailure } from './classifyFailure.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -855,14 +856,24 @@ function summarize(mode, results, options = {}) {
   ).length;
   const failures = results
     .filter((result) => result.status !== 'passed')
-    .map((result) => ({
-      scenarioId: result.scenarioId,
-      prompt: result.prompt,
-      reason: result.error || result.status,
-      validatorErrors: result.validation.errors.map((item) => item.message),
-      semanticFailures: result.semantic.failures.map((item) => item.message),
-      unrelatedChanges: result.unrelatedDiff.unrelatedChanges.map((item) => item.path),
-    }));
+    .map((result) => {
+      const failure = {
+        scenarioId: result.scenarioId,
+        prompt: result.prompt,
+        reason: result.error || result.status,
+        validatorErrors: result.validation.errors.map((item) => item.message),
+        semanticFailures: result.semantic.failures.map((item) => item.message),
+        unrelatedChanges: result.unrelatedDiff.unrelatedChanges.map((item) => item.path),
+      };
+      // PR-B.2: attach rule-routable category for downstream mapping.
+      const classified = classifyFailure(failure);
+      return {
+        ...failure,
+        category: classified.category,
+        ruleHint: classified.ruleHint,
+        matchedOn: classified.matchedOn,
+      };
+    });
   return {
     mode,
     total: results.length,
