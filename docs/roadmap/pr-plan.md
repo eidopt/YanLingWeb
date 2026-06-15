@@ -15,7 +15,7 @@
 | PR-E | `feat/editor-session-persistence`    | **已合并** | `editor_ai_conversations` +3 列（`compactSummary` / `lastPrefixHash` / `cacheContext`），8 个 service 单测               | #21  |
 | 基建 | `chore/infra-cleanup`                | **已合并** | `.nvmrc` 锁 Node 22；`pnpm test:shared` 包装共享层测试；`docs/branch-audit-2026-06.md` 列出 16 个可安全删除的 stale 分支 | #26  |
 
-历史 PR 链（#11–#16）已被 master 8f05e77 取代的 PR 链结构代替；本批 5+1 全部合并后，下一批拆分见末尾"仍需完成"。
+历史 PR 链（#11–#16）已被 master `8f05e77 → 3b0822f` 的 PR 链结构代替；本批 5+1 全部合并后，下一批拆分见末尾"仍需完成"。
 
 ## 原 pr3 拆分任务对照
 

@@ -24,9 +24,10 @@
 | #22 | `feat/pipeline-pre-validate-and-fix` | **已合并** | 失败分类器（schema / semantic / render / unrelated diff）+ Critic `reviseActions` prompt→parse→consume 闭环              |
 | #23 | `feat/semantic-compiler-coverage`    | **已合并** | 5 entry point 语义编译器 + 24 边界用例（`shared/agent/compiler/semanticInstructionCompiler.spec.ts`）                    |
 | #24 | `feat/ci-agent-eval`                 | **已合并** | 第一次 GitHub Actions workflow（`.github/workflows/agent-eval.yml`），mock 100 场景、threshold 1.0、artifact 上传        |
+| #25 | `docs/roadmap-post-pr-a-e`           | **已合并** | 前序 roadmap 同步（PR-A/B/C/D/E 落地后，#26 之前的文档状态对齐）                                                         |
 | #26 | `chore/infra-cleanup`                | **已合并** | `.nvmrc` 锁 Node 22；`pnpm test:shared` 包装共享层测试；`docs/branch-audit-2026-06.md` 列出 16 个可安全删除的 stale 分支 |
 
-历史 PR 链（#11–#16）已被 master 8f05e77 取代的 PR 链结构代替，不再单独追踪。
+历史 PR 链（#11–#16）已被 master `8f05e77 → 3b0822f` 的 PR 链结构代替，不再单独追踪。
 
 ## 已完成能力
 
