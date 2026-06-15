@@ -11,6 +11,7 @@ import type {
   DiversityConflict,
   ExistingTemplateSummary,
   PipelineStageRecord,
+  ReviseAction,
 } from '../orchestrator/pipeline.types';
 import { runStructuredStage } from '../orchestrator/runStage';
 import { SUBMIT_DIVERSITY_VERDICT_TOOL } from '../tools/submitDiversityVerdict.tool';
@@ -22,6 +23,25 @@ const VALID_DIMENSIONS = new Set<DiversityConflict['dimension']>([
   'color-hue',
   'signature',
 ]);
+
+/**
+ * PR-B.1: per-variant type guards for `ReviseAction`. Each entry says which
+ * fields are required given the `type` discriminator. Anything missing or
+ * wrong is dropped silently — malformed LLM output should not abort the
+ * stage. Surviving actions are forwarded to the pipeline.
+ */
+const REVISE_ACTION_RULES: Record<ReviseAction['type'], readonly string[]> = {
+  add_section: ['afterRegion', 'sectionKind'],
+  replace_section: ['regionKey', 'newKind'],
+  adjust_layout: ['regionKey', 'direction'],
+  improve_contrast: ['regionKey', 'suggestion'],
+};
+const VALID_REVISE_TYPES = new Set<ReviseAction['type']>(
+  Object.keys(REVISE_ACTION_RULES) as ReviseAction['type'][],
+);
+const VALID_REVISE_DIRECTIONS = new Set<
+  NonNullable<Extract<ReviseAction, { direction: string }>['direction']>
+>(['row', 'column']);
 
 /**
  * Stage 2 — Diversity Critic
@@ -231,10 +251,70 @@ export class DiversityCriticAgent {
         description: str('description'),
       };
     });
+    const reviseActions = parseReviseActions(args.reviseActions, (msg) => this.logger.debug(msg));
     return {
       verdict,
       conflicts,
       suggestion: typeof args.suggestion === 'string' ? args.suggestion : undefined,
+      ...(reviseActions.length > 0 ? { reviseActions } : {}),
     };
   }
+}
+
+/**
+ * PR-B.1: validate each ReviseAction by its `type` discriminator. Malformed
+ * entries are dropped (reported via `onDropped` for debug) so a single bad
+ * row cannot break the whole verdict. Returns the surviving list in input
+ * order. Empty input or all-malformed returns [].
+ *
+ * Exported for unit testing without instantiating the Nest-injected agent.
+ */
+export function parseReviseActions(
+  raw: unknown,
+  onDropped?: (message: string) => void,
+): ReviseAction[] {
+  if (!Array.isArray(raw) || raw.length === 0) {
+    return [];
+  }
+  const kept: ReviseAction[] = [];
+  let dropped = 0;
+  raw.forEach((entry) => {
+    if (!entry || typeof entry !== 'object') {
+      dropped += 1;
+      return;
+    }
+    const item = entry as Record<string, unknown>;
+    const type = item.type;
+    if (typeof type !== 'string' || !VALID_REVISE_TYPES.has(type as ReviseAction['type'])) {
+      dropped += 1;
+      return;
+    }
+    const required = REVISE_ACTION_RULES[type as ReviseAction['type']];
+    const fields: Record<string, string> = {};
+    let valid = true;
+    for (const field of required) {
+      const v = item[field];
+      if (typeof v !== 'string' || v.length === 0) {
+        valid = false;
+        break;
+      }
+      fields[field] = v;
+    }
+    if (!valid) {
+      dropped += 1;
+      return;
+    }
+    // Per-type semantic checks
+    const direction = fields.direction as 'row' | 'column';
+    if (type === 'adjust_layout' && !VALID_REVISE_DIRECTIONS.has(direction)) {
+      dropped += 1;
+      return;
+    }
+    const action = { type: type as ReviseAction['type'], ...fields } as ReviseAction;
+    kept.push(action);
+  });
+  if (dropped > 0) {
+    onDropped?.(`parseReviseActions: dropped ${dropped} malformed action(s) of ${raw.length}`);
+  }
+  return kept;
 }

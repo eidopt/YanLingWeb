@@ -76,9 +76,7 @@ export class TemplatePipelineService {
       const criticRecord = await this.critic.run(brief, existing, attempt);
       stages.critic.push(criticRecord);
       if (criticRecord.output.verdict === 'revise') {
-        reviseSuggestion =
-          criticRecord.output.suggestion ??
-          `多样性冲突 ${criticRecord.output.conflicts.length} 个，换一个 archetype 或 heroMode`;
+        reviseSuggestion = this.buildCriticReviseSuggestion(criticRecord.output);
         lastError = `critic revise: ${reviseSuggestion}`;
         // diversity 是「尽力而为」：前几次 attempt 打回 Designer 重试以优化多样性；
         // 但**最后一次 attempt 即使仍 revise 也放行到 Schema** —— 不让 diversity 把
@@ -193,5 +191,41 @@ export class TemplatePipelineService {
       brief: result.brief,
       totalDurationMs: result.totalDurationMs,
     };
+  }
+
+  /**
+   * PR-B.1: build a `reviseSuggestion` for the next Designer attempt from a
+   * Critic revise verdict. If the verdict carries structured `reviseActions`,
+   * they are appended as a typed bullet list so the LLM can act on them
+   * directly. The original `suggestion` text is kept as the lead line for
+   * human readability.
+   *
+   * Kept as a static (non-instance) method so it can be unit-tested without
+   * wiring up the full Nest module.
+   */
+  static buildCriticReviseSuggestion(verdict: CriticVerdict): string {
+    const base =
+      verdict.suggestion ??
+      `多样性冲突 ${verdict.conflicts.length} 个，换一个 archetype 或 heroMode`;
+    if (!verdict.reviseActions || verdict.reviseActions.length === 0) {
+      return base;
+    }
+    const actionLines = verdict.reviseActions.map((action) => {
+      switch (action.type) {
+        case 'add_section':
+          return `- [add_section] 在 ${action.afterRegion} 之后新增 section: ${action.sectionKind}`;
+        case 'replace_section':
+          return `- [replace_section] 将 ${action.regionKey} 替换为 ${action.newKind}`;
+        case 'adjust_layout':
+          return `- [adjust_layout] 将 ${action.regionKey} 调整为 ${action.direction}`;
+        case 'improve_contrast':
+          return `- [improve_contrast] ${action.regionKey}: ${action.suggestion}`;
+      }
+    });
+    return `${base}\n结构化修订动作:\n${actionLines.join('\n')}`;
+  }
+
+  private buildCriticReviseSuggestion(verdict: CriticVerdict): string {
+    return TemplatePipelineService.buildCriticReviseSuggestion(verdict);
   }
 }

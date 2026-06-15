@@ -23,6 +23,23 @@ export function writeReports(outputDir, summary) {
     `- Errored: ${summary.errored}`,
     `- Pass rate: ${(summary.passRate * 100).toFixed(1)}%`,
     `- Error rate: ${(summary.errorRate * 100).toFixed(1)}%`,
+  ];
+
+  // PR-B.2: failure category breakdown — surfaces the most-routed-to
+  // preValidateAndFix rule family for quick triage.
+  const categoryCounts = summary.failures.reduce((acc, failure) => {
+    const key = failure.category ?? 'unknown';
+    acc[key] = (acc[key] ?? 0) + 1;
+    return acc;
+  }, {});
+  const categoryLines = Object.entries(categoryCounts)
+    .sort(([, a], [, b]) => b - a)
+    .map(([category, count]) => `- ${category}: ${count}`);
+  if (categoryLines.length > 0) {
+    lines.push('', '### Failure categories', '', ...categoryLines);
+  }
+  lines.push(
+    '',
     `- Tool call rate: ${(summary.toolCallRate * 100).toFixed(1)}%`,
     `- Clarification count: ${summary.clarificationCount ?? 0}`,
     `- Clarification rate: ${((summary.clarificationRate ?? 0) * 100).toFixed(1)}%`,
@@ -51,7 +68,7 @@ export function writeReports(outputDir, summary) {
     '',
     '## Failures',
     '',
-  ];
+  );
 
   if (summary.failures.length === 0) {
     lines.push('No failures.');
@@ -61,6 +78,10 @@ export function writeReports(outputDir, summary) {
       lines.push('');
       lines.push(`- Prompt: ${failure.prompt}`);
       lines.push(`- Reason: ${failure.reason}`);
+      // PR-B.2: surface the rule-routable category for triage.
+      lines.push(
+        `- Category: ${failure.category ?? 'unknown'}` + (failure.ruleHint ? ` (auto-fix: ${failure.ruleHint})` : ''),
+      );
       lines.push(`- Validator errors: ${failure.validatorErrors.join('; ') || 'none'}`);
       lines.push(`- Semantic failures: ${failure.semanticFailures.join('; ') || 'none'}`);
       lines.push(`- Unrelated changes: ${failure.unrelatedChanges.join('; ') || 'none'}`);

@@ -466,4 +466,92 @@ describe('preValidateAndFix', () => {
     // Should have auto-added biz-card
     expect(result.fixes.some((f) => f.includes('biz-*'))).toBe(true);
   });
+
+  // PR-B.3: regression fixtures — these mirror the failure categories the
+  // agent-eval classifier (PR-B.2) buckets into each preValidateAndFix
+  // rule. Each fixture demonstrates that a known LLM-output failure shape
+  // is mechanically repaired, so the loop is closed: classify → route → fix.
+  describe('regression fixtures for classifier → preValidateAndFix routing', () => {
+    it('duplicate_ids: cross-page duplicate hero IDs are renamed to -2/-3', () => {
+      const doc = {
+        components: [{ alias: 'core.text', props: [{ name: 'text' }] }],
+        pages: [
+          { id: 'page-home', layout: { id: 'hero', alias: 'core.text' } },
+          { id: 'page-detail', layout: { id: 'hero', alias: 'core.text' } },
+          { id: 'page-list', layout: { id: 'hero', alias: 'core.text' } },
+        ],
+      };
+      const result = preValidateAndFix(doc);
+      expect(result.fixes).toContain('Auto-deduplicated 2 node IDs');
+      const p2 = (doc.pages[1] as { layout: { id: string } }).layout;
+      const p3 = (doc.pages[2] as { layout: { id: string } }).layout;
+      expect(p2.id).toBe('hero-2');
+      expect(p3.id).toBe('hero-3');
+    });
+
+    it('missing_component_descriptor: biz-* alias referenced in layout auto-registered', () => {
+      const doc = {
+        components: [{ alias: 'core.text', props: [{ name: 'text' }] }],
+        componentTemplates: {
+          'biz-promo-card': { displayName: '促销卡片' },
+        },
+        pages: [
+          {
+            id: 'page-home',
+            layout: {
+              id: 'root',
+              alias: 'core.text',
+              children: [
+                {
+                  id: 'promo',
+                  alias: 'biz-promo-card',
+                  props: { title: '限时' },
+                },
+              ],
+            },
+          },
+        ],
+      };
+      const result = preValidateAndFix(doc);
+      expect(result.fixes).toContain('Auto-added 1 biz-* component descriptors');
+      const components = doc.components as { alias: string }[];
+      expect(components.map((c) => c.alias)).toContain('biz-promo-card');
+    });
+
+    it('dangerous_url: biz-* alias with javascript: bg is replaced (defense in depth)', () => {
+      const doc = {
+        components: [
+          { alias: 'core.image', props: [{ name: 'src' }] },
+          { alias: 'biz-card', props: [{ name: 'background' }] },
+        ],
+        componentTemplates: {
+          'biz-card': { displayName: '卡片' },
+        },
+        pages: [
+          {
+            id: 'page-home',
+            layout: {
+              id: 'root',
+              alias: 'core.text',
+              children: [
+                {
+                  id: 'banner',
+                  alias: 'biz-card',
+                  props: {
+                    title: '促销',
+                    background: 'javascript:fetch("/leak")',
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      };
+      const result = preValidateAndFix(doc);
+      expect(result.fixes).toContain('Auto-fixed 1 dangerous/non-allowlisted URL props');
+      const banner = (doc.pages[0] as { layout: { children: { props: { background: string } }[] } })
+        .layout.children[0];
+      expect(banner.props.background).toContain('placehold.co');
+    });
+  });
 });
