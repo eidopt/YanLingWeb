@@ -646,7 +646,10 @@ export class AiService {
         typeof hit === 'number' && typeof miss === 'number' && hit + miss > 0
           ? hit / (hit + miss)
           : null;
-      const prefixChanged = lastPrefixHash !== null && lastPrefixHash !== prefixHash;
+      const prefixChanged = EditorConversationService.computePrefixChanged(
+        lastPrefixHash,
+        prefixHash,
+      );
       this.emitEditorEvent(subject, 'cache_diagnostic', {
         prefixHash,
         cacheHitRate,

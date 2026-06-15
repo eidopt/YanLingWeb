@@ -265,5 +265,33 @@ describe('EditorConversationService repository boundary', () => {
       const row = conversations.conversations.get(keyFor('user-1', 'template-1'));
       expect(row?.compactSummary).toBeNull();
     });
+
+    // PR-E review: the new `prefixChanged` boolean in the cache_diagnostic
+    // SSE payload is wired through `computePrefixChanged` — assert all three
+    // branches directly so regressions in the inline logic get caught here
+    // instead of only in end-to-end editor stream tests.
+    describe('computePrefixChanged (PR-E review)', () => {
+      it('returns false when no prior hash exists (first turn)', () => {
+        expect(EditorConversationService.computePrefixChanged(null, 'a'.repeat(16))).toBe(false);
+      });
+
+      it('returns false when stored hash matches current hash (stable cache)', () => {
+        const hash = 'a'.repeat(16);
+        expect(EditorConversationService.computePrefixChanged(hash, hash)).toBe(false);
+      });
+
+      it('returns true when stored hash differs from current hash (prefix shifted)', () => {
+        const stored = 'a'.repeat(16);
+        const current = 'b'.repeat(16);
+        expect(EditorConversationService.computePrefixChanged(stored, current)).toBe(true);
+      });
+
+      it('returns true for any non-equal hashes including CJK hex digits', () => {
+        // hashJson produces lowercase hex; verify a one-character diff trips the boolean.
+        expect(
+          EditorConversationService.computePrefixChanged('a'.repeat(16), `${'a'.repeat(15)}b`),
+        ).toBe(true);
+      });
+    });
   });
 });

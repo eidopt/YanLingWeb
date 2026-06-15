@@ -52,6 +52,20 @@ export class EditorConversationService {
     }
   }
 
+  /**
+   * Pure helper exposed for unit testing the `cache_diagnostic.prefixChanged`
+   * boolean in isolation. Mirrors the inline computation in
+   * `ai.service.ts`'s `cache_diagnostic` emit block.
+   *
+   * Semantics:
+   *  - null lastPrefixHash  → first turn, never "changed"
+   *  - matching hash        → stable cache, not "changed"
+   *  - differing hash       → cache prefix shifted, "changed" = true
+   */
+  static computePrefixChanged(lastPrefixHash: string | null, prefixHash: string): boolean {
+    return lastPrefixHash !== null && lastPrefixHash !== prefixHash;
+  }
+
   constructor(
     @Inject(EDITOR_CONVERSATION_REPOSITORY)
     private readonly conversations: EditorConversationRepository,
