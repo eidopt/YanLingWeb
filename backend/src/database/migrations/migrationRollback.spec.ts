@@ -8,6 +8,10 @@ import { TemplateAgentConfigTables1748166200000 } from './1748166200000-Template
 import {
   EditorAiConversationUndoStack1748166300000,
 } from './1748166300000-EditorAiConversationUndoStack';
+// prettier-ignore
+import {
+  EditorAiConversationCacheContext1748166400000,
+} from './1748166400000-EditorAiConversationCacheContext';
 
 const SchemaUpgradeForExistingDbs = existingDbUpgrade.SchemaUpgradeForExistingDbs1748166100000;
 
@@ -16,6 +20,7 @@ const MIGRATIONS = [
   SchemaUpgradeForExistingDbs,
   TemplateAgentConfigTables1748166200000,
   EditorAiConversationUndoStack1748166300000,
+  EditorAiConversationCacheContext1748166400000,
 ];
 
 interface SqliteNamedRow {
@@ -132,6 +137,9 @@ const APPLICATION_SCHEMA_CONTRACT: Record<string, readonly string[]> = {
     'providerMessages',
     'providerSession',
     'undoStack',
+    'compactSummary',
+    'lastPrefixHash',
+    'cacheContext',
     'createdAt',
     'updatedAt',
   ],
@@ -224,6 +232,7 @@ describe('database migrations', () => {
       'SchemaUpgradeForExistingDbs1748166100000',
       'TemplateAgentConfigTables1748166200000',
       'EditorAiConversationUndoStack1748166300000',
+      'EditorAiConversationCacheContext1748166400000',
     ]);
 
     for (const [tableName, expectedColumns] of Object.entries(APPLICATION_SCHEMA_CONTRACT)) {
