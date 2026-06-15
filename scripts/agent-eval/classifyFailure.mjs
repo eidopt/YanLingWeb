@@ -133,6 +133,11 @@ function classifyValidatorMessage(message) {
   if (
     lower.includes('javascript:') ||
     lower.includes('vbscript:') ||
+    // Match `data:` as a protocol prefix (e.g. `data:image/png`, `data: URI`),
+    // not as a substring inside words like `metadata:` or `mydata:`. The
+    // earlier `data:url` literal only matched the constructed test phrase
+    // and missed real validator output.
+    /(?<![a-z])data:/i.test(lower) ||
     lower.includes('data:url') ||
     lower.includes('dangerous') ||
     lower.includes('unsafe url') ||

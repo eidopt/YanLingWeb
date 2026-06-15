@@ -78,6 +78,26 @@ describe('classifyFailure (PR-B.2)', () => {
       assert.equal(result.category, 'dangerous_url');
     });
 
+    it('routes real data:image/png URIs to fixDangerousUrls', () => {
+      const result = classifyFailure(
+        makeFailure({ validatorErrors: ['[dangerous_url] src: data:image/png;base64,iVBORw0KG...'] }),
+      );
+      assert.equal(result.category, 'dangerous_url');
+      assert.equal(result.ruleHint, 'fixDangerousUrls');
+    });
+
+    it('routes standalone "data:" prefix messages to fixDangerousUrls', () => {
+      const result = classifyFailure(makeFailure({ validatorErrors: ['data: URI is not allowed for src prop'] }));
+      assert.equal(result.category, 'dangerous_url');
+    });
+
+    it('does NOT misroute "metadata:" or "mydata:" strings as data: URIs', () => {
+      const a = classifyFailure(makeFailure({ validatorErrors: ['metadata: missing field foo'] }));
+      const b = classifyFailure(makeFailure({ validatorErrors: ['mydata: payload exceeded limit'] }));
+      assert.notEqual(a.category, 'dangerous_url');
+      assert.notEqual(b.category, 'dangerous_url');
+    });
+
     it('routes render_smoke_failed to render_smoke (no auto-fix)', () => {
       const result = classifyFailure(makeFailure({ validatorErrors: ['render_smoke_failed: missing core.screen'] }));
       assert.equal(result.category, 'render_smoke');
