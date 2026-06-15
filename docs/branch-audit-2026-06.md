@@ -17,24 +17,24 @@
 
 下列 16 个分支对应的 PR 已合并或被新 PR 取代，工作已合入 master，本地副本可删：
 
-| 分支                                    | 对应 PR               | 状态   | 备注                                               |
-| --------------------------------------- | --------------------- | ------ | -------------------------------------------------- |
-| `feat/cache-diagnostics`                | #20                   | merged | 4 天前合并；master 含 `cache_diagnostic` SSE 事件  |
-| `feat/cache-aware-compaction`           | #16                   | merged | `decideCompaction` 已在 master                     |
-| `feat/structured-sse-phase1`            | #12                   | merged | 已被 #13 后续增强                                  |
-| `feat/sse-phase2-edit-undo-cleanup`     | #13                   | merged | 编辑撤销栈 + SSE UI 消费闭环                       |
-| `feat/cache-strategy-providers`         | #14                   | merged | 跨模型 CacheStrategy 实现                          |
-| `feat/ai-semantic-editing`              | #11                   | merged | 5 entry point 语义工具已合并                       |
-| `feat/pipeline-prevalidate`             | #15                   | merged | **已被 `feat/pipeline-pre-validate-and-fix` 取代** |
-| `codex/roadmap-pr3-followup`            | #17                   | merged | `autoCompact.micro` 修复 + roadmap 同步            |
-| `fix/pr3-followup-polish`               | #18                   | merged | biz-\* fallback + 跨模型 e2e                       |
-| `fix/security-followup-1`               | #19                   | merged | URL sanitization + biz-\* 命名空间                 |
-| `refactor/ai-agent-optimization`        | #1                    | merged | 1 周前合并；优化 provider 抽象层                   |
-| `split/pr2-01-provider-capabilities`    | #4                    | merged | 第二轮 PR 拆分 1/4                                 |
-| `split/pr2-02-editor-template-pipeline` | #5, #8                | merged | 第二轮 PR 拆分 2/4 (superseded + final)            |
-| `split/pr2-03-roadmap-docs`             | #6, #9                | merged | 第二轮 PR 拆分 3/4 (superseded + final)            |
-| `split/pr2-04-camelcase-renames`        | #7, #10               | merged | 第二轮 PR 拆分 4/4 (superseded + final)            |
-| `pr-2-review`                           | （#2 的 review 分支） | merged | 5 月合并的 #2 review 副本                          |
+| 分支                                    | 对应 PR               | 状态（审计时） | 备注                                               | 执行结果 (2026-06-15)                                   |
+| --------------------------------------- | --------------------- | -------------- | -------------------------------------------------- | ------------------------------------------------------- |
+| `feat/cache-diagnostics`                | #20                   | merged         | 4 天前合并；master 含 `cache_diagnostic` SSE 事件  | 本地已不存在（`--delete-branch` 在 #20 合并时已自动清） |
+| `feat/cache-aware-compaction`           | #16                   | merged         | `decideCompaction` 已在 master                     | 本地已不存在（`--delete-branch` 在 #16 合并时已自动清） |
+| `feat/structured-sse-phase1`            | #12                   | merged         | 已被 #13 后续增强                                  | 本地已不存在（`--delete-branch` 在 #12 合并时已自动清） |
+| `feat/sse-phase2-edit-undo-cleanup`     | #13                   | merged         | 编辑撤销栈 + SSE UI 消费闭环                       | 本地已不存在（`--delete-branch` 在 #13 合并时已自动清） |
+| `feat/cache-strategy-providers`         | #14                   | merged         | 跨模型 CacheStrategy 实现                          | 本地已不存在（`--delete-branch` 在 #14 合并时已自动清） |
+| `feat/ai-semantic-editing`              | #11                   | merged         | 5 entry point 语义工具已合并                       | 本地已不存在（`--delete-branch` 在 #11 合并时已自动清） |
+| `feat/pipeline-prevalidate`             | #15                   | merged         | **已被 `feat/pipeline-pre-validate-and-fix` 取代** | 本地已不存在（`--delete-branch` 在 #15 合并时已自动清） |
+| `codex/roadmap-pr3-followup`            | #17                   | merged         | `autoCompact.micro` 修复 + roadmap 同步            | 本地已不存在（`--delete-branch` 在 #17 合并时已自动清） |
+| `fix/pr3-followup-polish`               | #18                   | merged         | biz-\* fallback + 跨模型 e2e                       | 本地已不存在（`--delete-branch` 在 #18 合并时已自动清） |
+| `fix/security-followup-1`               | #19                   | merged         | URL sanitization + biz-\* 命名空间                 | 本地已不存在（`--delete-branch` 在 #19 合并时已自动清） |
+| `refactor/ai-agent-optimization`        | #1                    | merged         | 1 周前合并；优化 provider 抽象层                   | ✅ `git branch -d` 已删（tip `b3b95a5` 是 master 祖先） |
+| `split/pr2-01-provider-capabilities`    | #4                    | merged         | 第二轮 PR 拆分 1/4                                 | 本地已不存在（`--delete-branch` 在 #4 合并时已自动清）  |
+| `split/pr2-02-editor-template-pipeline` | #5, #8                | merged         | 第二轮 PR 拆分 2/4 (superseded + final)            | 本地已不存在（`--delete-branch` 在 #8 合并时已自动清）  |
+| `split/pr2-03-roadmap-docs`             | #6, #9                | merged         | 第二轮 PR 拆分 3/4 (superseded + final)            | 本地已不存在（`--delete-branch` 在 #9 合并时已自动清）  |
+| `split/pr2-04-camelcase-renames`        | #7, #10               | merged         | 第二轮 PR 拆分 4/4 (superseded + final)            | 本地已不存在（`--delete-branch` 在 #10 合并时已自动清） |
+| `pr-2-review`                           | （#2 的 review 分支） | merged（误）   | 5 月合并的 #2 review 副本                          | ⚠️ 保留待人工 review（见下"审计修正"）                  |
 
 ## 必须保留（仍在开放 PR 中）
 
@@ -91,28 +91,7 @@ git remote prune origin
 
 # 执行报告 (2026-06-15)
 
-执行时 master 已推进至 `3b0822f`（PR-A/B/C/D/E + #26 全部合并后），所有原 "open PR" 已 close。运行建议删除命令的实际结果如下。
-
-## 执行结果
-
-| 审计列出的 16 个分支                    | 执行时本地存在？ | 删除方式        | 结果                                                         |
-| --------------------------------------- | ---------------- | --------------- | ------------------------------------------------------------ |
-| `feat/cache-diagnostics`                | 否               | —               | `--delete-branch` 在 #20 合并时已自动清；审计时已不存在      |
-| `feat/cache-aware-compaction`           | 否               | —               | `--delete-branch` 在 #16 合并时已自动清                      |
-| `feat/structured-sse-phase1`            | 否               | —               | `--delete-branch` 在 #12 合并时已自动清                      |
-| `feat/sse-phase2-edit-undo-cleanup`     | 否               | —               | `--delete-branch` 在 #13 合并时已自动清                      |
-| `feat/cache-strategy-providers`         | 否               | —               | `--delete-branch` 在 #14 合并时已自动清                      |
-| `feat/ai-semantic-editing`              | 否               | —               | `--delete-branch` 在 #11 合并时已自动清                      |
-| `feat/pipeline-prevalidate`             | 否               | —               | `--delete-branch` 在 #15 合并时已自动清                      |
-| `codex/roadmap-pr3-followup`            | 否               | —               | `--delete-branch` 在 #17 合并时已自动清                      |
-| `fix/pr3-followup-polish`               | 否               | —               | `--delete-branch` 在 #18 合并时已自动清                      |
-| `fix/security-followup-1`               | 否               | —               | `--delete-branch` 在 #19 合并时已自动清                      |
-| `refactor/ai-agent-optimization`        | 是               | `git branch -d` | ✅ 已删除（tip `b3b95a5` 是 master 的祖先，merged）          |
-| `split/pr2-01-provider-capabilities`    | 否               | —               | `--delete-branch` 在 #4 合并时已自动清                       |
-| `split/pr2-02-editor-template-pipeline` | 否               | —               | `--delete-branch` 在 #8 合并时已自动清                       |
-| `split/pr2-03-roadmap-docs`             | 否               | —               | `--delete-branch` 在 #9 合并时已自动清                       |
-| `split/pr2-04-camelcase-renames`        | 否               | —               | `--delete-branch` 在 #10 合并时已自动清                      |
-| `pr-2-review`                           | **是**           | **保留**        | ⚠️ **审计错误**：tip `b3a6387` 有 15 个未合 master 的 commit |
+执行时 master 已推进至 `3b0822f`（PR-A/B/C/D/E + #26 全部合并后），所有原 "open PR" 已 close。运行建议删除命令的实际结果已经合并到上面的审计表格"执行结果"列；本节记录的是审计表格中无法覆盖的额外发现和审计修正。
 
 ## 审计修正
 
@@ -123,7 +102,7 @@ git remote prune origin
 - 相对 master 有 238 文件 / +3124 / -595 的 diff，说明包含未发布工作
 - 推测：是 5 月 #2 review 阶段的工作副本，最后的 refactor 落地走了 `split/pr2-04-camelcase-renames` 路径（#10 合并），但本地这个分支保留了 review 中间态
 
-**结论**：`pr-2-review` 暂不删除，由仓库维护者人工 review 决定去留。
+**结论**：`pr-2-review` 暂不删除，由仓库维护者人工 review 决定去留。**对审计方法的修正**：`git branch -r --merged origin/master` 只能抓出"被快进/merge 合入"的分支，对 squash-merged 的工作副本和误命名分支无能为力。后续审计应当在删除前用 `git merge-base --is-ancestor <tip> origin/master && git diff --shortstat origin/master..<branch>` 显式校验"无未发布工作"。
 
 ## 执行阶段额外发现
 
