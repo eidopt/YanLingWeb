@@ -1,5 +1,6 @@
 import { compileLayoutStyle, toObjectLiteral } from './styleCompiler';
 import { sanitizeInlineStyle } from '@shared/theme-layout/htmlSafety';
+import { normalizeStyleRecordUnits } from '@shared/theme-layout/lengthUnits';
 import type {
   ThemeLayoutNavigateAction,
   ThemeLayoutNode,
@@ -122,7 +123,7 @@ export function styleAttr(
   extraStyle: Record<string, string | number | undefined> = {},
 ): string | null {
   const style = compileLayoutStyle(node.layout, node.frame);
-  const inlineStyle = sanitizeInlineStyle(node.props?.style);
+  const inlineStyle = normalizeStyleRecordUnits(sanitizeInlineStyle(node.props?.style));
   Object.entries(inlineStyle).forEach(([key, value]) => {
     style[key] = value;
   });

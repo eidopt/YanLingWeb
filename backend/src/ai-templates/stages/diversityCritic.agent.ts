@@ -1,5 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { STAGE_DIVERSITY_CRITIC_SYSTEM_PROMPT } from '@shared/agent/runtime';
+import { computeDocumentLayoutSignatures, structuralSimilarity } from '@shared/agent/validation/layoutSignature';
 
 import {
   AI_TEMPLATE_PIPELINE_PROVIDER,
@@ -22,6 +23,7 @@ const VALID_DIMENSIONS = new Set<DiversityConflict['dimension']>([
   'componentTemplate',
   'color-hue',
   'signature',
+  'structure',
 ]);
 
 /**
@@ -207,26 +209,36 @@ export class DiversityCriticAgent {
     const candidateSummary = {
       templateId: candidate.templateId,
       archetype: candidate.archetype,
+      variant: candidate.variant,
       heroMode: candidate.heroMode,
       displayCategory: candidate.displayCategory,
       diversitySignature: candidate.diversitySignature,
       componentTemplateAliases: candidate.componentTemplatesDraft.map((c) => c.alias),
       primaryHue: candidate.cssVars['--color-primary'] ?? '#000000',
     };
+    // 检查候选 brief 是否可能产出与已有模板结构相似的骨架
+    const structuralAlerts = existing
+      .filter((e) => e.layoutSignature && candidate.diversitySignature)
+      .map((e) => `  - ${e.templateId}: layout=${e.layoutSignature}`)
+      .join('\n');
     return [
-      '判断候选 brief 是否与已生成模板雷同。重点对比 diversitySignature 的' + '语义相似度。',
-      '只要语义雷同就 verdict=revise，并通过 suggestion 给出明确的换什么。',
+      '判断候选 brief 是否与已生成模板雷同。重点对比：',
+      '1. diversitySignature 的语义相似度',
+      '2. 已有模板的 layoutSignature（渲染树骨架），防止结构雷同',
+      '只要语义雷同或骨架高度相似就 verdict=revise，并通过 suggestion 给出明确的换什么。',
       '',
       '候选：',
       '```json',
       JSON.stringify(candidateSummary, null, 2),
       '```',
       '',
-      '已生成模板摘要：',
+      '已生成模板摘要（含结构指纹）：',
       '```json',
       JSON.stringify(existing, null, 2),
       '```',
-    ].join('\n');
+      '',
+      structuralAlerts ? '结构对比提示：已有模板的渲染树骨架：\n' + structuralAlerts : '',
+    ].filter(Boolean).join('\n');
   }
 
   private parseVerdict(args: Record<string, unknown>): CriticVerdict {

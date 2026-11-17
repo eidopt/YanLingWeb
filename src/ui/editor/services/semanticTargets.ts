@@ -204,11 +204,24 @@ const FOOTER_NAV_ALIASES = new Set([
 ]);
 
 const CONTAINER_ALIASES = new Set([
-  "core.screen",
-  "core.panel",
-  "core.stack",
-  "core.row",
-  "core.grid",
+  'core.screen',
+  'core.panel',
+  'core.stack',
+  'core.row',
+  'core.grid',
+  'core.html',
+  'core.navbar',
+  'core.list',
+  'core.list-item',
+  'core.dialog',
+  'core.drawer',
+  'core.collapse',
+  'core.sidebar',
+  'core.form',
+  'core.toolbar',
+  'core.splitter',
+  'core.timeline',
+  'core.tree',
 ]);
 
 const BUTTON_ALIASES = new Set([

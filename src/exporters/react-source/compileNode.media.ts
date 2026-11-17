@@ -10,6 +10,7 @@ import {
 } from './compileNode.shared';
 import { toObjectLiteral } from './styleCompiler';
 import { sanitizeInlineStyle } from '@shared/theme-layout/htmlSafety';
+import { normalizeStyleRecordUnits } from '@shared/theme-layout/lengthUnits';
 
 const compileImage: CaseHandler = ({ node, props, nextContext, context }) => {
   const style = styleAttr(node);
@@ -46,7 +47,7 @@ const compileHtml: CaseHandler = ({ props, children, nextContext, context }) => 
     code: [
       `${indent(context.depth)}<HtmlBlock`,
       ` tag=${JSON.stringify(propString(props.tag, 'div'))}`,
-      ` styleValue={${toObjectLiteral(sanitizeInlineStyle(props.style))}}`,
+      ` styleValue={${toObjectLiteral(normalizeStyleRecordUnits(sanitizeInlineStyle(props.style)))}}`,
       `>${childContent}</HtmlBlock>`,
     ].join(''),
   };

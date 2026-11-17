@@ -184,9 +184,10 @@ function resolveSemanticNodeId(
   fieldName: string,
 ) {
   if (currentNodeId) {
-    return findNode(document.layout, currentNodeId)
-      ? currentNodeId
-      : (resolveNodeIdFromExistingIds(document, currentNodeId) ?? currentNodeId);
+    if (findNode(document.layout, currentNodeId)) {
+      return currentNodeId;
+    }
+    return resolveNodeIdFromExistingIds(document, currentNodeId) ?? undefined;
   }
 
   const semanticTarget = getInstructionSemanticTarget(instruction);
@@ -211,6 +212,46 @@ function resolveSemanticNodeId(
       selectedNodeId: options?.selectedNodeId,
     })?.nodeId ?? currentNodeId
   );
+}
+
+type ExistingIdField = 'nodeId' | 'parentId' | 'targetId' | 'sourceRootNodeId';
+
+function existingIdFields(instruction: EditorAiEditInstruction): readonly ExistingIdField[] {
+  switch (instruction.type) {
+    case 'insert_node':
+      return ['parentId', 'targetId'];
+    case 'clone_pattern_items':
+      return ['sourceRootNodeId', 'parentId'];
+    case 'move_node':
+      return ['nodeId', 'parentId', 'targetId'];
+    case 'update_props':
+    case 'set_layout':
+    case 'set_frame':
+    case 'delete_node':
+    case 'update_interactions':
+      return ['nodeId'];
+    default:
+      return [];
+  }
+}
+
+/** An explicit existing-node id that is neither exact nor a unique fuzzy match. */
+export function explicitUnresolvedNodeId(
+  document: ThemeLayoutDocument,
+  instruction: EditorAiEditInstruction,
+): string | undefined {
+  const record = instruction as unknown as Record<string, unknown>;
+  for (const field of existingIdFields(instruction)) {
+    const nodeId = record[field];
+    if (typeof nodeId !== 'string' || !nodeId.trim()) {
+      continue;
+    }
+    if (findNode(document.layout, nodeId) || resolveNodeIdFromExistingIds(document, nodeId)) {
+      continue;
+    }
+    return nodeId;
+  }
+  return undefined;
 }
 
 export function resolveInstructionSemanticTargets(

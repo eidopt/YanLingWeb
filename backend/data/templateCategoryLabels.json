@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "categories": {
+    "commerce": "Commerce",
+    "service": "Service",
+    "booking-reservation": "Booking Reservation",
+    "content-reader": "Content Reader",
+    "education-learning": "Education Learning",
+    "event-promotion": "Event Promotion",
+    "food-ordering": "Food Ordering",
+    "health-wellness": "Health Wellness",
+    "news-feed": "News Feed",
+    "profile-center": "Profile Center",
+    "social-feed": "Social Feed",
+    "utility-tools": "Utility Tools"
+  },
+  "displayCategories": {
+    "commerce": "Commerce",
+    "service": "Service",
+    "general": "General"
+  },
+  "platformCategories": {
+    "mini-program": "Mini Program",
+    "mobile-app": "Mobile App"
+  },
+  "functionalCategories": {
+    "commerce": "Commerce",
+    "service": "Service",
+    "booking-reservation": "Booking Reservation",
+    "booking": "Booking",
+    "reservation": "Reservation",
+    "content-reader": "Content Reader",
+    "content": "Content",
+    "reading": "Reading",
+    "education-learning": "Education Learning",
+    "education": "Education",
+    "learning": "Learning",
+    "event-promotion": "Event Promotion",
+    "event": "Event",
+    "marketing": "Marketing",
+    "food-ordering": "Food Ordering",
+    "restaurant": "Restaurant",
+    "takeaway": "Takeaway",
+    "health-wellness": "Health Wellness",
+    "health": "Health",
+    "fitness": "Fitness",
+    "news-feed": "News Feed",
+    "news": "News",
+    "profile-center": "Profile Center",
+    "profile": "Profile",
+    "user-management": "User Management",
+    "social-feed": "Social Feed",
+    "social": "Social",
+    "community": "Community",
+    "utility-tools": "Utility Tools",
+    "utility": "Utility",
+    "productivity": "Productivity"
+  }
+}

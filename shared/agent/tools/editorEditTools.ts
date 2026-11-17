@@ -1,4 +1,6 @@
 import type { ProviderTool } from '../contracts/provider';
+import { searchEditorNodes } from '../editor/searchEditorNodes';
+import type { ThemeLayoutDocument } from '../types';
 
 export type AgentProviderTool = ProviderTool;
 
@@ -22,7 +24,10 @@ const commonTargetProperties = {
   },
   nodeId: {
     type: 'string',
-    description: 'Target node id.',
+    description: [
+      'Existing node id copied from editor_search_nodes, a Resolved target line,',
+      'the selected node, or a previous candidates list.',
+    ].join(' '),
   },
   reason: {
     type: 'string',
@@ -206,7 +211,7 @@ export const EDITOR_DELETE_NODE_TOOL = tool(
   'editor_delete_node',
   [
     'Delete one node. Provide nodeId or semanticTarget to identify the node.',
-    'Do not invent ids - use exact ids from context or semanticTarget.',
+    'Do not invent ids. Copy nodeId from editor_search_nodes, the resolved target, or the selected node.',
   ].join(' '),
   [],
   {
@@ -224,7 +229,7 @@ export const EDITOR_SET_LAYOUT_TOOL = tool(
   'editor_set_layout',
   [
     'Patch node layout. Provide nodeId or semanticTarget to identify the node.',
-    'Do not invent ids - use exact ids from context or semanticTarget.',
+    'Do not invent ids. Copy nodeId from editor_search_nodes, the resolved target, or the selected node.',
   ].join(' '),
   ['layout'],
   {
@@ -243,7 +248,7 @@ export const EDITOR_SET_FRAME_TOOL = tool(
   'editor_set_frame',
   [
     'Patch node frame. Provide nodeId or semanticTarget to identify the node.',
-    'Do not invent ids - use exact ids from context or semanticTarget.',
+    'Do not invent ids. Copy nodeId from editor_search_nodes, the resolved target, or the selected node.',
   ].join(' '),
   ['frame'],
   {
@@ -263,6 +268,7 @@ export const EDITOR_MOVE_NODE_TOOL = tool(
   [
     'Move one node. Provide nodeId or semanticTarget to identify the node.',
     'parentId is required (destination container). Do not invent ids.',
+    'Copy ids from editor_search_nodes, the resolved target, or the selected node.',
   ].join(' '),
   ['parentId'],
   {
@@ -371,6 +377,57 @@ export const EDITOR_REPLACE_SECTION_TOOL = tool(
   },
 );
 
+export const EDITOR_SEARCH_NODES_TOOL = tool(
+  'editor_search_nodes',
+  [
+    'Find existing nodes by visible text, alias, or page.',
+    'Returns real node ids. Call this before editing an existing node when its id is not already',
+    'in the selected node, a Resolved target line, or a previous candidates list.',
+    'This does not modify the document.',
+  ].join(' '),
+  [],
+  {
+    text: {
+      type: 'string',
+      description: 'Visible text, label, or words from the user request.',
+    },
+    alias: {
+      type: 'string',
+      description: 'Component alias such as core.text or core.button.',
+    },
+    pageId: {
+      type: 'string',
+      description: 'Optional page id to search.',
+    },
+  },
+);
+
+export function runEditorSearchTool(
+  name: string,
+  args: Record<string, unknown>,
+  document: ThemeLayoutDocument | undefined,
+): { output: string } | null {
+  if (name !== EDITOR_SEARCH_NODES_TOOL.name) {
+    return null;
+  }
+  if (!document) {
+    return { output: JSON.stringify({ error: 'No document is available to search.' }) };
+  }
+  const text = typeof args.text === 'string' ? args.text : undefined;
+  const alias = typeof args.alias === 'string' ? args.alias : undefined;
+  const pageId = typeof args.pageId === 'string' ? args.pageId : undefined;
+  if (!text?.trim() && !alias?.trim()) {
+    return {
+      output: JSON.stringify({ error: 'Provide text or alias to search existing nodes.' }),
+    };
+  }
+  return {
+    output: JSON.stringify({
+      nodes: searchEditorNodes(document, { text, alias, pageId }),
+    }),
+  };
+}
+
 export const EDITOR_SEMANTIC_TOOLS = [
   EDITOR_SUBMIT_PAGE_SPEC_TOOL,
   EDITOR_UPDATE_SLOT_TOOL,
@@ -380,6 +437,7 @@ export const EDITOR_SEMANTIC_TOOLS = [
 ] as const satisfies readonly AgentProviderTool[];
 
 export const EDITOR_EDIT_TOOLS = [
+  EDITOR_SEARCH_NODES_TOOL,
   ...EDITOR_SEMANTIC_TOOLS,
   EDITOR_CREATE_PAGE_FROM_REFERENCE_TOOL,
   EDITOR_CREATE_PAGE_TOOL,
@@ -396,7 +454,29 @@ export const EDITOR_EDIT_TOOLS = [
 
 export const EDITOR_EDIT_TOOL_NAMES = new Set(EDITOR_EDIT_TOOLS.map((item) => item.name));
 
-export function selectEditorEditTools(_intentText: string): AgentProviderTool[] {
+export function selectEditorEditTools(promptText: string): AgentProviderTool[] {
+  const lower = promptText.toLowerCase().trim();
+
+  // 纯删除意图：只暴露删除/导航工具
+  if (/^(要)?(把|将|请|帮忙)?(删除|移除|去掉|删掉|清空|delete|remove)/.test(lower) &&
+      !/(添加|新增|插入|创建|新建|add|create|insert)/.test(lower)) {
+    return EDITOR_EDIT_TOOLS.filter((t) =>
+      ['editor_search_nodes', 'editor_delete_page', 'editor_delete_node',
+       'editor_sync_navigation'].includes(t.name),
+    );
+  }
+
+  // 纯页面创建意图：只暴露页面/导航工具
+  if (/(新建页面|创建页面|新增页面|新页面|new page|create page|add page)/.test(lower) &&
+      !/(修改|更新|编辑|改|edit|update|change)/.test(lower)) {
+    return EDITOR_EDIT_TOOLS.filter((t) =>
+      ['editor_search_nodes', 'editor_create_page', 'editor_create_page_from_reference',
+       'editor_create_page_from_page_kind', 'editor_submit_page_spec',
+       'editor_sync_navigation'].includes(t.name),
+    );
+  }
+
+  // 通用：返回全部工具
   return [...EDITOR_EDIT_TOOLS];
 }
 
@@ -468,6 +548,8 @@ export function editorToolCallToOperations(
   const reason = typeof args.reason === 'string' ? args.reason : '';
 
   switch (name) {
+    case EDITOR_SEARCH_NODES_TOOL.name:
+      throw new Error('editor_search_nodes is read-only and does not create operations.');
     case EDITOR_SUBMIT_PAGE_SPEC_TOOL.name: {
       return { operations: [{ type: 'submit_page_spec', spec: args.spec, select: args.select }], reason };
     }

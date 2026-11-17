@@ -20,6 +20,11 @@ export {
   type ApplyEditorAiEditInstructionsResult,
   type EditorAiEditInstruction,
 } from '../editor/applyEditorInstructions';
+export {
+  commitEditorDocumentSnapshot,
+  findNodeInDocument,
+  firstMissingExistingNode,
+} from '../editor/existingNodeGate';
 export { resolveEditorSemanticTarget } from '../editor/semanticTargetResolver';
 export { CORE_COMPONENTS, createBlankDocument } from '../fixtures/blankDocument';
 export { getSeedDocument } from '../fixtures/seedDocuments';

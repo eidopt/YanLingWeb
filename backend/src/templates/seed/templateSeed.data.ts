@@ -20,6 +20,9 @@ export interface TemplateSeedException {
   layoutDocument: Record<string, unknown>;
 }
 
+/** 服务中心 4 个功能入口图标的本地生成路径（AI 预生成，落盘 public/template-assets/）。 */
+const SERVICE_ICON_BASE = '/template-assets/generated/service-center';
+
 const CORE_COMPONENT_DESCRIPTORS = [
   {
     alias: 'core.screen',
@@ -597,24 +600,24 @@ export const TEMPLATE_SEED_DATA: TemplateSeedException[] = [
     description:
       '适用于生鲜、快消等日常购物场景，暖橙色调搭配流畅的多页跳转，' +
       '支持商品展示、优惠信息和购物车结算。',
-    accent: '#fa9d3b',
+    accent: '#c2410c',
     platformCategories: ['mini-program', 'mobile-app'],
     functionalCategories: ['commerce'],
     category: 'commerce',
     traits: ['生鲜电商', '多页跳转', '暖橙色调', '促销信息'],
     tags: ['电商', '购物', '商城', '生鲜', '商品', '购物车', '促销', '订单', '会员'],
     cssVars: {
-      '--accent': '#fa9d3b',
-      '--surface': 'linear-gradient(180deg, #fff4e7 0%, #fffaf3 100%)',
-      '--surface-muted': 'rgba(255, 255, 255, 0.84)',
-      '--panel-bg': 'rgba(255, 255, 255, 0.96)',
-      '--panel-border': 'rgba(250, 157, 59, 0.14)',
-      '--panel-accent': 'rgba(250, 157, 59, 0.16)',
-      '--panel-accent-border': 'rgba(250, 157, 59, 0.24)',
-      '--search-bg': 'rgba(255, 255, 255, 0.9)',
-      '--note-bg': 'rgba(250, 157, 59, 0.14)',
-      '--text-base': '#1c1107',
-      '--radius-base': '0.9rem',
+      '--accent': '#c2410c',
+      '--surface': 'linear-gradient(180deg, #fff6ec 0%, #ffe9d2 100%)',
+      '--surface-muted': '#fce7d3',
+      '--panel-bg': '#fffdfa',
+      '--panel-border': 'rgba(194, 65, 12, 0.14)',
+      '--panel-accent': 'rgba(194, 65, 12, 0.1)',
+      '--panel-accent-border': 'rgba(194, 65, 12, 0.26)',
+      '--search-bg': 'rgba(255, 255, 255, 0.92)',
+      '--note-bg': 'rgba(194, 65, 12, 0.1)',
+      '--text-base': '#251304',
+      '--radius-base': '1.1rem',
     },
     componentTemplates: {
       'com-text': {
@@ -996,7 +999,11 @@ export const TEMPLATE_SEED_DATA: TemplateSeedException[] = [
                         id: 'commerce-home-product-1-image',
                         alias: 'core.image',
                         layout: { mode: 'flow', order: 1, width: '100%' },
-                        props: {},
+                        props: {
+                          src: 'https://live.staticflickr.com/806/40606875175_dba47e300d_b.jpg',
+                          alt: '新鲜果蔬展示',
+                          objectFit: 'cover',
+                        },
                       },
                       {
                         id: 'commerce-home-product-1-badge',
@@ -1066,7 +1073,11 @@ export const TEMPLATE_SEED_DATA: TemplateSeedException[] = [
                         id: 'commerce-home-product-2-image',
                         alias: 'core.image',
                         layout: { mode: 'flow', order: 1, width: '100%' },
-                        props: {},
+                        props: {
+                          src: 'https://live.staticflickr.com/5013/5504062865_29552f18b9_b.jpg',
+                          alt: '茉莉酸奶',
+                          objectFit: 'cover',
+                        },
                       },
                       {
                         id: 'commerce-home-product-2-badge',
@@ -1486,6 +1497,13 @@ export const TEMPLATE_SEED_DATA: TemplateSeedException[] = [
           },
         },
       ],
+      visualAssets: [
+        { id:"cm-p1", nodeId:"commerce-home-product-1-image", pageId:"commerce-home", role:"card", provider:"manual", status:"generated", url:"https://live.staticflickr.com/806/40606875175_dba47e300d_b.jpg", prompt:"Fresh fruits and vegetables on wooden table, natural lighting", alt:"新鲜果蔬展示" },
+        { id:"cm-p2", nodeId:"commerce-home-product-2-image", pageId:"commerce-home", role:"card", provider:"manual", status:"generated", url:"https://live.staticflickr.com/5013/5504062865_29552f18b9_b.jpg", prompt:"Blueberry yogurt drink on white surface, product photo", alt:"茉莉酸奶" },
+      ],
+      cssAnimations: {
+        '@keyframes fadeInUp': 'from{opacity:0;transform:translateY(20px)}to{opacity:1}',
+      },
     },
   },
   {
@@ -1493,26 +1511,26 @@ export const TEMPLATE_SEED_DATA: TemplateSeedException[] = [
     name: '服务中心',
     tagline: '清晰高效的服务入口',
     description:
-      '适用于生活服务、政务便民等场景，绿色基调搭配清晰的功能入口，' +
+      '适用于生活服务、政务便民等场景，深青色调搭配清晰的功能入口，' +
       '支持服务列表、订单追踪和会员管理。',
-    accent: '#07c160',
+    accent: '#0f766e',
     platformCategories: ['mini-program', 'mobile-app'],
     functionalCategories: ['service'],
     category: 'service',
-    traits: ['服务入口', '订单追踪', '绿色基调', '功能分区'],
+    traits: ['服务入口', '订单追踪', '深青色调', '功能分区'],
     tags: ['生活服务', '预约', '订单', '家政', '维修', '会员', '服务中心', '缴费'],
     cssVars: {
-      '--accent': '#07c160',
-      '--surface': 'linear-gradient(180deg, #eefaf2 0%, #f7fbf8 100%)',
-      '--surface-muted': 'rgba(255, 255, 255, 0.82)',
-      '--panel-bg': 'rgba(255, 255, 255, 0.96)',
-      '--panel-border': 'rgba(7, 193, 96, 0.12)',
-      '--panel-accent': 'rgba(7, 193, 96, 0.14)',
-      '--panel-accent-border': 'rgba(7, 193, 96, 0.22)',
-      '--search-bg': 'rgba(255, 255, 255, 0.88)',
-      '--note-bg': 'rgba(7, 193, 96, 0.12)',
-      '--text-base': '#071c0f',
-      '--radius-base': '1rem',
+      '--accent': '#0f766e',
+      '--surface': 'linear-gradient(180deg, #f3f7f9 0%, #e6eef1 100%)',
+      '--surface-muted': '#e2ebee',
+      '--panel-bg': '#ffffff',
+      '--panel-border': 'rgba(15, 23, 42, 0.08)',
+      '--panel-accent': 'rgba(15, 118, 110, 0.08)',
+      '--panel-accent-border': 'rgba(15, 118, 110, 0.24)',
+      '--search-bg': '#ffffff',
+      '--note-bg': 'rgba(15, 118, 110, 0.08)',
+      '--text-base': '#0e1b19',
+      '--radius-base': '0.65rem',
     },
     componentTemplates: {
       'svc-text': {
@@ -1751,7 +1769,12 @@ export const TEMPLATE_SEED_DATA: TemplateSeedException[] = [
                         id: 'service-home-action-repair-image',
                         alias: 'core.image',
                         layout: { mode: 'flow', order: 1, width: '100%' },
-                        props: { iconColor: '#fa9d3b' },
+                        props: {
+                          iconColor: '#fa9d3b',
+                          src: `${SERVICE_ICON_BASE}/service-home-action-repair-image.png`,
+                          alt: '家电维修',
+                          objectFit: 'contain',
+                        },
                       },
                       {
                         id: 'service-home-action-repair-title',
@@ -1795,7 +1818,12 @@ export const TEMPLATE_SEED_DATA: TemplateSeedException[] = [
                         id: 'service-home-action-pay-image',
                         alias: 'core.image',
                         layout: { mode: 'flow', order: 1, width: '100%' },
-                        props: { iconColor: '#07c160' },
+                        props: {
+                          iconColor: '#0f766e',
+                          src: `${SERVICE_ICON_BASE}/service-home-action-pay-image.png`,
+                          alt: '水电缴费',
+                          objectFit: 'contain',
+                        },
                       },
                       {
                         id: 'service-home-action-pay-title',
@@ -1839,7 +1867,12 @@ export const TEMPLATE_SEED_DATA: TemplateSeedException[] = [
                         id: 'service-home-action-book-image',
                         alias: 'core.image',
                         layout: { mode: 'flow', order: 1, width: '100%' },
-                        props: { iconColor: '#1890ff' },
+                        props: {
+                          iconColor: '#1890ff',
+                          src: `${SERVICE_ICON_BASE}/service-home-action-book-image.png`,
+                          alt: '预约上门',
+                          objectFit: 'contain',
+                        },
                       },
                       {
                         id: 'service-home-action-book-title',
@@ -1883,7 +1916,12 @@ export const TEMPLATE_SEED_DATA: TemplateSeedException[] = [
                         id: 'service-home-action-member-image',
                         alias: 'core.image',
                         layout: { mode: 'flow', order: 1, width: '100%' },
-                        props: { iconColor: '#722ed1' },
+                        props: {
+                          iconColor: '#722ed1',
+                          src: `${SERVICE_ICON_BASE}/service-home-action-member-image.png`,
+                          alt: '会员中心',
+                          objectFit: 'contain',
+                        },
                       },
                       {
                         id: 'service-home-action-member-title',
@@ -2296,6 +2334,51 @@ export const TEMPLATE_SEED_DATA: TemplateSeedException[] = [
           },
         },
       ],
+      visualAssets: [
+        {
+          id: 'sv-rpr',
+          nodeId: 'service-home-action-repair-image',
+          pageId: 'service-home',
+          role: 'icon',
+          provider: 'curated',
+          status: 'generated',
+          url: `${SERVICE_ICON_BASE}/service-home-action-repair-image.png`,
+          alt: '家电维修',
+        },
+        {
+          id: 'sv-pay',
+          nodeId: 'service-home-action-pay-image',
+          pageId: 'service-home',
+          role: 'icon',
+          provider: 'curated',
+          status: 'generated',
+          url: `${SERVICE_ICON_BASE}/service-home-action-pay-image.png`,
+          alt: '水电缴费',
+        },
+        {
+          id: 'sv-book',
+          nodeId: 'service-home-action-book-image',
+          pageId: 'service-home',
+          role: 'icon',
+          provider: 'curated',
+          status: 'generated',
+          url: `${SERVICE_ICON_BASE}/service-home-action-book-image.png`,
+          alt: '预约上门',
+        },
+        {
+          id: 'sv-mbr',
+          nodeId: 'service-home-action-member-image',
+          pageId: 'service-home',
+          role: 'icon',
+          provider: 'curated',
+          status: 'generated',
+          url: `${SERVICE_ICON_BASE}/service-home-action-member-image.png`,
+          alt: '会员中心',
+        },
+      ],
+      cssAnimations: {
+        '@keyframes fadeInUp': 'from{opacity:0;transform:translateY(20px)}to{opacity:1}',
+      },
     },
   },
 ];

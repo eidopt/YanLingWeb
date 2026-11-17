@@ -3,6 +3,8 @@ import type { ThemeLayoutDocument } from '@shared/agent/contracts/agent';
 import { type SseEventType } from '@shared/agent/contracts/sseEvents';
 import {
   type AgentTemplateKnowledgeContext,
+  commitEditorDocumentSnapshot,
+  firstMissingExistingNode,
   QueryLoop,
   type TemplateProfile,
   type ToolResult,
@@ -40,7 +42,11 @@ import {
 import { OpenAIProvider } from './core/providers/openai.provider';
 import { OpenAICompatibleProvider } from './core/providers/openaiCompatible.provider';
 import type { AIProvider, ProviderMessage, ProviderStreamEvent } from './core/providers/types';
-import { buildEditorClarification } from './editorClarification';
+import {
+  bindEditorEditTarget,
+  buildEditorClarification,
+  formatBoundEditorTarget,
+} from './editorClarification';
 import { AI_SEMANTIC_TARGETS, type AiSemanticTargetConfig } from './semanticTargets.config';
 import {
   type EditorAiConversationDto,
@@ -54,6 +60,7 @@ import {
   EDITOR_EDIT_TOOL_NAMES,
   EDITOR_EDIT_TOOLS,
   editorToolCallToOperations,
+  runEditorSearchTool,
   selectEditorEditTools,
 } from './tools/editorEdit.tool';
 import type { TemplateToolInput } from './tools/generateTemplate.tool';
@@ -551,12 +558,21 @@ export class AiService {
       req.document,
       cacheOptions?.conversationId,
     );
+    const boundTarget = bindEditorEditTarget({
+      prompt,
+      document: req.document,
+      pages: req.pages,
+      selectedNode: req.selectedNode,
+      selectedDescriptor: req.selectedDescriptor,
+      clarificationChoice: req.clarificationChoice,
+    });
     const { prefixMessages, messages, effectiveTemplateProfile } = buildStructuredEditorMessages({
       req,
       prompt,
       selectedChoiceText,
       providerLog,
       templateKnowledge,
+      boundTargetText: boundTarget ? formatBoundEditorTarget(boundTarget) : '',
     });
 
     const editorTools = selectEditorEditTools([prompt, selectedChoiceText].join('\n'));
@@ -612,7 +628,13 @@ export class AiService {
       },
       requestCache: previousResponseId ? { previousResponseId } : undefined,
       toolExecutor: (name, args) =>
-        this.executeEditorTool(subject, name, args, req.document, effectiveTemplateProfile),
+        this.executeEditorTool(
+          subject,
+          name,
+          args,
+          { document: req.document },
+          effectiveTemplateProfile,
+        ),
     });
 
     const result = await loop.run(messages);
@@ -698,7 +720,7 @@ export class AiService {
     subject: Subject<StreamSseEvent>,
     name: string,
     args: Record<string, unknown>,
-    document?: ThemeLayoutDocument,
+    snapshot?: { document: ThemeLayoutDocument },
     profile?: TemplateProfile,
   ): Promise<ToolResult> {
     if (!EDITOR_EDIT_TOOL_NAMES.has(name)) {
@@ -707,10 +729,31 @@ export class AiService {
       });
     }
 
+    const search = runEditorSearchTool(name, args, snapshot?.document);
+    if (search) {
+      return Promise.resolve(search);
+    }
+
     try {
       const edit = editorToolCallToOperations(name, args);
-      const compiledEdit = compileSemanticEditorOperations(edit, document, profile);
+      const compiledEdit = compileSemanticEditorOperations(edit, snapshot?.document, profile);
       assertEditorOperations(compiledEdit);
+      const operations = Array.isArray(compiledEdit.operations) ? compiledEdit.operations : [];
+      if (snapshot?.document) {
+        const missing = firstMissingExistingNode(snapshot.document, operations);
+        if (missing) {
+          return Promise.resolve({ output: JSON.stringify(missing) });
+        }
+        const committed = commitEditorDocumentSnapshot(snapshot.document, operations);
+        if (!committed.document) {
+          return Promise.resolve({
+            output: JSON.stringify({
+              error: committed.error ?? 'Edit could not be applied to the current document.',
+            }),
+          });
+        }
+        snapshot.document = committed.document;
+      }
       this.emitEditorEvent(subject, 'edit_request', {
         data: JSON.stringify(compiledEdit),
       });

@@ -4,6 +4,7 @@ import type { LayoutNodeFrame, LayoutNodeLayout } from '../layout/types';
 import { resolveCoreComponentRenderer } from './components/registry';
 import { resolveFrameStyle, resolveLayoutStyle } from './styleResolvers';
 import type { ThemeRuntime } from './types';
+import { normalizeRpxUnits } from '@shared/theme-layout/lengthUnits';
 import type { CSSProperties, ReactNode } from 'react';
 
 function resolveTemplateStyle(value: unknown): CSSProperties {
@@ -15,7 +16,9 @@ function resolveTemplateStyle(value: unknown): CSSProperties {
 
   for (const [key, item] of Object.entries(value)) {
     if (typeof item === 'string' || typeof item === 'number' || item === null || item === undefined) {
-      style[key as keyof CSSProperties] = item as never;
+      style[key as keyof CSSProperties] = (typeof item === 'string'
+        ? normalizeRpxUnits(item)
+        : item) as never;
     }
   }
 

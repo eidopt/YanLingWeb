@@ -301,6 +301,37 @@ export function appendAssistantReasoning(
   );
 }
 
+export function applyCacheDiagnostic(
+  data: string,
+  setLatest: (value: {
+    prefixHash: string;
+    cacheHitRate: number | null;
+    compactionStrategy: 'skip' | 'micro' | 'full' | null;
+    prefixChanged: boolean;
+  }) => void,
+): void {
+  try {
+    const parsed = JSON.parse(data) as {
+      prefixHash?: unknown;
+      cacheHitRate?: unknown;
+      compactionStrategy?: unknown;
+      prefixChanged?: unknown;
+    };
+    if (typeof parsed.prefixHash !== 'string') {
+      return;
+    }
+    const strategy = parsed.compactionStrategy;
+    setLatest({
+      prefixHash: parsed.prefixHash,
+      cacheHitRate: typeof parsed.cacheHitRate === 'number' ? parsed.cacheHitRate : null,
+      compactionStrategy: strategy === 'skip' || strategy === 'micro' || strategy === 'full' ? strategy : null,
+      prefixChanged: Boolean(parsed.prefixChanged),
+    });
+  } catch {
+    // Diagnostic badges are best-effort.
+  }
+}
+
 export function buildReasoningAccumulator(messages: readonly EditorAiMessage[]): string {
   for (let i = messages.length - 1; i >= 0; i--) {
     const m = messages[i];

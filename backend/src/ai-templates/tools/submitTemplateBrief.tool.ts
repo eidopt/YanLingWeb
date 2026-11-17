@@ -1,6 +1,7 @@
 import type { ProviderTool } from '@shared/agent/contracts/provider';
 
 const ARCHETYPE_ENUM = ['fresh', 'immersive', 'editorial', 'vibrant', 'dark-pro'] as const;
+const VARIANT_ENUM = ['standard', 'compact', 'spacious', 'borderless', 'waterfall', 'overlap', 'gradient-mask', 'float-card', 'split-diagonal', 'layered-stack'] as const;
 const HERO_MODE_ENUM = [
   'date-strip',
   'function-grid',
@@ -24,6 +25,7 @@ export const SUBMIT_TEMPLATE_BRIEF_TOOL: ProviderTool = {
       'name',
       'tagline',
       'archetype',
+      'variant',
       'heroMode',
       'platform',
       'chrome',
@@ -47,6 +49,7 @@ export const SUBMIT_TEMPLATE_BRIEF_TOOL: ProviderTool = {
       name: { type: 'string', description: '简体中文模板名' },
       tagline: { type: 'string', description: '简体中文一句话定位' },
       archetype: { type: 'string', enum: [...ARCHETYPE_ENUM] },
+      variant: { type: 'string', enum: [...VARIANT_ENUM], description: 'archetype 的子变体，影响渲染树骨架。standard=标准，compact=紧凑卡片，spacious=宽间距，borderless=无边卡片，waterfall=瀑布流，overlap=叠加交错，gradient-mask=渐变蒙版，float-card=浮动卡片，split-diagonal=斜切分割，layered-stack=层级堆叠' },
       heroMode: { type: 'string', enum: [...HERO_MODE_ENUM] },
       platform: { type: 'string', enum: ['mini-program', 'mobile-app', 'web'] },
       chrome: { type: 'string', enum: ['wechat', 'app', 'none'] },

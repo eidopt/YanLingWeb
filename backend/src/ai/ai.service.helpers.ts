@@ -222,12 +222,14 @@ export function buildStructuredEditorMessages(params: {
   selectedChoiceText: string;
   providerLog: StreamRequest['messages'];
   templateKnowledge: AgentTemplateKnowledgeContext;
+  boundTargetText?: string;
 }): {
   prefixMessages: StreamRequest['messages'];
   messages: StreamRequest['messages'];
   effectiveTemplateProfile: TemplateProfile | undefined;
 } {
-  const { req, prompt, selectedChoiceText, providerLog, templateKnowledge } = params;
+  const { req, prompt, selectedChoiceText, providerLog, templateKnowledge, boundTargetText } =
+    params;
   const skillContext = inferUiDesignSkillContext(prompt);
   const fallbackConversation =
     providerLog.length > 0 ? [] : buildConversationContextMessages(req.conversation);
@@ -273,6 +275,7 @@ export function buildStructuredEditorMessages(params: {
         selectedChoiceText
           ? ['', 'Confirmed clarification choice:', selectedChoiceText].join('\n')
           : '',
+        boundTargetText ? ['', boundTargetText].join('\n') : '',
         '',
         'User request:',
         prompt,

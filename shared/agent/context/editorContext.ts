@@ -1,5 +1,6 @@
 import { formatEditorSemanticTargetLandmarks } from '../editor/semanticTargetResolver';
 import { buildTemplateProfile } from '../template/buildTemplateProfile';
+import { CONTAINER_ALIASES } from '../editor/applyEditorInstructions.helpers';
 import type { TemplateProfile } from '../template/templateProfile';
 import type {
   AgentConversationMessage,
@@ -199,19 +200,6 @@ export function inferDisplayName(node: ThemeLayoutNode): string {
   }
 }
 
-const CONTAINER_ALIASES = new Set([
-  'core.screen',
-  'core.panel',
-  'core.stack',
-  'core.row',
-  'core.grid',
-  'core.html',
-  'core.tabs',
-  'core.form',
-  'core.carousel',
-  'core.dialog',
-  'core.drawer',
-]);
 
 /** 判断节点是否是容器（可接受子元素插入） */
 export function isContainerNode(node: ThemeLayoutNode): boolean {

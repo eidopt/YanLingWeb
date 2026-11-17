@@ -231,7 +231,12 @@ function applyOneInstruction(
     }
     const parent = parentResolution.node;
     if (!CONTAINER_ALIASES.has(parent.alias)) {
-      return { document, error: `Node ${parentResolution.resolvedId} (${parent.alias}) cannot receive children` };
+      const validContainers = [...CONTAINER_ALIASES].join(', ');
+      return {
+        document,
+        error: `Node ${parentResolution.resolvedId} (${parent.alias}) cannot receive children. ` +
+          `Valid container aliases: ${validContainers}. Pick one of these as parentId.`,
+      };
     }
     const built = buildNode(document, instruction.alias, instruction.nodeId, instruction.props, instruction.layout);
     if (built.error || !built.node) {
@@ -431,6 +436,10 @@ export function applyEditorAiEditInstructions(
       errors,
       selectedNodeId,
     };
+  }
+
+  if (options?.skipValidation) {
+    return { applied, document: currentDocument, errors, selectedNodeId };
   }
 
   const validation = validateThemeLayoutDocument(currentDocument, {

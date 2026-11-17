@@ -22,6 +22,8 @@ export interface TemplateDiversitySummaryRecord {
   componentTemplates: Record<string, unknown>;
   cssVars: Record<string, string>;
   accent: string;
+  /** 用于计算结构指纹 */
+  layoutDocument: ThemeLayoutDocument | null;
 }
 
 export interface TemplatePublishSnapshot {

@@ -1,7 +1,11 @@
 import type { ThemeLayoutDocument } from '../../layout/types';
 import { applyOneInstruction } from './aiEditInstructions.apply';
 import { aiEditInstructionsContent as c } from './aiEditInstructions.content';
-import { resolveInstructionIds, resolveInstructionSemanticTargets } from './aiEditInstructions.resolve';
+import {
+  explicitUnresolvedNodeId,
+  resolveInstructionIds,
+  resolveInstructionSemanticTargets,
+} from './aiEditInstructions.resolve';
 import type {
   ApplyEditorAiEditInstructionsOptions,
   ApplyEditorAiEditInstructionsResult,
@@ -38,6 +42,12 @@ export function applyEditorAiEditInstructions(
     }
 
     const resolvedInstruction = resolveInstructionIds(instruction, nodeIdAliases);
+    const unresolvedNodeId = explicitUnresolvedNodeId(currentDocument, resolvedInstruction);
+    if (unresolvedNodeId) {
+      errors.push(c.instructionFailed(index, c.missingNode(unresolvedNodeId)));
+      aborted = true;
+      return;
+    }
     const semanticResolvedInstruction = resolveInstructionSemanticTargets(
       currentDocument,
       resolvedInstruction,

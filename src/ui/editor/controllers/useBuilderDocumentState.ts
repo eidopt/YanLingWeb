@@ -191,6 +191,15 @@ export function useBuilderDocumentState(themes: LayoutBuilderTheme[], initialThe
         instructions,
         options,
       });
+      if (result.errors.length > 0) {
+        return {
+          ...result,
+          canvases: liveCanvases,
+          activeCanvasId: liveActiveCanvas.id,
+          document: liveActiveCanvas.document,
+          selectedNodeId: undefined,
+        };
+      }
       canvasesRef.current = result.canvases;
       activeCanvasIdRef.current = result.activeCanvasId;
       setDocumentSnapshot((current) => ({
@@ -203,6 +212,13 @@ export function useBuilderDocumentState(themes: LayoutBuilderTheme[], initialThe
     }
 
     const result = applyEditorAiEditInstructions(liveActiveCanvas.document, instructions, options);
+    if (result.errors.length > 0) {
+      return {
+        applied: result.applied,
+        document: liveActiveCanvas.document,
+        errors: result.errors,
+      };
+    }
     const nextCanvases = liveCanvases.map((canvas) =>
       canvas.id === liveActiveCanvas.id ? { ...canvas, document: result.document } : canvas,
     );

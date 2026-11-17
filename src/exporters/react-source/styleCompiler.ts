@@ -1,10 +1,11 @@
+import { normalizeRpxUnits } from '@shared/theme-layout/lengthUnits';
 import type {
   LayoutNodeFrame,
   LayoutNodeLayout,
 } from 'ui/layout/types';
 
 function stringifyStyleValue(value: number | string): string {
-  return typeof value === 'number' ? `${value}px` : value;
+  return typeof value === 'number' ? `${value}px` : normalizeRpxUnits(value);
 }
 
 function addStyleValue(

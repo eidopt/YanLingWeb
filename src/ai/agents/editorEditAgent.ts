@@ -3,7 +3,12 @@ import { autoCompactIfNeeded, createAutoCompactState } from '../core/compact/aut
 import type { AIProvider, ProviderMessage } from '../core/providers/types';
 import { QueryLoop } from '../core/queryLoop';
 import { formatUiIntentPlanForPrompt, planUiIntent } from '../planning/uiIntentRouter';
-import { EDITOR_EDIT_TOOL_NAMES, editorToolCallToOperations, selectEditorEditTools } from '../tools/editorEdit.tool';
+import {
+  EDITOR_EDIT_TOOL_NAMES,
+  editorToolCallToOperations,
+  runEditorSearchTool,
+  selectEditorEditTools,
+} from '../tools/editorEdit.tool';
 import { AgentEventRecorder } from './agentEventRecorder';
 import {
   applyEditorAiEditInstructions,
@@ -162,6 +167,11 @@ export class EditorEditAgent {
           call.error = `Unknown tool: ${name}`;
           return Promise.resolve({ output: JSON.stringify({ error: call.error }) });
         }
+        const search = runEditorSearchTool(name, args, currentDocument);
+        if (search) {
+          call.result = JSON.parse(search.output) as unknown;
+          return Promise.resolve(search);
+        }
         if (isSemanticTool(name)) {
           assertSemanticToolName(name);
           // executeSemanticTool mutates the document in place via applyCompiledOperationsAtomic,
@@ -188,6 +198,8 @@ export class EditorEditAgent {
           const edit = editorToolCallToOperations(name, args);
           const operations = parseOperations(edit.operations);
           const reason = edit.reason;
+          // 快照当前文档，若编辑失败则回滚，防止部分成功导致脏状态
+          const preEditSnapshot = structuredClone(currentDocument);
           const result = (this.options.editApplier ?? applyEditorAiEditInstructions)(currentDocument, operations, {
             userPrompt: input.prompt,
             reason,
@@ -198,10 +210,12 @@ export class EditorEditAgent {
           const isFullSuccess = result.errors.length === 0;
           const hasAppliedOps = result.applied.length > 0;
           const isValidationRollback = result.rollbackReason === 'validation';
-          // Accept document on full success or partial instruction failure (preserve successful edits)
-          // For validation rollback, document is already the original (rolled back by apply function)
-          if (isFullSuccess || (hasAppliedOps && !isValidationRollback)) {
+          // 全部成功 → 接受变更；部分失败 → 回滚到快照
+          if (isFullSuccess || isValidationRollback) {
             currentDocument = result.document;
+          } else if (hasAppliedOps) {
+            // 部分成功：回滚到快照，避免脏状态污染后续调用
+            currentDocument = preEditSnapshot;
           }
           const payload = isFullSuccess
             ? {
@@ -228,13 +242,13 @@ export class EditorEditAgent {
                 ? {
                     success: false as const,
                     partial: true as const,
+                    rolledBack: true as const,
                     applied: result.applied,
                     errors: result.errors,
                     hint: [
-                      'Some operations succeeded and were preserved.',
-                      'Review the errors for the failed operations.',
-                      'The successfully inserted nodes listed in "applied" are now available.',
-                      'Retry only the failed operation with correct node IDs.',
+                      'Some operations failed. Document was rolled back to before this edit.',
+                      'Review the errors and retry with correct node IDs.',
+                      'Use only node IDs from the "Editable nodes" list.',
                     ].join(' '),
                     reason,
                   }

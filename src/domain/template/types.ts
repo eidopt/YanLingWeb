@@ -83,6 +83,18 @@ export const CONTAINER_ALIASES = new Set([
   'core.row',
   'core.grid',
   'core.html',
+  'core.navbar',
+  'core.list',
+  'core.list-item',
+  'core.dialog',
+  'core.drawer',
+  'core.collapse',
+  'core.sidebar',
+  'core.form',
+  'core.toolbar',
+  'core.splitter',
+  'core.timeline',
+  'core.tree',
 ]);
 export const FOOTER_ALIASES = new Set([
   'svc-bottom-bar',

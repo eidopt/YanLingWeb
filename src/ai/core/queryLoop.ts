@@ -215,6 +215,7 @@ export class QueryLoop {
   private consecutiveErrors = 0;
   private continuationRetries = 0;
   private hasAttemptedReactiveCompact = false;
+  private hasAttemptedProactiveCompact = false;
   private lastToolSig = '';
   private sameToolCount = 0;
   private maxOutputTokensEscalated = false;
@@ -246,6 +247,17 @@ export class QueryLoop {
       }
 
       current = microcompactMessages(current);
+
+      // 主动上下文压缩：在调用 API 前预判 token 是否接近上限，避免 PTL 错误
+      if (!this.hasAttemptedProactiveCompact) {
+        const maxTokens = this.cfg.maxContextTokens ?? 128_000;
+        if (tokenCountWithEstimation(current) > maxTokens * 0.7) {
+          current = compactConversation(current);
+          this.hasAttemptedProactiveCompact = true;
+          this.cfg.onContextCompacted?.();
+          continue;
+        }
+      }
 
       const pendingCalls: PendingToolCall[] = [];
       const textChunks: string[] = [];
@@ -336,6 +348,7 @@ export class QueryLoop {
       } else {
         this.consecutiveErrors = 0;
         this.hasAttemptedReactiveCompact = false;
+        this.hasAttemptedProactiveCompact = false;
       }
 
       const assistantText = textChunks.join('');
@@ -461,7 +474,8 @@ export class QueryLoop {
                 continue;
               }
               try {
-                const match = /\{.*\}/.exec(err);
+                // 非贪婪匹配第一个 JSON 对象，避免嵌套对象匹配出错
+                const match = err.match(/\{(?:[^{}]|"(?:\\.|[^"\\])*")*\}/);
                 if (match) {
                   const inner: unknown = JSON.parse(match[0]);
                   if (isRecord(inner) && typeof inner.failedId === 'string') {

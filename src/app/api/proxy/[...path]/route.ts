@@ -33,18 +33,23 @@ async function proxy(req: NextRequest, segments: string[]): Promise<NextResponse
     headers.set('x-previous-response-id', previousResponseId);
   }
 
-  const body = req.method === 'GET' || req.method === 'HEAD' ? undefined : req.body;
+  const hasBody = req.method !== 'GET' && req.method !== 'HEAD';
+  // Buffer the body. Forwarding Next's request stream with duplex makes undici
+  // abort browser POSTs (login) even when the backend is up.
+  const body = hasBody ? await req.arrayBuffer() : undefined;
+  if (body && body.byteLength > 0) {
+    headers.set('content-length', String(body.byteLength));
+  }
 
   let upstream: Response;
   try {
     upstream = await fetch(url, {
       method: req.method,
       headers,
-      body,
-      // @ts-expect-error -- Node 18+ fetch supports duplex for streaming bodies
-      duplex: 'half',
+      body: body && body.byteLength > 0 ? body : undefined,
     });
-  } catch {
+  } catch (error) {
+    console.error('[api/proxy] upstream fetch failed', url, error);
     return NextResponse.json({ message: `Backend service is unavailable at ${BACKEND_URL}` }, { status: 502 });
   }
 

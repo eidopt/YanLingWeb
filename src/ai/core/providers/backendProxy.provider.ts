@@ -20,6 +20,9 @@ const CAPABILITIES: ProviderCapabilities = {
   supportsDeveloperRole: true,
 };
 
+/** SSE 流最⼤等待时间（毫秒）。超过此时间未收到 done 事件则判定为超时。 */
+const STREAM_TOTAL_TIMEOUT_MS = 120_000;
+
 /**
  * 通过 BFF 代理把 ProviderRequest 转发给后端。
  * 后端负责保管 API key 并执行限流。
@@ -157,9 +160,16 @@ export class BackendProxyProvider implements AIProvider {
     }
 
     try {
+      const streamStart = Date.now();
       for await (const streamEvent of events) {
         if (this.isAborted()) {
           break;
+        }
+        if (Date.now() - streamStart > STREAM_TOTAL_TIMEOUT_MS) {
+          console.warn(`[SSE] stream exceeded ${STREAM_TOTAL_TIMEOUT_MS}ms timeout`);
+          yield { type: 'error', message: `AI 响应超过 ${
+            Math.round(STREAM_TOTAL_TIMEOUT_MS / 1000)} 秒，请重试。` };
+          return;
         }
         const parsed = parseSseEnvelope(streamEvent.data);
         if (!parsed.ok) {

@@ -135,7 +135,7 @@ export class ConfigFactory {
 
     // Latest stable models. v4-pro has 1M context + prefix caching;
     // GPT-5.5 uses Responses API with stateful caching.
-    const defaultModel = aiProvider === 'openaiCompatible' ? 'deepseek-v4-pro' : 'gpt-5.5';
+    const defaultModel = aiProvider === 'openaiCompatible' ? 'deepseek-flash' : 'gpt-5.5';
     const aiProModel =
       this.read(source, serverFlavor, 'AI_PRO_MODEL') ??
       this.read(source, serverFlavor, 'AI_MODEL') ??

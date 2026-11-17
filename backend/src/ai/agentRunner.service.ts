@@ -46,10 +46,15 @@ import {
 } from './agentRunner.helpers';
 import { AiService } from './ai.service';
 import type { ProviderMessage } from './core/providers/types';
-import { buildEditorClarification } from './editorClarification';
+import {
+  bindEditorEditTarget,
+  buildEditorClarification,
+  formatBoundEditorTarget,
+} from './editorClarification';
 import {
   EDITOR_EDIT_TOOL_NAMES,
   editorToolCallToOperations,
+  runEditorSearchTool,
   selectEditorEditTools,
 } from './tools/editorEdit.tool';
 import { GENERATE_TEMPLATE_TOOL, isTemplateToolInput } from './tools/generateTemplate.tool';
@@ -413,6 +418,16 @@ export class AgentRunnerService {
           return { output: JSON.stringify({ error: toolCall.error }) };
         }
 
+        const search = runEditorSearchTool(
+          name,
+          args,
+          finalDocument ?? getSeedDocument(scenario.startDocument),
+        );
+        if (search) {
+          toolCall.result = JSON.parse(search.output) as unknown;
+          return search;
+        }
+
         if (isSemanticTool(name)) {
           assertSemanticToolName(name);
           // executeSemanticTool mutates the document in place via applyCompiledOperationsAtomic,
@@ -471,6 +486,17 @@ export class AgentRunnerService {
           .join('\n'),
       },
     ];
+    const boundTarget =
+      initialDocument && !scenario.clarificationChoice?.value
+        ? bindEditorEditTarget({
+            prompt: scenario.prompt,
+            document: initialDocument,
+            pages: pageContext,
+            selectedNode,
+            selectedDescriptor,
+            clarificationChoice: scenario.clarificationChoice,
+          })
+        : null;
     const messages: ProviderMessage[] = [
       ...prefixMessages,
       ...providerLog,
@@ -501,6 +527,7 @@ export class AgentRunnerService {
           scenario.clarificationChoice?.value
             ? ['', 'Confirmed clarification choice:', scenario.clarificationChoice.value].join('\n')
             : '',
+          boundTarget ? ['', formatBoundEditorTarget(boundTarget)].join('\n') : '',
           '',
           'User request:',
           scenario.prompt,

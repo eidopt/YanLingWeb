@@ -21,6 +21,8 @@ export interface ApplyEditorAiEditInstructionsOptions {
   userPrompt?: string;
   reason?: string;
   selectedNodeId?: string | null;
+  /** Update the working document without rolling back on schema validation. */
+  skipValidation?: boolean;
   resolveSemanticTarget?: (
     document: ThemeLayoutDocument,
     target: string,
@@ -43,6 +45,9 @@ export interface ApplyOneResult {
   selectedNodeId?: string | null;
 }
 
+/** 容器别名列表 — 单⼀真源。
+ *  所有容器检查均应从此处引⽤，确保前后端⾏为⼀致。
+ *  注意 core.tabs 不在列表中：标签项通过 props.tabs 数组定义，不是⼦节点。 */
 export const CONTAINER_ALIASES = new Set([
   'core.screen',
   'core.panel',
@@ -50,6 +55,18 @@ export const CONTAINER_ALIASES = new Set([
   'core.row',
   'core.grid',
   'core.html',
+  'core.navbar',
+  'core.list',
+  'core.list-item',
+  'core.dialog',
+  'core.drawer',
+  'core.collapse',
+  'core.sidebar',
+  'core.form',
+  'core.toolbar',
+  'core.splitter',
+  'core.timeline',
+  'core.tree',
 ]);
 export const FOOTER_ALIASES = new Set(['core.tabs']);
 const SIZE_LAYOUT_KEYS = ['width', 'height', 'minWidth', 'minHeight', 'maxWidth', 'maxHeight'] as const;

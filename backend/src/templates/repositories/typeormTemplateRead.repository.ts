@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import type { ThemeLayoutDocument } from '@shared/agent/contracts/agent';
 import { migrateThemeLayoutDocument } from '@shared/theme-layout/migrations';
 import { IsNull, Repository } from 'typeorm';
 
@@ -84,6 +85,7 @@ export class TypeOrmTemplateReadRepository implements TemplateReadRepository {
       componentTemplates: template.componentTemplates,
       cssVars: template.cssVars,
       accent: template.accent,
+      layoutDocument: template.layoutDocument as unknown as ThemeLayoutDocument | null,
     }));
   }
 

@@ -11,6 +11,7 @@ export {
   EDITOR_INSERT_NODE_TOOL,
   EDITOR_MOVE_NODE_TOOL,
   EDITOR_REPLACE_SECTION_TOOL,
+  EDITOR_SEARCH_NODES_TOOL,
   EDITOR_SEMANTIC_TOOLS,
   EDITOR_SET_FRAME_TOOL,
   EDITOR_SET_LAYOUT_TOOL,
@@ -20,5 +21,6 @@ export {
   EDITOR_UPDATE_PROPS_TOOL,
   EDITOR_UPDATE_SLOT_TOOL,
   editorToolCallToOperations,
+  runEditorSearchTool,
   selectEditorEditTools,
 } from '@shared/agent/tools/editorEditTools';

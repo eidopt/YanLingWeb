@@ -1,4 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import type { ThemeLayoutDocument } from '@shared/agent/contracts/agent';
+import { computeDocumentCombinedSignature } from '@shared/agent/validation/layoutSignature';
 
 import {
   TEMPLATE_READ_REPOSITORY,
@@ -313,6 +315,16 @@ export class AiTemplatesService {
     const componentTemplateAliases = Object.keys(template.componentTemplates);
     const primaryHue = template.cssVars['--color-primary'] ?? template.accent;
 
+    // 从存储的 layoutDocument 计算结构指纹
+    let layoutSignature = '';
+    try {
+      if (template.layoutDocument?.layout) {
+        layoutSignature = computeDocumentCombinedSignature(template.layoutDocument as ThemeLayoutDocument);
+      }
+    } catch {
+      layoutSignature = '';
+    }
+
     return {
       templateId: template.templateId,
       name: template.name,
@@ -322,6 +334,7 @@ export class AiTemplatesService {
       diversitySignature: signature,
       componentTemplateAliases,
       primaryHue,
+      layoutSignature,
     };
   }
 

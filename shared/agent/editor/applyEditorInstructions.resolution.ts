@@ -125,7 +125,7 @@ function summarizeNodeForError(node: ThemeLayoutNode): string {
   return entries.length > 0 ? entries.join(', ') : 'no text props';
 }
 
-function buildNodeResolutionError(root: ThemeLayoutNode, requestedId: string): NodeResolutionErrorInfo {
+export function buildNodeResolutionError(root: ThemeLayoutNode, requestedId: string): NodeResolutionErrorInfo {
   const allIds = collectNodeIds(root);
 
   const scoredCandidates = allIds

@@ -1,10 +1,14 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Catch, Controller, HttpException, Post, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 
 import { JwtAuthGuard } from '../auth/jwtAuth.guard';
 import { AiTemplatesService } from './aiTemplates.service';
-import type { PipelineExternalResult, TemplateSeed } from './orchestrator/pipeline.types';
+import type {
+  PipelineExternalResult,
+  PipelineFailure,
+  TemplateSeed,
+} from './orchestrator/pipeline.types';
 
 interface GenerateRequestBody extends TemplateSeed {
   materializeImages?: boolean;
@@ -44,8 +48,24 @@ export class AiTemplatesController {
       },
     },
   })
-  async generate(@Body() body: GenerateRequestBody): Promise<PipelineExternalResult> {
+  async generate(@Body() body: GenerateRequestBody): Promise<PipelineExternalResult | Record<string, unknown>> {
     const { materializeImages, ...seed } = body;
-    return this.service.generate(seed, { materializeImages });
+    try {
+      return await this.service.generate(seed, { materializeImages });
+    } catch (err: unknown) {
+      // 如果流水线全部 attempt 失败但最后一次 Schema 产生了文档，返回它
+      const pipelineErr = err as PipelineFailure;
+      if (pipelineErr?.lastSchema) {
+        return {
+          templateId: pipelineErr.lastSchema.templateId,
+          document: pipelineErr.lastSchema.document,
+          brief: pipelineErr.lastSchema.brief,
+          totalDurationMs: pipelineErr.lastSchema.totalDurationMs,
+          _note: '流水线未完全通过 Verifier，最后生成的文档仅供参考',
+        };
+      }
+      const message = err instanceof Error ? err.message : String(err);
+      throw new HttpException(message, 500);
+    }
   }
 }

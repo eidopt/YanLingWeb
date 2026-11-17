@@ -30,6 +30,8 @@ export interface QueryLoopConfig {
   onUsage?: (usage: NonNullable<StreamEventDone['usage']>, request: ProviderRequest) => void | Promise<void>;
   requestCache?: ProviderRequest['cache'];
   maxIterations?: number;
+  /** 模型上下文窗口上限（token）。超过 70% 时主动压缩以避免 PTL 错误。默认 128_000。 */
+  maxContextTokens?: number;
   isCancelled: () => boolean;
 }
 

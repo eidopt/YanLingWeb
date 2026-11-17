@@ -124,6 +124,7 @@ function createBrief(overrides: Partial<DesignerOutput> = {}): DesignerOutput {
     name: 'Fresh Clinic',
     tagline: 'Book faster',
     archetype: 'fresh',
+    variant: 'standard',
     heroMode: 'search-filter',
     platform: 'web',
     chrome: 'none',

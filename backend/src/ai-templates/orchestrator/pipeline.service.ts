@@ -9,6 +9,7 @@ import type {
   DesignerOutput,
   ExistingTemplateSummary,
   PipelineExternalResult,
+  PipelineFailure,
   PipelineResult,
   PipelineStageRecord,
   SchemaOutput,
@@ -24,10 +25,6 @@ interface AccumulatedStages {
   schema: PipelineStageRecord<SchemaOutput>[];
   verifier: PipelineStageRecord<VerifierVerdict[]>[];
 }
-
-type PipelineFailure = Error & {
-  lastSchema?: PipelineResult;
-};
 
 /**
  * 4-Stage 模板生成编排器

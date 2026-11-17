@@ -6,9 +6,13 @@ import type {
   ApplyEditorAiEditInstructionsResult,
   EditorAiEditInstruction,
 } from '../services/aiEditInstructions';
+import { decideConversationHistoryLoad } from '../stream/conversationHistory';
+import { createSseOutputBridge, type SseOutputBridge } from '../stream/sseOutputBridge';
+import type { SseOutputFrame } from '../stream/sseOutputController';
 import { editorAiPanelContent as c } from './EditorAiPanel.content';
 import {
   appendAssistantReasoning,
+  applyCacheDiagnostic,
   buildApplyFailureClarification,
   buildCacheStatsBadges,
   buildMessagesFromConversation,
@@ -78,6 +82,11 @@ export function EditorAiPanel({
   const templateConversationKey = buildEditorAiPanelConversationStorageKey(conversationTemplateId);
   const providerConversationId = buildProviderConversationId(conversationTemplateId);
   const abortRef = useRef<AbortController | null>(null);
+  const streamRef = useRef<SseOutputBridge | null>(null);
+  const liveRunRef = useRef<{ sessionId: string; onControl: (frame: SseOutputFrame) => void } | null>(null);
+  const historyEpochRef = useRef(0);
+  const endStatusRef = useRef<string | null>(null);
+  const applyPacedFrameRef = useRef<(frame: SseOutputFrame) => void>(() => undefined);
   const activeConversationKeyRef = useRef(templateConversationKey);
   const remoteConversationTemplateRef = useRef<string | null>(null);
   const lastRemoteConversationRef = useRef('');
@@ -179,11 +188,51 @@ export function EditorAiPanel({
     );
   }
 
+  applyPacedFrameRef.current = (frame) => {
+    if (frame.kind === 'text' && frame.messageId && frame.text) {
+      appendAssistantDelta(frame.messageId, frame.text);
+      return;
+    }
+    if (frame.kind === 'reasoning' && frame.messageId && frame.text) {
+      appendAssistantReasoning(frame.messageId, frame.text, setMessages);
+    }
+  };
+
+  useEffect(() => {
+    const bridge = createSseOutputBridge({
+      onFrames: (sessionId, frames) => {
+        const live = liveRunRef.current;
+        if (live?.sessionId !== sessionId) {
+          return;
+        }
+        for (const frame of frames) {
+          if (frame.kind === 'control') {
+            live.onControl(frame);
+            continue;
+          }
+          applyPacedFrameRef.current(frame);
+        }
+      },
+    });
+    streamRef.current = bridge;
+    return () => {
+      liveRunRef.current = null;
+      bridge.dispose();
+      if (streamRef.current === bridge) {
+        streamRef.current = null;
+      }
+    };
+  }, []);
+
   useEffect(() => {
     if (activeConversationKeyRef.current === templateConversationKey) {
       return;
     }
 
+    historyEpochRef.current += 1;
+    endStatusRef.current = null;
+    liveRunRef.current = null;
+    streamRef.current?.reset();
     const controller = abortRef.current;
     abortRef.current = null;
     controller?.abort();
@@ -241,6 +290,7 @@ export function EditorAiPanel({
   useEffect(() => {
     let cancelled = false;
     const templateIdForLoad = conversationTemplateId;
+    const requestEpoch = historyEpochRef.current;
     void editorAiService
       .loadConversation(templateIdForLoad)
       .then((conversation) => {
@@ -248,26 +298,33 @@ export function EditorAiPanel({
           return;
         }
 
-        const remoteMessages = buildMessagesFromConversation(conversation);
         remoteConversationTemplateRef.current = templateIdForLoad;
-        lastRemoteConversationRef.current = JSON.stringify(buildPersistedEditorAiPanelConversation(remoteMessages));
-        if (!remoteMessages.length) {
-          return;
-        }
-
+        const remoteMessages = buildMessagesFromConversation(conversation);
         setMessages((current) => {
-          const currentConversation = buildPersistedEditorAiPanelConversation(current);
-          if (currentConversation.length > remoteMessages.length) {
+          const decision = decideConversationHistoryLoad({
+            requestEpoch,
+            currentEpoch: historyEpochRef.current,
+            live: liveRunRef.current !== null,
+            localCompletedCount: buildPersistedEditorAiPanelConversation(current).length,
+            remoteCount: remoteMessages.length,
+          });
+          if (decision !== 'replace') {
+            if (decision === 'keep' && remoteMessages.length > 0) {
+              lastRemoteConversationRef.current = JSON.stringify(
+                buildPersistedEditorAiPanelConversation(remoteMessages),
+              );
+            }
             return current;
           }
 
           const nextMessages = [...INITIAL_MESSAGES, ...remoteMessages];
+          lastRemoteConversationRef.current = JSON.stringify(buildPersistedEditorAiPanelConversation(nextMessages));
           saveBrowserEditorAiPanelConversationMessages(templateConversationKey, nextMessages);
           return nextMessages;
         });
       })
       .catch(() => {
-        if (!cancelled) {
+        if (!cancelled && activeConversationKeyRef.current === templateConversationKey) {
           remoteConversationTemplateRef.current = templateIdForLoad;
         }
       });
@@ -307,8 +364,12 @@ export function EditorAiPanel({
     autoChoiceDepth = 0,
   ) {
     const assistantMessageId = createMessageId('assistant');
+    const sessionId = assistantMessageId;
     const abortController = new AbortController();
     const conversation = buildEditorAiPanelConversationContext(messages);
+    historyEpochRef.current += 1;
+    endStatusRef.current = null;
+    streamRef.current?.start(sessionId);
     let finished = false;
     let receivedClarification = false;
     let finalStatus: string = c.status.ready;
@@ -369,6 +430,67 @@ export function EditorAiPanel({
       finishActiveRun(c.status.awaitingChoice);
     };
 
+    const onControl = (frame: SseOutputFrame) => {
+      if (finished || (receivedClarification && frame.name !== 'done')) {
+        return;
+      }
+
+      switch (frame.name) {
+        case 'intent_plan': {
+          setIntentPlan(parseIntentPlan(frame.data ?? ''));
+          setStatus(c.status.intentRecognized);
+          break;
+        }
+        case 'clarification': {
+          const clarification = parseClarification(frame.data ?? '');
+          if (clarification) {
+            pauseForClarification(clarification);
+          }
+          break;
+        }
+        case 'tool_start':
+          setStatus(c.status.editingCanvas);
+          break;
+        case 'edit_applied': {
+          const payload = parseEditAppliedPayload(frame.data ?? '');
+          const clarification = buildApplyFailureClarification(payload, currentDocument);
+          if (clarification) {
+            pauseForClarification(clarification);
+            break;
+          }
+          replaceAssistantEditStatus(assistantMessageId, describeAppliedEdits(payload));
+          break;
+        }
+        case 'tool_done':
+          setStatus(c.status.editApplied);
+          break;
+        case 'error':
+          completeStreamingMessages();
+          setStatus(c.status.failed);
+          appendMessage({
+            id: createMessageId('system'),
+            role: 'system',
+            text: frame.data ?? '',
+          });
+          if (frame.terminal) {
+            abortController.abort();
+            editorAiService.cancel();
+            endStatusRef.current = c.status.failed;
+            finishActiveRun(c.status.failed);
+          }
+          break;
+        case 'done':
+          finishActiveRun(receivedClarification ? c.status.awaitingChoice : c.status.ready);
+          break;
+        case 'cache_diagnostic':
+          applyCacheDiagnostic(frame.data ?? '', setLatestCacheDiagnostic);
+          break;
+        default:
+          break;
+      }
+    };
+    liveRunRef.current = { sessionId, onControl };
+
     try {
       await editorAiService.editCanvas({
         prompt: trimmedPrompt,
@@ -391,91 +513,28 @@ export function EditorAiPanel({
           if (finished || (receivedClarification && event.type !== 'done')) {
             return;
           }
-
-          switch (event.type) {
-            case 'intent_plan': {
-              setIntentPlan(parseIntentPlan(event.data));
-              setStatus(c.status.intentRecognized);
-              break;
-            }
-            case 'clarification': {
-              const clarification = parseClarification(event.data);
-              if (clarification) {
-                pauseForClarification(clarification);
-              }
-              break;
-            }
-            case 'text':
-              appendAssistantDelta(assistantMessageId, event.data);
-              break;
-            case 'reasoning': {
-              appendAssistantReasoning(assistantMessageId, event.data, setMessages);
-              break;
-            }
-            case 'tool_start':
-              setStatus(c.status.editingCanvas);
-              break;
-            case 'edit_applied':
-              {
-                const payload = parseEditAppliedPayload(event.data);
-                const clarification = buildApplyFailureClarification(payload, currentDocument);
-                if (clarification) {
-                  pauseForClarification(clarification);
-                  break;
-                }
-                replaceAssistantEditStatus(assistantMessageId, describeAppliedEdits(payload));
-              }
-              break;
-            case 'tool_done':
-              setStatus(c.status.editApplied);
-              break;
-            case 'error':
-              completeStreamingMessages();
-              setStatus(c.status.failed);
-              appendMessage({
-                id: createMessageId('system'),
-                role: 'system',
-                text: event.data,
-              });
-              if (event.terminal) {
-                abortController.abort();
-                editorAiService.cancel();
-                finishActiveRun(c.status.failed);
-              }
-              break;
-            case 'done':
-              finishActiveRun(receivedClarification ? c.status.awaitingChoice : c.status.ready);
-              break;
-            case 'cache_diagnostic':
-              {
-                // 透传 JSON 在 onEvent 中已被 JSON.stringify 过, 解析后更新最近一次诊断.
-                try {
-                  const parsed = JSON.parse(event.data) as {
-                    prefixHash?: unknown;
-                    cacheHitRate?: unknown;
-                    compactionStrategy?: unknown;
-                    prefixChanged?: unknown;
-                  };
-                  if (typeof parsed.prefixHash === 'string') {
-                    setLatestCacheDiagnostic({
-                      prefixHash: parsed.prefixHash,
-                      cacheHitRate:
-                        typeof parsed.cacheHitRate === 'number' ? parsed.cacheHitRate : null,
-                      compactionStrategy:
-                        parsed.compactionStrategy === 'skip' ||
-                        parsed.compactionStrategy === 'micro' ||
-                        parsed.compactionStrategy === 'full'
-                          ? parsed.compactionStrategy
-                          : null,
-                      prefixChanged: Boolean(parsed.prefixChanged),
-                    });
-                  }
-                } catch {
-                  // ignore parse errors — diagnostic is best-effort UI
-                }
-              }
-              break;
+          if (event.type === 'text') {
+            streamRef.current?.enqueue(sessionId, {
+              kind: 'text',
+              messageId: assistantMessageId,
+              text: event.data,
+            });
+            return;
           }
+          if (event.type === 'reasoning') {
+            streamRef.current?.enqueue(sessionId, {
+              kind: 'reasoning',
+              messageId: assistantMessageId,
+              text: event.data,
+            });
+            return;
+          }
+          streamRef.current?.enqueue(sessionId, {
+            kind: 'control',
+            name: event.type,
+            data: event.data,
+            terminal: event.terminal,
+          });
         },
       });
     } catch (err) {
@@ -486,10 +545,19 @@ export function EditorAiPanel({
           role: 'system',
           text: err instanceof Error ? err.message : String(err),
         });
-        finishActiveRun(c.status.failed);
+        endStatusRef.current = c.status.failed;
       }
     } finally {
-      finishActiveRun(finalStatus);
+      const bridge = streamRef.current;
+      if (bridge) {
+        await bridge.flush(sessionId);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- cleared while flush awaits
+      if (liveRunRef.current?.sessionId === sessionId) {
+        liveRunRef.current = null;
+      }
+      finishActiveRun(endStatusRef.current ?? finalStatus);
+      endStatusRef.current = null;
     }
   }
 
@@ -530,13 +598,10 @@ export function EditorAiPanel({
   }
 
   function handleCancel() {
-    const controller = abortRef.current;
-    abortRef.current = null;
-    controller?.abort();
-    editorAiService.cancel();
-    completeStreamingMessages();
-    setIsRunning(false);
+    endStatusRef.current = c.status.stopped;
     setStatus(c.status.stopped);
+    abortRef.current?.abort();
+    editorAiService.cancel();
   }
 
   function handleUndo() {

@@ -3,6 +3,7 @@ import type {
   LayoutNodeLayout,
   ThemeLayoutNode,
 } from '../layout/types';
+import { normalizeRpxUnits } from '@shared/theme-layout/lengthUnits';
 import type { CSSProperties } from 'react';
 
 function resolveLength(value?: number | string, unit: '%' | 'px' = 'px') {
@@ -10,7 +11,7 @@ function resolveLength(value?: number | string, unit: '%' | 'px' = 'px') {
     return `${value}${unit}`;
   }
 
-  return value;
+  return normalizeRpxUnits(value);
 }
 
 export function resolveLayoutStyle(

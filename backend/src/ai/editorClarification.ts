@@ -85,14 +85,7 @@ function isPageCreationPrompt(prompt: string): boolean {
   return PAGE_CREATION_PATTERNS.some((pattern) => pattern.test(prompt));
 }
 
-const CORE_CONTAINER_ALIASES = new Set([
-  'core.screen',
-  'core.panel',
-  'core.stack',
-  'core.row',
-  'core.grid',
-  'core.html',
-]);
+import { CONTAINER_ALIASES } from '@shared/agent/editor/applyEditorInstructions.helpers';
 
 const INSERTION_PATTERNS = [
   /\u6dfb\u52a0/,
@@ -141,14 +134,14 @@ function canReceiveChildren(
   node: ThemeLayoutNode,
   descriptor: ThemeComponentDescriptor | null = descriptorForAlias(document, node.alias),
 ): boolean {
-  if (CORE_CONTAINER_ALIASES.has(node.alias)) {
+  if (CONTAINER_ALIASES.has(node.alias)) {
     return true;
   }
   if (descriptor?.kind === 'layout') {
     return true;
   }
   const rootAlias = templateRootAlias(document, node.alias);
-  if (rootAlias && CORE_CONTAINER_ALIASES.has(rootAlias)) {
+  if (rootAlias && CONTAINER_ALIASES.has(rootAlias)) {
     return true;
   }
   return Array.isArray(node.children) && node.children.length > 0;
@@ -206,6 +199,19 @@ function scoreCandidate(candidate: NodeCandidate, prompt: string): number {
         score += 16;
       }
     });
+
+  const compact = prompt.toLowerCase().replace(/\s+/g, '');
+  const seenBigrams = new Set<string>();
+  for (let index = 0; index < compact.length - 1 && seenBigrams.size < 2; index += 1) {
+    const slice = compact.slice(index, index + 2);
+    if (/[^\u4e00-\u9fff]/.test(slice) || seenBigrams.has(slice)) {
+      continue;
+    }
+    seenBigrams.add(slice);
+    if (searchable.includes(slice)) {
+      score += 18;
+    }
+  }
 
   return score;
 }
@@ -365,21 +371,93 @@ export function buildEditorClarification(
     }
   }
 
-  const candidates = nodes
-    .map((candidate) => ({ candidate, score: scoreCandidate(candidate, prompt) }))
-    .filter((item) => item.score >= 22)
-    .sort((a, b) => b.score - a.score)
-    .map((item) => item.candidate);
-  const options = buildNodeOptions(candidates);
-
-  if (vagueTarget && options.length > 1) {
-    return {
-      reason: 'node_target_unclear',
-      question: '你想修改哪一处？',
-      options,
-      ...CUSTOM_CLARIFICATION,
-    };
+  if (!insertionPrompt) {
+    const ranked = rankEditCandidates(nodes, prompt);
+    const close = closeEditCandidates(ranked);
+    if (close.length > 1) {
+      return {
+        reason: 'node_target_unclear',
+        question: '你想修改哪一处？',
+        options: buildNodeOptions(close.map((item) => item.candidate)),
+        ...CUSTOM_CLARIFICATION,
+      };
+    }
   }
 
   return null;
+}
+
+const MIN_EDIT_TARGET_SCORE = 22;
+const UNIQUE_EDIT_TARGET_GAP = 12;
+
+interface RankedEditCandidate {
+  candidate: NodeCandidate;
+  score: number;
+}
+
+function rankEditCandidates(nodes: NodeCandidate[], prompt: string): RankedEditCandidate[] {
+  return nodes
+    .map((candidate) => ({ candidate, score: scoreCandidate(candidate, prompt) }))
+    .filter((item) => item.score >= MIN_EDIT_TARGET_SCORE)
+    .sort((left, right) => right.score - left.score);
+}
+
+function closeEditCandidates(ranked: RankedEditCandidate[]): RankedEditCandidate[] {
+  if (ranked.length < 2) {
+    return [];
+  }
+  const topScore = ranked[0]?.score ?? 0;
+  const close = ranked.filter((item) => topScore - item.score < UNIQUE_EDIT_TARGET_GAP);
+  return close.length > 1 ? close : [];
+}
+
+export interface BoundEditorTarget {
+  nodeId: string;
+  alias: string;
+  text: string;
+}
+
+export function formatBoundEditorTarget(target: BoundEditorTarget): string {
+  return [
+    `Resolved target: id=${target.nodeId} alias=${target.alias} text=${target.text}`,
+    'Use this exact nodeId when editing that existing node. Do not invent a different id.',
+  ].join('\n');
+}
+
+function boundFromCandidate(candidate: NodeCandidate): BoundEditorTarget {
+  return {
+    nodeId: candidate.node.id,
+    alias: candidate.node.alias,
+    text: propText(candidate.node),
+  };
+}
+
+export function bindEditorEditTarget(input: EditorClarificationInput): BoundEditorTarget | null {
+  const prompt = input.prompt.trim().toLowerCase();
+  if (!prompt || isConfirmed(input.clarificationChoice) || isPageCreationPrompt(prompt)) {
+    return null;
+  }
+  if (buildEditorClarification(input)) {
+    return null;
+  }
+
+  const insertionPrompt = isInsertionPrompt(prompt);
+  if (insertionPrompt) {
+    return null;
+  }
+  if (input.selectedNode) {
+    return {
+      nodeId: input.selectedNode.id,
+      alias: input.selectedNode.alias,
+      text: propText(input.selectedNode),
+    };
+  }
+
+  const nodes: NodeCandidate[] = [];
+  collectNodes(input.document.layout, nodes);
+  const ranked = rankEditCandidates(nodes, prompt);
+  if (ranked.length === 0 || closeEditCandidates(ranked).length > 1) {
+    return null;
+  }
+  return boundFromCandidate(ranked[0].candidate);
 }

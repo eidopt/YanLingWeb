@@ -20,6 +20,19 @@ export interface TemplateSeed {
 
 export type TemplateArchetype = 'fresh' | 'immersive' | 'editorial' | 'vibrant' | 'dark-pro';
 
+/** 每个 archetype 的子变体，用于在骨架层面制造多样性 */
+export type ArchetypeVariant =
+  | 'standard'
+  | 'compact'
+  | 'spacious'
+  | 'borderless'
+  | 'waterfall'
+  | 'overlap'
+  | 'gradient-mask'
+  | 'float-card'
+  | 'split-diagonal'
+  | 'layered-stack';
+
 export type HeroMode =
   | 'date-strip'
   | 'function-grid'
@@ -35,6 +48,7 @@ export interface DesignerOutput {
   name: string;
   tagline: string;
   archetype: TemplateArchetype;
+  variant: ArchetypeVariant;
   heroMode: HeroMode;
   platform: 'mini-program' | 'mobile-app' | 'web';
   chrome: 'wechat' | 'app' | 'none';
@@ -68,7 +82,7 @@ export interface DesignerBottomTab {
 
 export interface DiversityConflict {
   templateId: string;
-  dimension: 'archetype' | 'heroMode' | 'componentTemplate' | 'color-hue' | 'signature';
+  dimension: 'archetype' | 'heroMode' | 'componentTemplate' | 'color-hue' | 'signature' | 'structure';
   description: string;
 }
 
@@ -137,6 +151,10 @@ export interface PipelineExternalResult {
   totalDurationMs: number;
 }
 
+export type PipelineFailure = Error & {
+  lastSchema?: PipelineResult;
+};
+
 /**
  * 已生成模板的摘要 — 用于 Stage 2 / Stage 4(diversity) 的对比。
  * 保持轻量：只放真正用于对比的字段，避免污染下游 prompt。
@@ -150,4 +168,6 @@ export interface ExistingTemplateSummary {
   diversitySignature: string;
   componentTemplateAliases: string[];
   primaryHue: string;
+  /** 渲染树结构指纹：screen(panel(text,button),tabs) 形式 */
+  layoutSignature: string;
 }
