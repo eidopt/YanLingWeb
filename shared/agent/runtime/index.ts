@@ -20,11 +20,8 @@ export {
   type ApplyEditorAiEditInstructionsResult,
   type EditorAiEditInstruction,
 } from '../editor/applyEditorInstructions';
-export {
-  commitEditorDocumentSnapshot,
-  findNodeInDocument,
-  firstMissingExistingNode,
-} from '../editor/existingNodeGate';
+export { CONTAINER_ALIASES } from '../editor/applyEditorInstructions.helpers';
+export { commitEditorDocumentSnapshot, findNodeInDocument, firstMissingExistingNode } from '../editor/existingNodeGate';
 export { resolveEditorSemanticTarget } from '../editor/semanticTargetResolver';
 export { CORE_COMPONENTS, createBlankDocument } from '../fixtures/blankDocument';
 export { getSeedDocument } from '../fixtures/seedDocuments';
@@ -55,6 +52,11 @@ export {
 } from '../template/templateProfileOverride';
 export { validateTemplateProfile } from '../template/validateTemplateProfile';
 export { createMockToolCallForScenario } from '../testing/mockProvider';
+export {
+  computeDocumentCombinedSignature,
+  computeDocumentLayoutSignatures,
+  structuralSimilarity,
+} from '../validation/layoutSignature';
 export {
   type PendingToolCall,
   QueryLoop,

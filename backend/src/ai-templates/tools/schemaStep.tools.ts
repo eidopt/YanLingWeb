@@ -3,7 +3,8 @@ import type { ProviderTool } from '@shared/agent/contracts/provider';
 /** Step 1: 只输出页面 skeleton（容器层级），不包含叶子内容 */
 export const SUBMIT_PAGE_SKELETON_TOOL: ProviderTool = {
   name: 'submit_page_skeleton',
-  description: '提交页面骨架。此工具输出页面的容器层级结构，不含任何文本/图片/交互内容。每个页面指定 layout 容器的层级关系。',
+  description:
+    '提交页面骨架。此工具输出页面的容器层级结构，不含任何文本/图片/交互内容。每个页面指定 layout 容器的层级关系。',
   parameters: {
     type: 'object',
     required: ['templateId', 'pages', 'componentTemplateAliases', 'cssVars'],
@@ -22,7 +23,11 @@ export const SUBMIT_PAGE_SKELETON_TOOL: ProviderTool = {
             kind: { type: 'string', description: 'home|list|detail|order|profile|form|dashboard' },
             layoutTree: {
               type: 'string',
-              description: '容器层级树描述，用缩进表示父子关系。例如：\nscreen\n  search\n  panel\n    text\n    button\n  tabs\n只写 alias，不写 props。叶子节点直接写 alias，容器节点下方缩进子节点。',
+              description: [
+                '容器层级树描述，格式为 "screen>子节点1,子节点2(子级1,子级2)"。',
+                '例如："screen>navbar,search,panel(text,button),grid(panel(image,text)),tabs"。',
+                '只写 alias，不写 props。',
+              ].join(''),
             },
           },
         },
@@ -43,7 +48,8 @@ export const SUBMIT_PAGE_SKELETON_TOOL: ProviderTool = {
 /** Step 2: 为所有页面填充节点内容（一次性） */
 export const SUBMIT_NODE_CONTENT_TOOL: ProviderTool = {
   name: 'submit_node_content',
-  description: '为所有页面填充节点 props 内容。输出 pages 数组，每个元素包含 pageId 和该页面的 node 列表。',
+  description:
+    '为所有页面填充节点 props 内容。输出 pages 数组，每个元素包含 pageId 和该页面的 node 列表。',
   parameters: {
     type: 'object',
     required: ['pages'],
@@ -66,7 +72,13 @@ export const SUBMIT_NODE_CONTENT_TOOL: ProviderTool = {
                   alias: { type: 'string', description: '组件 alias' },
                   props: {
                     type: 'object',
-                    description: '组件属性。text: {text,variant}; button: {label,variant}; image: {alt}; search: {placeholder}; tag: {label,tone}; panel: {tone,gap,title}; tabs: {tabs,activeTab}; notice: {text,tone}; input: {placeholder,label}; progress: {value,max,tone}; navbar: {title}; tabbar: {items,active}; list-item: {title,description}',
+                    description: [
+                      '组件属性。text:{text,variant}; button:{label,variant}; image:{alt};',
+                      'search:{placeholder}; tag:{label,tone}; panel:{tone,gap,title};',
+                      'tabs:{tabs,activeTab}; notice:{text,tone}; input:{placeholder,label};',
+                      'progress:{value,max,tone}; navbar:{title}; tabbar:{items,active};',
+                      'list-item:{title,description}',
+                    ].join(' '),
                   },
                 },
               },
@@ -95,7 +107,10 @@ export const SUBMIT_VISUAL_ASSETS_TOOL: ProviderTool = {
             id: { type: 'string' },
             nodeId: { type: 'string', description: '对应 core.image 节点的 nodeId' },
             pageId: { type: 'string', description: '页面 ID' },
-            role: { type: 'string', enum: ['hero', 'cover', 'card', 'avatar', 'icon', 'banner', 'decoration'] },
+            role: {
+              type: 'string',
+              enum: ['hero', 'cover', 'card', 'avatar', 'icon', 'banner', 'decoration'],
+            },
             prompt: { type: 'string', description: '英文图片生成 prompt，30-50 字，描述具体场景' },
             alt: { type: 'string', description: '中文 alt 文本' },
             provider: { type: 'string', enum: ['ai-image', 'placeholder'] },

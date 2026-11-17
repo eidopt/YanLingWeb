@@ -50,6 +50,7 @@ import { ReasoningPanel } from 'ui/chat/ReasoningPanel';
 interface EditorAiPanelProps {
   templateId?: string;
   currentDocument: ThemeLayoutDocument;
+  documentForAi?: ThemeLayoutDocument;
   pages?: EditorAiPageContext[];
   selectedNode: ThemeLayoutNode | null;
   selectedDescriptor: ThemeComponentDescriptor | null;
@@ -65,6 +66,7 @@ interface EditorAiPanelProps {
 export function EditorAiPanel({
   templateId,
   currentDocument,
+  documentForAi,
   pages,
   selectedNode,
   selectedDescriptor,
@@ -94,6 +96,13 @@ export function EditorAiPanel({
   const skipNextConversationSaveRef = useRef(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const mountedRef = useRef(true);
+  const currentDocumentRef = useRef(currentDocument);
+  const documentForAiRef = useRef(documentForAi ?? currentDocument);
+
+  useEffect(() => {
+    currentDocumentRef.current = currentDocument;
+    documentForAiRef.current = documentForAi ?? currentDocument;
+  }, [currentDocument, documentForAi]);
   const createInitialMessages = useCallback(
     () => loadBrowserEditorAiPanelConversationMessages(templateConversationKey, INITIAL_MESSAGES),
     [templateConversationKey],
@@ -453,7 +462,7 @@ export function EditorAiPanel({
           break;
         case 'edit_applied': {
           const payload = parseEditAppliedPayload(frame.data ?? '');
-          const clarification = buildApplyFailureClarification(payload, currentDocument);
+          const clarification = buildApplyFailureClarification(payload, documentForAiRef.current);
           if (clarification) {
             pauseForClarification(clarification);
             break;
@@ -494,8 +503,8 @@ export function EditorAiPanel({
     try {
       await editorAiService.editCanvas({
         prompt: trimmedPrompt,
-        document: currentDocument,
-        getCurrentDocument: () => currentDocument,
+        document: documentForAiRef.current,
+        getCurrentDocument: () => currentDocumentRef.current,
         pages,
         conversation,
         conversationId: providerConversationId,
@@ -505,7 +514,7 @@ export function EditorAiPanel({
         applyInstructions: onApplyInstructions,
         // B.3: B.2 会在 edit_request 前由 EditorAiService 主动压栈；这里只负责消费快照。
         onSnapshot: (snapshot) => {
-          panelStateRef.current.pushSnapshot(snapshot, currentDocument);
+          panelStateRef.current.pushSnapshot(snapshot, currentDocumentRef.current);
           setUndoVersion((value) => value + 1);
         },
         signal: abortController.signal,
@@ -630,12 +639,8 @@ export function EditorAiPanel({
   const cacheDiagnosticBadge = latestCacheDiagnostic
     ? [
         `cache:${latestCacheDiagnostic.prefixHash.slice(0, 8)}`,
-        latestCacheDiagnostic.cacheHitRate !== null
-          ? `${Math.round(latestCacheDiagnostic.cacheHitRate * 100)}%`
-          : '—',
-        ...(latestCacheDiagnostic.compactionStrategy
-          ? [latestCacheDiagnostic.compactionStrategy]
-          : []),
+        latestCacheDiagnostic.cacheHitRate !== null ? `${Math.round(latestCacheDiagnostic.cacheHitRate * 100)}%` : '—',
+        ...(latestCacheDiagnostic.compactionStrategy ? [latestCacheDiagnostic.compactionStrategy] : []),
       ].join(' · ')
     : null;
 

@@ -62,5 +62,6 @@ self.onmessage = (event: MessageEvent<WorkerInbound>) => {
   }
   if (message.type === 'flush') {
     postFrames(sessionId, controller.flush(sessionId), true);
+    stopTimer();
   }
 };

@@ -85,9 +85,41 @@ void describe('existing node identity gate', () => {
     const hits = searchEditorNodes(document, { alias: 'core.button' });
     assert.deepEqual(hits, []);
     const texts = searchEditorNodes(document, { alias: 'text' });
-    assert.deepEqual(
-      texts.map((hit) => hit.id).sort(),
-      ['price-1', 'title-1'],
+    assert.deepEqual(texts.map((hit) => hit.id).sort(), ['price-1', 'title-1']);
+  });
+
+  void it('scopes existing-node lookup to the requested pageId when provided', () => {
+    const document = createBlankDocument();
+    document.layout.children = [textNode('home-title', '首页')];
+    document.pages = [
+      { id: 'home', name: '首页', layout: document.layout },
+      {
+        id: 'orders',
+        name: '订单',
+        layout: {
+          id: 'orders-screen',
+          alias: 'core.screen',
+          layout: { mode: 'flow' },
+          props: { title: '订单' },
+          children: [textNode('orders-title', '我的订单')],
+        },
+      },
+    ];
+    document.defaultPageId = 'home';
+
+    const missing = firstMissingExistingNode(document, [
+      { type: 'update_props', pageId: 'orders', nodeId: 'home-title', props: { text: '改名' } },
+    ]);
+    if (!missing) {
+      assert.fail('expected a missing-node error');
+    }
+    assert.equal(missing.failedId, 'home-title');
+    assert.ok(missing.candidates.some((candidate) => candidate.nodeId === 'orders-title'));
+    assert.equal(
+      firstMissingExistingNode(document, [
+        { type: 'update_props', pageId: 'orders', nodeId: 'orders-title', props: { text: '改名' } },
+      ]),
+      null,
     );
   });
 });

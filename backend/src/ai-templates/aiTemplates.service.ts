@@ -1,6 +1,6 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import type { ThemeLayoutDocument } from '@shared/agent/contracts/agent';
-import { computeDocumentCombinedSignature } from '@shared/agent/validation/layoutSignature';
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
+import { computeDocumentCombinedSignature } from '@shared/agent/runtime';
+import { themeLayoutDocumentToRecord } from '@shared/theme-layout/documentBoundary';
 
 import {
   TEMPLATE_READ_REPOSITORY,
@@ -11,12 +11,14 @@ import {
   TemplateAssetService,
   type TemplateImageStrategy,
 } from '../templates/templateAsset.service';
+import { type SaveGeneratedTemplateInput, TemplatesService } from '../templates/templates.service';
 import { TemplatePipelineService } from './orchestrator/pipeline.service';
 import type {
   ExistingTemplateSummary,
   HeroMode,
   PipelineExternalResult,
   PipelineResult,
+  PipelineStageEventCallback,
   TemplateArchetype,
   TemplateSeed,
 } from './orchestrator/pipeline.types';
@@ -39,7 +41,36 @@ export interface GenerateOptions {
    */
   libraryImages?: boolean;
   // 三者互斥，优先级：placeholderImages > libraryImages > materializeImages。
+  /** 可选：4-stage 流水线阶段事件回调（供 SSE 流推送进度给前端） */
+  onStageEvent?: PipelineStageEventCallback;
 }
+
+export interface GeneratedSavedTemplateResult extends PipelineExternalResult {
+  action: 'created' | 'updated';
+}
+
+const DISPLAY_CATEGORY_LABELS: Record<string, string> = {
+  commerce: '电商购物',
+  service: '本地服务',
+  content: '内容资讯',
+  education: '教育培训',
+  health: '健康医疗',
+  social: '社交娱乐',
+  finance: '金融理财',
+  marketing: '营销活动',
+  utility: '工具应用',
+  dashboard: '数据看板',
+  profile: '个人中心',
+  other: '其他',
+  general: '通用',
+};
+
+const PLATFORM_CATEGORY_LABELS: Record<string, string> = {
+  'mini-program': '小程序',
+  'mobile-app': '移动端 App',
+  'tablet-app': '平板应用',
+  web: 'Web 网站',
+};
 
 const ARCHETYPE_TRAIT_PREFIX = 'archetype:';
 const HERO_TRAIT_PREFIX = 'hero:';
@@ -82,6 +113,8 @@ export class AiTemplatesService {
     private readonly templates: TemplateReadRepository,
     private readonly pipeline: TemplatePipelineService,
     private readonly templateAssetService: TemplateAssetService,
+    @Optional()
+    private readonly templatesService?: TemplatesService,
   ) {}
 
   /**
@@ -102,6 +135,30 @@ export class AiTemplatesService {
   }
 
   /**
+   * 走 4-stage 流水线生成模板并持久化到当前用户的模板库，返回真实落库后的 templateId。
+   */
+  async generateAndSave(
+    ownerUserId: string,
+    seed: TemplateSeed,
+    options: GenerateOptions = {},
+  ): Promise<GeneratedSavedTemplateResult> {
+    if (!this.templatesService) {
+      throw new Error('TemplatesService is not available for persisting generated templates');
+    }
+    const result = await this.generateDetailed(seed, options);
+    const saveInput = this.buildSaveGeneratedTemplateInput(result);
+    const saved = await this.templatesService.saveGeneratedTemplate(ownerUserId, saveInput);
+    this.logger.log(`Generated template ${saved.action}: ${saved.templateId}`);
+    return {
+      templateId: saved.templateId,
+      action: saved.action,
+      document: result.document,
+      brief: result.brief,
+      totalDurationMs: result.totalDurationMs,
+    };
+  }
+
+  /**
    * 生成模板并返回完整的 PipelineResult（含 stages / totalAttempts）。
    * 批量 CLI / 脚本需要逐 stage 的 token 统计，直接调用本方法。
    */
@@ -113,9 +170,51 @@ export class AiTemplatesService {
     this.logger.log(
       `generating template "${seed.prompt}" with ${existing.length} existing baselines`,
     );
-    const result = await this.pipeline.generate(seed, existing);
+    const result = await this.pipeline.generate(seed, existing, {
+      onStageEvent: options.onStageEvent,
+    });
     const document = await this.maybeMaterializeImages(result.templateId, result.document, options);
     return { ...result, document };
+  }
+
+  private buildSaveGeneratedTemplateInput(result: PipelineResult): SaveGeneratedTemplateInput {
+    const { brief, document } = result;
+    const displayCategory = brief.displayCategory || 'general';
+    const displayCategoryLabel = DISPLAY_CATEGORY_LABELS[displayCategory] ?? displayCategory;
+    const category = brief.category || displayCategory;
+    const platformLabel = PLATFORM_CATEGORY_LABELS[brief.platform] ?? brief.platform;
+    const visualAssetsRaw = (document as unknown as { visualAssets?: unknown }).visualAssets;
+    const cssVars = document.cssVars ?? brief.cssVars;
+    const cssVarsLookup: Record<string, string | undefined> = cssVars;
+    const accent = cssVarsLookup['--color-primary'] ?? cssVarsLookup['--accent'] ?? '#2563EB';
+
+    return {
+      templateId: brief.templateId,
+      name: brief.name,
+      tagline: brief.tagline,
+      description: brief.scenario || brief.tagline,
+      category,
+      categoryLabel: brief.name,
+      categoryLabels: { [category]: brief.name },
+      displayCategory,
+      displayCategoryLabel,
+      displayCategoryLabels: { [displayCategory]: displayCategoryLabel },
+      platformCategories: [brief.platform],
+      platformCategoryLabels: { [brief.platform]: platformLabel },
+      functionalCategories: [category],
+      functionalCategoryLabels: { [category]: brief.name },
+      accent,
+      traits: [
+        `archetype:${brief.archetype}`,
+        `hero:${brief.heroMode}`,
+        `sig:${brief.diversitySignature}`,
+      ],
+      cssVars,
+      ...(document.cssAnimations ? { cssAnimations: document.cssAnimations } : {}),
+      ...(Array.isArray(visualAssetsRaw) ? { visualAssets: visualAssetsRaw } : {}),
+      componentTemplates: document.componentTemplates ?? {},
+      layoutDocument: themeLayoutDocumentToRecord(document),
+    };
   }
 
   /**
@@ -319,7 +418,7 @@ export class AiTemplatesService {
     let layoutSignature = '';
     try {
       if (template.layoutDocument?.layout) {
-        layoutSignature = computeDocumentCombinedSignature(template.layoutDocument as ThemeLayoutDocument);
+        layoutSignature = computeDocumentCombinedSignature(template.layoutDocument);
       }
     } catch {
       layoutSignature = '';

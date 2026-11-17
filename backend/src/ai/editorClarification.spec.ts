@@ -43,7 +43,10 @@ describe('editor target binding', () => {
   });
 
   it('asks when two nodes match about equally', () => {
-    const document = documentWith([textNode('price-a', '价格 128'), textNode('price-b', '价格 256')]);
+    const document = documentWith([
+      textNode('price-a', '价格 128'),
+      textNode('price-b', '价格 256'),
+    ]);
     const input = { prompt: '把价格改成 99', document };
     const clarification = buildEditorClarification(input);
     expect(clarification?.reason).toBe('node_target_unclear');
@@ -60,5 +63,26 @@ describe('editor target binding', () => {
     const input = { prompt: '改成红色', document, selectedNode: selected };
     expect(buildEditorClarification(input)).toBeNull();
     expect(bindEditorEditTarget(input)?.nodeId).toBe('title-1');
+  });
+
+  it('binds nodes from secondary pages in multi-page documents', () => {
+    const document = documentWith([textNode('home-title', '首页')]);
+    document.pages.push({
+      id: 'orders',
+      name: '订单页',
+      layout: {
+        id: 'orders-screen',
+        alias: 'core.screen',
+        layout: { mode: 'flow' },
+        props: { title: '订单' },
+        children: [textNode('orders-coupon', '优惠券 20 元')],
+      },
+    });
+    const input = { prompt: '把优惠券改成 50 元', document };
+    expect(buildEditorClarification(input)).toBeNull();
+    expect(bindEditorEditTarget(input)).toMatchObject({
+      nodeId: 'orders-coupon',
+      alias: 'core.text',
+    });
   });
 });

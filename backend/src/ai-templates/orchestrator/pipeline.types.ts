@@ -82,7 +82,13 @@ export interface DesignerBottomTab {
 
 export interface DiversityConflict {
   templateId: string;
-  dimension: 'archetype' | 'heroMode' | 'componentTemplate' | 'color-hue' | 'signature' | 'structure';
+  dimension:
+    | 'archetype'
+    | 'heroMode'
+    | 'componentTemplate'
+    | 'color-hue'
+    | 'signature'
+    | 'structure';
   description: string;
 }
 
@@ -170,4 +176,23 @@ export interface ExistingTemplateSummary {
   primaryHue: string;
   /** 渲染树结构指纹：screen(panel(text,button),tabs) 形式 */
   layoutSignature: string;
+}
+
+export type PipelineStageName = 'designer' | 'critic' | 'schema' | 'verifier';
+
+export interface PipelineStageEventPayload {
+  stage: PipelineStageName;
+  attempt: number;
+  durationMs?: number;
+  status?: 'ok' | 'failed';
+  error?: string;
+}
+
+export type PipelineStageEventCallback = (
+  phase: 'start' | 'end',
+  payload: PipelineStageEventPayload,
+) => void;
+
+export interface PipelineGenerateOptions {
+  onStageEvent?: PipelineStageEventCallback;
 }

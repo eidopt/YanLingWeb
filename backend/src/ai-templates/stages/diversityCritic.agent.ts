@@ -1,6 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { STAGE_DIVERSITY_CRITIC_SYSTEM_PROMPT } from '@shared/agent/runtime';
-import { computeDocumentLayoutSignatures, structuralSimilarity } from '@shared/agent/validation/layoutSignature';
 
 import {
   AI_TEMPLATE_PIPELINE_PROVIDER,
@@ -238,7 +237,9 @@ export class DiversityCriticAgent {
       '```',
       '',
       structuralAlerts ? '结构对比提示：已有模板的渲染树骨架：\n' + structuralAlerts : '',
-    ].filter(Boolean).join('\n');
+    ]
+      .filter(Boolean)
+      .join('\n');
   }
 
   private parseVerdict(args: Record<string, unknown>): CriticVerdict {

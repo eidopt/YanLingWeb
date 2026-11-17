@@ -22,6 +22,7 @@ const KNOWN_EVENT_TYPES: ReadonlySet<string> = new Set([
   'clarification',
   'edit_request',
   'cache_diagnostic',
+  'template_saved',
 ]);
 
 export type ParsedSseEvent =

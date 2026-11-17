@@ -20,6 +20,7 @@ import {
   CORE_COMPONENTS,
   createMockToolCallForScenario,
   EDITOR_COPILOT_SYSTEM_PROMPT,
+  firstMissingExistingNode,
   formatUiDesignSkillContextForPrompt,
   getSeedDocument,
   inferUiDesignSkillContext,
@@ -444,9 +445,18 @@ export class AgentRunnerService {
           };
         }
 
+        const targetDocument = finalDocument ?? getSeedDocument(scenario.startDocument);
         const edit = editorToolCallToOperations(name, args);
+        const missing = firstMissingExistingNode(targetDocument, edit.operations);
+        if (missing) {
+          toolCall.error = missing.error;
+          toolCall.result = missing;
+          return Promise.resolve({
+            output: JSON.stringify(missing),
+          });
+        }
         const result = applyEditorAiEditInstructions(
-          finalDocument ?? getSeedDocument(scenario.startDocument),
+          targetDocument,
           edit.operations as Parameters<typeof applyEditorAiEditInstructions>[1],
           {
             reason: edit.reason,

@@ -228,6 +228,12 @@ const FALLBACK_BIZ_PROP_WHITELIST: ReadonlySet<string> = new Set([
  *
  * Returns the count of removed props.
  */
+const UNIVERSAL_ALLOWED_PROPS: ReadonlySet<string> = new Set(['style', 'dataBinding']);
+const EXTRA_ALLOWED_PROPS_BY_ALIAS: Partial<Record<string, ReadonlySet<string>>> = {
+  'core.image': new Set(['assetId']),
+  'core.screen': new Set(['surface', 'chrome']),
+};
+
 export function removeUnknownProps(
   document: Record<string, unknown>,
   componentTemplates?: Record<string, unknown>,
@@ -265,13 +271,14 @@ export function removeUnknownProps(
     const n = node as { alias?: string; props?: Record<string, unknown>; children?: unknown[] };
     if (typeof n.alias === 'string' && n.props && typeof n.props === 'object') {
       const allowed = propTypesByAlias.get(n.alias);
+      const extraAllowed = EXTRA_ALLOWED_PROPS_BY_ALIAS[n.alias];
 
       if (allowed === undefined) {
         // Alias not in catalog — leave props alone; downstream validator decides.
       } else if (allowed.size > 0) {
-        // Strict: only declared names survive
+        // Strict: only declared names (plus validator-allowlisted universal/alias props) survive
         for (const key of Object.keys(n.props)) {
-          if (!allowed.has(key)) {
+          if (!allowed.has(key) && !UNIVERSAL_ALLOWED_PROPS.has(key) && !extraAllowed?.has(key)) {
             delete n.props[key];
             removedCount++;
           }

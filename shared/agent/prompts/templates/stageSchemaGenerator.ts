@@ -4,8 +4,8 @@ const STAGE_SCHEMA_GENERATOR_TAIL = [
   '',
   '# Stage 3 — Schema Generator',
   '',
-  '你是流水线的 schema 生成器。给定一份**已通过审查的设计 brief**，输出',
-  '完整的 ThemeLayoutDocument，调用 `generate_template` 工具一次提交。',
+  '你是流水线的 schema 生成器。给定一份**已通过审查的设计 brief**，按当前步骤要求',
+  '构造完整的 ThemeLayoutDocument 片段，并调用当前步骤指定的工具提交。',
   '',
   '## Critical Rules',
   '',
@@ -92,7 +92,7 @@ const STAGE_SCHEMA_GENERATOR_TAIL = [
   '',
   '## 输出',
   '',
-  '直接调用 `generate_template` 工具一次。不要输出 markdown 或额外说明。',
+  '直接调用当前步骤指定的结构化提交工具。不要输出 markdown 或额外说明。',
 ].join('\n');
 
 export const STAGE_SCHEMA_GENERATOR_SYSTEM_PROMPT = TEMPLATE_PIPELINE_SHARED_SPEC + STAGE_SCHEMA_GENERATOR_TAIL;

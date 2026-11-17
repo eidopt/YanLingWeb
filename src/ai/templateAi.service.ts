@@ -1,7 +1,4 @@
-﻿import { BrowserTemplateStore } from './adapters/browserTemplateStore';
-import { TemplateGenerationAgent } from './agents/templateGenerationAgent';
-import { BackendProxyProvider } from './core/providers/backendProxy.provider';
-import type { AgentEvent } from '@shared/agent/contracts/agent';
+﻿import { parseSseEnvelope } from './core/providers/backendProxy.provider.events';
 import { type HttpClient, resolveHttpClient } from 'services/http/HttpClient';
 
 export interface AiGenerateEvent {
@@ -11,147 +8,173 @@ export interface AiGenerateEvent {
 
 export interface GenerateTemplateOptions {
   prompt: string;
+  platform?: 'mini-program' | 'mobile-app' | 'web';
+  displayCategory?: string;
   model?: string;
   onEvent: (event: AiGenerateEvent) => void;
   signal?: AbortSignal;
 }
 
-function eventDataToString(data: unknown): string {
-  if (typeof data === 'string') {
-    return data;
-  }
-  if (data == null) {
-    return '';
-  }
-  return JSON.stringify(data);
+function asString(value: unknown): string {
+  return typeof value === 'string' ? value : '';
 }
 
-function getToolEventName(data: unknown): string {
-  if (data && typeof data === 'object' && 'name' in data) {
-    const name = (data as { name?: unknown }).name;
-    return typeof name === 'string' ? name : eventDataToString(data);
-  }
-  return eventDataToString(data);
-}
-
-function forwardGenerateAgentEvent(event: AgentEvent, onEvent: (event: AiGenerateEvent) => void): void {
-  switch (event.type) {
-    case 'intent_plan':
-      onEvent({ type: 'intent_plan', data: eventDataToString(event.data) });
-      break;
-    case 'text':
-      onEvent({ type: 'text', data: eventDataToString(event.data) });
-      break;
-    case 'tool_start':
-      onEvent({ type: 'tool_start', data: getToolEventName(event.data) });
-      break;
-    case 'tool_done':
-      onEvent({ type: 'tool_done', data: getToolEventName(event.data) });
-      break;
-    case 'template_saved':
-      onEvent({ type: 'template_saved', data: eventDataToString(event.data) });
-      break;
-    case 'tool_error':
-    case 'error':
-      onEvent({ type: 'error', data: eventDataToString(event.data) });
-      break;
-    case 'done':
-      onEvent({ type: 'done', data: '' });
-      break;
-    case 'edit_applied':
-      break;
-  }
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
 }
 
 export class TemplateAiService {
-  private provider: BackendProxyProvider;
-  private static defaultModel: string | null = null;
   private readonly http: HttpClient;
-  /**
-   * Per-call sequence token. Incremented at the top of every `generate()` call;
-   * the `onStructuredEvent` callback closure captures the call's own token and
-   * drops envelopes that arrive after a newer call has started. This protects
-   * against a stale callback (from a previous `generate()`) firing into the
-   * current call's onEvent.
-   */
   private generateCallToken = 0;
+  private activeAbortController: AbortController | null = null;
 
   constructor(
     private readonly getToken: () => string | null,
     private readonly onAuthExpired?: () => void,
     httpClient?: HttpClient,
-    provider?: BackendProxyProvider,
   ) {
     this.http = httpClient ?? resolveHttpClient(getToken);
-    this.provider = provider ?? new BackendProxyProvider(getToken, onAuthExpired, this.http);
   }
 
-  static async fetchConfig(token: string | null, httpClient = resolveHttpClient(() => token)): Promise<string> {
-    if (TemplateAiService.defaultModel) {
-      return TemplateAiService.defaultModel;
-    }
-    try {
-      const { data, response } = await httpClient.json<{ provider: string; model: string }>('/api/proxy/ai/config', {
-        auth: Boolean(token),
-      });
-      if (response.ok) {
-        TemplateAiService.defaultModel = data.model;
-        return data.model;
-      }
-    } catch {
-      // Fall through to the browser-safe default.
-    }
-    return 'gpt-5.4';
+  cancel(): void {
+    this.activeAbortController?.abort();
+    this.activeAbortController = null;
   }
 
   async generate(opts: GenerateTemplateOptions): Promise<void> {
-    const { prompt, model, onEvent, signal } = opts;
-    let cancelled = false;
-
-    // Bump the per-call sequence token BEFORE the await so the captured closure
-    // is installed synchronously at the top of the call. The token check inside
-    // the closure drops envelopes that arrive after a newer generate() call has
-    // started and replaced `this.provider.onStructuredEvent`.
+    const { prompt, platform, displayCategory, onEvent, signal } = opts;
     const myToken = ++this.generateCallToken;
-    const activeProvider = this.provider;
-    activeProvider.resetConversation();
-    activeProvider.onStructuredEvent = (envelope) => {
-      if (myToken !== this.generateCallToken) {
-        return; // stale call, drop
-      }
-      if (envelope.type === 'pipeline_stage_start' || envelope.type === 'pipeline_stage_end') {
-        const phase = envelope.type === 'pipeline_stage_start' ? 'start' : 'end';
-        onEvent({
-          type: 'pipeline_stage',
-          data: JSON.stringify({ phase, ...(envelope.payload as Record<string, unknown>) }),
-        });
-      }
-    };
+
+    this.activeAbortController?.abort();
+    const abortController = new AbortController();
+    this.activeAbortController = abortController;
+
+    const isStaleOrAborted = () => myToken !== this.generateCallToken || abortController.signal.aborted;
     const cancelOnAbort = () => {
-      cancelled = true;
-      activeProvider.cancel();
+      abortController.abort();
     };
+    if (signal?.aborted) {
+      cancelOnAbort();
+      onEvent({ type: 'done', data: '' });
+      return;
+    }
     signal?.addEventListener('abort', cancelOnAbort, { once: true });
 
+    let emittedDone = false;
+    const emitDone = () => {
+      if (emittedDone || isStaleOrAborted()) {
+        return;
+      }
+      emittedDone = true;
+      onEvent({ type: 'done', data: '' });
+    };
+
     try {
-      const cfgModel = await TemplateAiService.fetchConfig(this.getToken(), this.http);
-      const effectiveModel = model ?? cfgModel;
-      const agent = new TemplateGenerationAgent({
-        provider: activeProvider,
-        model: effectiveModel,
-        templateStore: new BrowserTemplateStore(this.getToken, this.http),
-        persist: true,
-        isCancelled: () => cancelled,
-        onEvent: (event) => {
-          forwardGenerateAgentEvent(event, onEvent);
+      const token = this.getToken();
+      if (!token) {
+        onEvent({ type: 'error', data: '未登录，请先登录后再生成模板。' });
+        emitDone();
+        return;
+      }
+
+      const { response, events } = await this.http.stream('/api/proxy/aiTemplates/generate/stream', {
+        method: 'POST',
+        auth: true,
+        headers: {
+          'content-type': 'application/json',
         },
+        body: JSON.stringify({
+          prompt,
+          ...(platform ? { platform } : {}),
+          ...(displayCategory ? { displayCategory } : {}),
+        }),
+        signal: abortController.signal,
       });
-      const result = await agent.run({ prompt });
-      if (result.status === 'errored' && result.error) {
-        onEvent({ type: 'error', data: result.error });
+
+      if (isStaleOrAborted()) {
+        return;
+      }
+
+      if (response.status === 401) {
+        this.onAuthExpired?.();
+        onEvent({ type: 'error', data: '登录已过期，请重新登录。' });
+        emitDone();
+        return;
+      }
+
+      if (!response.ok) {
+        const text = await response.text().catch(() => '');
+        let message = `HTTP ${String(response.status)}`;
+        try {
+          const parsed = JSON.parse(text) as { message?: unknown };
+          if (typeof parsed.message === 'string' && parsed.message) {
+            message = parsed.message;
+          } else if (text) {
+            message = text;
+          }
+        } catch {
+          if (text) {
+            message = text;
+          }
+        }
+        onEvent({ type: 'error', data: message });
+        emitDone();
+        return;
+      }
+
+      for await (const streamEvent of events) {
+        if (isStaleOrAborted()) {
+          return;
+        }
+        const parsed = parseSseEnvelope(streamEvent.data);
+        if (!parsed.ok) {
+          continue;
+        }
+        const { type, payload } = parsed.envelope;
+        if (type === 'pipeline_stage_start' || type === 'pipeline_stage_end') {
+          const phase = type === 'pipeline_stage_start' ? 'start' : 'end';
+          onEvent({
+            type: 'pipeline_stage',
+            data: JSON.stringify({ phase, ...asRecord(payload) }),
+          });
+          continue;
+        }
+        if (type === 'template_saved') {
+          onEvent({
+            type: 'template_saved',
+            data: JSON.stringify(asRecord(payload)),
+          });
+          continue;
+        }
+        if (type === 'text_delta') {
+          const text = asString(asRecord(payload).text);
+          if (text) {
+            onEvent({ type: 'text', data: text });
+          }
+          continue;
+        }
+        if (type === 'error') {
+          const message = asString(asRecord(payload).message) || '生成失败，请重试';
+          onEvent({ type: 'error', data: message });
+          continue;
+        }
+        if (type === 'done') {
+          emitDone();
+          return;
+        }
+      }
+
+      emitDone();
+    } catch (err) {
+      if (!isStaleOrAborted()) {
+        onEvent({ type: 'error', data: err instanceof Error ? err.message : String(err) });
+        emitDone();
       }
     } finally {
       signal?.removeEventListener('abort', cancelOnAbort);
+      if (this.activeAbortController === abortController) {
+        this.activeAbortController = null;
+      }
     }
   }
 }

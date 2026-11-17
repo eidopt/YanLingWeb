@@ -6,6 +6,7 @@ import type {
   ThemeLayoutDocument,
   ThemeLayoutNode,
 } from '@shared/agent/contracts/agent';
+import { CONTAINER_ALIASES } from '@shared/agent/runtime';
 
 export interface EditorClarificationInput {
   prompt: string;
@@ -40,6 +41,21 @@ function collectNodes(
   node.children?.forEach((child) => {
     collectNodes(child, output, depth + 1, node.id);
   });
+}
+
+function collectDocumentNodes(document: ThemeLayoutDocument, output: NodeCandidate[]): void {
+  const seenRoots = new Set<ThemeLayoutNode>();
+  const pushRoot = (root: ThemeLayoutNode | undefined) => {
+    if (!root || seenRoots.has(root)) {
+      return;
+    }
+    seenRoots.add(root);
+    collectNodes(root, output);
+  };
+  pushRoot(document.layout);
+  for (const page of document.pages) {
+    pushRoot(page.layout);
+  }
 }
 
 function propText(node: ThemeLayoutNode): string {
@@ -84,8 +100,6 @@ const PAGE_CREATION_PATTERNS = [
 function isPageCreationPrompt(prompt: string): boolean {
   return PAGE_CREATION_PATTERNS.some((pattern) => pattern.test(prompt));
 }
-
-import { CONTAINER_ALIASES } from '@shared/agent/editor/applyEditorInstructions.helpers';
 
 const INSERTION_PATTERNS = [
   /\u6dfb\u52a0/,
@@ -350,7 +364,7 @@ export function buildEditorClarification(
   }
 
   const nodes: NodeCandidate[] = [];
-  collectNodes(input.document.layout, nodes);
+  collectDocumentNodes(input.document, nodes);
 
   if (insertionPrompt) {
     const options = buildInsertionTargetOptions(input, nodes);
@@ -454,7 +468,7 @@ export function bindEditorEditTarget(input: EditorClarificationInput): BoundEdit
   }
 
   const nodes: NodeCandidate[] = [];
-  collectNodes(input.document.layout, nodes);
+  collectDocumentNodes(input.document, nodes);
   const ranked = rankEditCandidates(nodes, prompt);
   if (ranked.length === 0 || closeEditCandidates(ranked).length > 1) {
     return null;

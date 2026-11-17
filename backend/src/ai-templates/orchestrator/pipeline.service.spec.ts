@@ -195,6 +195,7 @@ function createExisting(): ExistingTemplateSummary[] {
       diversitySignature: 'editorial medical story',
       componentTemplateAliases: ['hero-story'],
       primaryHue: '#16a34a',
+      layoutSignature: '',
     },
   ];
 }
@@ -256,6 +257,34 @@ describe('TemplatePipelineService', () => {
     expect(critic.runMock.mock.calls).toEqual([[brief, existing, 1]]);
     expect(schemaGenerator.runMock.mock.calls).toEqual([[brief, 1]]);
     expect(verifier.runMock.mock.calls).toEqual([[brief, schema, existing, 1]]);
+  });
+
+  it('emits start and end events for each stage when onStageEvent is provided', async () => {
+    const { service, designer, critic, schemaGenerator, verifier } = createHarness();
+    const brief = createBrief();
+    const schema = createSchema();
+    designer.runMock.mockResolvedValue(stage(1, brief));
+    critic.runMock.mockResolvedValue(stage(1, { verdict: 'pass', conflicts: [] }));
+    schemaGenerator.runMock.mockResolvedValue(stage(1, schema));
+    verifier.runMock.mockResolvedValue(stage(1, passVerdicts()));
+
+    const stageEvents: { phase: 'start' | 'end'; stage: string; status?: string }[] = [];
+    await service.generate({ prompt: 'clinic booking' }, [], {
+      onStageEvent: (phase, payload) => {
+        stageEvents.push({ phase, stage: payload.stage, status: payload.status });
+      },
+    });
+
+    expect(stageEvents).toEqual([
+      { phase: 'start', stage: 'designer', status: undefined },
+      { phase: 'end', stage: 'designer', status: 'ok' },
+      { phase: 'start', stage: 'critic', status: undefined },
+      { phase: 'end', stage: 'critic', status: 'ok' },
+      { phase: 'start', stage: 'schema', status: undefined },
+      { phase: 'end', stage: 'schema', status: 'ok' },
+      { phase: 'start', stage: 'verifier', status: undefined },
+      { phase: 'end', stage: 'verifier', status: 'ok' },
+    ]);
   });
 
   it('returns external results without leaking stage internals', async () => {

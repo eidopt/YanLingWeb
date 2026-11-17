@@ -19,6 +19,7 @@ import {
   buildEditorVolatileContext,
   EDITOR_COPILOT_SYSTEM_PROMPT,
   type EditorAiEditInstruction,
+  firstMissingExistingNode,
   formatUiDesignSkillContextForPrompt,
   inferUiDesignSkillContext,
 } from '@shared/agent/browser';
@@ -197,6 +198,12 @@ export class EditorEditAgent {
         try {
           const edit = editorToolCallToOperations(name, args);
           const operations = parseOperations(edit.operations);
+          const missing = firstMissingExistingNode(currentDocument, operations);
+          if (missing) {
+            call.error = missing.error;
+            call.result = missing;
+            return Promise.resolve({ output: JSON.stringify(missing) });
+          }
           const reason = edit.reason;
           // 快照当前文档，若编辑失败则回滚，防止部分成功导致脏状态
           const preEditSnapshot = structuredClone(currentDocument);

@@ -88,6 +88,7 @@ export function useEditorPageController(): EditorPageController {
 
     const abort = new AbortController();
     let savedTemplateId: string | null = null;
+    let receivedError = false;
 
     void templateAiService.generate({
       prompt: promptParam,
@@ -109,12 +110,17 @@ export function useEditorPageController(): EditorPageController {
           }
         }
         if (event.type === 'done') {
-          editorPageStateActions.finishGeneration(generationKey);
           if (savedTemplateId) {
+            editorPageStateActions.finishGeneration(generationKey);
             router.replace(`/editor?templateId=${encodeURIComponent(savedTemplateId)}`);
+          } else if (!receivedError) {
+            editorPageStateActions.setGenerationError(generationKey, c.generateDefaultError);
+          } else {
+            editorPageStateActions.finishGeneration(generationKey);
           }
         }
         if (event.type === 'error') {
+          receivedError = true;
           editorPageStateActions.setGenerationError(generationKey, event.data || c.generateDefaultError);
         }
       },

@@ -134,23 +134,23 @@ export class SseOutputController {
 
     const frames: SseOutputFrame[] = [];
     let remaining = budget;
-    if (buffer.text.length > 0 && remaining > 0) {
-      const next = takePrefix(buffer.text, remaining);
-      buffer.text = next.rest;
+    if (buffer.reasoning.length > 0 && remaining > 0) {
+      const next = takePrefix(buffer.reasoning, remaining);
+      buffer.reasoning = next.rest;
       remaining -= next.chunk.length;
       frames.push({
         sessionId,
-        kind: 'text',
+        kind: 'reasoning',
         messageId: buffer.messageId,
         text: next.chunk,
       });
     }
-    if (buffer.reasoning.length > 0 && remaining > 0) {
-      const next = takePrefix(buffer.reasoning, remaining);
-      buffer.reasoning = next.rest;
+    if (buffer.text.length > 0 && remaining > 0) {
+      const next = takePrefix(buffer.text, remaining);
+      buffer.text = next.rest;
       frames.push({
         sessionId,
-        kind: 'reasoning',
+        kind: 'text',
         messageId: buffer.messageId,
         text: next.chunk,
       });

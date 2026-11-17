@@ -25,6 +25,8 @@ export type SseEventType =
   | 'clarification'
   // 缓存诊断：每轮结束后 + compaction 触发时 emit
   | 'cache_diagnostic'
+  // 模板生成流水线落库完成事件
+  | 'template_saved'
   // 编辑器流专属:edit_request 携带 editor 实际应用的 operations
   | 'edit_request';
 
@@ -77,10 +79,15 @@ export interface SseEventPayloadByType {
     /** Whether the prefix hash changed since the previous turn. */
     prefixChanged: boolean;
   };
+  template_saved: {
+    templateId: string;
+    action: 'created' | 'updated';
+    name?: string;
+  };
   edit_request: { data: string };
 }
 
-/** 老 ProviderStreamEvent 之外的 9 个新事件 type 集合 (前端订阅口过滤用) */
+/** 老 ProviderStreamEvent 之外的新结构化事件 type 集合 (前端订阅口过滤用) */
 export const NEW_STRUCTURED_SSE_EVENT_TYPES: ReadonlySet<SseEventType> = new Set([
   'tool_start',
   'tool_done',
@@ -91,4 +98,5 @@ export const NEW_STRUCTURED_SSE_EVENT_TYPES: ReadonlySet<SseEventType> = new Set
   'usage_summary',
   'clarification',
   'cache_diagnostic',
+  'template_saved',
 ]);

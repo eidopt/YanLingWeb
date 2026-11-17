@@ -9,7 +9,7 @@ interface ParsedEnvelope {
   payload: Record<string, unknown>;
 }
 
-const ALL_14_TYPES: SseEventType[] = [
+const ALL_EVENT_TYPES: SseEventType[] = [
   'text_delta',
   'tool_call',
   'done',
@@ -24,6 +24,7 @@ const ALL_14_TYPES: SseEventType[] = [
   'clarification',
   'edit_request',
   'cache_diagnostic',
+  'template_saved',
 ];
 
 describe('serializeSseEvent', () => {
@@ -60,14 +61,14 @@ describe('serializeSseEvent', () => {
     expect(parsed.payload.originalType).toBe('text_delta');
   });
 
-  it('accepts all 14 SseEventType string literals as type argument (T4)', () => {
-    // 类型守卫: 这个测试在编译期就保证所有 14 个 type 都能通过 serializeSseEvent
+  it('accepts all SseEventType string literals as type argument (T4)', () => {
+    // 类型守卫: 这个测试在编译期就保证所有 type 都能通过 serializeSseEvent
     // 运行时: 跑一次确保不抛
-    for (const type of ALL_14_TYPES) {
+    for (const type of ALL_EVENT_TYPES) {
       const payload = makeEmptyPayload(type);
       expect(() => serializeSseEvent(type, payload as never)).not.toThrow();
     }
-    expect(ALL_14_TYPES).toHaveLength(14);
+    expect(ALL_EVENT_TYPES).toHaveLength(15);
   });
 
   it('serializes cache_diagnostic payload with prefix hash and hit rate (PR-A)', () => {
@@ -123,5 +124,7 @@ function makeEmptyPayload(type: SseEventType): unknown {
         compactionStrategy: 'skip',
         prefixChanged: false,
       };
+    case 'template_saved':
+      return { templateId: 'tpl-1', action: 'created', name: '模板' };
   }
 }

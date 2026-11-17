@@ -1,13 +1,7 @@
 import type { ThemeLayoutDocument, ThemeLayoutNode } from '../types';
-import {
-  applyEditorAiEditInstructions,
-  type EditorAiEditInstruction,
-} from './applyEditorInstructions';
+import { applyEditorAiEditInstructions, type EditorAiEditInstruction } from './applyEditorInstructions';
 import { findNode } from './applyEditorInstructions.helpers';
-import {
-  buildNodeResolutionError,
-  type NodeResolutionErrorInfo,
-} from './applyEditorInstructions.resolution';
+import { buildNodeResolutionError, type NodeResolutionErrorInfo } from './applyEditorInstructions.resolution';
 import { resolveEditorSemanticTarget } from './semanticTargetResolver';
 
 const EXISTING_NODE_OPS = new Set([
@@ -91,6 +85,15 @@ function requireExisting(
   if (!nodeId) {
     return null;
   }
+  if (pageId) {
+    const page = document.pages.find((item) => item.id === pageId);
+    if (page?.layout) {
+      return findNode(page.layout, nodeId) ? null : missingNode(document, pageId, nodeId);
+    }
+    if (pageId !== document.defaultPageId) {
+      return identityError(`Page not found: ${pageId}`, nodeId);
+    }
+  }
   return findNodeInDocument(document, nodeId) ? null : missingNode(document, pageId, nodeId);
 }
 
@@ -146,9 +149,7 @@ export function firstMissingExistingNode(
 
     if (EXISTING_NODE_OPS.has(type)) {
       if (!nodeId && !semanticTarget) {
-        return identityError(
-          `${type} requires an existing nodeId. Call editor_search_nodes, or pass semanticTarget.`,
-        );
+        return identityError(`${type} requires an existing nodeId. Call editor_search_nodes, or pass semanticTarget.`);
       }
       const missing = requireExisting(document, pageId, nodeId);
       if (missing) {

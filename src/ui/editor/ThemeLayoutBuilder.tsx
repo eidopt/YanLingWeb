@@ -23,8 +23,9 @@ import styles from './ThemeLayoutBuilder.module.css';
 import type { LayoutBuilderTheme } from './types';
 import type { BuilderCanvas } from './types';
 import { cx } from 'base/classname';
+import { buildLayoutDocumentFromCanvases } from 'domain/editor/autosaveStrategy';
 import { flattenNodes } from 'domain/template';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   type EditorBuilderInteractionMode,
   editorBuilderUiStateActions,
@@ -145,6 +146,10 @@ export function ThemeLayoutBuilder({
   const currentPageName = (activeCanvas.document.pageName ?? '') || activeCanvas.name || defaultPageName;
   const isPreviewMode = interactionMode === 'preview';
   const documentForRender = previewDocument ?? currentDocument;
+  const aiDocument = useMemo(
+    () => buildLayoutDocumentFromCanvases(canvases, activeCanvasId),
+    [activeCanvasId, canvases],
+  );
 
   // B.3: AI 面板的 undo 状态（localStorage 持久化），由父组件托管以实现跨组件触发 undo。
   const [undoState] = useState(() => new EditorAiPanelState());
@@ -521,6 +526,7 @@ export function ThemeLayoutBuilder({
             <EditorAiPanel
               templateId={activeTheme.id}
               currentDocument={currentDocument}
+              documentForAi={aiDocument}
               pages={canvases.map((canvas) => ({
                 pageId: canvas.document.defaultPageId,
                 name: canvas.document.pageName ?? canvas.name,

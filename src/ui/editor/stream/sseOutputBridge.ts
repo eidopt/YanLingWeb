@@ -130,6 +130,7 @@ function createFallbackBridge(onFrames: CreateSseOutputBridgeOptions['onFrames']
       if (frames.length > 0) {
         onFrames(sessionId, frames);
       }
+      stopTimer();
       return Promise.resolve();
     },
     reset: () => {

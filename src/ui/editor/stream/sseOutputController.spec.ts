@@ -46,6 +46,26 @@ void describe('sse output controller', () => {
     assert.equal(frames[0]?.kind, 'reasoning');
     assert.equal(frames[0]?.text, '新流');
   });
+
+  void it('drains buffered reasoning before text to preserve output order', () => {
+    const controller = new SseOutputController();
+    controller.start('run-1');
+    controller.enqueue('run-1', { kind: 'reasoning', messageId: 'a', text: '先思考过程'.repeat(10) });
+    controller.enqueue('run-1', { kind: 'text', messageId: 'a', text: '再输出正文' });
+
+    const first = controller.tick('run-1');
+    assert.equal(first[0]?.kind, 'reasoning');
+    assert.equal(
+      first.some((frame) => frame.kind === 'text'),
+      false,
+    );
+
+    const rest = controller.flush('run-1');
+    assert.deepEqual(
+      rest.map((frame) => frame.kind),
+      ['reasoning', 'text'],
+    );
+  });
 });
 
 void describe('conversation history load', () => {

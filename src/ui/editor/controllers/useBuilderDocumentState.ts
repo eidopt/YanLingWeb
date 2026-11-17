@@ -183,7 +183,15 @@ export function useBuilderDocumentState(themes: LayoutBuilderTheme[], initialThe
     const liveActiveCanvas = liveCanvases.find((canvas) => canvas.id === activeCanvasIdRef.current) ?? liveCanvases[0];
     const liveActiveTheme = themes.find((theme) => theme.id === liveActiveCanvas.themeId) ?? activeTheme;
 
-    if (instructions.some(needsMultiPageContext)) {
+    const targetsOtherPage = instructions.some(
+      (instruction) =>
+        'pageId' in instruction &&
+        typeof instruction.pageId === 'string' &&
+        instruction.pageId.trim().length > 0 &&
+        instruction.pageId.trim() !== liveActiveCanvas.document.defaultPageId,
+    );
+
+    if (targetsOtherPage || instructions.some(needsMultiPageContext)) {
       const result = applyAiEditInstructionsToCanvases({
         canvases: liveCanvases,
         activeCanvasId: liveActiveCanvas.id,

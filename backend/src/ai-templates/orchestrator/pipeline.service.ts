@@ -10,7 +10,10 @@ import type {
   ExistingTemplateSummary,
   PipelineExternalResult,
   PipelineFailure,
+  PipelineGenerateOptions,
   PipelineResult,
+  PipelineStageEventCallback,
+  PipelineStageEventPayload,
   PipelineStageRecord,
   SchemaOutput,
   TemplateSeed,
@@ -49,13 +52,20 @@ export class TemplatePipelineService {
     private readonly verifier: VerifierAgent,
   ) {}
 
-  async generate(seed: TemplateSeed, existing: ExistingTemplateSummary[]): Promise<PipelineResult> {
+  async generate(
+    seed: TemplateSeed,
+    existing: ExistingTemplateSummary[],
+    options?: PipelineGenerateOptions,
+  ): Promise<PipelineResult> {
     const pipelineStart = Date.now();
     const stages: AccumulatedStages = {
       designer: [],
       critic: [],
       schema: [],
       verifier: [],
+    };
+    const emitStage = (phase: 'start' | 'end', payload: PipelineStageEventPayload): void => {
+      this.safeEmitStage(options?.onStageEvent, phase, payload);
     };
 
     let reviseSuggestion: string | undefined;
@@ -65,12 +75,46 @@ export class TemplatePipelineService {
       this.logger.log(`pipeline attempt ${attempt}/${MAX_PIPELINE_ATTEMPTS} for "${seed.prompt}"`);
 
       // Stage 1: Designer
-      const designerRecord = await this.designer.run(seed, reviseSuggestion, attempt);
+      emitStage('start', { stage: 'designer', attempt });
+      let designerRecord: PipelineStageRecord<DesignerOutput>;
+      const designerStart = Date.now();
+      try {
+        designerRecord = await this.designer.run(seed, reviseSuggestion, attempt);
+      } catch (err) {
+        emitStage('end', {
+          stage: 'designer',
+          attempt,
+          durationMs: Date.now() - designerStart,
+          status: 'failed',
+          error: err instanceof Error ? err.message : String(err),
+        });
+        throw err;
+      }
+      emitStage('end', {
+        stage: 'designer',
+        attempt,
+        durationMs: designerRecord.durationMs,
+        status: 'ok',
+      });
       stages.designer.push(designerRecord);
       const brief = designerRecord.output;
 
       // Stage 2: Diversity Critic
-      const criticRecord = await this.critic.run(brief, existing, attempt);
+      emitStage('start', { stage: 'critic', attempt });
+      let criticRecord: PipelineStageRecord<CriticVerdict>;
+      const criticStart = Date.now();
+      try {
+        criticRecord = await this.critic.run(brief, existing, attempt);
+      } catch (err) {
+        emitStage('end', {
+          stage: 'critic',
+          attempt,
+          durationMs: Date.now() - criticStart,
+          status: 'failed',
+          error: err instanceof Error ? err.message : String(err),
+        });
+        throw err;
+      }
       stages.critic.push(criticRecord);
       if (criticRecord.output.verdict === 'revise') {
         reviseSuggestion = this.buildCriticReviseSuggestion(criticRecord.output);
@@ -79,16 +123,31 @@ export class TemplatePipelineService {
         // 但**最后一次 attempt 即使仍 revise 也放行到 Schema** —— 不让 diversity 把
         // attempts 吃光、导致整条生成彻底失败（产出一个稍欠差异化的模板远胜于没有产出）。
         if (attempt < MAX_PIPELINE_ATTEMPTS) {
+          emitStage('end', {
+            stage: 'critic',
+            attempt,
+            durationMs: criticRecord.durationMs,
+            status: 'failed',
+            error: reviseSuggestion,
+          });
           this.logger.warn(`attempt ${attempt} critic revise — retrying`);
           continue;
         }
         this.logger.warn(`attempt ${attempt} critic revise — 末次放行（diversity best-effort）`);
       }
+      emitStage('end', {
+        stage: 'critic',
+        attempt,
+        durationMs: criticRecord.durationMs,
+        status: 'ok',
+      });
 
       // Stage 3: Schema Generation
       // Pipeline-level retries: re-run schemaGenerator with the same brief,
       // without going back to Designer. Only fall back to Designer when all
       // pipeline retries are exhausted.
+      emitStage('start', { stage: 'schema', attempt });
+      const schemaStart = Date.now();
       let schemaRecord: PipelineStageRecord<SchemaOutput> | undefined;
       const SCHEMA_STAGE_RETRIES = 3;
       const SCHEMA_PIPELINE_RETRIES = 2;
@@ -125,19 +184,52 @@ export class TemplatePipelineService {
       }
 
       if (!schemaRecord) {
+        emitStage('end', {
+          stage: 'schema',
+          attempt,
+          durationMs: Date.now() - schemaStart,
+          status: 'failed',
+          error: lastSchemaError,
+        });
         reviseSuggestion = `Stage 3 schema generation failed: ${lastSchemaError}`;
         lastError = `schema gen throw: ${lastSchemaError}`;
         continue;
       }
+      emitStage('end', {
+        stage: 'schema',
+        attempt,
+        durationMs: schemaRecord.durationMs,
+        status: 'ok',
+      });
       stages.schema.push(schemaRecord);
 
       // Stage 4: Verifier (3 lenses concurrently inside)
+      emitStage('start', { stage: 'verifier', attempt });
+      const verifierStart = Date.now();
       const schemaOutput = schemaRecord.output;
-      const verifierRecord = await this.verifier.run(brief, schemaOutput, existing, attempt);
+      let verifierRecord: PipelineStageRecord<VerifierVerdict[]>;
+      try {
+        verifierRecord = await this.verifier.run(brief, schemaOutput, existing, attempt);
+      } catch (err) {
+        emitStage('end', {
+          stage: 'verifier',
+          attempt,
+          durationMs: Date.now() - verifierStart,
+          status: 'failed',
+          error: err instanceof Error ? err.message : String(err),
+        });
+        throw err;
+      }
       stages.verifier.push(verifierRecord);
 
       const failedLenses = verifierRecord.output.filter((v) => !v.pass);
       if (failedLenses.length === 0) {
+        emitStage('end', {
+          stage: 'verifier',
+          attempt,
+          durationMs: verifierRecord.durationMs,
+          status: 'ok',
+        });
         return {
           templateId: brief.templateId,
           document: schemaOutput.document,
@@ -149,6 +241,13 @@ export class TemplatePipelineService {
       }
 
       reviseSuggestion = failedLenses.map((v) => `[${v.lens}] ${v.summary}`).join(' | ');
+      emitStage('end', {
+        stage: 'verifier',
+        attempt,
+        durationMs: verifierRecord.durationMs,
+        status: 'failed',
+        error: reviseSuggestion,
+      });
       lastError = `verifier fail: ${reviseSuggestion}`;
       this.logger.warn(`attempt ${attempt} verifier fail — retrying`);
     }
@@ -220,6 +319,21 @@ export class TemplatePipelineService {
       }
     });
     return `${base}\n结构化修订动作:\n${actionLines.join('\n')}`;
+  }
+
+  private safeEmitStage(
+    callback: PipelineStageEventCallback | undefined,
+    phase: 'start' | 'end',
+    payload: PipelineStageEventPayload,
+  ): void {
+    if (!callback) {
+      return;
+    }
+    try {
+      callback(phase, payload);
+    } catch (err) {
+      this.logger.warn(`onStageEvent threw: ${err instanceof Error ? err.message : String(err)}`);
+    }
   }
 
   private buildCriticReviseSuggestion(verdict: CriticVerdict): string {

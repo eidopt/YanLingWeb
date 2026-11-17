@@ -184,6 +184,7 @@ describe('TypeOrmTemplateReadRepository', () => {
           componentTemplates: row.componentTemplates,
           cssVars: row.cssVars,
           accent: row.accent,
+          layoutDocument: row.layoutDocument,
         },
       ]);
     });
