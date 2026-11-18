@@ -39,6 +39,7 @@ interface TokenUsagePayload {
 @Injectable()
 export class TokenUsageService {
   private readonly logger = new Logger(TokenUsageService.name);
+  private readonly userBalanceLocks = new Map<string, Promise<void>>();
 
   constructor(
     @Inject(TOKEN_USAGE_REPOSITORY)
@@ -75,19 +76,40 @@ export class TokenUsageService {
         cacheMissTokens: this.sanitizeOptionalTokenCount(usage.cacheMissTokens),
       });
 
-      const user = await this.users.findById(ownerUserId);
-      if (user) {
-        const currentUsed = BigInt(user.tokensUsed);
-        user.tokensUsed = (currentUsed + BigInt(totalTokens)).toString();
-        user.tokensBalance = Math.max(0, user.tokensBalance - totalTokens);
-        await this.users.save(user);
-      }
+      await this.enqueueUserBalanceUpdate(ownerUserId, totalTokens);
     } catch (err) {
       this.logger.error(
         'Failed to record AI token usage',
         err instanceof Error ? err.message : err,
       );
     }
+  }
+
+  private async applyUserBalanceUpdate(ownerUserId: string, totalTokens: number): Promise<void> {
+    const user = await this.users.findById(ownerUserId);
+    if (!user) {
+      return;
+    }
+    const currentUsed = BigInt(user.tokensUsed);
+    user.tokensUsed = (currentUsed + BigInt(totalTokens)).toString();
+    user.tokensBalance = Math.max(0, user.tokensBalance - totalTokens);
+    await this.users.save(user);
+  }
+
+  private enqueueUserBalanceUpdate(ownerUserId: string, totalTokens: number): Promise<void> {
+    const previous = this.userBalanceLocks.get(ownerUserId) ?? Promise.resolve();
+    const next = previous.then(() => this.applyUserBalanceUpdate(ownerUserId, totalTokens));
+    const settled = next.then(
+      () => undefined,
+      () => undefined,
+    );
+    const tracked = settled.finally(() => {
+      if (this.userBalanceLocks.get(ownerUserId) === tracked) {
+        this.userBalanceLocks.delete(ownerUserId);
+      }
+    });
+    this.userBalanceLocks.set(ownerUserId, tracked);
+    return next;
   }
 
   logCacheUsage(

@@ -67,6 +67,7 @@ export class TemplatePipelineService {
     const emitStage = (phase: 'start' | 'end', payload: PipelineStageEventPayload): void => {
       this.safeEmitStage(options?.onStageEvent, phase, payload);
     };
+    const ownerUserId = options?.ownerUserId;
 
     let reviseSuggestion: string | undefined;
     let lastError: string | undefined;
@@ -79,7 +80,7 @@ export class TemplatePipelineService {
       let designerRecord: PipelineStageRecord<DesignerOutput>;
       const designerStart = Date.now();
       try {
-        designerRecord = await this.designer.run(seed, reviseSuggestion, attempt);
+        designerRecord = await this.designer.run(seed, reviseSuggestion, attempt, ownerUserId);
       } catch (err) {
         emitStage('end', {
           stage: 'designer',
@@ -104,7 +105,7 @@ export class TemplatePipelineService {
       let criticRecord: PipelineStageRecord<CriticVerdict>;
       const criticStart = Date.now();
       try {
-        criticRecord = await this.critic.run(brief, existing, attempt);
+        criticRecord = await this.critic.run(brief, existing, attempt, ownerUserId);
       } catch (err) {
         emitStage('end', {
           stage: 'critic',
@@ -156,7 +157,7 @@ export class TemplatePipelineService {
       for (let pipelineRetry = 0; pipelineRetry <= SCHEMA_PIPELINE_RETRIES; pipelineRetry++) {
         for (let stageRetry = 0; stageRetry < SCHEMA_STAGE_RETRIES; stageRetry++) {
           try {
-            schemaRecord = await this.schemaGenerator.run(brief, attempt);
+            schemaRecord = await this.schemaGenerator.run(brief, attempt, ownerUserId);
             break;
           } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
@@ -209,7 +210,13 @@ export class TemplatePipelineService {
       const schemaOutput = schemaRecord.output;
       let verifierRecord: PipelineStageRecord<VerifierVerdict[]>;
       try {
-        verifierRecord = await this.verifier.run(brief, schemaOutput, existing, attempt);
+        verifierRecord = await this.verifier.run(
+          brief,
+          schemaOutput,
+          existing,
+          attempt,
+          ownerUserId,
+        );
       } catch (err) {
         emitStage('end', {
           stage: 'verifier',
@@ -240,7 +247,82 @@ export class TemplatePipelineService {
         };
       }
 
-      reviseSuggestion = failedLenses.map((v) => `[${v.lens}] ${v.summary}`).join(' | ');
+      this.logVerifierFailures(attempt, failedLenses);
+
+      // 末次 diversity best-effort：如果前 2 轮已尝试差异化，第 3 轮仅 diversity 未通过
+      // （spec-compliance 与 business-fidelity 均已通过），放行输出合格模板，不浪费整条链路。
+      if (attempt === MAX_PIPELINE_ATTEMPTS && this.isDiversityOnlyFailure(failedLenses)) {
+        this.logger.warn(
+          `attempt ${attempt} verifier 仅 diversity 未通过 — 末次放行（diversity best-effort）`,
+        );
+        emitStage('end', {
+          stage: 'verifier',
+          attempt,
+          durationMs: verifierRecord.durationMs,
+          status: 'ok',
+        });
+        return {
+          templateId: brief.templateId,
+          document: schemaOutput.document,
+          brief,
+          stages,
+          totalDurationMs: Date.now() - pipelineStart,
+          totalAttempts: attempt,
+        };
+      }
+
+      // 分级修复：如果是 spec-compliance / business-fidelity 问题，先尝试对现有 schema 做 1 次
+      // 局部修补并复检，避免每次都直接杀回 Stage 1 从 Designer 重头重跑。
+      const repairedSchemaRecord = await this.schemaGenerator.repairFromVerifierFeedback(
+        brief,
+        schemaOutput,
+        failedLenses,
+        attempt,
+        ownerUserId,
+      );
+      if (repairedSchemaRecord) {
+        stages.schema.push(repairedSchemaRecord);
+        const reverifyRecord = await this.verifier.run(
+          brief,
+          repairedSchemaRecord.output,
+          existing,
+          attempt,
+          ownerUserId,
+        );
+        stages.verifier.push(reverifyRecord);
+        const remainingFailed = reverifyRecord.output.filter((v) => !v.pass);
+        if (
+          remainingFailed.length === 0 ||
+          (attempt === MAX_PIPELINE_ATTEMPTS && this.isDiversityOnlyFailure(remainingFailed))
+        ) {
+          if (remainingFailed.length > 0) {
+            this.logger.warn(
+              `attempt ${attempt} verifier 修复后仅 diversity 未通过 — 末次放行（diversity best-effort）`,
+            );
+          } else {
+            this.logger.log(`attempt ${attempt} verifier 局部修复成功，跳过回退 Stage 1`);
+          }
+          emitStage('end', {
+            stage: 'verifier',
+            attempt,
+            durationMs: verifierRecord.durationMs + repairedSchemaRecord.durationMs,
+            status: 'ok',
+          });
+          return {
+            templateId: brief.templateId,
+            document: repairedSchemaRecord.output.document,
+            brief,
+            stages,
+            totalDurationMs: Date.now() - pipelineStart,
+            totalAttempts: attempt,
+          };
+        }
+        this.logVerifierFailures(attempt, remainingFailed, 'after-repair');
+        reviseSuggestion = this.formatVerifierSummary(remainingFailed);
+      } else {
+        reviseSuggestion = this.formatVerifierSummary(failedLenses);
+      }
+
       emitStage('end', {
         stage: 'verifier',
         attempt,
@@ -249,7 +331,7 @@ export class TemplatePipelineService {
         error: reviseSuggestion,
       });
       lastError = `verifier fail: ${reviseSuggestion}`;
-      this.logger.warn(`attempt ${attempt} verifier fail — retrying`);
+      this.logger.warn(`attempt ${attempt} verifier fail — retrying (${reviseSuggestion})`);
     }
 
     const issue = lastError ?? 'unknown';
@@ -338,5 +420,35 @@ export class TemplatePipelineService {
 
   private buildCriticReviseSuggestion(verdict: CriticVerdict): string {
     return TemplatePipelineService.buildCriticReviseSuggestion(verdict);
+  }
+
+  private isDiversityOnlyFailure(failedLenses: readonly VerifierVerdict[]): boolean {
+    return failedLenses.length > 0 && failedLenses.every((v) => v.lens === 'diversity');
+  }
+
+  private formatVerifierSummary(failedLenses: readonly VerifierVerdict[]): string {
+    return failedLenses.map((v) => `[${v.lens}] ${v.summary}`).join(' | ');
+  }
+
+  private logVerifierFailures(
+    attempt: number,
+    failedLenses: readonly VerifierVerdict[],
+    phaseLabel = 'initial',
+  ): void {
+    for (const verdict of failedLenses) {
+      const failureDetails = verdict.failures
+        .slice(0, 5)
+        .map(
+          (f) =>
+            `${f.rule || 'rule'}(${f.severity})${f.location ? `@${f.location}` : ''}: ${
+              f.description
+            }`,
+        )
+        .join('; ');
+      this.logger.warn(
+        `attempt ${attempt} verifier[${phaseLabel}] [${verdict.lens}] fail: ${verdict.summary}` +
+          (failureDetails ? ` | ${failureDetails}` : ''),
+      );
+    }
   }
 }

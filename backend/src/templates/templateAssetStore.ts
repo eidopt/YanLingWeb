@@ -1,7 +1,9 @@
 import { existsSync, promises as fs } from 'node:fs';
 import * as path from 'node:path';
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
+
+import { ConfigService } from '../config/config.service';
 
 /**
  * 一张已存储模板图片的引用：可直接用作 core.image 的 src 的公共 URL，
@@ -83,6 +85,8 @@ export const TEMPLATE_ASSET_STORE = 'TEMPLATE_ASSET_STORE';
  */
 @Injectable()
 export class LocalDiskTemplateAssetStore implements TemplateAssetStore {
+  constructor(@Optional() private readonly config?: ConfigService) {}
+
   findExisting(templateId: string, assetId: string): Promise<StoredImage | null> {
     const target = this.buildTarget(templateId, assetId);
     if (!existsSync(target.outputPath)) {
@@ -116,7 +120,7 @@ export class LocalDiskTemplateAssetStore implements TemplateAssetStore {
     const outputPath = path.join(assetsRoot, 'generated', templateSegment, `${assetSegment}.png`);
     return {
       outputPath,
-      url: `/template-assets/${relativeStorageKey}`,
+      url: buildTemplateAssetPublicUrl(relativeStorageKey, this.config?.ai.image.publicBaseUrl),
       storageKey: relativeStorageKey,
     };
   }
@@ -124,6 +128,25 @@ export class LocalDiskTemplateAssetStore implements TemplateAssetStore {
   private resolveTemplateAssetsRoot(): string {
     return resolveTemplateAssetsRoot();
   }
+}
+
+/**
+ * 拼装生成图片的对前端/客户端暴露 URL：
+ *  - 若配置了 `AI_IMAGE_PUBLIC_BASE_URL`（如 `https://cdn.example.com/template-assets` 或
+ *    `https://api.example.com/api/template-assets`），返回 `<publicBaseUrl>/<relativeStorageKey>`；
+ *  - 未配置时返回 `/template-assets/<relativeStorageKey>`（由前端 public/ 或 Next fallback
+ *    代理到后端 `/api/template-assets/*`）。
+ */
+export function buildTemplateAssetPublicUrl(
+  relativeStorageKey: string,
+  publicBaseUrl?: string,
+): string {
+  const cleanKey = relativeStorageKey.replace(/^\/+/, '');
+  const cleanBase = publicBaseUrl?.trim().replace(/\/+$/, '');
+  if (cleanBase) {
+    return `${cleanBase}/${cleanKey}`;
+  }
+  return `/template-assets/${cleanKey}`;
 }
 
 /**

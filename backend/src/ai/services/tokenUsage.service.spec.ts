@@ -83,6 +83,14 @@ class FakeUserAccountRepository implements UserAccountRepository {
     this.users.delete(user.id);
     return Promise.resolve();
   }
+
+  consumeFreeChatQuota(): Promise<boolean> {
+    return Promise.resolve(true);
+  }
+
+  consumeFreeTemplateGenQuota(): Promise<boolean> {
+    return Promise.resolve(true);
+  }
 }
 
 function createUser(overrides: Partial<User> = {}): User {
@@ -96,6 +104,9 @@ function createUser(overrides: Partial<User> = {}): User {
     wechatOpenId: null,
     qqOpenId: null,
     linkedLogins: ['local'],
+    userType: 'normal',
+    freeChatUsedCount: 0,
+    freeTemplateGenUsedCount: 0,
     tokensUsed: '12',
     tokensBalance: 88,
     balanceCents: 0,
@@ -257,6 +268,42 @@ describe('TokenUsageService repository boundary', () => {
           hitRate: '0.0%',
         },
       ],
+    });
+  });
+
+  it('serializes concurrent user balance updates for parallel pipeline calls', async () => {
+    const { service, tokenUsage, users } = createService();
+    users.users.set('user-1', createUser({ tokensUsed: '100', tokensBalance: 900 }));
+
+    await Promise.all([
+      service.recordTokenUsage(
+        'user-1',
+        'MiniMax-M2.7-highspeed',
+        { inputTokens: 120, outputTokens: 30, cacheHitTokens: 20 },
+        'ai-templates',
+        'minimax',
+      ),
+      service.recordTokenUsage(
+        'user-1',
+        'MiniMax-M2.7-highspeed',
+        { inputTokens: 200, outputTokens: 50 },
+        'ai-templates',
+        'minimax',
+      ),
+      service.recordTokenUsage(
+        'user-1',
+        'MiniMax-M2.7-highspeed',
+        { inputTokens: 80, outputTokens: 20 },
+        'ai-templates',
+        'minimax',
+      ),
+    ]);
+
+    expect(tokenUsage.records).toHaveLength(3);
+    expect(tokenUsage.records.every((r) => r.endpoint === 'ai-templates')).toBe(true);
+    expect(users.users.get('user-1')).toMatchObject({
+      tokensUsed: '600',
+      tokensBalance: 400,
     });
   });
 });

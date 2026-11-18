@@ -1,46 +1,68 @@
-import OpenAI from 'openai';
+import {
+  type ImageGenerationConfig,
+  type ImageGenerationRequest,
+  type ImageOutputFormat,
+  resolveImageProviderAdapter,
+} from './imageProviders';
 
-/** OpenAI Images 调用所需的最小配置。 */
-export interface ImageGenerationConfig {
-  apiKey: string;
+export type { ImageGenerationConfig, ImageGenerationRequest, ImageOutputFormat };
+
+export interface GenerateImageOptions {
+  size?: string;
+  aspectRatio?: string;
+  outputFormat?: ImageOutputFormat;
+}
+
+export interface ResolvedImageEnvConfig {
+  provider?: string;
+  model?: string;
+  apiKey?: string;
   baseUrl?: string;
-  model: string;
+  timeoutMs?: number;
+  maxRetries?: number;
+  outputFormat?: ImageOutputFormat;
 }
-
-interface ImageGenerationDataItem {
-  b64_json?: string;
-  url?: string;
-}
-
-interface ImageGenerationResponse {
-  data?: ImageGenerationDataItem[];
-}
-
-const DEFAULT_IMAGE_SIZE = '1024x1024';
 
 /**
- * 调用 OpenAI Images API 生成一张图，返回 PNG 字节。
+ * 将 `config.ai.image` 转换为底层生图配置；缺少 apiKey 或 model 时返回 null。
+ */
+export function toImageGenerationConfig(
+  image: ResolvedImageEnvConfig,
+  fallbackModel?: string,
+): ImageGenerationConfig | null {
+  const model = image.model ?? fallbackModel;
+  if (!image.apiKey || !model) {
+    return null;
+  }
+  return {
+    apiKey: image.apiKey,
+    model,
+    ...(image.baseUrl ? { baseUrl: image.baseUrl } : {}),
+    ...(image.provider ? { provider: image.provider } : {}),
+    ...(image.timeoutMs !== undefined ? { timeoutMs: image.timeoutMs } : {}),
+    ...(image.maxRetries !== undefined ? { maxRetries: image.maxRetries } : {}),
+    ...(image.outputFormat ? { outputFormat: image.outputFormat } : {}),
+  };
+}
+
+/**
+ * 调用生图 Provider 生成一张图，返回图像字节。
  * 被 TemplateAssetService（模板配图）和 AssetLibraryService（素材库预生成）共用，
- * 保证两处生图逻辑一致。
+ * 底层通过 imageProviders 注册表按配置/适配器路由，便于扩展多种生图模型与完整 URL。
  */
 export async function generateImageBytes(
   config: ImageGenerationConfig,
   prompt: string,
-  size: string = DEFAULT_IMAGE_SIZE,
+  sizeOrOptions?: string | GenerateImageOptions,
 ): Promise<Buffer> {
-  const openai = new OpenAI({ apiKey: config.apiKey, baseURL: config.baseUrl });
-  const response = await openai.images.generate({ model: config.model, prompt, n: 1, size });
-  const image = (response as ImageGenerationResponse).data?.[0];
-
-  if (image?.b64_json) {
-    return Buffer.from(image.b64_json, 'base64');
-  }
-  if (image?.url) {
-    const result = await fetch(image.url);
-    if (!result.ok) {
-      throw new Error(`failed to download generated image (${result.status})`);
-    }
-    return Buffer.from(await result.arrayBuffer());
-  }
-  throw new Error('image provider returned no image payload');
+  const options: GenerateImageOptions =
+    typeof sizeOrOptions === 'string' ? { size: sizeOrOptions } : (sizeOrOptions ?? {});
+  const adapter = resolveImageProviderAdapter(config);
+  const request: ImageGenerationRequest = {
+    prompt,
+    ...(options.size ? { size: options.size } : {}),
+    ...(options.aspectRatio ? { aspectRatio: options.aspectRatio } : {}),
+    ...(options.outputFormat ? { outputFormat: options.outputFormat } : {}),
+  };
+  return adapter.generate(config, request);
 }

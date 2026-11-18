@@ -139,4 +139,49 @@ void describe('EditorAiService envelope event translation', () => {
     assert.equal(parsed.usage.outputTokens, 50);
     assert.equal(parsed.totalCostUsd, 0.001);
   });
+
+  void it('extracts clean backend message from non-OK JSON error responses (e.g. 403 quota)', async () => {
+    const events: { type: string; data: string; terminal?: boolean }[] = [];
+    const mockHttp: HttpClient = {
+      json: () => {
+        throw new Error('not implemented');
+      },
+      stream: (): Promise<HttpStreamResult> =>
+        Promise.resolve({
+          response: {
+            ok: false,
+            status: 403,
+            text: () =>
+              Promise.resolve(
+                JSON.stringify({
+                  statusCode: 403,
+                  code: 'FREE_CHAT_QUOTA_EXCEEDED',
+                  message: '免费余额度已用完，普通用户总对话次数不能超过 3 次，需要充值后继续使用。',
+                }),
+              ),
+          } as unknown as Response,
+          events: toAsyncIterable([]),
+        }),
+    };
+
+    const service = new EditorAiService(() => 'token', undefined, mockHttp);
+    await service.editCanvas({
+      prompt: 'test',
+      document: createMockDocument(),
+      getCurrentDocument: createMockDocument,
+      onSnapshot: () => undefined,
+      onEvent: (e) => events.push({ type: e.type, data: e.data, terminal: e.terminal }),
+      applyInstructions: () => ({
+        errors: [],
+        applied: [],
+        selectedNodeId: null,
+        document: createMockDocument(),
+      }),
+    });
+
+    assert.equal(events.length, 1);
+    assert.equal(events[0].type, 'error');
+    assert.equal(events[0].data, '免费余额度已用完，普通用户总对话次数不能超过 3 次，需要充值后继续使用。');
+    assert.equal(events[0].terminal, true);
+  });
 });

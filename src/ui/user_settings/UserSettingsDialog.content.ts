@@ -6,6 +6,12 @@ export const userSettingsDialogContent = {
   logout: '退出登录',
   tokenUsage: {
     title: 'Token 使用量',
+    userType: '用户类型',
+    userTypeNormal: '普通用户',
+    userTypePro: '专业版用户',
+    freeChatRemaining: '免费对话剩余',
+    freeTemplateRemaining: '从零生成模板剩余',
+    unlimited: '不限',
     used: '已使用',
     balance: '剩余额度',
     input: '输入 Token',

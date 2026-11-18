@@ -7,9 +7,10 @@ import { Repository } from 'typeorm';
 
 import { ConfigService } from '../config/config.service';
 import { AssetLibraryImage } from './entities/assetLibraryImage.entity';
-import { generateImageBytes } from './imageGeneration';
+import { generateImageBytes, toImageGenerationConfig } from './imageGeneration';
 import {
   type AssetLookupContext,
+  buildTemplateAssetPublicUrl,
   resolveTemplateAssetsRoot,
   safePathSegment,
   type StoredImage,
@@ -100,9 +101,8 @@ export class AssetLibraryService implements OnModuleInit {
     if (await this.existsBySlug(spec.slug)) {
       return { slug: spec.slug, status: 'skipped', reason: 'already in library' };
     }
-    const apiKey = this.config.ai.apiKey;
-    const model = this.config.ai.models.image;
-    if (!apiKey || !model) {
+    const imageConfig = toImageGenerationConfig(this.config.ai.image, this.config.ai.models.image);
+    if (!imageConfig) {
       return {
         slug: spec.slug,
         status: 'failed',
@@ -110,10 +110,9 @@ export class AssetLibraryService implements OnModuleInit {
       };
     }
     try {
-      const bytes = await generateImageBytes(
-        { apiKey, baseUrl: this.config.ai.baseUrl, model },
-        spec.prompt,
-      );
+      const bytes = await generateImageBytes(imageConfig, spec.prompt, {
+        outputFormat: imageConfig.outputFormat ?? 'png',
+      });
       const stored = await this.storeToPool(spec.category, spec.slug, bytes);
       const embedding = await this.computeEmbedding(
         this.buildEmbeddingText({ alt: spec.alt, keywords: spec.keywords, prompt: spec.prompt }),
@@ -280,7 +279,7 @@ export class AssetLibraryService implements OnModuleInit {
       try {
         const result = await this.registerExisting({
           ...meta,
-          url: `/template-assets/${storageKey}`,
+          url: buildTemplateAssetPublicUrl(storageKey, this.config.ai.image.publicBaseUrl),
           storageKey,
         });
         if (result.status === 'created') {
@@ -408,6 +407,9 @@ export class AssetLibraryService implements OnModuleInit {
     const outputPath = path.join(root, 'pool', categorySegment, `${slugSegment}.png`);
     await fs.mkdir(path.dirname(outputPath), { recursive: true });
     await fs.writeFile(outputPath, bytes);
-    return { url: `/template-assets/${relativeStorageKey}`, storageKey: relativeStorageKey };
+    return {
+      url: buildTemplateAssetPublicUrl(relativeStorageKey, this.config.ai.image.publicBaseUrl),
+      storageKey: relativeStorageKey,
+    };
   }
 }

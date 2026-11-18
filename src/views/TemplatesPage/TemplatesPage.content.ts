@@ -11,9 +11,9 @@ export const templatesPageContent = {
   sortLabel: '排序',
   sortOptions: {
     default: '默认',
-    'name-asc': '名称 A-Z',
+    'name-asc': '按名称排序',
     newest: '最新',
   },
   resultCount: (count: number) => `${count} 个模板`,
-  searchShortcut: 'Ctrl+K',
+  searchShortcut: '快捷键 Ctrl+K',
 } as const;

@@ -4,7 +4,7 @@ import { asBoolean, asNumber } from '../../valueResolvers';
 import type { SliderProps } from '../propsTypes';
 import type { CoreNodeProps } from '../types';
 import styles from './SliderNode.module.css';
-import { type CSSProperties,useState } from 'react';
+import { type CSSProperties, useState } from 'react';
 
 type RangeValue = [number, number];
 
@@ -33,12 +33,7 @@ export function SliderNode({ props, nodeLayoutStyle }: CoreNodeProps<SliderProps
   const step = Math.max(asNumber(props.step, 1), 0.0001);
   const value = clamp(asNumber(props.value, max), min, max);
   const range = asBoolean(props.range);
-  const initialRange = normalizeRange(
-    asNumber(props.startValue, min),
-    asNumber(props.endValue, value),
-    min,
-    max,
-  );
+  const initialRange = normalizeRange(asNumber(props.startValue, min), asNumber(props.endValue, value), min, max);
   const rangeKey = `${initialRange[0]}:${initialRange[1]}:${min}:${max}:${step}`;
   const [localRange, setLocalRange] = useState<{ key: string; value: RangeValue }>(() => ({
     key: rangeKey,
@@ -62,7 +57,7 @@ export function SliderNode({ props, nodeLayoutStyle }: CoreNodeProps<SliderProps
           <input
             type="range"
             className={`${styles.slider} ${styles.rangeInput} ${styles.rangeInputStart}`}
-            aria-label="Range start"
+            aria-label="范围起点"
             value={start}
             min={min}
             max={max}
@@ -75,7 +70,7 @@ export function SliderNode({ props, nodeLayoutStyle }: CoreNodeProps<SliderProps
           <input
             type="range"
             className={`${styles.slider} ${styles.rangeInput} ${styles.rangeInputEnd}`}
-            aria-label="Range end"
+            aria-label="范围终点"
             value={end}
             min={min}
             max={max}
@@ -92,14 +87,7 @@ export function SliderNode({ props, nodeLayoutStyle }: CoreNodeProps<SliderProps
 
   return (
     <div className={styles.field} style={nodeLayoutStyle}>
-      <input
-        type="range"
-        className={styles.slider}
-        defaultValue={value}
-        min={min}
-        max={max}
-        step={step}
-      />
+      <input type="range" className={styles.slider} defaultValue={value} min={min} max={max} step={step} />
     </div>
   );
 }

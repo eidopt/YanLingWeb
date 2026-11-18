@@ -99,6 +99,7 @@ export class OpenAICompatibleProvider implements AIProvider {
     let usage: CompatibleUsageAccumulator | undefined;
     /** Accumulated reasoning_content (DeepSeek streams it character by character) */
     let reasoningBuffer = '';
+    let sawReasoningField = false;
     let responseId: string | undefined;
 
     try {
@@ -139,9 +140,12 @@ export class OpenAICompatibleProvider implements AIProvider {
         //    final done event as an aggregate fallback.
         const delta = choice.delta as Record<string, string | undefined>;
         const reasoningDelta = delta.reasoning_content;
-        if (reasoningDelta) {
-          reasoningBuffer += reasoningDelta;
-          yield { type: 'reasoning_delta', text: reasoningDelta };
+        if (reasoningDelta !== undefined) {
+          sawReasoningField = true;
+          if (reasoningDelta) {
+            reasoningBuffer += reasoningDelta;
+            yield { type: 'reasoning_delta', text: reasoningDelta };
+          }
         }
 
         // 2. Text delta — don't emit reasoning content as text
@@ -197,7 +201,7 @@ export class OpenAICompatibleProvider implements AIProvider {
             usage,
             stopReason: isMaxTokens ? 'max_tokens' : 'end_turn',
             ...(responseId && { response_id: responseId }),
-            ...(reasoningBuffer && { reasoningContent: reasoningBuffer }),
+            ...(sawReasoningField && { reasoningContent: reasoningBuffer }),
           };
         }
       }

@@ -12,6 +12,10 @@ import {
 import {
   EditorAiConversationCacheContext1748166400000,
 } from './1748166400000-EditorAiConversationCacheContext';
+// prettier-ignore
+import {
+  UserTypeAndFreeQuotas1748166500000,
+} from './1748166500000-UserTypeAndFreeQuotas';
 
 const SchemaUpgradeForExistingDbs = existingDbUpgrade.SchemaUpgradeForExistingDbs1748166100000;
 
@@ -21,6 +25,7 @@ const MIGRATIONS = [
   TemplateAgentConfigTables1748166200000,
   EditorAiConversationUndoStack1748166300000,
   EditorAiConversationCacheContext1748166400000,
+  UserTypeAndFreeQuotas1748166500000,
 ];
 
 interface SqliteNamedRow {
@@ -48,6 +53,9 @@ const APPLICATION_SCHEMA_CONTRACT: Record<string, readonly string[]> = {
     'id',
     'username',
     'email',
+    'userType',
+    'freeChatUsedCount',
+    'freeTemplateGenUsedCount',
     'tokensUsed',
     'tokensBalance',
     'balanceCents',
@@ -233,6 +241,7 @@ describe('database migrations', () => {
       'TemplateAgentConfigTables1748166200000',
       'EditorAiConversationUndoStack1748166300000',
       'EditorAiConversationCacheContext1748166400000',
+      'UserTypeAndFreeQuotas1748166500000',
     ]);
 
     for (const [tableName, expectedColumns] of Object.entries(APPLICATION_SCHEMA_CONTRACT)) {

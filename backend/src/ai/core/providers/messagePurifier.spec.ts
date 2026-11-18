@@ -145,6 +145,20 @@ describe('purifyMessages', () => {
       const result = purifyMessages(messages, MIMO_CAPS);
       expect(result[0].reasoningContent).toBe('');
     });
+
+    it('adds empty reasoningContent when absent on tool_call messages', () => {
+      const messages: ProviderMessage[] = [
+        {
+          role: 'tool_call',
+          content: '',
+          toolCallId: 'call_1',
+          toolName: 'submit_node_content',
+          toolArguments: '{}',
+        },
+      ];
+      const result = purifyMessages(messages, MIMO_CAPS);
+      expect(result[0].reasoningContent).toBe('');
+    });
   });
 
   describe('developer role handling', () => {

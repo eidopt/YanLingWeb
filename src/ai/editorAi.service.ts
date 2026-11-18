@@ -333,7 +333,16 @@ export class EditorAiService {
 
       if (!response.ok) {
         const text = await response.text().catch(() => '');
-        throw new Error(text || `HTTP ${String(response.status)}`);
+        let message = text || `HTTP ${String(response.status)}`;
+        try {
+          const parsed = JSON.parse(text) as { message?: unknown };
+          if (typeof parsed.message === 'string' && parsed.message) {
+            message = parsed.message;
+          }
+        } catch {
+          /* 使用原始文本 */
+        }
+        throw new Error(message);
       }
 
       await this.consumeEditorEventStream(
@@ -467,8 +476,7 @@ export class EditorAiService {
               type: 'cache_diagnostic',
               data: JSON.stringify({
                 prefixHash: typeof payload?.prefixHash === 'string' ? payload.prefixHash : '',
-                cacheHitRate:
-                  typeof payload?.cacheHitRate === 'number' ? payload.cacheHitRate : null,
+                cacheHitRate: typeof payload?.cacheHitRate === 'number' ? payload.cacheHitRate : null,
                 compactionStrategy:
                   payload?.compactionStrategy === 'skip' ||
                   payload?.compactionStrategy === 'micro' ||

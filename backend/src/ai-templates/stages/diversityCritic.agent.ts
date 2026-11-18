@@ -66,6 +66,7 @@ export class DiversityCriticAgent {
     candidate: DesignerOutput,
     existing: ExistingTemplateSummary[],
     attempt: number,
+    ownerUserId?: string,
   ): Promise<PipelineStageRecord<CriticVerdict>> {
     const start = Date.now();
     this.logger.debug(
@@ -130,6 +131,8 @@ export class DiversityCriticAgent {
       userMessage,
       tool: SUBMIT_DIVERSITY_VERDICT_TOOL,
       parse: (args) => this.parseVerdict(args),
+      aiProvider: this.aiProvider,
+      ownerUserId,
     });
 
     return {

@@ -6,7 +6,7 @@ import { PipelineStore } from './pipelineStore';
 import type { EditorPageController } from './useEditorPageController';
 import { cx } from 'base/classname';
 import { useEffect, useState, useSyncExternalStore } from 'react';
-import { Box } from 'ui/base';
+import { Box, Button } from 'ui/base';
 import { PipelineProgress } from 'ui/chat/PipelineProgress';
 import { ThemeLayoutBuilder } from 'ui/editor/ThemeLayoutBuilder';
 
@@ -19,6 +19,7 @@ export function EditorPageView({
   initialThemeId,
   handleCanvasesChange,
   onPipelineEvent,
+  goHome,
 }: EditorPageController) {
   const [store] = useState(() => new PipelineStore());
   const pipelineState = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
@@ -51,7 +52,12 @@ export function EditorPageView({
   if (generateError) {
     return (
       <Box className={cx(styles.viewport, styles.statusScreen)}>
-        <Box className={styles.errorText}>{generateError}</Box>
+        <Box className={styles.statusBlock}>
+          <Box className={styles.errorText}>{generateError}</Box>
+          <Button type="button" variant="secondary" size="sm" onClick={goHome}>
+            {c.backHome}
+          </Button>
+        </Box>
       </Box>
     );
   }

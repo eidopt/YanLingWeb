@@ -146,10 +146,27 @@ export function useUserSettingsDialogController({
 
     const totalTokens = usage.tokensUsed + usage.tokensBalance;
     const usagePercent = totalTokens > 0 ? Math.min(100, Math.round((usage.tokensUsed / totalTokens) * 100)) : 0;
+    const isNormalUser = displayProfile.userType !== 'pro';
+    const freeChatUsed = Number.isFinite(displayProfile.freeChatUsedCount) ? displayProfile.freeChatUsedCount : 0;
+    const freeTemplateUsed = Number.isFinite(displayProfile.freeTemplateGenUsedCount)
+      ? displayProfile.freeTemplateGenUsedCount
+      : 0;
 
     return {
       usagePercent,
       tokenStats: [
+        {
+          label: c.tokenUsage.userType,
+          value: isNormalUser ? c.tokenUsage.userTypeNormal : c.tokenUsage.userTypePro,
+        },
+        {
+          label: c.tokenUsage.freeChatRemaining,
+          value: isNormalUser ? `${Math.max(0, 3 - freeChatUsed)} / 3 次` : c.tokenUsage.unlimited,
+        },
+        {
+          label: c.tokenUsage.freeTemplateRemaining,
+          value: isNormalUser ? `${Math.max(0, 1 - freeTemplateUsed)} / 1 次` : c.tokenUsage.unlimited,
+        },
         {
           label: c.tokenUsage.used,
           value: numberFormat.format(usage.tokensUsed),

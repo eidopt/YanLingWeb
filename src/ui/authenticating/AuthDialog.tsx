@@ -71,7 +71,7 @@ export function AuthDialog({ onClose, initialTab = 'login', successRedirect = '/
         <Inline className={styles.brand}>
           <Box className={styles.brandLogo}>✦</Box>
           <Text as="span" weight="heavy">
-            AppGen AI
+            言灵 AI
           </Text>
         </Inline>
 

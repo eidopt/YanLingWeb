@@ -8,9 +8,9 @@ import { useState } from 'react';
 
 const ICON_MAP: Record<string, string> = {
   info: 'i',
-  success: 'OK',
+  success: '✓',
   warning: '!',
-  error: 'x',
+  error: '×',
 };
 
 export function AlertNode({ props, nodeLayoutStyle }: CoreNodeProps<AlertProps>) {
@@ -26,22 +26,12 @@ export function AlertNode({ props, nodeLayoutStyle }: CoreNodeProps<AlertProps>)
   }
 
   return (
-    <div
-      className={styles.alert}
-      data-type={type}
-      role="alert"
-      style={nodeLayoutStyle}
-    >
+    <div className={styles.alert} data-type={type} role="alert" style={nodeLayoutStyle}>
       <span className={styles.icon}>{icon}</span>
       {text ? <span className={styles.text}>{text}</span> : null}
       {closable ? (
-        <button
-          type="button"
-          className={styles.close}
-          aria-label="Close alert"
-          onClick={() => setDismissedKey(alertKey)}
-        >
-          x
+        <button type="button" className={styles.close} aria-label="关闭提示" onClick={() => setDismissedKey(alertKey)}>
+          ×
         </button>
       ) : null}
     </div>

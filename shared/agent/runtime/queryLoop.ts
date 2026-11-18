@@ -292,7 +292,7 @@ export class QueryLoop {
               if (event.response_id) {
                 lastResponseId = event.response_id;
               }
-              if (event.reasoningContent) {
+              if (event.reasoningContent !== undefined) {
                 reasoningContent = event.reasoningContent;
               }
               if (event.usage) {
@@ -355,7 +355,7 @@ export class QueryLoop {
         current.push({
           role: 'assistant',
           content: assistantText,
-          ...(reasoningContent && { reasoningContent }),
+          ...(reasoningContent !== undefined && { reasoningContent }),
         });
       }
 
@@ -399,7 +399,7 @@ export class QueryLoop {
           toolCallId: call.id,
           toolName: call.name,
           toolArguments: call.arguments,
-          ...(reasoningContent && { reasoningContent }),
+          ...(reasoningContent !== undefined && { reasoningContent }),
         });
         current.push({
           role: 'tool_result',

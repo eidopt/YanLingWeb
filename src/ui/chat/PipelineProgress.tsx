@@ -20,10 +20,10 @@ export interface PipelineProgressProps {
 }
 
 const STAGE_LABELS: Record<PipelineStageName, string> = {
-  designer: 'Designer',
-  critic: 'Critic',
-  schema: 'Schema',
-  verifier: 'Verifier',
+  designer: '方案设计',
+  critic: '差异审查',
+  schema: '页面生成',
+  verifier: '质量校验',
 };
 
 const STAGE_ORDER: readonly PipelineStageName[] = ['designer', 'critic', 'schema', 'verifier'];
@@ -31,7 +31,7 @@ const STAGE_ORDER: readonly PipelineStageName[] = ['designer', 'critic', 'schema
 export function PipelineProgress({ stages, currentAttempt }: PipelineProgressProps) {
   const stageMap = new Map(stages.map((s) => [s.stage, s]));
   return (
-    <Box className={styles.container} aria-label="Pipeline 进度">
+    <Box className={styles.container} aria-label="生成流水线进度">
       {STAGE_ORDER.map((name) => {
         const stage = stageMap.get(name) ?? { stage: name, status: 'pending' as const, attempt: 0 };
         return (
@@ -42,12 +42,12 @@ export function PipelineProgress({ stages, currentAttempt }: PipelineProgressPro
             </Text>
             {stage.status === 'running' ? (
               <Text as="span" size="xs" variant="muted">
-                attempt {stage.attempt}...
+                第 {stage.attempt} 轮...
               </Text>
             ) : null}
             {stage.status === 'ok' && stage.durationMs != null ? (
               <Text as="span" size="xs" variant="muted">
-                {(stage.durationMs / 1000).toFixed(1)}s
+                {(stage.durationMs / 1000).toFixed(1)} 秒
               </Text>
             ) : null}
             {stage.status === 'failed' ? (
@@ -61,7 +61,7 @@ export function PipelineProgress({ stages, currentAttempt }: PipelineProgressPro
       {currentAttempt != null ? (
         <Box className={styles.attempt}>
           <Text as="span" size="xs" variant="faint">
-            全局 attempt {currentAttempt}
+            第 {currentAttempt} 轮生成
           </Text>
         </Box>
       ) : null}

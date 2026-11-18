@@ -31,6 +31,8 @@ const unusedUsers: UserAccountRepository = {
   save: () => Promise.reject(new Error('unused repository')),
   update: () => Promise.reject(new Error('unused repository')),
   remove: () => Promise.reject(new Error('unused repository')),
+  consumeFreeChatQuota: () => Promise.reject(new Error('unused repository')),
+  consumeFreeTemplateGenQuota: () => Promise.reject(new Error('unused repository')),
 };
 
 const unusedJwt = {
@@ -87,6 +89,9 @@ function createAuthResponse(overrides: Partial<AuthResponse> = {}): AuthResponse
       email: 'alice@example.com',
       phone: null,
       linkedLogins: ['local'],
+      userType: 'normal',
+      freeChatUsedCount: 0,
+      freeTemplateGenUsedCount: 0,
       tokensUsed: 0,
       tokensBalance: 100,
       balanceCents: 0,

@@ -8,9 +8,9 @@ import { useEffect, useState } from 'react';
 
 const ICON_MAP: Record<string, string> = {
   info: 'i',
-  success: 'OK',
+  success: '✓',
   warning: '!',
-  error: 'x',
+  error: '×',
 };
 
 export function ToastNode({ props, nodeLayoutStyle }: CoreNodeProps<ToastProps>) {
@@ -35,12 +35,7 @@ export function ToastNode({ props, nodeLayoutStyle }: CoreNodeProps<ToastProps>)
   }
 
   return (
-    <div
-      className={styles.toast}
-      data-type={type}
-      style={nodeLayoutStyle}
-      role="status"
-    >
+    <div className={styles.toast} data-type={type} style={nodeLayoutStyle} role="status">
       <span className={styles.icon}>{icon}</span>
       {message ? <span className={styles.message}>{message}</span> : null}
     </div>

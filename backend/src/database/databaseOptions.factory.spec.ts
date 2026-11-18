@@ -8,7 +8,9 @@ function baseConfig(): ServerConfig {
       model: 'gpt-5.4',
       models: { pro: 'gpt-5.4' },
       embedding: { model: 'text-embedding-3-small' },
+      image: {},
       imageGenerationEnabled: true,
+      materializeImages: false,
       editorAgentMaxIterations: 96,
     },
     templates: {

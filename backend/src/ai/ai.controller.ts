@@ -4,6 +4,7 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Optional,
   Param,
   Post,
   Put,
@@ -17,6 +18,7 @@ import type { Response } from 'express';
 
 import { AuthenticatedRequest } from '../auth/authenticatedRequest.interface';
 import { JwtAuthGuard } from '../auth/jwtAuth.guard';
+import { UserQuotaService } from '../users/services/userQuota.service';
 import {
   AiService,
   type EditorAgentStreamRequest,
@@ -40,7 +42,10 @@ function startSseHeartbeat(res: Response): () => void {
 @UseGuards(JwtAuthGuard)
 @Controller('ai')
 export class AiController {
-  constructor(private readonly aiService: AiService) {}
+  constructor(
+    private readonly aiService: AiService,
+    @Optional() private readonly userQuota?: UserQuotaService,
+  ) {}
 
   @Get('config')
   @ApiOperation({ summary: 'Get AI provider configuration (provider name + model)' })
@@ -80,11 +85,11 @@ export class AiController {
       properties: { model: { type: 'string' }, messages: { type: 'array' } },
     },
   })
-  streamProxy(
+  async streamProxy(
     @Body() body: StreamRequest,
     @Req() req: AuthenticatedRequest,
     @Res() res: Response,
-  ): void {
+  ): Promise<void> {
     try {
       this.aiService.checkRateLimit(req.user.sub);
     } catch (err) {
@@ -92,6 +97,9 @@ export class AiController {
         err instanceof Error ? err.message : 'Rate limit exceeded',
         HttpStatus.TOO_MANY_REQUESTS,
       );
+    }
+    if (this.userQuota && this.aiService.hasConfiguredApiKey()) {
+      await this.userQuota.consumeFreeChatQuota(req.user.sub);
     }
 
     const cacheOptions = {
@@ -151,11 +159,11 @@ export class AiController {
       properties: { model: { type: 'string' }, messages: { type: 'array' } },
     },
   })
-  editorStream(
+  async editorStream(
     @Body() body: StreamRequest | EditorAgentStreamRequest,
     @Req() req: AuthenticatedRequest,
     @Res() res: Response,
-  ): void {
+  ): Promise<void> {
     try {
       this.aiService.checkRateLimit(req.user.sub);
     } catch (err) {
@@ -163,6 +171,9 @@ export class AiController {
         err instanceof Error ? err.message : 'Rate limit exceeded',
         HttpStatus.TOO_MANY_REQUESTS,
       );
+    }
+    if (this.userQuota && this.aiService.hasConfiguredApiKey()) {
+      await this.userQuota.consumeFreeChatQuota(req.user.sub);
     }
 
     res.setHeader('content-type', 'text/event-stream; charset=utf-8');

@@ -37,7 +37,7 @@ export function SearchResults({ token, onSelectTemplate, onCreateWithAi }: Searc
         onCreateWithAi?.(result.query);
       }
     } catch (err) {
-      searchResultsStateActions.setError(err instanceof Error ? err.message : 'Search failed');
+      searchResultsStateActions.setError(err instanceof Error ? err.message : '搜索失败');
     }
   }, [state.query, service, onCreateWithAi]);
 
@@ -56,13 +56,13 @@ export function SearchResults({ token, onSelectTemplate, onCreateWithAi }: Searc
         <input
           type="text"
           className="search-input"
-          placeholder="Search templates or describe the app you want..."
+          placeholder="搜索模板，或直接描述你想要的应用..."
           value={state.query}
           onChange={(event) => searchResultsStateActions.setQuery(event.target.value)}
           onKeyDown={handleKeyDown}
         />
         <button type="button" className="search-button" onClick={handleSearch} disabled={state.status === 'loading'}>
-          {state.status === 'loading' ? 'Searching...' : 'Search'}
+          {state.status === 'loading' ? '搜索中...' : '搜索'}
         </button>
       </div>
 
@@ -85,8 +85,8 @@ function SearchResultsList({
   if (results.total === 0) {
     return (
       <div className="search-empty">
-        <p>No matching templates found.</p>
-        <p className="search-empty-hint">Try another keyword or describe the app directly.</p>
+        <p>未找到匹配的模板。</p>
+        <p className="search-empty-hint">试试换个关键词，或直接描述你想要生成的应用。</p>
       </div>
     );
   }
@@ -94,7 +94,7 @@ function SearchResultsList({
   return (
     <div className="search-results">
       <div className="search-results-header">
-        <span>Found {results.total} templates</span>
+        <span>共找到 {results.total} 个模板</span>
       </div>
       <div className="search-results-list">
         {results.results.map((template: TemplateSummary) => (
@@ -133,10 +133,10 @@ function CreateResultCard({ result }: { result: CreateWithAiResult }) {
   return (
     <div className="create-result">
       <div className="create-result-header">
-        <span className="create-result-icon">OK</span>
-        <span>Opening the editor. AI will generate a template for you.</span>
+        <span className="create-result-icon">已就绪</span>
+        <span>正在打开编辑器，AI 将为你生成模板。</span>
       </div>
-      <p className="create-result-desc">Based on your description &ldquo;{result.query}&rdquo;</p>
+      <p className="create-result-desc">基于你的描述“{result.query}”</p>
     </div>
   );
 }

@@ -2,6 +2,13 @@ import type { AIProvider } from './core/providers/types';
 
 export const AI_TEMPLATE_PIPELINE_PROVIDER = 'AI_TEMPLATE_PIPELINE_PROVIDER';
 
+export interface PipelineTokenUsageInput {
+  inputTokens: number;
+  outputTokens: number;
+  cacheHitTokens?: number;
+  cacheMissTokens?: number;
+}
+
 export interface AiTemplatePipelineProvider {
   getProviderForTemplatePipeline(): {
     provider: AIProvider;
@@ -11,4 +18,9 @@ export interface AiTemplatePipelineProvider {
     liteModel: string;
     apiKeyConfigured: boolean;
   };
+  recordTemplatePipelineTokenUsage?(
+    ownerUserId: string,
+    model: string,
+    usage: PipelineTokenUsageInput,
+  ): Promise<void>;
 }

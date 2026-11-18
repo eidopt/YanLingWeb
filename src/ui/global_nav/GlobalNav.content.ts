@@ -2,7 +2,7 @@ import type { NavItem } from './GlobalNav';
 
 export const globalNavContent = {
   brand: {
-    name: 'AppGen AI',
+    name: '言灵 AI',
     tagline: 'AI 驱动的全平台应用设计工具',
   },
   auth: {

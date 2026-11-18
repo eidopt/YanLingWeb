@@ -29,21 +29,12 @@ export function BadgeNode({ props, nodeLayoutStyle }: CoreNodeProps<BadgeProps>)
   );
 
   if (dot) {
-    return (
-      <span
-        className={cx(className, styles.dot)}
-        style={nodeLayoutStyle}
-        aria-label="New notification"
-      />
-    );
+    return <span className={cx(className, styles.dot)} style={nodeLayoutStyle} aria-label="新消息提示" />;
   }
 
   if (text) {
     return (
-      <span
-        className={cx(className, styles.pill)}
-        style={nodeLayoutStyle}
-      >
+      <span className={cx(className, styles.pill)} style={nodeLayoutStyle}>
         {text}
       </span>
     );
@@ -56,10 +47,7 @@ export function BadgeNode({ props, nodeLayoutStyle }: CoreNodeProps<BadgeProps>)
   const display = count > max ? `${max}+` : String(count);
 
   return (
-    <span
-      className={cx(className, styles.pill)}
-      style={nodeLayoutStyle}
-    >
+    <span className={cx(className, styles.pill)} style={nodeLayoutStyle}>
       {display}
     </span>
   );

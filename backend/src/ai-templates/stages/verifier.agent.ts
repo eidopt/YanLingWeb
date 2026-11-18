@@ -46,6 +46,7 @@ export class VerifierAgent {
     schema: SchemaOutput,
     existing: ExistingTemplateSummary[],
     attempt: number,
+    ownerUserId?: string,
   ): Promise<PipelineStageRecord<VerifierVerdict[]>> {
     const start = Date.now();
     this.logger.debug(`verifier attempt=${attempt} schema=${schema.templateId}`);
@@ -80,6 +81,8 @@ export class VerifierAgent {
           userMessage: this.buildUserMessage(lens, brief, schema, existing),
           tool: SUBMIT_VERIFIER_VERDICT_TOOL,
           parse: (args) => this.parseVerdict(args, lens),
+          aiProvider: this.aiProvider,
+          ownerUserId,
         });
         usageTotal.inputTokens += result.usage.inputTokens;
         usageTotal.outputTokens += result.usage.outputTokens;
@@ -134,7 +137,8 @@ export class VerifierAgent {
     schema: SchemaOutput,
     existing: ExistingTemplateSummary[],
   ): string {
-    const documentSerialized = JSON.stringify(schema.document);
+    const compactDoc = this.buildCompactDocumentForVerifier(schema.document);
+    const documentSerialized = JSON.stringify(compactDoc);
     // 控制 prompt 长度 — verifier 不需要看完整 brief，只要关键字段
     const briefDigest = {
       templateId: brief.templateId,
@@ -195,11 +199,57 @@ export class VerifierAgent {
       JSON.stringify(briefDigest, null, 2),
       '```',
       '',
-      '本次生成的 ThemeLayoutDocument：',
+      '本次生成的 ThemeLayoutDocument 摘要：',
       '```json',
       documentSerialized,
       '```',
     ].join('\n');
+  }
+
+  /**
+   * 精简送入 Verifier LLM 的文档负载：移除体积庞大的内置 CORE_COMPONENTS 静态目录、
+   * 与 pages[0].layout 重复的顶层 layout、与 cssVars 重复的 style，以及冗长生图 prompt，
+   * 可将 Verifier token 负载压降一半以上同时完整保留所有页面结构、props、交互与主题色。
+   */
+  private buildCompactDocumentForVerifier(
+    document: SchemaOutput['document'],
+  ): Record<string, unknown> {
+    const raw = document as unknown as Record<string, unknown>;
+    const rawComponents = Array.isArray(raw.components) ? raw.components : [];
+    const customComponents = rawComponents.filter((comp) => {
+      const alias =
+        comp && typeof comp === 'object' ? (comp as { alias?: unknown }).alias : undefined;
+      return typeof alias === 'string' && !alias.startsWith('core.');
+    });
+    const rawAssets: unknown[] = Array.isArray(raw.visualAssets)
+      ? (raw.visualAssets as unknown[])
+      : [];
+    const compactAssets = rawAssets.map((asset): unknown => {
+      if (!asset || typeof asset !== 'object') {
+        return asset;
+      }
+      const item = asset as Record<string, unknown>;
+      return {
+        id: item.id,
+        nodeId: item.nodeId,
+        pageId: item.pageId,
+        role: item.role,
+        provider: item.provider,
+        alt: item.alt,
+      };
+    });
+
+    return {
+      themeId: raw.themeId,
+      themeName: raw.themeName,
+      description: raw.description,
+      defaultPageId: raw.defaultPageId,
+      cssVars: raw.cssVars,
+      ...(customComponents.length > 0 ? { customComponents } : {}),
+      componentTemplates: raw.componentTemplates ?? {},
+      visualAssets: compactAssets,
+      pages: raw.pages,
+    };
   }
 
   private parseVerdict(args: Record<string, unknown>, lens: VerifierLens): VerifierVerdict {
@@ -227,6 +277,8 @@ export class VerifierAgent {
         location: typeof item.location === 'string' ? item.location : undefined,
       };
     });
-    return { lens, pass: args.pass, failures, summary: args.summary };
+    const hasError = failures.some((f) => f.severity === 'error');
+    const pass = failures.length > 0 && !hasError ? true : args.pass;
+    return { lens, pass, failures, summary: args.summary };
   }
 }

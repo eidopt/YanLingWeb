@@ -18,6 +18,7 @@ interface MockAiService {
   getEditorConversation: jest.Mock;
   saveEditorConversation: jest.Mock;
   checkRateLimit: jest.Mock;
+  hasConfiguredApiKey: jest.Mock;
   stream: jest.Mock;
   streamEditor: jest.Mock;
   saveTemplate: jest.Mock;
@@ -38,6 +39,7 @@ function createService(): MockAiService {
     getEditorConversation: jest.fn(),
     saveEditorConversation: jest.fn(),
     checkRateLimit: jest.fn(),
+    hasConfiguredApiKey: jest.fn(() => true),
     stream: jest.fn(),
     streamEditor: jest.fn(),
     saveTemplate: jest.fn<Promise<unknown>, [string, TemplateToolInput]>(),
@@ -77,7 +79,11 @@ describe('SSE envelope E2E (T20/T21)', () => {
       messages: [{ role: 'user', content: 'test' }],
     };
 
-    controller.streamProxy(body, req, res as unknown as Parameters<AiController['streamProxy']>[2]);
+    await controller.streamProxy(
+      body,
+      req,
+      res as unknown as Parameters<AiController['streamProxy']>[2],
+    );
 
     expect(service.stream).toHaveBeenCalledTimes(1);
     const args = service.stream.mock.calls[0] as unknown[];
@@ -156,7 +162,7 @@ describe('SSE envelope E2E (T20/T21)', () => {
     };
 
     const resArg = res as unknown as Parameters<AiController['editorStream']>[2];
-    controller.editorStream(body, req, resArg);
+    await controller.editorStream(body, req, resArg);
 
     expect(service.streamEditor).toHaveBeenCalledTimes(1);
 

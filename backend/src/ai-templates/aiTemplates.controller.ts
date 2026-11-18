@@ -1,4 +1,13 @@
-import { Body, Controller, HttpException, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpException,
+  Optional,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import type { SseEventPayloadByType, SseEventType } from '@shared/agent/contracts/sseEvents';
@@ -7,6 +16,7 @@ import type { Response } from 'express';
 import { serializeSseEvent } from '../ai/sse/sseEnvelope';
 import { AuthenticatedRequest } from '../auth/authenticatedRequest.interface';
 import { JwtAuthGuard } from '../auth/jwtAuth.guard';
+import { UserQuotaService } from '../users/services/userQuota.service';
 import { AiTemplatesService } from './aiTemplates.service';
 import type {
   PipelineExternalResult,
@@ -31,7 +41,10 @@ function startSseHeartbeat(res: Response): () => void {
 @UseGuards(JwtAuthGuard)
 @Controller('aiTemplates')
 export class AiTemplatesController {
-  constructor(private readonly service: AiTemplatesService) {}
+  constructor(
+    private readonly service: AiTemplatesService,
+    @Optional() private readonly userQuota?: UserQuotaService,
+  ) {}
 
   @Post('generate')
   @Throttle({ default: { limit: 3, ttl: 600000 } })
@@ -62,11 +75,19 @@ export class AiTemplatesController {
   })
   async generate(
     @Body() body: GenerateRequestBody,
+    @Req() req: AuthenticatedRequest,
   ): Promise<PipelineExternalResult | Record<string, unknown>> {
     const { materializeImages, ...seed } = body;
+    await this.userQuota?.consumeFreeTemplateGenQuota(req.user.sub);
     try {
-      return await this.service.generate(seed, { materializeImages });
+      return await this.service.generate(seed, {
+        materializeImages,
+        ownerUserId: req.user.sub,
+      });
     } catch (err: unknown) {
+      if (err instanceof HttpException) {
+        throw err;
+      }
       // 如果流水线全部 attempt 失败但最后一次 Schema 产生了文档，返回它
       const pipelineErr = err as PipelineFailure;
       if (pipelineErr.lastSchema) {
@@ -88,12 +109,13 @@ export class AiTemplatesController {
   @ApiOperation({
     summary: '流式跑 4-stage 流水线生成并落库新模板，通过 SSE 推送阶段进度与保存结果',
   })
-  generateStream(
+  async generateStream(
     @Body() body: GenerateRequestBody,
     @Req() req: AuthenticatedRequest,
     @Res() res: Response,
-  ): void {
+  ): Promise<void> {
     const { materializeImages, ...seed } = body;
+    await this.userQuota?.consumeFreeTemplateGenQuota(req.user.sub);
 
     res.setHeader('content-type', 'text/event-stream; charset=utf-8');
     res.setHeader('cache-control', 'no-cache, no-transform');

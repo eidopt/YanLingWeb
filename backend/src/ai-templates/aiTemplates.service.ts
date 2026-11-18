@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { computeDocumentCombinedSignature } from '@shared/agent/runtime';
 import { themeLayoutDocumentToRecord } from '@shared/theme-layout/documentBoundary';
 
+import { ConfigService } from '../config/config.service';
 import {
   TEMPLATE_READ_REPOSITORY,
   type TemplateDiversitySummaryRecord,
@@ -43,6 +44,8 @@ export interface GenerateOptions {
   // 三者互斥，优先级：placeholderImages > libraryImages > materializeImages。
   /** 可选：4-stage 流水线阶段事件回调（供 SSE 流推送进度给前端） */
   onStageEvent?: PipelineStageEventCallback;
+  /** 可选：触发本次生成的用户 ID，用于按用户统计从 0 生成模板各 stage 的 token 消耗 */
+  ownerUserId?: string;
 }
 
 export interface GeneratedSavedTemplateResult extends PipelineExternalResult {
@@ -115,6 +118,8 @@ export class AiTemplatesService {
     private readonly templateAssetService: TemplateAssetService,
     @Optional()
     private readonly templatesService?: TemplatesService,
+    @Optional()
+    private readonly config?: ConfigService,
   ) {}
 
   /**
@@ -145,7 +150,7 @@ export class AiTemplatesService {
     if (!this.templatesService) {
       throw new Error('TemplatesService is not available for persisting generated templates');
     }
-    const result = await this.generateDetailed(seed, options);
+    const result = await this.generateDetailed(seed, { ...options, ownerUserId });
     const saveInput = this.buildSaveGeneratedTemplateInput(result);
     const saved = await this.templatesService.saveGeneratedTemplate(ownerUserId, saveInput);
     this.logger.log(`Generated template ${saved.action}: ${saved.templateId}`);
@@ -172,6 +177,7 @@ export class AiTemplatesService {
     );
     const result = await this.pipeline.generate(seed, existing, {
       onStageEvent: options.onStageEvent,
+      ownerUserId: options.ownerUserId,
     });
     const document = await this.maybeMaterializeImages(result.templateId, result.document, options);
     return { ...result, document };
@@ -229,13 +235,17 @@ export class AiTemplatesService {
     document: PipelineResult['document'],
     options: GenerateOptions,
   ): Promise<PipelineResult['document']> {
-    // 互斥优先级：placeholder > library > generate；三者都没传则不处理图片。
+    // 互斥优先级：placeholder > library > materializeImages（请求显式传参优先，否则回退配置项）。
+    const shouldMaterialize =
+      options.materializeImages ?? this.config?.ai.materializeImages ?? false;
     const strategy: TemplateImageStrategy | undefined = options.placeholderImages
       ? 'placeholder'
       : options.libraryImages
         ? 'library'
-        : options.materializeImages
-          ? 'generate'
+        : shouldMaterialize
+          ? this.config?.ai.imageGenerationEnabled === false
+            ? 'placeholder'
+            : 'generate'
           : undefined;
     if (!strategy) {
       return document;

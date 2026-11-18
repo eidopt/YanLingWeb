@@ -25,6 +25,7 @@ import {
   TemplateAgentKnowledgeService,
 } from './templateAgentKnowledge.service';
 import { TemplateAssetService } from './templateAsset.service';
+import { TemplateAssetsController } from './templateAssets.controller';
 import { LocalDiskTemplateAssetStore, TEMPLATE_ASSET_STORE } from './templateAssetStore';
 import { TemplateCategoryRegistryService } from './templateCategoryRegistry.service';
 import { TemplatesController } from './templates.controller';
@@ -44,7 +45,7 @@ import { TemplatesService } from './templates.service';
     ]),
     AuthModule,
   ],
-  controllers: [TemplatesController],
+  controllers: [TemplatesController, TemplateAssetsController],
   providers: [
     TemplatesService,
     TemplateAssetService,

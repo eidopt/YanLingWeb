@@ -17,11 +17,13 @@ import type {
   DesignerOutput,
   PipelineStageRecord,
   SchemaOutput,
+  VerifierVerdict,
 } from '../orchestrator/pipeline.types';
 import { runStructuredStage, type StageRunUsage } from '../orchestrator/runStage';
 import {
   SUBMIT_NODE_CONTENT_TOOL,
   SUBMIT_PAGE_SKELETON_TOOL,
+  SUBMIT_SCHEMA_REPAIR_TOOL,
   SUBMIT_VISUAL_ASSETS_TOOL,
 } from '../tools/schemaStep.tools';
 import { preValidateAndFix } from './preValidateFix';
@@ -258,7 +260,11 @@ export class SchemaGeneratorAgent {
     private readonly aiProvider: AiTemplatePipelineProvider,
   ) {}
 
-  async run(brief: DesignerOutput, attempt: number): Promise<PipelineStageRecord<SchemaOutput>> {
+  async run(
+    brief: DesignerOutput,
+    attempt: number,
+    ownerUserId?: string,
+  ): Promise<PipelineStageRecord<SchemaOutput>> {
     const start = Date.now();
     const { provider, model, apiKeyConfigured } = this.aiProvider.getProviderForTemplatePipeline();
     if (!apiKeyConfigured) {
@@ -268,14 +274,14 @@ export class SchemaGeneratorAgent {
     this.logger.debug(`schema generator attempt=${attempt} brief=${brief.templateId}`);
 
     // Phase A: 生成页面骨架
-    const skeleton = await this.phaseSkeleton(provider, model, brief);
+    const skeleton = await this.phaseSkeleton(provider, model, brief, ownerUserId);
     this.logger.debug(`phaseA: ${skeleton.pages.length} pages, ${skeleton.templateId}`);
 
     // Tree Build: 在 Phase B 之前先展开树并生成全局唯一真实 nodeId
     const builtPages = this.buildSkeletonTrees(skeleton.pages, brief);
 
     // Phase B: 按真实 nodeId 填充所有页面内容
-    const contentResult = await this.phaseContent(provider, model, builtPages, brief);
+    const contentResult = await this.phaseContent(provider, model, builtPages, brief, ownerUserId);
     this.logger.debug(`phaseB: ${contentResult.pages.length} pages filled`);
 
     this.applyContentFills(builtPages, contentResult.pages, brief);
@@ -284,7 +290,14 @@ export class SchemaGeneratorAgent {
     const imageNodes = this.collectImageNodes(builtPages);
     const assets =
       imageNodes.length > 0
-        ? await this.phaseAssets(provider, model, skeleton.templateId, imageNodes, brief)
+        ? await this.phaseAssets(
+            provider,
+            model,
+            skeleton.templateId,
+            imageNodes,
+            brief,
+            ownerUserId,
+          )
         : { assets: [], tokens: { inputTokens: 0, outputTokens: 0, cacheHitTokens: 0 } };
     this.logger.debug(`phaseC: ${assets.assets.length} visual assets`);
 
@@ -302,16 +315,240 @@ export class SchemaGeneratorAgent {
     };
   }
 
+  /**
+   * Stage 4 局部修复：当 Verifier 指出局部 spec-compliance / business-fidelity 问题时，
+   * 仅针对现有文档做一次轻量 cssVars / nodeProps 修补，避免直接打回 Stage 1 从头重跑。
+   * 返回 null 表示无法启用（如无 API key）或局部修补未通过校验，交由外层继续走回退重试。
+   */
+  async repairFromVerifierFeedback(
+    brief: DesignerOutput,
+    schema: SchemaOutput,
+    failedLenses: readonly VerifierVerdict[],
+    attempt: number,
+    ownerUserId?: string,
+  ): Promise<PipelineStageRecord<SchemaOutput> | null> {
+    const start = Date.now();
+    const { provider, model, apiKeyConfigured } = this.aiProvider.getProviderForTemplatePipeline();
+    if (!apiKeyConfigured) {
+      return null;
+    }
+
+    const actionableLenses = failedLenses.filter((v) => v.lens !== 'diversity');
+    if (actionableLenses.length === 0) {
+      return null;
+    }
+
+    const feedbackLines = actionableLenses.flatMap((verdict) => {
+      const errorItems = verdict.failures.filter((f) => f.severity === 'error');
+      const items = errorItems.length > 0 ? errorItems : verdict.failures;
+      const details = items
+        .slice(0, 10)
+        .map(
+          (f) =>
+            `  - [${f.rule || verdict.lens}]${f.location ? ` @${f.location}` : ''}: ` +
+            f.description,
+        );
+      return [`- [${verdict.lens}] ${verdict.summary}`, ...details];
+    });
+
+    const pagesDigest = schema.document.pages.map((page) => ({
+      pageId: page.id,
+      name: page.name,
+      nodes: this.collectRepairNodeDigest(page.layout),
+    }));
+
+    try {
+      const result = await runStructuredStage<Record<string, unknown>>({
+        provider,
+        model,
+        systemPrompt: STAGE_SCHEMA_GENERATOR_SYSTEM_PROMPT,
+        userMessage: [
+          '**Stage 4 局部修复：只修补 Verifier 指出的具体问题**',
+          '',
+          `模板「${brief.name}」（archetype=${brief.archetype}, heroMode=${brief.heroMode}）`,
+          `业务场景：${brief.scenario}`,
+          '',
+          'Verifier 指出的具体问题：',
+          ...feedbackLines,
+          '',
+          '请调用 `submit_schema_repair` 输出最小必要补丁：',
+          '- 如缺少主题 cssVars 或对比度不够，填 `cssVars` 键值覆盖；',
+          '- 如有多余/冲突节点（例如与无底栏冲突的 footer tabs），将对应 nodeId 填入 `removeNodeIds`；',
+          '- 如某页面文案/按钮/主操作/标签有误，填 `pages[].nodes[].props` 覆盖对应 nodeId；',
+          '- 保持所有用户可见文案为简体中文（常见缩写如 PDF/macOS/Windows/iOS 可用），不要编造 nodeId。',
+          '',
+          '当前 cssVars：',
+          '```json',
+          JSON.stringify(schema.document.cssVars ?? {}, null, 2),
+          '```',
+          '',
+          '当前页面节点清单：',
+          '```json',
+          JSON.stringify(pagesDigest, null, 2),
+          '```',
+        ].join('\n'),
+        tool: SUBMIT_SCHEMA_REPAIR_TOOL,
+        parse: (args) => {
+          const cssRecord = asRecord(args.cssVars);
+          const hasCss = cssRecord !== null && Object.keys(cssRecord).length > 0;
+          const hasRemovals = Array.isArray(args.removeNodeIds) && args.removeNodeIds.length > 0;
+          const hasPages = Array.isArray(args.pages) && args.pages.length > 0;
+          if (!hasCss && !hasRemovals && !hasPages) {
+            throw new Error(
+              'submit_schema_repair 必须至少提供 cssVars、removeNodeIds 或 pages 之一',
+            );
+          }
+          return args;
+        },
+        maxIterations: 4,
+        aiProvider: this.aiProvider,
+        ownerUserId,
+      });
+
+      const patched = this.applyRepairPatch(schema.document, result.output);
+      const preFixResult = preValidateAndFix(
+        patched as unknown as Record<string, unknown>,
+        patched.componentTemplates,
+      );
+      const repairedDocument = preFixResult.document as unknown as ThemeLayoutDocument;
+      const check = validateGeneratedTemplateLayout(
+        repairedDocument,
+        repairedDocument.componentTemplates,
+      );
+      if (!check.valid) {
+        const errMessages = check.errors
+          .slice(0, 3)
+          .map((e) => `[${e.code}] ${e.path}: ${e.message}`)
+          .join('; ');
+        this.logger.warn(`verifier 局部修复未通过程序化校验: ${errMessages}`);
+        return null;
+      }
+
+      return {
+        attempt,
+        durationMs: Date.now() - start,
+        inputTokens: result.usage.inputTokens,
+        outputTokens: result.usage.outputTokens,
+        cacheHitTokens: result.usage.cacheHitTokens,
+        output: {
+          templateId: schema.templateId,
+          document: repairedDocument,
+          rawToolInput: schema.rawToolInput,
+        },
+      };
+    } catch (error) {
+      this.logger.warn(
+        `verifier 局部修复异常（退回外层重试）: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+      return null;
+    }
+  }
+
+  private collectRepairNodeDigest(
+    root: ThemeLayoutNode,
+  ): { nodeId: string; alias: string; props?: Record<string, unknown> }[] {
+    const collected: { nodeId: string; alias: string; props?: Record<string, unknown> }[] = [];
+    const walk = (node: ThemeLayoutNode): void => {
+      collected.push({
+        nodeId: node.id,
+        alias: node.alias,
+        ...(node.props && Object.keys(node.props).length > 0 ? { props: node.props } : {}),
+      });
+      for (const child of node.children ?? []) {
+        walk(child);
+      }
+    };
+    walk(root);
+    return collected;
+  }
+
+  private applyRepairPatch(
+    document: ThemeLayoutDocument,
+    patch: Record<string, unknown>,
+  ): ThemeLayoutDocument {
+    const cloned = structuredClone(document);
+    const cssPatch = asRecord(patch.cssVars);
+    if (cssPatch) {
+      const mergedCssVars: Record<string, string> = { ...(cloned.cssVars ?? {}) };
+      for (const [key, value] of Object.entries(cssPatch)) {
+        if (typeof value === 'string' && value.trim()) {
+          mergedCssVars[key] = value;
+        }
+      }
+      cloned.cssVars = mergedCssVars;
+      const existingStyle = asRecord(cloned.style) ?? {};
+      cloned.style = { ...existingStyle, cssVars: mergedCssVars };
+    }
+
+    const pageEntries = Array.isArray(patch.pages) ? patch.pages : [];
+    const patchesByPageId = new Map<string, Map<string, Record<string, unknown>>>();
+    for (const entry of pageEntries) {
+      const item = asRecord(entry);
+      const pageId = item ? asString(item.pageId) : undefined;
+      if (!item || !pageId || !Array.isArray(item.nodes)) {
+        continue;
+      }
+      const nodeMap = new Map<string, Record<string, unknown>>();
+      for (const nodeEntry of item.nodes) {
+        const nodeObj = asRecord(nodeEntry);
+        const nodeId = nodeObj ? asString(nodeObj.nodeId) : undefined;
+        const props = nodeObj ? asRecord(nodeObj.props) : undefined;
+        if (nodeId && props) {
+          nodeMap.set(nodeId, props);
+        }
+      }
+      if (nodeMap.size > 0) {
+        patchesByPageId.set(pageId, nodeMap);
+      }
+    }
+
+    const removeIds = new Set(
+      (Array.isArray(patch.removeNodeIds) ? patch.removeNodeIds : []).filter(
+        (id): id is string => typeof id === 'string' && id.trim().length > 0,
+      ),
+    );
+
+    const patchTree = (node: ThemeLayoutNode, nodeMap?: Map<string, Record<string, unknown>>) => {
+      if (removeIds.size > 0 && Array.isArray(node.children)) {
+        node.children = node.children.filter((child) => !removeIds.has(child.id));
+      }
+      const nodePatch = nodeMap?.get(node.id);
+      if (nodePatch) {
+        node.props = { ...(node.props ?? {}), ...nodePatch };
+      }
+      for (const child of node.children ?? []) {
+        patchTree(child, nodeMap);
+      }
+    };
+
+    for (const page of cloned.pages) {
+      const nodeMap = patchesByPageId.get(page.id);
+      if (nodeMap || removeIds.size > 0) {
+        patchTree(page.layout, nodeMap);
+      }
+    }
+
+    const defaultPage = cloned.pages.find((p) => p.id === cloned.defaultPageId) ?? cloned.pages[0];
+    cloned.layout = defaultPage.layout;
+    cloned.defaultPageId = defaultPage.id;
+    return cloned;
+  }
+
   // ─── Phase A: 页面骨架 ─────────────────────────────────────────
 
   private async phaseSkeleton(
     provider: AIProvider,
     model: string,
     brief: DesignerOutput,
+    ownerUserId?: string,
   ): Promise<SkeletonPhaseResult> {
     const result = await runStructuredStage<Record<string, unknown>>({
       provider,
       model,
+      aiProvider: this.aiProvider,
+      ownerUserId,
       systemPrompt: STAGE_SCHEMA_GENERATOR_SYSTEM_PROMPT,
       userMessage: [
         '**Phase A: 生成页面骨架（3-5 页）**',
@@ -327,7 +564,10 @@ export class SchemaGeneratorAgent {
         '- grid/list 必须有 4-6 个子节点（表示列表项）',
         '- stack 2-4 个、panel 2-4 个、row 2-3 个子节点',
         '- 每页至少 2 个 image',
-        '- 移动端页面必须含 tabs（底栏导航）',
+        '- 若 brief.bottomTabs 含 >=2 项则每页末尾配 tabs；' +
+          '若要求无底栏/抽屉导航则不加 tabs，改用 navbar + drawer',
+        '- layoutTree 直接用以下 core.* alias 组装；' +
+          '仅当实际引用 biz-* 时才填 componentTemplateAliases，否则传 []：',
         '- 所有页面的根是 screen',
         '- 只使用这些 alias：text button image search input tabs tag notice',
         '  progress divider spacer screen panel stack row grid html navbar',
@@ -388,6 +628,7 @@ export class SchemaGeneratorAgent {
     model: string,
     builtPages: readonly BuiltPageSkeleton[],
     brief: DesignerOutput,
+    ownerUserId?: string,
   ): Promise<ContentPhaseResult> {
     const pagesSummary = builtPages.map((p) => ({
       pageId: p.id,
@@ -404,6 +645,8 @@ export class SchemaGeneratorAgent {
     const result = await runStructuredStage<Record<string, unknown>>({
       provider,
       model,
+      aiProvider: this.aiProvider,
+      ownerUserId,
       systemPrompt: STAGE_SCHEMA_GENERATOR_SYSTEM_PROMPT,
       userMessage: [
         '**Phase B: 一次性填充所有页面内容**',
@@ -491,10 +734,13 @@ export class SchemaGeneratorAgent {
     templateId: string,
     imageNodes: readonly ImageNodeSpec[],
     brief: DesignerOutput,
+    ownerUserId?: string,
   ): Promise<AssetsPhaseResult> {
     const result = await runStructuredStage<Record<string, unknown>>({
       provider,
       model,
+      aiProvider: this.aiProvider,
+      ownerUserId,
       systemPrompt: STAGE_SCHEMA_GENERATOR_SYSTEM_PROMPT,
       userMessage: [
         '**Phase C: 生成 Visual Assets**',
@@ -588,6 +834,10 @@ export class SchemaGeneratorAgent {
       labelToPageId.set(label, targetId);
     });
 
+    const disableFooterTabs =
+      brief.bottomTabs.length === 0 ||
+      (/无底栏|抽屉导航/.test(brief.diversitySignature) && brief.bottomTabs.length <= 1);
+
     for (const page of builtPages) {
       const fill = fills.find((f) => f.pageId === page.id);
       const fillById = new Map((fill?.nodes ?? []).map((n) => [n.nodeId, n.props]));
@@ -597,6 +847,11 @@ export class SchemaGeneratorAgent {
         : page.name;
 
       const patchNode = (node: ThemeLayoutNode): void => {
+        if (disableFooterTabs && Array.isArray(node.children)) {
+          node.children = node.children.filter(
+            (child) => !(child.alias === 'core.tabs' && child.slot === 'footer'),
+          );
+        }
         const nodeFill = fillById.get(node.id);
         if (nodeFill) {
           node.props = { ...(node.props ?? {}), ...nodeFill };
@@ -635,13 +890,42 @@ export class SchemaGeneratorAgent {
       return;
     }
 
+    if (node.alias === 'core.grid') {
+      if (node.props.columns === undefined) {
+        node.props.columns = 2;
+      }
+      return;
+    }
+
+    if (node.alias === 'core.splitter') {
+      if (!asString(node.props.direction)) {
+        node.props.direction = 'horizontal';
+      }
+      return;
+    }
+
+    if (node.alias === 'core.sidebar') {
+      if (!asString(node.props.width)) {
+        node.props.width = '112px';
+      }
+      return;
+    }
+
     if (node.alias === 'core.tabs') {
       const existingTabs = Array.isArray(node.props.tabs)
         ? node.props.tabs.filter((t): t is string => typeof t === 'string' && t.trim().length > 0)
         : [];
-      const effectiveTabs = existingTabs.length > 0 ? existingTabs : [...tabLabels];
+      const hasValidMappedTabs =
+        existingTabs.length >= 2 && existingTabs.every((label) => labelToPageId.has(label));
+      const effectiveTabs =
+        node.slot === 'footer' && tabLabels.length >= 2 && !hasValidMappedTabs
+          ? [...tabLabels]
+          : existingTabs.length > 0
+            ? existingTabs
+            : [...tabLabels];
       node.props.tabs = effectiveTabs;
-      if (!asString(node.props.activeTab)) {
+      const activeTab = asString(node.props.activeTab);
+      if (!activeTab || !effectiveTabs.includes(activeTab)) {
         node.props.activeTab = effectiveTabs.includes(pageTabLabel)
           ? pageTabLabel
           : (effectiveTabs[0] ?? page.name);
@@ -711,10 +995,9 @@ export class SchemaGeneratorAgent {
     };
     pages.forEach((p) => collectAliases(p.layout));
 
-    const bizAliases = new Set<string>([
-      ...skeleton.componentTemplateAliases.filter((a) => !a.startsWith('core.')),
-      ...[...usedAliases].filter((a) => !a.startsWith('core.')),
-    ]);
+    // 仅当页面树实际实例化了 biz-* 节点时才为其构建 componentTemplates 与自定义组件声明，
+    // 避免把未使用的同构占位模板塞进文档导致 Verify 判同构克隆 / 未使用报错。
+    const bizAliases = new Set<string>([...usedAliases].filter((a) => !a.startsWith('core.')));
 
     const componentTemplates: Record<string, unknown> = {};
     for (const alias of bizAliases) {
@@ -774,7 +1057,11 @@ export class SchemaGeneratorAgent {
       name: alias,
       kind: 'layout' as const,
       description: '',
-      props: [],
+      props: [
+        { name: 'title', type: 'string', label: '标题' },
+        { name: 'tag', type: 'string', label: '标签' },
+        { name: 'actionLabel', type: 'string', label: '操作文案' },
+      ],
     }));
 
     const normalizedAssets = normalizeVisualAssets(rawAssets);

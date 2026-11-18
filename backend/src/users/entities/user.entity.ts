@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 
 type LoginType = 'local' | 'wechat' | 'qq';
+export type UserType = 'normal' | 'pro';
 
 @Entity('users')
 export class User {
@@ -37,6 +38,18 @@ export class User {
   /** Which login methods this account has linked */
   @Column({ type: 'simple-json', default: '[]' })
   linkedLogins: LoginType[];
+
+  /** User tier: newly registered accounts default to `'normal'` */
+  @Column({ type: 'varchar', default: 'normal' })
+  userType: UserType;
+
+  /** Number of free AI chat turns used by normal users (max 3) */
+  @Column({ type: 'integer', default: 0 })
+  freeChatUsedCount: number;
+
+  /** Number of free from-scratch template generations used by normal users (max 1) */
+  @Column({ type: 'integer', default: 0 })
+  freeTemplateGenUsedCount: number;
 
   /**
    * Cumulative AI tokens consumed by this user.

@@ -28,6 +28,7 @@ export interface EditorPageController {
   handleCanvasesChange: (canvases: BuilderCanvas[], activeCanvasId: string, activeTheme: LayoutBuilderTheme) => void;
   /** Register a listener for `pipeline_stage` events emitted during template generation. */
   onPipelineEvent: (listener: (event: PipelineStageEvent) => void) => () => void;
+  goHome: () => void;
 }
 
 export function useEditorPageController(): EditorPageController {
@@ -186,6 +187,10 @@ export function useEditorPageController(): EditorPageController {
     };
   }, []);
 
+  const goHome = useCallback(() => {
+    router.push('/');
+  }, [router]);
+
   return {
     loading,
     generating,
@@ -195,5 +200,6 @@ export function useEditorPageController(): EditorPageController {
     initialThemeId: ownedTemplateId ?? themeId,
     handleCanvasesChange,
     onPipelineEvent,
+    goHome,
   };
 }

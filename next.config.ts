@@ -88,6 +88,19 @@ const nextConfig: NextConfig = {
       },
     ]);
   },
+  rewrites() {
+    const backendUrl = (process.env.BACKEND_URL ?? 'http://localhost:4000').replace(/\/+$/, '');
+    return Promise.resolve({
+      beforeFiles: [],
+      afterFiles: [],
+      fallback: [
+        {
+          source: '/template-assets/:path*',
+          destination: `${backendUrl}/api/template-assets/:path*`,
+        },
+      ],
+    });
+  },
   webpack(config: NextWebpackConfig) {
     config.resolve.alias = {
       ...config.resolve.alias,

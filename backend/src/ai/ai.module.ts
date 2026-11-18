@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from '../auth/auth.module';
 import { TemplatesModule } from '../templates/templates.module';
+import { UsersModule } from '../users/users.module';
 import { AgentEvalController } from './agentEval.controller';
 import { AgentRunnerService } from './agentRunner.service';
 import { AiController } from './ai.controller';
@@ -25,6 +26,7 @@ import { TokenUsageService } from './services/tokenUsage.service';
     TypeOrmModule.forFeature([EditorAiConversation, AiTokenUsageEvent]),
     AuthModule,
     TemplatesModule,
+    UsersModule,
   ],
   controllers: [AiController, AgentEvalController],
   providers: [

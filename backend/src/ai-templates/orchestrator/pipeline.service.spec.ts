@@ -31,7 +31,7 @@ const fakePipelineProvider: AiTemplatePipelineProvider = {
 class FakeDesignerAgent extends DesignerAgent {
   readonly runMock = jest.fn<
     Promise<PipelineStageRecord<DesignerOutput>>,
-    [TemplateSeed, string | undefined, number]
+    [TemplateSeed, string | undefined, number, string?]
   >();
 
   constructor() {
@@ -42,15 +42,18 @@ class FakeDesignerAgent extends DesignerAgent {
     seed: TemplateSeed,
     reviseSuggestion: string | undefined,
     attempt: number,
+    ownerUserId?: string,
   ): Promise<PipelineStageRecord<DesignerOutput>> {
-    return this.runMock(seed, reviseSuggestion, attempt);
+    return ownerUserId !== undefined
+      ? this.runMock(seed, reviseSuggestion, attempt, ownerUserId)
+      : this.runMock(seed, reviseSuggestion, attempt);
   }
 }
 
 class FakeDiversityCriticAgent extends DiversityCriticAgent {
   readonly runMock = jest.fn<
     Promise<PipelineStageRecord<CriticVerdict>>,
-    [DesignerOutput, ExistingTemplateSummary[], number]
+    [DesignerOutput, ExistingTemplateSummary[], number, string?]
   >();
 
   constructor() {
@@ -61,30 +64,39 @@ class FakeDiversityCriticAgent extends DiversityCriticAgent {
     candidate: DesignerOutput,
     existing: ExistingTemplateSummary[],
     attempt: number,
+    ownerUserId?: string,
   ): Promise<PipelineStageRecord<CriticVerdict>> {
-    return this.runMock(candidate, existing, attempt);
+    return ownerUserId !== undefined
+      ? this.runMock(candidate, existing, attempt, ownerUserId)
+      : this.runMock(candidate, existing, attempt);
   }
 }
 
 class FakeSchemaGeneratorAgent extends SchemaGeneratorAgent {
   readonly runMock = jest.fn<
     Promise<PipelineStageRecord<SchemaOutput>>,
-    [DesignerOutput, number]
+    [DesignerOutput, number, string?]
   >();
 
   constructor() {
     super(fakePipelineProvider);
   }
 
-  override run(brief: DesignerOutput, attempt: number): Promise<PipelineStageRecord<SchemaOutput>> {
-    return this.runMock(brief, attempt);
+  override run(
+    brief: DesignerOutput,
+    attempt: number,
+    ownerUserId?: string,
+  ): Promise<PipelineStageRecord<SchemaOutput>> {
+    return ownerUserId !== undefined
+      ? this.runMock(brief, attempt, ownerUserId)
+      : this.runMock(brief, attempt);
   }
 }
 
 class FakeVerifierAgent extends VerifierAgent {
   readonly runMock = jest.fn<
     Promise<PipelineStageRecord<VerifierVerdict[]>>,
-    [DesignerOutput, SchemaOutput, ExistingTemplateSummary[], number]
+    [DesignerOutput, SchemaOutput, ExistingTemplateSummary[], number, string?]
   >();
 
   constructor() {
@@ -96,8 +108,11 @@ class FakeVerifierAgent extends VerifierAgent {
     schema: SchemaOutput,
     existing: ExistingTemplateSummary[],
     attempt: number,
+    ownerUserId?: string,
   ): Promise<PipelineStageRecord<VerifierVerdict[]>> {
-    return this.runMock(brief, schema, existing, attempt);
+    return ownerUserId !== undefined
+      ? this.runMock(brief, schema, existing, attempt, ownerUserId)
+      : this.runMock(brief, schema, existing, attempt);
   }
 }
 
@@ -529,5 +544,146 @@ describe('TemplatePipelineService', () => {
       expect(result).toContain('[adjust_layout] 将 cta 调整为 row');
       expect(result).toContain('[improve_contrast] footer: 提高主色亮度');
     });
+  });
+
+  it('repairs schema locally after verifier failure without restarting from Designer', async () => {
+    const { service, designer, critic, schemaGenerator, verifier } = createHarness();
+    const seed: TemplateSeed = { prompt: 'knowledge app' };
+    const brief = createBrief({ templateId: 'knowledge-hub' });
+    const initialSchema = createSchema('knowledge-hub');
+    const repairedSchema = createSchema('knowledge-hub-repaired');
+
+    designer.runMock.mockResolvedValueOnce(stage(1, brief));
+    critic.runMock.mockResolvedValueOnce(stage(1, { verdict: 'pass', conflicts: [] }));
+    schemaGenerator.runMock.mockResolvedValueOnce(stage(1, initialSchema));
+    const repairSpy = jest
+      .spyOn(schemaGenerator, 'repairFromVerifierFeedback')
+      .mockResolvedValueOnce(stage(1, repairedSchema));
+
+    verifier.runMock
+      .mockResolvedValueOnce(
+        stage(1, [
+          {
+            lens: 'business-fidelity',
+            pass: false,
+            failures: [
+              {
+                rule: 'action_missing',
+                severity: 'error',
+                location: 'pages[1]',
+                description: '下载页缺少主按钮',
+              },
+            ],
+            summary: '下载页缺少主按钮',
+          },
+        ]),
+      )
+      .mockResolvedValueOnce(stage(1, passVerdicts()));
+
+    const result = await service.generate(seed, []);
+
+    expect(designer.runMock).toHaveBeenCalledTimes(1);
+    expect(schemaGenerator.runMock).toHaveBeenCalledTimes(1);
+    expect(repairSpy).toHaveBeenCalledTimes(1);
+    expect(verifier.runMock).toHaveBeenCalledTimes(2);
+    expect(result.document).toBe(repairedSchema.document);
+    expect(result.totalAttempts).toBe(1);
+  });
+
+  it('allows diversity-only verifier failure on the final attempt (best-effort)', async () => {
+    const { service, designer, critic, schemaGenerator, verifier } = createHarness();
+    const seed: TemplateSeed = { prompt: 'knowledge app' };
+    const briefs = [
+      createBrief({ templateId: 't-1' }),
+      createBrief({ templateId: 't-2' }),
+      createBrief({ templateId: 't-3' }),
+    ];
+    const schemas = [createSchema('t-1'), createSchema('t-2'), createSchema('t-3')];
+    const diversityOnlyFail: VerifierVerdict[] = [
+      { lens: 'spec-compliance', pass: true, failures: [], summary: 'ok' },
+      {
+        lens: 'diversity',
+        pass: false,
+        failures: [
+          {
+            rule: 'palette_similar',
+            severity: 'error',
+            description: '主色相接近',
+          },
+        ],
+        summary: '与已有模板主色相接近',
+      },
+      { lens: 'business-fidelity', pass: true, failures: [], summary: 'ok' },
+    ];
+
+    for (let i = 0; i < 3; i += 1) {
+      designer.runMock.mockResolvedValueOnce(stage(i + 1, briefs[i]));
+      critic.runMock.mockResolvedValueOnce(stage(i + 1, { verdict: 'pass', conflicts: [] }));
+      schemaGenerator.runMock.mockResolvedValueOnce(stage(i + 1, schemas[i]));
+      verifier.runMock.mockResolvedValueOnce(stage(i + 1, diversityOnlyFail));
+    }
+
+    const result = await service.generate(seed, []);
+
+    expect(result.templateId).toBe('t-3');
+    expect(result.totalAttempts).toBe(3);
+  });
+
+  it('forwards ownerUserId to every stage including repair and re-verify', async () => {
+    const { service, designer, critic, schemaGenerator, verifier } = createHarness();
+    const seed: TemplateSeed = { prompt: 'knowledge app' };
+    const existing = createExisting();
+    const brief = createBrief({ templateId: 'knowledge-hub' });
+    const initialSchema = createSchema('knowledge-hub');
+    const repairedSchema = createSchema('knowledge-hub-repaired');
+
+    designer.runMock.mockResolvedValueOnce(stage(1, brief));
+    critic.runMock.mockResolvedValueOnce(stage(1, { verdict: 'pass', conflicts: [] }));
+    schemaGenerator.runMock.mockResolvedValueOnce(stage(1, initialSchema));
+    const repairSpy = jest
+      .spyOn(schemaGenerator, 'repairFromVerifierFeedback')
+      .mockResolvedValueOnce(stage(1, repairedSchema));
+
+    verifier.runMock
+      .mockResolvedValueOnce(
+        stage(1, [
+          {
+            lens: 'business-fidelity',
+            pass: false,
+            failures: [
+              {
+                rule: 'action_missing',
+                severity: 'error',
+                description: '下载页缺少主按钮',
+              },
+            ],
+            summary: '下载页缺少主按钮',
+          },
+        ]),
+      )
+      .mockResolvedValueOnce(stage(1, passVerdicts()));
+
+    await service.generate(seed, existing, { ownerUserId: 'user-42' });
+
+    expect(designer.runMock).toHaveBeenCalledWith(seed, undefined, 1, 'user-42');
+    expect(critic.runMock).toHaveBeenCalledWith(brief, existing, 1, 'user-42');
+    expect(schemaGenerator.runMock).toHaveBeenCalledWith(brief, 1, 'user-42');
+    expect(repairSpy).toHaveBeenCalledWith(brief, initialSchema, expect.any(Array), 1, 'user-42');
+    expect(verifier.runMock).toHaveBeenNthCalledWith(
+      1,
+      brief,
+      initialSchema,
+      existing,
+      1,
+      'user-42',
+    );
+    expect(verifier.runMock).toHaveBeenNthCalledWith(
+      2,
+      brief,
+      repairedSchema,
+      existing,
+      1,
+      'user-42',
+    );
   });
 });

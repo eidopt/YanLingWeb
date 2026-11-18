@@ -27,9 +27,11 @@ function purifyOneMessage(msg: ProviderMessage, targetCaps: ProviderCapabilities
 
   const needsDeveloperHandling = msg.role === 'developer' && !targetCaps.supportsDeveloperRole;
 
-  // For required mode, assistant messages without reasoningContent need filling
+  // For required mode, assistant and tool_call messages without reasoningContent need filling
   const needsRequiredFill =
-    msg.role === 'assistant' && targetCaps.reasoningMode === 'required' && !hasReasoning;
+    (msg.role === 'assistant' || msg.role === 'tool_call') &&
+    targetCaps.reasoningMode === 'required' &&
+    !hasReasoning;
 
   // cache_control is only meaningful for providers whose cacheStrategy is
   // 'cache_control' (Qwen). For any other target, drop the marker so the

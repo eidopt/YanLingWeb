@@ -1,7 +1,7 @@
 export const wechatQrViewContent = {
   error: {
     qrLoadFailed: '获取二维码失败',
-    oauthFailed: 'OAuth failed',
+    oauthFailed: '微信授权失败',
   },
   back: '返回',
   title: '微信扫码登录',
@@ -13,8 +13,8 @@ export const wechatQrViewContent = {
   expiredRefresh: '二维码已过期？点击刷新',
   openInBrowser: '在浏览器中打开微信授权页',
   dev: {
-    title: 'Dev: simulate WeChat callback',
-    placeholder: 'paste WeChat code',
+    title: '开发模式：模拟微信回调',
+    placeholder: '粘贴微信授权码',
     submit: '提交',
   },
 } as const;

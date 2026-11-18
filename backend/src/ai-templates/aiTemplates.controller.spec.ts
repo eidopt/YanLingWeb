@@ -1,9 +1,11 @@
+import { ForbiddenException, HttpException } from '@nestjs/common';
 import type { ThemeLayoutDocument } from '@shared/agent/contracts/agent';
 import type { Response } from 'express';
 
 import type { AuthenticatedRequest } from '../auth/authenticatedRequest.interface';
 import type { TemplateReadRepository } from '../templates/repositories/templateRead.repository';
 import type { TemplateAssetService } from '../templates/templateAsset.service';
+import type { UserQuotaService } from '../users/services/userQuota.service';
 import { AiTemplatesController } from './aiTemplates.controller';
 import type { GeneratedSavedTemplateResult, GenerateOptions } from './aiTemplates.service';
 import { AiTemplatesService } from './aiTemplates.service';
@@ -104,8 +106,12 @@ function createResult(): PipelineExternalResult {
   };
 }
 
+function createRequest(sub = 'user-1'): AuthenticatedRequest {
+  return { user: { sub, username: 'alice' } } as AuthenticatedRequest;
+}
+
 describe('AiTemplatesController', () => {
-  it('splits materializeImages out of the body and passes it as a generate option', async () => {
+  it('splits materializeImages out of the body and forwards ownerUserId from auth', async () => {
     const { controller, service } = createHarness();
     const result = createResult();
     service.generateMock.mockResolvedValue(result);
@@ -117,7 +123,7 @@ describe('AiTemplatesController', () => {
       materializeImages: true,
     };
 
-    await expect(controller.generate(body)).resolves.toBe(result);
+    await expect(controller.generate(body, createRequest('user-9'))).resolves.toBe(result);
 
     expect(service.generateMock).toHaveBeenCalledWith(
       {
@@ -125,7 +131,7 @@ describe('AiTemplatesController', () => {
         platform: 'mini-program',
         displayCategory: '电商',
       },
-      { materializeImages: true },
+      { materializeImages: true, ownerUserId: 'user-9' },
     );
   });
 
@@ -138,11 +144,11 @@ describe('AiTemplatesController', () => {
       prompt: '咖啡店',
     };
 
-    await expect(controller.generate(body)).resolves.toBe(result);
+    await expect(controller.generate(body, createRequest('user-1'))).resolves.toBe(result);
 
     expect(service.generateMock).toHaveBeenCalledWith(
       { prompt: '咖啡店' },
-      { materializeImages: undefined },
+      { materializeImages: undefined, ownerUserId: 'user-1' },
     );
   });
 
@@ -187,7 +193,7 @@ describe('AiTemplatesController', () => {
       flush: jest.fn(),
     };
 
-    controller.generateStream(
+    await controller.generateStream(
       { prompt: '生鲜配送', platform: 'mini-program' },
       req,
       res as unknown as Response,
@@ -205,5 +211,35 @@ describe('AiTemplatesController', () => {
     expect(body).toContain('"type":"template_saved"');
     expect(body).toContain('"templateId":"tpl-1"');
     expect(body).toContain('"type":"done"');
+  });
+
+  it('rejects generate and generateStream with 403 when quota is exceeded', async () => {
+    const service = new MockAiTemplatesService();
+    const userQuota = {
+      consumeFreeTemplateGenQuota: jest.fn().mockRejectedValue(
+        new ForbiddenException({
+          code: 'FREE_TEMPLATE_QUOTA_EXCEEDED',
+          message: '免费余额度已用完，普通用户从零开始生成模板仅限 1 次，需要充值后继续使用。',
+        }),
+      ),
+    } as unknown as UserQuotaService;
+    const controller = new AiTemplatesController(service, userQuota);
+    const req = createRequest('user-normal');
+    const flushHeadersMock = jest.fn();
+    const res = {
+      setHeader: jest.fn(),
+      flushHeaders: flushHeadersMock,
+      write: jest.fn(),
+      end: jest.fn(),
+    } as unknown as Response;
+
+    await expect(controller.generate({ prompt: '咖啡店' }, req)).rejects.toThrow(HttpException);
+    await expect(controller.generateStream({ prompt: '咖啡店' }, req, res)).rejects.toThrow(
+      ForbiddenException,
+    );
+
+    expect(service.generateMock).not.toHaveBeenCalled();
+    expect(service.generateAndSaveMock).not.toHaveBeenCalled();
+    expect(flushHeadersMock).not.toHaveBeenCalled();
   });
 });

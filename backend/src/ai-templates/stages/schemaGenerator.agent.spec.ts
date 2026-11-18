@@ -233,5 +233,6 @@ describe('SchemaGeneratorAgent', () => {
       订单: { type: 'navigate', targetPageId: 'orders' },
     });
     expect(result.output.document.cssVars?.['--accent']).toBe('#16A34A');
+    expect(result.output.document.componentTemplates).toEqual({});
   });
 });

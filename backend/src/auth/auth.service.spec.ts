@@ -86,6 +86,24 @@ class FakeUserAccountRepository implements UserAccountRepository {
     this.users.delete(user.id);
     return Promise.resolve();
   }
+
+  consumeFreeChatQuota(userId: string, limit: number): Promise<boolean> {
+    const user = this.users.get(userId);
+    if (user?.userType !== 'normal' || user.freeChatUsedCount >= limit) {
+      return Promise.resolve(false);
+    }
+    user.freeChatUsedCount += 1;
+    return Promise.resolve(true);
+  }
+
+  consumeFreeTemplateGenQuota(userId: string, limit: number): Promise<boolean> {
+    const user = this.users.get(userId);
+    if (user?.userType !== 'normal' || user.freeTemplateGenUsedCount >= limit) {
+      return Promise.resolve(false);
+    }
+    user.freeTemplateGenUsedCount += 1;
+    return Promise.resolve(true);
+  }
 }
 
 function createUser(overrides: Partial<User> = {}): User {
@@ -99,6 +117,9 @@ function createUser(overrides: Partial<User> = {}): User {
     wechatOpenId: null,
     qqOpenId: null,
     linkedLogins: ['local'],
+    userType: 'normal',
+    freeChatUsedCount: 0,
+    freeTemplateGenUsedCount: 0,
     tokensUsed: '12',
     tokensBalance: 88,
     balanceCents: 0,

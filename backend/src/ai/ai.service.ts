@@ -180,6 +180,26 @@ export class AiService {
     };
   }
 
+  async recordTemplatePipelineTokenUsage(
+    ownerUserId: string,
+    model: string,
+    usage: {
+      inputTokens: number;
+      outputTokens: number;
+      cacheHitTokens?: number;
+      cacheMissTokens?: number;
+    },
+  ): Promise<void> {
+    await this.tokenUsageService.recordTokenUsage(
+      ownerUserId,
+      model,
+      usage,
+      'ai-templates',
+      this.aiConfig.provider,
+    );
+    this.tokenUsageService.logCacheUsage(ownerUserId, model, usage, 'ai-templates');
+  }
+
   private resolveConfiguredModel(requestedModel?: string): string {
     const { pro, lite } = this.aiConfig.models;
     if (requestedModel && lite && requestedModel === lite) {

@@ -204,4 +204,150 @@ describe('ConfigFactory validation', () => {
       ),
     ).toThrow(/WECHAT OAuth config must set/);
   });
+
+  it('keeps independent image config when main provider is openai-compatible (DeepSeek)', () => {
+    const config = ConfigFactory.build(
+      {
+        SERVER_FLAVOR: 'development',
+        JWT_SECRET: 'development-secret',
+        AI_PROVIDER: 'openai-compatible',
+        AI_PRO_MODEL: 'deepseek-flash',
+        DEEPSEEK_API_KEY: 'sk-deepseek-chat',
+        DEEPSEEK_BASE_URL: 'https://api.deepseek.com/v1',
+        AI_IMAGE_MODEL: 'MiniMax-H3-Image-Highspeed',
+        AI_IMAGE_GENERATION: 'sk-cp-image-secret',
+        AI_IMAGE_BASE_URL: 'https://api.minimax.io/v1',
+        OPENAI_API_KEY: '',
+        OPENAI_BASE_URL: 'https://api.openai.com/v1',
+      },
+      [],
+    );
+
+    expect(config.ai.provider).toBe('openaiCompatible');
+    expect(config.ai.apiKey).toBe('sk-deepseek-chat');
+    expect(config.ai.baseUrl).toBe('https://api.deepseek.com/v1');
+    expect(config.ai.imageGenerationEnabled).toBe(true);
+    expect(config.ai.models.image).toBe('MiniMax-H3-Image-Highspeed');
+    expect(config.ai.image).toEqual({
+      model: 'MiniMax-H3-Image-Highspeed',
+      apiKey: 'sk-cp-image-secret',
+      baseUrl: 'https://api.minimax.io/v1',
+    });
+  });
+
+  it('supports AI_IMAGE_API_KEY, AI_IMAGE_API_URL, full URLs, and adapter overrides', () => {
+    const withExplicitOverride = ConfigFactory.build(
+      {
+        SERVER_FLAVOR: 'development',
+        JWT_SECRET: 'development-secret',
+        AI_PROVIDER: 'openai-compatible',
+        AI_IMAGE_MODEL: 'MiniMax-H3-Image-Highspeed',
+        AI_IMAGE_GENERATION: 'sk-from-gen',
+        AI_IMAGE_API_KEY: 'sk-from-dedicated',
+        AI_IMAGE_API_URL: 'https://api.minimaxi.com/v1/images/generations',
+        AI_IMAGE_PROVIDER: 'minimax',
+        AI_IMAGE_TIMEOUT_MS: '240000',
+        AI_IMAGE_MAX_RETRIES: '0',
+        AI_IMAGE_OUTPUT_FORMAT: 'png',
+      },
+      [],
+    );
+
+    expect(withExplicitOverride.ai.image).toEqual({
+      provider: 'minimax',
+      model: 'MiniMax-H3-Image-Highspeed',
+      apiKey: 'sk-from-dedicated',
+      baseUrl: 'https://api.minimaxi.com/v1/images/generations',
+      timeoutMs: 240000,
+      maxRetries: 0,
+      outputFormat: 'png',
+    });
+
+    const withoutHardcodedUrl = ConfigFactory.build(
+      {
+        SERVER_FLAVOR: 'development',
+        JWT_SECRET: 'development-secret',
+        AI_PROVIDER: 'openai-compatible',
+        AI_IMAGE_MODEL: 'MiniMax-H3-Image-Highspeed',
+        AI_IMAGE_GENERATION: 'sk-minimax-key',
+        OPENAI_BASE_URL: 'https://api.openai.com/v1',
+      },
+      [],
+    );
+
+    expect(withoutHardcodedUrl.ai.image).toEqual({
+      model: 'MiniMax-H3-Image-Highspeed',
+      apiKey: 'sk-minimax-key',
+      baseUrl: 'https://api.openai.com/v1',
+    });
+  });
+
+  it('treats boolean flags in AI_IMAGE_GENERATION as toggles rather than API keys', () => {
+    const disabled = ConfigFactory.build(
+      {
+        SERVER_FLAVOR: 'development',
+        JWT_SECRET: 'development-secret',
+        AI_IMAGE_MODEL: 'gpt-image-1.5',
+        AI_IMAGE_GENERATION: 'off',
+      },
+      [],
+    );
+
+    expect(disabled.ai.imageGenerationEnabled).toBe(false);
+    expect(disabled.ai.image.apiKey).toBeUndefined();
+
+    const enabledFlagOnly = ConfigFactory.build(
+      {
+        SERVER_FLAVOR: 'development',
+        JWT_SECRET: 'development-secret',
+        AI_IMAGE_MODEL: 'gpt-image-1.5',
+        AI_IMAGE_GENERATION: 'true',
+        OPENAI_API_KEY: 'sk-openai-fallback',
+        OPENAI_BASE_URL: 'https://api.openai.com/v1',
+      },
+      [],
+    );
+
+    expect(enabledFlagOnly.ai.imageGenerationEnabled).toBe(true);
+    expect(enabledFlagOnly.ai.materializeImages).toBe(false);
+    expect(enabledFlagOnly.ai.image).toEqual({
+      model: 'gpt-image-1.5',
+      apiKey: 'sk-openai-fallback',
+      baseUrl: 'https://api.openai.com/v1',
+    });
+  });
+
+  it('defaults AI_MATERIALIZE_IMAGES by flavor and supports AI_IMAGE_PUBLIC_BASE_URL', () => {
+    const devDefault = ConfigFactory.build(
+      {
+        SERVER_FLAVOR: 'development',
+        JWT_SECRET: 'dev-secret',
+      },
+      [],
+    );
+    expect(devDefault.ai.materializeImages).toBe(false);
+
+    const devEnabled = ConfigFactory.build(
+      {
+        SERVER_FLAVOR: 'development',
+        JWT_SECRET: 'dev-secret',
+        AI_MATERIALIZE_IMAGES: 'true',
+        AI_IMAGE_PUBLIC_BASE_URL: 'https://cdn.example.com/template-assets/',
+      },
+      [],
+    );
+    expect(devEnabled.ai.materializeImages).toBe(true);
+    expect(devEnabled.ai.image.publicBaseUrl).toBe('https://cdn.example.com/template-assets/');
+
+    const prodDefault = ConfigFactory.build(
+      {
+        SERVER_FLAVOR: 'production',
+        JWT_SECRET: 'prod-secret',
+        DB_SYNCHRONIZE: 'false',
+        CORS_ORIGINS: 'https://app.example.com',
+      },
+      [],
+    );
+    expect(prodDefault.ai.materializeImages).toBe(true);
+  });
 });

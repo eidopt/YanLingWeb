@@ -30,12 +30,41 @@ export interface ServerConfig {
       baseUrl?: string;
     };
     /**
+     * 生图（AI Images）独立配置 —— 不跟随主 chat provider。
+     * 这样主模型切到 DeepSeek（AI_PROVIDER=openai-compatible）时，生图仍共用同一套
+     * 独立生图 API（如 MiniMax / OpenAI Images / 其他兼容端点），不会错落回 DeepSeek。
+     * 环境变量：AI_IMAGE_PROVIDER、AI_IMAGE_MODEL、
+     * AI_IMAGE_API_KEY（兼容 AI_IMAGE_GENERATION 直接填 key）、
+     * AI_IMAGE_BASE_URL（支持仅填前缀或完整生图 URL，兼容 AI_IMAGE_API_URL），
+     * AI_IMAGE_TIMEOUT_MS、AI_IMAGE_MAX_RETRIES、AI_IMAGE_OUTPUT_FORMAT。
+     */
+    image: {
+      provider?: string;
+      model?: string;
+      apiKey?: string;
+      baseUrl?: string;
+      /**
+       * 对外访问生成图片的 URL 前缀（AI_IMAGE_PUBLIC_BASE_URL / TEMPLATE_ASSET_PUBLIC_BASE_URL）。
+       * 不配则默认输出 `/template-assets/<relativeStorageKey>`（由前端 public/ 或 Next fallback
+       * 代理到后端 `GET /api/template-assets/*`）；部署在独立域名或 CDN 时可设为 `https://.../template-assets`。
+       */
+      publicBaseUrl?: string;
+      timeoutMs?: number;
+      maxRetries?: number;
+      outputFormat?: 'png' | 'jpeg' | 'webp';
+    };
+    /**
      * 是否允许调用 AI 生图（OpenAI Images API）。默认 true。
      * 关掉后（AI_IMAGE_GENERATION=off|false|0|no|placeholder）模板配图一律走占位符，
      * 后端启动导入 / --with-images 都不再现生图，避免长耗时与按张计费。
      * 注意：已存在的图（asset.url 合法 或 磁盘缓存命中）仍会复用，因为复用是免费的。
      */
     imageGenerationEnabled: boolean;
+    /**
+     * 是否默认在生成/保存模板时实际调用生图 API 物化图片（AI_MATERIALIZE_IMAGES）。
+     * 未显式配置时：`production` 默认 `true`，`development` / `test` 默认 `false`（走占位符）。
+     */
+    materializeImages: boolean;
     /**
      * 编辑器 agent QueryLoop 的最大迭代次数。默认 96，下限 32（低于则取默认）。
      * 由 EDITOR_AGENT_MAX_ITERATIONS 配置。
@@ -130,7 +159,10 @@ export class ConfigFactory {
       openaiCompatible: 'DEEPSEEK',
     };
     const configuredProvider = this.read(source, serverFlavor, 'AI_PROVIDER');
-    const aiProvider = configuredProvider === 'openaiCompatible' ? 'openaiCompatible' : 'openai';
+    const aiProvider =
+      configuredProvider === 'openaiCompatible' || configuredProvider === 'openai-compatible'
+        ? 'openaiCompatible'
+        : 'openai';
     const prefix = VAR_PREFIX[aiProvider];
 
     // Latest stable models. v4-pro has 1M context + prefix caching;
@@ -154,11 +186,42 @@ export class ConfigFactory {
       this.read(source, serverFlavor, 'AI_EMBEDDING_BASE_URL') ??
       this.read(source, serverFlavor, 'OPENAI_BASE_URL') ??
       this.read(source, serverFlavor, 'AI_BASE_URL');
-    // 生图开关：默认开启；显式设为 off/false/0/no/placeholder 则关闭（走占位符）。
-    const aiImageGenRaw = this.read(source, serverFlavor, 'AI_IMAGE_GENERATION');
+    // 生图开关与独立生图配置：
+    // - AI_IMAGE_GENERATION 为 off/false/0/no/placeholder/disabled 时关闭；
+    // - 若 AI_IMAGE_GENERATION 直接填写 API Key（非布尔开关值），视为开启并用作生图 key；
+    // - key/baseUrl 独立于主 chat provider，确保主模型切 DeepSeek 时仍共用同一独立生图 API。
+    const aiImageGenRaw = this.read(source, serverFlavor, 'AI_IMAGE_GENERATION')?.trim();
     const imageGenDisabledValues = ['off', 'false', '0', 'no', 'placeholder', 'disabled'];
+    const imageGenEnabledValues = ['on', 'true', '1', 'yes', 'enabled'];
+    const aiImageGenLower = aiImageGenRaw?.toLowerCase();
     const imageGenerationEnabled =
-      aiImageGenRaw == null || !imageGenDisabledValues.includes(aiImageGenRaw.trim().toLowerCase());
+      aiImageGenLower == null || !imageGenDisabledValues.includes(aiImageGenLower);
+    const aiImageGenerationKey =
+      aiImageGenRaw &&
+      !imageGenDisabledValues.includes(aiImageGenRaw.toLowerCase()) &&
+      !imageGenEnabledValues.includes(aiImageGenRaw.toLowerCase())
+        ? aiImageGenRaw
+        : undefined;
+    const aiImageApiKey =
+      this.read(source, serverFlavor, 'AI_IMAGE_API_KEY') ??
+      aiImageGenerationKey ??
+      this.read(source, serverFlavor, 'OPENAI_API_KEY') ??
+      this.read(source, serverFlavor, 'AI_API_KEY');
+    const aiImageBaseUrl =
+      this.read(source, serverFlavor, 'AI_IMAGE_BASE_URL') ??
+      this.read(source, serverFlavor, 'AI_IMAGE_API_URL') ??
+      this.read(source, serverFlavor, 'OPENAI_BASE_URL') ??
+      this.read(source, serverFlavor, 'AI_BASE_URL');
+    const aiImageProvider = this.read(source, serverFlavor, 'AI_IMAGE_PROVIDER');
+    const aiImagePublicBaseUrl =
+      this.read(source, serverFlavor, 'AI_IMAGE_PUBLIC_BASE_URL') ??
+      this.read(source, serverFlavor, 'TEMPLATE_ASSET_PUBLIC_BASE_URL');
+    const aiImageTimeoutMs = this.readNumber(source, serverFlavor, 'AI_IMAGE_TIMEOUT_MS');
+    const aiImageMaxRetries = this.readNumber(source, serverFlavor, 'AI_IMAGE_MAX_RETRIES');
+    const aiImageOutputFormat = this.readImageOutputFormat(source, serverFlavor);
+    const materializeImages =
+      this.readBoolean(source, serverFlavor, 'AI_MATERIALIZE_IMAGES') ??
+      serverFlavor === 'production';
     // 编辑器 agent 最大迭代次数：默认 96，下限 32。
     const EDITOR_AGENT_MAX_ITERATIONS_DEFAULT = 96;
     const EDITOR_AGENT_MAX_ITERATIONS_MIN = 32;
@@ -185,6 +248,16 @@ export class ConfigFactory {
           ...(aiEmbeddingApiKey ? { apiKey: aiEmbeddingApiKey } : {}),
           ...(aiEmbeddingBaseUrl ? { baseUrl: aiEmbeddingBaseUrl } : {}),
         },
+        image: {
+          ...(aiImageProvider ? { provider: aiImageProvider } : {}),
+          ...(aiImageModel ? { model: aiImageModel } : {}),
+          ...(aiImageApiKey ? { apiKey: aiImageApiKey } : {}),
+          ...(aiImageBaseUrl ? { baseUrl: aiImageBaseUrl } : {}),
+          ...(aiImagePublicBaseUrl ? { publicBaseUrl: aiImagePublicBaseUrl } : {}),
+          ...(aiImageTimeoutMs !== undefined ? { timeoutMs: aiImageTimeoutMs } : {}),
+          ...(aiImageMaxRetries !== undefined ? { maxRetries: aiImageMaxRetries } : {}),
+          ...(aiImageOutputFormat ? { outputFormat: aiImageOutputFormat } : {}),
+        },
         // Try provider-specific vars (e.g. OPENAI_API_KEY), fall back to generic AI_*
         apiKey:
           this.read(source, serverFlavor, `${prefix}_API_KEY`) ??
@@ -193,6 +266,7 @@ export class ConfigFactory {
           this.read(source, serverFlavor, `${prefix}_BASE_URL`) ??
           this.read(source, serverFlavor, 'AI_BASE_URL'),
         imageGenerationEnabled,
+        materializeImages,
         editorAgentMaxIterations,
         // ── Provider capability overrides (for openai-compatible) ──
         reasoningMode: this.readReasoningMode(source, serverFlavor),
@@ -476,6 +550,20 @@ export class ConfigFactory {
       return value;
     }
     throw new Error(`Invalid AI_CACHE_STRATEGY: ${value}`);
+  }
+
+  private static readImageOutputFormat(
+    source: EnvSource,
+    nodeEnv: ServerFlavors,
+  ): 'png' | 'jpeg' | 'webp' | undefined {
+    const value = this.read(source, nodeEnv, 'AI_IMAGE_OUTPUT_FORMAT')?.toLowerCase();
+    if (!value) {
+      return undefined;
+    }
+    if (value === 'png' || value === 'jpeg' || value === 'webp') {
+      return value;
+    }
+    throw new Error(`Invalid AI_IMAGE_OUTPUT_FORMAT: ${value}`);
   }
 
   private static readJsonRecord(

@@ -15,7 +15,18 @@ import { runStructuredStage } from '../orchestrator/runStage';
 import { SUBMIT_TEMPLATE_BRIEF_TOOL } from '../tools/submitTemplateBrief.tool';
 
 const VALID_ARCHETYPES = new Set(['fresh', 'immersive', 'editorial', 'vibrant', 'dark-pro']);
-const VALID_VARIANTS = new Set<ArchetypeVariant>(['standard', 'compact', 'spacious', 'borderless', 'waterfall', 'overlap', 'gradient-mask', 'float-card', 'split-diagonal', 'layered-stack']);
+const VALID_VARIANTS = new Set<ArchetypeVariant>([
+  'standard',
+  'compact',
+  'spacious',
+  'borderless',
+  'waterfall',
+  'overlap',
+  'gradient-mask',
+  'float-card',
+  'split-diagonal',
+  'layered-stack',
+]);
 const VALID_HERO_MODES = new Set([
   'date-strip',
   'function-grid',
@@ -48,6 +59,7 @@ export class DesignerAgent {
     seed: TemplateSeed,
     reviseSuggestion: string | undefined,
     attempt: number,
+    ownerUserId?: string,
   ): Promise<PipelineStageRecord<DesignerOutput>> {
     const start = Date.now();
     // Designer 出的 brief 是喂给 SchemaGen 的质量关键输入，**必须用 pro**：
@@ -69,6 +81,8 @@ export class DesignerAgent {
       userMessage,
       tool: SUBMIT_TEMPLATE_BRIEF_TOOL,
       parse: (args) => this.parseBrief(args),
+      aiProvider: this.aiProvider,
+      ownerUserId,
     });
 
     return {
@@ -144,7 +158,7 @@ export class DesignerAgent {
       name: requireString('name'),
       tagline: requireString('tagline'),
       archetype: requireEnum('archetype', VALID_ARCHETYPES),
-      variant: requireEnum('variant', VALID_VARIANTS) as ArchetypeVariant,
+      variant: requireEnum('variant', VALID_VARIANTS),
       heroMode: requireEnum('heroMode', VALID_HERO_MODES),
       platform: requireEnum('platform', VALID_PLATFORMS),
       chrome: requireEnum('chrome', VALID_CHROMES),

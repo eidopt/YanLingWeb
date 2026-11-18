@@ -10,19 +10,13 @@ export function BreadcrumbNode({ props, nodeLayoutStyle }: CoreNodeProps<Breadcr
   const separator = asString(props.separator, '/');
 
   return (
-    <nav className={styles.breadcrumb} style={nodeLayoutStyle} aria-label="Breadcrumb">
+    <nav className={styles.breadcrumb} style={nodeLayoutStyle} aria-label="面包屑导航">
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
         return (
           <span key={item} className={styles.crumb}>
-            {!isLast ? (
-              <span className={styles.link}>{item}</span>
-            ) : (
-              <span className={styles.current}>{item}</span>
-            )}
-            {!isLast ? (
-              <span className={styles.separator}>{separator}</span>
-            ) : null}
+            {!isLast ? <span className={styles.link}>{item}</span> : <span className={styles.current}>{item}</span>}
+            {!isLast ? <span className={styles.separator}>{separator}</span> : null}
           </span>
         );
       })}

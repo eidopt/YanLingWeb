@@ -9,7 +9,7 @@ import {
 } from '@shared/theme-layout/visualAssets';
 
 import { ConfigService } from '../config/config.service';
-import { generateImageBytes } from './imageGeneration';
+import { generateImageBytes, toImageGenerationConfig } from './imageGeneration';
 import {
   type AssetLookupContext,
   TEMPLATE_ASSET_STORE,
@@ -33,7 +33,8 @@ export type TemplateImageStrategy = 'generate' | 'library' | 'placeholder';
 export interface ResolveVisualAssetsOptions {
   /**
    * 图片解析策略，见 {@link TemplateImageStrategy}。
-   * 不传时按全局配置 `ai.imageGenerationEnabled` 决定：开→`generate`，关→`placeholder`。
+   * 不传时按全局配置 `ai.imageGenerationEnabled && ai.materializeImages` 决定：
+   * 全开→`generate`，任一关闭→`placeholder`。
    */
   strategy?: TemplateImageStrategy;
 }
@@ -86,9 +87,12 @@ export class TemplateAssetService {
       return { visualAssets: [], layoutDocument, manifest: null };
     }
 
-    // 策略：显式传入优先；否则按全局 AI_IMAGE_GENERATION 开关（开→generate，关→placeholder）。
+    // 策略：显式传入优先；否则仅当全局生图开关与 materializeImages 均开启时才走 generate，
+    // 确保本地开发（AI_MATERIALIZE_IMAGES=false）不跑真实生图 API，生产环境再开启。
+    const shouldGenerate =
+      this.config.ai.imageGenerationEnabled && this.config.ai.materializeImages;
     const strategy: TemplateImageStrategy =
-      options.strategy ?? (this.config.ai.imageGenerationEnabled ? 'generate' : 'placeholder');
+      options.strategy ?? (shouldGenerate ? 'generate' : 'placeholder');
 
     const resolvedAssets: VisualAsset[] = [];
     for (const asset of visualAssets) {
@@ -152,23 +156,23 @@ export class TemplateAssetService {
 
     // generate 策略：库未命中 → 调 AI 生图。
 
-    const imageModel = this.config.ai.models.image;
-    const apiKey = this.config.ai.apiKey;
+    const imageModel = this.config.ai.image.model ?? this.config.ai.models.image;
+    const imageConfig = toImageGenerationConfig(this.config.ai.image, imageModel);
     if (!asset.prompt) {
       return this.withPlaceholderFallback(asset, 'asset has no image prompt');
     }
     if (!imageModel) {
       return this.withPlaceholderFallback(asset, 'AI_IMAGE_MODEL is not configured');
     }
-    if (!apiKey) {
-      return this.withPlaceholderFallback(asset, 'AI API key is not configured');
+    if (!imageConfig) {
+      return this.withPlaceholderFallback(asset, 'AI image API key is not configured');
     }
 
     try {
-      const imageBytes = await generateImageBytes(
-        { apiKey, baseUrl: this.config.ai.baseUrl, model: imageModel },
-        this.buildImagePrompt(asset),
-      );
+      const imageBytes = await generateImageBytes(imageConfig, this.buildImagePrompt(asset), {
+        aspectRatio: asset.aspectRatio,
+        outputFormat: imageConfig.outputFormat ?? 'png',
+      });
       // 存储时带上语义 context，存储层可顺便建索引供日后复用。
       const stored = await this.store.save(templateId, asset.id, imageBytes, lookup);
       return {

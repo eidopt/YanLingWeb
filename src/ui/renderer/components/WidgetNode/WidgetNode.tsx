@@ -280,7 +280,7 @@ export function WidgetNode({
     <div
       ref={containerRef}
       style={{ minHeight: 240, ...nodeLayoutStyle }}
-      aria-label={renderer ? `${renderer} widget` : 'Unsupported widget'}
+      aria-label={renderer ? `${renderer} 组件` : '暂不支持的组件'}
       data-widget-library={library || undefined}
       data-widget-runtime={widgetRuntimeEnabled ? 'enabled' : 'disabled'}
       data-widget-renderer={renderer ?? undefined}

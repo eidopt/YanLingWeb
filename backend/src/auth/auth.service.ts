@@ -11,7 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 
 import { ConfigService } from '../config/config.service';
-import { User } from '../users/entities/user.entity';
+import { User, type UserType } from '../users/entities/user.entity';
 import { USER_ACCOUNT_REPOSITORY, type UserAccountRepository } from '../users/repositories';
 
 // Type aliases matching shared/types/user.types.ts
@@ -21,6 +21,9 @@ interface UserDto {
   email: string | null;
   phone: string | null;
   linkedLogins: string[];
+  userType: UserType;
+  freeChatUsedCount: number;
+  freeTemplateGenUsedCount: number;
   tokensUsed: number;
   tokensBalance: number;
   balanceCents: number;
@@ -397,6 +400,9 @@ export class AuthService {
       email: user.email,
       phone: user.phone,
       linkedLogins: user.linkedLogins,
+      userType: user.userType,
+      freeChatUsedCount: user.freeChatUsedCount,
+      freeTemplateGenUsedCount: user.freeTemplateGenUsedCount,
       tokensUsed: Number(user.tokensUsed),
       tokensBalance: user.tokensBalance,
       balanceCents: user.balanceCents,

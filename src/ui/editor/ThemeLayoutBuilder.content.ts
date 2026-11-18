@@ -22,7 +22,7 @@ export const themeLayoutBuilderContent = {
     resizeBothAriaLabel: '同时调整宽高',
   },
   header: {
-    eyebrow: 'Layout Editor',
+    eyebrow: '布局编辑器',
     title: '模板驱动的多画布编辑器',
     description: '左侧切换模板或组件，中间维护多个手机画布，右侧继续编辑当前选中节点。',
   },

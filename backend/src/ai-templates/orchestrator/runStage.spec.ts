@@ -6,6 +6,7 @@ import type {
   ProviderTool,
 } from '@shared/agent/contracts/provider';
 
+import type { AiTemplatePipelineProvider } from '../../ai/pipelineProvider.port';
 import { runStructuredStage } from './runStage';
 
 interface ParsedResult {
@@ -210,5 +211,48 @@ describe('runStructuredStage', () => {
     await expect(runStructuredStage(createOptions(provider, 1))).rejects.toThrow(
       'stage QueryLoop exceeded max iterations',
     );
+  });
+
+  it('records turn token usage for ownerUserId even when the stage fails', async () => {
+    const provider = new FakeProvider([
+      [
+        {
+          type: 'tool_call',
+          id: 'call-1',
+          name: 'unknown_tool',
+          arguments: JSON.stringify({ value: 'ignored' }),
+        },
+        {
+          type: 'done',
+          usage: { inputTokens: 25, outputTokens: 8, cacheHitTokens: 5, cacheMissTokens: 20 },
+        },
+      ],
+    ]);
+    const recordUsageMock = jest.fn().mockResolvedValue(undefined);
+    const aiProvider: AiTemplatePipelineProvider = {
+      getProviderForTemplatePipeline: () => ({
+        provider,
+        model: 'test-model',
+        liteModel: 'test-model-lite',
+        apiKeyConfigured: true,
+      }),
+      recordTemplatePipelineTokenUsage: recordUsageMock,
+    };
+
+    await expect(
+      runStructuredStage({
+        ...createOptions(provider, 1),
+        aiProvider,
+        ownerUserId: 'user-42',
+      }),
+    ).rejects.toThrow('stage QueryLoop exceeded max iterations');
+
+    expect(recordUsageMock).toHaveBeenCalledTimes(1);
+    expect(recordUsageMock).toHaveBeenCalledWith('user-42', 'test-model', {
+      inputTokens: 25,
+      outputTokens: 8,
+      cacheHitTokens: 5,
+      cacheMissTokens: 20,
+    });
   });
 });

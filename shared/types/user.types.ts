@@ -1,6 +1,7 @@
 // Shared user types — used by both frontend (Next.js) and backend (NestJS)
 
 export type LoginType = 'local' | 'wechat' | 'qq';
+export type UserType = 'normal' | 'pro';
 
 export interface UserDto {
   id: string;
@@ -8,6 +9,12 @@ export interface UserDto {
   email: string | null;
   phone: string | null;
   linkedLogins: LoginType[];
+  /** User tier: newly registered accounts default to `'normal'` */
+  userType: UserType;
+  /** Number of free AI conversation turns consumed under normal tier */
+  freeChatUsedCount: number;
+  /** Number of free from-scratch template generations consumed under normal tier */
+  freeTemplateGenUsedCount: number;
   /** Cumulative AI tokens consumed (stored as bigint in DB, safe as JS number up to 9×10¹⁵) */
   tokensUsed: number;
   /** Remaining purchased token quota */

@@ -54,6 +54,9 @@ export class TypeOrmUserAccountRepository implements UserAccountRepository {
       phone: input.phone,
       passwordHash: input.passwordHash,
       linkedLogins: ['local'],
+      userType: 'normal',
+      freeChatUsedCount: 0,
+      freeTemplateGenUsedCount: 0,
     });
   }
 
@@ -66,6 +69,9 @@ export class TypeOrmUserAccountRepository implements UserAccountRepository {
         passwordHash: null,
         wechatOpenId: input.openId,
         linkedLogins: [input.provider],
+        userType: 'normal',
+        freeChatUsedCount: 0,
+        freeTemplateGenUsedCount: 0,
       });
     }
     return this.repo.create({
@@ -75,6 +81,9 @@ export class TypeOrmUserAccountRepository implements UserAccountRepository {
       passwordHash: null,
       qqOpenId: input.openId,
       linkedLogins: [input.provider],
+      userType: 'normal',
+      freeChatUsedCount: 0,
+      freeTemplateGenUsedCount: 0,
     });
   }
 
@@ -88,5 +97,29 @@ export class TypeOrmUserAccountRepository implements UserAccountRepository {
 
   async remove(user: User): Promise<void> {
     await this.repo.remove(user);
+  }
+
+  async consumeFreeChatQuota(userId: string, limit: number): Promise<boolean> {
+    return this.consumeFreeQuotaColumn(userId, 'freeChatUsedCount', limit);
+  }
+
+  async consumeFreeTemplateGenQuota(userId: string, limit: number): Promise<boolean> {
+    return this.consumeFreeQuotaColumn(userId, 'freeTemplateGenUsedCount', limit);
+  }
+
+  private async consumeFreeQuotaColumn(
+    userId: string,
+    column: 'freeChatUsedCount' | 'freeTemplateGenUsedCount',
+    limit: number,
+  ): Promise<boolean> {
+    const result = await this.repo
+      .createQueryBuilder()
+      .update(User)
+      .set({ [column]: () => `"${column}" + 1` })
+      .where('id = :userId', { userId })
+      .andWhere(`"userType" = :normalType`, { normalType: 'normal' })
+      .andWhere(`"${column}" < :limit`, { limit })
+      .execute();
+    return (result.affected ?? 0) > 0;
   }
 }

@@ -29,7 +29,7 @@ export function AvatarNode({ props, nodeLayoutStyle }: CoreNodeProps<AvatarProps
   return (
     <div className={cx(styles.avatar, sizeClass, shapeClass)} style={nodeLayoutStyle}>
       {src ? (
-        <img className={styles.img} src={src} alt={text || 'Avatar'} />
+        <img className={styles.img} src={src} alt={text || '头像'} />
       ) : (
         <span className={styles.fallback}>{fallbackChar}</span>
       )}

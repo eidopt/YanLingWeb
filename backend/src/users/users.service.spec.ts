@@ -62,6 +62,14 @@ class FakeUserAccountRepository implements UserAccountRepository {
     this.users.delete(user.id);
     return Promise.resolve();
   }
+
+  consumeFreeChatQuota(): Promise<boolean> {
+    return Promise.resolve(true);
+  }
+
+  consumeFreeTemplateGenQuota(): Promise<boolean> {
+    return Promise.resolve(true);
+  }
 }
 
 class FakeTokenUsageRepository implements TokenUsageRepository {
@@ -93,6 +101,9 @@ function createUser(overrides: Partial<User> = {}): User {
     wechatOpenId: null,
     qqOpenId: null,
     linkedLogins: ['local'],
+    userType: 'normal',
+    freeChatUsedCount: 0,
+    freeTemplateGenUsedCount: 0,
     tokensUsed: 12,
     tokensBalance: 88,
     balanceCents: 0,

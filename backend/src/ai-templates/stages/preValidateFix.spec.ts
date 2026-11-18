@@ -4,6 +4,8 @@
  * Run: pnpm --dir backend test -- --runTestsByPath src/ai-templates/stages/preValidateFix.spec.ts
  */
 
+import { hasDisallowedLatinText } from '@shared/agent/validation/themeLayoutValidator.shared';
+
 import {
   autoBizComponents,
   dedupeNodeIds,
@@ -553,5 +555,20 @@ describe('preValidateAndFix', () => {
         .layout.children[0];
       expect(banner.props.background).toContain('placehold.co');
     });
+  });
+});
+
+describe('hasDisallowedLatinText', () => {
+  it('allows standard technical formats and platform names in Chinese UI labels', () => {
+    expect(hasDisallowedLatinText('PDF')).toBe(false);
+    expect(hasDisallowedLatinText('macOS')).toBe(false);
+    expect(hasDisallowedLatinText('Windows')).toBe(false);
+    expect(hasDisallowedLatinText('iOS')).toBe(false);
+    expect(hasDisallowedLatinText('支持 macOS 与 Windows 下载')).toBe(false);
+  });
+
+  it('rejects unlocalized English UI copy', () => {
+    expect(hasDisallowedLatinText('Download Now')).toBe(true);
+    expect(hasDisallowedLatinText('Weekly Featured Tools')).toBe(true);
   });
 });

@@ -1,7 +1,8 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { ForbiddenException, HttpException, HttpStatus } from '@nestjs/common';
 import { Observable, Subject } from 'rxjs';
 
 import type { AuthenticatedRequest } from '../auth/authenticatedRequest.interface';
+import type { UserQuotaService } from '../users/services/userQuota.service';
 import { AiController } from './ai.controller';
 import type {
   AiCacheStatsDto,
@@ -24,6 +25,7 @@ interface MockAiService {
     [string, string, SaveEditorAiConversationInput]
   >;
   checkRateLimit: jest.Mock<void, [string]>;
+  hasConfiguredApiKey: jest.Mock<boolean, []>;
   stream: jest.Mock<
     Observable<StreamSseEvent>,
     [string, StreamRequest, unknown, (phase: 'start' | 'end', payload: unknown) => void]
@@ -65,6 +67,7 @@ function createService(): MockAiService {
       [string, string, SaveEditorAiConversationInput]
     >(),
     checkRateLimit: jest.fn<void, [string]>(),
+    hasConfiguredApiKey: jest.fn<boolean, []>(() => true),
     stream: jest.fn<
       Observable<StreamSseEvent>,
       [string, StreamRequest, unknown, (phase: 'start' | 'end', payload: unknown) => void]
@@ -204,7 +207,7 @@ describe('AiController', () => {
   });
 
   describe('streamProxy', () => {
-    it('throws TOO_MANY_REQUESTS when the rate limit guard rejects', () => {
+    it('throws TOO_MANY_REQUESTS when the rate limit guard rejects', async () => {
       const { controller, service } = createHarness();
       service.checkRateLimit.mockImplementation(() => {
         throw new Error('Rate limit exceeded: too many requests');
@@ -214,7 +217,7 @@ describe('AiController', () => {
       const body = { model: 'm', messages: [] } as unknown as StreamRequest;
 
       try {
-        controller.streamProxy(body, req, asResponse(res));
+        await controller.streamProxy(body, req, asResponse(res));
         throw new Error('expected streamProxy to throw');
       } catch (err) {
         expect(err).toBeInstanceOf(HttpException);
@@ -226,7 +229,29 @@ describe('AiController', () => {
       expect(service.stream).not.toHaveBeenCalled();
     });
 
-    it('sets SSE headers and subscribes to the stream with cache options from headers', () => {
+    it('rejects streamProxy with 403 before SSE headers when chat quota is exceeded', async () => {
+      const service = createService();
+      const userQuota = {
+        consumeFreeChatQuota: jest.fn().mockRejectedValue(
+          new ForbiddenException({
+            code: 'FREE_CHAT_QUOTA_EXCEEDED',
+            message: '免费余额度已用完，普通用户总对话次数不能超过 3 次，需要充值后继续使用。',
+          }),
+        ),
+      } as unknown as UserQuotaService;
+      const controller = new AiController(service as unknown as AiService, userQuota);
+      const req = createStreamRequest();
+      const res = createResponse();
+      const body = { model: 'm', messages: [] } as unknown as StreamRequest;
+
+      await expect(controller.streamProxy(body, req, asResponse(res))).rejects.toThrow(
+        ForbiddenException,
+      );
+      expect(res.flushHeaders).not.toHaveBeenCalled();
+      expect(service.stream).not.toHaveBeenCalled();
+    });
+
+    it('sets SSE headers and subscribes to the stream with headers', async () => {
       const { controller, service } = createHarness();
       const subject = new Subject<StreamSseEvent>();
       service.stream.mockReturnValue(subject.asObservable());
@@ -237,7 +262,7 @@ describe('AiController', () => {
       const res = createResponse();
       const body = { model: 'm', messages: [] } as unknown as StreamRequest;
 
-      controller.streamProxy(body, req, asResponse(res));
+      await controller.streamProxy(body, req, asResponse(res));
 
       expect(service.checkRateLimit).toHaveBeenCalledWith('user-1');
       expect(service.stream).toHaveBeenCalledWith(
@@ -271,7 +296,7 @@ describe('AiController', () => {
       expect(res.end).toHaveBeenCalled();
     });
 
-    it('does not set the conversation-id header when absent', () => {
+    it('does not set the conversation-id header when absent', async () => {
       const { controller, service } = createHarness();
       const subject = new Subject<StreamSseEvent>();
       service.stream.mockReturnValue(subject.asObservable());
@@ -279,7 +304,7 @@ describe('AiController', () => {
       const res = createResponse();
       const body = { messages: [] } as unknown as StreamRequest;
 
-      controller.streamProxy(body, req, asResponse(res));
+      await controller.streamProxy(body, req, asResponse(res));
 
       expect(service.stream).toHaveBeenCalledWith(
         'user-1',
@@ -293,7 +318,7 @@ describe('AiController', () => {
       expect(res.setHeader).not.toHaveBeenCalledWith('x-conversation-id', expect.anything());
     });
 
-    it('writes an error event and ends the response when the stream errors', () => {
+    it('writes an error event and ends the response when the stream errors', async () => {
       const { controller, service } = createHarness();
       const subject = new Subject<StreamSseEvent>();
       service.stream.mockReturnValue(subject.asObservable());
@@ -301,14 +326,14 @@ describe('AiController', () => {
       const res = createResponse();
       const body = { messages: [] } as unknown as StreamRequest;
 
-      controller.streamProxy(body, req, asResponse(res));
+      await controller.streamProxy(body, req, asResponse(res));
       subject.error(new Error('boom'));
 
       expect(res.write).toHaveBeenCalledWith('data: {"type":"error","message":"boom"}\n\n');
       expect(res.end).toHaveBeenCalled();
     });
 
-    it('unsubscribes from the stream when the request closes', () => {
+    it('unsubscribes from the stream when the request closes', async () => {
       const { controller, service } = createHarness();
       const subject = new Subject<StreamSseEvent>();
       service.stream.mockReturnValue(subject.asObservable());
@@ -316,7 +341,7 @@ describe('AiController', () => {
       const res = createResponse();
       const body = { messages: [] } as unknown as StreamRequest;
 
-      controller.streamProxy(body, req, asResponse(res));
+      await controller.streamProxy(body, req, asResponse(res));
       expect(req.closeHandlers).toHaveLength(1);
 
       req.closeHandlers[0]();
@@ -324,7 +349,7 @@ describe('AiController', () => {
       expect(res.write).not.toHaveBeenCalled();
     });
 
-    it('forwards pipeline_stage_start/end events from the service callback (T11/T14)', () => {
+    it('forwards pipeline_stage_start/end events from the service callback (T11/T14)', async () => {
       const { controller, service } = createHarness();
       const subject = new Subject<StreamSseEvent>();
       // 捕获 controller 传给 service 的 stage 回调, 主动调用
@@ -348,7 +373,7 @@ describe('AiController', () => {
       const res = createResponse();
       const body = { messages: [] } as unknown as StreamRequest;
 
-      controller.streamProxy(body, req, asResponse(res));
+      await controller.streamProxy(body, req, asResponse(res));
 
       // 主动触发 4 个 stage 事件
       stageCallback?.('start', { stage: 'designer', attempt: 1 });
@@ -371,7 +396,7 @@ describe('AiController', () => {
   });
 
   describe('editorStream', () => {
-    it('throws TOO_MANY_REQUESTS when the rate limit guard rejects', () => {
+    it('throws TOO_MANY_REQUESTS when the rate limit guard rejects', async () => {
       const { controller, service } = createHarness();
       service.checkRateLimit.mockImplementation(() => {
         throw new Error('slow down');
@@ -381,7 +406,7 @@ describe('AiController', () => {
       const body = { messages: [] } as unknown as StreamRequest;
 
       try {
-        controller.editorStream(body, req, asResponse(res));
+        await controller.editorStream(body, req, asResponse(res));
         throw new Error('expected editorStream to throw');
       } catch (err) {
         expect(err).toBeInstanceOf(HttpException);
@@ -392,7 +417,29 @@ describe('AiController', () => {
       expect(service.streamEditor).not.toHaveBeenCalled();
     });
 
-    it('sets SSE headers and subscribes to the editor stream with cache options', () => {
+    it('rejects editorStream with 403 before SSE headers when chat quota is exceeded', async () => {
+      const service = createService();
+      const userQuota = {
+        consumeFreeChatQuota: jest.fn().mockRejectedValue(
+          new ForbiddenException({
+            code: 'FREE_CHAT_QUOTA_EXCEEDED',
+            message: '免费余额度已用完，普通用户总对话次数不能超过 3 次，需要充值后继续使用。',
+          }),
+        ),
+      } as unknown as UserQuotaService;
+      const controller = new AiController(service as unknown as AiService, userQuota);
+      const req = createStreamRequest();
+      const res = createResponse();
+      const body = { prompt: 'hi', document: {} } as unknown as EditorAgentStreamRequest;
+
+      await expect(controller.editorStream(body, req, asResponse(res))).rejects.toThrow(
+        ForbiddenException,
+      );
+      expect(res.flushHeaders).not.toHaveBeenCalled();
+      expect(service.streamEditor).not.toHaveBeenCalled();
+    });
+
+    it('sets SSE headers and subscribes to the editor stream with headers', async () => {
       const { controller, service } = createHarness();
       const subject = new Subject<StreamSseEvent>();
       service.streamEditor.mockReturnValue(subject.asObservable());
@@ -403,7 +450,7 @@ describe('AiController', () => {
       const res = createResponse();
       const body = { prompt: 'hi', document: {} } as unknown as EditorAgentStreamRequest;
 
-      controller.editorStream(body, req, asResponse(res));
+      await controller.editorStream(body, req, asResponse(res));
 
       expect(service.checkRateLimit).toHaveBeenCalledWith('user-8');
       expect(service.streamEditor).toHaveBeenCalledWith('user-8', body, {
@@ -427,7 +474,7 @@ describe('AiController', () => {
       expect(res.end).toHaveBeenCalled();
     });
 
-    it('writes an error event with a data field and ends the response on stream error', () => {
+    it('writes an error event with a data field and ends response on stream error', async () => {
       const { controller, service } = createHarness();
       const subject = new Subject<StreamSseEvent>();
       service.streamEditor.mockReturnValue(subject.asObservable());
@@ -435,14 +482,14 @@ describe('AiController', () => {
       const res = createResponse();
       const body = { prompt: 'x', document: {} } as unknown as EditorAgentStreamRequest;
 
-      controller.editorStream(body, req, asResponse(res));
+      await controller.editorStream(body, req, asResponse(res));
       subject.error('kaboom');
 
       expect(res.write).toHaveBeenCalledWith('data: {"type":"error","data":"kaboom"}\n\n');
       expect(res.end).toHaveBeenCalled();
     });
 
-    it('unsubscribes from the editor stream when the request closes', () => {
+    it('unsubscribes from the editor stream when the request closes', async () => {
       const { controller, service } = createHarness();
       const subject = new Subject<StreamSseEvent>();
       service.streamEditor.mockReturnValue(subject.asObservable());
@@ -450,7 +497,7 @@ describe('AiController', () => {
       const res = createResponse();
       const body = { prompt: 'x', document: {} } as unknown as EditorAgentStreamRequest;
 
-      controller.editorStream(body, req, asResponse(res));
+      await controller.editorStream(body, req, asResponse(res));
       expect(req.closeHandlers).toHaveLength(1);
 
       req.closeHandlers[0]();

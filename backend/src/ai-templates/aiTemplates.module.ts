@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { AiModule } from '../ai/ai.module';
 import { AuthModule } from '../auth/auth.module';
 import { TemplatesModule } from '../templates/templates.module';
+import { UsersModule } from '../users/users.module';
 import { AiTemplatesController } from './aiTemplates.controller';
 import { AiTemplatesService } from './aiTemplates.service';
 import { TemplatePipelineService } from './orchestrator/pipeline.service';
@@ -23,7 +24,7 @@ import { VerifierAgent } from './stages/verifier.agent';
  * selection or template-pipeline execution.
  */
 @Module({
-  imports: [AuthModule, AiModule, TemplatesModule],
+  imports: [AuthModule, AiModule, TemplatesModule, UsersModule],
   controllers: [AiTemplatesController],
   providers: [
     AiTemplatesService,

@@ -1,7 +1,4 @@
-import {
-  type PublicSiteConfig,
-  PublishedSitePageContent,
-} from './PublishedSitePageContent';
+import { type PublicSiteConfig, PublishedSitePageContent } from './PublishedSitePageContent';
 import { notFound } from 'next/navigation';
 import type { ThemeComponentDescriptor, ThemeLayoutNode } from 'ui/layout/types';
 
@@ -20,9 +17,9 @@ export function generateStaticParams() {
 const PREVIEW_COMPONENTS: ThemeComponentDescriptor[] = [
   {
     alias: 'core.screen',
-    name: 'Screen',
+    name: '页面画布',
     kind: 'layout',
-    description: 'Page root',
+    description: '页面根容器',
     props: [
       { name: 'title', type: 'string' },
       { name: 'statusTime', type: 'string' },
@@ -31,9 +28,9 @@ const PREVIEW_COMPONENTS: ThemeComponentDescriptor[] = [
   },
   {
     alias: 'core.stack',
-    name: 'Stack',
+    name: '纵向容器',
     kind: 'layout',
-    description: 'Vertical container',
+    description: '纵向排列容器',
     props: [
       { name: 'gap', type: 'string' },
       { name: 'alignItems', type: 'string' },
@@ -41,9 +38,9 @@ const PREVIEW_COMPONENTS: ThemeComponentDescriptor[] = [
   },
   {
     alias: 'core.panel',
-    name: 'Panel',
+    name: '面板容器',
     kind: 'layout',
-    description: 'Card-like container',
+    description: '卡片风格容器',
     props: [
       { name: 'tone', type: 'string' },
       { name: 'gap', type: 'string' },
@@ -51,9 +48,9 @@ const PREVIEW_COMPONENTS: ThemeComponentDescriptor[] = [
   },
   {
     alias: 'core.text',
-    name: 'Text',
+    name: '文本',
     kind: 'component',
-    description: 'Text node',
+    description: '文本节点',
     props: [
       { name: 'text', type: 'string' },
       { name: 'variant', type: 'string' },
@@ -61,9 +58,9 @@ const PREVIEW_COMPONENTS: ThemeComponentDescriptor[] = [
   },
   {
     alias: 'core.button',
-    name: 'Button',
+    name: '按钮',
     kind: 'component',
-    description: 'Action button',
+    description: '操作按钮',
     props: [
       { name: 'label', type: 'string' },
       { name: 'variant', type: 'string' },
@@ -71,9 +68,9 @@ const PREVIEW_COMPONENTS: ThemeComponentDescriptor[] = [
   },
   {
     alias: 'core.tag',
-    name: 'Tag',
+    name: '标签',
     kind: 'component',
-    description: 'Status badge',
+    description: '状态标签',
     props: [
       { name: 'label', type: 'string' },
       { name: 'tone', type: 'string' },
@@ -97,53 +94,58 @@ function node(
 }
 
 function createStaticPreviewConfig(subdomain: string): PublicSiteConfig {
-  const layout = node('preview-screen', 'core.screen', {
-    title: 'Static preview',
-    statusTime: '9:41',
-    headerActionLabel: 'Preview',
-  }, [
-    node('preview-stack', 'core.stack', { gap: '16' }, [
-      node('preview-hero', 'core.panel', { tone: 'promo', gap: '12' }, [
-        node('preview-tag', 'core.tag', {
-          label: 'Frontend only',
-          tone: 'info',
-        }),
-        node('preview-title', 'core.text', {
-          text: 'YanLingWeb static preview',
-          variant: 'heading',
-        }),
-        node('preview-body', 'core.text', {
-          text: `Rendering ${subdomain} without backend data. Connect the backend to preview a published site.`,
-          variant: 'body',
-        }),
-        node('preview-button', 'core.button', {
-          label: 'Preview ready',
-          variant: 'primary',
-        }),
+  const layout = node(
+    'preview-screen',
+    'core.screen',
+    {
+      title: '静态预览',
+      statusTime: '9:41',
+      headerActionLabel: '预览',
+    },
+    [
+      node('preview-stack', 'core.stack', { gap: '16' }, [
+        node('preview-hero', 'core.panel', { tone: 'promo', gap: '12' }, [
+          node('preview-tag', 'core.tag', {
+            label: '仅前端预览',
+            tone: 'info',
+          }),
+          node('preview-title', 'core.text', {
+            text: '言灵静态预览',
+            variant: 'heading',
+          }),
+          node('preview-body', 'core.text', {
+            text: `当前在未连接后端数据时预览 ${subdomain}，连接后端后即可展示真实已发布站点。`,
+            variant: 'body',
+          }),
+          node('preview-button', 'core.button', {
+            label: '预览就绪',
+            variant: 'primary',
+          }),
+        ]),
+        node('preview-note', 'core.panel', { tone: 'soft', gap: '8' }, [
+          node('preview-note-title', 'core.text', {
+            text: '静态导出兜底页',
+            variant: 'title',
+          }),
+          node('preview-note-body', 'core.text', {
+            text: '当前页面为本地静态构建占位，当后端服务暂不可用时用于保障前端构建通过。',
+            variant: 'caption',
+          }),
+        ]),
       ]),
-      node('preview-note', 'core.panel', { tone: 'soft', gap: '8' }, [
-        node('preview-note-title', 'core.text', {
-          text: 'Static export fallback',
-          variant: 'title',
-        }),
-        node('preview-note-body', 'core.text', {
-          text: 'This page is generated locally so frontend static builds can complete when the API is unavailable.',
-          variant: 'caption',
-        }),
-      ]),
-    ]),
-  ]);
+    ],
+  );
 
   return {
     layoutDocument: {
       version: 1,
       themeId: 'static-preview',
-      themeName: 'Static preview',
-      pageName: 'Preview',
-      description: 'Frontend-only preview used during static export.',
+      themeName: '静态预览',
+      pageName: '预览',
+      description: '静态导出期间使用的纯前端预览页面。',
       components: PREVIEW_COMPONENTS,
       defaultPageId: 'preview',
-      pages: [{ id: 'preview', name: 'Preview', layout }],
+      pages: [{ id: 'preview', name: '预览', layout }],
       layout,
       cssVars: {
         '--app-color-accent': '#2563eb',
@@ -170,10 +172,9 @@ async function loadPublicSite(subdomain: string): Promise<PublicSiteConfig> {
     return createStaticPreviewConfig(subdomain);
   }
 
-  const response = await fetch(
-    `${BACKEND_URL}/api/public/sites/${encodeURIComponent(subdomain)}`,
-    { cache: 'no-store' },
-  ).catch(() => null);
+  const response = await fetch(`${BACKEND_URL}/api/public/sites/${encodeURIComponent(subdomain)}`, {
+    cache: 'no-store',
+  }).catch(() => null);
 
   if (!response) {
     return createStaticPreviewConfig(subdomain);

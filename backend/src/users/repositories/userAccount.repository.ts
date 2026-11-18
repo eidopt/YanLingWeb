@@ -37,4 +37,14 @@ export interface UserAccountRepository {
   save(user: User): Promise<User>;
   update(id: string, patch: UserAccountUpdate): Promise<void>;
   remove(user: User): Promise<void>;
+  /**
+   * Atomically increments `freeChatUsedCount` when `userType === 'normal'` and
+   * `freeChatUsedCount < limit`. Returns true if incremented (quota reserved), false otherwise.
+   */
+  consumeFreeChatQuota(userId: string, limit: number): Promise<boolean>;
+  /**
+   * Atomically increments `freeTemplateGenUsedCount` when `userType === 'normal'` and
+   * `freeTemplateGenUsedCount < limit`. Returns true if incremented (quota reserved), false otherwise.
+   */
+  consumeFreeTemplateGenQuota(userId: string, limit: number): Promise<boolean>;
 }

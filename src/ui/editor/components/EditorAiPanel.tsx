@@ -638,7 +638,7 @@ export function EditorAiPanel({
   // 格式: "cache:abc12345 · 87% · skip" (命中率为 0..1 → 百分比; 策略为 null 时省略)
   const cacheDiagnosticBadge = latestCacheDiagnostic
     ? [
-        `cache:${latestCacheDiagnostic.prefixHash.slice(0, 8)}`,
+        `缓存:${latestCacheDiagnostic.prefixHash.slice(0, 8)}`,
         latestCacheDiagnostic.cacheHitRate !== null ? `${Math.round(latestCacheDiagnostic.cacheHitRate * 100)}%` : '—',
         ...(latestCacheDiagnostic.compactionStrategy ? [latestCacheDiagnostic.compactionStrategy] : []),
       ].join(' · ')

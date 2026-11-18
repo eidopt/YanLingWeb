@@ -2,6 +2,8 @@ import type { AIProvider, ProviderMessage, ProviderTool } from '@shared/agent/co
 import type { ToolResult, ToolSpec } from '@shared/agent/contracts/queryLoop';
 import { QueryLoop } from '@shared/agent/runtime';
 
+import type { AiTemplatePipelineProvider } from '../../ai/pipelineProvider.port';
+
 export interface StageRunUsage {
   inputTokens: number;
   outputTokens: number;
@@ -25,6 +27,10 @@ export interface StageRunOptions<T> {
   parse: (args: Record<string, unknown>) => T;
   /** 可选：最大迭代次数，默认 6（结构化输出不该来回拉扯） */
   maxIterations?: number;
+  /** 可选：记录每次 LLM 调用消耗的 token */
+  aiProvider?: AiTemplatePipelineProvider;
+  /** 可选：当前请求的用户 ID；存在时把本 stage 的 token 记入该用户名下 */
+  ownerUserId?: string;
 }
 
 /**
@@ -79,10 +85,17 @@ export async function runStructuredStage<T>(
     },
     onTextDelta: () => undefined,
     onToolEvent: () => undefined,
-    onUsage: (u) => {
+    onUsage: async (u) => {
       usage.inputTokens += u.inputTokens;
       usage.outputTokens += u.outputTokens;
       usage.cacheHitTokens += u.cacheHitTokens ?? 0;
+      if (options.ownerUserId && options.aiProvider?.recordTemplatePipelineTokenUsage) {
+        await options.aiProvider.recordTemplatePipelineTokenUsage(
+          options.ownerUserId,
+          options.model,
+          u,
+        );
+      }
     },
     isCancelled: () => false,
     maxIterations: options.maxIterations ?? 6,

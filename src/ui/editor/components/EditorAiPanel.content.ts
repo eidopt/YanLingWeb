@@ -1,6 +1,6 @@
 export const editorAiPanelContent = {
   ariaLabel: 'AI 编辑助手',
-  eyebrow: 'AI Edit',
+  eyebrow: 'AI 编辑',
   title: '画布助手',
   initialMessage: '告诉我想怎么调整当前画布，我会尽量用局部编辑完成。',
   noExecutableEdits: '没有产生可执行的画布编辑。',

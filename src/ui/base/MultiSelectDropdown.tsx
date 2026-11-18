@@ -1,12 +1,7 @@
 'use client';
 
 import styles from './FormControl.module.css';
-import type {
-  ChoiceOption,
-  FieldSize,
-  FieldTone,
-  FieldVariant,
-} from './formShared';
+import type { ChoiceOption, FieldSize, FieldTone, FieldVariant } from './formShared';
 import { resolveTone } from './formShared';
 import {
   type ButtonHTMLAttributes,
@@ -48,7 +43,7 @@ function optionLabelToText(option: MultiSelectOption) {
 export function MultiSelectDropdown({
   defaultValue,
   disabled,
-  emptyText = 'No options',
+  emptyText = '暂无选项',
   fullWidth = true,
   id,
   invalid,
@@ -59,7 +54,7 @@ export function MultiSelectDropdown({
   onKeyDown,
   onValueChange,
   options,
-  placeholder = 'Select options',
+  placeholder = '请选择',
   required,
   size = 'md',
   tone = 'neutral',
@@ -72,22 +67,14 @@ export function MultiSelectDropdown({
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const optionRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const [open, setOpen] = useState(false);
-  const [uncontrolledValue, setUncontrolledValue] = useState<string[]>(
-    () => defaultValue ?? [],
-  );
+  const [uncontrolledValue, setUncontrolledValue] = useState<string[]>(() => defaultValue ?? []);
 
   const selectedValues = value ?? uncontrolledValue;
-  const selectedSet = useMemo(
-    () => new Set(selectedValues),
-    [selectedValues],
-  );
+  const selectedSet = useMemo(() => new Set(selectedValues), [selectedValues]);
   const enabledOptions = options.filter((option) => !option.disabled);
   const selectedOptions = options.filter((option) => selectedSet.has(option.value));
   const visibleSelectedOptions = selectedOptions.slice(0, maxVisibleValues);
-  const hiddenSelectedCount = Math.max(
-    selectedOptions.length - visibleSelectedOptions.length,
-    0,
-  );
+  const hiddenSelectedCount = Math.max(selectedOptions.length - visibleSelectedOptions.length, 0);
   const listboxId = id ? `${id}-listbox` : `${generatedId}-listbox`;
 
   useEffect(() => {
@@ -96,11 +83,7 @@ export function MultiSelectDropdown({
     }
 
     function handlePointerDown(event: PointerEvent) {
-      if (
-        rootRef.current
-        && event.target instanceof Node
-        && !rootRef.current.contains(event.target)
-      ) {
+      if (rootRef.current && event.target instanceof Node && !rootRef.current.contains(event.target)) {
         setOpen(false);
       }
     }
@@ -131,9 +114,7 @@ export function MultiSelectDropdown({
       nextSet.add(nextOption.value);
     }
 
-    commitValue(options
-      .map((option) => option.value)
-      .filter((optionValue) => nextSet.has(optionValue)));
+    commitValue(options.map((option) => option.value).filter((optionValue) => nextSet.has(optionValue)));
   }
 
   function focusOption(index: number) {
@@ -156,17 +137,12 @@ export function MultiSelectDropdown({
 
     if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      const selectedIndex = enabledOptions.findIndex((option) => (
-        selectedSet.has(option.value)
-      ));
+      const selectedIndex = enabledOptions.findIndex((option) => selectedSet.has(option.value));
       openAndFocus(Math.max(selectedIndex, 0));
     }
   }
 
-  function handleOptionKeyDown(
-    event: KeyboardEvent<HTMLButtonElement>,
-    optionIndex: number,
-  ) {
+  function handleOptionKeyDown(event: KeyboardEvent<HTMLButtonElement>, optionIndex: number) {
     if (event.key === 'Escape') {
       event.preventDefault();
       setOpen(false);
@@ -177,8 +153,7 @@ export function MultiSelectDropdown({
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       event.preventDefault();
       const direction = event.key === 'ArrowDown' ? 1 : -1;
-      const nextIndex = (optionIndex + direction + enabledOptions.length)
-        % enabledOptions.length;
+      const nextIndex = (optionIndex + direction + enabledOptions.length) % enabledOptions.length;
       focusOption(nextIndex);
       return;
     }
@@ -195,9 +170,12 @@ export function MultiSelectDropdown({
     }
   }
 
-  const summary = selectedOptions.length > 0
-    ? selectedOptions.map(optionLabelToText).join(', ')
-    : (typeof placeholder === 'string' ? placeholder : 'Select options');
+  const summary =
+    selectedOptions.length > 0
+      ? selectedOptions.map(optionLabelToText).join(', ')
+      : typeof placeholder === 'string'
+        ? placeholder
+        : '请选择';
 
   return (
     <span
@@ -210,14 +188,10 @@ export function MultiSelectDropdown({
       data-tone={resolveTone(tone, invalid)}
       data-variant={variant}
     >
-      {name && selectedValues.map((selectedValue) => (
-        <input
-          key={selectedValue}
-          type="hidden"
-          name={name}
-          value={selectedValue}
-        />
-      ))}
+      {name &&
+        selectedValues.map((selectedValue) => (
+          <input key={selectedValue} type="hidden" name={name} value={selectedValue} />
+        ))}
       <button
         {...props}
         ref={triggerRef}
@@ -250,11 +224,7 @@ export function MultiSelectDropdown({
                   {option.label}
                 </span>
               ))}
-              {hiddenSelectedCount > 0 && (
-                <span className={styles.multiCount}>
-                  +{hiddenSelectedCount}
-                </span>
-              )}
+              {hiddenSelectedCount > 0 && <span className={styles.multiCount}>+{hiddenSelectedCount}</span>}
             </>
           )}
         </span>
@@ -262,12 +232,7 @@ export function MultiSelectDropdown({
       </button>
 
       {open && (
-        <div
-          id={listboxId}
-          role="listbox"
-          aria-multiselectable="true"
-          className={styles.multiPopover}
-        >
+        <div id={listboxId} role="listbox" aria-multiselectable="true" className={styles.multiPopover}>
           {enabledOptions.length === 0 ? (
             <div className={styles.multiEmpty}>{emptyText}</div>
           ) : (
@@ -291,11 +256,7 @@ export function MultiSelectDropdown({
                 <span aria-hidden="true" className={styles.multiOptionCheck} />
                 <span className={styles.multiOptionText}>
                   <span className={styles.multiOptionLabel}>{option.label}</span>
-                  {option.description && (
-                    <span className={styles.multiOptionDescription}>
-                      {option.description}
-                    </span>
-                  )}
+                  {option.description && <span className={styles.multiOptionDescription}>{option.description}</span>}
                 </span>
               </button>
             ))

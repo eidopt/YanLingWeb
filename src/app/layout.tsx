@@ -12,7 +12,7 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'AppGen AI',
+  title: '言灵 AI',
   description: 'AI 驱动的全平台应用设计工具',
 };
 

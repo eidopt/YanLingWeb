@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 
-export type AiTokenUsageEndpoint = 'stream' | 'editor';
+export type AiTokenUsageEndpoint = 'stream' | 'editor' | 'ai-templates';
 
 @Entity('ai_token_usage_events')
 @Index(['ownerUserId', 'createdAt'])

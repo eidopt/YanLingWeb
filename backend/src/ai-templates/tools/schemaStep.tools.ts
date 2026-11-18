@@ -35,7 +35,7 @@ export const SUBMIT_PAGE_SKELETON_TOOL: ProviderTool = {
       componentTemplateAliases: {
         type: 'array',
         items: { type: 'string' },
-        description: '需要定义的 biz-* 组件别名列表，如 ["biz-food-card","biz-promo-banner"]',
+        description: '仅当 layoutTree 实际引用了 biz-* 节点时列出其别名；纯用 core.* 节点时传 []',
       },
       cssVars: {
         type: 'object',
@@ -121,9 +121,52 @@ export const SUBMIT_VISUAL_ASSETS_TOOL: ProviderTool = {
   },
 };
 
+/** Step 4 (Repair): 针对 Verifier 反馈做局部属性 / cssVars 修补，避免从头重跑 */
+export const SUBMIT_SCHEMA_REPAIR_TOOL: ProviderTool = {
+  name: 'submit_schema_repair',
+  description: '根据 Verifier 指出的问题，对现有文档做局部 cssVars 或节点 props 修补。',
+  parameters: {
+    type: 'object',
+    properties: {
+      cssVars: {
+        type: 'object',
+        description: '需要补充或调整的全局 CSS 变量键值对（与原 cssVars 合并）。',
+      },
+      removeNodeIds: {
+        type: 'array',
+        items: { type: 'string' },
+        description: '需要从页面树中移除的多余/冲突节点 ID（如与无底栏导航冲突的 footer tabs）。',
+      },
+      pages: {
+        type: 'array',
+        description: '需要调整文案/属性/按钮的页面节点补丁（仅列要改的节点）。',
+        items: {
+          type: 'object',
+          required: ['pageId', 'nodes'],
+          properties: {
+            pageId: { type: 'string' },
+            nodes: {
+              type: 'array',
+              items: {
+                type: 'object',
+                required: ['nodeId', 'props'],
+                properties: {
+                  nodeId: { type: 'string' },
+                  props: { type: 'object' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
 /** 工具定义汇总 */
 export const SCHEMA_STEP_TOOLS = [
   SUBMIT_PAGE_SKELETON_TOOL,
   SUBMIT_NODE_CONTENT_TOOL,
   SUBMIT_VISUAL_ASSETS_TOOL,
+  SUBMIT_SCHEMA_REPAIR_TOOL,
 ];
