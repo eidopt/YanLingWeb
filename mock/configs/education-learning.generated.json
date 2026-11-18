@@ -1,0 +1,2014 @@
+{
+  "templateId": "education-learning",
+  "templateVersion": "1",
+  "profileVersion": "1.0.0",
+  "devices": [
+    "miniapp",
+    "mobile"
+  ],
+  "pages": [
+    {
+      "pageKey": "page-detail",
+      "pageId": "page-detail",
+      "pageKind": "home",
+      "name": "学习首页",
+      "description": "课程进度与学习路径",
+      "rootNodeId": "page-detail-screen",
+      "isDefault": true
+    },
+    {
+      "pageKey": "page-outline",
+      "pageId": "page-outline",
+      "pageKind": "unknown",
+      "name": "课程目录",
+      "description": "课程目录",
+      "rootNodeId": "page-outline-screen",
+      "isDefault": false
+    },
+    {
+      "pageKey": "page-player",
+      "pageId": "page-player",
+      "pageKind": "unknown",
+      "name": "课时播放",
+      "description": "1.1 网页结构文档结构",
+      "rootNodeId": "page-player-screen",
+      "isDefault": false
+    },
+    {
+      "pageKey": "page-progress",
+      "pageId": "page-progress",
+      "pageKind": "unknown",
+      "name": "学习进度",
+      "description": "学习进度",
+      "rootNodeId": "page-progress-screen",
+      "isDefault": false
+    }
+  ],
+  "regions": [
+    {
+      "regionKey": "page-detail.item",
+      "pageKey": "page-detail",
+      "nodeId": "learn-checkin-card",
+      "name": "继续学习",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.k-12",
+      "pageKey": "page-detail",
+      "nodeId": "learn-dashboard-grid",
+      "name": "12",
+      "sectionKind": "grid",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.item-2",
+      "pageKey": "page-detail",
+      "nodeId": "learn-path-card",
+      "name": "学习路径",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.item-3",
+      "pageKey": "page-detail",
+      "nodeId": "learn-live-card",
+      "name": "直播课封面",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-outline.item",
+      "pageKey": "page-outline",
+      "nodeId": "page-outline-hero-banner",
+      "name": "课程目录",
+      "sectionKind": "biz-hero-banner",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-outline.item-2",
+      "pageKey": "page-outline",
+      "nodeId": "outline-header",
+      "name": "课程目录",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-outline.item-3",
+      "pageKey": "page-outline",
+      "nodeId": "outline-progress",
+      "name": "学习进度",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-outline.item-4",
+      "pageKey": "page-outline",
+      "nodeId": "outline-chapters",
+      "name": "第一章：网页结构基础",
+      "sectionKind": "stack",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-outline.item-5",
+      "pageKey": "page-outline",
+      "nodeId": "page-outline-primary-action",
+      "name": "开始学习",
+      "sectionKind": "button",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-player.item",
+      "pageKey": "page-player",
+      "nodeId": "page-player-hero-banner",
+      "name": "课时播放",
+      "sectionKind": "biz-hero-banner",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-player.item-2",
+      "pageKey": "page-player",
+      "nodeId": "player-video",
+      "name": "图标",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-player.k-1-1",
+      "pageKey": "page-player",
+      "nodeId": "player-info",
+      "name": "1.1 网页文档结构",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-player.item-3",
+      "pageKey": "page-player",
+      "nodeId": "player-tabs",
+      "name": "介绍",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-player.item-4",
+      "pageKey": "page-player",
+      "nodeId": "player-desc",
+      "name": "本节课将讲解网页结构文档的基本结构，包括文档类型声明、页面根节点、头部信息、页面主体等核心元素。",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-player.item-5",
+      "pageKey": "page-player",
+      "nodeId": "player-nav",
+      "name": "上一节",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-progress.item",
+      "pageKey": "page-progress",
+      "nodeId": "page-progress-hero-banner",
+      "name": "学习进度",
+      "sectionKind": "biz-hero-banner",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-progress.item-2",
+      "pageKey": "page-progress",
+      "nodeId": "progress-header",
+      "name": "学习进度",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-progress.k-8",
+      "pageKey": "page-progress",
+      "nodeId": "progress-stats",
+      "name": "8",
+      "sectionKind": "grid",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-progress.item-3",
+      "pageKey": "page-progress",
+      "nodeId": "recent-lessons",
+      "name": "最近学习",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-progress.item-4",
+      "pageKey": "page-progress",
+      "nodeId": "page-progress-primary-action",
+      "name": "开始学习",
+      "sectionKind": "button",
+      "replaceable": false
+    }
+  ],
+  "slots": [
+    {
+      "slotKey": "page-detail.page-detail-screen.screen",
+      "pageKey": "page-detail",
+      "nodeId": "page-detail-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel"
+      ],
+      "label": "学习首页"
+    },
+    {
+      "slotKey": "page-detail.learn-checkin-card.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item",
+      "nodeId": "learn-checkin-card",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "继续学习"
+    },
+    {
+      "slotKey": "page-detail.learn-checkin-top.row",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item",
+      "nodeId": "learn-checkin-top",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "继续学习"
+    },
+    {
+      "slotKey": "page-detail.learn-checkin-title.text",
+      "pageKey": "page-detail",
+      "nodeId": "learn-checkin-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "继续学习"
+    },
+    {
+      "slotKey": "page-detail.learn-checkin-day.tag",
+      "pageKey": "page-detail",
+      "nodeId": "learn-checkin-day",
+      "component": "core.tag",
+      "editableProps": [
+        "label",
+        "tone"
+      ],
+      "label": "连续 7 天"
+    },
+    {
+      "slotKey": "page-detail.learn-checkin-course.text",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item",
+      "nodeId": "learn-checkin-course",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "网页前端入门 · 第 3 课"
+    },
+    {
+      "slotKey": "page-detail.learn-checkin-progress.progress",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item",
+      "nodeId": "learn-checkin-progress",
+      "component": "core.progress",
+      "editableProps": [
+        "value",
+        "max",
+        "tone"
+      ],
+      "label": "learn-checkin-progress"
+    },
+    {
+      "slotKey": "page-detail.learn-checkin-actions.row",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item",
+      "nodeId": "learn-checkin-actions",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "继续播放"
+    },
+    {
+      "slotKey": "page-detail.learn-continue.button",
+      "pageKey": "page-detail",
+      "nodeId": "learn-continue",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "继续播放"
+    },
+    {
+      "slotKey": "page-detail.learn-download.button",
+      "pageKey": "page-detail",
+      "nodeId": "learn-download",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "离线缓存"
+    },
+    {
+      "slotKey": "page-detail.learn-dashboard-grid.grid",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.k-12",
+      "nodeId": "learn-dashboard-grid",
+      "component": "core.grid",
+      "editableProps": [
+        "gap",
+        "columns"
+      ],
+      "label": "12"
+    },
+    {
+      "slotKey": "page-detail.learn-stat-0.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.k-12",
+      "nodeId": "learn-stat-0",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "12"
+    },
+    {
+      "slotKey": "page-detail.learn-stat-num-0.text",
+      "pageKey": "page-detail",
+      "nodeId": "learn-stat-num-0",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "12"
+    },
+    {
+      "slotKey": "page-detail.learn-stat-label-0.text",
+      "pageKey": "page-detail",
+      "nodeId": "learn-stat-label-0",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "已学课时"
+    },
+    {
+      "slotKey": "page-detail.learn-stat-1.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.k-12",
+      "nodeId": "learn-stat-1",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "86%"
+    },
+    {
+      "slotKey": "page-detail.learn-stat-num-1.text",
+      "pageKey": "page-detail",
+      "nodeId": "learn-stat-num-1",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "86%"
+    },
+    {
+      "slotKey": "page-detail.learn-stat-label-1.text",
+      "pageKey": "page-detail",
+      "nodeId": "learn-stat-label-1",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "作业得分"
+    },
+    {
+      "slotKey": "page-detail.learn-stat-2.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.k-12",
+      "nodeId": "learn-stat-2",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "3"
+    },
+    {
+      "slotKey": "page-detail.learn-stat-num-2.text",
+      "pageKey": "page-detail",
+      "nodeId": "learn-stat-num-2",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "3"
+    },
+    {
+      "slotKey": "page-detail.learn-stat-label-2.text",
+      "pageKey": "page-detail",
+      "nodeId": "learn-stat-label-2",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "待复习"
+    },
+    {
+      "slotKey": "page-detail.learn-path-card.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-2",
+      "nodeId": "learn-path-card",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "学习路径"
+    },
+    {
+      "slotKey": "page-detail.learn-path-title.text",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-2",
+      "nodeId": "learn-path-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "学习路径"
+    },
+    {
+      "slotKey": "page-detail.learn-path-line.row",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-2",
+      "nodeId": "learn-path-line",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "基础"
+    },
+    {
+      "slotKey": "page-detail.learn-step-0.panel",
+      "pageKey": "page-detail",
+      "nodeId": "learn-step-0",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "基础"
+    },
+    {
+      "slotKey": "page-detail.learn-step-text-0.text",
+      "pageKey": "page-detail",
+      "nodeId": "learn-step-text-0",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "基础"
+    },
+    {
+      "slotKey": "page-detail.learn-step-1.panel",
+      "pageKey": "page-detail",
+      "nodeId": "learn-step-1",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "布局"
+    },
+    {
+      "slotKey": "page-detail.learn-step-text-1.text",
+      "pageKey": "page-detail",
+      "nodeId": "learn-step-text-1",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "布局"
+    },
+    {
+      "slotKey": "page-detail.learn-step-2.panel",
+      "pageKey": "page-detail",
+      "nodeId": "learn-step-2",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "组件"
+    },
+    {
+      "slotKey": "page-detail.learn-step-text-2.text",
+      "pageKey": "page-detail",
+      "nodeId": "learn-step-text-2",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "组件"
+    },
+    {
+      "slotKey": "page-detail.learn-step-3.panel",
+      "pageKey": "page-detail",
+      "nodeId": "learn-step-3",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "项目"
+    },
+    {
+      "slotKey": "page-detail.learn-step-text-3.text",
+      "pageKey": "page-detail",
+      "nodeId": "learn-step-text-3",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "项目"
+    },
+    {
+      "slotKey": "page-detail.learn-live-card.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-3",
+      "nodeId": "learn-live-card",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "直播课封面"
+    },
+    {
+      "slotKey": "page-detail.learn-live-row.row",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-3",
+      "nodeId": "learn-live-row",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "直播课封面"
+    },
+    {
+      "slotKey": "page-detail.learn-live-img.image",
+      "pageKey": "page-detail",
+      "nodeId": "learn-live-img",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "直播课封面"
+    },
+    {
+      "slotKey": "page-detail.learn-live-copy.stack",
+      "pageKey": "page-detail",
+      "nodeId": "learn-live-copy",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "今晚 20:00"
+    },
+    {
+      "slotKey": "page-detail.learn-live-tag.tag",
+      "pageKey": "page-detail",
+      "nodeId": "learn-live-tag",
+      "component": "core.tag",
+      "editableProps": [
+        "label",
+        "tone"
+      ],
+      "label": "今晚 20:00"
+    },
+    {
+      "slotKey": "page-detail.learn-live-title.text",
+      "pageKey": "page-detail",
+      "nodeId": "learn-live-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "实战答疑直播间"
+    },
+    {
+      "slotKey": "page-detail.learn-live-desc.text",
+      "pageKey": "page-detail",
+      "nodeId": "learn-live-desc",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "老师在线批改作业"
+    },
+    {
+      "slotKey": "page-detail.page-detail-bottom-tabs.tabs",
+      "pageKey": "page-detail",
+      "nodeId": "page-detail-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-detail-bottom-tabs"
+    },
+    {
+      "slotKey": "page-outline.page-outline-screen.screen",
+      "pageKey": "page-outline",
+      "nodeId": "page-outline-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel"
+      ],
+      "label": "课程目录"
+    },
+    {
+      "slotKey": "page-outline.outline-header.panel",
+      "pageKey": "page-outline",
+      "regionKey": "page-outline.item-2",
+      "nodeId": "outline-header",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "课程目录"
+    },
+    {
+      "slotKey": "page-outline.outline-title.text",
+      "pageKey": "page-outline",
+      "regionKey": "page-outline.item-2",
+      "nodeId": "outline-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "课程目录"
+    },
+    {
+      "slotKey": "page-outline.outline-count.text",
+      "pageKey": "page-outline",
+      "regionKey": "page-outline.item-2",
+      "nodeId": "outline-count",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "共24节课 · 总时长12小时"
+    },
+    {
+      "slotKey": "page-outline.outline-progress.panel",
+      "pageKey": "page-outline",
+      "regionKey": "page-outline.item-3",
+      "nodeId": "outline-progress",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "学习进度"
+    },
+    {
+      "slotKey": "page-outline.progress-label.row",
+      "pageKey": "page-outline",
+      "regionKey": "page-outline.item-3",
+      "nodeId": "progress-label",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "学习进度"
+    },
+    {
+      "slotKey": "page-outline.progress-text.text",
+      "pageKey": "page-outline",
+      "nodeId": "progress-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "学习进度"
+    },
+    {
+      "slotKey": "page-outline.progress-percent.text",
+      "pageKey": "page-outline",
+      "nodeId": "progress-percent",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "33%"
+    },
+    {
+      "slotKey": "page-outline.progress-bar.panel",
+      "pageKey": "page-outline",
+      "regionKey": "page-outline.item-3",
+      "nodeId": "progress-bar",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "progress-bar"
+    },
+    {
+      "slotKey": "page-outline.progress-fill.panel",
+      "pageKey": "page-outline",
+      "nodeId": "progress-fill",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "progress-fill"
+    },
+    {
+      "slotKey": "page-outline.outline-chapters.stack",
+      "pageKey": "page-outline",
+      "regionKey": "page-outline.item-4",
+      "nodeId": "outline-chapters",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "第一章：网页结构基础"
+    },
+    {
+      "slotKey": "page-outline.chapter-1.panel",
+      "pageKey": "page-outline",
+      "regionKey": "page-outline.item-4",
+      "nodeId": "chapter-1",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "第一章：网页结构基础"
+    },
+    {
+      "slotKey": "page-outline.ch1-header.panel",
+      "pageKey": "page-outline",
+      "nodeId": "ch1-header",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "第一章：网页结构基础"
+    },
+    {
+      "slotKey": "page-outline.ch1-title.text",
+      "pageKey": "page-outline",
+      "nodeId": "ch1-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "第一章：网页结构基础"
+    },
+    {
+      "slotKey": "page-outline.ch1-lessons.stack",
+      "pageKey": "page-outline",
+      "nodeId": "ch1-lessons",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-outline.lesson-1.row",
+      "pageKey": "page-outline",
+      "nodeId": "lesson-1",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-outline.l1-left.row",
+      "pageKey": "page-outline",
+      "nodeId": "l1-left",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-outline.l1-status.image",
+      "pageKey": "page-outline",
+      "nodeId": "l1-status",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-outline.l1-title.text",
+      "pageKey": "page-outline",
+      "nodeId": "l1-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "1.1 网页文档结构"
+    },
+    {
+      "slotKey": "page-outline.l1-duration.text",
+      "pageKey": "page-outline",
+      "nodeId": "l1-duration",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "15:30"
+    },
+    {
+      "slotKey": "page-outline.lesson-2.row",
+      "pageKey": "page-outline",
+      "nodeId": "lesson-2",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-outline.l2-left.row",
+      "pageKey": "page-outline",
+      "nodeId": "l2-left",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-outline.l2-status.image",
+      "pageKey": "page-outline",
+      "nodeId": "l2-status",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-outline.l2-title.text",
+      "pageKey": "page-outline",
+      "nodeId": "l2-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "1.2 常用网页标签"
+    },
+    {
+      "slotKey": "page-outline.l2-duration.text",
+      "pageKey": "page-outline",
+      "nodeId": "l2-duration",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "20:15"
+    },
+    {
+      "slotKey": "page-outline.page-outline-primary-action.button",
+      "pageKey": "page-outline",
+      "regionKey": "page-outline.item-5",
+      "nodeId": "page-outline-primary-action",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "开始学习"
+    },
+    {
+      "slotKey": "page-outline.page-outline-bottom-tabs.tabs",
+      "pageKey": "page-outline",
+      "nodeId": "page-outline-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-outline-bottom-tabs"
+    },
+    {
+      "slotKey": "page-player.page-player-screen.screen",
+      "pageKey": "page-player",
+      "nodeId": "page-player-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel"
+      ],
+      "label": "课时播放"
+    },
+    {
+      "slotKey": "page-player.player-video.panel",
+      "pageKey": "page-player",
+      "regionKey": "page-player.item-2",
+      "nodeId": "player-video",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-player.play-icon.image",
+      "pageKey": "page-player",
+      "regionKey": "page-player.item-2",
+      "nodeId": "play-icon",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-player.player-info.panel",
+      "pageKey": "page-player",
+      "regionKey": "page-player.k-1-1",
+      "nodeId": "player-info",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "1.1 网页文档结构"
+    },
+    {
+      "slotKey": "page-player.player-title.text",
+      "pageKey": "page-player",
+      "regionKey": "page-player.k-1-1",
+      "nodeId": "player-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "1.1 网页文档结构"
+    },
+    {
+      "slotKey": "page-player.player-meta.row",
+      "pageKey": "page-player",
+      "regionKey": "page-player.k-1-1",
+      "nodeId": "player-meta",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "时长 15:30"
+    },
+    {
+      "slotKey": "page-player.player-duration.text",
+      "pageKey": "page-player",
+      "nodeId": "player-duration",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "时长 15:30"
+    },
+    {
+      "slotKey": "page-player.player-views.text",
+      "pageKey": "page-player",
+      "nodeId": "player-views",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "3.2万次播放"
+    },
+    {
+      "slotKey": "page-player.player-tabs.row",
+      "pageKey": "page-player",
+      "regionKey": "page-player.item-3",
+      "nodeId": "player-tabs",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "介绍"
+    },
+    {
+      "slotKey": "page-player.tab-intro.text",
+      "pageKey": "page-player",
+      "regionKey": "page-player.item-3",
+      "nodeId": "tab-intro",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "介绍"
+    },
+    {
+      "slotKey": "page-player.tab-notes.text",
+      "pageKey": "page-player",
+      "regionKey": "page-player.item-3",
+      "nodeId": "tab-notes",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "笔记"
+    },
+    {
+      "slotKey": "page-player.tab-discuss.text",
+      "pageKey": "page-player",
+      "regionKey": "page-player.item-3",
+      "nodeId": "tab-discuss",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "讨论"
+    },
+    {
+      "slotKey": "page-player.player-desc.panel",
+      "pageKey": "page-player",
+      "regionKey": "page-player.item-4",
+      "nodeId": "player-desc",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "本节课将讲解网页结构文档的基本结构，包括文档类型声明、页面根节点、头部信息、页面主体等核心元素。"
+    },
+    {
+      "slotKey": "page-player.player-desc-text.text",
+      "pageKey": "page-player",
+      "regionKey": "page-player.item-4",
+      "nodeId": "player-desc-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "本节课将讲解网页结构文档的基本结构，包括文档类型声明、页面根节点、头部信息、页面主体等核心元素。"
+    },
+    {
+      "slotKey": "page-player.player-nav.row",
+      "pageKey": "page-player",
+      "regionKey": "page-player.item-5",
+      "nodeId": "player-nav",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "上一节"
+    },
+    {
+      "slotKey": "page-player.prev-btn.button",
+      "pageKey": "page-player",
+      "regionKey": "page-player.item-5",
+      "nodeId": "prev-btn",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "上一节"
+    },
+    {
+      "slotKey": "page-player.next-btn.button",
+      "pageKey": "page-player",
+      "regionKey": "page-player.item-5",
+      "nodeId": "next-btn",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "下一节"
+    },
+    {
+      "slotKey": "page-player.page-player-bottom-tabs.tabs",
+      "pageKey": "page-player",
+      "nodeId": "page-player-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-player-bottom-tabs"
+    },
+    {
+      "slotKey": "page-progress.page-progress-screen.screen",
+      "pageKey": "page-progress",
+      "nodeId": "page-progress-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel"
+      ],
+      "label": "学习进度"
+    },
+    {
+      "slotKey": "page-progress.progress-header.panel",
+      "pageKey": "page-progress",
+      "regionKey": "page-progress.item-2",
+      "nodeId": "progress-header",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "学习进度"
+    },
+    {
+      "slotKey": "page-progress.progress-title.text",
+      "pageKey": "page-progress",
+      "regionKey": "page-progress.item-2",
+      "nodeId": "progress-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "学习进度"
+    },
+    {
+      "slotKey": "page-progress.progress-ring.panel",
+      "pageKey": "page-progress",
+      "regionKey": "page-progress.item-2",
+      "nodeId": "progress-ring",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "33%"
+    },
+    {
+      "slotKey": "page-progress.ring-text.text",
+      "pageKey": "page-progress",
+      "nodeId": "ring-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "33%"
+    },
+    {
+      "slotKey": "page-progress.progress-stats.grid",
+      "pageKey": "page-progress",
+      "regionKey": "page-progress.k-8",
+      "nodeId": "progress-stats",
+      "component": "core.grid",
+      "editableProps": [
+        "gap",
+        "columns"
+      ],
+      "label": "8"
+    },
+    {
+      "slotKey": "page-progress.stat-learned.panel",
+      "pageKey": "page-progress",
+      "regionKey": "page-progress.k-8",
+      "nodeId": "stat-learned",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "8"
+    },
+    {
+      "slotKey": "page-progress.learned-num.text",
+      "pageKey": "page-progress",
+      "nodeId": "learned-num",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "8"
+    },
+    {
+      "slotKey": "page-progress.learned-label.text",
+      "pageKey": "page-progress",
+      "nodeId": "learned-label",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "已学课时"
+    },
+    {
+      "slotKey": "page-progress.stat-hours.panel",
+      "pageKey": "page-progress",
+      "regionKey": "page-progress.k-8",
+      "nodeId": "stat-hours",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "4.2"
+    },
+    {
+      "slotKey": "page-progress.hours-num.text",
+      "pageKey": "page-progress",
+      "nodeId": "hours-num",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "4.2"
+    },
+    {
+      "slotKey": "page-progress.hours-label.text",
+      "pageKey": "page-progress",
+      "nodeId": "hours-label",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "学习小时"
+    },
+    {
+      "slotKey": "page-progress.stat-streak.panel",
+      "pageKey": "page-progress",
+      "regionKey": "page-progress.k-8",
+      "nodeId": "stat-streak",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "7"
+    },
+    {
+      "slotKey": "page-progress.streak-num.text",
+      "pageKey": "page-progress",
+      "nodeId": "streak-num",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "7"
+    },
+    {
+      "slotKey": "page-progress.streak-label.text",
+      "pageKey": "page-progress",
+      "nodeId": "streak-label",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "连续天数"
+    },
+    {
+      "slotKey": "page-progress.recent-lessons.panel",
+      "pageKey": "page-progress",
+      "regionKey": "page-progress.item-3",
+      "nodeId": "recent-lessons",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "最近学习"
+    },
+    {
+      "slotKey": "page-progress.recent-title.text",
+      "pageKey": "page-progress",
+      "regionKey": "page-progress.item-3",
+      "nodeId": "recent-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "最近学习"
+    },
+    {
+      "slotKey": "page-progress.recent-list.stack",
+      "pageKey": "page-progress",
+      "regionKey": "page-progress.item-3",
+      "nodeId": "recent-list",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-progress.recent-1.row",
+      "pageKey": "page-progress",
+      "nodeId": "recent-1",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-progress.r1-check.image",
+      "pageKey": "page-progress",
+      "nodeId": "r1-check",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "图标"
+    },
+    {
+      "slotKey": "page-progress.r1-info.stack",
+      "pageKey": "page-progress",
+      "nodeId": "r1-info",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "1.1 网页文档结构"
+    },
+    {
+      "slotKey": "page-progress.r1-title.text",
+      "pageKey": "page-progress",
+      "nodeId": "r1-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "1.1 网页文档结构"
+    },
+    {
+      "slotKey": "page-progress.r1-date.text",
+      "pageKey": "page-progress",
+      "nodeId": "r1-date",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "今天 14:30"
+    },
+    {
+      "slotKey": "page-progress.page-progress-primary-action.button",
+      "pageKey": "page-progress",
+      "regionKey": "page-progress.item-4",
+      "nodeId": "page-progress-primary-action",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "开始学习"
+    },
+    {
+      "slotKey": "page-progress.page-progress-bottom-tabs.tabs",
+      "pageKey": "page-progress",
+      "nodeId": "page-progress-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-progress-bottom-tabs"
+    }
+  ],
+  "patterns": [
+    {
+      "patternKey": "page-detail.item.pattern",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item",
+      "sourceRootNodeId": "learn-checkin-top",
+      "parentNodeId": "learn-checkin-card",
+      "itemAlias": "core.row",
+      "fields": [
+        {
+          "fieldKey": "learn-checkin-title",
+          "slotKey": "page-detail.learn-checkin-title.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "label",
+          "slotKey": "page-detail.learn-checkin-day.tag",
+          "prop": "label"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-detail.k-12.pattern",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.k-12",
+      "sourceRootNodeId": "learn-stat-0",
+      "parentNodeId": "learn-dashboard-grid",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "learn-stat-num-0",
+          "slotKey": "page-detail.learn-stat-num-0.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "learn-stat-label-0",
+          "slotKey": "page-detail.learn-stat-label-0.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-detail.item.pattern-2",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-2",
+      "sourceRootNodeId": "learn-path-line",
+      "parentNodeId": "learn-path-card",
+      "itemAlias": "core.row",
+      "fields": [
+        {
+          "fieldKey": "learn-step-text-0",
+          "slotKey": "page-detail.learn-step-text-0.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "learn-step-text-1",
+          "slotKey": "page-detail.learn-step-text-1.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "learn-step-text-2",
+          "slotKey": "page-detail.learn-step-text-2.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "learn-step-text-3",
+          "slotKey": "page-detail.learn-step-text-3.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-detail.item.pattern-3",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-3",
+      "sourceRootNodeId": "learn-live-row",
+      "parentNodeId": "learn-live-card",
+      "itemAlias": "core.row",
+      "fields": [
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-detail.learn-live-img.image",
+          "prop": "alt"
+        },
+        {
+          "fieldKey": "label",
+          "slotKey": "page-detail.learn-live-tag.tag",
+          "prop": "label"
+        },
+        {
+          "fieldKey": "learn-live-title",
+          "slotKey": "page-detail.learn-live-title.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "learn-live-desc",
+          "slotKey": "page-detail.learn-live-desc.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-outline.item.pattern",
+      "pageKey": "page-outline",
+      "regionKey": "page-outline.item-2",
+      "sourceRootNodeId": "outline-title",
+      "parentNodeId": "outline-header",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "outline-title",
+          "slotKey": "page-outline.outline-title.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-outline.item.pattern-2",
+      "pageKey": "page-outline",
+      "regionKey": "page-outline.item-3",
+      "sourceRootNodeId": "progress-label",
+      "parentNodeId": "outline-progress",
+      "itemAlias": "core.row",
+      "fields": [
+        {
+          "fieldKey": "progress-text",
+          "slotKey": "page-outline.progress-text.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "progress-percent",
+          "slotKey": "page-outline.progress-percent.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-outline.item.pattern-3",
+      "pageKey": "page-outline",
+      "regionKey": "page-outline.item-4",
+      "sourceRootNodeId": "chapter-1",
+      "parentNodeId": "outline-chapters",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "ch1-title",
+          "slotKey": "page-outline.ch1-title.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-outline.l1-status.image",
+          "prop": "alt"
+        },
+        {
+          "fieldKey": "l1-title",
+          "slotKey": "page-outline.l1-title.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "l1-duration",
+          "slotKey": "page-outline.l1-duration.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-outline.l2-status.image",
+          "prop": "alt"
+        },
+        {
+          "fieldKey": "l2-title",
+          "slotKey": "page-outline.l2-title.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "l2-duration",
+          "slotKey": "page-outline.l2-duration.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-player.item.pattern",
+      "pageKey": "page-player",
+      "regionKey": "page-player.item-2",
+      "sourceRootNodeId": "play-icon",
+      "parentNodeId": "player-video",
+      "itemAlias": "core.image",
+      "fields": [
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-player.play-icon.image",
+          "prop": "alt"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-player.k-1-1.pattern",
+      "pageKey": "page-player",
+      "regionKey": "page-player.k-1-1",
+      "sourceRootNodeId": "player-meta",
+      "parentNodeId": "player-info",
+      "itemAlias": "core.row",
+      "fields": [
+        {
+          "fieldKey": "player-duration",
+          "slotKey": "page-player.player-duration.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "player-views",
+          "slotKey": "page-player.player-views.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-player.item.pattern-2",
+      "pageKey": "page-player",
+      "regionKey": "page-player.item-3",
+      "sourceRootNodeId": "tab-intro",
+      "parentNodeId": "player-tabs",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "tab-intro",
+          "slotKey": "page-player.tab-intro.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-player.item.pattern-3",
+      "pageKey": "page-player",
+      "regionKey": "page-player.item-4",
+      "sourceRootNodeId": "player-desc-text",
+      "parentNodeId": "player-desc",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "player-desc-text",
+          "slotKey": "page-player.player-desc-text.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-player.item.pattern-4",
+      "pageKey": "page-player",
+      "regionKey": "page-player.item-5",
+      "sourceRootNodeId": "prev-btn",
+      "parentNodeId": "player-nav",
+      "itemAlias": "core.button",
+      "fields": [
+        {
+          "fieldKey": "label",
+          "slotKey": "page-player.prev-btn.button",
+          "prop": "label"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-progress.item.pattern",
+      "pageKey": "page-progress",
+      "regionKey": "page-progress.item-2",
+      "sourceRootNodeId": "progress-ring",
+      "parentNodeId": "progress-header",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "ring-text",
+          "slotKey": "page-progress.ring-text.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-progress.k-8.pattern",
+      "pageKey": "page-progress",
+      "regionKey": "page-progress.k-8",
+      "sourceRootNodeId": "stat-learned",
+      "parentNodeId": "progress-stats",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "learned-num",
+          "slotKey": "page-progress.learned-num.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "learned-label",
+          "slotKey": "page-progress.learned-label.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-progress.item.pattern-2",
+      "pageKey": "page-progress",
+      "regionKey": "page-progress.item-3",
+      "sourceRootNodeId": "recent-list",
+      "parentNodeId": "recent-lessons",
+      "itemAlias": "core.stack",
+      "fields": [
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-progress.r1-check.image",
+          "prop": "alt"
+        },
+        {
+          "fieldKey": "r1-title",
+          "slotKey": "page-progress.r1-title.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "r1-date",
+          "slotKey": "page-progress.r1-date.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    }
+  ],
+  "navigation": {
+    "type": "bottom_tabs",
+    "items": [
+      {
+        "key": "page-detail",
+        "label": "学习首页",
+        "pageKey": "page-detail",
+        "pageId": "page-detail"
+      },
+      {
+        "key": "page-outline",
+        "label": "课程目录",
+        "pageKey": "page-outline",
+        "pageId": "page-outline"
+      },
+      {
+        "key": "page-player",
+        "label": "课时播放",
+        "pageKey": "page-player",
+        "pageId": "page-player"
+      },
+      {
+        "key": "page-progress",
+        "label": "学习进度",
+        "pageKey": "page-progress",
+        "pageId": "page-progress"
+      }
+    ]
+  },
+  "constraints": {
+    "devices": [
+      "miniapp",
+      "mobile"
+    ]
+  },
+  "styleProfile": {
+    "colors": [
+      "#1d4ed8",
+      "#1e40af",
+      "#93c5fd",
+      "#1b2440",
+      "#5a6379",
+      "#dfe4f0",
+      "#f6f8fc",
+      "#ffffff"
+    ],
+    "fontSizes": [],
+    "fontWeights": [],
+    "spacing": [],
+    "radius": [],
+    "shadows": [],
+    "commonLayoutPatterns": [
+      "panel",
+      "grid",
+      "biz-hero-banner",
+      "stack",
+      "button",
+      "row"
+    ]
+  }
+}

@@ -68,29 +68,62 @@ export function validateImportedTemplateProfile(
   return { generatedProfile };
 }
 
-export async function resolveTemplateJsonDirectory(
-  configuredDirectory: string | undefined,
-): Promise<string | null> {
-  const candidates = configuredDirectory
-    ? [configuredDirectory]
-    : [
-        path.resolve(process.cwd(), 'templates_json'),
-        path.resolve(process.cwd(), '..', 'templates_json'),
-      ];
+/** 仓库内可提交的共享 mock 模板目录（导入后保留在 Git 中）。 */
+export const PERSISTENT_MOCK_TEMPLATE_JSON_DIR = 'mock';
 
-  for (const candidate of candidates) {
-    const resolved = path.resolve(candidate);
+/** 本地/CI 生成的临时模板目录（默认导入成功后删除）。 */
+export const EPHEMERAL_TEMPLATE_JSON_DIR = 'templates_json';
+
+export function isPersistentTemplateJsonImportPath(filePath: string): boolean {
+  const segments = path.normalize(filePath).split(path.sep);
+  return segments.includes(PERSISTENT_MOCK_TEMPLATE_JSON_DIR);
+}
+
+export async function resolveTemplateJsonDirectories(
+  configuredDirectory: string | undefined,
+): Promise<string[]> {
+  if (configuredDirectory) {
+    const resolved = path.resolve(configuredDirectory);
     try {
       const stat = await fs.stat(resolved);
       if (stat.isDirectory()) {
-        return resolved;
+        return [resolved];
       }
     } catch {
-      // 目录不存在表示没有待导入的模板 JSON。
+      // 显式配置的目录不存在时跳过导入。
+    }
+    return [];
+  }
+
+  const resolvedDirectories: string[] = [];
+  const directorySegments = [PERSISTENT_MOCK_TEMPLATE_JSON_DIR, EPHEMERAL_TEMPLATE_JSON_DIR];
+  const workingDirectoryCandidates = [
+    process.cwd(),
+    path.resolve(process.cwd(), '..'),
+  ];
+
+  for (const segment of directorySegments) {
+    for (const workingDirectory of workingDirectoryCandidates) {
+      const candidate = path.resolve(workingDirectory, segment);
+      try {
+        const stat = await fs.stat(candidate);
+        if (stat.isDirectory() && !resolvedDirectories.includes(candidate)) {
+          resolvedDirectories.push(candidate);
+        }
+      } catch {
+        // 目录不存在表示没有待导入的模板 JSON。
+      }
     }
   }
 
-  return null;
+  return resolvedDirectories;
+}
+
+export async function resolveTemplateJsonDirectory(
+  configuredDirectory: string | undefined,
+): Promise<string | null> {
+  const directories = await resolveTemplateJsonDirectories(configuredDirectory);
+  return directories[0] ?? null;
 }
 
 export async function readTemplateAgentConfigForImport(

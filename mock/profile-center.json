@@ -1,0 +1,3882 @@
+{
+  "templateId": "profile-center",
+  "name": "个人中心",
+  "tagline": "适用于用户主页、会员中心、账户管理等场景的小程序模板，包含个人主页、订单列表、我的收藏、设置页面",
+  "description": "适用于用户主页、会员中心、账户管理等场景的小程序模板，包含个人主页、订单列表、我的收藏、设置页面",
+  "accent": "#4338ca",
+  "category": "profile-center",
+  "displayCategory": "general",
+  "categoryLabel": "个人中心",
+  "categoryLabels": {
+    "profile-center": "个人中心"
+  },
+  "displayCategoryLabel": "通用",
+  "displayCategoryLabels": {
+    "general": "通用"
+  },
+  "platformCategoryLabels": {
+    "mini-program": "小程序"
+  },
+  "functionalCategoryLabels": {
+    "profile-center": "个人中心",
+    "profile": "个人",
+    "user-management": "用户管理"
+  },
+  "platformCategories": [
+    "mini-program"
+  ],
+  "functionalCategories": [
+    "profile-center",
+    "profile",
+    "user-management"
+  ],
+  "traits": [
+    "个人中心",
+    "会员",
+    "订单",
+    "收藏",
+    "设置"
+  ],
+  "tags": [
+    "个人中心",
+    "会员",
+    "订单",
+    "收藏",
+    "设置"
+  ],
+  "cssVars": {
+    "--color-primary": "#4338ca",
+    "--color-primary-dark": "#3730a3",
+    "--color-primary-light": "#e0e7ff",
+    "--color-text-primary": "#1e1e33",
+    "--color-text-secondary": "#5c5c73",
+    "--color-border": "#e0e0ee",
+    "--color-background": "#f6f6fb",
+    "--color-surface": "#ffffff",
+    "--color-bg": "#f6f6fb",
+    "--color-card": "#ffffff",
+    "--text-base": "#1e1e33",
+    "--radius-base": "0.9rem",
+    "--accent": "#4338ca"
+  },
+  "cssAnimations": {},
+  "componentTemplates": {
+    "biz-hero-banner": {
+      "root": {
+        "alias": "core.panel",
+        "props": {
+          "tone": "accent",
+          "gap": 12,
+          "style": {
+            "width": "100%",
+            "padding": "28px 24px",
+            "color": "#fff",
+            "borderRadius": "0 0 28px 28px",
+            "background": "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark, var(--color-primary)))",
+            "boxShadow": "0 16px 36px rgba(15,23,42,0.18)"
+          }
+        },
+        "children": [
+          {
+            "alias": "core.tag",
+            "props": {
+              "label": {
+                "$bind": "badge"
+              },
+              "tone": "member",
+              "style": {
+                "alignSelf": "flex-start",
+                "background": "rgba(255,255,255,0.22)",
+                "color": "#fff"
+              }
+            }
+          },
+          {
+            "alias": "core.text",
+            "props": {
+              "text": {
+                "$bind": "title"
+              },
+              "variant": "display",
+              "style": {
+                "color": "#fff"
+              }
+            }
+          },
+          {
+            "alias": "core.text",
+            "props": {
+              "text": {
+                "$bind": "subtitle"
+              },
+              "variant": "body",
+              "style": {
+                "color": "rgba(255,255,255,0.86)"
+              }
+            }
+          },
+          {
+            "alias": "core.button",
+            "props": {
+              "label": {
+                "$bind": "actionLabel"
+              },
+              "variant": "secondary",
+              "style": {
+                "width": "100%",
+                "marginTop": "8px"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "layoutDocument": {
+    "version": 1,
+    "themeId": "profile-center",
+    "themeName": "个人中心",
+    "description": "适用于用户主页、会员中心、账户管理等场景的小程序模板，包含个人主页、订单列表、我的收藏、设置页面",
+    "components": [
+      {
+        "alias": "core.button",
+        "name": "按钮",
+        "kind": "component",
+        "description": "按钮组件",
+        "props": [
+          {
+            "name": "label",
+            "type": "string",
+            "label": "显示文字"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          },
+          {
+            "name": "variant",
+            "type": "string",
+            "label": "文字层级"
+          },
+          {
+            "name": "active",
+            "type": "string",
+            "label": "选中"
+          },
+          {
+            "name": "disabled",
+            "type": "string",
+            "label": "禁用"
+          },
+          {
+            "name": "icon",
+            "type": "string",
+            "label": "图标"
+          }
+        ]
+      },
+      {
+        "alias": "core.grid",
+        "name": "网格容器",
+        "kind": "layout",
+        "description": "网格容器组件",
+        "props": [
+          {
+            "name": "columns",
+            "type": "number",
+            "label": "列数"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          },
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
+          }
+        ]
+      },
+      {
+        "alias": "core.image",
+        "name": "图片",
+        "kind": "component",
+        "description": "图片组件",
+        "props": [
+          {
+            "name": "alt",
+            "type": "string",
+            "label": "替代文本"
+          },
+          {
+            "name": "iconColor",
+            "type": "string",
+            "label": "图标颜色"
+          },
+          {
+            "name": "objectFit",
+            "type": "string",
+            "label": "图片填充方式"
+          },
+          {
+            "name": "src",
+            "type": "string",
+            "label": "图片地址"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "label": "标题"
+          }
+        ]
+      },
+      {
+        "alias": "core.panel",
+        "name": "面板容器",
+        "kind": "layout",
+        "description": "面板容器组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
+          }
+        ]
+      },
+      {
+        "alias": "core.row",
+        "name": "横向容器",
+        "kind": "layout",
+        "description": "横向容器组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          },
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
+          },
+          {
+            "name": "wrap",
+            "type": "string",
+            "label": "换行"
+          },
+          {
+            "name": "justify",
+            "type": "string",
+            "label": "主轴对齐"
+          },
+          {
+            "name": "align",
+            "type": "string",
+            "label": "交叉轴对齐"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          }
+        ]
+      },
+      {
+        "alias": "core.screen",
+        "name": "页面画布",
+        "kind": "layout",
+        "description": "页面画布组件",
+        "props": [
+          {
+            "name": "title",
+            "type": "string",
+            "label": "标题"
+          }
+        ]
+      },
+      {
+        "alias": "core.stack",
+        "name": "纵向容器",
+        "kind": "layout",
+        "description": "纵向容器组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          },
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
+          },
+          {
+            "name": "alignItems",
+            "type": "string",
+            "label": "对齐方式"
+          }
+        ]
+      },
+      {
+        "alias": "core.text",
+        "name": "文本",
+        "kind": "component",
+        "description": "文本组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          },
+          {
+            "name": "text",
+            "type": "string",
+            "label": "显示内容"
+          },
+          {
+            "name": "variant",
+            "type": "string",
+            "label": "文字层级"
+          },
+          {
+            "name": "as",
+            "type": "string",
+            "label": "标签"
+          }
+        ]
+      },
+      {
+        "alias": "core.tag",
+        "name": "标签",
+        "kind": "component",
+        "description": "标签 组件",
+        "props": [
+          {
+            "name": "label",
+            "type": "string",
+            "label": "显示文字"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.tabs",
+        "name": "标签导航",
+        "kind": "component",
+        "description": "标签导航 组件",
+        "props": [
+          {
+            "name": "tabs",
+            "type": "string",
+            "label": "标签项"
+          },
+          {
+            "name": "activeTab",
+            "type": "string",
+            "label": "当前标签"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.search",
+        "name": "搜索框",
+        "kind": "component",
+        "description": "搜索框 组件",
+        "props": [
+          {
+            "name": "placeholder",
+            "type": "string",
+            "label": "占位文本"
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "label": "值"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.input",
+        "name": "输入框",
+        "kind": "component",
+        "description": "输入框 组件",
+        "props": [
+          {
+            "name": "placeholder",
+            "type": "string",
+            "label": "占位文本"
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "label": "显示文字"
+          },
+          {
+            "name": "type",
+            "type": "string",
+            "label": "类型"
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "label": "值"
+          },
+          {
+            "name": "disabled",
+            "type": "string",
+            "label": "禁用"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.notice",
+        "name": "提示",
+        "kind": "component",
+        "description": "提示 组件",
+        "props": [
+          {
+            "name": "text",
+            "type": "string",
+            "label": "显示内容"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.progress",
+        "name": "进度条",
+        "kind": "component",
+        "description": "进度条 组件",
+        "props": [
+          {
+            "name": "value",
+            "type": "number",
+            "label": "值"
+          },
+          {
+            "name": "max",
+            "type": "number",
+            "label": "最大值"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.divider",
+        "name": "分隔线",
+        "kind": "component",
+        "description": "分隔线 组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.spacer",
+        "name": "空白",
+        "kind": "component",
+        "description": "空白 组件",
+        "props": [
+          {
+            "name": "size",
+            "type": "string",
+            "label": "尺寸"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "biz-hero-banner",
+        "name": "业务头图",
+        "kind": "component",
+        "description": "业务头图组件",
+        "props": [
+          {
+            "name": "badge",
+            "type": "string",
+            "label": "徽标"
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "label": "标题"
+          },
+          {
+            "name": "subtitle",
+            "type": "string",
+            "label": "副标题"
+          },
+          {
+            "name": "actionLabel",
+            "type": "string",
+            "label": "行动按钮文案"
+          }
+        ]
+      }
+    ],
+    "defaultPageId": "page-home",
+    "pages": [
+      {
+        "id": "page-home",
+        "name": "个人中心",
+        "description": "用户昵称",
+        "layout": {
+          "id": "page-home-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 0
+          },
+          "props": {
+            "title": "个人中心",
+            "style": {
+              "background": "#eef2ff"
+            }
+          },
+          "children": [
+            {
+              "id": "profile-member-card",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "margin": "20rpx 20rpx 0",
+                  "padding": "28rpx",
+                  "borderRadius": "32rpx",
+                  "background": "linear-gradient(135deg,#312e81,#4338ca)",
+                  "color": "#fff"
+                }
+              },
+              "children": [
+                {
+                  "id": "profile-member-row",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "18rpx",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "profile-avatar",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "林小满头像",
+                        "title": "用户头像",
+                        "iconColor": "#c4b5fd",
+                        "objectFit": "cover",
+                        "style": {
+                          "width": "108rpx",
+                          "height": "108rpx",
+                          "borderRadius": "50%"
+                        },
+                        "src": "https://i.pravatar.cc/150?img=47"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "profile-user-copy",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1,
+                        "width": "auto"
+                      },
+                      "props": {
+                        "style": {
+                          "flex": 1,
+                          "gap": "6rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "profile-user-name",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "林小满",
+                            "variant": "heading",
+                            "style": {
+                              "color": "#fff"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "profile-user-level",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "黑金会员 · 编号 100001",
+                            "variant": "caption",
+                            "style": {
+                              "color": "rgba(255,255,255,0.76)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "profile-member-tag",
+                      "alias": "core.tag",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "label": "会员中心",
+                        "tone": "member",
+                        "style": {
+                          "background": "rgba(255,255,255,0.2)",
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "profile-stat-grid",
+                  "alias": "core.grid",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "columns": 4,
+                    "style": {
+                      "marginTop": "24rpx",
+                      "gap": "8rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "profile-stat-0",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "12rpx 4rpx",
+                          "borderRadius": "16rpx",
+                          "background": "rgba(255,255,255,0.14)",
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "profile-stat-num-0",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "8",
+                            "variant": "subheading",
+                            "style": {
+                              "color": "#fff"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "profile-stat-label-0",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "订单",
+                            "variant": "caption",
+                            "style": {
+                              "color": "rgba(255,255,255,0.7)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "profile-stat-1",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "12rpx 4rpx",
+                          "borderRadius": "16rpx",
+                          "background": "rgba(255,255,255,0.14)",
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "profile-stat-num-1",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "12",
+                            "variant": "subheading",
+                            "style": {
+                              "color": "#fff"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "profile-stat-label-1",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "收藏",
+                            "variant": "caption",
+                            "style": {
+                              "color": "rgba(255,255,255,0.7)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "profile-stat-2",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "12rpx 4rpx",
+                          "borderRadius": "16rpx",
+                          "background": "rgba(255,255,255,0.14)",
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "profile-stat-num-2",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "3",
+                            "variant": "subheading",
+                            "style": {
+                              "color": "#fff"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "profile-stat-label-2",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "优惠券",
+                            "variant": "caption",
+                            "style": {
+                              "color": "rgba(255,255,255,0.7)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "profile-stat-3",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 3,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "12rpx 4rpx",
+                          "borderRadius": "16rpx",
+                          "background": "rgba(255,255,255,0.14)",
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "profile-stat-num-3",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "680",
+                            "variant": "subheading",
+                            "style": {
+                              "color": "#fff"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "profile-stat-label-3",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "积分",
+                            "variant": "caption",
+                            "style": {
+                              "color": "rgba(255,255,255,0.7)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "profile-order-strip",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "margin": "20rpx",
+                  "padding": "22rpx",
+                  "borderRadius": "24rpx",
+                  "background": "#fff"
+                }
+              },
+              "children": [
+                {
+                  "id": "profile-order-head",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "profile-order-title",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "我的订单",
+                        "variant": "heading",
+                        "style": {}
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "profile-order-all",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "查看全部",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#4338ca"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "profile-order-grid",
+                  "alias": "core.grid",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "columns": 4,
+                    "style": {
+                      "marginTop": "18rpx",
+                      "gap": "12rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "profile-order-0",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "alignItems": "center",
+                          "gap": "8rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "profile-order-icon-0",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "待付款图标",
+                            "title": "待付款图标",
+                            "iconColor": "#f59e0b",
+                            "objectFit": "contain",
+                            "style": {
+                              "width": "56rpx",
+                              "height": "56rpx"
+                            },
+                            "src": "/template-assets/generated/profile-center/profile-order-icon-0.avif"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "profile-order-text-0",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "待付款",
+                            "variant": "caption",
+                            "style": {}
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "profile-order-1",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "alignItems": "center",
+                          "gap": "8rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "profile-order-icon-1",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "待发货图标",
+                            "title": "待发货图标",
+                            "iconColor": "#3b82f6",
+                            "objectFit": "contain",
+                            "style": {
+                              "width": "56rpx",
+                              "height": "56rpx"
+                            },
+                            "src": "/template-assets/generated/profile-center/profile-order-icon-1.avif"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "profile-order-text-1",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "待发货",
+                            "variant": "caption",
+                            "style": {}
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "profile-order-2",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "alignItems": "center",
+                          "gap": "8rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "profile-order-icon-2",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "待收货图标",
+                            "title": "待收货图标",
+                            "iconColor": "#10b981",
+                            "objectFit": "contain",
+                            "style": {
+                              "width": "56rpx",
+                              "height": "56rpx"
+                            },
+                            "src": "/template-assets/generated/profile-center/profile-order-icon-2.avif"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "profile-order-text-2",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "待收货",
+                            "variant": "caption",
+                            "style": {}
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "profile-order-3",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 3,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "alignItems": "center",
+                          "gap": "8rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "profile-order-icon-3",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "售后图标",
+                            "title": "售后图标",
+                            "iconColor": "#ef4444",
+                            "objectFit": "contain",
+                            "style": {
+                              "width": "56rpx",
+                              "height": "56rpx"
+                            },
+                            "src": "/template-assets/generated/profile-center/profile-order-icon-3.avif"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "profile-order-text-3",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "售后",
+                            "variant": "caption",
+                            "style": {}
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "profile-service-grid",
+              "alias": "core.grid",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "columns": 2,
+                "style": {
+                  "padding": "0 20rpx",
+                  "gap": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "profile-service-0",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "24rpx",
+                      "background": "#fff"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "profile-service-row-0",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "gap": "14rpx",
+                          "alignItems": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "profile-service-icon-0",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "会员权益图标",
+                            "title": "会员权益图标",
+                            "iconColor": "#4338ca",
+                            "objectFit": "contain",
+                            "style": {
+                              "width": "58rpx",
+                              "height": "58rpx"
+                            },
+                            "src": "/template-assets/generated/profile-center/profile-service-icon-0.avif"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "profile-service-title-0",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "会员权益",
+                            "variant": "subheading",
+                            "style": {}
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "profile-service-1",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "24rpx",
+                      "background": "#fff"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "profile-service-row-1",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "gap": "14rpx",
+                          "alignItems": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "profile-service-icon-1",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "地址管理图标",
+                            "title": "地址管理图标",
+                            "iconColor": "#06b6d4",
+                            "objectFit": "contain",
+                            "style": {
+                              "width": "58rpx",
+                              "height": "58rpx"
+                            },
+                            "src": "/template-assets/generated/profile-center/profile-service-icon-1.avif"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "profile-service-title-1",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "地址管理",
+                            "variant": "subheading",
+                            "style": {}
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "profile-service-2",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "24rpx",
+                      "background": "#fff"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "profile-service-row-2",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "gap": "14rpx",
+                          "alignItems": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "profile-service-icon-2",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "优惠券包图标",
+                            "title": "优惠券包图标",
+                            "iconColor": "#f97316",
+                            "objectFit": "contain",
+                            "style": {
+                              "width": "58rpx",
+                              "height": "58rpx"
+                            },
+                            "src": "/template-assets/generated/profile-center/profile-service-icon-2.avif"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "profile-service-title-2",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "优惠券包",
+                            "variant": "subheading",
+                            "style": {}
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "profile-service-3",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "24rpx",
+                      "background": "#fff"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "profile-service-row-3",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "gap": "14rpx",
+                          "alignItems": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "profile-service-icon-3",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "客服中心图标",
+                            "title": "客服中心图标",
+                            "iconColor": "#10b981",
+                            "objectFit": "contain",
+                            "style": {
+                              "width": "58rpx",
+                              "height": "58rpx"
+                            },
+                            "src": "/template-assets/generated/profile-center/profile-service-icon-3.avif"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "profile-service-title-3",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "客服中心",
+                            "variant": "subheading",
+                            "style": {}
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "profile-growth-card",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 3,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "margin": "20rpx",
+                  "padding": "24rpx",
+                  "borderRadius": "24rpx",
+                  "background": "#eef2ff"
+                }
+              },
+              "children": [
+                {
+                  "id": "profile-growth-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "本月成长值",
+                    "variant": "heading",
+                    "style": {}
+                  },
+                  "children": []
+                },
+                {
+                  "id": "profile-growth-progress",
+                  "alias": "core.progress",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "value": 72,
+                    "max": 100,
+                    "tone": "accent",
+                    "style": {
+                      "marginTop": "18rpx"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "profile-growth-desc",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "text": "再完成 2 个任务升级",
+                    "variant": "caption",
+                    "style": {
+                      "marginTop": "10rpx",
+                      "color": "#4338ca"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "page-home-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "个人中心",
+                  "订单列表",
+                  "我的收藏",
+                  "设置"
+                ],
+                "activeTab": "个人中心"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "个人中心": {
+                    "type": "navigate",
+                    "targetPageId": "page-home"
+                  },
+                  "订单列表": {
+                    "type": "navigate",
+                    "targetPageId": "page-orders"
+                  },
+                  "我的收藏": {
+                    "type": "navigate",
+                    "targetPageId": "page-favorites"
+                  },
+                  "设置": {
+                    "type": "navigate",
+                    "targetPageId": "page-settings"
+                  }
+                }
+              },
+              "children": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-orders",
+        "name": "订单列表",
+        "description": "我的订单",
+        "layout": {
+          "id": "page-orders-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 1
+          },
+          "props": {
+            "title": "订单列表",
+            "style": {
+              "background": "var(--color-background, #f6f6fb)"
+            }
+          },
+          "children": [
+            {
+              "id": "page-orders-hero-banner",
+              "alias": "biz-hero-banner",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "badge": "个人中心",
+                "title": "订单列表",
+                "subtitle": "我的订单",
+                "actionLabel": "继续下单"
+              },
+              "children": []
+            },
+            {
+              "id": "page-orders-quick-search",
+              "alias": "core.search",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "placeholder": "搜索订单",
+                "style": {
+                  "width": "100%"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "orders-header",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "var(--color-primary)"
+                }
+              },
+              "children": [
+                {
+                  "id": "orders-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "我的订单",
+                    "style": {
+                      "fontSize": "36rpx",
+                      "fontWeight": "bold",
+                      "color": "#fff"
+                    },
+                    "variant": "heading"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "order-tabs",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 3,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "justifyContent": "space-around",
+                  "padding": "16rpx 0",
+                  "background": "#fff",
+                  "borderBottom": "1rpx solid var(--color-border)"
+                }
+              },
+              "children": [
+                {
+                  "id": "tab-all",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "全部",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "color": "var(--color-primary)",
+                      "fontWeight": "bold"
+                    },
+                    "variant": "heading"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "tab-pending",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "待付款",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "color": "var(--color-text-secondary)"
+                    },
+                    "variant": "body"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "tab-shipped",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "text": "待发货",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "color": "var(--color-text-secondary)"
+                    },
+                    "variant": "body"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "tab-receive",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3
+                  },
+                  "props": {
+                    "text": "待收货",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "color": "var(--color-text-secondary)"
+                    },
+                    "variant": "body"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "order-list",
+              "alias": "core.stack",
+              "layout": {
+                "mode": "flow",
+                "order": 4,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "gap": "24rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "order-card-1",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "24rpx",
+                      "borderRadius": "16rpx",
+                      "background": "#fff",
+                      "boxShadow": "0 2rpx 8rpx rgba(0,0,0,0.06)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "card1-header",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "justifyContent": "space-between",
+                          "marginBottom": "16rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "card1-shop",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "品牌旗舰店",
+                            "style": {
+                              "fontSize": "28rpx",
+                              "fontWeight": "bold"
+                            },
+                            "variant": "heading"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "card1-status",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "待付款",
+                            "style": {
+                              "fontSize": "24rpx",
+                              "color": "var(--color-primary)"
+                            },
+                            "variant": "caption"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "card1-body",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "gap": "16rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "card1-img",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "style": {
+                              "width": "160rpx",
+                              "height": "160rpx",
+                              "borderRadius": "8rpx"
+                            },
+                            "alt": "经典款纯棉T恤",
+                            "title": "业务视觉元素",
+                            "iconColor": "#4338ca",
+                            "objectFit": "cover",
+                            "src": "https://pd.w.org/2025/08/53768a6a79b1b93f5.05361023-2048x1152.jpeg"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "card1-info",
+                          "alias": "core.stack",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "style": {
+                              "flex": 1,
+                              "justifyContent": "space-between"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "card1-name",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "text": "经典款纯棉T恤 白色 L码",
+                                "style": {
+                                  "fontSize": "26rpx",
+                                  "color": "var(--color-text-primary)"
+                                },
+                                "variant": "heading"
+                              },
+                              "children": []
+                            },
+                            {
+                              "id": "card1-price",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 1
+                              },
+                              "props": {
+                                "text": "¥99.00",
+                                "style": {
+                                  "fontSize": "30rpx",
+                                  "fontWeight": "bold",
+                                  "color": "var(--color-primary)"
+                                },
+                                "variant": "price"
+                              },
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "page-orders-primary-action",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 5,
+                "width": "100%"
+              },
+              "props": {
+                "variant": "primary",
+                "label": "继续下单",
+                "style": {
+                  "width": "100%"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "page-orders-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "个人中心",
+                  "订单列表",
+                  "我的收藏",
+                  "设置"
+                ],
+                "activeTab": "订单列表"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "个人中心": {
+                    "type": "navigate",
+                    "targetPageId": "page-home"
+                  },
+                  "订单列表": {
+                    "type": "navigate",
+                    "targetPageId": "page-orders"
+                  },
+                  "我的收藏": {
+                    "type": "navigate",
+                    "targetPageId": "page-favorites"
+                  },
+                  "设置": {
+                    "type": "navigate",
+                    "targetPageId": "page-settings"
+                  }
+                }
+              },
+              "children": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-favorites",
+        "name": "我的收藏",
+        "description": "我的收藏",
+        "layout": {
+          "id": "page-favorites-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 2
+          },
+          "props": {
+            "title": "我的收藏",
+            "style": {
+              "background": "var(--color-background, #f6f6fb)"
+            }
+          },
+          "children": [
+            {
+              "id": "page-favorites-hero-banner",
+              "alias": "biz-hero-banner",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "badge": "个人中心",
+                "title": "我的收藏",
+                "subtitle": "我的收藏",
+                "actionLabel": "管理资料"
+              },
+              "children": []
+            },
+            {
+              "id": "fav-header",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "var(--color-primary)"
+                }
+              },
+              "children": [
+                {
+                  "id": "fav-page-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "我的收藏",
+                    "style": {
+                      "fontSize": "36rpx",
+                      "fontWeight": "bold",
+                      "color": "#fff"
+                    },
+                    "variant": "heading"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "fav-grid",
+              "alias": "core.grid",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "columns": 2,
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "gap": "20rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "fav-item-1",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "borderRadius": "16rpx",
+                      "overflow": "hidden",
+                      "background": "#fff",
+                      "boxShadow": "0 2rpx 8rpx rgba(0,0,0,0.06)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "fav-img-1",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "width": "100%",
+                          "height": "300rpx"
+                        },
+                        "alt": "热销商品",
+                        "title": "业务视觉元素",
+                        "iconColor": "#4338ca",
+                        "objectFit": "cover",
+                        "src": "https://live.staticflickr.com/3341/3270543366_43f7e63b00_b.jpg"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "fav-info-1",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "16rpx",
+                          "gap": "8rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "fav-name-1",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "热销商品名称",
+                            "style": {
+                              "fontSize": "26rpx",
+                              "color": "var(--color-text-primary)"
+                            },
+                            "variant": "heading"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "fav-price-1",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "¥199.00",
+                            "style": {
+                              "fontSize": "28rpx",
+                              "fontWeight": "bold",
+                              "color": "var(--color-primary)"
+                            },
+                            "variant": "price"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "fav-item-2",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "borderRadius": "16rpx",
+                      "overflow": "hidden",
+                      "background": "#fff",
+                      "boxShadow": "0 2rpx 8rpx rgba(0,0,0,0.06)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "fav-img-2",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "width": "100%",
+                          "height": "300rpx"
+                        },
+                        "alt": "精选好物",
+                        "title": "业务视觉元素",
+                        "iconColor": "#4338ca",
+                        "objectFit": "cover",
+                        "src": "https://live.staticflickr.com/6239/6267835256_cc8decb187_b.jpg"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "fav-info-2",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "16rpx",
+                          "gap": "8rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "fav-name-2",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "精选好物推荐",
+                            "style": {
+                              "fontSize": "26rpx",
+                              "color": "var(--color-text-primary)"
+                            },
+                            "variant": "heading"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "fav-price-2",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "¥299.00",
+                            "style": {
+                              "fontSize": "28rpx",
+                              "fontWeight": "bold",
+                              "color": "var(--color-primary)"
+                            },
+                            "variant": "price"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "page-favorites-primary-action",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 998,
+                "width": "100%"
+              },
+              "props": {
+                "variant": "primary",
+                "label": "管理收藏",
+                "style": {
+                  "width": "calc(100% - 64rpx)",
+                  "margin": "8rpx 32rpx 24rpx"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "page-favorites-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "个人中心",
+                  "订单列表",
+                  "我的收藏",
+                  "设置"
+                ],
+                "activeTab": "我的收藏"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "个人中心": {
+                    "type": "navigate",
+                    "targetPageId": "page-home"
+                  },
+                  "订单列表": {
+                    "type": "navigate",
+                    "targetPageId": "page-orders"
+                  },
+                  "我的收藏": {
+                    "type": "navigate",
+                    "targetPageId": "page-favorites"
+                  },
+                  "设置": {
+                    "type": "navigate",
+                    "targetPageId": "page-settings"
+                  }
+                }
+              },
+              "children": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-settings",
+        "name": "设置",
+        "description": "设置",
+        "layout": {
+          "id": "page-settings-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 3
+          },
+          "props": {
+            "title": "设置",
+            "style": {
+              "background": "var(--color-background, #f6f6fb)"
+            }
+          },
+          "children": [
+            {
+              "id": "page-settings-hero-banner",
+              "alias": "biz-hero-banner",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "badge": "个人中心",
+                "title": "设置",
+                "subtitle": "设置",
+                "actionLabel": "管理资料"
+              },
+              "children": []
+            },
+            {
+              "id": "set-header",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "var(--color-primary)"
+                }
+              },
+              "children": [
+                {
+                  "id": "set-page-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "设置",
+                    "style": {
+                      "fontSize": "36rpx",
+                      "fontWeight": "bold",
+                      "color": "#fff"
+                    },
+                    "variant": "heading"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "set-list",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "margin": "24rpx 32rpx",
+                  "padding": "8rpx 24rpx",
+                  "borderRadius": "16rpx",
+                  "background": "#fff"
+                }
+              },
+              "children": [
+                {
+                  "id": "set-profile",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between",
+                      "alignItems": "center",
+                      "padding": "28rpx 0",
+                      "borderBottom": "1rpx solid var(--color-border)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "set-profile-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "个人资料",
+                        "style": {
+                          "fontSize": "28rpx"
+                        },
+                        "variant": "body"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "set-profile-arrow",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": ">",
+                        "style": {
+                          "color": "var(--color-text-secondary)"
+                        },
+                        "variant": "body"
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "set-account",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between",
+                      "alignItems": "center",
+                      "padding": "28rpx 0",
+                      "borderBottom": "1rpx solid var(--color-border)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "set-account-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "账户安全",
+                        "style": {
+                          "fontSize": "28rpx"
+                        },
+                        "variant": "body"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "set-account-arrow",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": ">",
+                        "style": {
+                          "color": "var(--color-text-secondary)"
+                        },
+                        "variant": "caption"
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "set-notify",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between",
+                      "alignItems": "center",
+                      "padding": "28rpx 0",
+                      "borderBottom": "1rpx solid var(--color-border)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "set-notify-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "消息通知",
+                        "style": {
+                          "fontSize": "28rpx"
+                        },
+                        "variant": "body"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "set-notify-arrow",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": ">",
+                        "style": {
+                          "color": "var(--color-text-secondary)"
+                        },
+                        "variant": "body"
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "set-about",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between",
+                      "alignItems": "center",
+                      "padding": "28rpx 0"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "set-about-text",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "关于我们",
+                        "style": {
+                          "fontSize": "28rpx"
+                        },
+                        "variant": "body"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "set-about-arrow",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": ">",
+                        "style": {
+                          "color": "var(--color-text-secondary)"
+                        },
+                        "variant": "body"
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "logout-btn",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 3,
+                "width": "100%"
+              },
+              "props": {
+                "variant": "primary",
+                "style": {
+                  "margin": "48rpx 32rpx",
+                  "padding": "24rpx",
+                  "borderRadius": "48rpx",
+                  "background": "#fff",
+                  "color": "var(--color-primary)",
+                  "border": "2rpx solid var(--color-primary)",
+                  "fontSize": "30rpx",
+                  "textAlign": "center"
+                },
+                "label": "退出登录"
+              },
+              "children": []
+            },
+            {
+              "id": "page-settings-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "个人中心",
+                  "订单列表",
+                  "我的收藏",
+                  "设置"
+                ],
+                "activeTab": "设置"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "个人中心": {
+                    "type": "navigate",
+                    "targetPageId": "page-home"
+                  },
+                  "订单列表": {
+                    "type": "navigate",
+                    "targetPageId": "page-orders"
+                  },
+                  "我的收藏": {
+                    "type": "navigate",
+                    "targetPageId": "page-favorites"
+                  },
+                  "设置": {
+                    "type": "navigate",
+                    "targetPageId": "page-settings"
+                  }
+                }
+              },
+              "children": []
+            }
+          ]
+        }
+      }
+    ],
+    "layout": {
+      "id": "page-home-screen",
+      "alias": "core.screen",
+      "layout": {
+        "mode": "flow",
+        "order": 0
+      },
+      "props": {
+        "title": "个人中心",
+        "style": {
+          "background": "#eef2ff"
+        }
+      },
+      "children": [
+        {
+          "id": "profile-member-card",
+          "alias": "core.panel",
+          "layout": {
+            "mode": "flow",
+            "order": 0,
+            "width": "100%"
+          },
+          "props": {
+            "style": {
+              "margin": "20rpx 20rpx 0",
+              "padding": "28rpx",
+              "borderRadius": "32rpx",
+              "background": "linear-gradient(135deg,#312e81,#4338ca)",
+              "color": "#fff"
+            }
+          },
+          "children": [
+            {
+              "id": "profile-member-row",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "gap": "18rpx",
+                  "alignItems": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "profile-avatar",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "alt": "林小满头像",
+                    "title": "用户头像",
+                    "iconColor": "#c4b5fd",
+                    "objectFit": "cover",
+                    "style": {
+                      "width": "108rpx",
+                      "height": "108rpx",
+                      "borderRadius": "50%"
+                    },
+                    "src": "https://i.pravatar.cc/150?img=47"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "profile-user-copy",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "auto"
+                  },
+                  "props": {
+                    "style": {
+                      "flex": 1,
+                      "gap": "6rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "profile-user-name",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "林小满",
+                        "variant": "heading",
+                        "style": {
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "profile-user-level",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "黑金会员 · 编号 100001",
+                        "variant": "caption",
+                        "style": {
+                          "color": "rgba(255,255,255,0.76)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "profile-member-tag",
+                  "alias": "core.tag",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "label": "会员中心",
+                    "tone": "member",
+                    "style": {
+                      "background": "rgba(255,255,255,0.2)",
+                      "color": "#fff"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "profile-stat-grid",
+              "alias": "core.grid",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "columns": 4,
+                "style": {
+                  "marginTop": "24rpx",
+                  "gap": "8rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "profile-stat-0",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "12rpx 4rpx",
+                      "borderRadius": "16rpx",
+                      "background": "rgba(255,255,255,0.14)",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "profile-stat-num-0",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "8",
+                        "variant": "subheading",
+                        "style": {
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "profile-stat-label-0",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "订单",
+                        "variant": "caption",
+                        "style": {
+                          "color": "rgba(255,255,255,0.7)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "profile-stat-1",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "12rpx 4rpx",
+                      "borderRadius": "16rpx",
+                      "background": "rgba(255,255,255,0.14)",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "profile-stat-num-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "12",
+                        "variant": "subheading",
+                        "style": {
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "profile-stat-label-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "收藏",
+                        "variant": "caption",
+                        "style": {
+                          "color": "rgba(255,255,255,0.7)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "profile-stat-2",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "12rpx 4rpx",
+                      "borderRadius": "16rpx",
+                      "background": "rgba(255,255,255,0.14)",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "profile-stat-num-2",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "3",
+                        "variant": "subheading",
+                        "style": {
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "profile-stat-label-2",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "优惠券",
+                        "variant": "caption",
+                        "style": {
+                          "color": "rgba(255,255,255,0.7)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "profile-stat-3",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "12rpx 4rpx",
+                      "borderRadius": "16rpx",
+                      "background": "rgba(255,255,255,0.14)",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "profile-stat-num-3",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "680",
+                        "variant": "subheading",
+                        "style": {
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "profile-stat-label-3",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "积分",
+                        "variant": "caption",
+                        "style": {
+                          "color": "rgba(255,255,255,0.7)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "profile-order-strip",
+          "alias": "core.panel",
+          "layout": {
+            "mode": "flow",
+            "order": 1,
+            "width": "100%"
+          },
+          "props": {
+            "style": {
+              "margin": "20rpx",
+              "padding": "22rpx",
+              "borderRadius": "24rpx",
+              "background": "#fff"
+            }
+          },
+          "children": [
+            {
+              "id": "profile-order-head",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "justifyContent": "space-between"
+                }
+              },
+              "children": [
+                {
+                  "id": "profile-order-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "我的订单",
+                    "variant": "heading",
+                    "style": {}
+                  },
+                  "children": []
+                },
+                {
+                  "id": "profile-order-all",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "查看全部",
+                    "variant": "caption",
+                    "style": {
+                      "color": "#4338ca"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "profile-order-grid",
+              "alias": "core.grid",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "columns": 4,
+                "style": {
+                  "marginTop": "18rpx",
+                  "gap": "12rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "profile-order-0",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "alignItems": "center",
+                      "gap": "8rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "profile-order-icon-0",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "待付款图标",
+                        "title": "待付款图标",
+                        "iconColor": "#f59e0b",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "56rpx",
+                          "height": "56rpx"
+                        },
+                        "src": "/template-assets/generated/profile-center/profile-order-icon-0.avif"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "profile-order-text-0",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "待付款",
+                        "variant": "caption",
+                        "style": {}
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "profile-order-1",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "alignItems": "center",
+                      "gap": "8rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "profile-order-icon-1",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "待发货图标",
+                        "title": "待发货图标",
+                        "iconColor": "#3b82f6",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "56rpx",
+                          "height": "56rpx"
+                        },
+                        "src": "/template-assets/generated/profile-center/profile-order-icon-1.avif"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "profile-order-text-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "待发货",
+                        "variant": "caption",
+                        "style": {}
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "profile-order-2",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "alignItems": "center",
+                      "gap": "8rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "profile-order-icon-2",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "待收货图标",
+                        "title": "待收货图标",
+                        "iconColor": "#10b981",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "56rpx",
+                          "height": "56rpx"
+                        },
+                        "src": "/template-assets/generated/profile-center/profile-order-icon-2.avif"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "profile-order-text-2",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "待收货",
+                        "variant": "caption",
+                        "style": {}
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "profile-order-3",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "alignItems": "center",
+                      "gap": "8rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "profile-order-icon-3",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "售后图标",
+                        "title": "售后图标",
+                        "iconColor": "#ef4444",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "56rpx",
+                          "height": "56rpx"
+                        },
+                        "src": "/template-assets/generated/profile-center/profile-order-icon-3.avif"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "profile-order-text-3",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "售后",
+                        "variant": "caption",
+                        "style": {}
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "profile-service-grid",
+          "alias": "core.grid",
+          "layout": {
+            "mode": "flow",
+            "order": 2,
+            "width": "100%"
+          },
+          "props": {
+            "columns": 2,
+            "style": {
+              "padding": "0 20rpx",
+              "gap": "16rpx"
+            }
+          },
+          "children": [
+            {
+              "id": "profile-service-0",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx",
+                  "borderRadius": "24rpx",
+                  "background": "#fff"
+                }
+              },
+              "children": [
+                {
+                  "id": "profile-service-row-0",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "14rpx",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "profile-service-icon-0",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "会员权益图标",
+                        "title": "会员权益图标",
+                        "iconColor": "#4338ca",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "58rpx",
+                          "height": "58rpx"
+                        },
+                        "src": "/template-assets/generated/profile-center/profile-service-icon-0.avif"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "profile-service-title-0",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "会员权益",
+                        "variant": "subheading",
+                        "style": {}
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "profile-service-1",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx",
+                  "borderRadius": "24rpx",
+                  "background": "#fff"
+                }
+              },
+              "children": [
+                {
+                  "id": "profile-service-row-1",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "14rpx",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "profile-service-icon-1",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "地址管理图标",
+                        "title": "地址管理图标",
+                        "iconColor": "#06b6d4",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "58rpx",
+                          "height": "58rpx"
+                        },
+                        "src": "/template-assets/generated/profile-center/profile-service-icon-1.avif"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "profile-service-title-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "地址管理",
+                        "variant": "subheading",
+                        "style": {}
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "profile-service-2",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx",
+                  "borderRadius": "24rpx",
+                  "background": "#fff"
+                }
+              },
+              "children": [
+                {
+                  "id": "profile-service-row-2",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "14rpx",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "profile-service-icon-2",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "优惠券包图标",
+                        "title": "优惠券包图标",
+                        "iconColor": "#f97316",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "58rpx",
+                          "height": "58rpx"
+                        },
+                        "src": "/template-assets/generated/profile-center/profile-service-icon-2.avif"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "profile-service-title-2",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "优惠券包",
+                        "variant": "subheading",
+                        "style": {}
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "profile-service-3",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 3,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx",
+                  "borderRadius": "24rpx",
+                  "background": "#fff"
+                }
+              },
+              "children": [
+                {
+                  "id": "profile-service-row-3",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "14rpx",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "profile-service-icon-3",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "客服中心图标",
+                        "title": "客服中心图标",
+                        "iconColor": "#10b981",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "58rpx",
+                          "height": "58rpx"
+                        },
+                        "src": "/template-assets/generated/profile-center/profile-service-icon-3.avif"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "profile-service-title-3",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "客服中心",
+                        "variant": "subheading",
+                        "style": {}
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "profile-growth-card",
+          "alias": "core.panel",
+          "layout": {
+            "mode": "flow",
+            "order": 3,
+            "width": "100%"
+          },
+          "props": {
+            "style": {
+              "margin": "20rpx",
+              "padding": "24rpx",
+              "borderRadius": "24rpx",
+              "background": "#eef2ff"
+            }
+          },
+          "children": [
+            {
+              "id": "profile-growth-title",
+              "alias": "core.text",
+              "layout": {
+                "mode": "flow",
+                "order": 0
+              },
+              "props": {
+                "text": "本月成长值",
+                "variant": "heading",
+                "style": {}
+              },
+              "children": []
+            },
+            {
+              "id": "profile-growth-progress",
+              "alias": "core.progress",
+              "layout": {
+                "mode": "flow",
+                "order": 1
+              },
+              "props": {
+                "value": 72,
+                "max": 100,
+                "tone": "accent",
+                "style": {
+                  "marginTop": "18rpx"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "profile-growth-desc",
+              "alias": "core.text",
+              "layout": {
+                "mode": "flow",
+                "order": 2
+              },
+              "props": {
+                "text": "再完成 2 个任务升级",
+                "variant": "caption",
+                "style": {
+                  "marginTop": "10rpx",
+                  "color": "#4338ca"
+                }
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "page-home-bottom-tabs",
+          "alias": "core.tabs",
+          "slot": "footer",
+          "layout": {
+            "mode": "flow",
+            "order": 999,
+            "width": "100%"
+          },
+          "props": {
+            "tabs": [
+              "个人中心",
+              "订单列表",
+              "我的收藏",
+              "设置"
+            ],
+            "activeTab": "个人中心"
+          },
+          "interactions": {
+            "onTabClick": {
+              "个人中心": {
+                "type": "navigate",
+                "targetPageId": "page-home"
+              },
+              "订单列表": {
+                "type": "navigate",
+                "targetPageId": "page-orders"
+              },
+              "我的收藏": {
+                "type": "navigate",
+                "targetPageId": "page-favorites"
+              },
+              "设置": {
+                "type": "navigate",
+                "targetPageId": "page-settings"
+              }
+            }
+          },
+          "children": []
+        }
+      ]
+    },
+    "componentTemplates": {
+      "biz-hero-banner": {
+        "root": {
+          "alias": "core.panel",
+          "props": {
+            "tone": "accent",
+            "gap": 12,
+            "style": {
+              "width": "100%",
+              "padding": "28px 24px",
+              "color": "#fff",
+              "borderRadius": "0 0 28px 28px",
+              "background": "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark, var(--color-primary)))",
+              "boxShadow": "0 16px 36px rgba(15,23,42,0.18)"
+            }
+          },
+          "children": [
+            {
+              "alias": "core.tag",
+              "props": {
+                "label": {
+                  "$bind": "badge"
+                },
+                "tone": "member",
+                "style": {
+                  "alignSelf": "flex-start",
+                  "background": "rgba(255,255,255,0.22)",
+                  "color": "#fff"
+                }
+              }
+            },
+            {
+              "alias": "core.text",
+              "props": {
+                "text": {
+                  "$bind": "title"
+                },
+                "variant": "display",
+                "style": {
+                  "color": "#fff"
+                }
+              }
+            },
+            {
+              "alias": "core.text",
+              "props": {
+                "text": {
+                  "$bind": "subtitle"
+                },
+                "variant": "body",
+                "style": {
+                  "color": "rgba(255,255,255,0.86)"
+                }
+              }
+            },
+            {
+              "alias": "core.button",
+              "props": {
+                "label": {
+                  "$bind": "actionLabel"
+                },
+                "variant": "secondary",
+                "style": {
+                  "width": "100%",
+                  "marginTop": "8px"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "cssVars": {
+      "--color-primary": "#4338ca",
+      "--color-primary-dark": "#3730a3",
+      "--color-primary-light": "#e0e7ff",
+      "--color-text-primary": "#1e1e33",
+      "--color-text-secondary": "#5c5c73",
+      "--color-border": "#e0e0ee",
+      "--color-background": "#f6f6fb",
+      "--color-surface": "#ffffff",
+      "--color-bg": "#f6f6fb",
+      "--color-card": "#ffffff",
+      "--text-base": "#1e1e33",
+      "--radius-base": "0.9rem",
+      "--accent": "#4338ca"
+    },
+    "style": {
+      "cssVars": {
+        "--color-primary": "#4338ca",
+        "--color-primary-dark": "#3730a3",
+        "--color-primary-light": "#e0e7ff",
+        "--color-text-primary": "#1e1e33",
+        "--color-text-secondary": "#5c5c73",
+        "--color-border": "#e0e0ee",
+        "--color-background": "#f6f6fb",
+        "--color-surface": "#ffffff",
+        "--color-bg": "#f6f6fb",
+        "--color-card": "#ffffff",
+        "--text-base": "#1e1e33",
+        "--radius-base": "0.9rem",
+        "--accent": "#4338ca"
+      }
+    },
+    "schemaVersion": 1
+  }
+}

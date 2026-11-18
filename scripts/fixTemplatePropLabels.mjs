@@ -1,11 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const root = 'templates_json';
+const root = process.argv[2] ?? 'templates_json';
 const labels = {
   accept: '文件类型',
   action: '上传地址',
   actionLabel: '按钮文案',
+  badgeLabel: '徽章文案',
+  caption: '说明文字',
   active: '激活',
   activeTab: '当前标签',
   align: '对齐',
@@ -38,6 +40,8 @@ const labels = {
   fixed: '固定定位',
   format: '格式',
   gap: '间距',
+  headerLeftAriaLabel: '左侧按钮无障碍说明',
+  headerRightAriaLabel: '右侧按钮无障碍说明',
   group: '分组',
   headerActionLabel: '头部操作文案',
   headerLeftAriaLabel: '左侧按钮说明',
@@ -64,7 +68,9 @@ const labels = {
   options: '选项',
   pageSize: '每页数量',
   placement: '位置',
+  overline: '眉题',
   placeholder: '占位提示',
+  price: '价格',
   poster: '封面图',
   prefix: '前缀',
   range: '范围模式',
@@ -76,12 +82,15 @@ const labels = {
   split: '显示分割线',
   src: '资源地址',
   startValue: '起始值',
+  statusLabel: '状态文案',
   statusTime: '状态栏时间',
+  style: '样式',
   step: '步长',
   stripe: '斑马纹',
   subtitle: '副标题',
   suffix: '后缀',
   surface: '运行平台',
+  tag: '标签',
   tabs: '标签项',
   text: '文本',
   thumb: '缩略图',

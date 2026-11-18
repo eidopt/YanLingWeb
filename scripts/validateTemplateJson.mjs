@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
-const DEFAULT_TEMPLATE_DIR = 'templates_json';
+const DEFAULT_TEMPLATE_DIRS = ['mock', 'templates_json'];
 const CORE_ALIASES = new Set([
   'core.screen',
   'core.panel',
@@ -214,13 +214,16 @@ function addIssue(issues, filePath, level, pathName, message) {
 }
 
 function collectJsonFiles(inputs) {
-  const targets = inputs.length ? inputs : [DEFAULT_TEMPLATE_DIR];
+  const targets = inputs.length ? inputs : DEFAULT_TEMPLATE_DIRS;
   const files = [];
 
   for (const target of targets) {
     const fullPath = path.resolve(process.cwd(), target);
     if (!fs.existsSync(fullPath)) {
-      throw new Error(`Path does not exist: ${target}`);
+      if (inputs.length) {
+        throw new Error(`Path does not exist: ${target}`);
+      }
+      continue;
     }
 
     const stat = fs.statSync(fullPath);

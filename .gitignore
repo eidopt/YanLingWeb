@@ -41,15 +41,17 @@ backend/data/*.db-*
 # Shared — generated OpenAPI spec (regenerated on backend start)
 shared/openapi.json
 
-# Generated template image assets — regenerated per device via `pnpm assets:pregenerate`
-# (kept out of git: large binaries; the manifest + scripts are committed instead)
-public/template-assets/generated/
+# Runtime mirror of mock/assets; canonical PNGs live under mock/assets/.
 public/template-assets/pool/
+public/template-assets/generated/
 
-# Generated template JSON outputs (produced by `pnpm templates:generate`, imported on backend start)
+# Ephemeral template JSON outputs (`pnpm templates:generate` → backend import → delete)
 /templates_json/*.json
 templates_json/preview/public/templates-index.json
 templates_json/*.validation.log
+
+# Shared mock templates are committed; only validation logs are ignored
+mock/*.validation.log
 
 # Editor directories and files
 .vscode/*

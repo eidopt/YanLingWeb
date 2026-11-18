@@ -1,0 +1,1441 @@
+{
+  "templateId": "commerce-market",
+  "templateVersion": "2",
+  "profileVersion": "1.0.0",
+  "devices": [
+    "mobile"
+  ],
+  "pages": [
+    {
+      "pageKey": "commerce-home",
+      "pageId": "commerce-home",
+      "pageKind": "home",
+      "name": "每日集市",
+      "rootNodeId": "commerce-home-screen",
+      "isDefault": true
+    },
+    {
+      "pageKey": "commerce-deals",
+      "pageId": "commerce-deals",
+      "pageKind": "category",
+      "name": "分类会场",
+      "rootNodeId": "commerce-deals-screen",
+      "isDefault": false
+    },
+    {
+      "pageKey": "commerce-cart",
+      "pageId": "commerce-cart",
+      "pageKind": "unknown",
+      "name": "购物车",
+      "rootNodeId": "commerce-cart-screen",
+      "isDefault": false
+    }
+  ],
+  "regions": [
+    {
+      "regionKey": "commerce-home.item",
+      "pageKey": "commerce-home",
+      "nodeId": "commerce-home-promo",
+      "name": "今日必抢",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "commerce-home.item-2",
+      "pageKey": "commerce-home",
+      "nodeId": "commerce-home-search",
+      "name": "搜索生鲜百货、居家用品",
+      "sectionKind": "search",
+      "replaceable": false
+    },
+    {
+      "regionKey": "commerce-home.item-3",
+      "pageKey": "commerce-home",
+      "nodeId": "commerce-home-categories",
+      "name": "推荐",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "commerce-home.item-4",
+      "pageKey": "commerce-home",
+      "nodeId": "commerce-home-feature-grid",
+      "name": "限时秒杀",
+      "sectionKind": "grid",
+      "replaceable": true
+    },
+    {
+      "regionKey": "commerce-home.item-5",
+      "pageKey": "commerce-home",
+      "nodeId": "commerce-home-products",
+      "name": "热卖",
+      "sectionKind": "grid",
+      "replaceable": true
+    },
+    {
+      "regionKey": "commerce-deals.item",
+      "pageKey": "commerce-deals",
+      "nodeId": "commerce-deals-nav",
+      "name": "返回首页",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "commerce-deals.item-2",
+      "pageKey": "commerce-deals",
+      "nodeId": "commerce-deals-hero",
+      "name": "今晚加餐",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "commerce-deals.item-3",
+      "pageKey": "commerce-deals",
+      "nodeId": "commerce-deals-grid",
+      "name": "会员加价购",
+      "sectionKind": "grid",
+      "replaceable": true
+    },
+    {
+      "regionKey": "commerce-cart.item",
+      "pageKey": "commerce-cart",
+      "nodeId": "commerce-cart-summary",
+      "name": "待结算商品",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "commerce-cart.item-2",
+      "pageKey": "commerce-cart",
+      "nodeId": "commerce-cart-items",
+      "name": "茉莉酸奶",
+      "sectionKind": "stack",
+      "replaceable": true
+    },
+    {
+      "regionKey": "commerce-cart.item-3",
+      "pageKey": "commerce-cart",
+      "nodeId": "commerce-cart-actions",
+      "name": "继续凑单",
+      "sectionKind": "row",
+      "replaceable": true
+    }
+  ],
+  "slots": [
+    {
+      "slotKey": "commerce-home.commerce-home-screen.screen",
+      "pageKey": "commerce-home",
+      "nodeId": "commerce-home-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel",
+        "surface",
+        "chrome"
+      ],
+      "label": "每日集市"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-promo.panel",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item",
+      "nodeId": "commerce-home-promo",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "今日必抢"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-promo-overline.text",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item",
+      "nodeId": "commerce-home-promo-overline",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "今日必抢"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-promo-title.text",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item",
+      "nodeId": "commerce-home-promo-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "晚餐食材 1 小时达"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-promo-body.text",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item",
+      "nodeId": "commerce-home-promo-body",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "新鲜直达，满 79 减 18，限时活动今天结束。"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-promo-action.button",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item",
+      "nodeId": "commerce-home-promo-action",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "去加购"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-search.search",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-2",
+      "nodeId": "commerce-home-search",
+      "component": "core.search",
+      "editableProps": [
+        "placeholder",
+        "value"
+      ],
+      "label": "搜索生鲜百货、居家用品"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-categories.row",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-3",
+      "nodeId": "commerce-home-categories",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "推荐"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-pill-recommend.button",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-3",
+      "nodeId": "commerce-home-pill-recommend",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "推荐"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-pill-fresh.button",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-3",
+      "nodeId": "commerce-home-pill-fresh",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "生鲜"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-pill-snacks.button",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-3",
+      "nodeId": "commerce-home-pill-snacks",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "零食"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-pill-beauty.button",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-3",
+      "nodeId": "commerce-home-pill-beauty",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "美妆"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-feature-grid.grid",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-4",
+      "nodeId": "commerce-home-feature-grid",
+      "component": "core.grid",
+      "editableProps": [
+        "gap",
+        "columns"
+      ],
+      "label": "限时秒杀"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-feature-deals.panel",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-4",
+      "nodeId": "commerce-home-feature-deals",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "限时秒杀"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-feature-deals-overline.text",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-4",
+      "nodeId": "commerce-home-feature-deals-overline",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "限时秒杀"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-feature-deals-title.text",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-4",
+      "nodeId": "commerce-home-feature-deals-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "分类会场"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-feature-deals-body.text",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-4",
+      "nodeId": "commerce-home-feature-deals-body",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "点击进入活动分发页。"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-feature-cart.panel",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-4",
+      "nodeId": "commerce-home-feature-cart",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "购物车"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-feature-cart-overline.text",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-4",
+      "nodeId": "commerce-home-feature-cart-overline",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "购物车"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-feature-cart-title.text",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-4",
+      "nodeId": "commerce-home-feature-cart-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "3 件待结算"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-feature-cart-body.text",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-4",
+      "nodeId": "commerce-home-feature-cart-body",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "查看购物车页。"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-products.grid",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-5",
+      "nodeId": "commerce-home-products",
+      "component": "core.grid",
+      "editableProps": [
+        "gap",
+        "columns"
+      ],
+      "label": "热卖"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-product-1.panel",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-5",
+      "nodeId": "commerce-home-product-1",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "热卖"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-product-1-image.image",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-5",
+      "nodeId": "commerce-home-product-1-image",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "commerce-home-product-1-image"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-product-1-badge.tag",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-5",
+      "nodeId": "commerce-home-product-1-badge",
+      "component": "core.tag",
+      "editableProps": [
+        "label",
+        "tone"
+      ],
+      "label": "热卖"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-product-1-title.text",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-5",
+      "nodeId": "commerce-home-product-1-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "茉莉酸奶"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-product-1-body.text",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-5",
+      "nodeId": "commerce-home-product-1-body",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "12 杯装 冷链次日达"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-product-1-price-row.row",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-5",
+      "nodeId": "commerce-home-product-1-price-row",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "¥8.90"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-product-1-price.text",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-5",
+      "nodeId": "commerce-home-product-1-price",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "¥8.90"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-product-1-action.button",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-5",
+      "nodeId": "commerce-home-product-1-action",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "加购"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-product-2.panel",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-5",
+      "nodeId": "commerce-home-product-2",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "特惠"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-product-2-image.image",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-5",
+      "nodeId": "commerce-home-product-2-image",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "commerce-home-product-2-image"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-product-2-badge.tag",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-5",
+      "nodeId": "commerce-home-product-2-badge",
+      "component": "core.tag",
+      "editableProps": [
+        "label",
+        "tone"
+      ],
+      "label": "特惠"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-product-2-title.text",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-5",
+      "nodeId": "commerce-home-product-2-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "抹茶威化卷"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-product-2-body.text",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-5",
+      "nodeId": "commerce-home-product-2-body",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "会员专享组合装"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-product-2-price-row.row",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-5",
+      "nodeId": "commerce-home-product-2-price-row",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "¥6.80"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-product-2-price.text",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-5",
+      "nodeId": "commerce-home-product-2-price",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "¥6.80"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-product-2-action.button",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-5",
+      "nodeId": "commerce-home-product-2-action",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "加购"
+    },
+    {
+      "slotKey": "commerce-home.commerce-home-footer.tabs",
+      "pageKey": "commerce-home",
+      "nodeId": "commerce-home-footer",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "commerce-home-footer"
+    },
+    {
+      "slotKey": "commerce-deals.commerce-deals-screen.screen",
+      "pageKey": "commerce-deals",
+      "nodeId": "commerce-deals-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel",
+        "surface",
+        "chrome"
+      ],
+      "label": "分类会场"
+    },
+    {
+      "slotKey": "commerce-deals.commerce-deals-nav.row",
+      "pageKey": "commerce-deals",
+      "regionKey": "commerce-deals.item",
+      "nodeId": "commerce-deals-nav",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "返回首页"
+    },
+    {
+      "slotKey": "commerce-deals.commerce-deals-back-home.button",
+      "pageKey": "commerce-deals",
+      "regionKey": "commerce-deals.item",
+      "nodeId": "commerce-deals-back-home",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "返回首页"
+    },
+    {
+      "slotKey": "commerce-deals.commerce-deals-go-cart.tag",
+      "pageKey": "commerce-deals",
+      "regionKey": "commerce-deals.item",
+      "nodeId": "commerce-deals-go-cart",
+      "component": "core.tag",
+      "editableProps": [
+        "label",
+        "tone"
+      ],
+      "label": "去购物车"
+    },
+    {
+      "slotKey": "commerce-deals.commerce-deals-hero.panel",
+      "pageKey": "commerce-deals",
+      "regionKey": "commerce-deals.item-2",
+      "nodeId": "commerce-deals-hero",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "今晚加餐"
+    },
+    {
+      "slotKey": "commerce-deals.commerce-deals-hero-overline.text",
+      "pageKey": "commerce-deals",
+      "regionKey": "commerce-deals.item-2",
+      "nodeId": "commerce-deals-hero-overline",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "今晚加餐"
+    },
+    {
+      "slotKey": "commerce-deals.commerce-deals-hero-title.text",
+      "pageKey": "commerce-deals",
+      "regionKey": "commerce-deals.item-2",
+      "nodeId": "commerce-deals-hero-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "满 79 元减 18 元"
+    },
+    {
+      "slotKey": "commerce-deals.commerce-deals-hero-body.text",
+      "pageKey": "commerce-deals",
+      "regionKey": "commerce-deals.item-2",
+      "nodeId": "commerce-deals-hero-body",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "活动限时，点击直接去结算。"
+    },
+    {
+      "slotKey": "commerce-deals.commerce-deals-hero-action.button",
+      "pageKey": "commerce-deals",
+      "regionKey": "commerce-deals.item-2",
+      "nodeId": "commerce-deals-hero-action",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "去结算"
+    },
+    {
+      "slotKey": "commerce-deals.commerce-deals-grid.grid",
+      "pageKey": "commerce-deals",
+      "regionKey": "commerce-deals.item-3",
+      "nodeId": "commerce-deals-grid",
+      "component": "core.grid",
+      "editableProps": [
+        "gap",
+        "columns"
+      ],
+      "label": "会员加价购"
+    },
+    {
+      "slotKey": "commerce-deals.commerce-deals-info-1.panel",
+      "pageKey": "commerce-deals",
+      "regionKey": "commerce-deals.item-3",
+      "nodeId": "commerce-deals-info-1",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "会员加价购"
+    },
+    {
+      "slotKey": "commerce-deals.commerce-deals-info-1-overline.text",
+      "pageKey": "commerce-deals",
+      "regionKey": "commerce-deals.item-3",
+      "nodeId": "commerce-deals-info-1-overline",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "会员加价购"
+    },
+    {
+      "slotKey": "commerce-deals.commerce-deals-info-1-title.text",
+      "pageKey": "commerce-deals",
+      "regionKey": "commerce-deals.item-3",
+      "nodeId": "commerce-deals-info-1-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "2 张券待使用"
+    },
+    {
+      "slotKey": "commerce-deals.commerce-deals-info-1-body.text",
+      "pageKey": "commerce-deals",
+      "regionKey": "commerce-deals.item-3",
+      "nodeId": "commerce-deals-info-1-body",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "去购物车查看优惠。"
+    },
+    {
+      "slotKey": "commerce-deals.commerce-deals-info-2.panel",
+      "pageKey": "commerce-deals",
+      "regionKey": "commerce-deals.item-3",
+      "nodeId": "commerce-deals-info-2",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "回到首页"
+    },
+    {
+      "slotKey": "commerce-deals.commerce-deals-info-2-overline.text",
+      "pageKey": "commerce-deals",
+      "regionKey": "commerce-deals.item-3",
+      "nodeId": "commerce-deals-info-2-overline",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "回到首页"
+    },
+    {
+      "slotKey": "commerce-deals.commerce-deals-info-2-title.text",
+      "pageKey": "commerce-deals",
+      "regionKey": "commerce-deals.item-3",
+      "nodeId": "commerce-deals-info-2-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "继续逛新品"
+    },
+    {
+      "slotKey": "commerce-deals.commerce-deals-info-2-body.text",
+      "pageKey": "commerce-deals",
+      "regionKey": "commerce-deals.item-3",
+      "nodeId": "commerce-deals-info-2-body",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "保持在同一主题里。"
+    },
+    {
+      "slotKey": "commerce-deals.commerce-deals-footer.tabs",
+      "pageKey": "commerce-deals",
+      "nodeId": "commerce-deals-footer",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "commerce-deals-footer"
+    },
+    {
+      "slotKey": "commerce-cart.commerce-cart-screen.screen",
+      "pageKey": "commerce-cart",
+      "nodeId": "commerce-cart-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel",
+        "surface",
+        "chrome"
+      ],
+      "label": "购物车"
+    },
+    {
+      "slotKey": "commerce-cart.commerce-cart-summary.panel",
+      "pageKey": "commerce-cart",
+      "regionKey": "commerce-cart.item",
+      "nodeId": "commerce-cart-summary",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "待结算商品"
+    },
+    {
+      "slotKey": "commerce-cart.commerce-cart-overline.text",
+      "pageKey": "commerce-cart",
+      "regionKey": "commerce-cart.item",
+      "nodeId": "commerce-cart-overline",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "待结算商品"
+    },
+    {
+      "slotKey": "commerce-cart.commerce-cart-title.text",
+      "pageKey": "commerce-cart",
+      "regionKey": "commerce-cart.item",
+      "nodeId": "commerce-cart-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "3 件商品已加入购物车"
+    },
+    {
+      "slotKey": "commerce-cart.commerce-cart-body.text",
+      "pageKey": "commerce-cart",
+      "regionKey": "commerce-cart.item",
+      "nodeId": "commerce-cart-body",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "满减活动已生效，现在结算可节省 18 元。"
+    },
+    {
+      "slotKey": "commerce-cart.commerce-cart-items.stack",
+      "pageKey": "commerce-cart",
+      "regionKey": "commerce-cart.item-2",
+      "nodeId": "commerce-cart-items",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "茉莉酸奶"
+    },
+    {
+      "slotKey": "commerce-cart.commerce-cart-item-1.panel",
+      "pageKey": "commerce-cart",
+      "regionKey": "commerce-cart.item-2",
+      "nodeId": "commerce-cart-item-1",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "茉莉酸奶"
+    },
+    {
+      "slotKey": "commerce-cart.commerce-cart-item-1-overline.text",
+      "pageKey": "commerce-cart",
+      "regionKey": "commerce-cart.item-2",
+      "nodeId": "commerce-cart-item-1-overline",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "茉莉酸奶"
+    },
+    {
+      "slotKey": "commerce-cart.commerce-cart-item-1-title.text",
+      "pageKey": "commerce-cart",
+      "regionKey": "commerce-cart.item-2",
+      "nodeId": "commerce-cart-item-1-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "12 杯装 已勾选"
+    },
+    {
+      "slotKey": "commerce-cart.commerce-cart-item-1-body.text",
+      "pageKey": "commerce-cart",
+      "regionKey": "commerce-cart.item-2",
+      "nodeId": "commerce-cart-item-1-body",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "冷链次日达，今晚 20:00 前送达。"
+    },
+    {
+      "slotKey": "commerce-cart.commerce-cart-item-2.panel",
+      "pageKey": "commerce-cart",
+      "regionKey": "commerce-cart.item-2",
+      "nodeId": "commerce-cart-item-2",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "空气炸锅纸"
+    },
+    {
+      "slotKey": "commerce-cart.commerce-cart-item-2-overline.text",
+      "pageKey": "commerce-cart",
+      "regionKey": "commerce-cart.item-2",
+      "nodeId": "commerce-cart-item-2-overline",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "空气炸锅纸"
+    },
+    {
+      "slotKey": "commerce-cart.commerce-cart-item-2-title.text",
+      "pageKey": "commerce-cart",
+      "regionKey": "commerce-cart.item-2",
+      "nodeId": "commerce-cart-item-2-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "2 件组合装"
+    },
+    {
+      "slotKey": "commerce-cart.commerce-cart-item-2-body.text",
+      "pageKey": "commerce-cart",
+      "regionKey": "commerce-cart.item-2",
+      "nodeId": "commerce-cart-item-2-body",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "满减商品，继续凑单。"
+    },
+    {
+      "slotKey": "commerce-cart.commerce-cart-actions.row",
+      "pageKey": "commerce-cart",
+      "regionKey": "commerce-cart.item-3",
+      "nodeId": "commerce-cart-actions",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "继续凑单"
+    },
+    {
+      "slotKey": "commerce-cart.commerce-cart-continue.button",
+      "pageKey": "commerce-cart",
+      "regionKey": "commerce-cart.item-3",
+      "nodeId": "commerce-cart-continue",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "继续凑单"
+    },
+    {
+      "slotKey": "commerce-cart.commerce-cart-home.button",
+      "pageKey": "commerce-cart",
+      "regionKey": "commerce-cart.item-3",
+      "nodeId": "commerce-cart-home",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "去结算"
+    },
+    {
+      "slotKey": "commerce-cart.commerce-cart-footer.tabs",
+      "pageKey": "commerce-cart",
+      "nodeId": "commerce-cart-footer",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "commerce-cart-footer"
+    }
+  ],
+  "patterns": [
+    {
+      "patternKey": "commerce-home.item.pattern",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item",
+      "sourceRootNodeId": "commerce-home-promo-overline",
+      "parentNodeId": "commerce-home-promo",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "commerce-home-promo-overline",
+          "slotKey": "commerce-home.commerce-home-promo-overline.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "commerce-home.item.pattern-2",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-3",
+      "sourceRootNodeId": "commerce-home-pill-recommend",
+      "parentNodeId": "commerce-home-categories",
+      "itemAlias": "core.button",
+      "fields": [
+        {
+          "fieldKey": "label",
+          "slotKey": "commerce-home.commerce-home-pill-recommend.button",
+          "prop": "label"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "commerce-home.item.pattern-3",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-4",
+      "sourceRootNodeId": "commerce-home-feature-deals",
+      "parentNodeId": "commerce-home-feature-grid",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "commerce-home-feature-deals-overline",
+          "slotKey": "commerce-home.commerce-home-feature-deals-overline.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "commerce-home-feature-deals-title",
+          "slotKey": "commerce-home.commerce-home-feature-deals-title.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "commerce-home-feature-deals-body",
+          "slotKey": "commerce-home.commerce-home-feature-deals-body.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "commerce-home.item.pattern-4",
+      "pageKey": "commerce-home",
+      "regionKey": "commerce-home.item-5",
+      "sourceRootNodeId": "commerce-home-product-1",
+      "parentNodeId": "commerce-home-products",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "src",
+          "slotKey": "commerce-home.commerce-home-product-1-image.image",
+          "prop": "src"
+        },
+        {
+          "fieldKey": "label",
+          "slotKey": "commerce-home.commerce-home-product-1-badge.tag",
+          "prop": "label"
+        },
+        {
+          "fieldKey": "commerce-home-product-1-title",
+          "slotKey": "commerce-home.commerce-home-product-1-title.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "commerce-home-product-1-body",
+          "slotKey": "commerce-home.commerce-home-product-1-body.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "commerce-home-product-1-price",
+          "slotKey": "commerce-home.commerce-home-product-1-price.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "label",
+          "slotKey": "commerce-home.commerce-home-product-1-action.button",
+          "prop": "label"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "commerce-deals.item.pattern",
+      "pageKey": "commerce-deals",
+      "regionKey": "commerce-deals.item",
+      "sourceRootNodeId": "commerce-deals-back-home",
+      "parentNodeId": "commerce-deals-nav",
+      "itemAlias": "core.button",
+      "fields": [
+        {
+          "fieldKey": "label",
+          "slotKey": "commerce-deals.commerce-deals-back-home.button",
+          "prop": "label"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "commerce-deals.item.pattern-2",
+      "pageKey": "commerce-deals",
+      "regionKey": "commerce-deals.item-2",
+      "sourceRootNodeId": "commerce-deals-hero-overline",
+      "parentNodeId": "commerce-deals-hero",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "commerce-deals-hero-overline",
+          "slotKey": "commerce-deals.commerce-deals-hero-overline.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "commerce-deals.item.pattern-3",
+      "pageKey": "commerce-deals",
+      "regionKey": "commerce-deals.item-3",
+      "sourceRootNodeId": "commerce-deals-info-1",
+      "parentNodeId": "commerce-deals-grid",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "commerce-deals-info-1-overline",
+          "slotKey": "commerce-deals.commerce-deals-info-1-overline.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "commerce-deals-info-1-title",
+          "slotKey": "commerce-deals.commerce-deals-info-1-title.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "commerce-deals-info-1-body",
+          "slotKey": "commerce-deals.commerce-deals-info-1-body.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "commerce-cart.item.pattern",
+      "pageKey": "commerce-cart",
+      "regionKey": "commerce-cart.item",
+      "sourceRootNodeId": "commerce-cart-overline",
+      "parentNodeId": "commerce-cart-summary",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "commerce-cart-overline",
+          "slotKey": "commerce-cart.commerce-cart-overline.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "commerce-cart.item.pattern-2",
+      "pageKey": "commerce-cart",
+      "regionKey": "commerce-cart.item-2",
+      "sourceRootNodeId": "commerce-cart-item-1",
+      "parentNodeId": "commerce-cart-items",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "commerce-cart-item-1-overline",
+          "slotKey": "commerce-cart.commerce-cart-item-1-overline.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "commerce-cart-item-1-title",
+          "slotKey": "commerce-cart.commerce-cart-item-1-title.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "commerce-cart-item-1-body",
+          "slotKey": "commerce-cart.commerce-cart-item-1-body.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "commerce-cart.item.pattern-3",
+      "pageKey": "commerce-cart",
+      "regionKey": "commerce-cart.item-3",
+      "sourceRootNodeId": "commerce-cart-continue",
+      "parentNodeId": "commerce-cart-actions",
+      "itemAlias": "core.button",
+      "fields": [
+        {
+          "fieldKey": "label",
+          "slotKey": "commerce-cart.commerce-cart-continue.button",
+          "prop": "label"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    }
+  ],
+  "navigation": {
+    "type": "bottom_tabs",
+    "items": [
+      {
+        "key": "commerce-home",
+        "label": "每日集市",
+        "pageKey": "commerce-home",
+        "pageId": "commerce-home"
+      },
+      {
+        "key": "commerce-deals",
+        "label": "分类会场",
+        "pageKey": "commerce-deals",
+        "pageId": "commerce-deals"
+      },
+      {
+        "key": "commerce-cart",
+        "label": "购物车",
+        "pageKey": "commerce-cart",
+        "pageId": "commerce-cart"
+      }
+    ]
+  },
+  "constraints": {
+    "devices": [
+      "mobile"
+    ]
+  },
+  "styleProfile": {
+    "colors": [
+      "#251304",
+      "#c2410c",
+      "#fce7d3",
+      "#fffdfa",
+      "linear-gradient(180deg, #fff6ec 0%, #ffe9d2 100%)",
+      "rgba(194, 65, 12, 0.1)",
+      "rgba(194, 65, 12, 0.14)",
+      "rgba(194, 65, 12, 0.26)",
+      "rgba(255, 255, 255, 0.92)"
+    ],
+    "fontSizes": [
+      "1.1rem"
+    ],
+    "fontWeights": [
+      "var(--app-font-weight-regular)",
+      "var(--app-font-weight-medium)",
+      "var(--app-font-weight-bold)"
+    ],
+    "spacing": [
+      "var(--app-space-1)",
+      "var(--app-space-2)",
+      "var(--app-space-3)",
+      "var(--app-space-4)",
+      "var(--app-space-6)",
+      "var(--app-space-8)",
+      "var(--app-space-12)"
+    ],
+    "radius": [
+      "1.1rem"
+    ],
+    "shadows": [
+      "var(--app-shadow-xs)",
+      "var(--app-shadow-sm)",
+      "var(--app-shadow-md)",
+      "var(--app-shadow-lg)",
+      "var(--app-shadow-brand-md)"
+    ],
+    "commonLayoutPatterns": [
+      "grid",
+      "panel",
+      "row",
+      "search",
+      "stack"
+    ]
+  }
+}

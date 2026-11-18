@@ -1,0 +1,2805 @@
+{
+  "templateId": "service-center",
+  "name": "服务中心",
+  "tagline": "清晰高效的服务入口",
+  "description": "适用于生活服务、政务便民等场景，深青色调搭配清晰的功能入口，支持服务列表、订单追踪和会员管理。",
+  "accent": "#0f766e",
+  "category": "service",
+  "displayCategory": "service",
+  "categoryLabel": "生活服务",
+  "categoryLabels": {
+    "service": "生活服务"
+  },
+  "displayCategoryLabel": "本地服务",
+  "displayCategoryLabels": {
+    "service": "本地服务"
+  },
+  "platformCategoryLabels": {
+    "mini-program": "小程序",
+    "mobile-app": "移动应用"
+  },
+  "functionalCategoryLabels": {
+    "service": "生活服务"
+  },
+  "platformCategories": [
+    "mini-program",
+    "mobile-app"
+  ],
+  "functionalCategories": [
+    "service"
+  ],
+  "traits": [
+    "服务入口",
+    "订单追踪",
+    "深青色调",
+    "功能分区"
+  ],
+  "tags": [
+    "生活服务",
+    "预约",
+    "订单",
+    "家政",
+    "维修",
+    "会员",
+    "服务中心",
+    "缴费"
+  ],
+  "cssVars": {
+    "--accent": "#0f766e",
+    "--surface": "linear-gradient(180deg, #f3f7f9 0%, #e6eef1 100%)",
+    "--surface-muted": "#e2ebee",
+    "--panel-bg": "#ffffff",
+    "--panel-border": "rgba(15, 23, 42, 0.08)",
+    "--panel-accent": "rgba(15, 118, 110, 0.08)",
+    "--panel-accent-border": "rgba(15, 118, 110, 0.24)",
+    "--search-bg": "#ffffff",
+    "--note-bg": "rgba(15, 118, 110, 0.08)",
+    "--text-base": "#0e1b19",
+    "--radius-base": "0.65rem"
+  },
+  "cssAnimations": {},
+  "componentTemplates": {
+    "svc-text": {
+      "displayName": "文本",
+      "root": {
+        "alias": "core.text",
+        "props": {
+          "text": {
+            "$bind": "text"
+          },
+          "variant": {
+            "$bind": "variant"
+          }
+        }
+      }
+    },
+    "svc-button": {
+      "displayName": "按钮",
+      "root": {
+        "alias": "core.button",
+        "props": {
+          "label": {
+            "$bind": "label"
+          },
+          "variant": {
+            "$bind": "variant"
+          },
+          "disabled": {
+            "$bind": "disabled"
+          },
+          "onClick": {
+            "$bind": "onClick"
+          }
+        }
+      }
+    },
+    "svc-tag": {
+      "displayName": "标签",
+      "root": {
+        "alias": "core.tag",
+        "props": {
+          "label": {
+            "$bind": "label"
+          },
+          "tone": {
+            "$bind": "tone"
+          },
+          "onClick": {
+            "$bind": "onClick"
+          }
+        }
+      }
+    },
+    "svc-info-card": {
+      "displayName": "信息卡片",
+      "root": {
+        "alias": "core.panel",
+        "props": {
+          "tone": {
+            "$bind": "tone"
+          },
+          "gap": 8
+        },
+        "children": [
+          {
+            "alias": "core.text",
+            "props": {
+              "text": {
+                "$bind": "overline"
+              },
+              "variant": "eyebrow"
+            }
+          },
+          {
+            "alias": "core.text",
+            "props": {
+              "text": {
+                "$bind": "title"
+              },
+              "variant": "title"
+            }
+          },
+          {
+            "alias": "core.text",
+            "props": {
+              "text": {
+                "$bind": "body"
+              },
+              "variant": "body"
+            }
+          }
+        ]
+      }
+    },
+    "svc-action-card": {
+      "displayName": "功能入口卡片",
+      "root": {
+        "alias": "core.panel",
+        "props": {
+          "gap": 8
+        },
+        "children": [
+          {
+            "alias": "core.image",
+            "props": {
+              "iconColor": {
+                "$bind": "iconColor"
+              }
+            }
+          },
+          {
+            "alias": "core.text",
+            "props": {
+              "text": {
+                "$bind": "title"
+              },
+              "variant": "title"
+            }
+          },
+          {
+            "alias": "core.text",
+            "props": {
+              "text": {
+                "$bind": "subtitle"
+              },
+              "variant": "body"
+            }
+          },
+          {
+            "alias": "core.text",
+            "props": {
+              "text": {
+                "$bind": "caption"
+              },
+              "variant": "caption"
+            }
+          }
+        ]
+      }
+    },
+    "svc-order-cell": {
+      "displayName": "订单列表项",
+      "root": {
+        "alias": "core.row",
+        "props": {
+          "gap": 12,
+          "justify": "space-between",
+          "align": "center"
+        },
+        "children": [
+          {
+            "alias": "core.stack",
+            "props": {
+              "gap": 4
+            },
+            "children": [
+              {
+                "alias": "core.text",
+                "props": {
+                  "text": {
+                    "$bind": "title"
+                  },
+                  "variant": "title"
+                }
+              },
+              {
+                "alias": "core.text",
+                "props": {
+                  "text": {
+                    "$bind": "subtitle"
+                  },
+                  "variant": "body"
+                }
+              }
+            ]
+          },
+          {
+            "alias": "core.tag",
+            "props": {
+              "label": {
+                "$bind": "statusLabel"
+              },
+              "tone": "success"
+            }
+          }
+        ]
+      }
+    },
+    "svc-section-header": {
+      "displayName": "分组标题栏",
+      "root": {
+        "alias": "core.row",
+        "props": {
+          "gap": 12,
+          "justify": "space-between",
+          "align": "center"
+        },
+        "children": [
+          {
+            "alias": "core.text",
+            "props": {
+              "text": {
+                "$bind": "title"
+              },
+              "variant": "subtitle"
+            }
+          },
+          {
+            "alias": "core.button",
+            "props": {
+              "label": {
+                "$bind": "actionLabel"
+              },
+              "variant": "link",
+              "onClick": {
+                "$bind": "onActionClick"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "svc-bottom-bar": {
+      "displayName": "底部导航栏",
+      "root": {
+        "alias": "core.tabs",
+        "props": {
+          "tabs": [
+            "首页",
+            "订单",
+            "会员",
+            "我的"
+          ],
+          "activeTab": {
+            "$bind": "activeTab"
+          },
+          "onTabClick": {
+            "$bind": "onTabClick"
+          }
+        }
+      }
+    }
+  },
+  "visualAssets": [
+    {
+      "id": "sv-rpr",
+      "nodeId": "service-home-action-repair-image",
+      "pageId": "service-home",
+      "role": "icon",
+      "provider": "curated",
+      "status": "generated",
+      "url": "/template-assets/generated/service-center/service-home-action-repair-image.avif",
+      "alt": "家电维修"
+    },
+    {
+      "id": "sv-pay",
+      "nodeId": "service-home-action-pay-image",
+      "pageId": "service-home",
+      "role": "icon",
+      "provider": "curated",
+      "status": "generated",
+      "url": "/template-assets/generated/service-center/service-home-action-pay-image.avif",
+      "alt": "水电缴费"
+    },
+    {
+      "id": "sv-book",
+      "nodeId": "service-home-action-book-image",
+      "pageId": "service-home",
+      "role": "icon",
+      "provider": "curated",
+      "status": "generated",
+      "url": "/template-assets/generated/service-center/service-home-action-book-image.avif",
+      "alt": "预约上门"
+    },
+    {
+      "id": "sv-mbr",
+      "nodeId": "service-home-action-member-image",
+      "pageId": "service-home",
+      "role": "icon",
+      "provider": "curated",
+      "status": "generated",
+      "url": "/template-assets/generated/service-center/service-home-action-member-image.avif",
+      "alt": "会员中心"
+    }
+  ],
+  "layoutDocument": {
+    "version": 2,
+    "themeId": "service-center",
+    "themeName": "服务中心",
+    "description": "服务类主题的多页布局模板。",
+    "defaultPageId": "service-home",
+    "components": [
+      {
+        "alias": "core.screen",
+        "name": "页面画布",
+        "kind": "layout",
+        "description": "页面根容器，包含状态栏和头部",
+        "props": [
+          {
+            "name": "title",
+            "type": "string",
+            "description": "标题",
+            "label": "标题"
+          },
+          {
+            "name": "statusTime",
+            "type": "string",
+            "description": "状态栏时间",
+            "label": "状态栏时间"
+          },
+          {
+            "name": "headerActionLabel",
+            "type": "string",
+            "description": "右上角按钮文字",
+            "label": "头部操作文案"
+          },
+          {
+            "name": "headerLeftAriaLabel",
+            "type": "string",
+            "description": "左侧按钮说明",
+            "label": "左侧按钮说明"
+          },
+          {
+            "name": "headerRightAriaLabel",
+            "type": "string",
+            "description": "右侧按钮说明",
+            "label": "右侧按钮无障碍说明"
+          }
+        ]
+      },
+      {
+        "alias": "core.stack",
+        "name": "纵向容器",
+        "kind": "layout",
+        "description": "纵向排列子元素的容器",
+        "props": [
+          {
+            "name": "gap",
+            "type": "number",
+            "description": "间距",
+            "label": "间距"
+          },
+          {
+            "name": "alignItems",
+            "type": "string",
+            "description": "内部对齐方式",
+            "label": "交叉轴对齐"
+          }
+        ]
+      },
+      {
+        "alias": "core.row",
+        "name": "横向容器",
+        "kind": "layout",
+        "description": "横向排列子元素的容器",
+        "props": [
+          {
+            "name": "gap",
+            "type": "number",
+            "description": "间距",
+            "label": "间距"
+          },
+          {
+            "name": "wrap",
+            "type": "boolean",
+            "description": "是否自动换行",
+            "label": "换行"
+          },
+          {
+            "name": "justify",
+            "type": "string",
+            "description": "排列方式",
+            "label": "主轴对齐"
+          },
+          {
+            "name": "align",
+            "type": "string",
+            "description": "对齐方式",
+            "label": "对齐"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "description": "风格",
+            "enum": [
+              "default",
+              "accent",
+              "panel",
+              "soft"
+            ],
+            "label": "色调"
+          }
+        ]
+      },
+      {
+        "alias": "core.grid",
+        "name": "网格容器",
+        "kind": "layout",
+        "description": "网格布局容器",
+        "props": [
+          {
+            "name": "gap",
+            "type": "number",
+            "description": "间距",
+            "label": "间距"
+          },
+          {
+            "name": "columns",
+            "type": "number",
+            "description": "列数",
+            "label": "列配置"
+          }
+        ]
+      },
+      {
+        "alias": "core.panel",
+        "name": "面板容器",
+        "kind": "layout",
+        "description": "带背景色的卡片容器",
+        "props": [
+          {
+            "name": "gap",
+            "type": "number",
+            "description": "间距",
+            "label": "间距"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "description": "风格",
+            "enum": [
+              "default",
+              "accent",
+              "promo",
+              "warm",
+              "soft",
+              "subtle",
+              "member",
+              "highlight"
+            ],
+            "label": "色调"
+          }
+        ]
+      },
+      {
+        "alias": "core.text",
+        "name": "文本",
+        "kind": "component",
+        "description": "文本显示组件",
+        "props": [
+          {
+            "name": "text",
+            "type": "string",
+            "required": true,
+            "description": "显示内容",
+            "label": "文本"
+          },
+          {
+            "name": "variant",
+            "type": "string",
+            "description": "样式类型",
+            "enum": [
+              "display",
+              "heading",
+              "subheading",
+              "body",
+              "caption",
+              "price",
+              "overline",
+              "eyebrow",
+              "title",
+              "subtitle"
+            ],
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.button",
+        "name": "按钮",
+        "kind": "component",
+        "description": "可点击按钮",
+        "props": [
+          {
+            "name": "label",
+            "type": "string",
+            "required": true,
+            "description": "显示文字",
+            "label": "标签"
+          },
+          {
+            "name": "variant",
+            "type": "string",
+            "description": "样式类型",
+            "enum": [
+              "primary",
+              "secondary",
+              "link",
+              "pill"
+            ],
+            "label": "样式"
+          },
+          {
+            "name": "active",
+            "type": "boolean",
+            "description": "是否高亮",
+            "label": "激活"
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "是否禁用",
+            "label": "禁用"
+          },
+          {
+            "name": "icon",
+            "type": "string",
+            "description": "前置图标文本",
+            "label": "图标"
+          }
+        ]
+      },
+      {
+        "alias": "core.tag",
+        "name": "标签",
+        "kind": "component",
+        "description": "状态标签",
+        "props": [
+          {
+            "name": "label",
+            "type": "string",
+            "required": true,
+            "description": "显示文字",
+            "label": "标签"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "description": "风格",
+            "enum": [
+              "neutral",
+              "success",
+              "warning",
+              "info",
+              "hot",
+              "new",
+              "deal",
+              "member"
+            ],
+            "label": "色调"
+          }
+        ]
+      },
+      {
+        "alias": "core.progress",
+        "name": "Progress",
+        "kind": "component",
+        "description": "Progress bar",
+        "props": [
+          {
+            "name": "value",
+            "type": "number",
+            "description": "Current value",
+            "label": "数值"
+          },
+          {
+            "name": "max",
+            "type": "number",
+            "description": "Maximum value",
+            "label": "最大值"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "description": "Visual tone",
+            "enum": [
+              "neutral",
+              "accent",
+              "success",
+              "warning",
+              "info"
+            ],
+            "label": "色调"
+          }
+        ]
+      },
+      {
+        "alias": "core.image",
+        "name": "图片占位",
+        "kind": "component",
+        "description": "图片或图标占位块",
+        "props": [
+          {
+            "name": "src",
+            "type": "string",
+            "description": "图片地址",
+            "label": "资源地址"
+          },
+          {
+            "name": "alt",
+            "type": "string",
+            "description": "替代文本",
+            "label": "替代文本"
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "description": "标题",
+            "label": "标题"
+          },
+          {
+            "name": "iconColor",
+            "type": "string",
+            "description": "占位背景色",
+            "label": "图标颜色"
+          },
+          {
+            "name": "objectFit",
+            "type": "string",
+            "description": "图片填充方式",
+            "enum": [
+              "cover",
+              "contain",
+              "fill"
+            ],
+            "label": "填充方式"
+          }
+        ]
+      },
+      {
+        "alias": "core.tabs",
+        "name": "标签栏",
+        "kind": "component",
+        "description": "标签页切换栏",
+        "props": [
+          {
+            "name": "tabs",
+            "type": "string[]",
+            "required": true,
+            "description": "标签列表",
+            "label": "标签项"
+          },
+          {
+            "name": "activeTab",
+            "type": "string",
+            "description": "当前选中项",
+            "label": "当前标签"
+          }
+        ]
+      },
+      {
+        "alias": "core.search",
+        "name": "搜索框",
+        "kind": "component",
+        "description": "搜索输入框",
+        "props": [
+          {
+            "name": "placeholder",
+            "type": "string",
+            "description": "占位提示文字",
+            "label": "占位提示"
+          },
+          {
+            "name": "value",
+            "type": "string",
+            "description": "当前值",
+            "label": "数值"
+          }
+        ]
+      },
+      {
+        "alias": "core.notice",
+        "name": "提示条",
+        "kind": "component",
+        "description": "提示信息条",
+        "props": [
+          {
+            "name": "text",
+            "type": "string",
+            "required": true,
+            "description": "显示内容",
+            "label": "文本"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "description": "风格",
+            "enum": [
+              "info",
+              "warning",
+              "error",
+              "success",
+              "neutral"
+            ],
+            "label": "色调"
+          }
+        ]
+      },
+      {
+        "alias": "core.divider",
+        "name": "分割线",
+        "kind": "component",
+        "description": "水平分割线",
+        "props": []
+      },
+      {
+        "alias": "core.spacer",
+        "name": "间距",
+        "kind": "component",
+        "description": "空白间距",
+        "props": [
+          {
+            "name": "size",
+            "type": "string",
+            "description": "间距尺寸",
+            "label": "尺寸"
+          }
+        ]
+      },
+      {
+        "alias": "core.input",
+        "name": "输入框",
+        "kind": "component",
+        "description": "文本输入框",
+        "props": [
+          {
+            "name": "placeholder",
+            "type": "string",
+            "description": "占位提示文字",
+            "label": "占位提示"
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "description": "标签",
+            "label": "标签"
+          },
+          {
+            "name": "type",
+            "type": "string",
+            "description": "输入类型",
+            "label": "类型"
+          },
+          {
+            "name": "value",
+            "type": "string",
+            "description": "当前值",
+            "label": "数值"
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "是否禁用",
+            "label": "禁用"
+          }
+        ]
+      },
+      {
+        "alias": "core.widget",
+        "name": "安全组件",
+        "kind": "component",
+        "description": "安全的第三方 ESM 可视化组件",
+        "props": [
+          {
+            "name": "library",
+            "type": "string",
+            "description": "依赖库名称",
+            "label": "组件库"
+          },
+          {
+            "name": "renderer",
+            "type": "string",
+            "description": "渲染器",
+            "enum": [
+              "echarts",
+              "chartjs",
+              "lottie",
+              "mermaid"
+            ],
+            "label": "渲染器"
+          },
+          {
+            "name": "data",
+            "type": "object",
+            "description": "渲染数据",
+            "label": "数据"
+          }
+        ]
+      },
+      {
+        "alias": "core.html",
+        "name": "自由容器",
+        "kind": "layout",
+        "description": "可指定 HTML 标签和任意 inline style 的自由容器，用于创建 core 原语无法表达的自定义组件",
+        "props": [
+          {
+            "name": "tag",
+            "type": "string",
+            "description": "HTML 标签",
+            "enum": [
+              "div",
+              "span",
+              "section",
+              "article",
+              "aside",
+              "header",
+              "footer",
+              "main",
+              "nav",
+              "ul",
+              "ol",
+              "li",
+              "figure",
+              "figcaption",
+              "p",
+              "h1",
+              "h2",
+              "h3",
+              "h4",
+              "strong",
+              "em",
+              "label"
+            ],
+            "label": "标签"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "description": "React CSSProperties inline 样式对象",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "svc-text",
+        "name": "文本",
+        "kind": "component",
+        "description": "主题文本组件",
+        "props": [
+          {
+            "name": "text",
+            "type": "string",
+            "required": true,
+            "description": "显示内容",
+            "label": "文本"
+          },
+          {
+            "name": "variant",
+            "type": "string",
+            "description": "样式类型",
+            "enum": [
+              "display",
+              "heading",
+              "subheading",
+              "body",
+              "caption",
+              "price",
+              "overline",
+              "eyebrow",
+              "title",
+              "subtitle"
+            ],
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "svc-button",
+        "name": "按钮",
+        "kind": "component",
+        "description": "主题按钮",
+        "props": [
+          {
+            "name": "label",
+            "type": "string",
+            "required": true,
+            "description": "显示文字",
+            "label": "标签"
+          },
+          {
+            "name": "variant",
+            "type": "string",
+            "description": "样式类型",
+            "enum": [
+              "primary",
+              "secondary",
+              "link"
+            ],
+            "label": "样式"
+          },
+          {
+            "name": "disabled",
+            "type": "boolean",
+            "description": "是否禁用",
+            "label": "禁用"
+          }
+        ]
+      },
+      {
+        "alias": "svc-tag",
+        "name": "标签",
+        "kind": "component",
+        "description": "状态标签",
+        "props": [
+          {
+            "name": "label",
+            "type": "string",
+            "required": true,
+            "description": "显示文字",
+            "label": "标签"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "description": "风格",
+            "enum": [
+              "neutral",
+              "success",
+              "warning",
+              "info",
+              "hot",
+              "new",
+              "deal",
+              "member"
+            ],
+            "label": "色调"
+          }
+        ]
+      },
+      {
+        "alias": "svc-info-card",
+        "name": "信息卡片",
+        "kind": "component",
+        "description": "带标题和正文的信息卡片",
+        "props": [
+          {
+            "name": "overline",
+            "type": "string",
+            "description": "眉标题",
+            "label": "眉题"
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "description": "标题",
+            "label": "标题"
+          },
+          {
+            "name": "body",
+            "type": "string",
+            "description": "正文内容",
+            "label": "正文"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "description": "风格",
+            "enum": [
+              "default",
+              "accent",
+              "promo",
+              "member",
+              "subtle",
+              "highlight",
+              "warm"
+            ],
+            "label": "色调"
+          }
+        ]
+      },
+      {
+        "alias": "svc-action-card",
+        "name": "功能入口卡片",
+        "kind": "component",
+        "description": "服务功能入口卡片，含图标和说明",
+        "props": [
+          {
+            "name": "title",
+            "type": "string",
+            "description": "标题",
+            "label": "标题"
+          },
+          {
+            "name": "subtitle",
+            "type": "string",
+            "description": "副标题",
+            "label": "副标题"
+          },
+          {
+            "name": "caption",
+            "type": "string",
+            "description": "辅助说明",
+            "label": "说明文字"
+          },
+          {
+            "name": "iconColor",
+            "type": "string",
+            "description": "图标颜色",
+            "label": "图标颜色"
+          }
+        ]
+      },
+      {
+        "alias": "svc-order-cell",
+        "name": "订单列表项",
+        "kind": "component",
+        "description": "订单记录列表项，含状态标签",
+        "props": [
+          {
+            "name": "title",
+            "type": "string",
+            "description": "标题",
+            "label": "标题"
+          },
+          {
+            "name": "subtitle",
+            "type": "string",
+            "description": "副标题",
+            "label": "副标题"
+          },
+          {
+            "name": "statusLabel",
+            "type": "string",
+            "description": "状态文字",
+            "label": "状态文案"
+          }
+        ]
+      },
+      {
+        "alias": "svc-section-header",
+        "name": "分组标题栏",
+        "kind": "component",
+        "description": "分区标题，含操作按钮",
+        "props": [
+          {
+            "name": "title",
+            "type": "string",
+            "description": "标题",
+            "label": "标题"
+          },
+          {
+            "name": "actionLabel",
+            "type": "string",
+            "description": "动作按钮文字",
+            "label": "按钮文案"
+          }
+        ]
+      },
+      {
+        "alias": "svc-bottom-bar",
+        "name": "底部导航栏",
+        "kind": "component",
+        "description": "底部导航标签栏",
+        "props": [
+          {
+            "name": "activeTab",
+            "type": "string",
+            "description": "当前选中项",
+            "label": "当前标签"
+          }
+        ]
+      }
+    ],
+    "pages": [
+      {
+        "id": "service-home",
+        "name": "服务首页",
+        "layout": {
+          "id": "service-home-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "width": "100%",
+            "minHeight": "100%"
+          },
+          "props": {
+            "title": "服务中心",
+            "statusTime": "9:41"
+          },
+          "children": [
+            {
+              "id": "service-home-notice",
+              "alias": "core.notice",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "text": "点击卡片或操作按钮即可在首页、订单页和会员页之间切换。"
+              }
+            },
+            {
+              "id": "service-home-search",
+              "alias": "core.search",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "placeholder": "搜索服务、查询订单、联系客服"
+              }
+            },
+            {
+              "id": "service-home-hero",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 3,
+                "width": "100%"
+              },
+              "props": {
+                "tone": "accent",
+                "gap": 12
+              },
+              "children": [
+                {
+                  "id": "service-home-hero-eyebrow",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "variant": "eyebrow",
+                    "text": "欢迎使用"
+                  }
+                },
+                {
+                  "id": "service-home-hero-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "variant": "heading",
+                    "text": "一站式生活服务平台"
+                  }
+                },
+                {
+                  "id": "service-home-hero-body",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "variant": "body",
+                    "text": "缴费、维修、预约、查订单，全部集中管理。"
+                  }
+                },
+                {
+                  "id": "service-home-hero-btn",
+                  "alias": "core.button",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 4
+                  },
+                  "props": {
+                    "variant": "primary",
+                    "label": "查看我的订单"
+                  },
+                  "interactions": {
+                    "onClick": {
+                      "type": "navigate",
+                      "targetPageId": "service-orders"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "id": "service-home-actions",
+              "alias": "core.grid",
+              "layout": {
+                "mode": "flow",
+                "order": 4,
+                "width": "100%"
+              },
+              "props": {
+                "columns": 2,
+                "gap": 12
+              },
+              "children": [
+                {
+                  "id": "service-home-action-repair",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "grid",
+                    "order": 1,
+                    "gridColumn": "1",
+                    "gridRow": "1",
+                    "width": "100%"
+                  },
+                  "props": {
+                    "gap": 8
+                  },
+                  "interactions": {
+                    "onClick": {
+                      "type": "navigate",
+                      "targetPageId": "service-orders"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "service-home-action-repair-image",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "iconColor": "#fa9d3b",
+                        "src": "/template-assets/generated/service-center/service-home-action-repair-image.avif",
+                        "alt": "家电维修",
+                        "objectFit": "contain"
+                      }
+                    },
+                    {
+                      "id": "service-home-action-repair-title",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "text": "家电维修",
+                        "variant": "title"
+                      }
+                    },
+                    {
+                      "id": "service-home-action-repair-subtitle",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 3,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "text": "上门维修，1 小时内响应",
+                        "variant": "body"
+                      }
+                    },
+                    {
+                      "id": "service-home-action-repair-caption",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 4,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "text": "已服务 2.4 万次",
+                        "variant": "caption"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "service-home-action-pay",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "grid",
+                    "order": 2,
+                    "gridColumn": "2",
+                    "gridRow": "1",
+                    "width": "100%"
+                  },
+                  "props": {
+                    "gap": 8
+                  },
+                  "interactions": {
+                    "onClick": {
+                      "type": "navigate",
+                      "targetPageId": "service-member"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "service-home-action-pay-image",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "iconColor": "#0f766e",
+                        "src": "/template-assets/generated/service-center/service-home-action-pay-image.avif",
+                        "alt": "水电缴费",
+                        "objectFit": "contain"
+                      }
+                    },
+                    {
+                      "id": "service-home-action-pay-title",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "text": "水电缴费",
+                        "variant": "title"
+                      }
+                    },
+                    {
+                      "id": "service-home-action-pay-subtitle",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 3,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "text": "支持多户头批量缴费",
+                        "variant": "body"
+                      }
+                    },
+                    {
+                      "id": "service-home-action-pay-caption",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 4,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "text": "已缴费 6.1 万次",
+                        "variant": "caption"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "service-home-action-book",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "grid",
+                    "order": 3,
+                    "gridColumn": "1",
+                    "gridRow": "2",
+                    "width": "100%"
+                  },
+                  "props": {
+                    "gap": 8
+                  },
+                  "interactions": {
+                    "onClick": {
+                      "type": "navigate",
+                      "targetPageId": "service-orders"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "service-home-action-book-image",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "iconColor": "#1890ff",
+                        "src": "/template-assets/generated/service-center/service-home-action-book-image.avif",
+                        "alt": "预约上门",
+                        "objectFit": "contain"
+                      }
+                    },
+                    {
+                      "id": "service-home-action-book-title",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "text": "预约上门",
+                        "variant": "title"
+                      }
+                    },
+                    {
+                      "id": "service-home-action-book-subtitle",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 3,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "text": "保洁、搬家、安装",
+                        "variant": "body"
+                      }
+                    },
+                    {
+                      "id": "service-home-action-book-caption",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 4,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "text": "评分 4.9 分",
+                        "variant": "caption"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "service-home-action-member",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "grid",
+                    "order": 4,
+                    "gridColumn": "2",
+                    "gridRow": "2",
+                    "width": "100%"
+                  },
+                  "props": {
+                    "gap": 8
+                  },
+                  "interactions": {
+                    "onClick": {
+                      "type": "navigate",
+                      "targetPageId": "service-member"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "service-home-action-member-image",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "iconColor": "#722ed1",
+                        "src": "/template-assets/generated/service-center/service-home-action-member-image.avif",
+                        "alt": "会员中心",
+                        "objectFit": "contain"
+                      }
+                    },
+                    {
+                      "id": "service-home-action-member-title",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "text": "会员中心",
+                        "variant": "title"
+                      }
+                    },
+                    {
+                      "id": "service-home-action-member-subtitle",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 3,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "text": "专属折扣和优先响应",
+                        "variant": "body"
+                      }
+                    },
+                    {
+                      "id": "service-home-action-member-caption",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 4,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "text": "查看权益详情",
+                        "variant": "caption"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "service-home-footer",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "首页",
+                  "订单",
+                  "会员",
+                  "我的"
+                ],
+                "activeTab": "首页"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "首页": {
+                    "type": "navigate",
+                    "targetPageId": "service-home"
+                  },
+                  "订单": {
+                    "type": "navigate",
+                    "targetPageId": "service-orders"
+                  },
+                  "会员": {
+                    "type": "navigate",
+                    "targetPageId": "service-member"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "service-orders",
+        "name": "我的订单",
+        "layout": {
+          "id": "service-orders-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "width": "100%",
+            "minHeight": "100%"
+          },
+          "props": {
+            "title": "我的订单",
+            "statusTime": "9:41"
+          },
+          "children": [
+            {
+              "id": "service-orders-header",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "gap": 12,
+                "justify": "space-between",
+                "align": "center"
+              },
+              "children": [
+                {
+                  "id": "service-orders-header-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "近期订单",
+                    "variant": "subtitle"
+                  }
+                },
+                {
+                  "id": "service-orders-header-action",
+                  "alias": "core.button",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "label": "查看全部",
+                    "variant": "link"
+                  },
+                  "interactions": {
+                    "onClick": {
+                      "type": "navigate",
+                      "targetPageId": "service-home"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "id": "service-orders-panel",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "gap": 0
+              },
+              "children": [
+                {
+                  "id": "service-orders-order-1",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "gap": 12,
+                    "justify": "space-between",
+                    "align": "center"
+                  },
+                  "interactions": {
+                    "onClick": {
+                      "type": "navigate",
+                      "targetPageId": "service-home"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "service-orders-order-1-info",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "gap": 4
+                      },
+                      "children": [
+                        {
+                          "id": "service-orders-order-1-info-title",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "家电维修 - 洗衣机",
+                            "variant": "title"
+                          }
+                        },
+                        {
+                          "id": "service-orders-order-1-info-subtitle",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 2
+                          },
+                          "props": {
+                            "text": "已安排技师，今晚 18:00 上门",
+                            "variant": "body"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "service-orders-order-1-status",
+                      "alias": "core.tag",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "label": "待上门",
+                        "tone": "success"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "service-orders-order-2",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "gap": 12,
+                    "justify": "space-between",
+                    "align": "center"
+                  },
+                  "children": [
+                    {
+                      "id": "service-orders-order-2-info",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "gap": 4
+                      },
+                      "children": [
+                        {
+                          "id": "service-orders-order-2-info-title",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "水电缴费 - 电费",
+                            "variant": "title"
+                          }
+                        },
+                        {
+                          "id": "service-orders-order-2-info-subtitle",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 2
+                          },
+                          "props": {
+                            "text": "已缴 ¥142.50，本月账期",
+                            "variant": "body"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "service-orders-order-2-status",
+                      "alias": "core.tag",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "label": "已完成",
+                        "tone": "success"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "service-orders-order-3",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "gap": 12,
+                    "justify": "space-between",
+                    "align": "center"
+                  },
+                  "interactions": {
+                    "onClick": {
+                      "type": "navigate",
+                      "targetPageId": "service-home"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "service-orders-order-3-info",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "gap": 4
+                      },
+                      "children": [
+                        {
+                          "id": "service-orders-order-3-info-title",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "预约保洁 - 全屋清洁",
+                            "variant": "title"
+                          }
+                        },
+                        {
+                          "id": "service-orders-order-3-info-subtitle",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 2
+                          },
+                          "props": {
+                            "text": "等待确认服务员上门时间",
+                            "variant": "body"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "id": "service-orders-order-3-status",
+                      "alias": "core.tag",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "label": "待确认",
+                        "tone": "success"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "service-orders-tags",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 3,
+                "width": "100%"
+              },
+              "props": {
+                "gap": 8,
+                "wrap": true
+              },
+              "children": [
+                {
+                  "id": "service-orders-tag-pending",
+                  "alias": "core.tag",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "label": "待处理",
+                    "tone": "warning"
+                  }
+                },
+                {
+                  "id": "service-orders-tag-done",
+                  "alias": "core.tag",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "label": "已完成",
+                    "tone": "success"
+                  }
+                },
+                {
+                  "id": "service-orders-tag-info",
+                  "alias": "core.tag",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3
+                  },
+                  "props": {
+                    "label": "待确认",
+                    "tone": "info"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "service-orders-footer",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "首页",
+                  "订单",
+                  "会员",
+                  "我的"
+                ],
+                "activeTab": "订单"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "首页": {
+                    "type": "navigate",
+                    "targetPageId": "service-home"
+                  },
+                  "订单": {
+                    "type": "navigate",
+                    "targetPageId": "service-orders"
+                  },
+                  "会员": {
+                    "type": "navigate",
+                    "targetPageId": "service-member"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "service-member",
+        "name": "会员中心",
+        "layout": {
+          "id": "service-member-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "width": "100%",
+            "minHeight": "100%"
+          },
+          "props": {
+            "title": "会员中心",
+            "statusTime": "9:41"
+          },
+          "children": [
+            {
+              "id": "service-member-hero",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "tone": "highlight",
+                "gap": 8
+              },
+              "children": [
+                {
+                  "id": "service-member-hero-overline",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "text": "尊享会员",
+                    "variant": "eyebrow"
+                  }
+                },
+                {
+                  "id": "service-member-hero-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "text": "黄金会员 · 本月已省 ¥86",
+                    "variant": "title"
+                  }
+                },
+                {
+                  "id": "service-member-hero-body",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "text": "专属折扣、优先调度、无限免费上门评估，一卡在手服务无忧。",
+                    "variant": "body"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "service-member-perks",
+              "alias": "core.grid",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "columns": 2,
+                "gap": 12
+              },
+              "children": [
+                {
+                  "id": "service-member-perk-1",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "grid",
+                    "order": 1,
+                    "gridColumn": "1",
+                    "gridRow": "1",
+                    "width": "100%"
+                  },
+                  "props": {
+                    "tone": "subtle",
+                    "gap": 8
+                  },
+                  "interactions": {
+                    "onClick": {
+                      "type": "navigate",
+                      "targetPageId": "service-home"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "service-member-perk-1-overline",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "text": "优先响应",
+                        "variant": "eyebrow"
+                      }
+                    },
+                    {
+                      "id": "service-member-perk-1-title",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "text": "30 分钟内派单",
+                        "variant": "title"
+                      }
+                    },
+                    {
+                      "id": "service-member-perk-1-body",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 3,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "text": "会员订单加急处理。",
+                        "variant": "body"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "service-member-perk-2",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "grid",
+                    "order": 2,
+                    "gridColumn": "2",
+                    "gridRow": "1",
+                    "width": "100%"
+                  },
+                  "props": {
+                    "tone": "warm",
+                    "gap": 8
+                  },
+                  "interactions": {
+                    "onClick": {
+                      "type": "navigate",
+                      "targetPageId": "service-orders"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "service-member-perk-2-overline",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "text": "专属折扣",
+                        "variant": "eyebrow"
+                      }
+                    },
+                    {
+                      "id": "service-member-perk-2-title",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "text": "服务立享 8 折",
+                        "variant": "title"
+                      }
+                    },
+                    {
+                      "id": "service-member-perk-2-body",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 3,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "text": "所有维修保洁均适用。",
+                        "variant": "body"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "service-member-actions",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 3,
+                "width": "100%"
+              },
+              "props": {
+                "gap": 12,
+                "justify": "space-between",
+                "align": "center"
+              },
+              "children": [
+                {
+                  "id": "service-member-btn-orders",
+                  "alias": "core.button",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "variant": "secondary",
+                    "label": "查看订单"
+                  },
+                  "interactions": {
+                    "onClick": {
+                      "type": "navigate",
+                      "targetPageId": "service-orders"
+                    }
+                  }
+                },
+                {
+                  "id": "service-member-btn-home",
+                  "alias": "core.button",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "variant": "primary",
+                    "label": "预约服务"
+                  },
+                  "interactions": {
+                    "onClick": {
+                      "type": "navigate",
+                      "targetPageId": "service-home"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "id": "service-member-footer",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "首页",
+                  "订单",
+                  "会员",
+                  "我的"
+                ],
+                "activeTab": "会员"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "首页": {
+                    "type": "navigate",
+                    "targetPageId": "service-home"
+                  },
+                  "订单": {
+                    "type": "navigate",
+                    "targetPageId": "service-orders"
+                  },
+                  "会员": {
+                    "type": "navigate",
+                    "targetPageId": "service-member"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "visualAssets": [
+      {
+        "id": "sv-rpr",
+        "nodeId": "service-home-action-repair-image",
+        "pageId": "service-home",
+        "role": "icon",
+        "provider": "curated",
+        "status": "generated",
+        "url": "/template-assets/generated/service-center/service-home-action-repair-image.avif",
+        "alt": "家电维修"
+      },
+      {
+        "id": "sv-pay",
+        "nodeId": "service-home-action-pay-image",
+        "pageId": "service-home",
+        "role": "icon",
+        "provider": "curated",
+        "status": "generated",
+        "url": "/template-assets/generated/service-center/service-home-action-pay-image.avif",
+        "alt": "水电缴费"
+      },
+      {
+        "id": "sv-book",
+        "nodeId": "service-home-action-book-image",
+        "pageId": "service-home",
+        "role": "icon",
+        "provider": "curated",
+        "status": "generated",
+        "url": "/template-assets/generated/service-center/service-home-action-book-image.avif",
+        "alt": "预约上门"
+      },
+      {
+        "id": "sv-mbr",
+        "nodeId": "service-home-action-member-image",
+        "pageId": "service-home",
+        "role": "icon",
+        "provider": "curated",
+        "status": "generated",
+        "url": "/template-assets/generated/service-center/service-home-action-member-image.avif",
+        "alt": "会员中心"
+      }
+    ],
+    "cssAnimations": {
+      "@keyframes fadeInUp": "from{opacity:0;transform:translateY(20px)}to{opacity:1}"
+    },
+    "schemaVersion": 1,
+    "layout": {
+      "id": "service-home-screen",
+      "alias": "core.screen",
+      "layout": {
+        "mode": "flow",
+        "width": "100%",
+        "minHeight": "100%"
+      },
+      "props": {
+        "title": "服务中心",
+        "statusTime": "9:41"
+      },
+      "children": [
+        {
+          "id": "service-home-notice",
+          "alias": "core.notice",
+          "layout": {
+            "mode": "flow",
+            "order": 1,
+            "width": "100%"
+          },
+          "props": {
+            "text": "点击卡片或操作按钮即可在首页、订单页和会员页之间切换。"
+          }
+        },
+        {
+          "id": "service-home-search",
+          "alias": "core.search",
+          "layout": {
+            "mode": "flow",
+            "order": 2,
+            "width": "100%"
+          },
+          "props": {
+            "placeholder": "搜索服务、查询订单、联系客服"
+          }
+        },
+        {
+          "id": "service-home-hero",
+          "alias": "core.panel",
+          "layout": {
+            "mode": "flow",
+            "order": 3,
+            "width": "100%"
+          },
+          "props": {
+            "tone": "accent",
+            "gap": 12
+          },
+          "children": [
+            {
+              "id": "service-home-hero-eyebrow",
+              "alias": "core.text",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "variant": "eyebrow",
+                "text": "欢迎使用"
+              }
+            },
+            {
+              "id": "service-home-hero-title",
+              "alias": "core.text",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "variant": "heading",
+                "text": "一站式生活服务平台"
+              }
+            },
+            {
+              "id": "service-home-hero-body",
+              "alias": "core.text",
+              "layout": {
+                "mode": "flow",
+                "order": 3,
+                "width": "100%"
+              },
+              "props": {
+                "variant": "body",
+                "text": "缴费、维修、预约、查订单，全部集中管理。"
+              }
+            },
+            {
+              "id": "service-home-hero-btn",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 4
+              },
+              "props": {
+                "variant": "primary",
+                "label": "查看我的订单"
+              },
+              "interactions": {
+                "onClick": {
+                  "type": "navigate",
+                  "targetPageId": "service-orders"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "service-home-actions",
+          "alias": "core.grid",
+          "layout": {
+            "mode": "flow",
+            "order": 4,
+            "width": "100%"
+          },
+          "props": {
+            "columns": 2,
+            "gap": 12
+          },
+          "children": [
+            {
+              "id": "service-home-action-repair",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "grid",
+                "order": 1,
+                "gridColumn": "1",
+                "gridRow": "1",
+                "width": "100%"
+              },
+              "props": {
+                "gap": 8
+              },
+              "interactions": {
+                "onClick": {
+                  "type": "navigate",
+                  "targetPageId": "service-orders"
+                }
+              },
+              "children": [
+                {
+                  "id": "service-home-action-repair-image",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "iconColor": "#fa9d3b",
+                    "src": "/template-assets/generated/service-center/service-home-action-repair-image.avif",
+                    "alt": "家电维修",
+                    "objectFit": "contain"
+                  }
+                },
+                {
+                  "id": "service-home-action-repair-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "text": "家电维修",
+                    "variant": "title"
+                  }
+                },
+                {
+                  "id": "service-home-action-repair-subtitle",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "text": "上门维修，1 小时内响应",
+                    "variant": "body"
+                  }
+                },
+                {
+                  "id": "service-home-action-repair-caption",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 4,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "text": "已服务 2.4 万次",
+                    "variant": "caption"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "service-home-action-pay",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "grid",
+                "order": 2,
+                "gridColumn": "2",
+                "gridRow": "1",
+                "width": "100%"
+              },
+              "props": {
+                "gap": 8
+              },
+              "interactions": {
+                "onClick": {
+                  "type": "navigate",
+                  "targetPageId": "service-member"
+                }
+              },
+              "children": [
+                {
+                  "id": "service-home-action-pay-image",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "iconColor": "#0f766e",
+                    "src": "/template-assets/generated/service-center/service-home-action-pay-image.avif",
+                    "alt": "水电缴费",
+                    "objectFit": "contain"
+                  }
+                },
+                {
+                  "id": "service-home-action-pay-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "text": "水电缴费",
+                    "variant": "title"
+                  }
+                },
+                {
+                  "id": "service-home-action-pay-subtitle",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "text": "支持多户头批量缴费",
+                    "variant": "body"
+                  }
+                },
+                {
+                  "id": "service-home-action-pay-caption",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 4,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "text": "已缴费 6.1 万次",
+                    "variant": "caption"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "service-home-action-book",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "grid",
+                "order": 3,
+                "gridColumn": "1",
+                "gridRow": "2",
+                "width": "100%"
+              },
+              "props": {
+                "gap": 8
+              },
+              "interactions": {
+                "onClick": {
+                  "type": "navigate",
+                  "targetPageId": "service-orders"
+                }
+              },
+              "children": [
+                {
+                  "id": "service-home-action-book-image",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "iconColor": "#1890ff",
+                    "src": "/template-assets/generated/service-center/service-home-action-book-image.avif",
+                    "alt": "预约上门",
+                    "objectFit": "contain"
+                  }
+                },
+                {
+                  "id": "service-home-action-book-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "text": "预约上门",
+                    "variant": "title"
+                  }
+                },
+                {
+                  "id": "service-home-action-book-subtitle",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "text": "保洁、搬家、安装",
+                    "variant": "body"
+                  }
+                },
+                {
+                  "id": "service-home-action-book-caption",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 4,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "text": "评分 4.9 分",
+                    "variant": "caption"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "service-home-action-member",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "grid",
+                "order": 4,
+                "gridColumn": "2",
+                "gridRow": "2",
+                "width": "100%"
+              },
+              "props": {
+                "gap": 8
+              },
+              "interactions": {
+                "onClick": {
+                  "type": "navigate",
+                  "targetPageId": "service-member"
+                }
+              },
+              "children": [
+                {
+                  "id": "service-home-action-member-image",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "iconColor": "#722ed1",
+                    "src": "/template-assets/generated/service-center/service-home-action-member-image.avif",
+                    "alt": "会员中心",
+                    "objectFit": "contain"
+                  }
+                },
+                {
+                  "id": "service-home-action-member-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "text": "会员中心",
+                    "variant": "title"
+                  }
+                },
+                {
+                  "id": "service-home-action-member-subtitle",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "text": "专属折扣和优先响应",
+                    "variant": "body"
+                  }
+                },
+                {
+                  "id": "service-home-action-member-caption",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 4,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "text": "查看权益详情",
+                    "variant": "caption"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "service-home-footer",
+          "alias": "core.tabs",
+          "slot": "footer",
+          "layout": {
+            "mode": "flow",
+            "order": 1,
+            "width": "100%"
+          },
+          "props": {
+            "tabs": [
+              "首页",
+              "订单",
+              "会员",
+              "我的"
+            ],
+            "activeTab": "首页"
+          },
+          "interactions": {
+            "onTabClick": {
+              "首页": {
+                "type": "navigate",
+                "targetPageId": "service-home"
+              },
+              "订单": {
+                "type": "navigate",
+                "targetPageId": "service-orders"
+              },
+              "会员": {
+                "type": "navigate",
+                "targetPageId": "service-member"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "cssVars": {
+      "--accent": "#0f766e",
+      "--surface": "linear-gradient(180deg, #f3f7f9 0%, #e6eef1 100%)",
+      "--surface-muted": "#e2ebee",
+      "--panel-bg": "#ffffff",
+      "--panel-border": "rgba(15, 23, 42, 0.08)",
+      "--panel-accent": "rgba(15, 118, 110, 0.08)",
+      "--panel-accent-border": "rgba(15, 118, 110, 0.24)",
+      "--search-bg": "#ffffff",
+      "--note-bg": "rgba(15, 118, 110, 0.08)",
+      "--text-base": "#0e1b19",
+      "--radius-base": "0.65rem"
+    },
+    "style": {
+      "cssVars": {
+        "--accent": "#0f766e",
+        "--surface": "linear-gradient(180deg, #f3f7f9 0%, #e6eef1 100%)",
+        "--surface-muted": "#e2ebee",
+        "--panel-bg": "#ffffff",
+        "--panel-border": "rgba(15, 23, 42, 0.08)",
+        "--panel-accent": "rgba(15, 118, 110, 0.08)",
+        "--panel-accent-border": "rgba(15, 118, 110, 0.24)",
+        "--search-bg": "#ffffff",
+        "--note-bg": "rgba(15, 118, 110, 0.08)",
+        "--text-base": "#0e1b19",
+        "--radius-base": "0.65rem"
+      }
+    }
+  }
+}

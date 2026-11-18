@@ -1,5 +1,8 @@
 # templates_json 模板导入规范
 
+> **团队共享模板**请放在仓库根目录的 [`mock/`](../mock/README.md)（会提交到 Git，导入后保留）。
+> `templates_json/` 仍用于 `pnpm templates:generate` 的临时产物，默认导入成功后删除。
+
 `templates_json` 是后端启动时的临时模板导入目录。后端启动后会扫描目录下的根级
 `*.json` 模板 schema，并把模板及其 Agent 配置写入数据库。
 

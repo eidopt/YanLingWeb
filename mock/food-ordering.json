@@ -1,0 +1,3991 @@
+{
+  "templateId": "food-ordering",
+  "name": "餐饮点单",
+  "tagline": "适用于外卖点餐、餐厅菜单、美食推荐等场景的小程序模板，包含点餐首页、购物车、确认订单、配送追踪页面",
+  "description": "适用于外卖点餐、餐厅菜单、美食推荐等场景的小程序模板，包含点餐首页、购物车、确认订单、配送追踪页面",
+  "accent": "#b45309",
+  "category": "food-ordering",
+  "displayCategory": "general",
+  "categoryLabel": "餐饮点单",
+  "categoryLabels": {
+    "food-ordering": "餐饮点单"
+  },
+  "displayCategoryLabel": "通用",
+  "displayCategoryLabels": {
+    "general": "通用"
+  },
+  "platformCategoryLabels": {
+    "mini-program": "小程序"
+  },
+  "functionalCategoryLabels": {
+    "food-ordering": "餐饮点单",
+    "restaurant": "餐饮",
+    "takeaway": "外卖"
+  },
+  "platformCategories": [
+    "mini-program"
+  ],
+  "functionalCategories": [
+    "food-ordering",
+    "restaurant",
+    "takeaway"
+  ],
+  "traits": [
+    "餐饮",
+    "外卖",
+    "点餐",
+    "美食",
+    "餐厅"
+  ],
+  "tags": [
+    "餐饮",
+    "外卖",
+    "点餐",
+    "美食",
+    "餐厅"
+  ],
+  "cssVars": {
+    "--color-primary": "#b45309",
+    "--color-primary-dark": "#92400e",
+    "--color-primary-light": "#fef3c7",
+    "--color-text-primary": "#2b2013",
+    "--color-text-secondary": "#6b5f51",
+    "--color-border": "#ece2d3",
+    "--color-background": "#fdf9f0",
+    "--color-surface": "#ffffff",
+    "--color-bg": "#fdf9f0",
+    "--color-card": "#ffffff",
+    "--text-base": "#2b2013",
+    "--radius-base": "1rem",
+    "--accent": "#b45309"
+  },
+  "cssAnimations": {},
+  "componentTemplates": {
+    "biz-hero-banner": {
+      "root": {
+        "alias": "core.panel",
+        "props": {
+          "tone": "accent",
+          "gap": 12,
+          "style": {
+            "width": "100%",
+            "padding": "28px 24px",
+            "color": "#fff",
+            "borderRadius": "0 0 28px 28px",
+            "background": "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark, var(--color-primary)))",
+            "boxShadow": "0 16px 36px rgba(15,23,42,0.18)"
+          }
+        },
+        "children": [
+          {
+            "alias": "core.tag",
+            "props": {
+              "label": {
+                "$bind": "badge"
+              },
+              "tone": "member",
+              "style": {
+                "alignSelf": "flex-start",
+                "background": "rgba(255,255,255,0.22)",
+                "color": "#fff"
+              }
+            }
+          },
+          {
+            "alias": "core.text",
+            "props": {
+              "text": {
+                "$bind": "title"
+              },
+              "variant": "display",
+              "style": {
+                "color": "#fff"
+              }
+            }
+          },
+          {
+            "alias": "core.text",
+            "props": {
+              "text": {
+                "$bind": "subtitle"
+              },
+              "variant": "body",
+              "style": {
+                "color": "rgba(255,255,255,0.86)"
+              }
+            }
+          },
+          {
+            "alias": "core.button",
+            "props": {
+              "label": {
+                "$bind": "actionLabel"
+              },
+              "variant": "secondary",
+              "style": {
+                "width": "100%",
+                "marginTop": "8px"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "layoutDocument": {
+    "version": 1,
+    "themeId": "food-ordering",
+    "themeName": "餐饮点单",
+    "description": "适用于外卖点餐、餐厅菜单、美食推荐等场景的小程序模板，包含点餐首页、购物车、确认订单、配送追踪页面",
+    "components": [
+      {
+        "alias": "core.button",
+        "name": "按钮",
+        "kind": "component",
+        "description": "按钮组件",
+        "props": [
+          {
+            "name": "label",
+            "type": "string",
+            "label": "显示文字"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          },
+          {
+            "name": "variant",
+            "type": "string",
+            "label": "文字层级"
+          },
+          {
+            "name": "active",
+            "type": "string",
+            "label": "选中"
+          },
+          {
+            "name": "disabled",
+            "type": "string",
+            "label": "禁用"
+          },
+          {
+            "name": "icon",
+            "type": "string",
+            "label": "图标"
+          }
+        ]
+      },
+      {
+        "alias": "core.image",
+        "name": "图片",
+        "kind": "component",
+        "description": "图片组件",
+        "props": [
+          {
+            "name": "alt",
+            "type": "string",
+            "label": "替代文本"
+          },
+          {
+            "name": "iconColor",
+            "type": "string",
+            "label": "图标颜色"
+          },
+          {
+            "name": "objectFit",
+            "type": "string",
+            "label": "图片填充方式"
+          },
+          {
+            "name": "src",
+            "type": "string",
+            "label": "图片地址"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "label": "标题"
+          }
+        ]
+      },
+      {
+        "alias": "core.panel",
+        "name": "面板容器",
+        "kind": "layout",
+        "description": "面板容器组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
+          }
+        ]
+      },
+      {
+        "alias": "core.row",
+        "name": "横向容器",
+        "kind": "layout",
+        "description": "横向容器组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          },
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
+          },
+          {
+            "name": "wrap",
+            "type": "string",
+            "label": "换行"
+          },
+          {
+            "name": "justify",
+            "type": "string",
+            "label": "主轴对齐"
+          },
+          {
+            "name": "align",
+            "type": "string",
+            "label": "交叉轴对齐"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          }
+        ]
+      },
+      {
+        "alias": "core.screen",
+        "name": "页面画布",
+        "kind": "layout",
+        "description": "页面画布组件",
+        "props": [
+          {
+            "name": "title",
+            "type": "string",
+            "label": "标题"
+          }
+        ]
+      },
+      {
+        "alias": "core.stack",
+        "name": "纵向容器",
+        "kind": "layout",
+        "description": "纵向容器组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          },
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
+          },
+          {
+            "name": "alignItems",
+            "type": "string",
+            "label": "对齐方式"
+          }
+        ]
+      },
+      {
+        "alias": "core.tag",
+        "name": "标签",
+        "kind": "component",
+        "description": "标签组件",
+        "props": [
+          {
+            "name": "label",
+            "type": "string",
+            "label": "显示文字"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.text",
+        "name": "文本",
+        "kind": "component",
+        "description": "文本组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          },
+          {
+            "name": "text",
+            "type": "string",
+            "label": "显示内容"
+          },
+          {
+            "name": "variant",
+            "type": "string",
+            "label": "文字层级"
+          },
+          {
+            "name": "as",
+            "type": "string",
+            "label": "标签"
+          }
+        ]
+      },
+      {
+        "alias": "core.grid",
+        "name": "网格容器",
+        "kind": "layout",
+        "description": "网格容器 组件",
+        "props": [
+          {
+            "name": "gap",
+            "type": "string",
+            "label": "间距"
+          },
+          {
+            "name": "columns",
+            "type": "number",
+            "label": "列数"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.tabs",
+        "name": "标签导航",
+        "kind": "component",
+        "description": "标签导航 组件",
+        "props": [
+          {
+            "name": "tabs",
+            "type": "string",
+            "label": "标签项"
+          },
+          {
+            "name": "activeTab",
+            "type": "string",
+            "label": "当前标签"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.search",
+        "name": "搜索框",
+        "kind": "component",
+        "description": "搜索框 组件",
+        "props": [
+          {
+            "name": "placeholder",
+            "type": "string",
+            "label": "占位文本"
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "label": "值"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.input",
+        "name": "输入框",
+        "kind": "component",
+        "description": "输入框 组件",
+        "props": [
+          {
+            "name": "placeholder",
+            "type": "string",
+            "label": "占位文本"
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "label": "显示文字"
+          },
+          {
+            "name": "type",
+            "type": "string",
+            "label": "类型"
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "label": "值"
+          },
+          {
+            "name": "disabled",
+            "type": "string",
+            "label": "禁用"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.notice",
+        "name": "提示",
+        "kind": "component",
+        "description": "提示 组件",
+        "props": [
+          {
+            "name": "text",
+            "type": "string",
+            "label": "显示内容"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.progress",
+        "name": "进度条",
+        "kind": "component",
+        "description": "进度条 组件",
+        "props": [
+          {
+            "name": "value",
+            "type": "number",
+            "label": "值"
+          },
+          {
+            "name": "max",
+            "type": "number",
+            "label": "最大值"
+          },
+          {
+            "name": "tone",
+            "type": "string",
+            "label": "风格"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.divider",
+        "name": "分隔线",
+        "kind": "component",
+        "description": "分隔线 组件",
+        "props": [
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "core.spacer",
+        "name": "空白",
+        "kind": "component",
+        "description": "空白 组件",
+        "props": [
+          {
+            "name": "size",
+            "type": "string",
+            "label": "尺寸"
+          },
+          {
+            "name": "style",
+            "type": "object",
+            "label": "样式"
+          }
+        ]
+      },
+      {
+        "alias": "biz-hero-banner",
+        "name": "业务头图",
+        "kind": "component",
+        "description": "业务头图组件",
+        "props": [
+          {
+            "name": "badge",
+            "type": "string",
+            "label": "徽标"
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "label": "标题"
+          },
+          {
+            "name": "subtitle",
+            "type": "string",
+            "label": "副标题"
+          },
+          {
+            "name": "actionLabel",
+            "type": "string",
+            "label": "行动按钮文案"
+          }
+        ]
+      }
+    ],
+    "defaultPageId": "page-menu",
+    "pages": [
+      {
+        "id": "page-menu",
+        "name": "点餐首页",
+        "description": "美味餐厅",
+        "layout": {
+          "id": "page-menu-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 0
+          },
+          "props": {
+            "title": "点餐首页",
+            "style": {
+              "background": "#fdf9f0"
+            }
+          },
+          "children": [
+            {
+              "id": "food-store-status",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "margin": "20rpx 20rpx 0",
+                  "padding": "24rpx",
+                  "borderRadius": "30rpx",
+                  "background": "#111827",
+                  "color": "#fff"
+                }
+              },
+              "children": [
+                {
+                  "id": "food-store-top",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "18rpx",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "food-store-logo",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "店铺标识",
+                        "title": "店铺标识",
+                        "iconColor": "#d97706",
+                        "objectFit": "contain",
+                        "style": {
+                          "width": "96rpx",
+                          "height": "96rpx",
+                          "borderRadius": "22rpx"
+                        },
+                        "src": "/template-assets/generated/food-ordering/food-store-logo.avif"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "food-store-copy",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1,
+                        "width": "auto"
+                      },
+                      "props": {
+                        "style": {
+                          "gap": "6rpx",
+                          "flex": 1
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "food-store-name",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "巷口热食铺",
+                            "variant": "heading",
+                            "style": {
+                              "color": "#fff"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "food-store-meta",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "30 分钟送达 · 月售 2480",
+                            "variant": "caption",
+                            "style": {
+                              "color": "rgba(255,255,255,0.72)"
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "food-store-open",
+                      "alias": "core.tag",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "label": "营业中",
+                        "tone": "success",
+                        "style": {}
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "food-promo-row",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "12rpx",
+                      "marginTop": "18rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "food-promo-1",
+                      "alias": "core.tag",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "label": "满 60 减 12",
+                        "tone": "deal",
+                        "style": {}
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "food-promo-2",
+                      "alias": "core.tag",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "label": "招牌套餐 8 折",
+                        "tone": "hot",
+                        "style": {}
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "food-order-layout",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "20rpx",
+                  "gap": "16rpx",
+                  "alignItems": "stretch"
+                }
+              },
+              "children": [
+                {
+                  "id": "food-category-rail",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "auto"
+                  },
+                  "props": {
+                    "style": {
+                      "width": "150rpx",
+                      "gap": "12rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "food-cat-0",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "18rpx 8rpx",
+                          "borderRadius": "18rpx",
+                          "background": "#fef3c7",
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "food-cat-text-0",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "热销",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#92400e",
+                              "fontWeight": 700
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "food-cat-1",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "18rpx 8rpx",
+                          "borderRadius": "18rpx",
+                          "background": "#fff",
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "food-cat-text-1",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "套餐",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#6b5f51",
+                              "fontWeight": 700
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "food-cat-2",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "18rpx 8rpx",
+                          "borderRadius": "18rpx",
+                          "background": "#fff",
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "food-cat-text-2",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "主食",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#6b5f51",
+                              "fontWeight": 700
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "food-cat-3",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 3,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "18rpx 8rpx",
+                          "borderRadius": "18rpx",
+                          "background": "#fff",
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "food-cat-text-3",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "饮品",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#6b5f51",
+                              "fontWeight": 700
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "food-cat-4",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 4,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "18rpx 8rpx",
+                          "borderRadius": "18rpx",
+                          "background": "#fff",
+                          "textAlign": "center"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "food-cat-text-4",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "甜点",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#6b5f51",
+                              "fontWeight": 700
+                            }
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "food-dish-list",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "auto"
+                  },
+                  "props": {
+                    "style": {
+                      "flex": 1,
+                      "gap": "14rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "food-dish-0",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "16rpx",
+                          "borderRadius": "22rpx",
+                          "background": "#fff",
+                          "gap": "14rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "food-dish-img-0",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "招牌牛肉饭",
+                            "title": "招牌牛肉饭图片",
+                            "iconColor": "#d97706",
+                            "objectFit": "cover",
+                            "style": {
+                              "width": "112rpx",
+                              "height": "112rpx",
+                              "borderRadius": "18rpx"
+                            },
+                            "src": "https://live.staticflickr.com/6117/6294845526_b6389bc3a6_b.jpg"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "food-dish-copy-0",
+                          "alias": "core.stack",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1,
+                            "width": "auto"
+                          },
+                          "props": {
+                            "style": {
+                              "flex": 1,
+                              "gap": "6rpx"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "food-dish-name-0",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "text": "招牌牛肉饭",
+                                "variant": "subheading",
+                                "style": {}
+                              },
+                              "children": []
+                            },
+                            {
+                              "id": "food-dish-sales-0",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 1
+                              },
+                              "props": {
+                                "text": "月售 300",
+                                "variant": "caption",
+                                "style": {
+                                  "color": "#6b5f51"
+                                }
+                              },
+                              "children": []
+                            },
+                            {
+                              "id": "food-dish-price-row-0",
+                              "alias": "core.row",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 2,
+                                "width": "100%"
+                              },
+                              "props": {
+                                "style": {
+                                  "justifyContent": "space-between",
+                                  "alignItems": "center"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "id": "food-dish-price-0",
+                                  "alias": "core.text",
+                                  "layout": {
+                                    "mode": "flow",
+                                    "order": 0
+                                  },
+                                  "props": {
+                                    "text": "¥28",
+                                    "variant": "price",
+                                    "style": {
+                                      "color": "#92400e"
+                                    }
+                                  },
+                                  "children": []
+                                },
+                                {
+                                  "id": "food-add-0",
+                                  "alias": "core.button",
+                                  "layout": {
+                                    "mode": "flow",
+                                    "order": 1
+                                  },
+                                  "props": {
+                                    "label": "+",
+                                    "variant": "primary",
+                                    "style": {
+                                      "width": "56rpx",
+                                      "height": "56rpx",
+                                      "borderRadius": "50%"
+                                    }
+                                  },
+                                  "children": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "food-dish-1",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "16rpx",
+                          "borderRadius": "22rpx",
+                          "background": "#fff",
+                          "gap": "14rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "food-dish-img-1",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "双拼小食盒",
+                            "title": "双拼小食盒图片",
+                            "iconColor": "#f59e0b",
+                            "objectFit": "cover",
+                            "style": {
+                              "width": "112rpx",
+                              "height": "112rpx",
+                              "borderRadius": "18rpx"
+                            },
+                            "src": "https://images.rawpixel.com/editor_1024/cHJpdmF0ZS9zdGF0aWMvaW1hZ2Uvd2Vic2l0ZS8yMDIyLTA0L2xyL2ZyamFwYW5lc2VfZm9vZF9uZXdfeWVhcl8wLWltYWdlLWt5YmJhZXJnLmpwZw.jpg"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "food-dish-copy-1",
+                          "alias": "core.stack",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1,
+                            "width": "auto"
+                          },
+                          "props": {
+                            "style": {
+                              "flex": 1,
+                              "gap": "6rpx"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "food-dish-name-1",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "text": "双拼小食盒",
+                                "variant": "subheading",
+                                "style": {}
+                              },
+                              "children": []
+                            },
+                            {
+                              "id": "food-dish-sales-1",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 1
+                              },
+                              "props": {
+                                "text": "月售 240",
+                                "variant": "caption",
+                                "style": {
+                                  "color": "#6b5f51"
+                                }
+                              },
+                              "children": []
+                            },
+                            {
+                              "id": "food-dish-price-row-1",
+                              "alias": "core.row",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 2,
+                                "width": "100%"
+                              },
+                              "props": {
+                                "style": {
+                                  "justifyContent": "space-between",
+                                  "alignItems": "center"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "id": "food-dish-price-1",
+                                  "alias": "core.text",
+                                  "layout": {
+                                    "mode": "flow",
+                                    "order": 0
+                                  },
+                                  "props": {
+                                    "text": "¥34",
+                                    "variant": "price",
+                                    "style": {
+                                      "color": "#92400e"
+                                    }
+                                  },
+                                  "children": []
+                                },
+                                {
+                                  "id": "food-add-1",
+                                  "alias": "core.button",
+                                  "layout": {
+                                    "mode": "flow",
+                                    "order": 1
+                                  },
+                                  "props": {
+                                    "label": "+",
+                                    "variant": "primary",
+                                    "style": {
+                                      "width": "56rpx",
+                                      "height": "56rpx",
+                                      "borderRadius": "50%"
+                                    }
+                                  },
+                                  "children": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "food-dish-2",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2,
+                        "width": "100%"
+                      },
+                      "props": {
+                        "style": {
+                          "padding": "16rpx",
+                          "borderRadius": "22rpx",
+                          "background": "#fff",
+                          "gap": "14rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "food-dish-img-2",
+                          "alias": "core.image",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "alt": "鲜榨柠檬茶",
+                            "title": "鲜榨柠檬茶图片",
+                            "iconColor": "#22c55e",
+                            "objectFit": "cover",
+                            "style": {
+                              "width": "112rpx",
+                              "height": "112rpx",
+                              "borderRadius": "18rpx"
+                            },
+                            "src": "https://live.staticflickr.com/5146/5683103746_5bf1d45aed.jpg"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "food-dish-copy-2",
+                          "alias": "core.stack",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1,
+                            "width": "auto"
+                          },
+                          "props": {
+                            "style": {
+                              "flex": 1,
+                              "gap": "6rpx"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "food-dish-name-2",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "text": "鲜榨柠檬茶",
+                                "variant": "subheading",
+                                "style": {}
+                              },
+                              "children": []
+                            },
+                            {
+                              "id": "food-dish-sales-2",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 1
+                              },
+                              "props": {
+                                "text": "月售 180",
+                                "variant": "caption",
+                                "style": {
+                                  "color": "#6b5f51"
+                                }
+                              },
+                              "children": []
+                            },
+                            {
+                              "id": "food-dish-price-row-2",
+                              "alias": "core.row",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 2,
+                                "width": "100%"
+                              },
+                              "props": {
+                                "style": {
+                                  "justifyContent": "space-between",
+                                  "alignItems": "center"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "id": "food-dish-price-2",
+                                  "alias": "core.text",
+                                  "layout": {
+                                    "mode": "flow",
+                                    "order": 0
+                                  },
+                                  "props": {
+                                    "text": "¥40",
+                                    "variant": "price",
+                                    "style": {
+                                      "color": "#92400e"
+                                    }
+                                  },
+                                  "children": []
+                                },
+                                {
+                                  "id": "food-add-2",
+                                  "alias": "core.button",
+                                  "layout": {
+                                    "mode": "flow",
+                                    "order": 1
+                                  },
+                                  "props": {
+                                    "label": "+",
+                                    "variant": "primary",
+                                    "style": {
+                                      "width": "56rpx",
+                                      "height": "56rpx",
+                                      "borderRadius": "50%"
+                                    }
+                                  },
+                                  "children": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "food-cart-dock",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "margin": "0 20rpx 20rpx",
+                  "padding": "18rpx 20rpx",
+                  "borderRadius": "28rpx",
+                  "background": "#0f172a",
+                  "color": "#fff"
+                }
+              },
+              "children": [
+                {
+                  "id": "food-cart-dock-row",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "food-cart-summary",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "已选 3 件 · ¥76",
+                        "variant": "subheading",
+                        "style": {
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "food-cart-submit",
+                      "alias": "core.button",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "label": "去结算",
+                        "variant": "primary",
+                        "style": {
+                          "background": "#d97706"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "page-menu-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "点餐首页",
+                  "购物车",
+                  "确认订单",
+                  "配送追踪"
+                ],
+                "activeTab": "点餐首页"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "点餐首页": {
+                    "type": "navigate",
+                    "targetPageId": "page-menu"
+                  },
+                  "购物车": {
+                    "type": "navigate",
+                    "targetPageId": "page-cart"
+                  },
+                  "确认订单": {
+                    "type": "navigate",
+                    "targetPageId": "page-confirm"
+                  },
+                  "配送追踪": {
+                    "type": "navigate",
+                    "targetPageId": "page-tracking"
+                  }
+                }
+              },
+              "children": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-cart",
+        "name": "购物车",
+        "description": "购物车",
+        "layout": {
+          "id": "page-cart-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 1
+          },
+          "props": {
+            "title": "购物车",
+            "style": {
+              "background": "var(--color-background, #fdf9f0)"
+            }
+          },
+          "children": [
+            {
+              "id": "page-cart-hero-banner",
+              "alias": "biz-hero-banner",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "badge": "餐饮点单",
+                "title": "购物车",
+                "subtitle": "购物车",
+                "actionLabel": "继续下单"
+              },
+              "children": []
+            },
+            {
+              "id": "cart-header",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "var(--color-primary)"
+                }
+              },
+              "children": [
+                {
+                  "id": "cart-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "购物车",
+                    "style": {
+                      "fontSize": "34rpx",
+                      "fontWeight": "bold",
+                      "color": "#fff"
+                    },
+                    "variant": "heading"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "cart-items",
+              "alias": "core.stack",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "gap": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "cart-item-1",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "20rpx",
+                      "borderRadius": "12rpx",
+                      "background": "#fff",
+                      "gap": "16rpx",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "ci1-img",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "width": "120rpx",
+                          "height": "120rpx",
+                          "borderRadius": "8rpx"
+                        },
+                        "alt": "招牌红烧肉饭",
+                        "title": "业务视觉元素",
+                        "iconColor": "#b45309",
+                        "objectFit": "cover",
+                        "src": "https://live.staticflickr.com/7343/9041896794_8dd0bb1117_b.jpg"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "ci1-info",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "flex": 1,
+                          "gap": "8rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "ci1-name",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "招牌红烧肉饭",
+                            "style": {
+                              "fontSize": "28rpx",
+                              "fontWeight": "bold"
+                            },
+                            "variant": "heading"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "ci1-price",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "¥28",
+                            "style": {
+                              "fontSize": "28rpx",
+                              "color": "var(--color-primary)",
+                              "fontWeight": "bold"
+                            },
+                            "variant": "price"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "ci1-qty",
+                      "alias": "core.row",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "style": {
+                          "alignItems": "center",
+                          "gap": "16rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "ci1-minus",
+                          "alias": "core.panel",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "style": {
+                              "width": "44rpx",
+                              "height": "44rpx",
+                              "borderRadius": "50%",
+                              "border": "2rpx solid var(--color-border)",
+                              "display": "flex",
+                              "alignItems": "center",
+                              "justifyContent": "center"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "minus-icon",
+                              "alias": "core.image",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "alt": "图标",
+                                "title": "图标",
+                                "objectFit": "contain",
+                                "iconColor": "var(--color-text-secondary)",
+                                "src": "/template-assets/generated/food-ordering/minus-icon.avif",
+                                "style": {
+                                  "width": "22px",
+                                  "height": "22px",
+                                  "flexShrink": "0"
+                                }
+                              },
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "id": "ci1-num",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "1",
+                            "style": {
+                              "fontSize": "28rpx",
+                              "fontWeight": "bold"
+                            },
+                            "variant": "heading"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "ci1-plus",
+                          "alias": "core.panel",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 2
+                          },
+                          "props": {
+                            "style": {
+                              "width": "44rpx",
+                              "height": "44rpx",
+                              "borderRadius": "50%",
+                              "background": "var(--color-primary)",
+                              "display": "flex",
+                              "alignItems": "center",
+                              "justifyContent": "center"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "plus-icon",
+                              "alias": "core.image",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "alt": "图标",
+                                "title": "图标",
+                                "objectFit": "contain",
+                                "iconColor": "#fff",
+                                "src": "/template-assets/generated/food-ordering/plus-icon.avif",
+                                "style": {
+                                  "width": "22px",
+                                  "height": "22px",
+                                  "flexShrink": "0"
+                                }
+                              },
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "cart-summary",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 3,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff",
+                  "marginTop": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "summary-row1",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between",
+                      "marginBottom": "12rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "s1-label",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "商品小计",
+                        "style": {
+                          "fontSize": "26rpx",
+                          "color": "var(--color-text-secondary)"
+                        },
+                        "variant": "body"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "s1-value",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "¥56",
+                        "style": {
+                          "fontSize": "26rpx"
+                        },
+                        "variant": "price"
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "summary-row2",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between",
+                      "marginBottom": "12rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "s2-label",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "配送费",
+                        "style": {
+                          "fontSize": "26rpx",
+                          "color": "var(--color-text-secondary)"
+                        },
+                        "variant": "body"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "s2-value",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "¥4",
+                        "style": {
+                          "fontSize": "26rpx"
+                        },
+                        "variant": "price"
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "summary-total",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "style": {
+                      "justifyContent": "space-between",
+                      "paddingTop": "12rpx",
+                      "borderTop": "1rpx solid var(--color-border)"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "total-label",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "合计",
+                        "style": {
+                          "fontSize": "28rpx",
+                          "fontWeight": "bold"
+                        },
+                        "variant": "heading"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "total-value",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "¥60",
+                        "style": {
+                          "fontSize": "32rpx",
+                          "fontWeight": "bold",
+                          "color": "var(--color-primary)"
+                        },
+                        "variant": "price"
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "checkout-btn",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 4,
+                "width": "100%"
+              },
+              "props": {
+                "variant": "primary",
+                "style": {
+                  "margin": "32rpx",
+                  "padding": "24rpx",
+                  "borderRadius": "48rpx",
+                  "background": "var(--color-primary)",
+                  "color": "#fff",
+                  "fontSize": "30rpx",
+                  "fontWeight": "bold",
+                  "textAlign": "center"
+                },
+                "label": "提交订单"
+              },
+              "children": []
+            },
+            {
+              "id": "page-cart-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "点餐首页",
+                  "购物车",
+                  "确认订单",
+                  "配送追踪"
+                ],
+                "activeTab": "购物车"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "点餐首页": {
+                    "type": "navigate",
+                    "targetPageId": "page-menu"
+                  },
+                  "购物车": {
+                    "type": "navigate",
+                    "targetPageId": "page-cart"
+                  },
+                  "确认订单": {
+                    "type": "navigate",
+                    "targetPageId": "page-confirm"
+                  },
+                  "配送追踪": {
+                    "type": "navigate",
+                    "targetPageId": "page-tracking"
+                  }
+                }
+              },
+              "children": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-confirm",
+        "name": "确认订单",
+        "description": "确认订单",
+        "layout": {
+          "id": "page-confirm-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 2
+          },
+          "props": {
+            "title": "确认订单",
+            "style": {
+              "background": "var(--color-background, #fdf9f0)"
+            }
+          },
+          "children": [
+            {
+              "id": "page-confirm-hero-banner",
+              "alias": "biz-hero-banner",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "badge": "餐饮点单",
+                "title": "确认订单",
+                "subtitle": "确认订单",
+                "actionLabel": "继续下单"
+              },
+              "children": []
+            },
+            {
+              "id": "confirm-header",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "var(--color-primary)"
+                }
+              },
+              "children": [
+                {
+                  "id": "confirm-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "确认订单",
+                    "style": {
+                      "fontSize": "34rpx",
+                      "fontWeight": "bold",
+                      "color": "#fff"
+                    },
+                    "variant": "heading"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "delivery-address",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff",
+                  "marginTop": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "addr-row",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "16rpx",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "addr-icon",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "图标",
+                        "title": "图标",
+                        "objectFit": "contain",
+                        "iconColor": "var(--color-primary)",
+                        "src": "/template-assets/generated/food-ordering/addr-icon.avif",
+                        "style": {
+                          "width": "20px",
+                          "height": "20px",
+                          "flexShrink": "0"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "addr-info",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "flex": 1,
+                          "gap": "4rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "addr-name",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "张三 138****8888",
+                            "style": {
+                              "fontSize": "28rpx",
+                              "fontWeight": "bold"
+                            },
+                            "variant": "heading"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "addr-detail",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "北京市朝阳区示例路示例号",
+                            "style": {
+                              "fontSize": "24rpx",
+                              "color": "var(--color-text-secondary)"
+                            },
+                            "variant": "caption"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "addr-arrow",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "text": ">",
+                        "style": {
+                          "color": "var(--color-text-secondary)"
+                        },
+                        "variant": "body"
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "order-items",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 3,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff",
+                  "marginTop": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "order-shop",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "美味餐厅",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "fontWeight": "bold",
+                      "marginBottom": "16rpx"
+                    },
+                    "variant": "heading"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "order-item",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "16rpx",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "oi-img",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "width": "100rpx",
+                          "height": "100rpx",
+                          "borderRadius": "8rpx"
+                        },
+                        "alt": "招牌红烧肉饭",
+                        "title": "业务视觉元素",
+                        "iconColor": "#b45309",
+                        "objectFit": "cover",
+                        "src": "https://live.staticflickr.com/7343/9041896794_8dd0bb1117_b.jpg"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "oi-info",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "flex": 1
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "oi-name",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "招牌红烧肉饭 ×1",
+                            "style": {
+                              "fontSize": "26rpx"
+                            },
+                            "variant": "heading"
+                          },
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "id": "oi-price",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "text": "¥28",
+                        "style": {
+                          "fontSize": "26rpx",
+                          "fontWeight": "bold"
+                        },
+                        "variant": "price"
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "order-remark",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 4,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff",
+                  "marginTop": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "remark-label",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "备注",
+                    "style": {
+                      "fontSize": "26rpx",
+                      "color": "var(--color-text-secondary)",
+                      "marginBottom": "12rpx"
+                    },
+                    "variant": "body"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "remark-input",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "text": "请填写备注信息...",
+                    "style": {
+                      "fontSize": "26rpx",
+                      "color": "var(--color-text-secondary)"
+                    },
+                    "variant": "body"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "order-submit",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 5,
+                "width": "100%"
+              },
+              "props": {
+                "variant": "primary",
+                "style": {
+                  "margin": "32rpx",
+                  "padding": "24rpx",
+                  "borderRadius": "48rpx",
+                  "background": "var(--color-primary)",
+                  "color": "#fff",
+                  "fontSize": "30rpx",
+                  "fontWeight": "bold",
+                  "textAlign": "center"
+                },
+                "label": "提交订单 ¥60"
+              },
+              "children": []
+            },
+            {
+              "id": "page-confirm-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "点餐首页",
+                  "购物车",
+                  "确认订单",
+                  "配送追踪"
+                ],
+                "activeTab": "确认订单"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "点餐首页": {
+                    "type": "navigate",
+                    "targetPageId": "page-menu"
+                  },
+                  "购物车": {
+                    "type": "navigate",
+                    "targetPageId": "page-cart"
+                  },
+                  "确认订单": {
+                    "type": "navigate",
+                    "targetPageId": "page-confirm"
+                  },
+                  "配送追踪": {
+                    "type": "navigate",
+                    "targetPageId": "page-tracking"
+                  }
+                }
+              },
+              "children": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "page-tracking",
+        "name": "配送追踪",
+        "description": "配送追踪",
+        "layout": {
+          "id": "page-tracking-screen",
+          "alias": "core.screen",
+          "layout": {
+            "mode": "flow",
+            "order": 3
+          },
+          "props": {
+            "title": "配送追踪",
+            "style": {
+              "background": "var(--color-background, #fdf9f0)"
+            }
+          },
+          "children": [
+            {
+              "id": "page-tracking-hero-banner",
+              "alias": "biz-hero-banner",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "badge": "餐饮点单",
+                "title": "配送追踪",
+                "subtitle": "配送追踪",
+                "actionLabel": "继续下单"
+              },
+              "children": []
+            },
+            {
+              "id": "tracking-header",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "var(--color-primary)"
+                }
+              },
+              "children": [
+                {
+                  "id": "tracking-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "配送追踪",
+                    "style": {
+                      "fontSize": "34rpx",
+                      "fontWeight": "bold",
+                      "color": "#fff"
+                    },
+                    "variant": "heading"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "tracking-map",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 2,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "height": "400rpx",
+                  "background": "var(--color-background)",
+                  "display": "flex",
+                  "alignItems": "center",
+                  "justifyContent": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "map-text",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "地图区域",
+                    "style": {
+                      "fontSize": "26rpx",
+                      "color": "var(--color-text-secondary)"
+                    },
+                    "variant": "body"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "tracking-status",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 3,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff"
+                }
+              },
+              "children": [
+                {
+                  "id": "status-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "骑手正在赶往商家",
+                    "style": {
+                      "fontSize": "30rpx",
+                      "fontWeight": "bold",
+                      "marginBottom": "16rpx"
+                    },
+                    "variant": "heading"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "rider-info",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "16rpx",
+                      "alignItems": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "rider-avatar",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "width": "80rpx",
+                          "height": "80rpx",
+                          "borderRadius": "50%"
+                        },
+                        "alt": "骑手王师傅头像",
+                        "title": "业务视觉元素",
+                        "iconColor": "#b45309",
+                        "objectFit": "cover",
+                        "src": "https://i.pravatar.cc/150?img=11"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "rider-name",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "骑手 王师傅",
+                        "style": {
+                          "fontSize": "26rpx",
+                          "flex": 1
+                        },
+                        "variant": "heading"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "rider-call",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 2
+                      },
+                      "props": {
+                        "alt": "图标",
+                        "title": "图标",
+                        "objectFit": "contain",
+                        "iconColor": "var(--color-primary)",
+                        "src": "/template-assets/generated/food-ordering/rider-call.avif",
+                        "style": {
+                          "width": "20px",
+                          "height": "20px",
+                          "flexShrink": "0"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "tracking-timeline",
+              "alias": "core.panel",
+              "layout": {
+                "mode": "flow",
+                "order": 4,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "padding": "24rpx 32rpx",
+                  "background": "#fff",
+                  "marginTop": "16rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "timeline-title",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "订单状态",
+                    "style": {
+                      "fontSize": "28rpx",
+                      "fontWeight": "bold",
+                      "marginBottom": "16rpx"
+                    },
+                    "variant": "heading"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "timeline-1",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "16rpx",
+                      "marginBottom": "24rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "t1-dot",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "width": "24rpx",
+                          "height": "24rpx",
+                          "borderRadius": "50%",
+                          "background": "var(--color-primary)",
+                          "marginTop": "4rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "t1-content",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "gap": "4rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "t1-text",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "骑手已接单",
+                            "style": {
+                              "fontSize": "26rpx",
+                              "fontWeight": "bold"
+                            },
+                            "variant": "heading"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "t1-time",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "14:30",
+                            "style": {
+                              "fontSize": "22rpx",
+                              "color": "var(--color-text-secondary)"
+                            },
+                            "variant": "caption"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "timeline-2",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "16rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "t2-dot",
+                      "alias": "core.panel",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "style": {
+                          "width": "24rpx",
+                          "height": "24rpx",
+                          "borderRadius": "50%",
+                          "background": "var(--color-border)",
+                          "marginTop": "4rpx"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "t2-content",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "style": {
+                          "gap": "4rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "t2-text",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "订单已送达",
+                            "style": {
+                              "fontSize": "26rpx",
+                              "color": "var(--color-text-secondary)"
+                            },
+                            "variant": "body"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "page-tracking-primary-action",
+              "alias": "core.button",
+              "layout": {
+                "mode": "flow",
+                "order": 5,
+                "width": "100%"
+              },
+              "props": {
+                "variant": "primary",
+                "label": "继续下单",
+                "style": {
+                  "width": "100%"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "page-tracking-bottom-tabs",
+              "alias": "core.tabs",
+              "slot": "footer",
+              "layout": {
+                "mode": "flow",
+                "order": 999,
+                "width": "100%"
+              },
+              "props": {
+                "tabs": [
+                  "点餐首页",
+                  "购物车",
+                  "确认订单",
+                  "配送追踪"
+                ],
+                "activeTab": "配送追踪"
+              },
+              "interactions": {
+                "onTabClick": {
+                  "点餐首页": {
+                    "type": "navigate",
+                    "targetPageId": "page-menu"
+                  },
+                  "购物车": {
+                    "type": "navigate",
+                    "targetPageId": "page-cart"
+                  },
+                  "确认订单": {
+                    "type": "navigate",
+                    "targetPageId": "page-confirm"
+                  },
+                  "配送追踪": {
+                    "type": "navigate",
+                    "targetPageId": "page-tracking"
+                  }
+                }
+              },
+              "children": []
+            }
+          ]
+        }
+      }
+    ],
+    "layout": {
+      "id": "page-menu-screen",
+      "alias": "core.screen",
+      "layout": {
+        "mode": "flow",
+        "order": 0
+      },
+      "props": {
+        "title": "点餐首页",
+        "style": {
+          "background": "#fdf9f0"
+        }
+      },
+      "children": [
+        {
+          "id": "food-store-status",
+          "alias": "core.panel",
+          "layout": {
+            "mode": "flow",
+            "order": 0,
+            "width": "100%"
+          },
+          "props": {
+            "style": {
+              "margin": "20rpx 20rpx 0",
+              "padding": "24rpx",
+              "borderRadius": "30rpx",
+              "background": "#111827",
+              "color": "#fff"
+            }
+          },
+          "children": [
+            {
+              "id": "food-store-top",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "gap": "18rpx",
+                  "alignItems": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "food-store-logo",
+                  "alias": "core.image",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "alt": "店铺标识",
+                    "title": "店铺标识",
+                    "iconColor": "#d97706",
+                    "objectFit": "contain",
+                    "style": {
+                      "width": "96rpx",
+                      "height": "96rpx",
+                      "borderRadius": "22rpx"
+                    },
+                    "src": "/template-assets/generated/food-ordering/food-store-logo.avif"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "food-store-copy",
+                  "alias": "core.stack",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "auto"
+                  },
+                  "props": {
+                    "style": {
+                      "gap": "6rpx",
+                      "flex": 1
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "food-store-name",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "巷口热食铺",
+                        "variant": "heading",
+                        "style": {
+                          "color": "#fff"
+                        }
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "food-store-meta",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1
+                      },
+                      "props": {
+                        "text": "30 分钟送达 · 月售 2480",
+                        "variant": "caption",
+                        "style": {
+                          "color": "rgba(255,255,255,0.72)"
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "food-store-open",
+                  "alias": "core.tag",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2
+                  },
+                  "props": {
+                    "label": "营业中",
+                    "tone": "success",
+                    "style": {}
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "food-promo-row",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "gap": "12rpx",
+                  "marginTop": "18rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "food-promo-1",
+                  "alias": "core.tag",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "label": "满 60 减 12",
+                    "tone": "deal",
+                    "style": {}
+                  },
+                  "children": []
+                },
+                {
+                  "id": "food-promo-2",
+                  "alias": "core.tag",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "label": "招牌套餐 8 折",
+                    "tone": "hot",
+                    "style": {}
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "food-order-layout",
+          "alias": "core.row",
+          "layout": {
+            "mode": "flow",
+            "order": 1,
+            "width": "100%"
+          },
+          "props": {
+            "style": {
+              "padding": "20rpx",
+              "gap": "16rpx",
+              "alignItems": "stretch"
+            }
+          },
+          "children": [
+            {
+              "id": "food-category-rail",
+              "alias": "core.stack",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "auto"
+              },
+              "props": {
+                "style": {
+                  "width": "150rpx",
+                  "gap": "12rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "food-cat-0",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "18rpx 8rpx",
+                      "borderRadius": "18rpx",
+                      "background": "#fef3c7",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "food-cat-text-0",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "热销",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#92400e",
+                          "fontWeight": 700
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "food-cat-1",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "18rpx 8rpx",
+                      "borderRadius": "18rpx",
+                      "background": "#fff",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "food-cat-text-1",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "套餐",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#6b5f51",
+                          "fontWeight": 700
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "food-cat-2",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "18rpx 8rpx",
+                      "borderRadius": "18rpx",
+                      "background": "#fff",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "food-cat-text-2",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "主食",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#6b5f51",
+                          "fontWeight": 700
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "food-cat-3",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 3,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "18rpx 8rpx",
+                      "borderRadius": "18rpx",
+                      "background": "#fff",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "food-cat-text-3",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "饮品",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#6b5f51",
+                          "fontWeight": 700
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "id": "food-cat-4",
+                  "alias": "core.panel",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 4,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "18rpx 8rpx",
+                      "borderRadius": "18rpx",
+                      "background": "#fff",
+                      "textAlign": "center"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "food-cat-text-4",
+                      "alias": "core.text",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "text": "甜点",
+                        "variant": "caption",
+                        "style": {
+                          "color": "#6b5f51",
+                          "fontWeight": 700
+                        }
+                      },
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "food-dish-list",
+              "alias": "core.stack",
+              "layout": {
+                "mode": "flow",
+                "order": 1,
+                "width": "auto"
+              },
+              "props": {
+                "style": {
+                  "flex": 1,
+                  "gap": "14rpx"
+                }
+              },
+              "children": [
+                {
+                  "id": "food-dish-0",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "16rpx",
+                      "borderRadius": "22rpx",
+                      "background": "#fff",
+                      "gap": "14rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "food-dish-img-0",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "招牌牛肉饭",
+                        "title": "招牌牛肉饭图片",
+                        "iconColor": "#d97706",
+                        "objectFit": "cover",
+                        "style": {
+                          "width": "112rpx",
+                          "height": "112rpx",
+                          "borderRadius": "18rpx"
+                        },
+                        "src": "https://live.staticflickr.com/6117/6294845526_b6389bc3a6_b.jpg"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "food-dish-copy-0",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1,
+                        "width": "auto"
+                      },
+                      "props": {
+                        "style": {
+                          "flex": 1,
+                          "gap": "6rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "food-dish-name-0",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "招牌牛肉饭",
+                            "variant": "subheading",
+                            "style": {}
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "food-dish-sales-0",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "月售 300",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#6b5f51"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "food-dish-price-row-0",
+                          "alias": "core.row",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 2,
+                            "width": "100%"
+                          },
+                          "props": {
+                            "style": {
+                              "justifyContent": "space-between",
+                              "alignItems": "center"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "food-dish-price-0",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "text": "¥28",
+                                "variant": "price",
+                                "style": {
+                                  "color": "#92400e"
+                                }
+                              },
+                              "children": []
+                            },
+                            {
+                              "id": "food-add-0",
+                              "alias": "core.button",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 1
+                              },
+                              "props": {
+                                "label": "+",
+                                "variant": "primary",
+                                "style": {
+                                  "width": "56rpx",
+                                  "height": "56rpx",
+                                  "borderRadius": "50%"
+                                }
+                              },
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "food-dish-1",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "16rpx",
+                      "borderRadius": "22rpx",
+                      "background": "#fff",
+                      "gap": "14rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "food-dish-img-1",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "双拼小食盒",
+                        "title": "双拼小食盒图片",
+                        "iconColor": "#f59e0b",
+                        "objectFit": "cover",
+                        "style": {
+                          "width": "112rpx",
+                          "height": "112rpx",
+                          "borderRadius": "18rpx"
+                        },
+                        "src": "https://images.rawpixel.com/editor_1024/cHJpdmF0ZS9zdGF0aWMvaW1hZ2Uvd2Vic2l0ZS8yMDIyLTA0L2xyL2ZyamFwYW5lc2VfZm9vZF9uZXdfeWVhcl8wLWltYWdlLWt5YmJhZXJnLmpwZw.jpg"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "food-dish-copy-1",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1,
+                        "width": "auto"
+                      },
+                      "props": {
+                        "style": {
+                          "flex": 1,
+                          "gap": "6rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "food-dish-name-1",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "双拼小食盒",
+                            "variant": "subheading",
+                            "style": {}
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "food-dish-sales-1",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "月售 240",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#6b5f51"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "food-dish-price-row-1",
+                          "alias": "core.row",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 2,
+                            "width": "100%"
+                          },
+                          "props": {
+                            "style": {
+                              "justifyContent": "space-between",
+                              "alignItems": "center"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "food-dish-price-1",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "text": "¥34",
+                                "variant": "price",
+                                "style": {
+                                  "color": "#92400e"
+                                }
+                              },
+                              "children": []
+                            },
+                            {
+                              "id": "food-add-1",
+                              "alias": "core.button",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 1
+                              },
+                              "props": {
+                                "label": "+",
+                                "variant": "primary",
+                                "style": {
+                                  "width": "56rpx",
+                                  "height": "56rpx",
+                                  "borderRadius": "50%"
+                                }
+                              },
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "food-dish-2",
+                  "alias": "core.row",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 2,
+                    "width": "100%"
+                  },
+                  "props": {
+                    "style": {
+                      "padding": "16rpx",
+                      "borderRadius": "22rpx",
+                      "background": "#fff",
+                      "gap": "14rpx"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "food-dish-img-2",
+                      "alias": "core.image",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 0
+                      },
+                      "props": {
+                        "alt": "鲜榨柠檬茶",
+                        "title": "鲜榨柠檬茶图片",
+                        "iconColor": "#22c55e",
+                        "objectFit": "cover",
+                        "style": {
+                          "width": "112rpx",
+                          "height": "112rpx",
+                          "borderRadius": "18rpx"
+                        },
+                        "src": "https://live.staticflickr.com/5146/5683103746_5bf1d45aed.jpg"
+                      },
+                      "children": []
+                    },
+                    {
+                      "id": "food-dish-copy-2",
+                      "alias": "core.stack",
+                      "layout": {
+                        "mode": "flow",
+                        "order": 1,
+                        "width": "auto"
+                      },
+                      "props": {
+                        "style": {
+                          "flex": 1,
+                          "gap": "6rpx"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "food-dish-name-2",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 0
+                          },
+                          "props": {
+                            "text": "鲜榨柠檬茶",
+                            "variant": "subheading",
+                            "style": {}
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "food-dish-sales-2",
+                          "alias": "core.text",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 1
+                          },
+                          "props": {
+                            "text": "月售 180",
+                            "variant": "caption",
+                            "style": {
+                              "color": "#6b5f51"
+                            }
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "food-dish-price-row-2",
+                          "alias": "core.row",
+                          "layout": {
+                            "mode": "flow",
+                            "order": 2,
+                            "width": "100%"
+                          },
+                          "props": {
+                            "style": {
+                              "justifyContent": "space-between",
+                              "alignItems": "center"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "food-dish-price-2",
+                              "alias": "core.text",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 0
+                              },
+                              "props": {
+                                "text": "¥40",
+                                "variant": "price",
+                                "style": {
+                                  "color": "#92400e"
+                                }
+                              },
+                              "children": []
+                            },
+                            {
+                              "id": "food-add-2",
+                              "alias": "core.button",
+                              "layout": {
+                                "mode": "flow",
+                                "order": 1
+                              },
+                              "props": {
+                                "label": "+",
+                                "variant": "primary",
+                                "style": {
+                                  "width": "56rpx",
+                                  "height": "56rpx",
+                                  "borderRadius": "50%"
+                                }
+                              },
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "food-cart-dock",
+          "alias": "core.panel",
+          "layout": {
+            "mode": "flow",
+            "order": 2,
+            "width": "100%"
+          },
+          "props": {
+            "style": {
+              "margin": "0 20rpx 20rpx",
+              "padding": "18rpx 20rpx",
+              "borderRadius": "28rpx",
+              "background": "#0f172a",
+              "color": "#fff"
+            }
+          },
+          "children": [
+            {
+              "id": "food-cart-dock-row",
+              "alias": "core.row",
+              "layout": {
+                "mode": "flow",
+                "order": 0,
+                "width": "100%"
+              },
+              "props": {
+                "style": {
+                  "justifyContent": "space-between",
+                  "alignItems": "center"
+                }
+              },
+              "children": [
+                {
+                  "id": "food-cart-summary",
+                  "alias": "core.text",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 0
+                  },
+                  "props": {
+                    "text": "已选 3 件 · ¥76",
+                    "variant": "subheading",
+                    "style": {
+                      "color": "#fff"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "food-cart-submit",
+                  "alias": "core.button",
+                  "layout": {
+                    "mode": "flow",
+                    "order": 1
+                  },
+                  "props": {
+                    "label": "去结算",
+                    "variant": "primary",
+                    "style": {
+                      "background": "#d97706"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "page-menu-bottom-tabs",
+          "alias": "core.tabs",
+          "slot": "footer",
+          "layout": {
+            "mode": "flow",
+            "order": 999,
+            "width": "100%"
+          },
+          "props": {
+            "tabs": [
+              "点餐首页",
+              "购物车",
+              "确认订单",
+              "配送追踪"
+            ],
+            "activeTab": "点餐首页"
+          },
+          "interactions": {
+            "onTabClick": {
+              "点餐首页": {
+                "type": "navigate",
+                "targetPageId": "page-menu"
+              },
+              "购物车": {
+                "type": "navigate",
+                "targetPageId": "page-cart"
+              },
+              "确认订单": {
+                "type": "navigate",
+                "targetPageId": "page-confirm"
+              },
+              "配送追踪": {
+                "type": "navigate",
+                "targetPageId": "page-tracking"
+              }
+            }
+          },
+          "children": []
+        }
+      ]
+    },
+    "componentTemplates": {
+      "biz-hero-banner": {
+        "root": {
+          "alias": "core.panel",
+          "props": {
+            "tone": "accent",
+            "gap": 12,
+            "style": {
+              "width": "100%",
+              "padding": "28px 24px",
+              "color": "#fff",
+              "borderRadius": "0 0 28px 28px",
+              "background": "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark, var(--color-primary)))",
+              "boxShadow": "0 16px 36px rgba(15,23,42,0.18)"
+            }
+          },
+          "children": [
+            {
+              "alias": "core.tag",
+              "props": {
+                "label": {
+                  "$bind": "badge"
+                },
+                "tone": "member",
+                "style": {
+                  "alignSelf": "flex-start",
+                  "background": "rgba(255,255,255,0.22)",
+                  "color": "#fff"
+                }
+              }
+            },
+            {
+              "alias": "core.text",
+              "props": {
+                "text": {
+                  "$bind": "title"
+                },
+                "variant": "display",
+                "style": {
+                  "color": "#fff"
+                }
+              }
+            },
+            {
+              "alias": "core.text",
+              "props": {
+                "text": {
+                  "$bind": "subtitle"
+                },
+                "variant": "body",
+                "style": {
+                  "color": "rgba(255,255,255,0.86)"
+                }
+              }
+            },
+            {
+              "alias": "core.button",
+              "props": {
+                "label": {
+                  "$bind": "actionLabel"
+                },
+                "variant": "secondary",
+                "style": {
+                  "width": "100%",
+                  "marginTop": "8px"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "cssVars": {
+      "--color-primary": "#b45309",
+      "--color-primary-dark": "#92400e",
+      "--color-primary-light": "#fef3c7",
+      "--color-text-primary": "#2b2013",
+      "--color-text-secondary": "#6b5f51",
+      "--color-border": "#ece2d3",
+      "--color-background": "#fdf9f0",
+      "--color-surface": "#ffffff",
+      "--color-bg": "#fdf9f0",
+      "--color-card": "#ffffff",
+      "--text-base": "#2b2013",
+      "--radius-base": "1rem",
+      "--accent": "#b45309"
+    },
+    "style": {
+      "cssVars": {
+        "--color-primary": "#b45309",
+        "--color-primary-dark": "#92400e",
+        "--color-primary-light": "#fef3c7",
+        "--color-text-primary": "#2b2013",
+        "--color-text-secondary": "#6b5f51",
+        "--color-border": "#ece2d3",
+        "--color-background": "#fdf9f0",
+        "--color-surface": "#ffffff",
+        "--color-bg": "#fdf9f0",
+        "--color-card": "#ffffff",
+        "--text-base": "#2b2013",
+        "--radius-base": "1rem",
+        "--accent": "#b45309"
+      }
+    },
+    "schemaVersion": 1
+  }
+}

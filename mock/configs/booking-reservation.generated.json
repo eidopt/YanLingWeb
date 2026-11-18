@@ -1,0 +1,1950 @@
+{
+  "templateId": "booking-reservation",
+  "templateVersion": "1",
+  "profileVersion": "1.0.0",
+  "devices": [
+    "miniapp",
+    "mobile"
+  ],
+  "pages": [
+    {
+      "pageKey": "page-home",
+      "pageId": "page-home",
+      "pageKind": "home",
+      "name": "预约首页",
+      "description": "预约服务",
+      "rootNodeId": "page-home-screen",
+      "isDefault": true
+    },
+    {
+      "pageKey": "page-list",
+      "pageId": "page-list",
+      "pageKind": "list",
+      "name": "服务列表",
+      "description": "酒店预订",
+      "rootNodeId": "page-list-screen",
+      "isDefault": false
+    },
+    {
+      "pageKey": "page-detail",
+      "pageId": "page-detail",
+      "pageKind": "detail",
+      "name": "服务详情",
+      "description": "城市精品酒店 · 豪华大床房",
+      "rootNodeId": "page-detail-screen",
+      "isDefault": false
+    },
+    {
+      "pageKey": "page-confirm",
+      "pageId": "page-confirm",
+      "pageKind": "unknown",
+      "name": "确认预约",
+      "description": "确认预约",
+      "rootNodeId": "page-confirm-screen",
+      "isDefault": false
+    }
+  ],
+  "regions": [
+    {
+      "regionKey": "page-home.item",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-location-card",
+      "name": "上海 · 静安区",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-home.item-2",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-search",
+      "name": "酒店、餐厅、服务项目",
+      "sectionKind": "search",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-home.item-3",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-service-grid",
+      "name": "酒店图标",
+      "sectionKind": "grid",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-home.item-4",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-times",
+      "name": "可约时间",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-home.item-5",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-map-card",
+      "name": "附近地图",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-list.item",
+      "pageKey": "page-list",
+      "nodeId": "page-list-hero-banner",
+      "name": "服务列表",
+      "sectionKind": "biz-hero-banner",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-list.item-2",
+      "pageKey": "page-list",
+      "nodeId": "page-list-quick-search",
+      "name": "搜索服务",
+      "sectionKind": "search",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-list.item-3",
+      "pageKey": "page-list",
+      "nodeId": "list-header",
+      "name": "酒店预订",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-list.item-4",
+      "pageKey": "page-list",
+      "nodeId": "list-filters",
+      "name": "区域",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-list.item-5",
+      "pageKey": "page-list",
+      "nodeId": "list-items",
+      "name": "业务视觉元素",
+      "sectionKind": "stack",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-list.item-6",
+      "pageKey": "page-list",
+      "nodeId": "page-list-primary-action",
+      "name": "立即预约",
+      "sectionKind": "button",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-detail.item",
+      "pageKey": "page-detail",
+      "nodeId": "page-detail-hero-banner",
+      "name": "服务详情",
+      "sectionKind": "biz-hero-banner",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-detail.item-2",
+      "pageKey": "page-detail",
+      "nodeId": "detail-swiper",
+      "name": "业务视觉元素",
+      "sectionKind": "image",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-detail.item-3",
+      "pageKey": "page-detail",
+      "nodeId": "detail-info",
+      "name": "城市精品酒店 · 豪华大床房",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-detail.item-4",
+      "pageKey": "page-detail",
+      "nodeId": "detail-book-btn",
+      "name": "立即预订",
+      "sectionKind": "button",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-confirm.item",
+      "pageKey": "page-confirm",
+      "nodeId": "page-confirm-hero-banner",
+      "name": "确认预约",
+      "sectionKind": "biz-hero-banner",
+      "replaceable": false
+    },
+    {
+      "regionKey": "page-confirm.item-2",
+      "pageKey": "page-confirm",
+      "nodeId": "confirm-header",
+      "name": "确认预约",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-confirm.item-3",
+      "pageKey": "page-confirm",
+      "nodeId": "confirm-service",
+      "name": "业务视觉元素",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-confirm.item-4",
+      "pageKey": "page-confirm",
+      "nodeId": "confirm-contact",
+      "name": "入住人",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-confirm.item-5",
+      "pageKey": "page-confirm",
+      "nodeId": "confirm-total",
+      "name": "合计",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "page-confirm.item-6",
+      "pageKey": "page-confirm",
+      "nodeId": "confirm-btn",
+      "name": "提交预约",
+      "sectionKind": "button",
+      "replaceable": false
+    }
+  ],
+  "slots": [
+    {
+      "slotKey": "page-home.page-home-screen.screen",
+      "pageKey": "page-home",
+      "nodeId": "page-home-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel"
+      ],
+      "label": "预约首页"
+    },
+    {
+      "slotKey": "page-home.mini-booking-location-card.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item",
+      "nodeId": "mini-booking-location-card",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "上海 · 静安区"
+    },
+    {
+      "slotKey": "page-home.mini-booking-location-row.row",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item",
+      "nodeId": "mini-booking-location-row",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "上海 · 静安区"
+    },
+    {
+      "slotKey": "page-home.mini-booking-location-copy.stack",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-location-copy",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "上海 · 静安区"
+    },
+    {
+      "slotKey": "page-home.mini-booking-city.text",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-city",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "上海 · 静安区"
+    },
+    {
+      "slotKey": "page-home.mini-booking-title.text",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "今晚住哪儿"
+    },
+    {
+      "slotKey": "page-home.mini-booking-distance.tag",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-distance",
+      "component": "core.tag",
+      "editableProps": [
+        "label",
+        "tone"
+      ],
+      "label": "附近优先"
+    },
+    {
+      "slotKey": "page-home.mini-booking-date-strip.row",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item",
+      "nodeId": "mini-booking-date-strip",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "今天\n¥398"
+    },
+    {
+      "slotKey": "page-home.mini-booking-date-0.panel",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-date-0",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "今天\n¥398"
+    },
+    {
+      "slotKey": "page-home.mini-booking-date-text-0.text",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-date-text-0",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "今天\n¥398"
+    },
+    {
+      "slotKey": "page-home.mini-booking-date-1.panel",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-date-1",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "明天\n¥428"
+    },
+    {
+      "slotKey": "page-home.mini-booking-date-text-1.text",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-date-text-1",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "明天\n¥428"
+    },
+    {
+      "slotKey": "page-home.mini-booking-date-2.panel",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-date-2",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "周五\n¥459"
+    },
+    {
+      "slotKey": "page-home.mini-booking-date-text-2.text",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-date-text-2",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "周五\n¥459"
+    },
+    {
+      "slotKey": "page-home.mini-booking-date-3.panel",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-date-3",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "周六\n¥520"
+    },
+    {
+      "slotKey": "page-home.mini-booking-date-text-3.text",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-date-text-3",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "周六\n¥520"
+    },
+    {
+      "slotKey": "page-home.mini-booking-search.search",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-2",
+      "nodeId": "mini-booking-search",
+      "component": "core.search",
+      "editableProps": [
+        "placeholder",
+        "value"
+      ],
+      "label": "酒店、餐厅、服务项目"
+    },
+    {
+      "slotKey": "page-home.mini-booking-service-grid.grid",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-3",
+      "nodeId": "mini-booking-service-grid",
+      "component": "core.grid",
+      "editableProps": [
+        "gap",
+        "columns"
+      ],
+      "label": "酒店图标"
+    },
+    {
+      "slotKey": "page-home.mini-booking-tile-0.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-3",
+      "nodeId": "mini-booking-tile-0",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "酒店图标"
+    },
+    {
+      "slotKey": "page-home.mini-booking-tile-icon-0.image",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-tile-icon-0",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "酒店图标"
+    },
+    {
+      "slotKey": "page-home.mini-booking-tile-text-0.text",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-tile-text-0",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "酒店"
+    },
+    {
+      "slotKey": "page-home.mini-booking-tile-1.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-3",
+      "nodeId": "mini-booking-tile-1",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "餐厅图标"
+    },
+    {
+      "slotKey": "page-home.mini-booking-tile-icon-1.image",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-tile-icon-1",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "餐厅图标"
+    },
+    {
+      "slotKey": "page-home.mini-booking-tile-text-1.text",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-tile-text-1",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "餐厅"
+    },
+    {
+      "slotKey": "page-home.mini-booking-tile-2.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-3",
+      "nodeId": "mini-booking-tile-2",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "美甲图标"
+    },
+    {
+      "slotKey": "page-home.mini-booking-tile-icon-2.image",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-tile-icon-2",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "美甲图标"
+    },
+    {
+      "slotKey": "page-home.mini-booking-tile-text-2.text",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-tile-text-2",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "美甲"
+    },
+    {
+      "slotKey": "page-home.mini-booking-tile-3.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-3",
+      "nodeId": "mini-booking-tile-3",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "摄影图标"
+    },
+    {
+      "slotKey": "page-home.mini-booking-tile-icon-3.image",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-tile-icon-3",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "摄影图标"
+    },
+    {
+      "slotKey": "page-home.mini-booking-tile-text-3.text",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-tile-text-3",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "摄影"
+    },
+    {
+      "slotKey": "page-home.mini-booking-times.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-4",
+      "nodeId": "mini-booking-times",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "可约时间"
+    },
+    {
+      "slotKey": "page-home.mini-booking-times-head.row",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-4",
+      "nodeId": "mini-booking-times-head",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "可约时间"
+    },
+    {
+      "slotKey": "page-home.mini-booking-times-title.text",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-times-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "可约时间"
+    },
+    {
+      "slotKey": "page-home.mini-booking-times-more.text",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-times-more",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "全部时段"
+    },
+    {
+      "slotKey": "page-home.mini-booking-times-grid.grid",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-4",
+      "nodeId": "mini-booking-times-grid",
+      "component": "core.grid",
+      "editableProps": [
+        "gap",
+        "columns"
+      ],
+      "label": "10:00"
+    },
+    {
+      "slotKey": "page-home.mini-booking-slot-0.button",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-slot-0",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "10:00"
+    },
+    {
+      "slotKey": "page-home.mini-booking-slot-1.button",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-slot-1",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "13:30"
+    },
+    {
+      "slotKey": "page-home.mini-booking-slot-2.button",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-slot-2",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "16:00"
+    },
+    {
+      "slotKey": "page-home.mini-booking-slot-3.button",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-slot-3",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "19:00"
+    },
+    {
+      "slotKey": "page-home.mini-booking-slot-4.button",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-slot-4",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "20:30"
+    },
+    {
+      "slotKey": "page-home.mini-booking-slot-5.button",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-slot-5",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "明早"
+    },
+    {
+      "slotKey": "page-home.mini-booking-map-card.panel",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-5",
+      "nodeId": "mini-booking-map-card",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "附近地图"
+    },
+    {
+      "slotKey": "page-home.mini-booking-map-row.row",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-5",
+      "nodeId": "mini-booking-map-row",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "附近地图"
+    },
+    {
+      "slotKey": "page-home.mini-booking-map-img.image",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-map-img",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "附近地图"
+    },
+    {
+      "slotKey": "page-home.mini-booking-map-copy.stack",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-map-copy",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "3 家门店 2 公里内可约"
+    },
+    {
+      "slotKey": "page-home.mini-booking-map-title.text",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-map-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "3 家门店 2 公里内可约"
+    },
+    {
+      "slotKey": "page-home.mini-booking-map-desc.text",
+      "pageKey": "page-home",
+      "nodeId": "mini-booking-map-desc",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "支持到店、上门和在线确认"
+    },
+    {
+      "slotKey": "page-home.page-home-bottom-tabs.tabs",
+      "pageKey": "page-home",
+      "nodeId": "page-home-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-home-bottom-tabs"
+    },
+    {
+      "slotKey": "page-list.page-list-screen.screen",
+      "pageKey": "page-list",
+      "nodeId": "page-list-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel"
+      ],
+      "label": "服务列表"
+    },
+    {
+      "slotKey": "page-list.page-list-quick-search.search",
+      "pageKey": "page-list",
+      "regionKey": "page-list.item-2",
+      "nodeId": "page-list-quick-search",
+      "component": "core.search",
+      "editableProps": [
+        "placeholder",
+        "value"
+      ],
+      "label": "搜索服务"
+    },
+    {
+      "slotKey": "page-list.list-header.panel",
+      "pageKey": "page-list",
+      "regionKey": "page-list.item-3",
+      "nodeId": "list-header",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "酒店预订"
+    },
+    {
+      "slotKey": "page-list.list-title.text",
+      "pageKey": "page-list",
+      "regionKey": "page-list.item-3",
+      "nodeId": "list-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "酒店预订"
+    },
+    {
+      "slotKey": "page-list.list-filters.row",
+      "pageKey": "page-list",
+      "regionKey": "page-list.item-4",
+      "nodeId": "list-filters",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "区域"
+    },
+    {
+      "slotKey": "page-list.filter-area.panel",
+      "pageKey": "page-list",
+      "regionKey": "page-list.item-4",
+      "nodeId": "filter-area",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "区域"
+    },
+    {
+      "slotKey": "page-list.area-text.text",
+      "pageKey": "page-list",
+      "nodeId": "area-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "区域"
+    },
+    {
+      "slotKey": "page-list.filter-price.panel",
+      "pageKey": "page-list",
+      "regionKey": "page-list.item-4",
+      "nodeId": "filter-price",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "价格"
+    },
+    {
+      "slotKey": "page-list.price-text.text",
+      "pageKey": "page-list",
+      "nodeId": "price-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "价格"
+    },
+    {
+      "slotKey": "page-list.filter-sort.panel",
+      "pageKey": "page-list",
+      "regionKey": "page-list.item-4",
+      "nodeId": "filter-sort",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "好评优先"
+    },
+    {
+      "slotKey": "page-list.sort-text.text",
+      "pageKey": "page-list",
+      "nodeId": "sort-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "好评优先"
+    },
+    {
+      "slotKey": "page-list.list-items.stack",
+      "pageKey": "page-list",
+      "regionKey": "page-list.item-5",
+      "nodeId": "list-items",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-list.list-item-1.row",
+      "pageKey": "page-list",
+      "regionKey": "page-list.item-5",
+      "nodeId": "list-item-1",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-list.li1-img.image",
+      "pageKey": "page-list",
+      "nodeId": "li1-img",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-list.li1-info.stack",
+      "pageKey": "page-list",
+      "nodeId": "li1-info",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "城市精品酒店"
+    },
+    {
+      "slotKey": "page-list.li1-name.text",
+      "pageKey": "page-list",
+      "nodeId": "li1-name",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "城市精品酒店"
+    },
+    {
+      "slotKey": "page-list.li1-loc.text",
+      "pageKey": "page-list",
+      "nodeId": "li1-loc",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "市中心 · 距您1.2公里"
+    },
+    {
+      "slotKey": "page-list.li1-bottom.row",
+      "pageKey": "page-list",
+      "nodeId": "li1-bottom",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "4.8分 · 326条评价"
+    },
+    {
+      "slotKey": "page-list.li1-rating.text",
+      "pageKey": "page-list",
+      "nodeId": "li1-rating",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "4.8分 · 326条评价"
+    },
+    {
+      "slotKey": "page-list.li1-price.text",
+      "pageKey": "page-list",
+      "nodeId": "li1-price",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "¥388"
+    },
+    {
+      "slotKey": "page-list.page-list-primary-action.button",
+      "pageKey": "page-list",
+      "regionKey": "page-list.item-6",
+      "nodeId": "page-list-primary-action",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "立即预约"
+    },
+    {
+      "slotKey": "page-list.page-list-bottom-tabs.tabs",
+      "pageKey": "page-list",
+      "nodeId": "page-list-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-list-bottom-tabs"
+    },
+    {
+      "slotKey": "page-detail.page-detail-screen.screen",
+      "pageKey": "page-detail",
+      "nodeId": "page-detail-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel"
+      ],
+      "label": "服务详情"
+    },
+    {
+      "slotKey": "page-detail.detail-swiper.image",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-2",
+      "nodeId": "detail-swiper",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-detail.detail-info.panel",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-3",
+      "nodeId": "detail-info",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "城市精品酒店 · 豪华大床房"
+    },
+    {
+      "slotKey": "page-detail.detail-name.text",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-3",
+      "nodeId": "detail-name",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "城市精品酒店 · 豪华大床房"
+    },
+    {
+      "slotKey": "page-detail.detail-tags.row",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-3",
+      "nodeId": "detail-tags",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "含早餐"
+    },
+    {
+      "slotKey": "page-detail.tag1.panel",
+      "pageKey": "page-detail",
+      "nodeId": "tag1",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "含早餐"
+    },
+    {
+      "slotKey": "page-detail.tag1-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "tag1-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "含早餐"
+    },
+    {
+      "slotKey": "page-detail.tag2.panel",
+      "pageKey": "page-detail",
+      "nodeId": "tag2",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "免费无线网络"
+    },
+    {
+      "slotKey": "page-detail.tag2-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "tag2-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "免费无线网络"
+    },
+    {
+      "slotKey": "page-detail.tag3.panel",
+      "pageKey": "page-detail",
+      "nodeId": "tag3",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "可取消"
+    },
+    {
+      "slotKey": "page-detail.tag3-text.text",
+      "pageKey": "page-detail",
+      "nodeId": "tag3-text",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "可取消"
+    },
+    {
+      "slotKey": "page-detail.detail-price-row.row",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-3",
+      "nodeId": "detail-price-row",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "¥388"
+    },
+    {
+      "slotKey": "page-detail.detail-price.text",
+      "pageKey": "page-detail",
+      "nodeId": "detail-price",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "¥388"
+    },
+    {
+      "slotKey": "page-detail.detail-unit.text",
+      "pageKey": "page-detail",
+      "nodeId": "detail-unit",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "/晚"
+    },
+    {
+      "slotKey": "page-detail.detail-book-btn.button",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-4",
+      "nodeId": "detail-book-btn",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "立即预订"
+    },
+    {
+      "slotKey": "page-detail.page-detail-bottom-tabs.tabs",
+      "pageKey": "page-detail",
+      "nodeId": "page-detail-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-detail-bottom-tabs"
+    },
+    {
+      "slotKey": "page-confirm.page-confirm-screen.screen",
+      "pageKey": "page-confirm",
+      "nodeId": "page-confirm-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel"
+      ],
+      "label": "确认预约"
+    },
+    {
+      "slotKey": "page-confirm.confirm-header.panel",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.item-2",
+      "nodeId": "confirm-header",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "确认预约"
+    },
+    {
+      "slotKey": "page-confirm.confirm-title.text",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.item-2",
+      "nodeId": "confirm-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "确认预约"
+    },
+    {
+      "slotKey": "page-confirm.confirm-service.panel",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.item-3",
+      "nodeId": "confirm-service",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-confirm.cs-row.row",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.item-3",
+      "nodeId": "cs-row",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-confirm.cs-img.image",
+      "pageKey": "page-confirm",
+      "nodeId": "cs-img",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "业务视觉元素"
+    },
+    {
+      "slotKey": "page-confirm.cs-info.stack",
+      "pageKey": "page-confirm",
+      "nodeId": "cs-info",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "城市精品酒店"
+    },
+    {
+      "slotKey": "page-confirm.cs-name.text",
+      "pageKey": "page-confirm",
+      "nodeId": "cs-name",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "城市精品酒店"
+    },
+    {
+      "slotKey": "page-confirm.cs-room.text",
+      "pageKey": "page-confirm",
+      "nodeId": "cs-room",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "豪华大床房"
+    },
+    {
+      "slotKey": "page-confirm.cs-date.text",
+      "pageKey": "page-confirm",
+      "nodeId": "cs-date",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "2024-01-20 至 2024-01-21"
+    },
+    {
+      "slotKey": "page-confirm.confirm-contact.panel",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.item-4",
+      "nodeId": "confirm-contact",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "入住人"
+    },
+    {
+      "slotKey": "page-confirm.contact-name-row.row",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.item-4",
+      "nodeId": "contact-name-row",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "入住人"
+    },
+    {
+      "slotKey": "page-confirm.cn-label.text",
+      "pageKey": "page-confirm",
+      "nodeId": "cn-label",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "入住人"
+    },
+    {
+      "slotKey": "page-confirm.cn-input.text",
+      "pageKey": "page-confirm",
+      "nodeId": "cn-input",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "请输入姓名"
+    },
+    {
+      "slotKey": "page-confirm.contact-phone-row.row",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.item-4",
+      "nodeId": "contact-phone-row",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "联系电话"
+    },
+    {
+      "slotKey": "page-confirm.cp-label.text",
+      "pageKey": "page-confirm",
+      "nodeId": "cp-label",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "联系电话"
+    },
+    {
+      "slotKey": "page-confirm.cp-input.text",
+      "pageKey": "page-confirm",
+      "nodeId": "cp-input",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "请输入手机号"
+    },
+    {
+      "slotKey": "page-confirm.confirm-total.row",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.item-5",
+      "nodeId": "confirm-total",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "合计"
+    },
+    {
+      "slotKey": "page-confirm.total-label.text",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.item-5",
+      "nodeId": "total-label",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "合计"
+    },
+    {
+      "slotKey": "page-confirm.total-price.text",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.item-5",
+      "nodeId": "total-price",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "¥388"
+    },
+    {
+      "slotKey": "page-confirm.confirm-btn.button",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.item-6",
+      "nodeId": "confirm-btn",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "提交预约"
+    },
+    {
+      "slotKey": "page-confirm.page-confirm-bottom-tabs.tabs",
+      "pageKey": "page-confirm",
+      "nodeId": "page-confirm-bottom-tabs",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "page-confirm-bottom-tabs"
+    }
+  ],
+  "patterns": [
+    {
+      "patternKey": "page-home.item.pattern",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item",
+      "sourceRootNodeId": "mini-booking-location-row",
+      "parentNodeId": "mini-booking-location-card",
+      "itemAlias": "core.row",
+      "fields": [
+        {
+          "fieldKey": "mini-booking-city",
+          "slotKey": "page-home.mini-booking-city.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "mini-booking-title",
+          "slotKey": "page-home.mini-booking-title.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "label",
+          "slotKey": "page-home.mini-booking-distance.tag",
+          "prop": "label"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-home.item.pattern-2",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-3",
+      "sourceRootNodeId": "mini-booking-tile-0",
+      "parentNodeId": "mini-booking-service-grid",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-home.mini-booking-tile-icon-0.image",
+          "prop": "alt"
+        },
+        {
+          "fieldKey": "mini-booking-tile-text-0",
+          "slotKey": "page-home.mini-booking-tile-text-0.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-home.item.pattern-3",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-4",
+      "sourceRootNodeId": "mini-booking-times-head",
+      "parentNodeId": "mini-booking-times",
+      "itemAlias": "core.row",
+      "fields": [
+        {
+          "fieldKey": "mini-booking-times-title",
+          "slotKey": "page-home.mini-booking-times-title.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "mini-booking-times-more",
+          "slotKey": "page-home.mini-booking-times-more.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-home.item.pattern-4",
+      "pageKey": "page-home",
+      "regionKey": "page-home.item-5",
+      "sourceRootNodeId": "mini-booking-map-row",
+      "parentNodeId": "mini-booking-map-card",
+      "itemAlias": "core.row",
+      "fields": [
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-home.mini-booking-map-img.image",
+          "prop": "alt"
+        },
+        {
+          "fieldKey": "mini-booking-map-title",
+          "slotKey": "page-home.mini-booking-map-title.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "mini-booking-map-desc",
+          "slotKey": "page-home.mini-booking-map-desc.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-list.item.pattern",
+      "pageKey": "page-list",
+      "regionKey": "page-list.item-3",
+      "sourceRootNodeId": "list-title",
+      "parentNodeId": "list-header",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "list-title",
+          "slotKey": "page-list.list-title.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-list.item.pattern-2",
+      "pageKey": "page-list",
+      "regionKey": "page-list.item-4",
+      "sourceRootNodeId": "filter-area",
+      "parentNodeId": "list-filters",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "area-text",
+          "slotKey": "page-list.area-text.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-list.item.pattern-3",
+      "pageKey": "page-list",
+      "regionKey": "page-list.item-5",
+      "sourceRootNodeId": "list-item-1",
+      "parentNodeId": "list-items",
+      "itemAlias": "core.row",
+      "fields": [
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-list.li1-img.image",
+          "prop": "alt"
+        },
+        {
+          "fieldKey": "li1-name",
+          "slotKey": "page-list.li1-name.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "li1-loc",
+          "slotKey": "page-list.li1-loc.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "li1-rating",
+          "slotKey": "page-list.li1-rating.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "li1-price",
+          "slotKey": "page-list.li1-price.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-detail.item.pattern",
+      "pageKey": "page-detail",
+      "regionKey": "page-detail.item-3",
+      "sourceRootNodeId": "detail-tags",
+      "parentNodeId": "detail-info",
+      "itemAlias": "core.row",
+      "fields": [
+        {
+          "fieldKey": "tag1-text",
+          "slotKey": "page-detail.tag1-text.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "tag2-text",
+          "slotKey": "page-detail.tag2-text.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "tag3-text",
+          "slotKey": "page-detail.tag3-text.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-confirm.item.pattern",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.item-2",
+      "sourceRootNodeId": "confirm-title",
+      "parentNodeId": "confirm-header",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "confirm-title",
+          "slotKey": "page-confirm.confirm-title.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-confirm.item.pattern-2",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.item-3",
+      "sourceRootNodeId": "cs-row",
+      "parentNodeId": "confirm-service",
+      "itemAlias": "core.row",
+      "fields": [
+        {
+          "fieldKey": "alt",
+          "slotKey": "page-confirm.cs-img.image",
+          "prop": "alt"
+        },
+        {
+          "fieldKey": "cs-name",
+          "slotKey": "page-confirm.cs-name.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "cs-room",
+          "slotKey": "page-confirm.cs-room.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "cs-date",
+          "slotKey": "page-confirm.cs-date.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-confirm.item.pattern-3",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.item-4",
+      "sourceRootNodeId": "contact-name-row",
+      "parentNodeId": "confirm-contact",
+      "itemAlias": "core.row",
+      "fields": [
+        {
+          "fieldKey": "cn-label",
+          "slotKey": "page-confirm.cn-label.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "cn-input",
+          "slotKey": "page-confirm.cn-input.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "page-confirm.item.pattern-4",
+      "pageKey": "page-confirm",
+      "regionKey": "page-confirm.item-5",
+      "sourceRootNodeId": "total-label",
+      "parentNodeId": "confirm-total",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "total-label",
+          "slotKey": "page-confirm.total-label.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    }
+  ],
+  "navigation": {
+    "type": "bottom_tabs",
+    "items": [
+      {
+        "key": "page-home",
+        "label": "预约首页",
+        "pageKey": "page-home",
+        "pageId": "page-home"
+      },
+      {
+        "key": "page-list",
+        "label": "服务列表",
+        "pageKey": "page-list",
+        "pageId": "page-list"
+      },
+      {
+        "key": "page-detail",
+        "label": "服务详情",
+        "pageKey": "page-detail",
+        "pageId": "page-detail"
+      },
+      {
+        "key": "page-confirm",
+        "label": "确认预约",
+        "pageKey": "page-confirm",
+        "pageId": "page-confirm"
+      }
+    ]
+  },
+  "constraints": {
+    "devices": [
+      "miniapp",
+      "mobile"
+    ]
+  },
+  "styleProfile": {
+    "colors": [
+      "#6d28d9",
+      "#5b21b6",
+      "#c4b5fd",
+      "#221c35",
+      "#5f5a75",
+      "#e4def2",
+      "#f7f5fc",
+      "#ffffff"
+    ],
+    "fontSizes": [],
+    "fontWeights": [],
+    "spacing": [],
+    "radius": [],
+    "shadows": [],
+    "commonLayoutPatterns": [
+      "panel",
+      "search",
+      "grid",
+      "biz-hero-banner",
+      "row",
+      "stack",
+      "button",
+      "image"
+    ]
+  }
+}

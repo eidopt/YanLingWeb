@@ -356,7 +356,7 @@ function readTemplateJsonFile(templatesDir: string, file: string): TemplateJsonF
 }
 
 describe('Template JSON Files', () => {
-  const templatesDir = path.join(process.cwd(), '..', 'templates_json');
+  const templatesDir = path.join(process.cwd(), '..', 'mock');
 
   let templateFiles: string[];
 

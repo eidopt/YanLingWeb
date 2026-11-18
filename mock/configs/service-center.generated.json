@@ -1,0 +1,1326 @@
+{
+  "templateId": "service-center",
+  "templateVersion": "2",
+  "profileVersion": "1.0.0",
+  "devices": [
+    "mobile"
+  ],
+  "pages": [
+    {
+      "pageKey": "service-home",
+      "pageId": "service-home",
+      "pageKind": "home",
+      "name": "服务首页",
+      "rootNodeId": "service-home-screen",
+      "isDefault": true
+    },
+    {
+      "pageKey": "service-orders",
+      "pageId": "service-orders",
+      "pageKind": "order",
+      "name": "我的订单",
+      "rootNodeId": "service-orders-screen",
+      "isDefault": false
+    },
+    {
+      "pageKey": "service-member",
+      "pageId": "service-member",
+      "pageKind": "profile",
+      "name": "会员中心",
+      "rootNodeId": "service-member-screen",
+      "isDefault": false
+    }
+  ],
+  "regions": [
+    {
+      "regionKey": "service-home.item",
+      "pageKey": "service-home",
+      "nodeId": "service-home-notice",
+      "name": "点击卡片或操作按钮即可在首页、订单页和会员页之间切换。",
+      "sectionKind": "notice",
+      "replaceable": false
+    },
+    {
+      "regionKey": "service-home.item-2",
+      "pageKey": "service-home",
+      "nodeId": "service-home-search",
+      "name": "搜索服务、查询订单、联系客服",
+      "sectionKind": "search",
+      "replaceable": false
+    },
+    {
+      "regionKey": "service-home.item-3",
+      "pageKey": "service-home",
+      "nodeId": "service-home-hero",
+      "name": "欢迎使用",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "service-home.item-4",
+      "pageKey": "service-home",
+      "nodeId": "service-home-actions",
+      "name": "家电维修",
+      "sectionKind": "grid",
+      "replaceable": true
+    },
+    {
+      "regionKey": "service-orders.item",
+      "pageKey": "service-orders",
+      "nodeId": "service-orders-header",
+      "name": "近期订单",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "service-orders.item-2",
+      "pageKey": "service-orders",
+      "nodeId": "service-orders-panel",
+      "name": "家电维修 - 洗衣机",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "service-orders.item-3",
+      "pageKey": "service-orders",
+      "nodeId": "service-orders-tags",
+      "name": "待处理",
+      "sectionKind": "row",
+      "replaceable": true
+    },
+    {
+      "regionKey": "service-member.item",
+      "pageKey": "service-member",
+      "nodeId": "service-member-hero",
+      "name": "尊享会员",
+      "sectionKind": "panel",
+      "replaceable": true
+    },
+    {
+      "regionKey": "service-member.item-2",
+      "pageKey": "service-member",
+      "nodeId": "service-member-perks",
+      "name": "优先响应",
+      "sectionKind": "grid",
+      "replaceable": true
+    },
+    {
+      "regionKey": "service-member.item-3",
+      "pageKey": "service-member",
+      "nodeId": "service-member-actions",
+      "name": "查看订单",
+      "sectionKind": "row",
+      "replaceable": true
+    }
+  ],
+  "slots": [
+    {
+      "slotKey": "service-home.service-home-screen.screen",
+      "pageKey": "service-home",
+      "nodeId": "service-home-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel",
+        "surface",
+        "chrome"
+      ],
+      "label": "服务中心"
+    },
+    {
+      "slotKey": "service-home.service-home-notice.notice",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item",
+      "nodeId": "service-home-notice",
+      "component": "core.notice",
+      "editableProps": [
+        "text",
+        "tone"
+      ],
+      "label": "点击卡片或操作按钮即可在首页、订单页和会员页之间切换。"
+    },
+    {
+      "slotKey": "service-home.service-home-search.search",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-2",
+      "nodeId": "service-home-search",
+      "component": "core.search",
+      "editableProps": [
+        "placeholder",
+        "value"
+      ],
+      "label": "搜索服务、查询订单、联系客服"
+    },
+    {
+      "slotKey": "service-home.service-home-hero.panel",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-3",
+      "nodeId": "service-home-hero",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "欢迎使用"
+    },
+    {
+      "slotKey": "service-home.service-home-hero-eyebrow.text",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-3",
+      "nodeId": "service-home-hero-eyebrow",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "欢迎使用"
+    },
+    {
+      "slotKey": "service-home.service-home-hero-title.text",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-3",
+      "nodeId": "service-home-hero-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "一站式生活服务平台"
+    },
+    {
+      "slotKey": "service-home.service-home-hero-body.text",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-3",
+      "nodeId": "service-home-hero-body",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "缴费、维修、预约、查订单，全部集中管理。"
+    },
+    {
+      "slotKey": "service-home.service-home-hero-btn.button",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-3",
+      "nodeId": "service-home-hero-btn",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "查看我的订单"
+    },
+    {
+      "slotKey": "service-home.service-home-actions.grid",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-4",
+      "nodeId": "service-home-actions",
+      "component": "core.grid",
+      "editableProps": [
+        "gap",
+        "columns"
+      ],
+      "label": "家电维修"
+    },
+    {
+      "slotKey": "service-home.service-home-action-repair.panel",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-4",
+      "nodeId": "service-home-action-repair",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "家电维修"
+    },
+    {
+      "slotKey": "service-home.service-home-action-repair-image.image",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-4",
+      "nodeId": "service-home-action-repair-image",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "service-home-action-repair-image"
+    },
+    {
+      "slotKey": "service-home.service-home-action-repair-title.text",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-4",
+      "nodeId": "service-home-action-repair-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "家电维修"
+    },
+    {
+      "slotKey": "service-home.service-home-action-repair-subtitle.text",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-4",
+      "nodeId": "service-home-action-repair-subtitle",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "上门维修，1 小时内响应"
+    },
+    {
+      "slotKey": "service-home.service-home-action-repair-caption.text",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-4",
+      "nodeId": "service-home-action-repair-caption",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "已服务 2.4 万次"
+    },
+    {
+      "slotKey": "service-home.service-home-action-pay.panel",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-4",
+      "nodeId": "service-home-action-pay",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "水电缴费"
+    },
+    {
+      "slotKey": "service-home.service-home-action-pay-image.image",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-4",
+      "nodeId": "service-home-action-pay-image",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "service-home-action-pay-image"
+    },
+    {
+      "slotKey": "service-home.service-home-action-pay-title.text",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-4",
+      "nodeId": "service-home-action-pay-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "水电缴费"
+    },
+    {
+      "slotKey": "service-home.service-home-action-pay-subtitle.text",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-4",
+      "nodeId": "service-home-action-pay-subtitle",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "支持多户头批量缴费"
+    },
+    {
+      "slotKey": "service-home.service-home-action-pay-caption.text",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-4",
+      "nodeId": "service-home-action-pay-caption",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "已缴费 6.1 万次"
+    },
+    {
+      "slotKey": "service-home.service-home-action-book.panel",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-4",
+      "nodeId": "service-home-action-book",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "预约上门"
+    },
+    {
+      "slotKey": "service-home.service-home-action-book-image.image",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-4",
+      "nodeId": "service-home-action-book-image",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "service-home-action-book-image"
+    },
+    {
+      "slotKey": "service-home.service-home-action-book-title.text",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-4",
+      "nodeId": "service-home-action-book-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "预约上门"
+    },
+    {
+      "slotKey": "service-home.service-home-action-book-subtitle.text",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-4",
+      "nodeId": "service-home-action-book-subtitle",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "保洁、搬家、安装"
+    },
+    {
+      "slotKey": "service-home.service-home-action-book-caption.text",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-4",
+      "nodeId": "service-home-action-book-caption",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "评分 4.9 分"
+    },
+    {
+      "slotKey": "service-home.service-home-action-member.panel",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-4",
+      "nodeId": "service-home-action-member",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "会员中心"
+    },
+    {
+      "slotKey": "service-home.service-home-action-member-image.image",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-4",
+      "nodeId": "service-home-action-member-image",
+      "component": "core.image",
+      "editableProps": [
+        "src",
+        "alt",
+        "title",
+        "iconColor",
+        "objectFit"
+      ],
+      "label": "service-home-action-member-image"
+    },
+    {
+      "slotKey": "service-home.service-home-action-member-title.text",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-4",
+      "nodeId": "service-home-action-member-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "会员中心"
+    },
+    {
+      "slotKey": "service-home.service-home-action-member-subtitle.text",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-4",
+      "nodeId": "service-home-action-member-subtitle",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "专属折扣和优先响应"
+    },
+    {
+      "slotKey": "service-home.service-home-action-member-caption.text",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-4",
+      "nodeId": "service-home-action-member-caption",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "查看权益详情"
+    },
+    {
+      "slotKey": "service-home.service-home-footer.tabs",
+      "pageKey": "service-home",
+      "nodeId": "service-home-footer",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "service-home-footer"
+    },
+    {
+      "slotKey": "service-orders.service-orders-screen.screen",
+      "pageKey": "service-orders",
+      "nodeId": "service-orders-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel",
+        "surface",
+        "chrome"
+      ],
+      "label": "我的订单"
+    },
+    {
+      "slotKey": "service-orders.service-orders-header.row",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item",
+      "nodeId": "service-orders-header",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "近期订单"
+    },
+    {
+      "slotKey": "service-orders.service-orders-header-title.text",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item",
+      "nodeId": "service-orders-header-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "近期订单"
+    },
+    {
+      "slotKey": "service-orders.service-orders-header-action.button",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item",
+      "nodeId": "service-orders-header-action",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "查看全部"
+    },
+    {
+      "slotKey": "service-orders.service-orders-panel.panel",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item-2",
+      "nodeId": "service-orders-panel",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "家电维修 - 洗衣机"
+    },
+    {
+      "slotKey": "service-orders.service-orders-order-1.row",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item-2",
+      "nodeId": "service-orders-order-1",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "家电维修 - 洗衣机"
+    },
+    {
+      "slotKey": "service-orders.service-orders-order-1-info.stack",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item-2",
+      "nodeId": "service-orders-order-1-info",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "家电维修 - 洗衣机"
+    },
+    {
+      "slotKey": "service-orders.service-orders-order-1-info-title.text",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item-2",
+      "nodeId": "service-orders-order-1-info-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "家电维修 - 洗衣机"
+    },
+    {
+      "slotKey": "service-orders.service-orders-order-1-info-subtitle.text",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item-2",
+      "nodeId": "service-orders-order-1-info-subtitle",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "已安排技师，今晚 18:00 上门"
+    },
+    {
+      "slotKey": "service-orders.service-orders-order-1-status.tag",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item-2",
+      "nodeId": "service-orders-order-1-status",
+      "component": "core.tag",
+      "editableProps": [
+        "label",
+        "tone"
+      ],
+      "label": "待上门"
+    },
+    {
+      "slotKey": "service-orders.service-orders-order-2.row",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item-2",
+      "nodeId": "service-orders-order-2",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "水电缴费 - 电费"
+    },
+    {
+      "slotKey": "service-orders.service-orders-order-2-info.stack",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item-2",
+      "nodeId": "service-orders-order-2-info",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "水电缴费 - 电费"
+    },
+    {
+      "slotKey": "service-orders.service-orders-order-2-info-title.text",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item-2",
+      "nodeId": "service-orders-order-2-info-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "水电缴费 - 电费"
+    },
+    {
+      "slotKey": "service-orders.service-orders-order-2-info-subtitle.text",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item-2",
+      "nodeId": "service-orders-order-2-info-subtitle",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "已缴 ¥142.50，本月账期"
+    },
+    {
+      "slotKey": "service-orders.service-orders-order-2-status.tag",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item-2",
+      "nodeId": "service-orders-order-2-status",
+      "component": "core.tag",
+      "editableProps": [
+        "label",
+        "tone"
+      ],
+      "label": "已完成"
+    },
+    {
+      "slotKey": "service-orders.service-orders-order-3.row",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item-2",
+      "nodeId": "service-orders-order-3",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "预约保洁 - 全屋清洁"
+    },
+    {
+      "slotKey": "service-orders.service-orders-order-3-info.stack",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item-2",
+      "nodeId": "service-orders-order-3-info",
+      "component": "core.stack",
+      "editableProps": [
+        "gap",
+        "alignItems"
+      ],
+      "label": "预约保洁 - 全屋清洁"
+    },
+    {
+      "slotKey": "service-orders.service-orders-order-3-info-title.text",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item-2",
+      "nodeId": "service-orders-order-3-info-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "预约保洁 - 全屋清洁"
+    },
+    {
+      "slotKey": "service-orders.service-orders-order-3-info-subtitle.text",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item-2",
+      "nodeId": "service-orders-order-3-info-subtitle",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "等待确认服务员上门时间"
+    },
+    {
+      "slotKey": "service-orders.service-orders-order-3-status.tag",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item-2",
+      "nodeId": "service-orders-order-3-status",
+      "component": "core.tag",
+      "editableProps": [
+        "label",
+        "tone"
+      ],
+      "label": "待确认"
+    },
+    {
+      "slotKey": "service-orders.service-orders-tags.row",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item-3",
+      "nodeId": "service-orders-tags",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "待处理"
+    },
+    {
+      "slotKey": "service-orders.service-orders-tag-pending.tag",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item-3",
+      "nodeId": "service-orders-tag-pending",
+      "component": "core.tag",
+      "editableProps": [
+        "label",
+        "tone"
+      ],
+      "label": "待处理"
+    },
+    {
+      "slotKey": "service-orders.service-orders-tag-done.tag",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item-3",
+      "nodeId": "service-orders-tag-done",
+      "component": "core.tag",
+      "editableProps": [
+        "label",
+        "tone"
+      ],
+      "label": "已完成"
+    },
+    {
+      "slotKey": "service-orders.service-orders-tag-info.tag",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item-3",
+      "nodeId": "service-orders-tag-info",
+      "component": "core.tag",
+      "editableProps": [
+        "label",
+        "tone"
+      ],
+      "label": "待确认"
+    },
+    {
+      "slotKey": "service-orders.service-orders-footer.tabs",
+      "pageKey": "service-orders",
+      "nodeId": "service-orders-footer",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "service-orders-footer"
+    },
+    {
+      "slotKey": "service-member.service-member-screen.screen",
+      "pageKey": "service-member",
+      "nodeId": "service-member-screen",
+      "component": "core.screen",
+      "editableProps": [
+        "title",
+        "statusTime",
+        "headerActionLabel",
+        "surface",
+        "chrome"
+      ],
+      "label": "会员中心"
+    },
+    {
+      "slotKey": "service-member.service-member-hero.panel",
+      "pageKey": "service-member",
+      "regionKey": "service-member.item",
+      "nodeId": "service-member-hero",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "尊享会员"
+    },
+    {
+      "slotKey": "service-member.service-member-hero-overline.text",
+      "pageKey": "service-member",
+      "regionKey": "service-member.item",
+      "nodeId": "service-member-hero-overline",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "尊享会员"
+    },
+    {
+      "slotKey": "service-member.service-member-hero-title.text",
+      "pageKey": "service-member",
+      "regionKey": "service-member.item",
+      "nodeId": "service-member-hero-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "黄金会员 · 本月已省 ¥86"
+    },
+    {
+      "slotKey": "service-member.service-member-hero-body.text",
+      "pageKey": "service-member",
+      "regionKey": "service-member.item",
+      "nodeId": "service-member-hero-body",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "专属折扣、优先调度、无限免费上门评估，一卡在手服务无忧。"
+    },
+    {
+      "slotKey": "service-member.service-member-perks.grid",
+      "pageKey": "service-member",
+      "regionKey": "service-member.item-2",
+      "nodeId": "service-member-perks",
+      "component": "core.grid",
+      "editableProps": [
+        "gap",
+        "columns"
+      ],
+      "label": "优先响应"
+    },
+    {
+      "slotKey": "service-member.service-member-perk-1.panel",
+      "pageKey": "service-member",
+      "regionKey": "service-member.item-2",
+      "nodeId": "service-member-perk-1",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "优先响应"
+    },
+    {
+      "slotKey": "service-member.service-member-perk-1-overline.text",
+      "pageKey": "service-member",
+      "regionKey": "service-member.item-2",
+      "nodeId": "service-member-perk-1-overline",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "优先响应"
+    },
+    {
+      "slotKey": "service-member.service-member-perk-1-title.text",
+      "pageKey": "service-member",
+      "regionKey": "service-member.item-2",
+      "nodeId": "service-member-perk-1-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "30 分钟内派单"
+    },
+    {
+      "slotKey": "service-member.service-member-perk-1-body.text",
+      "pageKey": "service-member",
+      "regionKey": "service-member.item-2",
+      "nodeId": "service-member-perk-1-body",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "会员订单加急处理。"
+    },
+    {
+      "slotKey": "service-member.service-member-perk-2.panel",
+      "pageKey": "service-member",
+      "regionKey": "service-member.item-2",
+      "nodeId": "service-member-perk-2",
+      "component": "core.panel",
+      "editableProps": [
+        "tone",
+        "gap",
+        "title"
+      ],
+      "label": "专属折扣"
+    },
+    {
+      "slotKey": "service-member.service-member-perk-2-overline.text",
+      "pageKey": "service-member",
+      "regionKey": "service-member.item-2",
+      "nodeId": "service-member-perk-2-overline",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "专属折扣"
+    },
+    {
+      "slotKey": "service-member.service-member-perk-2-title.text",
+      "pageKey": "service-member",
+      "regionKey": "service-member.item-2",
+      "nodeId": "service-member-perk-2-title",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "服务立享 8 折"
+    },
+    {
+      "slotKey": "service-member.service-member-perk-2-body.text",
+      "pageKey": "service-member",
+      "regionKey": "service-member.item-2",
+      "nodeId": "service-member-perk-2-body",
+      "component": "core.text",
+      "editableProps": [
+        "text",
+        "variant",
+        "as"
+      ],
+      "label": "所有维修保洁均适用。"
+    },
+    {
+      "slotKey": "service-member.service-member-actions.row",
+      "pageKey": "service-member",
+      "regionKey": "service-member.item-3",
+      "nodeId": "service-member-actions",
+      "component": "core.row",
+      "editableProps": [
+        "gap",
+        "wrap",
+        "justify",
+        "align",
+        "tone"
+      ],
+      "label": "查看订单"
+    },
+    {
+      "slotKey": "service-member.service-member-btn-orders.button",
+      "pageKey": "service-member",
+      "regionKey": "service-member.item-3",
+      "nodeId": "service-member-btn-orders",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "查看订单"
+    },
+    {
+      "slotKey": "service-member.service-member-btn-home.button",
+      "pageKey": "service-member",
+      "regionKey": "service-member.item-3",
+      "nodeId": "service-member-btn-home",
+      "component": "core.button",
+      "editableProps": [
+        "label",
+        "variant",
+        "active",
+        "disabled",
+        "icon"
+      ],
+      "label": "预约服务"
+    },
+    {
+      "slotKey": "service-member.service-member-footer.tabs",
+      "pageKey": "service-member",
+      "nodeId": "service-member-footer",
+      "component": "core.tabs",
+      "editableProps": [
+        "tabs",
+        "activeTab"
+      ],
+      "label": "service-member-footer"
+    }
+  ],
+  "patterns": [
+    {
+      "patternKey": "service-home.item.pattern",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-3",
+      "sourceRootNodeId": "service-home-hero-eyebrow",
+      "parentNodeId": "service-home-hero",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "service-home-hero-eyebrow",
+          "slotKey": "service-home.service-home-hero-eyebrow.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "service-home.item.pattern-2",
+      "pageKey": "service-home",
+      "regionKey": "service-home.item-4",
+      "sourceRootNodeId": "service-home-action-repair",
+      "parentNodeId": "service-home-actions",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "src",
+          "slotKey": "service-home.service-home-action-repair-image.image",
+          "prop": "src"
+        },
+        {
+          "fieldKey": "service-home-action-repair-title",
+          "slotKey": "service-home.service-home-action-repair-title.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "service-home-action-repair-subtitle",
+          "slotKey": "service-home.service-home-action-repair-subtitle.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "service-home-action-repair-caption",
+          "slotKey": "service-home.service-home-action-repair-caption.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "service-orders.item.pattern",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item",
+      "sourceRootNodeId": "service-orders-header-title",
+      "parentNodeId": "service-orders-header",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "service-orders-header-title",
+          "slotKey": "service-orders.service-orders-header-title.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "service-orders.item.pattern-2",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item-2",
+      "sourceRootNodeId": "service-orders-order-1",
+      "parentNodeId": "service-orders-panel",
+      "itemAlias": "core.row",
+      "fields": [
+        {
+          "fieldKey": "service-orders-order-1-info-title",
+          "slotKey": "service-orders.service-orders-order-1-info-title.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "service-orders-order-1-info-subtitle",
+          "slotKey": "service-orders.service-orders-order-1-info-subtitle.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "label",
+          "slotKey": "service-orders.service-orders-order-1-status.tag",
+          "prop": "label"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "service-orders.item.pattern-3",
+      "pageKey": "service-orders",
+      "regionKey": "service-orders.item-3",
+      "sourceRootNodeId": "service-orders-tag-pending",
+      "parentNodeId": "service-orders-tags",
+      "itemAlias": "core.tag",
+      "fields": [
+        {
+          "fieldKey": "label",
+          "slotKey": "service-orders.service-orders-tag-pending.tag",
+          "prop": "label"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "service-member.item.pattern",
+      "pageKey": "service-member",
+      "regionKey": "service-member.item",
+      "sourceRootNodeId": "service-member-hero-overline",
+      "parentNodeId": "service-member-hero",
+      "itemAlias": "core.text",
+      "fields": [
+        {
+          "fieldKey": "service-member-hero-overline",
+          "slotKey": "service-member.service-member-hero-overline.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "service-member.item.pattern-2",
+      "pageKey": "service-member",
+      "regionKey": "service-member.item-2",
+      "sourceRootNodeId": "service-member-perk-1",
+      "parentNodeId": "service-member-perks",
+      "itemAlias": "core.panel",
+      "fields": [
+        {
+          "fieldKey": "service-member-perk-1-overline",
+          "slotKey": "service-member.service-member-perk-1-overline.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "service-member-perk-1-title",
+          "slotKey": "service-member.service-member-perk-1-title.text",
+          "prop": "text"
+        },
+        {
+          "fieldKey": "service-member-perk-1-body",
+          "slotKey": "service-member.service-member-perk-1-body.text",
+          "prop": "text"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    },
+    {
+      "patternKey": "service-member.item.pattern-3",
+      "pageKey": "service-member",
+      "regionKey": "service-member.item-3",
+      "sourceRootNodeId": "service-member-btn-orders",
+      "parentNodeId": "service-member-actions",
+      "itemAlias": "core.button",
+      "fields": [
+        {
+          "fieldKey": "label",
+          "slotKey": "service-member.service-member-btn-orders.button",
+          "prop": "label"
+        }
+      ],
+      "minItems": 0,
+      "maxItems": 50
+    }
+  ],
+  "navigation": {
+    "type": "bottom_tabs",
+    "items": [
+      {
+        "key": "service-home",
+        "label": "服务首页",
+        "pageKey": "service-home",
+        "pageId": "service-home"
+      },
+      {
+        "key": "service-orders",
+        "label": "我的订单",
+        "pageKey": "service-orders",
+        "pageId": "service-orders"
+      },
+      {
+        "key": "service-member",
+        "label": "会员中心",
+        "pageKey": "service-member",
+        "pageId": "service-member"
+      }
+    ]
+  },
+  "constraints": {
+    "devices": [
+      "mobile"
+    ]
+  },
+  "styleProfile": {
+    "colors": [
+      "#0e1b19",
+      "#0f766e",
+      "#e2ebee",
+      "#ffffff",
+      "linear-gradient(180deg, #f3f7f9 0%, #e6eef1 100%)",
+      "rgba(15, 118, 110, 0.08)",
+      "rgba(15, 118, 110, 0.24)",
+      "rgba(15, 23, 42, 0.08)"
+    ],
+    "fontSizes": [
+      "0.65rem"
+    ],
+    "fontWeights": [
+      "var(--app-font-weight-regular)",
+      "var(--app-font-weight-medium)",
+      "var(--app-font-weight-bold)"
+    ],
+    "spacing": [
+      "var(--app-space-1)",
+      "var(--app-space-2)",
+      "var(--app-space-3)",
+      "var(--app-space-4)",
+      "var(--app-space-6)",
+      "var(--app-space-8)",
+      "var(--app-space-12)"
+    ],
+    "radius": [
+      "0.65rem"
+    ],
+    "shadows": [
+      "var(--app-shadow-xs)",
+      "var(--app-shadow-sm)",
+      "var(--app-shadow-md)",
+      "var(--app-shadow-lg)",
+      "var(--app-shadow-brand-md)"
+    ],
+    "commonLayoutPatterns": [
+      "grid",
+      "notice",
+      "panel",
+      "row",
+      "search"
+    ]
+  }
+}

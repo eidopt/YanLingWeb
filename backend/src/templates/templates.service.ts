@@ -43,7 +43,8 @@ import {
   parseTemplateJsonSeed,
   readTemplateAgentConfigForImport,
   removeTemplateValidationLog,
-  resolveTemplateJsonDirectory,
+  isPersistentTemplateJsonImportPath,
+  resolveTemplateJsonDirectories,
   validateImportedTemplateProfile,
   writeTemplateValidationLog,
 } from './templateJsonImport.helpers';
@@ -407,18 +408,32 @@ export class TemplatesService implements OnModuleInit {
       return [];
     }
 
-    const directory = await resolveTemplateJsonDirectory(importConfig.directory);
-    if (!directory) {
+    const directories = await resolveTemplateJsonDirectories(importConfig.directory);
+    if (!directories.length) {
       return [];
     }
 
+    const importedFiles: string[] = [];
+    for (const directory of directories) {
+      importedFiles.push(...(await this.importTemplateJsonFilesFromDirectory(directory)));
+    }
+
+    return importedFiles;
+  }
+
+  private async importTemplateJsonFilesFromDirectory(directory: string): Promise<string[]> {
     const entries = await fs.readdir(directory, { withFileTypes: true });
     let jsonFiles = entries
       .filter((entry) => entry.isFile() && entry.name.endsWith('.json'))
+      .filter(
+        (entry) =>
+          !entry.name.endsWith('.validation.log') &&
+          entry.name !== 'importSkipList.json' &&
+          entry.name !== 'import-skip-list.json',
+      )
       .map((entry) => path.join(directory, entry.name))
       .sort();
 
-    // 跳过 import-skip-list.json 中列出的模板。
     const skipListPath = path.join(directory, 'importSkipList.json');
     try {
       const skipContent = await fs.readFile(skipListPath, 'utf8');
@@ -545,6 +560,9 @@ export class TemplatesService implements OnModuleInit {
       return;
     }
     for (const filePath of filePaths) {
+      if (isPersistentTemplateJsonImportPath(filePath)) {
+        continue;
+      }
       try {
         await deleteImportedTemplateSidecars(filePath);
         await fs.unlink(filePath);
