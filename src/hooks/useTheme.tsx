@@ -17,7 +17,7 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 function getStoredTheme(): AppTheme {
   if (typeof window === 'undefined') {
-    return 'dark';
+    return 'light';
   }
   try {
     const stored = localStorage.getItem(THEME_STORAGE_KEY);
@@ -27,22 +27,22 @@ function getStoredTheme(): AppTheme {
   } catch {
     // localStorage unavailable
   }
-  return 'dark';
+  return 'light';
 }
 
 function applyTheme(theme: AppTheme) {
   if (typeof document === 'undefined') {
     return;
   }
-  if (theme === 'light') {
-    document.body.setAttribute(THEME_ATTR, 'light');
+  if (theme === 'dark') {
+    document.body.setAttribute(THEME_ATTR, 'dark');
   } else {
     document.body.removeAttribute(THEME_ATTR);
   }
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<AppTheme>('dark');
+  const [theme, setThemeState] = useState<AppTheme>('light');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -78,7 +78,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   if (!mounted) {
-    // Avoid hydration mismatch — render without theme until mounted
     return <>{children}</>;
   }
 
@@ -88,8 +87,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 export function useTheme(): ThemeContextValue {
   const ctx = useContext(ThemeContext);
   if (!ctx) {
-    // Graceful fallback for pages rendered outside the ThemeProvider (e.g. error pages)
-    return { theme: 'dark', toggleTheme: () => undefined, setTheme: () => undefined };
+    return { theme: 'light', toggleTheme: () => undefined, setTheme: () => undefined };
   }
   return ctx;
 }

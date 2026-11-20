@@ -2,10 +2,10 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
   gap: var(--app-unit-1);
-  padding: var(--app-unit-1-75) var(--app-unit-1-25) var(--app-unit-0-75);
+  padding: var(--app-unit-1-25) var(--app-unit-1-25) var(--app-unit-0-75);
   border-radius: var(--app-unit-2-5);
-  background: var(--tpl-surface-1);
-  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--tpl-border-subtle);
+  background: var(--panel-bg, var(--surface-muted, var(--tpl-surface-1)));
+  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--panel-border, var(--border-color, var(--tpl-border-subtle)));
 }
 
 .tabItem {
@@ -13,7 +13,7 @@
   border: none;
   border-radius: var(--app-unit-2);
   background: transparent;
-  color: var(--tpl-neutral-600);
+  color: var(--text-muted-color, var(--text-body-color, var(--tpl-neutral-600)));
   font-size: var(--app-unit-1-5);
   font-weight: 600;
   font-family: inherit;
@@ -26,6 +26,6 @@
 }
 
 .tabItemActive {
-  background: color-mix(in srgb, var(--accent) 14%, var(--tpl-neutral-0));
-  color: color-mix(in srgb, var(--accent) 78%, var(--tpl-color-black));
+  background: color-mix(in srgb, var(--accent) 20%, var(--panel-bg, var(--tpl-neutral-0)));
+  color: var(--text-heading-color, color-mix(in srgb, var(--accent) 78%, var(--tpl-color-black)));
 }

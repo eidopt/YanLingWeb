@@ -1,12 +1,17 @@
 import styles from './CreationModesSection.module.css';
 import { homePageContent as c } from './HomePage.content';
-import {
-  CardGrid,
-  PageSection,
-  ScrollReveal,
-  SectionHeader,
-  SurfaceCard,
-} from 'ui/pages';
+import { LayersEditIcon, LayoutGridIcon, PromptCommandIcon } from 'ui/icons';
+import { CardGrid, PageSection, ScrollReveal, SectionHeader, SurfaceCard } from 'ui/pages';
+
+function renderCreationIcon(iconKey: string) {
+  if (iconKey === 'templates') {
+    return <LayoutGridIcon />;
+  }
+  if (iconKey === 'prompt') {
+    return <PromptCommandIcon />;
+  }
+  return <LayersEditIcon />;
+}
 
 export function CreationModesSection() {
   return (
@@ -20,18 +25,13 @@ export function CreationModesSection() {
       </ScrollReveal>
       <CardGrid columns={3}>
         {c.creationModes.items.map((item, i) => (
-          <ScrollReveal
-            key={item.title}
-            variant="fadeUp"
-            delay={i * 100}
-            duration="slow"
-          >
+          <ScrollReveal key={item.title} variant="fadeUp" delay={i * 70}>
             <SurfaceCard
               badge={item.meta}
-              className={styles.creationModeCard}
               color={item.color}
+              className={styles.creationModeCard}
               description={item.desc}
-              icon={item.icon}
+              icon={renderCreationIcon(item.iconKey)}
               title={item.title}
             />
           </ScrollReveal>

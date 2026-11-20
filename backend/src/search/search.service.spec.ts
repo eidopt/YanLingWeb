@@ -85,6 +85,15 @@ describe('SearchService', () => {
       expect(result.status).toBe('ok');
     });
 
+    it('should classify descriptive app specs with "首页推荐" as create_with_ai', async () => {
+      const result = await service.handleInput(
+        'user1',
+        '城市精品咖啡馆预约点单小程序，包含首页推荐、饮品菜单和会员中心',
+      );
+      expect(result.mode).toBe('create_with_ai');
+      expect(result.status).toBe('ok');
+    });
+
     it('should throw on empty query', async () => {
       await expect(service.handleInput('user1', '')).rejects.toThrow('query is required');
       await expect(service.handleInput('user1', '   ')).rejects.toThrow('query is required');

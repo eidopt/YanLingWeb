@@ -26,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{
             __html: [
               `try{var t=localStorage.getItem('app-theme');`,
-              `if(t==='light')document.body.setAttribute('data-app-theme','light')`,
+              `if(t==='dark')document.body.setAttribute('data-app-theme','dark')`,
               `}catch(e){}`,
             ].join(''),
           }}

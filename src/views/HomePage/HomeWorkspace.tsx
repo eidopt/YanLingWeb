@@ -16,7 +16,7 @@ import {
   useHomeWorkspaceSnapshot,
 } from 'state/homeWorkspaceState';
 import type { ThemeSpec } from 'types/theme.types';
-import { Box, Heading, Label, Text, TextArea } from 'ui/base';
+import { Box, Button, Heading, Label, Text, TextArea } from 'ui/base';
 import { ThemeToggleButton } from 'ui/global_nav';
 import {
   CalendarIcon,
@@ -28,6 +28,7 @@ import {
   MarketplaceIcon,
   MineIcon,
   MobileIcon,
+  SearchIcon,
   TagIcon,
   WebIcon,
 } from 'ui/icons';
@@ -356,14 +357,13 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
     window.requestAnimationFrame(() => scrollTo(templateRef));
   }
 
+  const chipTones = ['cobalt', 'mint', 'coral', 'violet', 'amber', 'sky'] as const;
   const sidebarItems = [...c.sidebar.items, { id: 'editor', label: '编辑器' }];
   const categoryCards = [
     { key: '', label: c.category.all, count: categoryTemplates.length },
     ...marketCategories.slice(0, 7),
   ];
   const platformCards = [{ key: '', label: c.platform.all }, ...c.platform.items];
-  const categoryTones = ['indigo', 'amber', 'orange', 'teal', 'slate', 'gray', 'violet', 'green'];
-  const platformTones = ['indigo', 'green', 'teal', 'violet', 'slate'];
   const showMineOverview = mode === 'home' && templateView === 'marketplace';
 
   return (
@@ -416,17 +416,17 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
         <Box as="section" className={styles.main}>
           <Box as="header" ref={topRef} className={styles.searchBand}>
             <Box className={styles.searchCopy}>
-              <Heading as="h1" size="display" variant="primary" weight="heavy">
-                <Box as="span" className={styles.greetingLine}>
-                  {greeting}，{user.username}
-                </Box>
-                <Box as="span" className={styles.titleLine}>
-                  {c.search.title}
-                </Box>
+              <Text as="p" size="sm" variant="muted" weight="medium">
+                {greeting}，{user.username}
+              </Text>
+              <Heading as="h1" size="hero" variant="primary" weight="heavy">
+                {c.search.title}
               </Heading>
             </Box>
             <Label className={styles.searchBox}>
-              <Box as="span" className={styles.searchIcon} aria-hidden="true" />
+              <Box as="span" className={styles.searchIcon} aria-hidden="true">
+                <SearchIcon width={18} height={18} />
+              </Box>
               <TextArea
                 className={styles.searchInput}
                 rows={2}
@@ -436,35 +436,46 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
                 placeholder={c.search.placeholder}
                 variant="quiet"
               />
+              <Box className={styles.searchActions}>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="primary"
+                  onClick={() => {
+                    submitSearch();
+                    window.requestAnimationFrame(() => scrollTo(templateRef));
+                  }}
+                >
+                  生成 / 搜索
+                </Button>
+              </Box>
             </Label>
           </Box>
 
           {templateView === 'marketplace' ? (
             <Box as="section" className={styles.filterStack} aria-label="模板筛选">
               <Box className={styles.filterGroup}>
-                <Heading as="h2" size="label" variant="secondary" weight="heavy">
+                <Text as="h2" size="xs" variant="muted" weight="bold">
                   {c.platform.heading}
-                </Heading>
+                </Text>
                 <Box className={styles.categoryStrip} aria-label={c.platform.heading}>
-                  {platformCards.map((item, index) => {
+                  {platformCards.map((item, idx) => {
                     const Icon = getPlatformIcon(item.key);
                     const active = item.key === submittedPlatformCategory;
+                    const tone = item.key ? chipTones[idx % chipTones.length] : 'cobalt';
                     return (
                       <button
                         key={item.key || 'all-platforms'}
                         type="button"
                         className={`${styles.categoryCard} ${active ? styles.categoryCardActive : ''}`}
-                        data-tone={platformTones[index] ?? 'indigo'}
                         aria-current={active ? 'true' : undefined}
                         onClick={() => browsePlatformCategory(item.key ? item : null)}
                       >
-                        <Box as="span" className={styles.categoryIcon}>
+                        <Box as="span" className={styles.categoryIcon} data-tone={tone}>
                           <Icon />
                         </Box>
-                        <Box as="span" className={styles.categoryText}>
-                          <Box as="span" className={styles.categoryName}>
-                            {item.label}
-                          </Box>
+                        <Box as="span" className={styles.categoryName}>
+                          {item.label}
                         </Box>
                       </button>
                     );
@@ -472,29 +483,27 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
                 </Box>
               </Box>
               <Box className={styles.filterGroup}>
-                <Heading as="h2" size="label" variant="secondary" weight="heavy">
+                <Text as="h2" size="xs" variant="muted" weight="bold">
                   {c.category.heading}
-                </Heading>
+                </Text>
                 <Box className={styles.categoryStrip} aria-label={c.category.heading}>
-                  {categoryCards.map((item, index) => {
+                  {categoryCards.map((item, idx) => {
                     const Icon = item.key ? getCategoryIcon(item.label) : MarketplaceIcon;
                     const active = item.key === submittedCategory;
+                    const tone = item.key ? chipTones[(idx + 2) % chipTones.length] : 'cobalt';
                     return (
                       <button
                         key={item.key || 'all-categories'}
                         type="button"
                         className={`${styles.categoryCard} ${active ? styles.categoryCardActive : ''}`}
-                        data-tone={categoryTones[index] ?? 'indigo'}
                         aria-current={active ? 'true' : undefined}
                         onClick={() => browseCategory(item.key ? item : null)}
                       >
-                        <Box as="span" className={styles.categoryIcon}>
+                        <Box as="span" className={styles.categoryIcon} data-tone={tone}>
                           <Icon />
                         </Box>
-                        <Box as="span" className={styles.categoryText}>
-                          <Box as="span" className={styles.categoryName}>
-                            {item.label}
-                          </Box>
+                        <Box as="span" className={styles.categoryName}>
+                          {item.label}
                         </Box>
                       </button>
                     );
@@ -518,7 +527,7 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
             <ScrollReveal variant="fadeUp" duration="base">
               <Box as="section" className={`${styles.section} ${styles.mineOverviewSection}`}>
                 <Box className={styles.sectionHeader}>
-                  <Heading as="h2" size="xl" variant="primary" weight="heavy">
+                  <Heading as="h2" size="md" variant="primary" weight="heavy">
                     {c.mineOverview.title}
                   </Heading>
                   <button type="button" className={styles.viewAllButton} onClick={() => showTemplateView('mine')}>
@@ -526,7 +535,7 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
                   </button>
                 </Box>
                 {!loading && recentMineTemplates.length === 0 ? (
-                  <Text size="base" variant="muted">
+                  <Text size="sm" variant="muted">
                     {c.mineOverview.empty}
                   </Text>
                 ) : null}
@@ -547,12 +556,12 @@ export function HomeWorkspace({ user, mode = 'home' }: HomeWorkspaceProps) {
           <ScrollReveal variant="fadeUp" duration="base">
             <Box as="section" ref={templateRef} className={styles.section}>
               <Box className={styles.sectionHeader}>
-                <Heading as="h2" size="xl" variant="primary" weight="heavy">
+                <Heading as="h2" size="md" variant="primary" weight="heavy">
                   {templateSectionTitle}
                 </Heading>
               </Box>
               {!loading && templateSectionThemes.length === 0 ? (
-                <Text size="base" variant="muted">
+                <Text size="sm" variant="muted">
                   {templateSectionEmpty}
                 </Text>
               ) : null}

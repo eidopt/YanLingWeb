@@ -24,12 +24,7 @@ export interface PageSectionProps {
   tone?: 'default' | 'muted' | 'dark';
 }
 
-export function PageSection({
-  children,
-  className,
-  innerClassName,
-  tone = 'default',
-}: PageSectionProps) {
+export function PageSection({ children, className, innerClassName, tone = 'default' }: PageSectionProps) {
   return (
     <Box
       as="section"
@@ -40,11 +35,7 @@ export function PageSection({
         className,
       )}
     >
-      <Container
-        className={cx(styles.inner, innerClassName)}
-        gutters={false}
-        max="lg"
-      >
+      <Container className={cx(styles.inner, innerClassName)} gutters={false} max="lg">
         {children}
       </Container>
     </Box>
@@ -70,35 +61,23 @@ export function SectionHeader({
 }: SectionHeaderProps) {
   return (
     <Stack
-      className={cx(
-        styles.sectionHeader,
-        align === 'start' && styles.sectionHeaderAlignStart,
-        className,
-      )}
+      className={cx(styles.sectionHeader, align === 'start' && styles.sectionHeaderAlignStart, className)}
       gap="sm"
     >
       <Text
         as="span"
         size="xs"
-        tracking="wider"
-        transform="uppercase"
+        tracking="wide"
         variant={inverted ? 'inverse-faint' : 'accent'}
         weight="bold"
       >
         {eyebrow}
       </Text>
-      <Heading
-        size="hero"
-        variant={inverted ? 'inverse' : 'primary'}
-        weight="heavy"
-      >
+      <Heading size="hero" variant={inverted ? 'inverse' : 'primary'} weight="heavy">
         {title}
       </Heading>
       {subtitle && (
-        <Text
-          size="base"
-          variant={inverted ? 'inverse-muted' : 'muted'}
-        >
+        <Text size="base" variant={inverted ? 'inverse-muted' : 'muted'}>
           {subtitle}
         </Text>
       )}

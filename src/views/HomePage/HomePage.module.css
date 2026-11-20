@@ -1,47 +1,60 @@
 .page {
   min-height: 100%;
-  background:
-    radial-gradient(ellipse 60% 48% at 72% 12%, rgba(249, 115, 22, 0.05), transparent 62%), var(--app-gradient-hero),
-    var(--app-bg);
-  isolation: isolate;
-  scroll-behavior: smooth;
-}
-
-/* Parallax background decoration */
-.page::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse 50% 36% at 18% 72%, rgba(251, 146, 60, 0.035), transparent 68%),
-    radial-gradient(ellipse 44% 40% at 82% 48%, rgba(249, 115, 22, 0.04), transparent 62%),
-    radial-gradient(ellipse 38% 44% at 50% 28%, rgba(251, 146, 60, 0.025), transparent 64%);
-  animation: pageGlowShift 18s ease-in-out infinite;
-}
-
-@keyframes pageGlowShift {
-  0%,
-  100% {
-    opacity: 0.7;
-  }
-  33% {
-    opacity: 1;
-  }
-  66% {
-    opacity: 0.5;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .page::before {
-    animation: none !important;
-    opacity: 0.7;
-  }
+  background: var(--app-bg);
+  color: var(--app-text-primary);
 }
 
 .authGate {
   min-height: 100vh;
-  background: var(--app-gradient-hero), var(--app-bg);
+  background: var(--app-bg);
+}
+
+.footer {
+  border-top: 1px solid var(--app-border-subtle);
+  background: var(--app-bg);
+  padding: 40px 6%;
+}
+
+.footerInner {
+  max-width: 1160px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.footerBrand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footerMark {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--app-radius-sm);
+  background: var(--app-brand-gradient);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footerLinks {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.footerLink {
+  font-size: 13.5px;
+  color: var(--app-text-muted);
+  text-decoration: none;
+  transition: color var(--app-motion-fast) var(--app-motion-smooth);
+}
+
+.footerLink:hover {
+  color: var(--app-text-primary);
 }

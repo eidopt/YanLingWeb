@@ -13,17 +13,21 @@
     "profile-center": "个人中心",
     "social-feed": "社交动态",
     "utility-tools": "工具应用",
-    "content": "纸墨笔记台"
+    "content": "纸墨笔记台",
+    "coffee": "城市精品咖啡馆 · 封面故事点单",
+    "coffee-shop": "深烘手冲咖啡",
+    "finance": "暗夜投研终端"
   },
   "displayCategories": {
-    "commerce": "电商零售",
+    "commerce": "电商购物",
     "service": "本地服务",
     "general": "通用",
-    "content": "内容资讯"
+    "content": "内容资讯",
+    "finance": "金融理财"
   },
   "platformCategories": {
     "mini-program": "小程序",
-    "mobile-app": "移动应用"
+    "mobile-app": "移动端 App"
   },
   "functionalCategories": {
     "commerce": "电商购物",
@@ -56,6 +60,9 @@
     "community": "社区",
     "utility-tools": "工具应用",
     "utility": "实用",
-    "productivity": "效率"
+    "productivity": "效率",
+    "coffee": "城市精品咖啡馆 · 封面故事点单",
+    "coffee-shop": "深烘手冲咖啡",
+    "finance": "暗夜投研终端"
   }
 }

@@ -1,759 +1,457 @@
 .hero {
   position: relative;
-  min-height: min(var(--app-unit-112), 100vh);
-  display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(var(--app-unit-64), 1.08fr);
-  align-items: center;
-  gap: clamp(var(--app-unit-4), 5vw, var(--app-unit-10));
-  padding: calc(var(--app-unit-12) + var(--app-unit-7)) 7% var(--app-unit-10);
-  overflow: hidden;
-  background:
-    radial-gradient(ellipse 46% 42% at 82% 28%, rgba(251, 146, 60, 0.03), transparent 62%),
-    radial-gradient(ellipse 48% 44% at 42% 6%, rgba(251, 146, 60, 0.04), transparent 66%), var(--app-gradient-hero),
-    transparent;
+  padding: 68px 6% 76px;
+  background: var(--app-bg);
   color: var(--app-text-primary);
+  overflow: hidden;
 }
 
-.hero::after {
-  content: '';
-  position: absolute;
-  inset: auto 7% var(--app-unit-5);
-  height: var(--app-unit-0-125);
-  background: linear-gradient(90deg, transparent, var(--app-primary-alpha-02), transparent);
-}
-
-.heroMesh {
+.heroBackdrop {
   position: absolute;
   inset: 0;
-  background-image:
-    linear-gradient(var(--app-primary-alpha-05) var(--app-unit-0-125), transparent var(--app-unit-0-125)),
-    linear-gradient(90deg, var(--app-primary-alpha-05) var(--app-unit-0-125), transparent var(--app-unit-0-125));
-  background-size: var(--app-unit-5) var(--app-unit-5);
-  mask-image: linear-gradient(180deg, var(--app-color-black) 0%, var(--app-color-black) 68%, transparent 100%);
   pointer-events: none;
+  background:
+    radial-gradient(ellipse 65% 52% at 78% 18%, rgba(59, 91, 255, 0.1) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 42% at 22% 80%, rgba(255, 107, 74, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 35% at 55% 60%, rgba(16, 185, 129, 0.06) 0%, transparent 60%);
+  z-index: 0;
+}
+
+.heroContainer {
+  position: relative;
+  z-index: 1;
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 0.96fr) minmax(0, 1.04fr);
+  align-items: center;
+  gap: clamp(28px, 4vw, 52px);
 }
 
 .heroInner {
-  position: relative;
-  z-index: 2;
-  max-width: var(--app-unit-80);
-  animation: fadeUp 0.7s ease both;
+  max-width: 568px;
+  animation: heroSlideIn 0.5s var(--app-motion-smooth) both;
 }
 
 .heroEyebrow {
   display: inline-flex;
-  min-height: var(--app-unit-4);
   align-items: center;
-  gap: var(--app-unit-1);
-  margin-bottom: var(--app-unit-3);
-  padding: 0 var(--app-unit-1-75);
-  border: var(--app-unit-0-125) solid color-mix(in srgb, var(--app-color-primary) 18%, transparent);
+  gap: 8px;
+  margin-bottom: 18px;
+  padding: 6px 14px;
   border-radius: var(--app-radius-pill);
-  background: color-mix(in srgb, var(--app-color-accent) 12%, transparent);
-  box-shadow: 0 0 var(--app-unit-1) rgba(249, 115, 22, 0.16);
-  color: var(--app-color-accent);
-  font-size: var(--app-unit-1-5);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  background: var(--app-color-primary-bg);
+  border: 1px solid color-mix(in srgb, var(--app-color-primary) 22%, transparent);
+  color: var(--app-color-primary);
+  font-size: 12.5px;
+  font-weight: 600;
 }
 
-.eyebrowDot {
-  width: var(--app-unit-0-75);
-  height: var(--app-unit-0-75);
+.eyebrowPulse {
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: var(--app-color-accent);
-  box-shadow: 0 0 0 var(--app-unit-0-5) color-mix(in srgb, var(--app-color-accent) 16%, transparent);
+  background: var(--app-color-success);
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+  animation: livePulse 2s ease-in-out infinite;
 }
 
 .heroTitleLine {
-  animation: fadeUp 0.7s ease both;
+  display: block;
+  font-size: clamp(2.15rem, 3.5vw, 2.95rem);
+  line-height: 1.16;
 }
 
-.heroTitleLine:nth-child(2) {
-  animation-delay: 0.07s;
-}
-
-.heroTitleLine:nth-child(3) {
-  animation-delay: 0.14s;
-  background: linear-gradient(90deg, var(--app-color-primary), var(--app-color-accent));
+.heroTitleHighlight {
+  display: inline-block;
+  font-size: clamp(2.15rem, 3.5vw, 2.95rem);
+  line-height: 1.16;
+  background: var(--app-brand-gradient);
+  -webkit-background-clip: text;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
   color: transparent;
 }
 
 .heroSub {
-  max-width: 54ch;
-  margin: 0 0 var(--app-unit-4);
-  animation: fadeUp 0.7s 0.2s ease both;
+  max-width: 46ch;
+  margin: 0 0 28px;
 }
 
 .heroBtns {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--app-unit-1-5);
-  animation: fadeUp 0.7s 0.28s ease both;
+  gap: 12px;
 }
 
 .heroHint {
-  margin-top: var(--app-unit-2);
-  animation: fadeUp 0.7s 0.35s ease both;
+  margin-top: 16px;
 }
 
+/* ── Interactive Hero Studio Preview ── */
 .heroMockup {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: center;
-  gap: var(--app-unit-2);
-  animation: fadeUp 0.7s 0.1s ease both;
+  min-width: 0;
+  animation: heroFloatIn 0.6s 0.08s var(--app-motion-smooth) both;
 }
 
 .heroEditorMock {
-  position: relative;
-  width: min(100%, var(--app-unit-90));
-  padding: var(--app-unit-1-75);
-  border: var(--app-unit-0-125) solid var(--app-border);
-  border-radius: var(--app-unit-4);
-  background: linear-gradient(180deg, #211c18, #151210);
+  width: 100%;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-2xl);
+  background: var(--app-surface-1);
   box-shadow: var(--app-shadow-lg);
   overflow: hidden;
-  animation: editorMockFloat 6s ease-in-out infinite;
+  transition: border-color var(--app-motion-base) var(--app-motion-smooth);
 }
 
 .heroEditorTopbar {
-  position: relative;
-  z-index: 1;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--app-unit-2);
-  min-height: var(--app-unit-5);
-  padding: 0 var(--app-unit-0-5) var(--app-unit-1-5);
-  color: var(--app-text-primary);
-}
-
-.heroEditorTopbar strong {
-  min-width: 0;
-  overflow: hidden;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--app-surface-2);
+  border-bottom: 1px solid var(--app-border-subtle);
 }
 
 .heroEditorDots {
   display: flex;
-  gap: var(--app-unit-0-75);
+  gap: 6px;
 }
 
 .heroEditorDots span {
-  width: var(--app-unit-1);
-  height: var(--app-unit-1);
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  background: var(--app-border-strong);
 }
 
 .heroEditorDots span:nth-child(1) {
-  background: var(--app-color-danger);
+  background: #ff5f56;
 }
 .heroEditorDots span:nth-child(2) {
-  background: var(--app-color-warning);
+  background: #ffbd2e;
 }
 .heroEditorDots span:nth-child(3) {
-  background: var(--app-color-success);
+  background: #27c93f;
 }
 
-.heroEditorMode {
+.scenarioTabs {
   display: inline-flex;
-  gap: var(--app-unit-0-375);
-  padding: var(--app-unit-0-375);
-  border-radius: var(--app-radius-pill);
-  background: var(--app-surface-2);
-}
-
-.heroEditorMode span {
-  padding: var(--app-unit-0-5) var(--app-unit-1);
-  border-radius: var(--app-radius-pill);
-  color: var(--app-text-muted);
-  font-size: var(--app-unit-1-25);
-  font-weight: 800;
-}
-
-.heroEditorMode span:first-child {
-  background: color-mix(in srgb, var(--app-color-primary) 20%, transparent);
-  color: var(--app-color-accent);
-  box-shadow: var(--app-shadow-brand-sm);
-}
-
-.heroEditorWorkspace {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: var(--app-unit-16) minmax(0, 1fr) var(--app-unit-20);
-  gap: var(--app-unit-1-5);
-  min-height: var(--app-unit-50);
-}
-
-.heroEditorLibrary,
-.heroEditorInspector,
-.heroEditorToolbar,
-.heroCanvasPager {
-  border: var(--app-unit-0-125) solid var(--app-border);
-  border-radius: var(--app-unit-2-25);
+  justify-self: center;
+  gap: 4px;
+  padding: 3px;
+  border-radius: var(--app-radius-md);
   background: var(--app-surface-1);
-  box-shadow: none;
+  border: 1px solid var(--app-border-subtle);
 }
 
-.heroEditorLibrary,
-.heroEditorInspector {
-  min-width: 0;
-  padding: var(--app-unit-1-75);
+.scenarioTab,
+.scenarioTabActive {
+  border: 0;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color var(--app-motion-fast) var(--app-motion-smooth),
+    color var(--app-motion-fast) var(--app-motion-smooth);
 }
 
-.heroPanelTitle,
-.heroInspectorField span {
-  color: var(--app-text-faint);
-  font-size: var(--app-unit-1-5);
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.scenarioTab {
+  background: transparent;
+  color: var(--app-text-muted);
 }
 
-.heroLibraryCard {
-  display: grid;
-  gap: var(--app-unit-0-75);
-  margin-top: var(--app-unit-1-5);
-  padding: var(--app-unit-1-25);
-  border: var(--app-unit-0-125) solid var(--app-border-subtle);
-  border-radius: var(--app-unit-1-75);
-  background: var(--app-surface-2);
-  animation: libraryPulse 5.4s ease-in-out infinite;
-}
-
-.heroLibraryCard:nth-of-type(2) {
-  animation-delay: 0.35s;
-}
-.heroLibraryCard:nth-of-type(3) {
-  animation-delay: 0.7s;
-}
-.heroLibraryCard:nth-of-type(4) {
-  animation-delay: 1.05s;
-}
-
-.heroLibraryCard span {
-  height: var(--app-unit-5);
-  border-radius: var(--app-unit-1-25);
-  background:
-    linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--app-color-accent) 18%, transparent),
-      color-mix(in srgb, var(--app-color-primary) 14%, transparent)
-    ),
-    var(--app-surface-1);
-}
-
-.heroLibraryCard strong,
-.heroInspectorField strong,
-.heroPageName {
+.scenarioTab:hover {
   color: var(--app-text-primary);
 }
 
-.heroEditorCenter {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: var(--app-unit-1-5);
-  min-width: 0;
+.scenarioTabActive {
+  background: var(--scenario-accent, var(--app-color-primary));
+  color: #ffffff;
 }
 
-.heroEditorToolbar {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: var(--app-unit-1-5);
-  min-height: var(--app-unit-5);
-  padding: var(--app-unit-0-75) var(--app-unit-1-25);
-  border-radius: var(--app-unit-2);
-}
-
-.heroEditorToolbar > span {
-  color: var(--app-color-danger);
-  font-size: var(--app-unit-1-5);
-  font-weight: 800;
-}
-
-.heroPageName {
-  font-size: var(--app-unit-1-75);
-  font-weight: 900;
-  text-align: center;
-}
-
-.heroDeviceSwitch {
-  position: relative;
+.heroLivePill {
   display: inline-flex;
-  gap: var(--app-unit-0-5);
-  padding: var(--app-unit-0-5);
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
   border-radius: var(--app-radius-pill);
-  background: var(--app-surface-3);
+  background: var(--app-color-success-bg);
+  color: var(--app-color-success);
+  font-size: 11px;
+  font-weight: 600;
 }
 
-.heroDeviceSwitch::before {
-  content: '';
-  position: absolute;
-  top: var(--app-unit-0-5);
-  left: var(--app-unit-0-5);
-  width: var(--app-unit-2-5);
-  height: var(--app-unit-2-5);
-  border-radius: var(--app-radius-pill);
-  background: var(--app-color-primary);
-  animation: switchDevice 4.8s ease-in-out infinite;
+.heroLiveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--app-color-success);
+  animation: livePulse 2s ease-in-out infinite;
 }
 
-.heroDeviceSwitch span {
-  position: relative;
-  z-index: 1;
-  width: var(--app-unit-2-5);
-  height: var(--app-unit-2-5);
-  border-radius: var(--app-radius-pill);
+.heroEditorWorkspace {
+  display: grid;
+  grid-template-columns: 126px minmax(0, 1fr) 174px;
+  min-height: 378px;
+  background: var(--app-editor-bg);
 }
 
-.heroCanvasStage {
+.heroEditorLibrary,
+.heroEditorInspector {
+  padding: 12px;
+  background: var(--app-surface-1);
   display: flex;
-  min-height: var(--app-unit-36);
-  align-items: flex-start;
-  justify-content: center;
-  padding: var(--app-unit-1-25) var(--app-unit-0-375);
+  flex-direction: column;
 }
 
-.heroCanvasFrame {
-  position: relative;
-  width: min(100%, var(--app-unit-36));
-  padding: var(--app-unit-1-5);
-  border-radius: var(--app-unit-2-5);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.035));
-  box-shadow:
-    0 var(--app-unit-2-5) var(--app-unit-6) var(--app-primary-alpha-02),
-    inset 0 0 0 var(--app-unit-0-125) var(--app-border-subtle);
-}
-
-.heroGeneratedPage {
-  display: grid;
-  gap: var(--app-unit-1-25);
-  overflow: hidden;
-  border-radius: var(--app-unit-2);
-  background: rgba(21, 18, 16, 0.82);
-  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--app-border-subtle);
-}
-
-.heroGeneratedBlock {
-  display: grid;
-  align-content: end;
-  gap: var(--app-unit-0-75);
-  min-height: var(--app-unit-12);
-  padding: var(--app-unit-1-5);
-  background: linear-gradient(135deg, var(--app-color-primary), var(--app-color-accent)), var(--app-color-primary);
-  animation: generatedHeroMorph 5.8s ease-in-out infinite;
-}
-
-.heroGeneratedBlock span {
-  height: var(--app-unit-1);
-  border-radius: var(--app-radius-pill);
-  background: var(--app-white-alpha-08);
-}
-
-.heroGeneratedBlock span:first-child {
-  width: 58%;
-}
-.heroGeneratedBlock span:last-child {
-  width: 78%;
-  opacity: 0.58;
-}
-
-.heroGeneratedCards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--app-unit-1);
-  padding: 0 var(--app-unit-1-25);
-}
-
-.heroGeneratedCards span {
-  min-height: var(--app-unit-7);
-  border-radius: var(--app-unit-1-5);
-  background: var(--app-surface-2);
-  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--app-border-subtle);
-  animation: cardBuild 5.8s ease-in-out infinite;
-}
-
-.heroGeneratedCards span:nth-child(2) {
-  animation-name: cardReflow;
-  animation-delay: 0.18s;
-}
-
-.heroGeneratedCards span:nth-child(3) {
-  animation-delay: 0.36s;
-}
-
-.heroGeneratedCta {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--app-unit-1);
-  padding: 0 var(--app-unit-1-25) var(--app-unit-1-5);
-  animation: ctaReflow 5.8s ease-in-out infinite;
-}
-
-.heroGeneratedCta span,
-.heroGeneratedCta strong {
-  height: var(--app-unit-3-5);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--app-radius-pill);
-}
-
-.heroGeneratedCta span {
-  flex: 1;
-  background: var(--app-surface-2);
-  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--app-border-subtle);
-}
-
-.heroGeneratedCta strong,
-.heroCanvasPager strong,
-.heroEditCursor,
-.heroDraggedComponent,
-.heroChatHeader span,
-.heroTypingDots span,
-.heroChatBubble::after {
-  background: var(--app-color-primary);
-}
-
-.heroGeneratedCta strong {
-  width: var(--app-unit-9);
-  box-shadow: var(--app-shadow-brand-sm);
-}
-
-.heroEditCursor {
-  position: absolute;
-  top: var(--app-unit-6);
-  left: var(--app-unit-3);
-  z-index: 3;
-  display: inline-flex;
-  width: var(--app-unit-4);
-  height: var(--app-unit-4);
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--app-radius-pill);
-  color: var(--app-text-inverse);
-  font-size: var(--app-unit-1-25);
-  font-weight: 900;
-  box-shadow:
-    0 var(--app-unit-1-5) var(--app-unit-3-5) var(--app-primary-alpha-02),
-    0 0 0 var(--app-unit-0-5) color-mix(in srgb, var(--app-color-primary) 14%, transparent);
-  animation: aiCursorEdit 5.8s ease-in-out infinite;
-}
-
-.heroDropIndicator {
-  position: absolute;
-  left: var(--app-unit-2);
-  right: var(--app-unit-2);
-  top: var(--app-unit-14);
-  z-index: 2;
-  height: var(--app-unit-0-5);
-  border-radius: var(--app-radius-pill);
-  background: var(--app-color-accent);
-  box-shadow: 0 0 0 var(--app-unit-0-25) color-mix(in srgb, var(--app-color-accent) 22%, transparent);
-  animation: dropIndicatorMove 5.8s ease-in-out infinite;
-}
-
-.heroDraggedComponent {
-  position: absolute;
-  top: var(--app-unit-2-5);
-  left: calc(var(--app-unit-7) * -1);
-  z-index: 4;
-  display: grid;
-  gap: var(--app-unit-0-75);
-  width: var(--app-unit-10);
-  padding: var(--app-unit-1);
-  border: var(--app-unit-0-125) solid color-mix(in srgb, var(--app-color-primary) 32%, transparent);
-  border-radius: var(--app-unit-1-5);
-  color: var(--app-text-inverse);
-  box-shadow: 0 var(--app-unit-2) var(--app-unit-5) var(--app-primary-alpha-02);
-  animation: dragComponentIntoCanvas 5.8s ease-in-out infinite;
-}
-
-.heroDraggedComponent span {
-  height: var(--app-unit-3-5);
-  border-radius: var(--app-unit-1);
-  background: var(--app-white-alpha-02);
-}
-
-.heroDraggedComponent strong {
-  overflow: hidden;
-  color: var(--app-text-inverse);
-  font-size: var(--app-unit-1-25);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.heroCanvasPager {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center;
-  min-height: var(--app-unit-5);
-  padding: var(--app-unit-0-75) var(--app-unit-1-25);
-  border-radius: var(--app-unit-2);
-}
-
-.heroCanvasPager div {
-  display: flex;
-  gap: var(--app-unit-0-75);
-  justify-content: center;
-}
-
-.heroCanvasPager div span {
-  width: var(--app-unit-1);
-  height: var(--app-unit-1);
-  border-radius: var(--app-radius-pill);
-  background: var(--app-neutral-300);
-}
-
-.heroCanvasPager div span:first-child {
-  background: var(--app-color-primary);
-  transform: scale(1.18);
-}
-
-.heroCanvasPager strong {
-  display: inline-flex;
-  width: var(--app-unit-4);
-  height: var(--app-unit-4);
-  align-items: center;
-  justify-content: center;
-  justify-self: end;
-  border-radius: var(--app-radius-pill);
-  color: var(--app-text-inverse);
+.heroEditorLibrary {
+  border-right: 1px solid var(--app-border-subtle);
 }
 
 .heroEditorInspector {
+  border-left: 1px solid var(--app-border-subtle);
+  gap: 8px;
+}
+
+.heroPanelTitle {
+  color: var(--app-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.heroLibraryList {
+  display: grid;
+  gap: 4px;
+}
+
+.heroLibraryItem {
   display: flex;
-  flex-direction: column;
-  gap: var(--app-unit-1-5);
+  align-items: center;
+  gap: 7px;
+  padding: 6px 8px;
+  border-radius: var(--app-radius-sm);
+  border: 1px solid transparent;
+}
+
+.heroLibraryItem[data-active='true'] {
+  background: var(--app-color-primary-bg);
+  border-color: color-mix(in srgb, var(--app-color-primary) 24%, transparent);
+}
+
+.heroLibraryDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--app-text-faint);
+  flex-shrink: 0;
+}
+
+.heroLibraryItem[data-active='true'] .heroLibraryDot {
+  background: var(--scenario-accent, var(--app-color-primary));
+}
+
+.heroStatusChip {
+  margin-top: auto;
+  padding: 7px 8px;
+  border-radius: var(--app-radius-sm);
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-border-subtle);
+  color: var(--app-text-secondary);
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.heroEditorCenter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 14px;
+}
+
+.heroPhoneFrame {
+  width: 224px;
+  padding: 12px;
+  border-radius: 18px;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface-1);
+  box-shadow: var(--app-shadow-md);
+  display: grid;
+  gap: 10px;
+  animation: phoneMorph 0.34s var(--app-motion-spring) both;
+}
+
+.heroPhoneTopbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--app-text-muted);
+}
+
+.heroPhonePill {
+  width: 34px;
+  height: 6px;
+  border-radius: 99px;
+  background: var(--app-surface-3);
+}
+
+.heroPhoneBanner {
+  padding: 14px 12px;
+  border-radius: 12px;
+  color: #ffffff;
+  display: grid;
+  gap: 5px;
+}
+
+.heroPhoneTag {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.74);
+  font-weight: 600;
+}
+
+.heroPhoneHeadline {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.heroPhoneSub {
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.heroPhoneBtn {
+  margin-top: 4px;
+  width: fit-content;
+  padding: 5px 11px;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.heroPhoneSectionLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--app-text-primary);
+}
+
+.heroPhoneCards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.heroPhoneCard {
+  display: grid;
+  gap: 5px;
+  padding: 6px;
+  border-radius: 9px;
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-border-subtle);
+  animation: cardPop 0.36s var(--app-motion-spring) both;
+}
+
+.heroPhoneThumb {
+  height: 28px;
+  border-radius: 6px;
+}
+
+.heroPhoneCardTitle {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--app-text-secondary);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .heroInspectorField {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--app-unit-1-25);
-  padding: var(--app-unit-1) var(--app-unit-1);
-  border: var(--app-unit-0-125) solid var(--app-border-subtle);
-  border-radius: var(--app-unit-1-5);
+  gap: 8px;
+  padding: 7px 9px;
+  border-radius: var(--app-radius-sm);
   background: var(--app-surface-2);
-  animation: inspectorChange 5.8s ease-in-out infinite;
-}
-
-.heroInspectorField:nth-of-type(2) {
-  animation-delay: 0.2s;
+  border: 1px solid var(--app-border-subtle);
 }
 
 .heroInspectorField span {
-  font-size: var(--app-unit-1-25);
-}
-
-.heroInspectorField strong {
-  font-size: var(--app-unit-1-5);
-  white-space: nowrap;
-}
-
-.heroEditorChat {
-  display: grid;
-  gap: var(--app-unit-1);
-  margin-top: auto;
-  padding: var(--app-unit-1-5);
-  border: var(--app-unit-0-125) solid color-mix(in srgb, var(--app-color-primary) 20%, transparent);
-  border-radius: var(--app-unit-2);
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--app-color-primary) 8%, transparent),
-      color-mix(in srgb, var(--app-color-accent) 7%, transparent)
-    ),
-    var(--app-surface-1);
-  box-shadow: var(--app-shadow-sm);
-  animation: chatDockPulse 5.8s ease-in-out infinite;
-}
-
-.heroChatHeader {
-  display: flex;
-  align-items: center;
-  gap: var(--app-unit-0-75);
-  color: var(--app-color-primary);
-  font-size: var(--app-unit-1-25);
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.heroChatHeader span {
-  display: inline-flex;
-  width: var(--app-unit-2-5);
-  height: var(--app-unit-2-5);
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  color: var(--app-text-inverse);
-  font-size: var(--app-unit-1-5);
-}
-
-.heroChatBubble {
-  position: relative;
-  padding: var(--app-unit-1-25) var(--app-unit-1-25);
-  border: var(--app-unit-0-125) solid var(--app-border-subtle);
-  border-radius: var(--app-unit-1-5) var(--app-unit-1-5) var(--app-unit-1-5) var(--app-unit-0-5);
-  background: var(--app-surface-2);
-}
-
-.heroChatBubble::after {
-  content: '';
-  display: inline-block;
-  width: var(--app-unit-0-75);
-  height: var(--app-unit-1-75);
-  margin-left: var(--app-unit-0-375);
-  border-radius: var(--app-radius-pill);
-  vertical-align: calc(var(--app-unit-0-375) * -1);
-  animation: typingCaret 820ms steps(1) infinite;
-}
-
-.heroEditorChat p {
-  display: -webkit-box;
-  overflow: hidden;
-  color: var(--app-text-secondary);
-  font-size: var(--app-unit-1-5);
-  font-weight: 700;
-  line-height: 1.45;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-}
-
-.heroChatInput {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--app-unit-1);
-  min-height: var(--app-unit-4);
-  padding: var(--app-unit-0-5) var(--app-unit-0-75) var(--app-unit-0-5) var(--app-unit-1-25);
-  border: var(--app-unit-0-125) solid var(--app-border-subtle);
-  border-radius: var(--app-radius-pill);
-  background: var(--app-surface-2);
-}
-
-.heroChatInput > span {
-  flex: 1;
-  height: var(--app-unit-0-75);
-  border-radius: var(--app-radius-pill);
-  background: linear-gradient(90deg, var(--app-neutral-300), var(--app-neutral-100));
-  animation: inputLineTyping 2.4s ease-in-out infinite;
-}
-
-.heroTypingDots {
-  display: inline-flex;
-  gap: var(--app-unit-0-5);
-}
-
-.heroTypingDots span {
-  width: var(--app-unit-0-75);
-  height: var(--app-unit-0-75);
-  border-radius: 50%;
-  animation: typingDot 1.2s ease-in-out infinite;
-}
-
-.heroTypingDots span:nth-child(2) {
-  animation-delay: 0.16s;
-}
-.heroTypingDots span:nth-child(3) {
-  animation-delay: 0.32s;
-}
-
-.heroStatusDock {
-  display: grid;
-  width: min(100%, var(--app-unit-80));
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--app-unit-1-25);
-  padding: var(--app-unit-1);
-  border: var(--app-unit-0-125) solid var(--app-border);
-  border-radius: var(--app-unit-2-5);
-  background: rgba(255, 255, 255, 0.06);
-  box-shadow: 0 var(--app-unit-2) var(--app-unit-5) var(--app-ink-alpha-12);
-}
-
-.heroStatusItem {
-  position: relative;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: var(--app-unit-1);
-  min-height: var(--app-unit-6);
-  padding: var(--app-unit-1) var(--app-unit-1-25);
-  border-radius: var(--app-unit-1-75);
-  background: var(--app-surface-1);
-  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--app-border-subtle);
-  overflow: hidden;
-}
-
-.heroStatusItem::before {
-  content: '';
-  position: absolute;
-  inset: auto 0 0;
-  height: var(--app-unit-0-25);
-  background: linear-gradient(90deg, var(--app-color-accent), var(--app-color-primary));
-  transform: scaleX(0.32);
-  transform-origin: left;
-  animation: statusProgress 5.8s ease-in-out infinite;
-}
-
-.heroStatusItem:nth-child(2)::before {
-  animation-delay: 0.55s;
-}
-.heroStatusItem:nth-child(3)::before {
-  animation-delay: 1.1s;
-}
-
-.heroStatusItem > span {
-  position: relative;
-  width: var(--app-unit-1-25);
-  height: var(--app-unit-1-25);
-  border-radius: 50%;
-  background: var(--app-color-success);
-  box-shadow: 0 0 0 var(--app-unit-0-5) color-mix(in srgb, var(--app-color-success) 14%, transparent);
-  animation: statusDot 1.8s ease-in-out infinite;
-}
-
-.heroStatusItem:nth-child(2) > span {
-  animation-delay: 0.28s;
-}
-.heroStatusItem:nth-child(3) > span {
-  animation-delay: 0.56s;
-}
-
-.heroStatusItem strong,
-.heroStatusItem small {
-  display: block;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.heroStatusItem strong {
-  color: var(--app-text-primary);
-}
-
-.heroStatusItem small {
+  font-size: 11px;
   color: var(--app-text-muted);
 }
 
-@keyframes fadeUp {
+.colorTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--app-font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--app-text-primary);
+}
+
+.colorTag i {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 99px;
+}
+
+.heroEditorChat {
+  margin-top: auto;
+  padding: 10px;
+  border-radius: var(--app-radius-md);
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-border-subtle);
+  display: grid;
+  gap: 7px;
+  animation: promptFade 0.3s ease both;
+}
+
+.heroChatHeader {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--scenario-accent, var(--app-color-primary));
+}
+
+.heroChatBubble {
+  padding: 8px 9px;
+  border-radius: var(--app-radius-sm);
+  background: var(--app-surface-1);
+  border: 1px solid var(--app-border-subtle);
+}
+
+.heroChatBubble p {
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+@keyframes livePulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45);
+  }
+  60% {
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+}
+
+@keyframes heroSlideIn {
   from {
     opacity: 0;
-    transform: translateY(var(--app-unit-3));
+    transform: translateY(14px);
   }
   to {
     opacity: 1;
@@ -761,251 +459,62 @@
   }
 }
 
-@keyframes editorMockFloat {
-  0%,
-  100% {
-    transform: translateY(0);
+@keyframes heroFloatIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
   }
-  50% {
-    transform: translateY(calc(var(--app-unit-1) * -1));
-  }
-}
-
-@keyframes libraryPulse {
-  0%,
-  100% {
-    border-color: var(--app-border-subtle);
-    transform: translateY(0);
-  }
-  46%,
-  56% {
-    border-color: color-mix(in srgb, var(--app-color-primary) 30%, transparent);
-    transform: translateY(calc(var(--app-unit-0-25) * -1));
-  }
-}
-
-@keyframes switchDevice {
-  0%,
-  42%,
-  100% {
-    transform: translateX(0);
-  }
-  55%,
-  78% {
-    transform: translateX(var(--app-unit-3));
-  }
-}
-
-@keyframes generatedHeroMorph {
-  0%,
-  100% {
-    min-height: var(--app-unit-12);
-  }
-  50% {
-    min-height: var(--app-unit-14);
-  }
-}
-
-@keyframes cardBuild {
-  0%,
-  22% {
-    opacity: 0.42;
-    transform: translateY(var(--app-unit-0-75)) scale(0.96);
-  }
-  42%,
-  100% {
+  to {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
 }
 
-@keyframes cardReflow {
-  0%,
-  24% {
-    opacity: 0.52;
-    transform: translateY(var(--app-unit-0-75)) scale(0.96);
+@keyframes phoneMorph {
+  from {
+    opacity: 0.72;
+    transform: scale(0.96) translateY(4px);
   }
-  46%,
-  62% {
+  to {
     opacity: 1;
-    transform: translateY(calc(var(--app-unit-1) * -1)) scale(1.04);
+    transform: scale(1) translateY(0);
   }
-  80%,
-  100% {
+}
+
+@keyframes cardPop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.94);
+  }
+  to {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
 }
 
-@keyframes ctaReflow {
-  0%,
-  38% {
-    transform: translateY(0);
+@keyframes promptFade {
+  from {
+    opacity: 0.4;
   }
-  56%,
-  72% {
-    transform: translateY(var(--app-unit-1));
-  }
-  88%,
-  100% {
-    transform: translateY(0);
-  }
-}
-
-@keyframes dragComponentIntoCanvas {
-  0%,
-  18% {
-    opacity: 0;
-    transform: translate3d(calc(var(--app-unit-2-5) * -1), var(--app-unit-0-75), 0) scale(0.88);
-  }
-  28% {
+  to {
     opacity: 1;
-    transform: translate3d(var(--app-unit-2-5), var(--app-unit-3), 0) scale(0.96);
-  }
-  48%,
-  62% {
-    opacity: 1;
-    transform: translate3d(var(--app-unit-16), var(--app-unit-16), 0) scale(1);
-  }
-  80%,
-  100% {
-    opacity: 0;
-    transform: translate3d(var(--app-unit-16), var(--app-unit-16), 0) scale(0.94);
-  }
-}
-
-@keyframes aiCursorEdit {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
-  28% {
-    transform: translate3d(var(--app-unit-20), var(--app-unit-0-75), 0);
-  }
-  58% {
-    transform: translate3d(var(--app-unit-20), var(--app-unit-14), 0);
-  }
-  78% {
-    transform: translate3d(var(--app-unit-6), var(--app-unit-20), 0);
-  }
-}
-
-@keyframes dropIndicatorMove {
-  0%,
-  100% {
-    opacity: 0;
-    transform: translateY(calc(var(--app-unit-0-75) * -1));
-  }
-  32%,
-  62% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  78% {
-    opacity: 0;
-    transform: translateY(var(--app-unit-8));
-  }
-}
-
-@keyframes typingDot {
-  0%,
-  100% {
-    opacity: 0.28;
-    transform: translateY(0);
-  }
-  50% {
-    opacity: 1;
-    transform: translateY(calc(var(--app-unit-0-375) * -1));
-  }
-}
-
-@keyframes typingCaret {
-  0%,
-  45% {
-    opacity: 1;
-  }
-  46%,
-  100% {
-    opacity: 0;
-  }
-}
-
-@keyframes inputLineTyping {
-  0%,
-  100% {
-    transform: scaleX(0.38);
-    transform-origin: left;
-  }
-  52% {
-    transform: scaleX(1);
-    transform-origin: left;
-  }
-}
-
-@keyframes inspectorChange {
-  0%,
-  100% {
-    background: var(--app-surface-2);
-    transform: translateX(0);
-  }
-  44%,
-  56% {
-    background: color-mix(in srgb, var(--app-color-primary) 8%, var(--app-surface-1));
-    transform: translateX(var(--app-unit-0-25));
-  }
-}
-
-@keyframes chatDockPulse {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(calc(var(--app-unit-0-375) * -1));
-  }
-}
-
-@keyframes statusProgress {
-  0%,
-  100% {
-    transform: scaleX(0.32);
-    opacity: 0.46;
-  }
-  50% {
-    transform: scaleX(0.86);
-    opacity: 1;
-  }
-}
-
-@keyframes statusDot {
-  0%,
-  100% {
-    transform: scale(0.92);
-  }
-  50% {
-    transform: scale(1.12);
   }
 }
 
 @media (--app-viewport-desktop) {
-  .hero {
+  .heroContainer {
     grid-template-columns: 1fr;
-    min-height: auto;
+    gap: 40px;
   }
 
   .heroInner {
-    max-width: var(--app-unit-90);
-  }
-
-  .heroMockup {
-    max-width: var(--app-unit-90);
-    margin-inline: auto;
+    max-width: 620px;
   }
 }
 
-@media (--app-viewport-laptop) {
+@media (--app-viewport-tablet) {
   .hero {
-    padding: var(--app-unit-12) 6% var(--app-unit-8);
+    padding: 48px 5% 56px;
   }
 
   .heroEditorWorkspace {
@@ -1018,46 +527,14 @@
   }
 }
 
-@media (--app-viewport-phone) {
-  .hero {
-    padding: var(--app-unit-10) var(--app-unit-2) var(--app-unit-6);
-  }
-
-  .heroEditorMock,
-  .heroStatusDock {
-    border-radius: var(--app-radius-xl);
-  }
-
-  .heroStatusDock {
-    grid-template-columns: 1fr;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .heroInner,
-  .heroTitleLine,
-  .heroSub,
-  .heroBtns,
-  .heroHint,
   .heroMockup,
-  .heroStatusItem::before,
-  .heroStatusItem > span,
-  .heroEditorMock,
-  .heroLibraryCard,
-  .heroDeviceSwitch::before,
-  .heroGeneratedBlock,
-  .heroGeneratedCards span,
-  .heroDraggedComponent,
-  .heroEditCursor,
-  .heroDropIndicator,
-  .heroGeneratedCta,
-  .heroTypingDots span,
-  .heroChatBubble::after,
-  .heroChatInput > span,
-  .heroInspectorField,
-  .heroEditorChat {
+  .heroPhoneFrame,
+  .heroPhoneCard,
+  .heroEditorChat,
+  .eyebrowPulse,
+  .heroLiveDot {
     animation: none !important;
-    transition: none !important;
-    transform: none !important;
   }
 }

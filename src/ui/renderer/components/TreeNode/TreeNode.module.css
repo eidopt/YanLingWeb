@@ -28,7 +28,7 @@
 }
 
 .treeLabelBranch:hover {
-  background: var(--tpl-surface-1);
+  background: var(--panel-bg, var(--surface-muted, var(--tpl-surface-1)));
 }
 
 .treeArrow {

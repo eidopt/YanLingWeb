@@ -2,16 +2,8 @@ import { floatingChatContent as c } from './FloatingChat.content';
 import styles from './PageComponents.module.css';
 import { cx } from 'base/classname';
 import type { KeyboardEvent, RefObject } from 'react';
-import {
-  Box,
-  Button,
-  Inline,
-  Input,
-  Label,
-  Stack,
-  Text,
-  VisuallyHidden,
-} from 'ui/base';
+import { Box, Button, Inline, Input, Label, Stack, Text, VisuallyHidden } from 'ui/base';
+import { ChatBubbleIcon, CloseIcon } from 'ui/icons';
 
 export interface FloatingChatMessage {
   id?: string;
@@ -65,31 +57,26 @@ export function FloatingChat({
   return (
     <Stack className={styles.floatingChat}>
       {open && (
-        <Stack
-          id={chatPanelId}
-          className={styles.chatPanel}
-          role="dialog"
-          aria-label={panelTitle}
-        >
+        <Stack id={chatPanelId} className={styles.chatPanel} role="dialog" aria-label={panelTitle}>
           <Inline className={styles.chatHeader} justify="space-between">
             <Inline className={styles.chatMeta} gap="u1-4">
-              <Box className={styles.chatAvatar}>✦</Box>
-              <Stack gap="xs">
-                <Text as="span" size="sm" variant="inverse" weight="bold">{panelTitle}</Text>
+              <Box className={styles.chatAvatar}>
+                <ChatBubbleIcon width={16} height={16} />
+              </Box>
+              <Stack gap="0">
+                <Text as="span" size="sm" variant="primary" weight="bold">
+                  {panelTitle}
+                </Text>
                 <Inline className={styles.chatStatus} gap="u0-7">
                   <Box as="span" className={styles.chatDot} />
-                  <Text as="span" size="xs" variant="inverse-muted">{statusLabel}</Text>
+                  <Text as="span" size="xs" variant="muted">
+                    {statusLabel}
+                  </Text>
                 </Inline>
               </Stack>
             </Inline>
-            <Button
-              type="button"
-              onClick={onToggle}
-              aria-label={closeLabel}
-              size="icon-md"
-              variant="icon-inverse"
-            >
-              ✕
+            <Button type="button" onClick={onToggle} aria-label={closeLabel} size="icon-sm" variant="icon">
+              <CloseIcon width={15} height={15} />
             </Button>
           </Inline>
           <Stack className={styles.chatMessages} gap="u1-3" aria-live="polite">
@@ -102,11 +89,7 @@ export function FloatingChat({
                   message.role === 'user' ? styles.messageUser : styles.messageAssistant,
                 )}
               >
-                <Text
-                  as="span"
-                  size="sm"
-                  variant={message.role === 'user' ? 'inverse' : 'secondary'}
-                >
+                <Text as="span" size="sm" variant={message.role === 'user' ? 'inverse' : 'primary'}>
                   {message.text}
                 </Text>
               </Box>
@@ -115,9 +98,7 @@ export function FloatingChat({
           </Stack>
           <Inline className={styles.chatInputRow} gap="u0-9" wrap={false}>
             <Label className={styles.srOnly} htmlFor={chatInputId}>
-              <VisuallyHidden>
-              {inputLabel}
-              </VisuallyHidden>
+              <VisuallyHidden>{inputLabel}</VisuallyHidden>
             </Label>
             <Input
               id={chatInputId}
@@ -129,13 +110,7 @@ export function FloatingChat({
               onChange={(event) => onInputChange(event.target.value)}
               onKeyDown={handleKeyDown}
             />
-            <Button
-              type="button"
-              onClick={onSend}
-              disabled={!canSend}
-              size="sm"
-              variant="primary"
-            >
+            <Button type="button" onClick={onSend} disabled={!canSend} size="sm" variant="primary">
               {sendLabel}
             </Button>
           </Inline>
@@ -151,7 +126,7 @@ export function FloatingChat({
         size="fab"
         variant="floating"
       >
-        {open ? '✕' : '✦'}
+        {open ? <CloseIcon width={18} height={18} /> : <ChatBubbleIcon width={20} height={20} />}
       </Button>
     </Stack>
   );

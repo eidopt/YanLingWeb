@@ -12,6 +12,7 @@ export {
   buildEditorStablePrefixContext,
   buildEditorTrimmedVolatileContext,
   buildEditorVolatileContext,
+  buildNodeCandidateSet,
   summarizeTemplateAgentKnowledge,
 } from '../context/editorContext';
 export {
@@ -34,6 +35,7 @@ export {
   TEMPLATE_PIPELINE_SHARED_SPEC,
   type VerifierLens,
 } from '../prompts/templates';
+export { REQUIRED_THEME_CONTRACT_KEYS } from '../prompts/templates/designPrinciples';
 export {
   formatUiDesignSkillContextForPrompt,
   getUiDesignSkills,

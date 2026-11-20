@@ -47,6 +47,102 @@ export interface PregenerateResult {
 const MATCH_THRESHOLD = 0.35;
 /** 同 role（如都为 product）的小幅加分，仅影响排序、不绕过阈值。 */
 const ROLE_BOOST = 0.05;
+const INDEX_CACHE_TTL_MS = 30_000;
+const LEXICAL_MATCH_THRESHOLD = 0.55;
+
+const STOP_TOKENS = new Set([
+  'image',
+  'photo',
+  'photography',
+  'picture',
+  'illustration',
+  'lighting',
+  'light',
+  'background',
+  'surface',
+  'table',
+  'wooden',
+  'natural',
+  'warm',
+  'soft',
+  'clean',
+  'modern',
+  'style',
+  'view',
+  'shot',
+  'close',
+  'closeup',
+  'high',
+  'quality',
+  'card',
+  'banner',
+  'hero',
+  'cover',
+  'icon',
+  'product',
+  'display',
+  'scene',
+  'with',
+  'from',
+  'into',
+  'over',
+  'under',
+  'this',
+  'that',
+  'and',
+  'for',
+  'the',
+  '图片',
+  '封面',
+  '大图',
+  '特写',
+  '展示',
+  '背景',
+  '中的',
+  '上的',
+  '一杯',
+  '一个',
+  '一张',
+]);
+
+function extractSearchTokens(text: string): string[] {
+  const lower = text.toLowerCase();
+  const latin = lower
+    .split(/[^a-z0-9]+/)
+    .map((t) => t.trim())
+    .filter((t) => t.length >= 3 && !STOP_TOKENS.has(t));
+  const cjkSegments = lower.match(/[\u4e00-\u9fff]{2,}/g) ?? [];
+  const bigrams: string[] = [];
+  for (const seg of cjkSegments) {
+    for (let i = 0; i < seg.length - 1; i += 1) {
+      const bg = seg.slice(i, i + 2);
+      if (!STOP_TOKENS.has(bg)) {
+        bigrams.push(bg);
+      }
+    }
+  }
+  return [...new Set([...latin, ...bigrams])];
+}
+
+function normalizeRoleGroup(role: string | undefined): string {
+  if (!role) {
+    return 'other';
+  }
+  const lower = role.toLowerCase();
+  if (lower === 'hero' || lower === 'banner' || lower === 'cover' || lower === 'illustration') {
+    return 'hero';
+  }
+  if (lower === 'card' || lower === 'card-cover' || lower === 'product') {
+    return 'card';
+  }
+  if (lower === 'icon' || lower === 'category-icon' || lower === 'decoration') {
+    return 'icon';
+  }
+  if (lower === 'avatar') {
+    return 'avatar';
+  }
+  return lower;
+}
 
 /**
  * 预生成图片素材库 + 按 embedding 语义索引复用。
@@ -60,12 +156,50 @@ const ROLE_BOOST = 0.05;
 @Injectable()
 export class AssetLibraryService implements OnModuleInit {
   private readonly logger = new Logger(AssetLibraryService.name);
+  private cachedEntries: AssetLibraryImage[] | null = null;
+  private cacheExpiresAt = 0;
+  private cacheGeneration = 0;
+  private indexLoadPromise: Promise<AssetLibraryImage[]> | null = null;
+  private embeddingUnavailable = false;
 
   constructor(
     @InjectRepository(AssetLibraryImage)
     private readonly repo: Repository<AssetLibraryImage>,
     private readonly config: ConfigService,
   ) {}
+
+  private invalidateIndexCache(): void {
+    this.cacheGeneration += 1;
+    this.cachedEntries = null;
+    this.cacheExpiresAt = 0;
+    this.indexLoadPromise = null;
+  }
+
+  private async loadIndexedEntries(): Promise<AssetLibraryImage[]> {
+    const now = Date.now();
+    if (this.cachedEntries !== null && now < this.cacheExpiresAt) {
+      return this.cachedEntries;
+    }
+    if (!this.indexLoadPromise) {
+      const generation = this.cacheGeneration;
+      const pending = this.repo
+        .find()
+        .then((rows) => {
+          if (generation === this.cacheGeneration) {
+            this.cachedEntries = rows;
+            this.cacheExpiresAt = Date.now() + INDEX_CACHE_TTL_MS;
+          }
+          return rows;
+        })
+        .finally(() => {
+          if (this.indexLoadPromise === pending) {
+            this.indexLoadPromise = null;
+          }
+        });
+      this.indexLoadPromise = pending;
+    }
+    return this.indexLoadPromise;
+  }
 
   /**
    * 后端启动时，把 public/template-assets 里"尚未入库"的图片自动算 embedding 入库。
@@ -130,6 +264,7 @@ export class AssetLibraryService implements OnModuleInit {
           embedding,
         }),
       );
+      this.invalidateIndexCache();
       return { slug: spec.slug, status: 'created', url: stored.url };
     } catch (error) {
       const reason = error instanceof Error ? error.message : String(error);
@@ -173,6 +308,7 @@ export class AssetLibraryService implements OnModuleInit {
           embedding,
         }),
       );
+      this.invalidateIndexCache();
     } catch (error) {
       // 并发竞态：另一个同步（如另一个后端实例的 onModuleInit / 手动 CLI）已抢先插入同 slug。
       // existsBySlug 检查与 insert 非原子，撞到唯一约束就当作已存在、幂等跳过，不报错中断整批。
@@ -195,7 +331,7 @@ export class AssetLibraryService implements OnModuleInit {
    * 没配 embedding 模型 / embed 失败 / 库空 → 返回 null（回退生图）。
    */
   async findBestMatch(context: AssetLookupContext): Promise<StoredImage | null> {
-    const all = await this.repo.find();
+    const all = await this.loadIndexedEntries();
     if (!all.length) {
       return null;
     }
@@ -206,30 +342,96 @@ export class AssetLibraryService implements OnModuleInit {
         prompt: context.prompt,
       }),
     );
-    if (!queryVec) {
+
+    if (queryVec) {
+      let best: AssetLibraryImage | null = null;
+      let bestSim = 0;
+      let bestRank = -Infinity;
+      for (const img of all) {
+        if (!img.embedding || img.embedding.length === 0) {
+          continue;
+        }
+        const sim = dot(queryVec, img.embedding);
+        const rank = sim + (context.role && img.role === context.role ? ROLE_BOOST : 0);
+        // 稳定选择：同 rank 时按 slug 字典序取小，保证确定性
+        if (rank > bestRank || (rank === bestRank && best && img.slug < best.slug)) {
+          bestRank = rank;
+          bestSim = sim;
+          best = img;
+        }
+      }
+      if (best && bestSim >= MATCH_THRESHOLD) {
+        this.logger.log(`embedding 命中复用 ${best.slug}（相似度 ${bestSim.toFixed(3)}）`);
+        return { url: best.url, storageKey: best.storageKey };
+      }
+    }
+
+    return this.findBestLexicalMatch(context, all);
+  }
+
+  private findBestLexicalMatch(
+    context: AssetLookupContext,
+    all: readonly AssetLibraryImage[],
+  ): StoredImage | null {
+    const queryText = this.buildEmbeddingText({
+      alt: context.alt,
+      keywords: context.keywords,
+      prompt: context.prompt,
+    });
+    const queryTokens = extractSearchTokens(queryText);
+    if (queryTokens.length === 0) {
       return null;
     }
 
+    const wantedGroup = normalizeRoleGroup(context.role);
     let best: AssetLibraryImage | null = null;
-    let bestSim = 0;
-    let bestRank = -Infinity;
+    let bestScore = -Infinity;
+
     for (const img of all) {
-      if (!img.embedding || img.embedding.length === 0) {
+      const candidateText = [img.alt, img.prompt, ...img.keywords, img.category, img.slug]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+
+      let tokenHits = 0;
+      for (const token of queryTokens) {
+        if (candidateText.includes(token)) {
+          tokenHits += 1;
+        }
+      }
+      if (tokenHits < 2) {
         continue;
       }
-      const sim = dot(queryVec, img.embedding);
-      const rank = sim + (context.role && img.role === context.role ? ROLE_BOOST : 0);
-      // 稳定选择：同 rank 时按 slug 字典序取小，保证确定性
-      if (rank > bestRank || (rank === bestRank && best && img.slug < best.slug)) {
-        bestRank = rank;
-        bestSim = sim;
+
+      const candidateGroup = normalizeRoleGroup(img.role);
+      if (
+        wantedGroup !== 'other' &&
+        candidateGroup !== 'other' &&
+        candidateGroup !== wantedGroup
+      ) {
+        continue;
+      }
+
+      const overlapRatio = tokenHits / Math.max(3, Math.min(queryTokens.length, 8));
+      const tokenScore = Math.min(0.75, overlapRatio * 0.75);
+      const roleBonus =
+        context.role && img.role === context.role
+          ? 0.18
+          : candidateGroup === wantedGroup
+            ? 0.12
+            : 0;
+      const totalScore = tokenScore + roleBonus;
+
+      if (totalScore > bestScore || (totalScore === bestScore && best && img.slug < best.slug)) {
+        bestScore = totalScore;
         best = img;
       }
     }
-    if (!best || bestSim < MATCH_THRESHOLD) {
+
+    if (!best || bestScore < LEXICAL_MATCH_THRESHOLD) {
       return null;
     }
-    this.logger.log(`embedding 命中复用 ${best.slug}（相似度 ${bestSim.toFixed(3)}）`);
+    this.logger.log(`词法索引命中复用 ${best.slug}（得分 ${bestScore.toFixed(2)}）`);
     return { url: best.url, storageKey: best.storageKey };
   }
 
@@ -252,6 +454,9 @@ export class AssetLibraryService implements OnModuleInit {
         await this.repo.save(img);
         updated += 1;
       }
+    }
+    if (updated > 0) {
+      this.invalidateIndexCache();
     }
     return updated;
   }
@@ -298,7 +503,7 @@ export class AssetLibraryService implements OnModuleInit {
     return { scanned: files.length, indexed, skipped };
   }
 
-  /** 递归收集目录下所有 .png 绝对路径。 */
+  /** 递归收集目录下所有 `.png` 文件绝对路径。 */
   private async walkPng(dir: string): Promise<string[]> {
     const out: string[] = [];
     let entries: import('node:fs').Dirent[];
@@ -318,7 +523,7 @@ export class AssetLibraryService implements OnModuleInit {
     return out;
   }
 
-  /** 从相对路径/文件名推断 角色 + 主体 + slug + 关键词（启发式，够语义检索用）。 */
+  /** 从相对路径/文件名推断 角色 + 主体 + slug + 关键词。 */
   private deriveAssetMeta(storageKey: string): {
     slug: string;
     keywords: string[];
@@ -336,32 +541,42 @@ export class AssetLibraryService implements OnModuleInit {
       'order',
       'rider',
     ];
-    const base = path.basename(storageKey, '.png');
-    const tokens = base
+    const withoutExt = storageKey.replace(/\.png$/i, '');
+    const base = path.basename(withoutExt);
+    const pathTokens = withoutExt
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .filter((t) => t && t !== 'asset' && t !== 'generated' && t !== 'pool');
+    const baseTokens = base
       .toLowerCase()
       .split(/[^a-z0-9]+/)
       .filter((t) => t && t !== 'asset');
-    let role = 'illustration';
-    if (tokens.includes('hero')) {
+
+    let role = 'card';
+    if (baseTokens.includes('hero')) {
       role = 'hero';
-    } else if (tokens.includes('avatar') || tokens.includes('profile')) {
+    } else if (
+      baseTokens.includes('avatar') ||
+      baseTokens.includes('profile') ||
+      baseTokens.includes('rider')
+    ) {
       role = 'avatar';
-    } else if (tokens.includes('icon')) {
+    } else if (baseTokens.includes('icon')) {
       role = 'category-icon';
-    } else if (tokens.includes('product')) {
+    } else if (baseTokens.includes('product')) {
       role = 'product';
     }
-    const subject = tokens.filter((t) => !roleTokens.includes(t));
-    const slug = `existing-${storageKey.replace(/[^a-z0-9]+/gi, '-')}`
+
+    const subject = pathTokens.filter((t) => !roleTokens.includes(t));
+    const slug = `existing-${withoutExt.replace(/[^a-z0-9]+/gi, '-')}`
       .toLowerCase()
-      .replace(/-png$/, '')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
     return {
       slug,
       role,
       alt: subject.join(' ') || base,
-      keywords: [...new Set([...tokens, ...subject])],
+      keywords: [...new Set([...pathTokens, ...subject])],
     };
   }
 
@@ -387,6 +602,9 @@ export class AssetLibraryService implements OnModuleInit {
    * 用独立的 ai.embedding 配置（默认 OpenAI），与库现有向量同源，不受主 chat provider 影响。
    */
   private async computeEmbedding(text: string): Promise<number[] | null> {
+    if (this.embeddingUnavailable) {
+      return null;
+    }
     const { apiKey, model, baseUrl } = this.config.ai.embedding;
     if (!apiKey || !model || !text) {
       return null;
@@ -394,7 +612,12 @@ export class AssetLibraryService implements OnModuleInit {
     try {
       return await embedText({ apiKey, baseUrl, model }, text);
     } catch (error) {
-      this.logger.warn(`embed failed: ${error instanceof Error ? error.message : String(error)}`);
+      this.embeddingUnavailable = true;
+      this.logger.warn(
+        `embed unavailable (switching to lexical asset matching): ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
       return null;
     }
   }

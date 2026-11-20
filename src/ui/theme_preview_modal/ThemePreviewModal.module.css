@@ -3,43 +3,50 @@
   inset: 0;
   z-index: 1000;
   background: var(--app-modal-backdrop);
-  backdrop-filter: blur(var(--app-unit-1-5)) saturate(130%);
-  -webkit-backdrop-filter: blur(var(--app-unit-1-5)) saturate(130%);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--app-unit-2-5);
-  animation: fadeIn 0.15s ease;
+  padding: 20px;
+  animation: fadeIn 0.16s ease;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .panel {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(var(--app-unit-32), var(--app-unit-40));
-  width: min(var(--app-unit-150), 100%);
-  height: min(var(--app-unit-90), calc(100vh - var(--app-unit-5)));
-  max-height: calc(100vh - var(--app-unit-5));
+  grid-template-columns: minmax(0, 1.45fr) minmax(260px, 340px);
+  width: min(1160px, 100%);
+  height: min(760px, calc(100vh - 32px));
+  max-height: calc(100vh - 32px);
   border-radius: var(--app-radius-2xl);
   overflow: hidden;
-  border: var(--app-unit-0-125) solid var(--app-modal-border);
+  border: 1px solid var(--app-modal-border);
   background: var(--app-modal-surface);
-  box-shadow: var(--app-shadow-lg), var(--app-shadow-glow-violet);
-  backdrop-filter: blur(var(--app-unit-2-5)) saturate(160%);
-  -webkit-backdrop-filter: blur(var(--app-unit-2-5)) saturate(160%);
-  animation: slideUp 0.18s ease;
+  box-shadow: var(--app-shadow-lg);
+  animation: slideUp 0.18s var(--app-motion-smooth);
 }
 
 @keyframes slideUp {
-  from { transform: translateY(var(--app-unit-1-5)); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* ── left preview side ── */
-
 .previewSide {
   display: flex;
   flex-direction: column;
@@ -50,8 +57,8 @@
 
 .previewTabs {
   display: flex;
-  gap: var(--app-unit-0-75);
-  padding: var(--app-unit-1-75) var(--app-unit-2) 0;
+  gap: 6px;
+  padding: 14px 16px 0;
   flex-shrink: 0;
 }
 
@@ -60,7 +67,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--app-unit-2-5) var(--app-unit-2);
+  padding: 14px 16px 18px;
   overflow: hidden;
   min-height: 0;
 }
@@ -68,8 +75,8 @@
 .previewViewport {
   border-radius: var(--app-radius-xl);
   overflow: hidden;
+  border: 1px solid var(--app-border);
   box-shadow: var(--app-shadow-md);
-  transition: none;
   flex: 0 0 auto;
   position: relative;
 }
@@ -82,7 +89,6 @@
 .previewViewport[data-preset='tablet'] {
   width: calc(var(--app-base-unit) * 61.44);
   height: calc(var(--app-base-unit) * 81.92);
-  border-radius: var(--app-radius-xl);
 }
 
 .previewViewport[data-preset='desktop'] {
@@ -93,7 +99,6 @@
 
 .previewScaleShell {
   transform-origin: top left;
-  transition: none;
 }
 
 .previewScaleShell[data-preset='mobile'] {
@@ -114,45 +119,47 @@
 }
 
 /* ── right info side ── */
-
 .infoSide {
   display: flex;
   flex-direction: column;
-  padding: var(--app-unit-3-5) var(--app-unit-3) var(--app-unit-3-5);
-  border-left: var(--app-unit-0-125) solid var(--app-border-subtle);
-  gap: var(--app-unit-1-5);
+  padding: 28px 24px;
+  border-left: 1px solid var(--app-border-subtle);
+  gap: 12px;
   overflow-y: auto;
   position: relative;
 }
 
 .closeAction {
   position: absolute;
-  top: var(--app-unit-2);
-  right: var(--app-unit-2);
+  top: 16px;
+  right: 16px;
 }
 
 .accentDot {
-  width: var(--app-unit-3-5);
-  height: var(--app-unit-3-5);
+  width: 14px;
+  height: 14px;
   border-radius: var(--app-radius-pill);
-  margin-top: var(--app-unit-1);
+  margin-top: 4px;
   flex-shrink: 0;
 }
 
 .traits {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--app-unit-0-75);
+  gap: 6px;
+  margin-top: 4px;
 }
 
 .trait {
-  padding: var(--app-unit-0-5) var(--app-unit-1-25);
-  border-radius: var(--app-radius-pill);
-  background: var(--app-surface-3);
+  padding: 4px 10px;
+  border-radius: var(--app-radius-sm);
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-border-subtle);
 }
 
 .editAction {
   margin-top: auto;
+  padding-top: 16px;
 }
 
 @media (--app-viewport-tablet) {
@@ -161,8 +168,13 @@
     grid-template-rows: 1fr auto;
     height: 100vh;
     max-height: 100vh;
-    border-radius: var(--app-unit-2-5) var(--app-unit-2-5) 0 0;
+    border-radius: 16px 16px 0 0;
     align-self: flex-end;
     width: 100%;
+  }
+
+  .infoSide {
+    border-left: 0;
+    border-top: 1px solid var(--app-border-subtle);
   }
 }

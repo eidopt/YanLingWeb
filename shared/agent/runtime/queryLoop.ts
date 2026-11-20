@@ -408,6 +408,16 @@ export class QueryLoop {
         });
       }
 
+      if (toolResults.some(({ result }) => result.action === 'done')) {
+        return {
+          messages: current,
+          finalText: continuationParts.length > 0 ? [...continuationParts, assistantText].join('') : assistantText,
+          iterations: this.iterations,
+          stopReason: 'completed',
+          ...(lastResponseId && { responseId: lastResponseId }),
+        };
+      }
+
       this.maybeInjectLoopHint(current, pendingCalls, toolResults);
 
       const contextTokens = tokenCountWithEstimation(current);
@@ -429,8 +439,11 @@ export class QueryLoop {
   private buildRequest(messages: ProviderMessage[]): ProviderRequest {
     return {
       model: this.cfg.model,
-      messages,
+      messages: [...messages],
       tools: this.cfg.tools,
+      ...(this.cfg.toolChoice ? { toolChoice: this.cfg.toolChoice } : {}),
+      ...(this.cfg.signal ? { signal: this.cfg.signal } : {}),
+      ...(this.cfg.requestCacheKey ? { cacheKey: this.cfg.requestCacheKey } : {}),
       ...(this.cfg.requestCache ? { cache: this.cfg.requestCache } : {}),
     };
   }

@@ -197,8 +197,28 @@ export class SearchService {
     let searchScore = 0;
     let createScore = 0;
 
+    const featureRecommendCompounds = [
+      '首页推荐',
+      '今日推荐',
+      '为你推荐',
+      '好物推荐',
+      '精选推荐',
+      '商品推荐',
+      '热门推荐',
+      '推荐位',
+      '推荐页',
+      '推荐栏',
+      '推荐列表',
+      '推荐模块',
+    ];
+    const lowerWithoutFeatureRecommend = featureRecommendCompounds.reduce(
+      (acc, phrase) => acc.split(phrase).join(''),
+      lower,
+    );
+
     for (const kw of SearchService.SEARCH_KEYWORDS) {
-      if (lower.includes(kw)) {
+      const targetText = kw === '推荐' ? lowerWithoutFeatureRecommend : lower;
+      if (targetText.includes(kw)) {
         searchScore++;
       }
     }
@@ -220,6 +240,14 @@ export class SearchService {
     const appTypes = ['小程序', '网站', '网页', 'app', '应用', '页面', '系统', '平台'];
     for (const app of appTypes) {
       if (lower.includes(app)) {
+        createScore++;
+      }
+    }
+
+    // 如果包含需求规格/模块罗列词，倾向创建。
+    const specKeywords = ['包含', '包括', '带有', '支持', '具有', '模块', '功能'];
+    for (const spec of specKeywords) {
+      if (lower.includes(spec)) {
         createScore++;
       }
     }

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect } from 'react';
 import { Box, Heading, Text } from 'ui/base';
+import { AlertCircleIcon } from 'ui/icons';
 
 const WECHAT_AUTH_CHANNEL = 'wechat_oauth';
 
@@ -69,9 +70,9 @@ function WechatCallbackContent() {
     return (
       <Box style={containerStyle}>
         <Box style={cardStyle}>
-          <Text as="span" size="3xl">
-            ❌
-          </Text>
+          <Box style={errorIconStyle}>
+            <AlertCircleIcon width={28} height={28} />
+          </Box>
           <Heading as="h2" size="md" variant="primary" weight="heavy">
             {c.error.title}
           </Heading>
@@ -111,15 +112,20 @@ const containerStyle: React.CSSProperties = {
 };
 const cardStyle: React.CSSProperties = {
   background: 'var(--app-surface-1)',
-  borderRadius: 'var(--app-radius-3xl)',
-  padding: 'var(--app-unit-5) var(--app-unit-4)',
+  border: '1px solid var(--app-border)',
+  borderRadius: 'var(--app-radius-2xl)',
+  padding: '32px 28px',
   boxShadow: 'var(--app-shadow-md)',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  gap: 'var(--app-space-2)',
-  minWidth: 'var(--app-unit-36)',
+  gap: '12px',
+  minWidth: '300px',
   textAlign: 'center',
+};
+const errorIconStyle: React.CSSProperties = {
+  color: 'var(--app-color-danger)',
+  display: 'flex',
 };
 const spinnerStyle: React.CSSProperties = {
   width: 'var(--app-unit-5)',

@@ -1,6 +1,6 @@
+import { CONTAINER_ALIASES } from '../editor/applyEditorInstructions.helpers';
 import { formatEditorSemanticTargetLandmarks } from '../editor/semanticTargetResolver';
 import { buildTemplateProfile } from '../template/buildTemplateProfile';
-import { CONTAINER_ALIASES } from '../editor/applyEditorInstructions.helpers';
 import type { TemplateProfile } from '../template/templateProfile';
 import type {
   AgentConversationMessage,
@@ -11,7 +11,7 @@ import type {
 } from '../types';
 
 const MAX_NODE_SUMMARY_COUNT = 80;
-const MAX_TRIMMED_NODE_SUMMARY_COUNT = 28;
+const MAX_TRIMMED_CANDIDATE_COUNT = 36;
 const MAX_CONVERSATION_CONTEXT_CHARS = 500_000;
 const MAX_CONVERSATION_MESSAGE_CHARS = 40_000;
 const MAX_TEMPLATE_CONFIG_JSON_CHARS = 16_000;
@@ -81,11 +81,20 @@ function collectNodes(
 }
 
 function normalizedSearchTokens(value: string): string[] {
-  return value
+  const rawTokens = value
     .toLowerCase()
     .split(/[\s,.;:!?()[\]{}"'`|/\\_-]+/)
     .map((token) => token.trim())
     .filter((token) => token.length >= 2);
+
+  const seen = new Set<string>(rawTokens);
+  const cjkSegments = value.toLowerCase().match(/[\u4e00-\u9fff]{2,}/g) ?? [];
+  for (const segment of cjkSegments) {
+    for (let i = 0; i < segment.length - 1; i += 1) {
+      seen.add(segment.slice(i, i + 2));
+    }
+  }
+  return [...seen];
 }
 
 function nodeSearchText(node: ThemeLayoutNode): string {
@@ -125,20 +134,6 @@ function scoreNodeForPrompt(
   });
   score += Math.max(0, 8 - item.depth);
   return score;
-}
-
-function summarizeNodeLine(item: { node: ThemeLayoutNode; depth: number; parentId?: string }): string {
-  const { node, depth, parentId } = item;
-  return [
-    `- ${node.id}`,
-    `alias=${node.alias}`,
-    parentId ? `parent=${parentId}` : '',
-    `depth=${String(depth)}`,
-    `layout=(${summarizeLayout(node)})`,
-    `props=(${summarizeProps(node.props)})`,
-  ]
-    .filter(Boolean)
-    .join(' | ');
 }
 
 export function summarizeCanvas(document: ThemeLayoutDocument): string {
@@ -200,7 +195,6 @@ export function inferDisplayName(node: ThemeLayoutNode): string {
   }
 }
 
-
 /** 判断节点是否是容器（可接受子元素插入） */
 export function isContainerNode(node: ThemeLayoutNode): boolean {
   return CONTAINER_ALIASES.has(node.alias);
@@ -210,38 +204,40 @@ export function isContainerNode(node: ThemeLayoutNode): boolean {
  * 构建节点候选集：完整 ID + displayName + 缩进层级 + 容器标记。
  * 替代原来的 buildNodeIndex（截断 ID 到 8 字符的平铺列表）。
  */
-function buildNodeCandidateSet(root: ThemeLayoutNode): string {
+export function buildNodeCandidateSet(root: ThemeLayoutNode, allowedIds?: Set<string>): string {
   const lines: string[] = ['# Edit: pick targetId from below. Insert: pick [C] parentId from below.'];
-  let count = 0;
+  let totalCount = 0;
+  let emittedCount = 0;
   const MAX_LINES = 80;
 
   const collect = (node: ThemeLayoutNode, depth: number) => {
-    if (count >= MAX_LINES) {
-      return;
-    }
-    const indent = '  '.repeat(depth);
-    const containerMark = isContainerNode(node) ? '[C] ' : '    ';
-    const displayName = inferDisplayName(node);
+    totalCount += 1;
+    if ((!allowedIds || allowedIds.has(node.id)) && emittedCount < MAX_LINES) {
+      const indent = '  '.repeat(depth);
+      const containerMark = isContainerNode(node) ? '[C] ' : '    ';
+      const displayName = inferDisplayName(node);
 
-    // 关键消歧 props
-    const keyProps: string[] = [];
-    if (node.props?.variant && typeof node.props.variant === 'string') {
-      keyProps.push(`variant=${node.props.variant}`);
-    }
-    if (node.props?.tone && typeof node.props.tone === 'string') {
-      keyProps.push(`tone=${node.props.tone}`);
-    }
-    const propsHint = keyProps.length > 0 ? ` {${keyProps.join(', ')}}` : '';
+      // 关键消歧 props
+      const keyProps: string[] = [];
+      if (node.props?.variant && typeof node.props.variant === 'string') {
+        keyProps.push(`variant=${node.props.variant}`);
+      }
+      if (node.props?.tone && typeof node.props.tone === 'string') {
+        keyProps.push(`tone=${node.props.tone}`);
+      }
+      const propsHint = keyProps.length > 0 ? ` {${keyProps.join(', ')}}` : '';
 
-    lines.push(`${indent}${containerMark}${node.id} (${node.alias}) — ${displayName}${propsHint}`);
-    count += 1;
+      lines.push(`${indent}${containerMark}${node.id} (${node.alias}) — ${displayName}${propsHint}`);
+      emittedCount += 1;
+    }
     node.children?.forEach((child) => collect(child, depth + 1));
   };
 
   collect(root, 0);
 
-  if (count >= MAX_LINES) {
-    lines.push(`  ... ${count - MAX_LINES} more nodes omitted`);
+  const omittedCount = totalCount - emittedCount;
+  if (omittedCount > 0) {
+    lines.push(`  ... ${omittedCount} more nodes omitted`);
   }
   return lines.join('\n');
 }
@@ -389,27 +385,46 @@ function summarizeTemplateProfile(profile: TemplateProfile): string {
   return lines.join('\n');
 }
 
+function hasNonEmptyRecordOrArray(value: unknown): boolean {
+  if (value == null) {
+    return false;
+  }
+  if (Array.isArray(value)) {
+    return value.length > 0;
+  }
+  if (typeof value === 'object') {
+    return Object.keys(value).length > 0;
+  }
+  return false;
+}
+
 export function summarizeTemplateAgentKnowledge(knowledge: AgentTemplateKnowledgeContext | null | undefined): string {
   if (!knowledge) {
     return '';
   }
   const effectiveProfile = asTemplateProfile(knowledge.effectiveProfile);
+  const optionalSections: [string, Record<string, unknown> | null | undefined][] = [
+    ['profileOverride', knowledge.profileOverride],
+    ['assets', knowledge.assets],
+    ['permissions', knowledge.permissions],
+    ['evaluation', knowledge.evaluation],
+  ];
+  const nonEmptySections = optionalSections.filter(([, value]) => hasNonEmptyRecordOrArray(value));
+
   const lines = [
     'Template semantic config from database:',
     effectiveProfile
       ? summarizeTemplateProfile(effectiveProfile)
       : `- effectiveProfile=${compactJson(knowledge.effectiveProfile)}`,
-    summarizeRecordKeys('profileOverride', knowledge.profileOverride),
-    summarizeRecordKeys('assets', knowledge.assets),
-    summarizeRecordKeys('permissions', knowledge.permissions),
-    summarizeRecordKeys('evaluation', knowledge.evaluation),
-    '',
-    'Template config JSON snippets:',
-    `profileOverride=${compactJson(knowledge.profileOverride)}`,
-    `assets=${compactJson(knowledge.assets)}`,
-    `permissions=${compactJson(knowledge.permissions)}`,
-    `evaluation=${compactJson(knowledge.evaluation)}`,
+    ...nonEmptySections.map(([label, value]) => summarizeRecordKeys(label, value)),
   ];
+
+  if (nonEmptySections.length > 0) {
+    lines.push('', 'Template config JSON snippets:');
+    for (const [label, value] of nonEmptySections) {
+      lines.push(`${label}=${compactJson(value)}`);
+    }
+  }
   return lines.join('\n');
 }
 
@@ -492,16 +507,42 @@ export function buildEditorTrimmedVolatileContext(
 ): string {
   const nodes: { node: ThemeLayoutNode; depth: number; parentId?: string }[] = [];
   collectNodes(document.layout, nodes);
-  const promptTokens = normalizedSearchTokens(prompt);
   const selectedNodeId = selectedNode?.id;
-  const selectedAndScored = nodes
-    .map((item) => ({
-      item,
-      score: scoreNodeForPrompt(item, promptTokens, selectedNodeId),
-    }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, MAX_TRIMMED_NODE_SUMMARY_COUNT)
-    .sort((a, b) => a.item.depth - b.item.depth || a.item.node.id.localeCompare(b.item.node.id));
+
+  let candidateSetText: string;
+  if (nodes.length <= MAX_NODE_SUMMARY_COUNT) {
+    candidateSetText = buildNodeCandidateSet(document.layout);
+  } else {
+    const promptTokens = normalizedSearchTokens(prompt);
+    const parentById = new Map<string, string>();
+    for (const item of nodes) {
+      if (item.parentId) {
+        parentById.set(item.node.id, item.parentId);
+      }
+    }
+    const allowedIds = new Set<string>();
+    const addWithAncestors = (nodeId: string): void => {
+      let current: string | undefined = nodeId;
+      while (current && !allowedIds.has(current)) {
+        allowedIds.add(current);
+        current = parentById.get(current);
+      }
+    };
+    if (selectedNodeId) {
+      addWithAncestors(selectedNodeId);
+    }
+    const topScored = nodes
+      .map((item) => ({
+        item,
+        score: scoreNodeForPrompt(item, promptTokens, selectedNodeId),
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, MAX_TRIMMED_CANDIDATE_COUNT);
+    for (const { item } of topScored) {
+      addWithAncestors(item.node.id);
+    }
+    candidateSetText = buildNodeCandidateSet(document.layout, allowedIds);
+  }
 
   return [
     'Current editor context:',
@@ -522,11 +563,11 @@ export function buildEditorTrimmedVolatileContext(
         ].join('\n')
       : 'none',
     '',
-    'Relevant editable nodes:',
-    selectedAndScored.length ? selectedAndScored.map(({ item }) => summarizeNodeLine(item)).join('\n') : 'none',
-    nodes.length > selectedAndScored.length
-      ? `- ... ${String(nodes.length - selectedAndScored.length)} nodes omitted from volatile context`
-      : '',
+    'Editable nodes (use exact full IDs in tool calls; [C] = container, can be parentId for insert):',
+    candidateSetText,
+    '',
+    'Semantic Landmarks (use these as fallback via semanticTarget):',
+    formatEditorSemanticTargetLandmarks(document.layout),
   ]
     .filter(Boolean)
     .join('\n');

@@ -24,6 +24,7 @@ import type {
   BuilderCanvas,
   LayoutBuilderTheme,
 } from 'ui/editor/types';
+import { CloseIcon } from 'ui/icons';
 
 interface ExportDialogProps {
   canvases: BuilderCanvas[];
@@ -245,7 +246,7 @@ export function ExportDialog({
             size="icon-sm"
             variant="icon"
           >
-            x
+            <CloseIcon width={15} height={15} />
           </Button>
         </Inline>
 

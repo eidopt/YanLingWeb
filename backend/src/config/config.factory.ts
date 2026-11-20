@@ -66,7 +66,7 @@ export interface ServerConfig {
      */
     materializeImages: boolean;
     /**
-     * 编辑器 agent QueryLoop 的最大迭代次数。默认 96，下限 32（低于则取默认）。
+     * 编辑器 agent QueryLoop 的最大迭代次数。默认 16，下限 4（低于则取默认）。
      * 由 EDITOR_AGENT_MAX_ITERATIONS 配置。
      */
     editorAgentMaxIterations: number;
@@ -79,6 +79,8 @@ export interface ServerConfig {
     cacheStrategy?: 'response_id' | 'prefix' | 'cache_key' | 'cache_control' | 'none';
     /** AI_SUPPORTS_DEVELOPER_ROLE — 是否保留 developer 角色 */
     supportsDeveloperRole?: boolean;
+    /** AI_SUPPORTS_FORCED_TOOL_CHOICE — 是否允许强制 tool_choice（如 thinking 模式禁用） */
+    supportsForcedToolChoice?: boolean;
     /** AI_CONTEXT_WINDOW — 上下文窗口大小覆盖 */
     contextWindow?: number;
     /** AI_EXTRA_PARAMS — 注入到每次 API 请求的额外参数 (JSON) */
@@ -222,9 +224,9 @@ export class ConfigFactory {
     const materializeImages =
       this.readBoolean(source, serverFlavor, 'AI_MATERIALIZE_IMAGES') ??
       serverFlavor === 'production';
-    // 编辑器 agent 最大迭代次数：默认 96，下限 32。
-    const EDITOR_AGENT_MAX_ITERATIONS_DEFAULT = 96;
-    const EDITOR_AGENT_MAX_ITERATIONS_MIN = 32;
+    // 编辑器 agent 最大迭代次数：默认 16，下限 4。
+    const EDITOR_AGENT_MAX_ITERATIONS_DEFAULT = 16;
+    const EDITOR_AGENT_MAX_ITERATIONS_MIN = 4;
     const editorAgentMaxRaw = Number(
       this.read(source, serverFlavor, 'EDITOR_AGENT_MAX_ITERATIONS'),
     );
@@ -273,6 +275,11 @@ export class ConfigFactory {
         cacheStrategy: this.readCacheStrategy(source, serverFlavor),
         supportsDeveloperRole:
           this.readBoolean(source, serverFlavor, 'AI_SUPPORTS_DEVELOPER_ROLE') ?? false,
+        supportsForcedToolChoice: this.readBoolean(
+          source,
+          serverFlavor,
+          'AI_SUPPORTS_FORCED_TOOL_CHOICE',
+        ),
         contextWindow: this.readNumber(source, serverFlavor, 'AI_CONTEXT_WINDOW'),
         extraRequestParams: this.readJsonRecord(source, serverFlavor, 'AI_EXTRA_PARAMS'),
       },

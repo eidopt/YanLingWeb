@@ -5,13 +5,8 @@
   flex-direction: column;
 }
 
-.routeViewport {
-  flex: 1;
-  min-height: 0;
-}
-
+.routeViewport,
 .routeViewportOverlay {
   flex: 1;
   min-height: 0;
-  margin-top: calc(var(--app-unit-7) * -1);
 }

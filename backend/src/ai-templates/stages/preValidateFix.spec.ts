@@ -4,12 +4,17 @@
  * Run: pnpm --dir backend test -- --runTestsByPath src/ai-templates/stages/preValidateFix.spec.ts
  */
 
-import { hasDisallowedLatinText } from '@shared/agent/validation/themeLayoutValidator.shared';
+import {
+  hasDisallowedLatinText,
+  validateCssVarsContract,
+} from '@shared/agent/contracts/validation';
 
 import {
   autoBizComponents,
   dedupeNodeIds,
+  ensureThemeCssVarsContract,
   fixDangerousUrls,
+  normalizeCorePropValues,
   preValidateAndFix,
   removeUnknownProps,
 } from './preValidateFix';
@@ -570,5 +575,84 @@ describe('hasDisallowedLatinText', () => {
   it('rejects unlocalized English UI copy', () => {
     expect(hasDisallowedLatinText('Download Now')).toBe(true);
     expect(hasDisallowedLatinText('Weekly Featured Tools')).toBe(true);
+  });
+});
+
+describe('ensureThemeCssVarsContract', () => {
+  it('derives all 9 required keys from legacy --color-* tokens (light theme)', () => {
+    const doc: Record<string, unknown> = {
+      cssVars: {
+        '--color-primary': '#FF6B00',
+        '--color-bg': '#FFFBF5',
+        '--color-card': '#FFFFFF',
+        '--color-text': '#1F2937',
+        '--color-text-weak': '#6B7280',
+      },
+    };
+    const count = ensureThemeCssVarsContract(doc);
+    expect(count).toBe(9);
+    const vars = doc.cssVars as Record<string, string>;
+    expect(vars['--accent']).toBe('#FF6B00');
+    expect(vars['--surface']).toBe('#FFFBF5');
+    expect(vars['--panel-bg']).toBe('#FFFFFF');
+    expect(vars['--text-heading-color']).toBe('#1F2937');
+    expect(vars['--text-muted-color']).toBe('#6B7280');
+    const issues = validateCssVarsContract({ cssVars: vars }).filter((i) => i.severity === 'error');
+    expect(issues).toHaveLength(0);
+  });
+
+  it('uses dark defaults for dark-pro archetype and fixes invalid colors', () => {
+    const doc: Record<string, unknown> = {
+      cssVars: {
+        '--accent': 'not-a-color!',
+      },
+    };
+    const count = ensureThemeCssVarsContract(doc, { archetype: 'dark-pro' });
+    expect(count).toBe(9);
+    const vars = doc.cssVars as Record<string, string>;
+    expect(vars['--surface']).toBe('#0F172A');
+    expect(vars['--text-heading-color']).toBe('#F8FAFC');
+    expect(vars['--accent']).toBe('#38BDF8');
+    const issues = validateCssVarsContract({
+      cssVars: vars,
+      style: doc.style as { cssVars?: Record<string, string> },
+    }).filter((i) => i.severity === 'error');
+    expect(issues).toHaveLength(0);
+  });
+});
+
+describe('normalizeCorePropValues', () => {
+  it('remaps common aliases, maps enum synonyms, and coerces numbers/booleans/string[]', () => {
+    const doc: Record<string, unknown> = {
+      components: [],
+      pages: [
+        {
+          id: 'home',
+          layout: {
+            id: 'home-screen',
+            alias: 'core.screen',
+            children: [
+              { id: 'b1', alias: 'core.button', props: { text: '立即下单', variant: 'outline' } },
+              { id: 't1', alias: 'core.text', props: { text: '标题', variant: 'h2' } },
+              { id: 'n1', alias: 'core.notice', props: { text: '警告', variant: 'danger' } },
+              { id: 'g1', alias: 'core.grid', props: { columns: '2' } },
+              { id: 's1', alias: 'core.switch', props: { checked: 'true' } },
+              { id: 'tabs1', alias: 'core.tabs', props: { tabs: '首页,订单,我的' } },
+            ],
+          },
+        },
+      ],
+    };
+    const fixed = normalizeCorePropValues(doc);
+    expect(fixed).toBeGreaterThan(0);
+    const children = (
+      doc.pages as { layout: { children: { props: Record<string, unknown> }[] } }[]
+    )[0].layout.children;
+    expect(children[0].props).toEqual({ label: '立即下单', variant: 'secondary' });
+    expect(children[1].props).toEqual({ text: '标题', variant: 'heading' });
+    expect(children[2].props).toEqual({ text: '警告', tone: 'error' });
+    expect(children[3].props).toEqual({ columns: 2 });
+    expect(children[4].props).toEqual({ checked: true });
+    expect(children[5].props).toEqual({ tabs: ['首页', '订单', '我的'] });
   });
 });

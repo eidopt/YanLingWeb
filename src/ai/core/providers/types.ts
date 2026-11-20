@@ -8,6 +8,7 @@ export type {
   ProviderRequest,
   ProviderStreamEvent,
   ProviderTool,
+  ProviderToolChoice,
   StreamEventDone,
   StreamEventError,
   StreamEventTextDelta,

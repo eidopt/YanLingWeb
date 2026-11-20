@@ -13,7 +13,21 @@ describe('buildCompatibleCapabilities', () => {
     expect(caps.reasoningMode).toBe('passthrough');
     expect(caps.cacheStrategy).toBe('none');
     expect(caps.supportsDeveloperRole).toBe(false);
+    expect(caps.supportsForcedToolChoice).toBe(true);
     expect(caps.extraRequestParams).toBeUndefined();
+  });
+
+  it('disables supportsForcedToolChoice by default when enable_thinking is true', () => {
+    const caps = buildCompatibleCapabilities({ extraRequestParams: { enable_thinking: true } });
+    expect(caps.supportsForcedToolChoice).toBe(false);
+  });
+
+  it('allows explicit supportsForcedToolChoice override even with enable_thinking', () => {
+    const caps = buildCompatibleCapabilities({
+      supportsForcedToolChoice: true,
+      extraRequestParams: { enable_thinking: true },
+    });
+    expect(caps.supportsForcedToolChoice).toBe(true);
   });
 
   it('applies reasoningMode override', () => {

@@ -47,6 +47,7 @@ export class VerifierAgent {
     existing: ExistingTemplateSummary[],
     attempt: number,
     ownerUserId?: string,
+    lenses: readonly VerifierLens[] = LENSES,
   ): Promise<PipelineStageRecord<VerifierVerdict[]>> {
     const start = Date.now();
     this.logger.debug(`verifier attempt=${attempt} schema=${schema.templateId}`);
@@ -61,7 +62,7 @@ export class VerifierAgent {
     const usageTotal: StageRunUsage = { inputTokens: 0, outputTokens: 0, cacheHitTokens: 0 };
 
     const verdicts = await Promise.all(
-      LENSES.map(async (lens): Promise<VerifierVerdict> => {
+      lenses.map(async (lens): Promise<VerifierVerdict> => {
         if (lens === 'spec-compliance') {
           const programmatic = this.runProgrammaticSpecCheck(schema);
           if (!programmatic.pass) {
@@ -83,6 +84,7 @@ export class VerifierAgent {
           parse: (args) => this.parseVerdict(args, lens),
           aiProvider: this.aiProvider,
           ownerUserId,
+          cacheKey: 'pipeline-verifier',
         });
         usageTotal.inputTokens += result.usage.inputTokens;
         usageTotal.outputTokens += result.usage.outputTokens;
@@ -151,49 +153,7 @@ export class VerifierAgent {
       pages: brief.pages.map((p) => ({ id: p.id, kind: p.kind, userTask: p.userTask })),
     };
 
-    if (lens === 'diversity') {
-      return [
-        '审查生成结果的视觉差异化。重点比对 hero 结构、componentTemplates、' + 'cssVars 主色相。',
-        '',
-        '原始 brief 摘要：',
-        '```json',
-        JSON.stringify(briefDigest, null, 2),
-        '```',
-        '',
-        '已生成模板摘要：',
-        '```json',
-        JSON.stringify(existing, null, 2),
-        '```',
-        '',
-        '本次生成的 ThemeLayoutDocument：',
-        '```json',
-        documentSerialized,
-        '```',
-      ].join('\n');
-    }
-
-    if (lens === 'business-fidelity') {
-      return [
-        '审查页面是否真正服务于声称的业务场景（不是套壳）。',
-        '',
-        '原始 brief 摘要：',
-        '```json',
-        JSON.stringify(briefDigest, null, 2),
-        '```',
-        '',
-        '本次生成的 ThemeLayoutDocument：',
-        '```json',
-        documentSerialized,
-        '```',
-      ].join('\n');
-    }
-
-    // spec-compliance —— 程序化已通过了 hard rules，这里跑语义 / 设计规则
-    return [
-      '审查生成结果是否真正落地 archetype 和 heroMode，',
-      '以及是否符合 sharedSpec 中的设计规则',
-      '（archetype 视觉表达、heroMode 结构、跨页一致性、组件多样性等）。',
-      '',
+    const sharedPrefix = [
       '原始 brief 摘要：',
       '```json',
       JSON.stringify(briefDigest, null, 2),
@@ -203,6 +163,34 @@ export class VerifierAgent {
       '```json',
       documentSerialized,
       '```',
+      '',
+    ];
+
+    if (lens === 'diversity') {
+      return [
+        ...sharedPrefix,
+        '已生成模板摘要：',
+        '```json',
+        JSON.stringify(existing, null, 2),
+        '```',
+        '',
+        '审查任务（diversity）：审查生成结果的视觉差异化。重点比对 hero 结构、componentTemplates、cssVars 主色相。',
+      ].join('\n');
+    }
+
+    if (lens === 'business-fidelity') {
+      return [
+        ...sharedPrefix,
+        '审查任务（business-fidelity）：审查页面是否真正服务于声称的业务场景（不是套壳）。',
+      ].join('\n');
+    }
+
+    // spec-compliance —— 程序化已通过了 hard rules，这里跑语义 / 设计规则
+    return [
+      ...sharedPrefix,
+      '审查任务（spec-compliance）：审查生成结果是否真正落地 archetype 和 heroMode，',
+      '以及是否符合 sharedSpec 中的设计规则',
+      '（archetype 视觉表达、heroMode 结构、跨页一致性、组件多样性等）。',
     ].join('\n');
   }
 
@@ -229,13 +217,16 @@ export class VerifierAgent {
         return asset;
       }
       const item = asset as Record<string, unknown>;
+      const promptStr = typeof item.prompt === 'string' ? item.prompt.trim() : '';
       return {
         id: item.id,
         nodeId: item.nodeId,
         pageId: item.pageId,
         role: item.role,
         provider: item.provider,
+        status: item.status ?? 'pending',
         alt: item.alt,
+        ...(promptStr ? { prompt: promptStr.slice(0, 48) } : {}),
       };
     });
 

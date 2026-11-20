@@ -5,11 +5,11 @@ import styles from './TemplatesPage.module.css';
 import type { SortKey, TemplatesPageController } from './useTemplatesPageController';
 import { useCallback, useEffect, useRef } from 'react';
 import { Box, Button, Dropdown, Heading, Inline, Input, Stack, Text } from 'ui/base';
+import { CloseIcon, SearchIcon } from 'ui/icons';
 import { ScrollReveal, StaggerChildren } from 'ui/pages';
 import { ThemeCard } from 'ui/theme_card';
 
 /* ── Sort dropdown ── */
-
 function SortDropdown({ value, onChange }: { value: SortKey; onChange: (key: SortKey) => void }) {
   return (
     <Box className={styles.sortDropdown}>
@@ -19,8 +19,8 @@ function SortDropdown({ value, onChange }: { value: SortKey; onChange: (key: Sor
           onChange(v as SortKey);
         }}
         aria-label={c.sortLabel}
-        size="lg"
-        variant="filled"
+        size="md"
+        variant="default"
         options={Object.entries(c.sortOptions).map(([key, label]) => ({
           value: key,
           label: `${c.sortLabel}: ${label}`,
@@ -31,11 +31,10 @@ function SortDropdown({ value, onChange }: { value: SortKey; onChange: (key: Sor
 }
 
 /* ── Skeleton loader ── */
-
 function TemplateSkeleton() {
   return (
     <Box className={styles.skeletonGrid} aria-hidden="true">
-      {Array.from({ length: 6 }, (_, i) => (
+      {Array.from({ length: 8 }, (_, i) => (
         <Box key={i} className={styles.skeletonCard}>
           <Box className={styles.skeletonPreview} />
           <Box className={styles.skeletonMeta}>
@@ -52,36 +51,20 @@ function TemplateSkeleton() {
 }
 
 /* ── Empty state ── */
-
 function EmptyState({ onClearSearch, hasActiveFilter }: { onClearSearch: () => void; hasActiveFilter: boolean }) {
   return (
     <Box className={styles.emptyState}>
       <Box className={styles.emptyIcon} aria-hidden="true">
-        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-          <rect x="8" y="6" width="32" height="36" rx="4" stroke="currentColor" strokeWidth="1.5" opacity="0.35" />
-          <rect x="14" y="13" width="20" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" opacity="0.25" />
-          <line x1="14" y1="30" x2="34" y2="30" stroke="currentColor" strokeWidth="1.5" opacity="0.2" />
-          <line x1="14" y1="34" x2="28" y2="34" stroke="currentColor" strokeWidth="1.5" opacity="0.2" />
-          <circle
-            cx="36"
-            cy="36"
-            r="7"
-            fill="var(--app-surface-2)"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            opacity="0.5"
-          />
-          <path d="M33 33l6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
-        </svg>
+        <SearchIcon width={28} height={28} />
       </Box>
-      <Text align="center" size="md" variant="muted">
+      <Text align="center" size="md" variant="primary" weight="bold">
         {c.emptyState}
       </Text>
-      <Text align="center" size="sm" variant="faint">
+      <Text align="center" size="sm" variant="muted">
         {c.emptyStateHint}
       </Text>
       {hasActiveFilter && (
-        <Button size="sm" variant="ghost" onClick={onClearSearch}>
+        <Button size="sm" variant="secondary" onClick={onClearSearch}>
           {c.emptyStateClearSearch}
         </Button>
       )}
@@ -90,7 +73,6 @@ function EmptyState({ onClearSearch, hasActiveFilter }: { onClearSearch: () => v
 }
 
 /* ── Main view ── */
-
 export function TemplatesPageView({
   search,
   debouncedSearch,
@@ -112,7 +94,6 @@ export function TemplatesPageView({
   const hasActiveSearch = debouncedSearch.trim().length > 0;
   const hasActiveFilter = hasActiveSearch || activeCategory !== c.allCategory;
 
-  // Ctrl+K / Cmd+K shortcut to focus search
   const handleGlobalKey = useCallback((e: KeyboardEvent) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
       e.preventDefault();
@@ -129,101 +110,89 @@ export function TemplatesPageView({
 
   return (
     <Stack as="main" className={styles.page}>
-      {/* ── Header ── */}
-      <ScrollReveal variant="fadeDown" duration="base">
-        <Stack as="header" className={styles.header} gap="u1-75">
-          <Heading as="h1" size="hero" variant="primary" weight="heavy">
-            {c.title}
-          </Heading>
-          <Box className={styles.subtitle}>
-            <Text size="base" variant="muted">
-              {c.subtitle}
-            </Text>
-          </Box>
-
-          {/* Search + Sort row */}
-          <Box className={styles.searchRow}>
-            <Box className={styles.searchInputWrap}>
-              <Box className={styles.searchIcon} aria-hidden="true">
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <circle cx="7.5" cy="7.5" r="4.5" stroke="currentColor" strokeWidth="1.5" />
-                  <path d="M11 11l4.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
+      <ScrollReveal variant="fadeDown" duration="fast">
+        <Stack as="header" className={styles.header} gap="md">
+          <Box className={styles.headerTop}>
+            <Stack gap="xs">
+              <Heading as="h1" size="hero" variant="primary" weight="heavy">
+                {c.title}
+              </Heading>
+              <Box className={styles.subtitle}>
+                <Text size="sm" variant="muted">
+                  {c.subtitle}
+                </Text>
               </Box>
-              <Input
-                ref={searchInputRef}
-                type="search"
-                size="lg"
-                variant="filled"
-                placeholder={`${c.searchPlaceholder} (${c.searchShortcut})`}
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                }}
-                className={styles.searchInput}
-              />
-              {search.length > 0 && (
-                <Box
-                  className={styles.searchClear}
-                  role="button"
-                  tabIndex={0}
-                  aria-label="清除搜索"
-                  onClick={clearSearch}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      clearSearch();
-                    }
+            </Stack>
+
+            <Box className={styles.searchRow}>
+              <Box className={styles.searchInputWrap}>
+                <Input
+                  ref={searchInputRef}
+                  type="search"
+                  size="md"
+                  variant="default"
+                  leadingIcon={<SearchIcon width={16} height={16} />}
+                  trailingIcon={
+                    search.length > 0 ? (
+                      <button
+                        type="button"
+                        className={styles.searchClear}
+                        aria-label="清除搜索"
+                        onClick={clearSearch}
+                      >
+                        <CloseIcon width={14} height={14} />
+                      </button>
+                    ) : undefined
+                  }
+                  placeholder={`${c.searchPlaceholder} (${c.searchShortcut})`}
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
                   }}
-                >
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                  </svg>
-                </Box>
-              )}
+                />
+              </Box>
+              <SortDropdown value={sortKey} onChange={setSortKey} />
             </Box>
-            <SortDropdown value={sortKey} onChange={setSortKey} />
           </Box>
 
-          {/* Category tabs with counts */}
-          <Inline className={styles.categoryTabs} gap="sm">
-            {categoriesWithCounts.map((cat) => (
-              <Button
-                key={cat.value}
-                type="button"
-                onClick={() => {
-                  setActiveCategory(cat.value);
-                }}
-                size="sm"
-                variant={cat.value === activeCategory ? 'tab-active' : 'tab'}
-              >
-                {cat.label}
-                <Box as="span" className={styles.categoryCount}>
-                  {cat.count}
-                </Box>
-              </Button>
-            ))}
-          </Inline>
-
-          {/* Result count */}
-          {!loading && (
-            <Text size="xs" variant="faint">
-              {c.resultCount(filteredTemplates.length)}
-              {hasActiveFilter && (
-                <>
-                  {' '}
-                  &middot;{' '}
-                  <Box as="span" className={styles.filterNote}>
-                    已筛选
+          <Box className={styles.filterToolbar}>
+            <Inline className={styles.categoryTabs} gap="xs">
+              {categoriesWithCounts.map((cat) => (
+                <Button
+                  key={cat.value}
+                  type="button"
+                  onClick={() => {
+                    setActiveCategory(cat.value);
+                  }}
+                  size="xs"
+                  variant={cat.value === activeCategory ? 'tab-active' : 'tab'}
+                >
+                  {cat.label}
+                  <Box as="span" className={styles.categoryCount}>
+                    {cat.count}
                   </Box>
-                </>
-              )}
-            </Text>
-          )}
+                </Button>
+              ))}
+            </Inline>
+
+            {!loading && (
+              <Text size="xs" variant="muted">
+                {c.resultCount(filteredTemplates.length)}
+                {hasActiveFilter && (
+                  <>
+                    {' '}
+                    ·{' '}
+                    <Box as="span" className={styles.filterNote}>
+                      已筛选
+                    </Box>
+                  </>
+                )}
+              </Text>
+            )}
+          </Box>
         </Stack>
       </ScrollReveal>
 
-      {/* ── Content ── */}
       {loading && <TemplateSkeleton />}
 
       {error && (
@@ -240,15 +209,15 @@ export function TemplatesPageView({
 
       {!loading && !error && filteredTemplates.length > 0 && (
         <Box className={styles.grid}>
-          <StaggerChildren staggerDelay={60} maxDelay={600} duration="base">
+          <StaggerChildren staggerDelay={30} maxDelay={300} duration="fast">
             {filteredTemplates.map((theme) => (
               <ThemeCard
                 key={theme.id}
                 theme={theme}
+                hoverLabel="预览模板"
                 onClick={() => {
                   openTemplate(theme);
                 }}
-                hoverLabel={c.previewHint}
               />
             ))}
           </StaggerChildren>

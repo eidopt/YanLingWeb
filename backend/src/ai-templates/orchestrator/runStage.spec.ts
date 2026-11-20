@@ -25,6 +25,7 @@ const capabilities: ProviderCapabilities = {
   supportsStructuredOutput: false,
   supportsReasoningEffort: false,
   supportsServerSideContext: false,
+  supportsForcedToolChoice: true,
   reasoningMode: 'none',
   cacheStrategy: 'none',
   supportsDeveloperRole: false,
@@ -46,10 +47,13 @@ class FakeProvider implements AIProvider {
   readonly name = 'fake-provider';
   readonly requests: ProviderRequest[] = [];
 
-  constructor(private readonly batches: ProviderStreamEvent[][]) {}
+  constructor(
+    private readonly batches: ProviderStreamEvent[][],
+    private readonly customCapabilities: ProviderCapabilities = capabilities,
+  ) {}
 
   getCapabilities(): ProviderCapabilities {
-    return capabilities;
+    return this.customCapabilities;
   }
 
   async *stream(request: ProviderRequest): AsyncIterable<ProviderStreamEvent> {
@@ -119,23 +123,19 @@ describe('runStructuredStage', () => {
           usage: { inputTokens: 10, outputTokens: 4, cacheHitTokens: 3 },
         },
       ],
-      [
-        {
-          type: 'done',
-          usage: { inputTokens: 2, outputTokens: 1 },
-        },
-      ],
     ]);
 
     const result = await runStructuredStage(createOptions(provider));
 
     expect(result).toEqual({
       output: { value: 'accepted' },
-      usage: { inputTokens: 12, outputTokens: 5, cacheHitTokens: 3 },
-      iterations: 2,
+      usage: { inputTokens: 10, outputTokens: 4, cacheHitTokens: 3 },
+      iterations: 1,
     });
+    expect(provider.requests).toHaveLength(1);
     expect(provider.requests[0].model).toBe('test-model');
     expect(provider.requests[0].tools).toEqual([resultTool]);
+    expect(provider.requests[0].toolChoice).toEqual({ type: 'function', name: 'submit_result' });
     expect(provider.requests[0].messages.slice(0, 2)).toEqual([
       { role: 'system', content: 'Return structured data.' },
       { role: 'user', content: 'Create a result.' },
@@ -162,13 +162,13 @@ describe('runStructuredStage', () => {
         },
         { type: 'done' },
       ],
-      [{ type: 'done' }],
     ]);
 
     const result = await runStructuredStage(createOptions(provider));
 
     expect(result.output).toEqual({ value: 'corrected' });
-    expect(result.iterations).toBe(3);
+    expect(result.iterations).toBe(2);
+    expect(provider.requests).toHaveLength(2);
     const feedbackMessage = provider.requests[1].messages.find(
       (message) => message.role === 'tool_result' && message.toolCallId === 'call-1',
     );
@@ -179,8 +179,60 @@ describe('runStructuredStage', () => {
     expect(typeof feedback.hint).toBe('string');
   });
 
+  it('recovers via one-shot nudge when first turn returns plain text', async () => {
+    const provider = new FakeProvider([
+      [
+        { type: 'text_delta', text: 'Let me think about the design first.' },
+        { type: 'done', usage: { inputTokens: 12, outputTokens: 6 } },
+      ],
+      [
+        {
+          type: 'tool_call',
+          id: 'call-nudge',
+          name: 'submit_result',
+          arguments: JSON.stringify({ value: 'nudged-ok' }),
+        },
+        { type: 'done', usage: { inputTokens: 20, outputTokens: 8, cacheHitTokens: 10 } },
+      ],
+    ]);
+
+    const result = await runStructuredStage(createOptions(provider));
+
+    expect(result).toEqual({
+      output: { value: 'nudged-ok' },
+      usage: { inputTokens: 32, outputTokens: 14, cacheHitTokens: 10 },
+      iterations: 2,
+    });
+    expect(provider.requests).toHaveLength(2);
+    const lastMessage = provider.requests[1].messages.at(-1);
+    expect(lastMessage?.role).toBe('user');
+    expect(lastMessage?.content).toContain('submit_result');
+  });
+
+  it('omits toolChoice when provider capabilities disable supportsForcedToolChoice', async () => {
+    const provider = new FakeProvider(
+      [
+        [
+          {
+            type: 'tool_call',
+            id: 'call-1',
+            name: 'submit_result',
+            arguments: JSON.stringify({ value: 'accepted' }),
+          },
+          { type: 'done' },
+        ],
+      ],
+      { ...capabilities, supportsForcedToolChoice: false },
+    );
+
+    const result = await runStructuredStage(createOptions(provider));
+
+    expect(result.output).toEqual({ value: 'accepted' });
+    expect(provider.requests[0].toolChoice).toBeUndefined();
+  });
+
   it('throws when the provider finishes without invoking the target tool', async () => {
-    const provider = new FakeProvider([[{ type: 'done' }]]);
+    const provider = new FakeProvider([[{ type: 'done' }], [{ type: 'done' }]]);
 
     await expect(runStructuredStage(createOptions(provider))).rejects.toThrow(
       'stage "submit_result" did not invoke tool',

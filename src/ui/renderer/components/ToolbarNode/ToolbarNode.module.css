@@ -5,8 +5,9 @@
   justify-content: space-between;
   gap: var(--app-unit-2);
   padding: var(--app-unit-1-5) var(--app-unit-2);
-  border-bottom: var(--app-unit-0-125) solid var(--tpl-border);
-  background: var(--tpl-surface-1);
+  border-radius: var(--radius-card, var(--radius-panel, var(--app-unit-2)));
+  border: var(--app-unit-0-125) solid var(--panel-border, var(--border-color, var(--tpl-border)));
+  background: var(--panel-bg, var(--surface-muted, var(--tpl-surface-1)));
   min-height: var(--app-unit-6);
 }
 

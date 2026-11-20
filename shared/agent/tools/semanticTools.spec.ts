@@ -1,3 +1,4 @@
+import { EDITOR_BATCH_EDIT_TOOL, editorToolCallToOperations } from './editorEditTools';
 import { assertSemanticToolName, isSemanticTool, parseSemanticArgs, type SemanticToolName } from './semanticTools';
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
@@ -70,5 +71,35 @@ void describe('assertSemanticToolName', () => {
   void it('throws for unknown names', () => {
     assert.throws(() => assertSemanticToolName('foo_bar'), /Unknown semantic tool: foo_bar/);
     assert.throws(() => assertSemanticToolName(''), /Unknown semantic tool: /);
+  });
+});
+
+void describe('editor_batch_edit tool conversion', () => {
+  void it('flattens multiple atomic editor edits into a combined operations list', () => {
+    const converted = editorToolCallToOperations(EDITOR_BATCH_EDIT_TOOL.name, {
+      reason: '同时更新标题和按钮文案',
+      edits: [
+        {
+          tool: 'editor_update_props',
+          args: { nodeId: 'hero-title', props: { text: '深焙臻选' } },
+        },
+        {
+          tool: 'editor_update_props',
+          args: { nodeId: 'hero-cta', props: { label: '限时尝鲜' } },
+        },
+      ],
+    });
+    assert.equal(converted.reason, '同时更新标题和按钮文案');
+    assert.equal(converted.operations.length, 2);
+    assert.deepEqual(converted.operations[0], {
+      type: 'update_props',
+      nodeId: 'hero-title',
+      props: { text: '深焙臻选' },
+    });
+    assert.deepEqual(converted.operations[1], {
+      type: 'update_props',
+      nodeId: 'hero-cta',
+      props: { label: '限时尝鲜' },
+    });
   });
 });

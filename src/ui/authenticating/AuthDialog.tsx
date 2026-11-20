@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ApiError } from 'services/UserService';
 import { Box, Button, Divider, Heading, Inline, Input, Label, Stack, Text } from 'ui/base';
+import { BrandMarkIcon, CloseIcon, MiniProgramIcon, MobileIcon } from 'ui/icons';
 
 type Tab = 'login' | 'register';
 type View = Tab | 'wechat';
@@ -64,12 +65,14 @@ export function AuthDialog({ onClose, initialTab = 'login', successRedirect = '/
             size="icon-sm"
             variant="icon"
           >
-            ✕
+            <CloseIcon width={15} height={15} />
           </Button>
         </Box>
 
         <Inline className={styles.brand}>
-          <Box className={styles.brandLogo}>✦</Box>
+          <Box className={styles.brandLogo}>
+            <BrandMarkIcon width={16} height={16} />
+          </Box>
           <Text as="span" weight="heavy">
             言灵 AI
           </Text>
@@ -194,11 +197,7 @@ function LoginForm({
           type="button"
           onClick={onWechat}
           fullWidth
-          leadingIcon={
-            <Text as="span" size="lg">
-              💬
-            </Text>
-          }
+          leadingIcon={<MiniProgramIcon width={16} height={16} />}
           size="sm"
           variant="secondary"
         >
@@ -207,11 +206,7 @@ function LoginForm({
         <Button
           type="button"
           fullWidth
-          leadingIcon={
-            <Text as="span" size="lg">
-              📱
-            </Text>
-          }
+          leadingIcon={<MobileIcon width={16} height={16} />}
           size="sm"
           variant="secondary"
         >
@@ -355,11 +350,7 @@ function RegisterForm({
           type="button"
           onClick={onWechat}
           fullWidth
-          leadingIcon={
-            <Text as="span" size="lg">
-              💬
-            </Text>
-          }
+          leadingIcon={<MiniProgramIcon width={16} height={16} />}
           size="sm"
           variant="secondary"
         >
@@ -368,11 +359,7 @@ function RegisterForm({
         <Button
           type="button"
           fullWidth
-          leadingIcon={
-            <Text as="span" size="lg">
-              📱
-            </Text>
-          }
+          leadingIcon={<MobileIcon width={16} height={16} />}
           size="sm"
           variant="secondary"
         >

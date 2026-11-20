@@ -28,7 +28,14 @@ export const SUBMIT_DIVERSITY_VERDICT_TOOL: ProviderTool = {
             templateId: { type: 'string', description: '冲突参照的模板 id' },
             dimension: {
               type: 'string',
-              enum: ['archetype', 'heroMode', 'componentTemplate', 'color-hue', 'signature'],
+              enum: [
+                'archetype',
+                'heroMode',
+                'componentTemplate',
+                'color-hue',
+                'signature',
+                'structure',
+              ],
             },
             description: { type: 'string', description: '中文一句话冲突说明' },
           },

@@ -6,7 +6,13 @@
  *
  * 运行: npx vitest shared/agent/editor/nodeCandidateSet.spec.ts
  */
-import { inferDisplayName, isContainerNode } from '../context/editorContext';
+import {
+  buildEditorTrimmedVolatileContext,
+  buildNodeCandidateSet as buildProductionNodeCandidateSet,
+  inferDisplayName,
+  isContainerNode,
+  summarizeTemplateAgentKnowledge,
+} from '../context/editorContext';
 import { createCommerceMarketDocument } from '../fixtures/seedDocuments';
 import type { ThemeLayoutNode } from '../types';
 import assert from 'node:assert/strict';
@@ -353,5 +359,90 @@ void describe('token 开销对比', () => {
     // 新格式会更长（因为 displayName），但换来的准确率提升值得
     // 新格式长度应控制在合理范围内（< 3x 旧格式）
     expect(newChars).toBeLessThan(oldChars * 4);
+  });
+});
+
+void describe('生产级 editorContext 接地修复 (WP6)', () => {
+  void it('buildEditorTrimmedVolatileContext 包含 [C] 容器标记、完整 ID 与 Semantic Landmarks', () => {
+    const doc = createCommerceMarketDocument();
+    const ctx = buildEditorTrimmedVolatileContext(doc, undefined, null, null, '把立即下单改成马上抢购');
+
+    expect(ctx).toContain('[C] ');
+    expect(ctx).toContain('Editable nodes (use exact full IDs in tool calls');
+    expect(ctx).toContain('Semantic Landmarks (use these as fallback via semanticTarget):');
+  });
+
+  void it('buildNodeCandidateSet 超过 80 节点时准确统计省略数量，且 Trimmed 上下文能用中文 bigram 召回深层目标', () => {
+    const fillerChildren: ThemeLayoutNode[] = Array.from({ length: 88 }, (_, idx) => ({
+      id: `filler-text-${String(idx)}`,
+      alias: 'core.text',
+      layout: { mode: 'flow' as const, order: idx + 1 },
+      props: { text: `普通占位文案 ${String(idx)}` },
+    }));
+    const targetBtn: ThemeLayoutNode = {
+      id: 'deep-reserve-btn',
+      alias: 'core.button',
+      layout: { mode: 'flow' as const, order: 90 },
+      props: { label: '立即预约', variant: 'primary' },
+    };
+    const panelNode: ThemeLayoutNode = {
+      id: 'deep-action-panel',
+      alias: 'core.panel',
+      layout: { mode: 'flow' as const, order: 89 },
+      props: { title: '预约区' },
+      children: [targetBtn],
+    };
+    const rootNode: ThemeLayoutNode = {
+      id: 'big-screen',
+      alias: 'core.screen',
+      layout: { mode: 'flow' as const },
+      props: { title: '大页面' },
+      children: [...fillerChildren, panelNode],
+    };
+
+    const fullCandidateSet = buildProductionNodeCandidateSet(rootNode);
+    // total = 1 (root) + 88 + 1 (panel) + 1 (btn) = 91 nodes, capped at 80 -> 11 omitted
+    expect(fullCandidateSet).toContain('... 11 more nodes omitted');
+
+    const baseDoc = createCommerceMarketDocument();
+    const bigDoc = {
+      ...baseDoc,
+      layout: rootNode,
+      pages: [{ id: 'big', name: '大页面', layout: rootNode }],
+    };
+    const trimmed = buildEditorTrimmedVolatileContext(
+      bigDoc,
+      undefined,
+      null,
+      null,
+      '把底部的立即预约按钮改成免费试听',
+    );
+    expect(trimmed).toContain('deep-reserve-btn (core.button)');
+    expect(trimmed).toContain('[C] deep-action-panel (core.panel)');
+    expect(trimmed).toContain('Semantic Landmarks');
+  });
+
+  void it('summarizeTemplateAgentKnowledge 省略空/none 字段并保留非空配置', () => {
+    const emptySummary = summarizeTemplateAgentKnowledge({
+      effectiveProfile: null,
+      profileOverride: {},
+      assets: null,
+      permissions: undefined,
+      evaluation: {},
+    });
+    expect(emptySummary).not.toContain('profileOverride=');
+    expect(emptySummary).not.toContain('Template config JSON snippets:');
+
+    const populatedSummary = summarizeTemplateAgentKnowledge({
+      effectiveProfile: null,
+      profileOverride: {},
+      assets: { heroBanner: '/img/hero.png' },
+      permissions: null,
+      evaluation: {},
+    });
+    expect(populatedSummary).toContain('- assets: keys=heroBanner');
+    expect(populatedSummary).toContain('Template config JSON snippets:');
+    expect(populatedSummary).toContain('assets={"heroBanner":"/img/hero.png"}');
+    expect(populatedSummary).not.toContain('profileOverride=');
   });
 });

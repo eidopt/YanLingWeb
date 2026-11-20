@@ -3,5 +3,6 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  background: color-mix(in srgb, var(--surface-muted, #f3f6fb) 82%, var(--text-base, #101828) 18%);
+  padding: 24px 16px;
+  background: var(--app-bg-quiet);
 }

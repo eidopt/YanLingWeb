@@ -29,17 +29,14 @@
 .multiTrigger {
   width: 100%;
   min-width: 0;
-  border: var(--app-unit-0-125) solid var(--app-border);
+  border: 1px solid var(--app-border);
   border-radius: var(--app-radius-md);
-  background: var(--app-surface-glass);
+  background: var(--app-surface-1);
   color: var(--app-text-primary);
-  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--app-white-alpha-02);
-  backdrop-filter: blur(var(--app-unit-2-5)) saturate(150%);
   transition:
     border-color var(--app-motion-fast) var(--app-motion-smooth),
     box-shadow var(--app-motion-fast) var(--app-motion-smooth),
-    background var(--app-motion-fast) var(--app-motion-smooth),
-    opacity var(--app-motion-fast) var(--app-motion-smooth);
+    background-color var(--app-motion-fast) var(--app-motion-smooth);
 }
 
 .inputFrame {
@@ -64,6 +61,14 @@
   color: var(--app-text-faint);
 }
 
+.inputControl[type='search']::-webkit-search-decoration,
+.inputControl[type='search']::-webkit-search-cancel-button,
+.inputControl[type='search']::-webkit-search-results-button,
+.inputControl[type='search']::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
 .inputRoot[data-size='sm'],
 .selectRoot[data-size='sm'],
 .textareaRoot[data-size='sm'],
@@ -81,37 +86,37 @@
 .inputRoot[data-size='sm'] .inputFrame,
 .selectRoot[data-size='sm'] .selectControl,
 .multiRoot[data-size='sm'] .multiTrigger {
-  min-height: var(--app-unit-4);
-  padding: var(--app-unit-1) var(--app-unit-1-25);
+  min-height: 34px;
+  padding: 6px 10px;
 }
 
 .inputRoot[data-size='md'] .inputFrame,
 .selectRoot[data-size='md'] .selectControl,
 .multiRoot[data-size='md'] .multiTrigger {
-  min-height: var(--app-unit-5);
-  padding: var(--app-unit-1-25) var(--app-unit-1-75);
+  min-height: 40px;
+  padding: 8px 14px;
 }
 
 .inputRoot[data-size='lg'] .inputFrame,
 .selectRoot[data-size='lg'] .selectControl,
 .multiRoot[data-size='lg'] .multiTrigger {
-  min-height: var(--app-unit-6);
-  padding: var(--app-unit-1-5) var(--app-unit-2);
+  min-height: 44px;
+  padding: 10px 16px;
 }
 
 .textareaRoot[data-size='sm'] .textareaControl {
-  min-height: var(--app-unit-1);
-  padding: var(--app-unit-1-25) var(--app-unit-1-5);
+  min-height: 64px;
+  padding: 8px 10px;
 }
 
 .textareaRoot[data-size='md'] .textareaControl {
-  min-height: var(--app-unit-12);
-  padding: var(--app-unit-1-5) var(--app-unit-1-75);
+  min-height: 88px;
+  padding: 10px 14px;
 }
 
 .textareaRoot[data-size='lg'] .textareaControl {
-  min-height: var(--app-unit-16);
-  padding: var(--app-unit-1-75) var(--app-unit-2);
+  min-height: 112px;
+  padding: 12px 16px;
 }
 
 .inputRoot[data-variant='filled'] .inputFrame,
@@ -119,6 +124,7 @@
 .textareaRoot[data-variant='filled'] .textareaControl,
 .multiRoot[data-variant='filled'] .multiTrigger {
   background: var(--app-surface-2);
+  border-color: transparent;
 }
 
 .inputRoot[data-variant='quiet'] .inputFrame,
@@ -134,38 +140,29 @@
 .selectRoot[data-variant='glass'] .selectControl,
 .textareaRoot[data-variant='glass'] .textareaControl,
 .multiRoot[data-variant='glass'] .multiTrigger {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(var(--app-unit-2-5)) saturate(150%);
-}
-
-.inputRoot[data-variant='glass']:focus-within .inputFrame,
-.selectRoot[data-variant='glass'] .selectControl:focus,
-.textareaRoot[data-variant='glass'] .textareaControl:focus,
-.multiRoot[data-variant='glass'] .multiTrigger:focus-visible {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(244, 63, 94, 0.4);
+  background: var(--app-surface-1);
+  border-color: var(--app-border);
 }
 
 .inputRoot[data-tone='success'] .inputFrame,
 .selectRoot[data-tone='success'] .selectControl,
 .textareaRoot[data-tone='success'] .textareaControl,
 .multiRoot[data-tone='success'] .multiTrigger {
-  border-color: color-mix(in srgb, var(--app-color-success) 42%, var(--app-border));
+  border-color: var(--app-color-success);
 }
 
 .inputRoot[data-tone='warning'] .inputFrame,
 .selectRoot[data-tone='warning'] .selectControl,
 .textareaRoot[data-tone='warning'] .textareaControl,
 .multiRoot[data-tone='warning'] .multiTrigger {
-  border-color: color-mix(in srgb, var(--app-color-warning) 46%, var(--app-border));
+  border-color: var(--app-color-warning);
 }
 
 .inputRoot[data-tone='danger'] .inputFrame,
 .selectRoot[data-tone='danger'] .selectControl,
 .textareaRoot[data-tone='danger'] .textareaControl,
 .multiRoot[data-tone='danger'] .multiTrigger {
-  border-color: color-mix(in srgb, var(--app-color-danger) 52%, var(--app-border));
+  border-color: var(--app-color-danger);
 }
 
 .inputRoot:focus-within .inputFrame,
@@ -173,15 +170,15 @@
 .textareaControl:focus,
 .multiTrigger:focus-visible {
   border-color: var(--app-color-primary);
+  background: var(--app-surface-1);
+  box-shadow: var(--app-shadow-focus);
+}
+
+.inputRoot[data-variant='quiet']:focus-within .inputFrame,
+.textareaRoot[data-variant='quiet'] .textareaControl:focus {
+  border-color: var(--app-border);
   background: var(--app-surface-2);
-  box-shadow:
-    var(--app-shadow-focus),
-    var(--app-shadow-brand-sm),
-    0 0 0 var(--app-unit-0-75) rgba(244, 63, 94, 0.06);
-  transition:
-    border-color var(--app-motion-fast) var(--app-motion-smooth),
-    box-shadow var(--app-motion-base) var(--app-motion-smooth),
-    background var(--app-motion-fast) var(--app-motion-smooth);
+  box-shadow: none;
 }
 
 .inputRoot[data-tone='danger']:focus-within .inputFrame,
@@ -189,7 +186,7 @@
 .selectRoot[data-tone='danger'] .selectControl:focus,
 .multiRoot[data-tone='danger'] .multiTrigger:focus-visible {
   border-color: var(--app-color-danger);
-  box-shadow: 0 0 0 var(--app-unit-0-375) color-mix(in srgb, var(--app-color-danger) 18%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-color-danger) 16%, transparent);
 }
 
 .inputRoot[data-disabled='true'] .inputFrame,
@@ -197,7 +194,7 @@
 .textareaRoot[data-disabled='true'] .textareaControl,
 .multiRoot[data-disabled='true'] .multiTrigger {
   cursor: not-allowed;
-  opacity: 0.58;
+  opacity: 0.55;
 }
 
 .adornment {
@@ -215,17 +212,18 @@
 
 .selectControl {
   appearance: none;
-  padding-right: var(--app-unit-5);
+  padding-right: 36px;
   font: inherit;
   outline: 0;
+  cursor: pointer;
 }
 
 .selectChevron,
 .multiChevron {
-  width: var(--app-unit-1);
-  height: var(--app-unit-1);
-  border-right: var(--app-unit-0-25) solid currentColor;
-  border-bottom: var(--app-unit-0-25) solid currentColor;
+  width: 7px;
+  height: 7px;
+  border-right: 1.75px solid currentColor;
+  border-bottom: 1.75px solid currentColor;
   color: var(--app-text-muted);
   pointer-events: none;
   transform: rotate(45deg);
@@ -233,8 +231,8 @@
 
 .selectChevron {
   position: absolute;
-  top: calc(50% - var(--app-unit-0-75));
-  right: var(--app-unit-2);
+  top: calc(50% - 5px);
+  right: 14px;
 }
 
 .textareaControl {
@@ -247,7 +245,7 @@
 .choiceRoot {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: var(--app-unit-1-25);
+  gap: 10px;
   align-items: start;
   max-width: 100%;
   color: var(--app-text-primary);
@@ -268,13 +266,13 @@
 
 .choiceRoot[data-disabled='true'] {
   cursor: not-allowed;
-  opacity: 0.58;
+  opacity: 0.55;
 }
 
 .choiceInput {
   position: absolute;
-  width: var(--app-unit-0-125);
-  height: var(--app-unit-0-125);
+  width: 1px;
+  height: 1px;
   margin: 0;
   opacity: 0;
   pointer-events: none;
@@ -286,16 +284,14 @@
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: var(--app-unit-2-25);
-  height: var(--app-unit-2-25);
-  margin-top: var(--app-unit-0-375);
-  border: var(--app-unit-0-125) solid var(--app-border-strong);
-  background: var(--app-surface-glass);
-  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--app-white-alpha-02);
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  border: 1px solid var(--app-border-strong);
+  background: var(--app-surface-1);
   transition:
     border-color var(--app-motion-fast) var(--app-motion-smooth),
-    background var(--app-motion-fast) var(--app-motion-smooth),
-    box-shadow var(--app-motion-fast) var(--app-motion-smooth);
+    background-color var(--app-motion-fast) var(--app-motion-smooth);
 }
 
 .checkboxMark {
@@ -307,41 +303,40 @@
 }
 
 .choiceInput:focus-visible + .choiceMark {
-  outline: var(--app-unit-0-375) solid color-mix(in srgb, var(--app-focus-ring) 32%, transparent);
-  outline-offset: var(--app-unit-0-25);
+  outline: 2px solid var(--app-focus-ring);
+  outline-offset: 2px;
 }
 
 .choiceInput:checked + .choiceMark {
   border-color: var(--app-color-primary);
-  background: var(--app-brand-gradient);
-  box-shadow: var(--app-shadow-brand-sm);
+  background: var(--app-color-primary);
 }
 
 .choiceInput:checked + .checkboxMark::after {
   content: '';
-  width: var(--app-unit-0-5);
-  height: var(--app-unit-1);
-  border-right: var(--app-unit-0-25) solid var(--app-text-inverse);
-  border-bottom: var(--app-unit-0-25) solid var(--app-text-inverse);
-  transform: rotate(42deg) translateY(calc(var(--app-unit-0-125) * -1));
+  width: 4px;
+  height: 8px;
+  border-right: 2px solid var(--app-text-inverse);
+  border-bottom: 2px solid var(--app-text-inverse);
+  transform: rotate(42deg) translateY(-1px);
 }
 
 .choiceInput:checked + .radioMark::after {
   content: '';
-  width: var(--app-unit-0-75);
-  height: var(--app-unit-0-75);
+  width: 6px;
+  height: 6px;
   border-radius: var(--app-radius-pill);
   background: var(--app-text-inverse);
 }
 
 .choiceRoot[data-tone='danger'] .choiceMark {
-  border-color: color-mix(in srgb, var(--app-color-danger) 56%, var(--app-border));
+  border-color: var(--app-color-danger);
 }
 
 .choiceText {
   display: grid;
   min-width: 0;
-  gap: var(--app-unit-0-25);
+  gap: 2px;
 }
 
 .choiceLabel {
@@ -359,7 +354,7 @@
 
 .radioGroup {
   display: grid;
-  gap: var(--app-unit-1-5);
+  gap: 12px;
   min-width: 0;
   border: 0;
   padding: 0;
@@ -373,7 +368,7 @@
 }
 
 .radioLegend {
-  margin-bottom: var(--app-unit-0-75);
+  margin-bottom: 6px;
   color: var(--app-text-secondary);
   font-size: var(--app-font-size-sm);
   font-weight: var(--app-font-weight-bold);
@@ -383,7 +378,7 @@
   position: relative;
   display: inline-flex;
   flex-direction: column;
-  gap: var(--app-unit-0-75);
+  gap: 6px;
 }
 
 .multiTrigger {
@@ -402,14 +397,14 @@
 }
 
 .multiRoot[data-open='true'] .multiChevron {
-  transform: translateY(var(--app-unit-0-375)) rotate(225deg);
+  transform: translateY(3px) rotate(225deg);
 }
 
 .multiValue {
   display: flex;
   flex: 1 1 auto;
   flex-wrap: wrap;
-  gap: var(--app-unit-0-75);
+  gap: 6px;
   align-items: center;
   min-width: 0;
 }
@@ -421,11 +416,11 @@
 .multiTag {
   max-width: 100%;
   min-width: 0;
-  border-radius: var(--app-radius-pill);
-  padding: var(--app-unit-0-25) var(--app-unit-1);
-  background: color-mix(in srgb, var(--app-color-primary) 11%, transparent);
-  border: var(--app-unit-0-125) solid color-mix(in srgb, var(--app-color-primary) 18%, transparent);
-  color: var(--app-color-accent);
+  border-radius: var(--app-radius-sm);
+  padding: 2px 8px;
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-border);
+  color: var(--app-text-primary);
   font-size: var(--app-font-size-xs);
   font-weight: var(--app-font-weight-bold);
   line-height: 1.45;
@@ -444,29 +439,28 @@
 .multiPopover {
   position: absolute;
   z-index: 1500;
-  top: calc(100% + var(--app-unit-0-75));
+  top: calc(100% + 6px);
   right: 0;
   left: 0;
-  min-width: min(var(--app-unit-36), calc(100vw - var(--app-unit-4)));
-  max-height: var(--app-unit-36);
+  min-width: min(288px, calc(100vw - 32px));
+  max-height: 288px;
   overflow: auto;
-  border: var(--app-unit-0-125) solid var(--app-border);
+  border: 1px solid var(--app-modal-border);
   border-radius: var(--app-radius-md);
-  background: color-mix(in srgb, var(--app-color-ink) 86%, transparent);
-  box-shadow: var(--app-shadow-lg), var(--app-shadow-glow-violet);
-  backdrop-filter: blur(var(--app-unit-2-5)) saturate(160%);
-  padding: var(--app-unit-0-75);
+  background: var(--app-modal-surface);
+  box-shadow: var(--app-shadow-lg);
+  padding: 6px;
 }
 
 .multiOption {
   display: grid;
   width: 100%;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: var(--app-unit-1-25);
+  gap: 10px;
   align-items: start;
   border: 0;
   border-radius: var(--app-radius-sm);
-  padding: var(--app-unit-1) var(--app-unit-1-25);
+  padding: 8px 10px;
   background: transparent;
   color: var(--app-text-primary);
   font: inherit;
@@ -476,7 +470,7 @@
 
 .multiOption:hover:not(:disabled),
 .multiOption:focus-visible {
-  background: var(--color-hover);
+  background: var(--app-surface-2);
   outline: 0;
 }
 
@@ -489,31 +483,31 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--app-unit-2);
-  height: var(--app-unit-2);
-  margin-top: var(--app-unit-0-375);
-  border: var(--app-unit-0-125) solid var(--app-border-strong);
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  border: 1px solid var(--app-border-strong);
   border-radius: var(--app-radius-xs);
   color: var(--app-text-inverse);
 }
 
 .multiOption[aria-selected='true'] .multiOptionCheck {
   border-color: var(--app-color-primary);
-  background: var(--app-brand-gradient);
+  background: var(--app-color-primary);
 }
 
 .multiOption[aria-selected='true'] .multiOptionCheck::after {
   content: '';
-  width: var(--app-unit-0-5);
-  height: var(--app-unit-1);
-  border-right: var(--app-unit-0-25) solid currentColor;
-  border-bottom: var(--app-unit-0-25) solid currentColor;
-  transform: rotate(42deg) translateY(calc(var(--app-unit-0-125) * -1));
+  width: 4px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(42deg) translateY(-1px);
 }
 
 .multiOptionText {
   display: grid;
-  gap: var(--app-unit-0-25);
+  gap: 2px;
   min-width: 0;
 }
 
@@ -531,7 +525,7 @@
 }
 
 .multiEmpty {
-  padding: var(--app-unit-1-25) var(--app-unit-1-5);
+  padding: 10px 12px;
   color: var(--app-text-muted);
   font-size: var(--app-font-size-sm);
 }

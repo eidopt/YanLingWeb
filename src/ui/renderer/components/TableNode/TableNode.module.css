@@ -15,27 +15,27 @@
   font-weight: 700;
   font-size: var(--app-unit-1-5);
   color: var(--text-caption-color, var(--tpl-neutral-500));
-  background: var(--tpl-surface-1);
-  border-bottom: var(--app-unit-0-125) solid var(--tpl-border);
+  background: var(--panel-bg, var(--surface-muted, var(--tpl-surface-1)));
+  border-bottom: var(--app-unit-0-125) solid var(--panel-border, var(--border-color, var(--tpl-border)));
   white-space: nowrap;
 }
 
 .td {
   padding: var(--app-unit-1-5) var(--app-unit-2);
-  border-bottom: var(--app-unit-0-125) solid var(--tpl-border-subtle, var(--tpl-neutral-100));
+  border-bottom: var(--app-unit-0-125) solid var(--panel-border, var(--border-color, var(--tpl-border-subtle)));
 }
 
 .tableBordered {
-  border: var(--app-unit-0-125) solid var(--tpl-border);
+  border: var(--app-unit-0-125) solid var(--panel-border, var(--border-color, var(--tpl-border)));
   border-radius: var(--app-unit-1);
   overflow: hidden;
 }
 
 .tableBordered .th,
 .tableBordered .td {
-  border: var(--app-unit-0-125) solid var(--tpl-border);
+  border: var(--app-unit-0-125) solid var(--panel-border, var(--border-color, var(--tpl-border)));
 }
 
 .tableStripe tbody tr:nth-child(even) {
-  background: var(--tpl-surface-1);
+  background: var(--surface-muted, var(--panel-bg, var(--tpl-surface-1)));
 }

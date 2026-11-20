@@ -13,6 +13,7 @@ import type {
   ProviderRequest,
   ProviderStreamEvent,
   ProviderTool,
+  ProviderToolChoice,
 } from './types';
 
 interface UsageAccumulator {
@@ -29,12 +30,71 @@ type CompatibleAssistantMessageParam = OpenAI.Chat.ChatCompletionAssistantMessag
   reasoning_content?: string;
 };
 
+type CompatibleCreateParams = OpenAI.Chat.ChatCompletionCreateParamsStreaming & {
+  prompt_cache_key?: string;
+  [extra: string]: unknown;
+};
+
+type WireToolChoice = OpenAI.Chat.ChatCompletionToolChoiceOption;
+
 /** Default capabilities — used when no model-specific override is found */
 // (removed: capabilities now built dynamically via buildCompatibleCapabilities)
 
 function numberProperty(value: object, key: string): number | undefined {
   const item = (value as Record<string, unknown>)[key];
   return typeof item === 'number' && Number.isFinite(item) ? item : undefined;
+}
+
+function extractUsage(rawUsage: unknown): CompatibleUsageAccumulator | undefined {
+  if (!rawUsage || typeof rawUsage !== 'object') {
+    return undefined;
+  }
+  const promptTokens = numberProperty(rawUsage, 'prompt_tokens') ?? 0;
+  const completionTokens = numberProperty(rawUsage, 'completion_tokens') ?? 0;
+  const details = (rawUsage as { prompt_tokens_details?: unknown }).prompt_tokens_details;
+  const cachedTokens =
+    details && typeof details === 'object' ? numberProperty(details, 'cached_tokens') : undefined;
+  const cacheHitTokens = numberProperty(rawUsage, 'prompt_cache_hit_tokens') ?? cachedTokens;
+  const cacheMissTokens =
+    numberProperty(rawUsage, 'prompt_cache_miss_tokens') ??
+    (cacheHitTokens === undefined ? undefined : Math.max(0, promptTokens - cacheHitTokens));
+
+  return {
+    inputTokens: promptTokens,
+    outputTokens: completionTokens,
+    cacheHitTokens,
+    cacheMissTokens,
+  };
+}
+
+function toWireToolChoice(choice: ProviderToolChoice | undefined): WireToolChoice | undefined {
+  if (!choice) {
+    return undefined;
+  }
+  if (choice === 'auto' || choice === 'required') {
+    return choice;
+  }
+  return {
+    type: 'function',
+    function: { name: choice.name },
+  };
+}
+
+function isUnsupportedToolChoiceError(err: unknown): boolean {
+  if (!err || typeof err !== 'object') {
+    return false;
+  }
+  const status = (err as { status?: unknown }).status;
+  const rawMessage = (err as { message?: unknown }).message;
+  const message =
+    err instanceof Error ? err.message : typeof rawMessage === 'string' ? rawMessage : '';
+  if (/context|token|length|quota|balance/i.test(message)) {
+    return false;
+  }
+  if (/tool_choice|thinking|not support|unsupported|invalid.*tool/i.test(message)) {
+    return true;
+  }
+  return status === 400;
 }
 
 /**
@@ -46,8 +106,9 @@ function numberProperty(value: object, key: string): number | undefined {
 export class OpenAICompatibleProvider implements AIProvider {
   readonly name: string;
   private client: OpenAI;
-  private abortController: AbortController | null = null;
+  private readonly activeControllers = new Set<AbortController>();
   private readonly caps: ProviderCapabilities;
+  private forcedToolChoiceDisabledAtRuntime = false;
 
   constructor(
     apiKey: string,
@@ -65,156 +126,203 @@ export class OpenAICompatibleProvider implements AIProvider {
   }
 
   async *stream(request: ProviderRequest): AsyncIterable<ProviderStreamEvent> {
+    if (request.signal?.aborted) {
+      return;
+    }
+
     const abortController = new AbortController();
-    this.abortController = abortController;
+    this.activeControllers.add(abortController);
+    const onExternalAbort = () => {
+      abortController.abort();
+    };
+    request.signal?.addEventListener('abort', onExternalAbort, { once: true });
 
-    // Purify messages for this provider's capabilities before converting
-    const purified = purifyMessages(request.messages, this.caps);
-    const messages = convertMessages(purified, this.caps);
-    const tools = request.tools ? convertTools(request.tools) : undefined;
-
-    let streamIter: AsyncIterable<ChatCompletionChunk>;
     try {
-      streamIter = await this.client.chat.completions.create({
+      // Purify messages for this provider's capabilities before converting
+      const purified = purifyMessages(request.messages, this.caps);
+      const messages = convertMessages(purified, this.caps);
+      const tools = request.tools ? convertTools(request.tools) : undefined;
+      const cacheKey =
+        this.caps.cacheStrategy === 'cache_key'
+          ? (request.cacheKey ?? (request as { cacheKey?: string }).cacheKey)
+          : undefined;
+      const allowForcedToolChoice =
+        this.caps.supportsForcedToolChoice !== false && !this.forcedToolChoiceDisabledAtRuntime;
+      const requestedWireToolChoice =
+        tools?.length && request.toolChoice
+          ? request.toolChoice === 'auto' || allowForcedToolChoice
+            ? toWireToolChoice(request.toolChoice)
+            : undefined
+          : undefined;
+
+      const buildCreateParams = (wireToolChoice?: WireToolChoice): CompatibleCreateParams => ({
         model: request.model,
         messages,
         stream: true,
         stream_options: { include_usage: true },
         ...(tools && { tools }),
+        ...(wireToolChoice ? { tool_choice: wireToolChoice } : {}),
+        ...(cacheKey ? { prompt_cache_key: cacheKey } : {}),
         ...this.caps.extraRequestParams,
       });
-    } catch (error) {
-      yield { type: 'error', message: error instanceof Error ? error.message : String(error) };
-      return;
-    }
 
-    const toolCallAccumulators = new Map<
-      number,
-      {
-        id: string;
-        name: string;
-        arguments: string;
-      }
-    >();
-    let usage: CompatibleUsageAccumulator | undefined;
-    /** Accumulated reasoning_content (DeepSeek streams it character by character) */
-    let reasoningBuffer = '';
-    let sawReasoningField = false;
-    let responseId: string | undefined;
-
-    try {
-      for await (const chunk of streamIter) {
-        if (abortController.signal.aborted) {
-          break;
-        }
-
-        // Merge usage from the last chunk (usage is only present on the final chunk)
-        // DeepSeek returns prompt_cache_hit_tokens / prompt_cache_miss_tokens in usage
-        if (chunk.usage) {
-          const cacheHitTokens = numberProperty(chunk.usage, 'prompt_cache_hit_tokens');
-          const cacheMissTokens =
-            numberProperty(chunk.usage, 'prompt_cache_miss_tokens') ??
-            (cacheHitTokens === undefined
-              ? undefined
-              : Math.max(0, chunk.usage.prompt_tokens - cacheHitTokens));
-          usage = {
-            inputTokens: chunk.usage.prompt_tokens,
-            outputTokens: chunk.usage.completion_tokens,
-            cacheHitTokens,
-            cacheMissTokens,
-          };
-        }
-
-        if (typeof chunk.id === 'string') {
-          responseId = chunk.id;
-        }
-
-        const choice = chunk.choices.length > 0 ? chunk.choices[0] : undefined;
-        if (!choice) {
-          continue;
-        }
-
-        // 1. Capture reasoning_content (accumulated — DeepSeek streams it per-char).
-        //    Yield each chunk incrementally as reasoning_delta so the frontend can stream
-        //    chain-of-thought in real time. reasoningBuffer is still preserved for the
-        //    final done event as an aggregate fallback.
-        const delta = choice.delta as Record<string, string | undefined>;
-        const reasoningDelta = delta.reasoning_content;
-        if (reasoningDelta !== undefined) {
-          sawReasoningField = true;
-          if (reasoningDelta) {
-            reasoningBuffer += reasoningDelta;
-            yield { type: 'reasoning_delta', text: reasoningDelta };
+      let streamIter: AsyncIterable<ChatCompletionChunk>;
+      try {
+        streamIter = await this.client.chat.completions.create(
+          buildCreateParams(requestedWireToolChoice),
+          { signal: abortController.signal },
+        );
+      } catch (error) {
+        if (
+          requestedWireToolChoice &&
+          isUnsupportedToolChoiceError(error) &&
+          !abortController.signal.aborted
+        ) {
+          if (requestedWireToolChoice !== 'auto') {
+            this.forcedToolChoiceDisabledAtRuntime = true;
           }
-        }
-
-        // 2. Text delta — don't emit reasoning content as text
-        const contentDelta = choice.delta.content;
-        if (contentDelta) {
-          yield { type: 'text_delta', text: contentDelta };
-        }
-
-        // 2. Tool call deltas (accumulate across chunks)
-        const toolCallDeltas = choice.delta.tool_calls;
-        if (toolCallDeltas) {
-          for (const delta of toolCallDeltas) {
-            const index = delta.index;
-            let acc = toolCallAccumulators.get(index);
-
-            if (!acc) {
-              acc = { id: delta.id ?? '', name: '', arguments: '' };
-              toolCallAccumulators.set(index, acc);
-            }
-
-            if (delta.id) {
-              acc.id = delta.id;
-            }
-            if (delta.function?.name) {
-              acc.name = delta.function.name;
-            }
-            if (delta.function?.arguments) {
-              acc.arguments += delta.function.arguments;
-            }
-          }
-        }
-
-        // 3. On finish_reason, flush accumulated tool calls and emit done
-        if (choice.finish_reason) {
-          // Emit all accumulated tool calls
-          const sortedIndices = [...toolCallAccumulators.keys()].sort();
-          for (const idx of sortedIndices) {
-            const acc = toolCallAccumulators.get(idx);
-            if (!acc?.id || !acc.name) {
-              continue;
-            }
+          try {
+            streamIter = await this.client.chat.completions.create(buildCreateParams(undefined), {
+              signal: abortController.signal,
+            });
+          } catch (retryError) {
             yield {
-              type: 'tool_call',
-              id: acc.id,
-              name: acc.name,
-              arguments: acc.arguments || '{}',
+              type: 'error',
+              message: retryError instanceof Error ? retryError.message : String(retryError),
             };
+            return;
           }
-
-          const isMaxTokens = choice.finish_reason === 'length';
-          yield {
-            type: 'done',
-            usage,
-            stopReason: isMaxTokens ? 'max_tokens' : 'end_turn',
-            ...(responseId && { response_id: responseId }),
-            ...(sawReasoningField && { reasoningContent: reasoningBuffer }),
-          };
+        } else {
+          yield { type: 'error', message: error instanceof Error ? error.message : String(error) };
+          return;
         }
       }
-    } catch (error) {
-      if (!abortController.signal.aborted) {
-        yield { type: 'error', message: error instanceof Error ? error.message : String(error) };
+
+      const toolCallAccumulators = new Map<
+        number,
+        {
+          id: string;
+          name: string;
+          arguments: string;
+        }
+      >();
+      let usage: CompatibleUsageAccumulator | undefined;
+      /** Accumulated reasoning_content (DeepSeek streams it character by character) */
+      let reasoningBuffer = '';
+      let sawReasoningField = false;
+      let responseId: string | undefined;
+      let finishReason: string | null = null;
+      let streamErrored = false;
+
+      try {
+        for await (const chunk of streamIter) {
+          if (abortController.signal.aborted) {
+            break;
+          }
+
+          // Merge usage whenever present (including trailing choices: [] usage-only chunks)
+          const parsedUsage = extractUsage(chunk.usage);
+          if (parsedUsage) {
+            usage = parsedUsage;
+          }
+
+          if (typeof chunk.id === 'string') {
+            responseId = chunk.id;
+          }
+
+          const choice = chunk.choices.length > 0 ? chunk.choices[0] : undefined;
+          if (!choice) {
+            continue;
+          }
+
+          // 1. Capture reasoning_content (accumulated — DeepSeek streams it per-char).
+          const delta = choice.delta as Record<string, string | undefined>;
+          const reasoningDelta = delta.reasoning_content;
+          if (reasoningDelta !== undefined) {
+            sawReasoningField = true;
+            if (reasoningDelta) {
+              reasoningBuffer += reasoningDelta;
+              yield { type: 'reasoning_delta', text: reasoningDelta };
+            }
+          }
+
+          // 2. Text delta — don't emit reasoning content as text
+          const contentDelta = choice.delta.content;
+          if (contentDelta) {
+            yield { type: 'text_delta', text: contentDelta };
+          }
+
+          // 3. Tool call deltas (accumulate across chunks)
+          const toolCallDeltas = choice.delta.tool_calls;
+          if (toolCallDeltas) {
+            for (const toolDelta of toolCallDeltas) {
+              const index = toolDelta.index;
+              let acc = toolCallAccumulators.get(index);
+
+              if (!acc) {
+                acc = { id: toolDelta.id ?? '', name: '', arguments: '' };
+                toolCallAccumulators.set(index, acc);
+              }
+
+              if (toolDelta.id) {
+                acc.id = toolDelta.id;
+              }
+              if (toolDelta.function?.name) {
+                acc.name = toolDelta.function.name;
+              }
+              if (toolDelta.function?.arguments) {
+                acc.arguments += toolDelta.function.arguments;
+              }
+            }
+          }
+
+          if (choice.finish_reason) {
+            finishReason = choice.finish_reason;
+          }
+        }
+      } catch (error) {
+        streamErrored = true;
+        if (!abortController.signal.aborted) {
+          yield { type: 'error', message: error instanceof Error ? error.message : String(error) };
+        }
       }
+
+      if (!abortController.signal.aborted && !streamErrored) {
+        // Flush tool calls & done AFTER loop finishes so trailing choices: [] usage chunks are captured.
+        const sortedIndices = [...toolCallAccumulators.keys()].sort((a, b) => a - b);
+        for (const idx of sortedIndices) {
+          const acc = toolCallAccumulators.get(idx);
+          if (!acc?.id || !acc.name) {
+            continue;
+          }
+          yield {
+            type: 'tool_call',
+            id: acc.id,
+            name: acc.name,
+            arguments: acc.arguments || '{}',
+          };
+        }
+
+        const isMaxTokens = finishReason === 'length';
+        yield {
+          type: 'done',
+          usage,
+          stopReason: isMaxTokens ? 'max_tokens' : 'end_turn',
+          ...(responseId && { response_id: responseId }),
+          ...(sawReasoningField && { reasoningContent: reasoningBuffer }),
+        };
+      }
+    } finally {
+      request.signal?.removeEventListener('abort', onExternalAbort);
+      this.activeControllers.delete(abortController);
     }
   }
 
   cancel(): void {
-    this.abortController?.abort();
-    this.abortController = null;
+    for (const controller of this.activeControllers) {
+      controller.abort();
+    }
+    this.activeControllers.clear();
   }
 }
 

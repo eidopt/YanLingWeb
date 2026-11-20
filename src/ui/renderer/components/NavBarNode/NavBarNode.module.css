@@ -1,8 +1,10 @@
 .navbar {
   width: 100%;
-  min-height: 88px;
-  background: var(--tpl-surface-1, var(--tpl-neutral-900));
-  color: var(--tpl-text-inverse, var(--tpl-neutral-0));
+  min-height: 48px;
+  border-radius: var(--radius-card, var(--radius-panel, var(--app-unit-2)));
+  background: var(--navbar-bg, var(--panel-bg, var(--surface-muted, var(--tpl-surface-1))));
+  color: var(--navbar-text, var(--text-heading-color, var(--tpl-text-primary)));
+  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--panel-border, var(--border-color, var(--tpl-border-subtle)));
 }
 
 .fixed {
@@ -13,22 +15,23 @@
 
 .transparent {
   background: transparent;
-  color: var(--tpl-text-primary);
+  color: var(--text-heading-color, var(--tpl-text-primary));
+  box-shadow: none;
 }
 
 .inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 88px;
-  padding: 0 var(--app-unit-3);
+  height: 48px;
+  padding: 0 var(--app-unit-2-5);
 }
 
 .left,
 .right {
   display: flex;
   align-items: center;
-  width: 80px;
+  min-width: 24px;
   flex-shrink: 0;
 }
 

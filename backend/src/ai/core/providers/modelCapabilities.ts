@@ -18,6 +18,7 @@ const COMPATIBLE_DEFAULTS: ProviderCapabilities = {
   supportsStructuredOutput: false,
   supportsReasoningEffort: false,
   supportsServerSideContext: false,
+  supportsForcedToolChoice: true,
   reasoningMode: 'passthrough',
   cacheStrategy: 'none',
   supportsDeveloperRole: false,
@@ -27,6 +28,7 @@ export interface CompatibleCapabilitiesOverrides {
   reasoningMode?: 'none' | 'passthrough' | 'required';
   cacheStrategy?: 'response_id' | 'prefix' | 'cache_key' | 'cache_control' | 'none';
   supportsDeveloperRole?: boolean;
+  supportsForcedToolChoice?: boolean;
   extraRequestParams?: Record<string, unknown>;
 }
 
@@ -50,6 +52,11 @@ export function buildCompatibleCapabilities(
   }
   if (overrides?.extraRequestParams) {
     caps.extraRequestParams = overrides.extraRequestParams;
+  }
+  if (overrides?.supportsForcedToolChoice !== undefined) {
+    caps.supportsForcedToolChoice = overrides.supportsForcedToolChoice;
+  } else if (overrides?.extraRequestParams?.enable_thinking === true) {
+    caps.supportsForcedToolChoice = false;
   }
 
   return caps;

@@ -1,14 +1,15 @@
 .aiLayout {
   display: grid;
-  grid-template-columns: 1fr 1.4fr;
-  gap: var(--app-unit-10);
-  align-items: center;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.35fr);
+  gap: 56px;
+  align-items: start;
 }
 
 .aiLeft {
   display: flex;
   flex-direction: column;
-  gap: var(--app-unit-2);
+  align-items: flex-start;
+  gap: 24px;
 }
 
 .aiHeader {
@@ -21,22 +22,14 @@
 
 .aiRight {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--app-unit-2);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
 }
 
 @media (--app-viewport-desktop) {
   .aiLayout {
     grid-template-columns: 1fr;
-    gap: var(--app-unit-6);
-  }
-
-  .aiLeft {
-    align-items: center;
-  }
-
-  .aiLeft .aiHeader {
-    text-align: center;
+    gap: 36px;
   }
 }
 

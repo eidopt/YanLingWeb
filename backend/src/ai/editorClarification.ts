@@ -21,6 +21,7 @@ interface NodeCandidate {
   node: ThemeLayoutNode;
   depth: number;
   parentId?: string;
+  isActivePage?: boolean;
 }
 
 const MAX_OPTIONS = 4;
@@ -34,27 +35,34 @@ const CUSTOM_CLARIFICATION = {
 function collectNodes(
   node: ThemeLayoutNode,
   output: NodeCandidate[],
+  seenNodeIds: Set<string>,
+  isActivePage = false,
   depth = 0,
   parentId?: string,
 ): void {
-  output.push({ node, depth, parentId });
+  if (!seenNodeIds.has(node.id)) {
+    seenNodeIds.add(node.id);
+    output.push({ node, depth, parentId, isActivePage });
+  }
   node.children?.forEach((child) => {
-    collectNodes(child, output, depth + 1, node.id);
+    collectNodes(child, output, seenNodeIds, isActivePage, depth + 1, node.id);
   });
 }
 
 function collectDocumentNodes(document: ThemeLayoutDocument, output: NodeCandidate[]): void {
-  const seenRoots = new Set<ThemeLayoutNode>();
-  const pushRoot = (root: ThemeLayoutNode | undefined) => {
-    if (!root || seenRoots.has(root)) {
+  const seenRootIds = new Set<string>();
+  const seenNodeIds = new Set<string>();
+  const activePageId = document.defaultPageId || document.pages[0]?.id;
+  const pushRoot = (root: ThemeLayoutNode | undefined, isActivePage: boolean) => {
+    if (!root || seenRootIds.has(root.id)) {
       return;
     }
-    seenRoots.add(root);
-    collectNodes(root, output);
+    seenRootIds.add(root.id);
+    collectNodes(root, output, seenNodeIds, isActivePage);
   };
-  pushRoot(document.layout);
+  pushRoot(document.layout, true);
   for (const page of document.pages) {
-    pushRoot(page.layout);
+    pushRoot(page.layout, page.id === activePageId);
   }
 }
 
@@ -172,6 +180,9 @@ function scoreCandidate(candidate: NodeCandidate, prompt: string): number {
     .join(' ')
     .toLowerCase();
   let score = Math.max(0, 8 - candidate.depth);
+  if (candidate.isActivePage) {
+    score += 6;
+  }
 
   if (hasAny(prompt, ['按钮', '主按钮', 'button']) && node.alias === 'core.button') {
     score += 40;
@@ -216,7 +227,8 @@ function scoreCandidate(candidate: NodeCandidate, prompt: string): number {
 
   const compact = prompt.toLowerCase().replace(/\s+/g, '');
   const seenBigrams = new Set<string>();
-  for (let index = 0; index < compact.length - 1 && seenBigrams.size < 2; index += 1) {
+  let matchedBigrams = 0;
+  for (let index = 0; index < compact.length - 1; index += 1) {
     const slice = compact.slice(index, index + 2);
     if (/[^\u4e00-\u9fff]/.test(slice) || seenBigrams.has(slice)) {
       continue;
@@ -224,6 +236,10 @@ function scoreCandidate(candidate: NodeCandidate, prompt: string): number {
     seenBigrams.add(slice);
     if (searchable.includes(slice)) {
       score += 18;
+      matchedBigrams += 1;
+      if (matchedBigrams >= 6) {
+        break;
+      }
     }
   }
 
@@ -312,6 +328,9 @@ export function buildEditorClarification(
     return null;
   }
 
+  const nodes: NodeCandidate[] = [];
+  collectDocumentNodes(input.document, nodes);
+
   const asksAboutPage = hasAny(prompt, ['页面', '页', 'page', 'screen']);
   const insertionPrompt = isInsertionPrompt(prompt);
   const selectedCanReceiveChildren = input.selectedNode
@@ -322,9 +341,15 @@ export function buildEditorClarification(
       )
     : false;
   const selectedPlacementIsExplicit = hasAny(prompt, SELECTED_PLACEMENT_TERMS);
+  const competingTarget = Boolean(
+    input.selectedNode &&
+    !insertionPrompt &&
+    hasExplicitCompetingTarget(nodes, input.selectedNode, prompt),
+  );
   if (
     input.selectedNode &&
-    (!insertionPrompt || (selectedCanReceiveChildren && selectedPlacementIsExplicit))
+    ((!insertionPrompt && !competingTarget) ||
+      (selectedCanReceiveChildren && selectedPlacementIsExplicit))
   ) {
     return null;
   }
@@ -363,9 +388,6 @@ export function buildEditorClarification(
     }
   }
 
-  const nodes: NodeCandidate[] = [];
-  collectDocumentNodes(input.document, nodes);
-
   if (insertionPrompt) {
     const options = buildInsertionTargetOptions(input, nodes);
     if (
@@ -403,6 +425,49 @@ export function buildEditorClarification(
 
 const MIN_EDIT_TARGET_SCORE = 22;
 const UNIQUE_EDIT_TARGET_GAP = 12;
+const DEICTIC_SELECTED_TERMS = [
+  '当前',
+  '选中',
+  '所选',
+  '这个',
+  '这里',
+  '这块',
+  '这处',
+  '该组件',
+  '该节点',
+  '把它',
+];
+
+function hasExplicitCompetingTarget(
+  nodes: NodeCandidate[],
+  selectedNode: ThemeLayoutNode,
+  prompt: string,
+): boolean {
+  if (hasAny(prompt, DEICTIC_SELECTED_TERMS)) {
+    return false;
+  }
+  const ranked = rankEditCandidates(nodes, prompt);
+  if (ranked.length === 0) {
+    return false;
+  }
+  const selectedCandidate = nodes.find((candidate) => candidate.node.id === selectedNode.id) ?? {
+    node: selectedNode,
+    depth: 1,
+  };
+  const selectedScore = scoreCandidate(selectedCandidate, prompt);
+
+  const bestOther = ranked.find((item) => item.candidate.node.id !== selectedNode.id);
+  if (
+    bestOther &&
+    bestOther.score >= MIN_EDIT_TARGET_SCORE &&
+    bestOther.score - selectedScore >= UNIQUE_EDIT_TARGET_GAP
+  ) {
+    return true;
+  }
+
+  const close = closeEditCandidates(ranked);
+  return close.length > 1 && !close.some((item) => item.candidate.node.id === selectedNode.id);
+}
 
 interface RankedEditCandidate {
   candidate: NodeCandidate;
@@ -459,7 +524,10 @@ export function bindEditorEditTarget(input: EditorClarificationInput): BoundEdit
   if (insertionPrompt) {
     return null;
   }
-  if (input.selectedNode) {
+
+  const nodes: NodeCandidate[] = [];
+  collectDocumentNodes(input.document, nodes);
+  if (input.selectedNode && !hasExplicitCompetingTarget(nodes, input.selectedNode, prompt)) {
     return {
       nodeId: input.selectedNode.id,
       alias: input.selectedNode.alias,
@@ -467,8 +535,6 @@ export function bindEditorEditTarget(input: EditorClarificationInput): BoundEdit
     };
   }
 
-  const nodes: NodeCandidate[] = [];
-  collectDocumentNodes(input.document, nodes);
   const ranked = rankEditCandidates(nodes, prompt);
   if (ranked.length === 0 || closeEditCandidates(ranked).length > 1) {
     return null;

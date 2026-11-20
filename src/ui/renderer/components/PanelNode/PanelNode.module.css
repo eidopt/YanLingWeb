@@ -17,3 +17,10 @@
 .panelSoft {
   background: var(--surface-muted);
 }
+
+.panelTitle {
+  font-size: var(--app-unit-1-75);
+  font-weight: 700;
+  color: var(--text-heading-color, var(--tpl-neutral-850));
+  line-height: 1.3;
+}

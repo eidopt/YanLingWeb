@@ -11,6 +11,7 @@ import {
   Label,
   Text,
 } from 'ui/base';
+import { CloseIcon } from 'ui/icons';
 
 export function UserSettingsDialogView({
   avatarLetter,
@@ -78,7 +79,7 @@ export function UserSettingsDialogView({
             size="icon-sm"
             variant="icon"
           >
-            x
+            <CloseIcon width={15} height={15} />
           </Button>
         </Box>
 

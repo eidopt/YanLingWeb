@@ -29,47 +29,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   overflow-y: auto;
-  transition:
-    background 0.4s var(--app-motion-smooth),
-    color 0.3s var(--app-motion-smooth);
-}
-
-body::before,
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-}
-
-body::before {
-  z-index: -2;
-  background:
-    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(251, 146, 60, 0.035) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 82% 42%, rgba(251, 146, 60, 0.02) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 40% at 18% 72%, rgba(249, 115, 22, 0.015) 0%, transparent 52%);
-  transition: background 0.4s var(--app-motion-smooth);
-}
-
-[data-app-theme='light'] body::before {
-  background:
-    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(244, 63, 94, 0.05) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 82% 42%, rgba(249, 115, 22, 0.03) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 40% at 18% 72%, rgba(251, 113, 133, 0.025) 0%, transparent 52%);
-}
-
-body::after {
-  z-index: -1;
-  opacity: 0.025;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.5) var(--app-unit-0-125), transparent var(--app-unit-0-125)),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.5) var(--app-unit-0-125), transparent var(--app-unit-0-125));
-  background-size: var(--app-unit-8) var(--app-unit-8);
-  transition: opacity 0.4s var(--app-motion-smooth);
-}
-
-[data-app-theme='light'] body::after {
-  opacity: 0.012;
+  transition: var(--app-theme-transition);
 }
 
 button,
@@ -98,12 +58,12 @@ ol {
 }
 
 :focus-visible {
-  outline: var(--app-unit-0-25) solid var(--app-focus-ring);
-  outline-offset: var(--app-unit-0-375);
+  outline: 2px solid var(--app-focus-ring);
+  outline-offset: 2px;
 }
 
 ::selection {
-  background: var(--app-primary-alpha-30);
+  background: var(--app-primary-alpha-18);
   color: var(--app-text-primary);
 }
 
@@ -118,11 +78,11 @@ ol {
 
 .app-error-boundary__panel {
   width: min(var(--app-unit-64), 100%);
-  border: var(--app-unit-0-125) solid var(--app-border-subtle);
-  border-radius: var(--app-radius-md);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-xl);
   padding: var(--app-space-6);
-  background: var(--app-surface);
-  box-shadow: var(--app-shadow-lg);
+  background: var(--app-surface-1);
+  box-shadow: var(--app-shadow-md);
 }
 
 .app-error-boundary__panel h1 {
@@ -133,18 +93,20 @@ ol {
 
 .app-error-boundary__panel p {
   margin: var(--app-space-3) 0 0;
+  color: var(--app-text-secondary);
   font-size: var(--app-font-size-sm);
   line-height: var(--app-line-body);
 }
 
 .app-error-boundary__panel button {
-  min-height: var(--app-unit-10);
+  min-height: 40px;
   margin-top: var(--app-space-5);
   border: 0;
-  border-radius: var(--app-radius-sm);
+  border-radius: var(--app-radius-md);
   padding: 0 var(--app-space-4);
-  background: var(--app-text-primary);
-  color: var(--app-bg);
+  background: var(--app-color-primary);
+  color: #ffffff;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -153,10 +115,10 @@ ol {
   flex-direction: column;
   gap: var(--app-space-2);
   margin: var(--app-space-3);
-  border: var(--app-unit-0-125) dashed var(--app-border-subtle);
-  border-radius: var(--app-radius-sm);
+  border: 1px dashed var(--app-border);
+  border-radius: var(--app-radius-md);
   padding: var(--app-space-4);
-  background: var(--app-surface);
+  background: var(--app-surface-1);
   color: var(--app-text-secondary);
   font-size: var(--app-font-size-sm);
   line-height: var(--app-line-body);

@@ -1,36 +1,38 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
-  background: var(--app-surface-2, rgba(255, 255, 255, 0.04));
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: var(--app-radius-lg);
+  border: 1px solid var(--app-border-subtle);
+  background: var(--app-surface-2);
 }
 
 .stage {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 10px;
 }
 
 .dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--app-fg-faint, rgba(255, 255, 255, 0.3));
+  background: var(--app-border-strong);
+  flex-shrink: 0;
 }
 
 .stage[data-status='running'] .dot {
-  background: var(--app-accent, #3b82f6);
-  animation: pulse 1.2s infinite;
+  background: var(--app-color-primary);
+  animation: pulse 1.2s ease-in-out infinite;
 }
 
 .stage[data-status='ok'] .dot {
-  background: var(--app-success, #10b981);
+  background: var(--app-color-success);
 }
 
 .stage[data-status='failed'] .dot {
-  background: var(--app-error, #ef4444);
+  background: var(--app-color-danger);
 }
 
 @keyframes pulse {
@@ -39,11 +41,11 @@
     opacity: 1;
   }
   50% {
-    opacity: 0.4;
+    opacity: 0.35;
   }
 }
 
 .attempt {
-  margin-top: 0.5rem;
+  margin-top: 4px;
   display: block;
 }

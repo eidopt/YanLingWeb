@@ -264,6 +264,7 @@ export class SchemaGeneratorAgent {
     brief: DesignerOutput,
     attempt: number,
     ownerUserId?: string,
+    previousError?: string,
   ): Promise<PipelineStageRecord<SchemaOutput>> {
     const start = Date.now();
     const { provider, model, apiKeyConfigured } = this.aiProvider.getProviderForTemplatePipeline();
@@ -274,20 +275,37 @@ export class SchemaGeneratorAgent {
     this.logger.debug(`schema generator attempt=${attempt} brief=${brief.templateId}`);
 
     // Phase A: 生成页面骨架
-    const skeleton = await this.phaseSkeleton(provider, model, brief, ownerUserId);
+    const skeleton = await this.phaseSkeleton(provider, model, brief, ownerUserId, previousError);
     this.logger.debug(`phaseA: ${skeleton.pages.length} pages, ${skeleton.templateId}`);
 
     // Tree Build: 在 Phase B 之前先展开树并生成全局唯一真实 nodeId
     const builtPages = this.buildSkeletonTrees(skeleton.pages, brief);
 
     // Phase B: 按真实 nodeId 填充所有页面内容
-    const contentResult = await this.phaseContent(provider, model, builtPages, brief, ownerUserId);
+    const contentResult = await this.phaseContent(
+      provider,
+      model,
+      builtPages,
+      brief,
+      ownerUserId,
+      previousError,
+    );
     this.logger.debug(`phaseB: ${contentResult.pages.length} pages filled`);
 
     this.applyContentFills(builtPages, contentResult.pages, brief);
 
-    // Phase C: 只为树中真实存在的 core.image 节点生成 visual assets
-    const imageNodes = this.collectImageNodes(builtPages);
+    // Phase B 已内联提取的 visual assets（若 Phase B 直接给出了 image prompt，可省去 Phase C 串行调用）
+    const inlineAssets = this.extractInlineVisualAssets(builtPages);
+    const inlineNodeIds = new Set(
+      inlineAssets
+        .map((a) => asString(a.nodeId))
+        .filter((id): id is string => typeof id === 'string'),
+    );
+
+    // Phase C: 仅对尚未在 Phase B 提供 prompt 的 core.image 节点补调 visual assets
+    const imageNodes = this.collectImageNodes(builtPages).filter(
+      (n) => !inlineNodeIds.has(n.nodeId),
+    );
     const assets =
       imageNodes.length > 0
         ? await this.phaseAssets(
@@ -299,19 +317,36 @@ export class SchemaGeneratorAgent {
             ownerUserId,
           )
         : { assets: [], tokens: { inputTokens: 0, outputTokens: 0, cacheHitTokens: 0 } };
-    this.logger.debug(`phaseC: ${assets.assets.length} visual assets`);
+    const combinedAssets = [...inlineAssets, ...assets.assets];
+    this.logger.debug(
+      `phaseC: ${combinedAssets.length} visual assets ` +
+        `(inline=${inlineAssets.length}, phaseC=${assets.assets.length})`,
+    );
 
-    // Assembly: 合并为完整文档
-    const document = this.assembleDocument(skeleton, builtPages, assets.assets, brief);
+    // Assembly: 合并为完整文档（如遇局部校验错误，先做 1 次定向局部修复再决定是否失败）
+    const assembled = await this.assembleDocument(
+      provider,
+      model,
+      skeleton,
+      builtPages,
+      combinedAssets,
+      brief,
+      ownerUserId,
+    );
 
-    const totalTokens = sumStageUsage(skeleton.tokens, contentResult.tokens, assets.tokens);
+    const totalTokens = sumStageUsage(
+      skeleton.tokens,
+      contentResult.tokens,
+      assets.tokens,
+      assembled.repairTokens,
+    );
     return {
       attempt,
       durationMs: Date.now() - start,
       inputTokens: totalTokens.inputTokens,
       outputTokens: totalTokens.outputTokens,
       cacheHitTokens: totalTokens.cacheHitTokens,
-      output: { templateId: skeleton.templateId, document, rawToolInput: {} },
+      output: { templateId: skeleton.templateId, document: assembled.document, rawToolInput: {} },
     };
   }
 
@@ -351,69 +386,20 @@ export class SchemaGeneratorAgent {
       return [`- [${verdict.lens}] ${verdict.summary}`, ...details];
     });
 
-    const pagesDigest = schema.document.pages.map((page) => ({
-      pageId: page.id,
-      name: page.name,
-      nodes: this.collectRepairNodeDigest(page.layout),
-    }));
-
     try {
-      const result = await runStructuredStage<Record<string, unknown>>({
+      const repaired = await this.repairDocumentWithTool({
         provider,
         model,
-        systemPrompt: STAGE_SCHEMA_GENERATOR_SYSTEM_PROMPT,
-        userMessage: [
-          '**Stage 4 局部修复：只修补 Verifier 指出的具体问题**',
-          '',
-          `模板「${brief.name}」（archetype=${brief.archetype}, heroMode=${brief.heroMode}）`,
-          `业务场景：${brief.scenario}`,
-          '',
-          'Verifier 指出的具体问题：',
-          ...feedbackLines,
-          '',
-          '请调用 `submit_schema_repair` 输出最小必要补丁：',
-          '- 如缺少主题 cssVars 或对比度不够，填 `cssVars` 键值覆盖；',
-          '- 如有多余/冲突节点（例如与无底栏冲突的 footer tabs），将对应 nodeId 填入 `removeNodeIds`；',
-          '- 如某页面文案/按钮/主操作/标签有误，填 `pages[].nodes[].props` 覆盖对应 nodeId；',
-          '- 保持所有用户可见文案为简体中文（常见缩写如 PDF/macOS/Windows/iOS 可用），不要编造 nodeId。',
-          '',
-          '当前 cssVars：',
-          '```json',
-          JSON.stringify(schema.document.cssVars ?? {}, null, 2),
-          '```',
-          '',
-          '当前页面节点清单：',
-          '```json',
-          JSON.stringify(pagesDigest, null, 2),
-          '```',
-        ].join('\n'),
-        tool: SUBMIT_SCHEMA_REPAIR_TOOL,
-        parse: (args) => {
-          const cssRecord = asRecord(args.cssVars);
-          const hasCss = cssRecord !== null && Object.keys(cssRecord).length > 0;
-          const hasRemovals = Array.isArray(args.removeNodeIds) && args.removeNodeIds.length > 0;
-          const hasPages = Array.isArray(args.pages) && args.pages.length > 0;
-          if (!hasCss && !hasRemovals && !hasPages) {
-            throw new Error(
-              'submit_schema_repair 必须至少提供 cssVars、removeNodeIds 或 pages 之一',
-            );
-          }
-          return args;
-        },
-        maxIterations: 4,
-        aiProvider: this.aiProvider,
+        brief,
+        document: schema.document,
+        feedbackLines,
+        instructionTitle: '**Stage 4 局部修复：只修补 Verifier 指出的具体问题**',
         ownerUserId,
       });
 
-      const patched = this.applyRepairPatch(schema.document, result.output);
-      const preFixResult = preValidateAndFix(
-        patched as unknown as Record<string, unknown>,
-        patched.componentTemplates,
-      );
-      const repairedDocument = preFixResult.document as unknown as ThemeLayoutDocument;
       const check = validateGeneratedTemplateLayout(
-        repairedDocument,
-        repairedDocument.componentTemplates,
+        repaired.document,
+        repaired.document.componentTemplates,
       );
       if (!check.valid) {
         const errMessages = check.errors
@@ -427,12 +413,12 @@ export class SchemaGeneratorAgent {
       return {
         attempt,
         durationMs: Date.now() - start,
-        inputTokens: result.usage.inputTokens,
-        outputTokens: result.usage.outputTokens,
-        cacheHitTokens: result.usage.cacheHitTokens,
+        inputTokens: repaired.tokens.inputTokens,
+        outputTokens: repaired.tokens.outputTokens,
+        cacheHitTokens: repaired.tokens.cacheHitTokens,
         output: {
           templateId: schema.templateId,
-          document: repairedDocument,
+          document: repaired.document,
           rawToolInput: schema.rawToolInput,
         },
       };
@@ -444,6 +430,83 @@ export class SchemaGeneratorAgent {
       );
       return null;
     }
+  }
+
+  private async repairDocumentWithTool(params: {
+    provider: AIProvider;
+    model: string;
+    brief: DesignerOutput;
+    document: ThemeLayoutDocument;
+    feedbackLines: readonly string[];
+    instructionTitle: string;
+    ownerUserId?: string;
+  }): Promise<{ document: ThemeLayoutDocument; tokens: StageRunUsage }> {
+    const pagesDigest = params.document.pages.map((page) => ({
+      pageId: page.id,
+      name: page.name,
+      nodes: this.collectRepairNodeDigest(page.layout),
+    }));
+
+    const result = await runStructuredStage<Record<string, unknown>>({
+      provider: params.provider,
+      model: params.model,
+      systemPrompt: STAGE_SCHEMA_GENERATOR_SYSTEM_PROMPT,
+      userMessage: [
+        params.instructionTitle,
+        '',
+        `模板「${params.brief.name}」（archetype=${params.brief.archetype}, ` +
+          `heroMode=${params.brief.heroMode}）`,
+        `业务场景：${params.brief.scenario}`,
+        '',
+        '需要修补的具体问题：',
+        ...params.feedbackLines,
+        '',
+        '请调用 `submit_schema_repair` 输出最小必要补丁：',
+        '- 如缺少主题 cssVars 或对比度不够，填 `cssVars` 键值覆盖；',
+        '- 如有多余/冲突节点（例如与无底栏冲突的 footer tabs），将对应 nodeId 填入 `removeNodeIds`；',
+        '- 如某页面文案/按钮/主操作/标签有误，填 `pages[].nodes[].props` 覆盖对应 nodeId；',
+        '- 保持所有用户可见文案为简体中文（常见缩写如 PDF/macOS/Windows/iOS 可用），不要编造 nodeId。',
+        '',
+        '当前 cssVars：',
+        '```json',
+        JSON.stringify(params.document.cssVars ?? {}, null, 2),
+        '```',
+        '',
+        '当前页面节点清单：',
+        '```json',
+        JSON.stringify(pagesDigest, null, 2),
+        '```',
+      ].join('\n'),
+      tool: SUBMIT_SCHEMA_REPAIR_TOOL,
+      parse: (args) => {
+        const cssRecord = asRecord(args.cssVars);
+        const hasCss = cssRecord !== null && Object.keys(cssRecord).length > 0;
+        const hasRemovals = Array.isArray(args.removeNodeIds) && args.removeNodeIds.length > 0;
+        const hasPages = Array.isArray(args.pages) && args.pages.length > 0;
+        if (!hasCss && !hasRemovals && !hasPages) {
+          throw new Error('submit_schema_repair 必须至少提供 cssVars、removeNodeIds 或 pages 之一');
+        }
+        return args;
+      },
+      maxIterations: 4,
+      aiProvider: this.aiProvider,
+      ownerUserId: params.ownerUserId,
+      cacheKey: 'pipeline-schema',
+    });
+
+    const patched = this.applyRepairPatch(params.document, result.output);
+    const preFixResult = preValidateAndFix(
+      patched as unknown as Record<string, unknown>,
+      patched.componentTemplates,
+      {
+        archetype: params.brief.archetype,
+        ensureThemeContract: true,
+      },
+    );
+    return {
+      document: preFixResult.document as unknown as ThemeLayoutDocument,
+      tokens: result.usage,
+    };
   }
 
   private collectRepairNodeDigest(
@@ -543,28 +606,42 @@ export class SchemaGeneratorAgent {
     model: string,
     brief: DesignerOutput,
     ownerUserId?: string,
+    previousError?: string,
   ): Promise<SkeletonPhaseResult> {
     const result = await runStructuredStage<Record<string, unknown>>({
       provider,
       model,
       aiProvider: this.aiProvider,
       ownerUserId,
+      cacheKey: 'pipeline-schema',
       systemPrompt: STAGE_SCHEMA_GENERATOR_SYSTEM_PROMPT,
       userMessage: [
         '**Phase A: 生成页面骨架（3-5 页）**',
         '',
+        ...(previousError
+          ? [
+              `注意：上一轮 Schema 生成校验失败（${previousError}），` +
+                '请重点避开该问题（严格遵守 layoutTree 节点数量、合法 alias 与必填属性）。',
+              '',
+            ]
+          : []),
         '基于 brief 输出 3-5 个页面的容器层级。每页用 layoutTree 字符串描述。',
         '',
         '格式：screen>子节点1,子节点2(子节点2的子级)',
-        '示例：screen>navbar,search,panel(text,button),grid(panel(image,text),panel(image,text)),tabs',
+        '示例：screen>search,panel(tag,image,text,text,button),row(tag,tag,tag,tag),' +
+          'grid(panel(image,tag,text,row(text,button)),' +
+          'panel(image,tag,text,row(text,button))),tabs',
         '',
         '约束：',
         '- 必须 3-5 个页面，页面 id/name/kind 尽量沿用 brief.pages',
-        '- 每页总计 8-15 个节点（容器+叶子）',
-        '- grid/list 必须有 4-6 个子节点（表示列表项）',
-        '- stack 2-4 个、panel 2-4 个、row 2-3 个子节点',
-        '- 每页至少 2 个 image',
-        '- 若 brief.bottomTabs 含 >=2 项则每页末尾配 tabs；' +
+        '- 每页总计 10-16 个节点（容器+叶子），层次丰富、拒绝空洞',
+        '- 首屏 Hero 区优先用 panel(tag,image,text,text,button) 承载封面图、角标、主副标题与主 CTA 按钮，避免裸 stack',
+        '- 商品/内容卡片优先用 grid(panel(image,tag,text,row(text,button)),...) 呈现图文+标签+价格/按钮',
+        '- grid/list 必须有 4 个子节点（表示卡片或列表项）',
+        '- stack 2-4 个、panel 2-5 个、row 2-4 个子节点',
+        '- 每页 2-3 个 image（全站合计控制在 6-12 个 image，精选关键封面与主卡片图，避免无意义小图标泛滥）',
+        '- 每页最多只能有 1 个底部 tabs（放在 screen 最末尾）；页内分类筛选请用 row(tag,tag,tag,tag)，严禁在同一页放两个 tabs',
+        '- 若 brief.bottomTabs 含 >=2 项则每页末尾配 1 个 tabs；' +
           '若要求无底栏/抽屉导航则不加 tabs，改用 navbar + drawer',
         '- layoutTree 直接用以下 core.* alias 组装；' +
           '仅当实际引用 biz-* 时才填 componentTemplateAliases，否则传 []：',
@@ -629,6 +706,7 @@ export class SchemaGeneratorAgent {
     builtPages: readonly BuiltPageSkeleton[],
     brief: DesignerOutput,
     ownerUserId?: string,
+    previousError?: string,
   ): Promise<ContentPhaseResult> {
     const pagesSummary = builtPages.map((p) => ({
       pageId: p.id,
@@ -647,10 +725,17 @@ export class SchemaGeneratorAgent {
       model,
       aiProvider: this.aiProvider,
       ownerUserId,
+      cacheKey: 'pipeline-schema',
       systemPrompt: STAGE_SCHEMA_GENERATOR_SYSTEM_PROMPT,
       userMessage: [
         '**Phase B: 一次性填充所有页面内容**',
         '',
+        ...(previousError
+          ? [
+              `注意：上一轮 Schema 生成校验失败（${previousError}），请严格检查 props 类型、合法枚举值、中文文案与必填字段，避免重复失败。`,
+              '',
+            ]
+          : []),
         `模板「${brief.name}」（${brief.tagline}，场景：${brief.scenario}）共 ${builtPages.length} 个页面。`,
         '请严格按下方提供的真实 nodeId 清单，为每个节点填充 props。',
         '',
@@ -659,21 +744,30 @@ export class SchemaGeneratorAgent {
         '',
         'Props 要求（所有可见文案必须使用简体中文）：',
         '  core.screen → { title:"页面中文标题" }',
-        '  core.text → { text:"中文文案", variant:"heading|body|caption|title|subtitle" }',
-        '  core.button → { label:"中文按钮名", variant:"primary|secondary" }',
+        '  core.text → { text:"中文文案", ' +
+          'variant:"eyebrow|heading|title|subtitle|body|price|caption" }',
+        '  core.button → { label:"中文按钮名", variant:"primary|secondary|pill" }',
         '  core.search → { placeholder:"中文搜索提示" }',
-        '  core.image → { alt:"中文图片描述" }',
-        '  core.tag → { label:"中文标签", tone:"deal|hot|new|success|info|neutral" }',
+        '  core.image → { alt:"中文图片描述", ' +
+          'prompt:"30-45 word English visual scene description for image generation", ' +
+          'role:"hero|card|banner|avatar|icon" }',
+        '  core.tag → { label:"中文标签", tone:"deal|hot|new|success|info|neutral|member" }',
         '  core.tabs → { tabs:["首页","分类","订单"], activeTab:"当前页标签" }',
-        '  core.panel → { title:"中文标题", tone:"default|accent|soft" }',
+        '  core.panel → { title:"中文分区/卡片标题", ' +
+          'tone:"accent|promo|highlight|soft|warm|member|default", gap:10 } ' +
+          '（首屏 Hero 面板务必用 accent/promo/highlight）',
         '  core.progress → { value:50, max:100, tone:"success" }',
         '  core.input → { placeholder:"占位文字", label:"字段名" }',
         '  core.notice → { text:"中文通知", tone:"info|warning" }',
         '  core.navbar → { title:"页面标题" }',
+        '  core.avatar → { text:"中文姓名或昵称首字", size:"medium", shape:"circle" }',
         '  core.tabbar → { items:["首页","分类","订单"], active:"当前页标签" }',
         '  core.list-item → { title:"中文标题", description:"中文描述", arrow:true }',
         '  core.statistic → { title:"指标名", value:"128" }',
-        '  core.grid/stack/row/divider/spacer → props 可为空对象 {}',
+        '  core.grid → { columns:2, gap:12 }',
+        '  core.row → { gap:8, justify:"space-between", align:"center" }',
+        '  core.stack → { gap:12 }',
+        '  core.divider/spacer → props 可为空对象 {}',
         '',
         '真实页面与节点清单：',
         '```json',
@@ -741,6 +835,7 @@ export class SchemaGeneratorAgent {
       model,
       aiProvider: this.aiProvider,
       ownerUserId,
+      cacheKey: 'pipeline-schema',
       systemPrompt: STAGE_SCHEMA_GENERATOR_SYSTEM_PROMPT,
       userMessage: [
         '**Phase C: 生成 Visual Assets**',
@@ -861,6 +956,15 @@ export class SchemaGeneratorAgent {
       };
 
       patchNode(page.layout);
+
+      // 首屏第一个顶层 core.panel 若未指定特殊色调，自动升级为 accent 以突出 Hero 视觉层级
+      const firstTopPanel = page.layout.children?.find((c) => c.alias === 'core.panel');
+      if (firstTopPanel) {
+        firstTopPanel.props = firstTopPanel.props ?? {};
+        if (!firstTopPanel.props.tone || firstTopPanel.props.tone === 'default') {
+          firstTopPanel.props.tone = 'accent';
+        }
+      }
     }
   }
 
@@ -893,6 +997,39 @@ export class SchemaGeneratorAgent {
     if (node.alias === 'core.grid') {
       if (node.props.columns === undefined) {
         node.props.columns = 2;
+      }
+      if (node.props.gap === undefined) {
+        node.props.gap = 12;
+      }
+      return;
+    }
+
+    if (node.alias === 'core.stack') {
+      if (node.props.gap === undefined) {
+        node.props.gap = 12;
+      }
+      return;
+    }
+
+    if (node.alias === 'core.row') {
+      if (node.props.gap === undefined) {
+        node.props.gap = 8;
+      }
+      if (node.props.align === undefined) {
+        node.props.align = 'center';
+      }
+      if (node.props.justify === undefined && node.children?.length === 2) {
+        node.props.justify = 'space-between';
+      }
+      return;
+    }
+
+    if (node.alias === 'core.panel') {
+      if (node.props.gap === undefined) {
+        node.props.gap = 10;
+      }
+      if (!asString(node.props.tone)) {
+        node.props.tone = 'default';
       }
       return;
     }
@@ -956,6 +1093,36 @@ export class SchemaGeneratorAgent {
     return builtPages.map((page) => page.name);
   }
 
+  private extractInlineVisualAssets(
+    builtPages: readonly BuiltPageSkeleton[],
+  ): Record<string, unknown>[] {
+    const assets: Record<string, unknown>[] = [];
+    const visit = (node: ThemeLayoutNode, pageId: string): void => {
+      if (node.alias === 'core.image' && node.props) {
+        const prompt = asString(node.props.prompt);
+        const role = asString(node.props.role) ?? 'card';
+        delete node.props.prompt;
+        delete node.props.role;
+        if (prompt) {
+          const alt = asString(node.props.alt) ?? '模板配图';
+          assets.push({
+            id: node.id,
+            nodeId: node.id,
+            pageId,
+            role,
+            prompt,
+            alt,
+            provider: role === 'icon' ? 'placeholder' : 'ai-image',
+            status: 'pending',
+          });
+        }
+      }
+      node.children?.forEach((child) => visit(child, pageId));
+    };
+    builtPages.forEach((page) => visit(page.layout, page.id));
+    return assets;
+  }
+
   private collectImageNodes(builtPages: readonly BuiltPageSkeleton[]): ImageNodeSpec[] {
     const images: ImageNodeSpec[] = [];
     const visit = (node: ThemeLayoutNode, pageId: string): void => {
@@ -971,12 +1138,15 @@ export class SchemaGeneratorAgent {
 
   // ─── Assembly: 合并为完整文档 ──────────────────────────────────
 
-  private assembleDocument(
+  private async assembleDocument(
+    provider: AIProvider,
+    model: string,
     skeleton: SkeletonPhaseResult,
     builtPages: readonly BuiltPageSkeleton[],
     rawAssets: readonly Record<string, unknown>[],
     brief: DesignerOutput,
-  ): ThemeLayoutDocument {
+    ownerUserId?: string,
+  ): Promise<{ document: ThemeLayoutDocument; repairTokens: StageRunUsage }> {
     const pages = builtPages.map((page) => ({
       id: page.id,
       name: page.name,
@@ -1064,7 +1234,8 @@ export class SchemaGeneratorAgent {
       ],
     }));
 
-    const normalizedAssets = normalizeVisualAssets(rawAssets);
+    const enrichedAssets = this.ensureCompleteVisualAssets(builtPages, rawAssets, brief);
+    const normalizedAssets = normalizeVisualAssets(enrichedAssets);
     const rawDocument: Record<string, unknown> = {
       version: 1,
       themeId: skeleton.templateId,
@@ -1096,10 +1267,43 @@ export class SchemaGeneratorAgent {
     const preFixResult = preValidateAndFix(
       document as unknown as Record<string, unknown>,
       componentTemplates,
+      {
+        archetype: brief.archetype,
+        ensureThemeContract: true,
+      },
     );
     document = preFixResult.document as unknown as ThemeLayoutDocument;
 
-    const check = validateGeneratedTemplateLayout(document, document.componentTemplates);
+    let check = validateGeneratedTemplateLayout(document, document.componentTemplates);
+    const repairTokens: StageRunUsage = { inputTokens: 0, outputTokens: 0, cacheHitTokens: 0 };
+
+    if (!check.valid) {
+      const feedbackLines = check.errors
+        .slice(0, 10)
+        .map((e) => `  - [${e.code}] @${e.path}: ${e.message}`);
+      try {
+        const repaired = await this.repairDocumentWithTool({
+          provider,
+          model,
+          brief,
+          document,
+          feedbackLines,
+          instructionTitle:
+            '**组装后程序化校验局部修复：只修补 validateGeneratedTemplateLayout 指出的具体错误**',
+          ownerUserId,
+        });
+        repairTokens.inputTokens += repaired.tokens.inputTokens;
+        repairTokens.outputTokens += repaired.tokens.outputTokens;
+        repairTokens.cacheHitTokens += repaired.tokens.cacheHitTokens;
+        document = repaired.document;
+        check = validateGeneratedTemplateLayout(document, document.componentTemplates);
+      } catch (error) {
+        this.logger.warn(
+          `组装后局部修复异常: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      }
+    }
+
     if (!check.valid) {
       const errMessages = check.errors
         .slice(0, 5)
@@ -1108,7 +1312,7 @@ export class SchemaGeneratorAgent {
       throw new Error(`文档校验失败: ${errMessages}`);
     }
 
-    return document;
+    return { document, repairTokens };
   }
 
   /** 修正 alias：映射非法别名到合法别名，纯数字/不可识别则跳过 */
@@ -1194,7 +1398,84 @@ export class SchemaGeneratorAgent {
       collectedNodes,
     );
 
+    // 防止同一页出现多个 slot="footer" 的底栏（如菜单页顶部有分类 tabs、底部有导航 tabs）：
+    // 只保留最后一个顶层 tabs/tabbar 作为 footer，其余转为普通页面内流式 tabs。
+    const footerChildren = rootNode.children.filter((child) => child.slot === 'footer');
+    if (footerChildren.length > 1) {
+      const keepFooterId = footerChildren[footerChildren.length - 1]?.id;
+      for (const child of footerChildren) {
+        if (child.id !== keepFooterId) {
+          delete child.slot;
+          const spec = collectedNodes.find((n) => n.nodeId === child.id);
+          if (spec) {
+            delete spec.slot;
+          }
+        }
+      }
+    }
+
     return rootNode;
+  }
+
+  private ensureCompleteVisualAssets(
+    builtPages: readonly BuiltPageSkeleton[],
+    rawAssets: readonly Record<string, unknown>[],
+    brief: DesignerOutput,
+  ): Record<string, unknown>[] {
+    const MAX_AI_IMAGE_ASSETS = 6;
+    const byNodeId = new Map<string, Record<string, unknown>>();
+    const result: Record<string, unknown>[] = [];
+
+    for (const item of rawAssets) {
+      const copy: Record<string, unknown> = { ...item };
+      const nodeId = asString(copy.nodeId) ?? asString(copy.id);
+      if (nodeId) {
+        byNodeId.set(nodeId, copy);
+      }
+      result.push(copy);
+    }
+
+    const allImages = this.collectImageNodes(builtPages);
+    for (const img of allImages) {
+      let existing = byNodeId.get(img.nodeId);
+      if (!existing) {
+        existing = {
+          id: img.nodeId,
+          nodeId: img.nodeId,
+          pageId: img.pageId,
+          role: 'card',
+          alt: img.alt ?? `${brief.name}配图`,
+          provider: 'ai-image',
+        };
+        result.push(existing);
+      }
+      const alt = asString(existing.alt) ?? img.alt ?? `${brief.name}配图`;
+      existing.alt = alt;
+      if (!asString(existing.prompt)) {
+        existing.prompt =
+          `${alt}, for ${brief.name} (${brief.scenario}), ` +
+          `${brief.archetype} style, clean modern commercial photography, high detail`;
+      }
+      if (!asString(existing.status)) {
+        existing.status = 'pending';
+      }
+    }
+
+    let aiImageCount = 0;
+    for (const asset of result) {
+      const role = asString(asset.role) ?? 'card';
+      if (role === 'icon') {
+        asset.provider = 'placeholder';
+      }
+      if (asset.provider === 'ai-image') {
+        aiImageCount += 1;
+        if (aiImageCount > MAX_AI_IMAGE_ASSETS) {
+          asset.provider = 'placeholder';
+        }
+      }
+    }
+
+    return result;
   }
 
   private parseChildren(

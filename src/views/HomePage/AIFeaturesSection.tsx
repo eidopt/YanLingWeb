@@ -4,16 +4,36 @@ import styles from './AIFeaturesSection.module.css';
 import { homePageContent as c } from './HomePage.content';
 import { Box } from 'ui/base';
 import {
-  CardGrid,
-  PageButton,
-  PageSection,
-  ScrollReveal,
-  SectionHeader,
-  SurfaceCard,
-} from 'ui/pages';
+  CheckEyeIcon,
+  ComponentBlockIcon,
+  CopyWritingIcon,
+  InteractionCursorIcon,
+  PaletteIcon,
+  ResponsiveIcon,
+} from 'ui/icons';
+import { CardGrid, PageButton, PageSection, ScrollReveal, SectionHeader, SurfaceCard } from 'ui/pages';
 
 interface AIFeaturesSectionProps {
   onCtaClick: () => void;
+}
+
+function renderFeatureIcon(iconKey: string) {
+  if (iconKey === 'palette') {
+    return <PaletteIcon />;
+  }
+  if (iconKey === 'responsive') {
+    return <ResponsiveIcon />;
+  }
+  if (iconKey === 'component') {
+    return <ComponentBlockIcon />;
+  }
+  if (iconKey === 'copy') {
+    return <CopyWritingIcon />;
+  }
+  if (iconKey === 'cursor') {
+    return <InteractionCursorIcon />;
+  }
+  return <CheckEyeIcon />;
 }
 
 export function AIFeaturesSection({ onCtaClick }: AIFeaturesSectionProps) {
@@ -21,7 +41,7 @@ export function AIFeaturesSection({ onCtaClick }: AIFeaturesSectionProps) {
     <PageSection>
       <Box className={styles.aiLayout}>
         <Box className={styles.aiLeft}>
-          <ScrollReveal variant="fadeRight" duration="slow">
+          <ScrollReveal variant="fadeUp">
             <SectionHeader
               align="start"
               eyebrow={c.aiFeatures.eyebrow}
@@ -30,7 +50,7 @@ export function AIFeaturesSection({ onCtaClick }: AIFeaturesSectionProps) {
               subtitle={c.aiFeatures.sub}
             />
           </ScrollReveal>
-          <ScrollReveal variant="fadeRight" delay={150} duration="slow">
+          <ScrollReveal variant="fadeUp" delay={80}>
             <PageButton onClick={onCtaClick} showArrow>
               {c.aiFeaturesCta}
             </PageButton>
@@ -38,16 +58,11 @@ export function AIFeaturesSection({ onCtaClick }: AIFeaturesSectionProps) {
         </Box>
         <CardGrid className={styles.aiRight} columns={2}>
           {c.aiFeatures.items.map((f, i) => (
-            <ScrollReveal
-              key={f.title}
-              variant="fadeUp"
-              delay={i * 100}
-              duration="slow"
-            >
+            <ScrollReveal key={f.title} variant="fadeUp" delay={i * 50}>
               <SurfaceCard
-                color="var(--c-indigo)"
+                color={f.color}
                 description={f.desc}
-                icon={f.icon}
+                icon={renderFeatureIcon(f.iconKey)}
                 title={f.title}
                 tone="soft"
               />

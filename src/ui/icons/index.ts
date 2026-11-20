@@ -8,5 +8,25 @@ export { MarketplaceIcon } from './MarketplaceIcon';
 export { MineIcon } from './MineIcon';
 export { MobileIcon } from './MobileIcon';
 export { RecentIcon } from './RecentIcon';
+export {
+  AlertCircleIcon,
+  BrandMarkIcon,
+  ChatBubbleIcon,
+  CheckEyeIcon,
+  CloseIcon,
+  ComponentBlockIcon,
+  CopyWritingIcon,
+  DesktopFrameIcon,
+  InteractionCursorIcon,
+  LayersEditIcon,
+  LayoutGridIcon,
+  MiniProgramIcon,
+  MoonIcon,
+  PaletteIcon,
+  PromptCommandIcon,
+  ResponsiveIcon,
+  SearchIcon,
+  SunIcon,
+} from './StudioIcons';
 export { TagIcon } from './TagIcon';
 export { WebIcon } from './WebIcon';

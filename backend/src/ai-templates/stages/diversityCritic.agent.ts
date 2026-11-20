@@ -44,6 +44,18 @@ const VALID_REVISE_DIRECTIONS = new Set<
   NonNullable<Extract<ReviseAction, { direction: string }>['direction']>
 >(['row', 'column']);
 
+const ALL_ARCHETYPES = ['fresh', 'immersive', 'editorial', 'vibrant', 'dark-pro'] as const;
+const ALL_HERO_MODES = [
+  'date-strip',
+  'function-grid',
+  'cover-story',
+  'metric-dashboard',
+  'story-ring',
+  'dual-column',
+  'timer-banner',
+  'search-filter',
+] as const;
+
 /**
  * Stage 2 — Diversity Critic
  *
@@ -133,6 +145,7 @@ export class DiversityCriticAgent {
       parse: (args) => this.parseVerdict(args),
       aiProvider: this.aiProvider,
       ownerUserId,
+      cacheKey: 'pipeline-critic',
     });
 
     return {
@@ -150,11 +163,16 @@ export class DiversityCriticAgent {
     existing: ExistingTemplateSummary[],
   ): DiversityConflict[] {
     const conflicts: DiversityConflict[] = [];
-
-    const sameArchetype = existing.filter(
-      (e) => e.archetype === candidate.archetype && e.displayCategory === candidate.displayCategory,
+    const existingInCategory = existing.filter(
+      (e) => e.displayCategory === candidate.displayCategory,
     );
-    if (sameArchetype.length >= 2) {
+
+    const archUsageCounts = ALL_ARCHETYPES.map(
+      (arch) => existingInCategory.filter((e) => e.archetype === arch).length,
+    );
+    const minArchUsage = Math.min(...archUsageCounts);
+    const sameArchetype = existingInCategory.filter((e) => e.archetype === candidate.archetype);
+    if (sameArchetype.length >= Math.max(2, minArchUsage + 1)) {
       for (const e of sameArchetype) {
         conflicts.push({
           templateId: e.templateId,
@@ -167,10 +185,12 @@ export class DiversityCriticAgent {
       }
     }
 
-    const sameHero = existing.filter(
-      (e) => e.heroMode === candidate.heroMode && e.displayCategory === candidate.displayCategory,
+    const heroUsageCounts = ALL_HERO_MODES.map(
+      (mode) => existingInCategory.filter((e) => e.heroMode === mode).length,
     );
-    if (sameHero.length >= 1) {
+    const minHeroUsage = Math.min(...heroUsageCounts);
+    const sameHero = existingInCategory.filter((e) => e.heroMode === candidate.heroMode);
+    if (sameHero.length >= Math.max(1, minHeroUsage + 1)) {
       for (const e of sameHero) {
         conflicts.push({
           templateId: e.templateId,

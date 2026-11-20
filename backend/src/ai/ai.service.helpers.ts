@@ -135,7 +135,12 @@ export function withRequestScopedCache(
 }
 
 export function editorToolSpecs(tools: readonly ProviderTool[] = EDITOR_EDIT_TOOLS) {
-  return new Map(tools.map((tool) => [tool.name, { name: tool.name }]));
+  return new Map(
+    tools.map((tool) => [
+      tool.name,
+      { name: tool.name, supportsParallel: tool.name === 'editor_search_nodes' },
+    ]),
+  );
 }
 
 export function extractClarificationChoiceText(clarificationChoice: unknown): string {

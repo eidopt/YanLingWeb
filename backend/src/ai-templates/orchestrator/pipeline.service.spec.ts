@@ -1,6 +1,7 @@
 import { Logger } from '@nestjs/common';
 import type { ThemeLayoutDocument } from '@shared/agent/contracts/agent';
 import type { AIProvider } from '@shared/agent/contracts/provider';
+import type { VerifierLens } from '@shared/agent/runtime';
 
 import type { AiTemplatePipelineProvider } from '../../ai/pipelineProvider.port';
 import { DesignerAgent } from '../stages/designer.agent';
@@ -31,7 +32,7 @@ const fakePipelineProvider: AiTemplatePipelineProvider = {
 class FakeDesignerAgent extends DesignerAgent {
   readonly runMock = jest.fn<
     Promise<PipelineStageRecord<DesignerOutput>>,
-    [TemplateSeed, string | undefined, number, string?]
+    [TemplateSeed, string | undefined, number, string?, ExistingTemplateSummary[]?]
   >();
 
   constructor() {
@@ -43,9 +44,10 @@ class FakeDesignerAgent extends DesignerAgent {
     reviseSuggestion: string | undefined,
     attempt: number,
     ownerUserId?: string,
+    existing?: ExistingTemplateSummary[],
   ): Promise<PipelineStageRecord<DesignerOutput>> {
-    return ownerUserId !== undefined
-      ? this.runMock(seed, reviseSuggestion, attempt, ownerUserId)
+    return existing !== undefined || ownerUserId !== undefined
+      ? this.runMock(seed, reviseSuggestion, attempt, ownerUserId, existing)
       : this.runMock(seed, reviseSuggestion, attempt);
   }
 }
@@ -75,7 +77,7 @@ class FakeDiversityCriticAgent extends DiversityCriticAgent {
 class FakeSchemaGeneratorAgent extends SchemaGeneratorAgent {
   readonly runMock = jest.fn<
     Promise<PipelineStageRecord<SchemaOutput>>,
-    [DesignerOutput, number, string?]
+    [DesignerOutput, number, string?, string?]
   >();
 
   constructor() {
@@ -86,17 +88,27 @@ class FakeSchemaGeneratorAgent extends SchemaGeneratorAgent {
     brief: DesignerOutput,
     attempt: number,
     ownerUserId?: string,
+    previousError?: string,
   ): Promise<PipelineStageRecord<SchemaOutput>> {
-    return ownerUserId !== undefined
-      ? this.runMock(brief, attempt, ownerUserId)
-      : this.runMock(brief, attempt);
+    return previousError !== undefined
+      ? this.runMock(brief, attempt, ownerUserId, previousError)
+      : ownerUserId !== undefined
+        ? this.runMock(brief, attempt, ownerUserId)
+        : this.runMock(brief, attempt);
   }
 }
 
 class FakeVerifierAgent extends VerifierAgent {
   readonly runMock = jest.fn<
     Promise<PipelineStageRecord<VerifierVerdict[]>>,
-    [DesignerOutput, SchemaOutput, ExistingTemplateSummary[], number, string?]
+    [
+      DesignerOutput,
+      SchemaOutput,
+      ExistingTemplateSummary[],
+      number,
+      string?,
+      (readonly VerifierLens[])?,
+    ]
   >();
 
   constructor() {
@@ -109,10 +121,13 @@ class FakeVerifierAgent extends VerifierAgent {
     existing: ExistingTemplateSummary[],
     attempt: number,
     ownerUserId?: string,
+    lenses?: readonly VerifierLens[],
   ): Promise<PipelineStageRecord<VerifierVerdict[]>> {
-    return ownerUserId !== undefined
-      ? this.runMock(brief, schema, existing, attempt, ownerUserId)
-      : this.runMock(brief, schema, existing, attempt);
+    return lenses !== undefined
+      ? this.runMock(brief, schema, existing, attempt, ownerUserId, lenses)
+      : ownerUserId !== undefined
+        ? this.runMock(brief, schema, existing, attempt, ownerUserId)
+        : this.runMock(brief, schema, existing, attempt);
   }
 }
 
@@ -268,7 +283,7 @@ describe('TemplatePipelineService', () => {
       },
     });
 
-    expect(designer.runMock.mock.calls).toEqual([[seed, undefined, 1]]);
+    expect(designer.runMock.mock.calls).toEqual([[seed, undefined, 1, undefined, existing]]);
     expect(critic.runMock.mock.calls).toEqual([[brief, existing, 1]]);
     expect(schemaGenerator.runMock.mock.calls).toEqual([[brief, 1]]);
     expect(verifier.runMock.mock.calls).toEqual([[brief, schema, existing, 1]]);
@@ -355,70 +370,46 @@ describe('TemplatePipelineService', () => {
       totalAttempts: 2,
     });
     expect(designer.runMock.mock.calls).toEqual([
-      [seed, undefined, 1],
-      [seed, 'use search-filter instead', 2],
+      [seed, undefined, 1, undefined, []],
+      [seed, 'use search-filter instead', 2, undefined, []],
     ]);
     expect(schemaGenerator.runMock.mock.calls).toEqual([[revisedBrief, 2]]);
   });
 
-  it('retries schemaGen internally without going back to Designer', async () => {
+  it('retries schemaGen with previousError hint without returning to Designer', async () => {
     const { service, designer, critic, schemaGenerator, verifier } = createHarness();
     const seed: TemplateSeed = { prompt: 'clinic booking' };
+    const existing = createExisting();
     const brief = createBrief({ templateId: 'template-1' });
     const schema = createSchema('template-1');
     designer.runMock.mockResolvedValueOnce(stage(1, brief));
     critic.runMock.mockResolvedValue(stage(1, { verdict: 'pass', conflicts: [] }));
-    // SchemaGen: 1st call fails, 2nd call succeeds (pipeline-retry 0, stage-retry 1)
+    // SchemaGen: attempt 1 fails, attempt 2 succeeds with previousError hint
     schemaGenerator.runMock
       .mockRejectedValueOnce(new Error('validation error'))
       .mockResolvedValueOnce(stage(1, schema));
     verifier.runMock.mockResolvedValueOnce(stage(1, passVerdicts()));
 
-    const result = await service.generate(seed, []);
+    const result = await service.generate(seed, existing);
 
-    // Designer only called ONCE — not retried
+    // Designer only called ONCE — not retried, receives existing summaries
     expect(designer.runMock).toHaveBeenCalledTimes(1);
-    expect(designer.runMock.mock.calls[0]).toEqual([seed, undefined, 1]);
-    // SchemaGen called twice (1 fail + 1 success within same attempt)
+    expect(designer.runMock.mock.calls[0]).toEqual([seed, undefined, 1, undefined, existing]);
+    // SchemaGen called twice (1 fail + 1 success; attempt 2 receives previousError)
     expect(schemaGenerator.runMock).toHaveBeenCalledTimes(2);
     expect(schemaGenerator.runMock.mock.calls[0]).toEqual([brief, 1]);
-    expect(schemaGenerator.runMock.mock.calls[1]).toEqual([brief, 1]);
+    expect(schemaGenerator.runMock.mock.calls[1]).toEqual([
+      brief,
+      1,
+      undefined,
+      'validation error',
+    ]);
     // Pipeline succeeded on attempt 1
     expect(result.totalAttempts).toBe(1);
     expect(result.templateId).toBe('template-1');
   });
 
-  it('retries schemaGen across pipeline retries before succeeding', async () => {
-    const { service, designer, critic, schemaGenerator, verifier } = createHarness();
-    const seed: TemplateSeed = { prompt: 'clinic booking' };
-    const brief = createBrief({ templateId: 'template-1' });
-    const schema = createSchema('template-1');
-    designer.runMock.mockResolvedValueOnce(stage(1, brief));
-    critic.runMock.mockResolvedValue(stage(1, { verdict: 'pass', conflicts: [] }));
-    // Pipeline-retry 0: 3 inner retries all fail
-    // Pipeline-retry 1: 1st inner retry succeeds
-    schemaGenerator.runMock
-      .mockRejectedValueOnce(new Error('dup ID 1'))
-      .mockRejectedValueOnce(new Error('dup ID 2'))
-      .mockRejectedValueOnce(new Error('dup ID 3'))
-      .mockResolvedValueOnce(stage(1, schema));
-    verifier.runMock.mockResolvedValueOnce(stage(1, passVerdicts()));
-
-    const result = await service.generate(seed, []);
-
-    // Designer only called ONCE
-    expect(designer.runMock).toHaveBeenCalledTimes(1);
-    // SchemaGen called 4 times (3 fail in retry 0 + 1 success in retry 1)
-    expect(schemaGenerator.runMock).toHaveBeenCalledTimes(4);
-    // All calls use the same brief and attempt
-    for (const call of schemaGenerator.runMock.mock.calls) {
-      expect(call).toEqual([brief, 1]);
-    }
-    // Pipeline succeeded on attempt 1
-    expect(result.totalAttempts).toBe(1);
-  });
-
-  it('falls back to Designer when all schemaGen pipeline retries are exhausted', async () => {
+  it('falls back to Designer after MAX_SCHEMA_ATTEMPTS_PER_BRIEF (2) failures', async () => {
     const { service, designer, critic, schemaGenerator, verifier } = createHarness();
     const seed: TemplateSeed = { prompt: 'clinic booking' };
     const brief1 = createBrief({ templateId: 'template-1' });
@@ -428,10 +419,10 @@ describe('TemplatePipelineService', () => {
       .mockResolvedValueOnce(stage(1, brief1))
       .mockResolvedValueOnce(stage(2, brief2));
     critic.runMock.mockResolvedValue(stage(1, { verdict: 'pass', conflicts: [] }));
-    // Attempt 1: SchemaGen fails 3×3=9 times (all pipeline + inner retries)
-    for (let i = 0; i < 9; i++) {
-      schemaGenerator.runMock.mockRejectedValueOnce(new Error(`error ${i}`));
-    }
+    // Attempt 1: SchemaGen fails MAX_SCHEMA_ATTEMPTS_PER_BRIEF = 2 times
+    schemaGenerator.runMock
+      .mockRejectedValueOnce(new Error('error 0'))
+      .mockRejectedValueOnce(new Error('error 1'));
     // Attempt 2: SchemaGen succeeds on first try
     schemaGenerator.runMock.mockResolvedValueOnce(stage(2, schema));
     verifier.runMock.mockResolvedValueOnce(stage(2, passVerdicts()));
@@ -440,14 +431,17 @@ describe('TemplatePipelineService', () => {
 
     // Designer called twice (attempt 1 + attempt 2 after fallback)
     expect(designer.runMock).toHaveBeenCalledTimes(2);
-    expect(designer.runMock.mock.calls[0]).toEqual([seed, undefined, 1]);
+    expect(designer.runMock.mock.calls[0]).toEqual([seed, undefined, 1, undefined, []]);
     expect(designer.runMock.mock.calls[1]).toEqual([
       seed,
-      expect.stringContaining('Stage 3 schema generation failed:') as string,
+      expect.stringContaining('Stage 3 schema generation failed: error 1') as string,
       2,
+      undefined,
+      [],
     ]);
-    // SchemaGen called 10 times (9 in attempt 1 + 1 in attempt 2)
-    expect(schemaGenerator.runMock).toHaveBeenCalledTimes(10);
+    // SchemaGen called 3 times (2 in attempt 1 + 1 in attempt 2)
+    expect(schemaGenerator.runMock).toHaveBeenCalledTimes(3);
+    expect(schemaGenerator.runMock.mock.calls[1]).toEqual([brief1, 1, undefined, 'error 0']);
     expect(result.totalAttempts).toBe(2);
   });
 
@@ -498,11 +492,15 @@ describe('TemplatePipelineService', () => {
       seed,
       '[business-fidelity] booking task missing',
       2,
+      undefined,
+      [],
     ]);
     expect(designer.runMock.mock.calls[2]).toEqual([
       seed,
       '[business-fidelity] booking task missing',
       3,
+      undefined,
+      [],
     ]);
   });
 
@@ -665,7 +663,7 @@ describe('TemplatePipelineService', () => {
 
     await service.generate(seed, existing, { ownerUserId: 'user-42' });
 
-    expect(designer.runMock).toHaveBeenCalledWith(seed, undefined, 1, 'user-42');
+    expect(designer.runMock).toHaveBeenCalledWith(seed, undefined, 1, 'user-42', existing);
     expect(critic.runMock).toHaveBeenCalledWith(brief, existing, 1, 'user-42');
     expect(schemaGenerator.runMock).toHaveBeenCalledWith(brief, 1, 'user-42');
     expect(repairSpy).toHaveBeenCalledWith(brief, initialSchema, expect.any(Array), 1, 'user-42');
@@ -684,6 +682,64 @@ describe('TemplatePipelineService', () => {
       existing,
       1,
       'user-42',
+      ['business-fidelity'],
     );
+  });
+
+  it('re-verifies only failed lenses after repair and merges prior passed verdicts', async () => {
+    const { service, designer, critic, schemaGenerator, verifier } = createHarness();
+    const seed: TemplateSeed = { prompt: 'knowledge app' };
+    const existing = createExisting();
+    const brief = createBrief({ templateId: 'knowledge-hub' });
+    const initialSchema = createSchema('knowledge-hub');
+    const repairedSchema = createSchema('knowledge-hub-repaired');
+
+    designer.runMock.mockResolvedValueOnce(stage(1, brief));
+    critic.runMock.mockResolvedValueOnce(stage(1, { verdict: 'pass', conflicts: [] }));
+    schemaGenerator.runMock.mockResolvedValueOnce(stage(1, initialSchema));
+    jest
+      .spyOn(schemaGenerator, 'repairFromVerifierFeedback')
+      .mockResolvedValueOnce(stage(1, repairedSchema));
+
+    verifier.runMock
+      .mockResolvedValueOnce(
+        stage(1, [
+          { lens: 'spec-compliance', pass: true, failures: [], summary: 'ok' },
+          { lens: 'diversity', pass: true, failures: [], summary: 'ok' },
+          {
+            lens: 'business-fidelity',
+            pass: false,
+            failures: [
+              {
+                rule: 'action_missing',
+                severity: 'error',
+                description: '缺少主按钮',
+              },
+            ],
+            summary: '缺少主按钮',
+          },
+        ]),
+      )
+      .mockResolvedValueOnce(
+        stage(1, [{ lens: 'business-fidelity', pass: true, failures: [], summary: 'fixed' }]),
+      );
+
+    const result = await service.generate(seed, existing);
+
+    expect(verifier.runMock).toHaveBeenNthCalledWith(
+      2,
+      brief,
+      repairedSchema,
+      existing,
+      1,
+      undefined,
+      ['business-fidelity'],
+    );
+    expect(result.stages.verifier).toHaveLength(2);
+    expect(result.stages.verifier[1]?.output).toEqual([
+      { lens: 'spec-compliance', pass: true, failures: [], summary: 'ok' },
+      { lens: 'diversity', pass: true, failures: [], summary: 'ok' },
+      { lens: 'business-fidelity', pass: true, failures: [], summary: 'fixed' },
+    ]);
   });
 });

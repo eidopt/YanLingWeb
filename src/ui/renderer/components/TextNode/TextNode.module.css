@@ -5,7 +5,7 @@
 }
 
 .textDisplay {
-  color: var(--tpl-neutral-850);
+  color: var(--text-heading-color, var(--tpl-neutral-850));
   font-size: clamp(var(--app-unit-3), 3vw, var(--app-unit-5));
   font-weight: 800;
   line-height: 1.05;

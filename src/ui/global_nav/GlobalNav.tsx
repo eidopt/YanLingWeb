@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { useAuthUser } from 'state/authState';
 import { showDialog } from 'ui/authenticating';
 import { Box, Button, Inline, Stack, Text } from 'ui/base';
+import { BrandMarkIcon, MoonIcon, SunIcon } from 'ui/icons';
 import { UserSettingsDialog } from 'ui/user_settings';
 
 export interface NavItem {
@@ -39,7 +40,7 @@ export function ThemeToggleButton({ variant = 'nav' }: ThemeToggleButtonProps) {
       aria-label={theme === 'dark' ? '切换到浅色模式' : '切换到深色模式'}
       title={theme === 'dark' ? '浅色模式' : '深色模式'}
     >
-      {theme === 'dark' ? '☀️' : '🌙'}
+      {theme === 'dark' ? <SunIcon width={16} height={16} /> : <MoonIcon width={16} height={16} />}
     </button>
   );
 }
@@ -70,10 +71,10 @@ export function GlobalNav({ nav, variant = 'default' }: GlobalNavProps) {
     >
       <Link href="/" className={styles.brand}>
         <Box as="span" className={styles.brandMark}>
-          ✦
+          <BrandMarkIcon width={16} height={16} />
         </Box>
         <Stack className={styles.brandText} gap="0">
-          <Text as="strong" size="md" variant="primary" weight="medium">
+          <Text as="strong" size="sm" variant="primary" weight="heavy">
             {c.brand.name}
           </Text>
           <Text as="span" size="xs" variant="muted">

@@ -6,7 +6,7 @@ import { PipelineStore } from './pipelineStore';
 import type { EditorPageController } from './useEditorPageController';
 import { cx } from 'base/classname';
 import { useEffect, useState, useSyncExternalStore } from 'react';
-import { Box, Button } from 'ui/base';
+import { Box, Button, Spinner } from 'ui/base';
 import { PipelineProgress } from 'ui/chat/PipelineProgress';
 import { ThemeLayoutBuilder } from 'ui/editor/ThemeLayoutBuilder';
 
@@ -62,8 +62,27 @@ export function EditorPageView({
     );
   }
 
-  if (loading || templates.length === 0) {
-    return <Box className={styles.viewport} />;
+  if (loading) {
+    return (
+      <Box className={cx(styles.viewport, styles.statusScreen)}>
+        <Box className={styles.statusBlock}>
+          <Spinner size="md" label={c.loadingWorkspace} />
+        </Box>
+      </Box>
+    );
+  }
+
+  if (templates.length === 0) {
+    return (
+      <Box className={cx(styles.viewport, styles.statusScreen)}>
+        <Box className={styles.statusBlock}>
+          <Box className={styles.errorText}>{c.unavailable}</Box>
+          <Button type="button" variant="secondary" size="sm" onClick={goHome}>
+            {c.backHome}
+          </Button>
+        </Box>
+      </Box>
+    );
   }
 
   return (

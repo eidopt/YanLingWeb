@@ -11,6 +11,15 @@ function textNode(id: string, text: string): ThemeLayoutNode {
   };
 }
 
+function buttonNode(id: string, label: string): ThemeLayoutNode {
+  return {
+    id,
+    alias: 'core.button',
+    layout: { mode: 'flow' },
+    props: { label, variant: 'primary' },
+  };
+}
+
 function documentWith(children: ThemeLayoutNode[]): ThemeLayoutDocument {
   const layout: ThemeLayoutNode = {
     id: 'home-screen',
@@ -83,6 +92,89 @@ describe('editor target binding', () => {
     expect(bindEditorEditTarget(input)).toMatchObject({
       nodeId: 'orders-coupon',
       alias: 'core.text',
+    });
+  });
+
+  it('scores Chinese bigrams beyond the first two characters in long prompts', () => {
+    const document = documentWith([
+      textNode('hero-title', '春季新品'),
+      buttonNode('cta-btn', '立即预约'),
+      buttonNode('other-btn', '查看详情'),
+    ]);
+    const input = { prompt: '把底部的立即预约按钮改成免费试听', document };
+    expect(buildEditorClarification(input)).toBeNull();
+    expect(bindEditorEditTarget(input)).toMatchObject({
+      nodeId: 'cta-btn',
+      alias: 'core.button',
+    });
+  });
+
+  it('does not let stale selectedNode hijack an explicit competing target', () => {
+    const selected = textNode('hero-title', '春季新品');
+    const document = documentWith([
+      selected,
+      buttonNode('cta-btn', '立即预约'),
+      buttonNode('other-btn', '查看详情'),
+    ]);
+    const input = {
+      prompt: '把底部的立即预约按钮改成免费试听',
+      document,
+      selectedNode: selected,
+    };
+    expect(buildEditorClarification(input)).toBeNull();
+    expect(bindEditorEditTarget(input)).toMatchObject({
+      nodeId: 'cta-btn',
+      alias: 'core.button',
+    });
+  });
+
+  it('asks clarification when stale selectedNode competes with ambiguous explicit targets', () => {
+    const selected = textNode('hero-title', '春季新品');
+    const document = documentWith([
+      selected,
+      buttonNode('reserve-a', '立即预约'),
+      buttonNode('reserve-b', '立即预约体验'),
+    ]);
+    const input = {
+      prompt: '把底部的立即预约按钮改成免费试听',
+      document,
+      selectedNode: selected,
+    };
+    const clarification = buildEditorClarification(input);
+    expect(clarification?.reason).toBe('node_target_unclear');
+    expect(clarification?.options.map((option) => option.id).sort()).toEqual([
+      'reserve-a',
+      'reserve-b',
+    ]);
+    expect(bindEditorEditTarget(input)).toBeNull();
+  });
+
+  it('keeps selectedNode when the prompt references the current selection deictically', () => {
+    const selected = textNode('hero-title', '春季新品');
+    const document = documentWith([selected, buttonNode('cta-btn', '立即预约')]);
+    const input = {
+      prompt: '把当前选中的这个标题改成春季上新',
+      document,
+      selectedNode: selected,
+    };
+    expect(buildEditorClarification(input)).toBeNull();
+    expect(bindEditorEditTarget(input)?.nodeId).toBe('hero-title');
+  });
+
+  it('deduplicates document.layout and pages[0].layout when deserialized separately', () => {
+    const baseDoc = documentWith([
+      textNode('hero-title', '春季新品'),
+      buttonNode('cta-btn', '立即预约'),
+    ]);
+    const document: ThemeLayoutDocument = {
+      ...baseDoc,
+      layout: JSON.parse(JSON.stringify(baseDoc.pages[0].layout)) as ThemeLayoutNode,
+    };
+    const input = { prompt: '把立即预约按钮改成限时尝鲜', document };
+    expect(buildEditorClarification(input)).toBeNull();
+    expect(bindEditorEditTarget(input)).toMatchObject({
+      nodeId: 'cta-btn',
+      alias: 'core.button',
     });
   });
 });

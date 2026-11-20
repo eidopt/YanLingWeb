@@ -1,7 +1,13 @@
-import type { AIProvider, ProviderMessage, ProviderTool } from '@shared/agent/contracts/provider';
+import type {
+  AIProvider,
+  ProviderMessage,
+  ProviderTool,
+  ProviderToolChoice,
+} from '@shared/agent/contracts/provider';
 import type { ToolResult, ToolSpec } from '@shared/agent/contracts/queryLoop';
 import { QueryLoop } from '@shared/agent/runtime';
 
+import { withRequestScopedCache } from '../../ai/ai.service.helpers';
 import type { AiTemplatePipelineProvider } from '../../ai/pipelineProvider.port';
 
 export interface StageRunUsage {
@@ -31,6 +37,8 @@ export interface StageRunOptions<T> {
   aiProvider?: AiTemplatePipelineProvider;
   /** 可选：当前请求的用户 ID；存在时把本 stage 的 token 记入该用户名下 */
   ownerUserId?: string;
+  /** 可选：跨轮次 cache key（用于 Kimi 等按 conversationId 路由缓存的 provider） */
+  cacheKey?: string;
 }
 
 /**
@@ -43,7 +51,7 @@ export interface StageRunOptions<T> {
  *  - 累计 token usage（含 cache hit）
  *
  * 失败模式：
- *  - LLM 不调用工具 → throw "stage did not invoke tool"
+ *  - LLM 不调用工具 → 触发 1 次同前缀纠偏后仍未调用 → throw "stage did not invoke tool"
  *  - LLM 调用了工具但 parse 抛错 → throw 透传
  *  - QueryLoop stopReason 是 error/max_iterations → throw
  */
@@ -57,56 +65,86 @@ export async function runStructuredStage<T>(
   const toolSpecs = new Map<string, ToolSpec>();
   toolSpecs.set(options.tool.name, { name: options.tool.name, supportsParallel: false });
 
-  const loop = new QueryLoop({
-    provider: options.provider,
-    model: options.model,
-    tools: [options.tool],
-    toolSpecs,
-    toolExecutor: (name, args): Promise<ToolResult> => {
-      if (name !== options.tool.name) {
-        return Promise.resolve({ output: JSON.stringify({ error: `unknown tool: ${name}` }) });
-      }
-      try {
-        captured = options.parse(args);
-        parseError = undefined;
-        return Promise.resolve({ output: JSON.stringify({ accepted: true }), action: 'done' });
-      } catch (err) {
-        parseError = err instanceof Error ? err : new Error(String(err));
-        // 诊断：把每次工具输入被拒的具体校验错误打出来（默认被当 tool result 喂回 LLM、
-        // 不可见）。便于排查 SchemaGen 为何反复耗尽迭代、栽在哪条校验。
-        console.warn(`[stage:${options.tool.name}] 输入被拒 → ${parseError.message}`);
-        return Promise.resolve({
-          output: JSON.stringify({
-            error: parseError.message,
-            hint: '重新调用工具，修正参数后再次提交',
-          }),
-        });
-      }
-    },
-    onTextDelta: () => undefined,
-    onToolEvent: () => undefined,
-    onUsage: async (u) => {
-      usage.inputTokens += u.inputTokens;
-      usage.outputTokens += u.outputTokens;
-      usage.cacheHitTokens += u.cacheHitTokens ?? 0;
-      if (options.ownerUserId && options.aiProvider?.recordTemplatePipelineTokenUsage) {
-        await options.aiProvider.recordTemplatePipelineTokenUsage(
-          options.ownerUserId,
-          options.model,
-          u,
-        );
-      }
-    },
-    isCancelled: () => false,
-    maxIterations: options.maxIterations ?? 6,
-  });
+  const supportsForcedToolChoice =
+    options.provider.getCapabilities().supportsForcedToolChoice !== false;
+  const toolChoice: ProviderToolChoice | undefined = supportsForcedToolChoice
+    ? { type: 'function', name: options.tool.name }
+    : undefined;
 
-  const messages: ProviderMessage[] = [
+  const baseMessages: ProviderMessage[] = [
     { role: 'system', content: options.systemPrompt },
     { role: 'user', content: options.userMessage },
   ];
+  const scopedRequest = withRequestScopedCache(
+    options.provider,
+    { model: options.model, messages: baseMessages, tools: [options.tool] },
+    options.cacheKey ? { conversationId: options.cacheKey } : undefined,
+  );
 
-  const result = await loop.run(messages);
+  const createLoop = (maxIterations: number): QueryLoop =>
+    new QueryLoop({
+      provider: options.provider,
+      model: options.model,
+      tools: [options.tool],
+      toolSpecs,
+      ...(toolChoice ? { toolChoice } : {}),
+      ...(scopedRequest.cache ? { requestCache: scopedRequest.cache } : {}),
+      ...(scopedRequest.cacheKey ? { requestCacheKey: scopedRequest.cacheKey } : {}),
+      toolExecutor: (name, args): Promise<ToolResult> => {
+        if (name !== options.tool.name) {
+          return Promise.resolve({ output: JSON.stringify({ error: `unknown tool: ${name}` }) });
+        }
+        try {
+          captured = options.parse(args);
+          parseError = undefined;
+          return Promise.resolve({ output: JSON.stringify({ accepted: true }), action: 'done' });
+        } catch (err) {
+          parseError = err instanceof Error ? err : new Error(String(err));
+          // 诊断：把每次工具输入被拒的具体校验错误打出来（默认被当 tool result 喂回 LLM、
+          // 不可见）。便于排查 SchemaGen 为何反复耗尽迭代、栽在哪条校验。
+          console.warn(`[stage:${options.tool.name}] 输入被拒 → ${parseError.message}`);
+          return Promise.resolve({
+            output: JSON.stringify({
+              error: parseError.message,
+              hint: '重新调用工具，修正参数后再次提交',
+            }),
+          });
+        }
+      },
+      onTextDelta: () => undefined,
+      onToolEvent: () => undefined,
+      onUsage: async (u) => {
+        usage.inputTokens += u.inputTokens;
+        usage.outputTokens += u.outputTokens;
+        usage.cacheHitTokens += u.cacheHitTokens ?? 0;
+        if (options.ownerUserId && options.aiProvider?.recordTemplatePipelineTokenUsage) {
+          await options.aiProvider.recordTemplatePipelineTokenUsage(
+            options.ownerUserId,
+            options.model,
+            u,
+          );
+        }
+      },
+      isCancelled: () => false,
+      maxIterations,
+    });
+
+  const loop = createLoop(options.maxIterations ?? 6);
+  let result = await loop.run(scopedRequest.messages);
+  let totalIterations = result.iterations;
+
+  if (result.stopReason === 'completed' && captured === undefined && !parseError) {
+    const nudgeLoop = createLoop(2);
+    const nudgeMessages: ProviderMessage[] = [
+      ...result.messages,
+      {
+        role: 'user',
+        content: `请不要输出解释文字，立即调用工具 ${options.tool.name} 提交结构化结果。`,
+      },
+    ];
+    result = await nudgeLoop.run(nudgeMessages);
+    totalIterations += result.iterations;
+  }
 
   if (result.stopReason === 'error') {
     throw new Error(`stage QueryLoop error: ${result.error ?? 'unknown'}`);
@@ -123,5 +161,5 @@ export async function runStructuredStage<T>(
     );
   }
 
-  return { output: captured, usage, iterations: result.iterations };
+  return { output: captured, usage, iterations: totalIterations };
 }

@@ -13,10 +13,10 @@
   min-width: var(--app-unit-5);
   height: var(--app-unit-5);
   padding: 0 var(--app-unit-1);
-  border: 1px solid var(--tpl-border-color, var(--tpl-neutral-200));
+  border: 1px solid var(--panel-border, var(--border-color, var(--tpl-neutral-200)));
   border-radius: var(--app-radius-md, 6px);
-  background: var(--tpl-surface-1, var(--tpl-neutral-0));
-  color: var(--tpl-text-primary, var(--tpl-neutral-800));
+  background: var(--panel-bg, var(--surface-muted, var(--tpl-surface-1)));
+  color: var(--text-heading-color, var(--tpl-text-primary));
   font-size: var(--app-unit-1-5);
   font-weight: 500;
   font-family: inherit;

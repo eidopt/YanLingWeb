@@ -8,14 +8,11 @@ import { cx } from 'base/classname';
 
 export function PanelNode({ props, children, nodeLayoutStyle }: CoreNodeProps<PanelProps>) {
   const tone = asString(props.tone, 'default');
+  const title = asString(props.title).trim();
   const isAccentTone = tone === 'accent' || tone === 'promo' || tone === 'warm';
   const isSoftTone = tone === 'soft' || tone === 'member' || tone === 'highlight';
-  const className = cx(
-    styles.panel,
-    isAccentTone ? styles.panelAccent : isSoftTone ? styles.panelSoft : '',
-  );
-  const onClick =
-    typeof props.onClick === 'function' ? (props.onClick as () => void) : undefined;
+  const className = cx(styles.panel, isAccentTone ? styles.panelAccent : isSoftTone ? styles.panelSoft : '');
+  const onClick = typeof props.onClick === 'function' ? (props.onClick as () => void) : undefined;
 
   return (
     <section
@@ -28,6 +25,7 @@ export function PanelNode({ props, children, nodeLayoutStyle }: CoreNodeProps<Pa
         cursor: onClick ? 'pointer' : undefined,
       }}
     >
+      {title ? <div className={styles.panelTitle}>{title}</div> : null}
       {children}
     </section>
   );

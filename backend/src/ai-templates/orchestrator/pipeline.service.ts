@@ -80,7 +80,13 @@ export class TemplatePipelineService {
       let designerRecord: PipelineStageRecord<DesignerOutput>;
       const designerStart = Date.now();
       try {
-        designerRecord = await this.designer.run(seed, reviseSuggestion, attempt, ownerUserId);
+        designerRecord = await this.designer.run(
+          seed,
+          reviseSuggestion,
+          attempt,
+          ownerUserId,
+          existing,
+        );
       } catch (err) {
         emitStage('end', {
           stage: 'designer',
@@ -144,44 +150,35 @@ export class TemplatePipelineService {
       });
 
       // Stage 3: Schema Generation
-      // Pipeline-level retries: re-run schemaGenerator with the same brief,
-      // without going back to Designer. Only fall back to Designer when all
-      // pipeline retries are exhausted.
+      // Same-brief retries capped at MAX_SCHEMA_ATTEMPTS_PER_BRIEF = 2:
+      // attempt 2 forwards lastSchemaError to phaseSkeleton/phaseContent before falling back to Designer.
       emitStage('start', { stage: 'schema', attempt });
       const schemaStart = Date.now();
       let schemaRecord: PipelineStageRecord<SchemaOutput> | undefined;
-      const SCHEMA_STAGE_RETRIES = 3;
-      const SCHEMA_PIPELINE_RETRIES = 2;
+      const MAX_SCHEMA_ATTEMPTS_PER_BRIEF = 2;
       let lastSchemaError: string | undefined;
 
-      for (let pipelineRetry = 0; pipelineRetry <= SCHEMA_PIPELINE_RETRIES; pipelineRetry++) {
-        for (let stageRetry = 0; stageRetry < SCHEMA_STAGE_RETRIES; stageRetry++) {
-          try {
-            schemaRecord = await this.schemaGenerator.run(brief, attempt, ownerUserId);
-            break;
-          } catch (err) {
-            const msg = err instanceof Error ? err.message : String(err);
-            lastSchemaError = msg;
-            this.logger.warn(
-              [
-                `attempt ${attempt} schemaGen pipeline-retry ${pipelineRetry}`,
-                `stage-retry ${stageRetry + 1}/${SCHEMA_STAGE_RETRIES}: ${msg}`,
-              ].join(' '),
-            );
-          }
-        }
-        if (schemaRecord) {
+      for (let schemaAttempt = 1; schemaAttempt <= MAX_SCHEMA_ATTEMPTS_PER_BRIEF; schemaAttempt++) {
+        try {
+          schemaRecord = await this.schemaGenerator.run(
+            brief,
+            attempt,
+            ownerUserId,
+            schemaAttempt > 1 ? lastSchemaError : undefined,
+          );
           break;
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          lastSchemaError = msg;
+          const retryAction =
+            schemaAttempt < MAX_SCHEMA_ATTEMPTS_PER_BRIEF
+              ? 'retrying with same brief and error hint'
+              : 'falling back to Designer';
+          this.logger.warn(
+            `attempt ${attempt} schemaGen ${schemaAttempt}/${MAX_SCHEMA_ATTEMPTS_PER_BRIEF}` +
+              ` failed (${retryAction}): ${msg}`,
+          );
         }
-        const retryAction =
-          pipelineRetry < SCHEMA_PIPELINE_RETRIES
-            ? 'retrying with same brief'
-            : 'falling back to Designer';
-        this.logger.warn(
-          `attempt ${attempt} schemaGen pipeline-retry` +
-            ` ${pipelineRetry + 1}/${SCHEMA_PIPELINE_RETRIES + 1}` +
-            ` exhausted inner retries — ${retryAction}`,
-        );
       }
 
       if (!schemaRecord) {
@@ -282,15 +279,29 @@ export class TemplatePipelineService {
       );
       if (repairedSchemaRecord) {
         stages.schema.push(repairedSchemaRecord);
+        const lensesToReverify = failedLenses.map((v) => v.lens);
         const reverifyRecord = await this.verifier.run(
           brief,
           repairedSchemaRecord.output,
           existing,
           attempt,
           ownerUserId,
+          lensesToReverify,
         );
-        stages.verifier.push(reverifyRecord);
-        const remainingFailed = reverifyRecord.output.filter((v) => !v.pass);
+        const reverifyByLens = new Map(reverifyRecord.output.map((v) => [v.lens, v]));
+        const mergedVerdicts = verifierRecord.output.map(
+          (prior) => reverifyByLens.get(prior.lens) ?? prior,
+        );
+        for (const v of reverifyRecord.output) {
+          if (!mergedVerdicts.some((m) => m.lens === v.lens)) {
+            mergedVerdicts.push(v);
+          }
+        }
+        stages.verifier.push({
+          ...reverifyRecord,
+          output: mergedVerdicts,
+        });
+        const remainingFailed = mergedVerdicts.filter((v) => !v.pass);
         if (
           remainingFailed.length === 0 ||
           (attempt === MAX_PIPELINE_ATTEMPTS && this.isDiversityOnlyFailure(remainingFailed))

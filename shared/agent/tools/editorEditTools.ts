@@ -436,9 +436,44 @@ export const EDITOR_SEMANTIC_TOOLS = [
   EDITOR_REPLACE_SECTION_TOOL,
 ] as const satisfies readonly AgentProviderTool[];
 
+export const EDITOR_BATCH_EDIT_TOOL = tool(
+  'editor_batch_edit',
+  'Execute multiple atomic editor tool edits in a single batch call ' +
+    '(e.g. updating several node props, inserting multiple sibling components, ' +
+    'or combining prop updates with layout updates).',
+  ['edits'],
+  {
+    edits: {
+      type: 'array',
+      minItems: 1,
+      description: 'Ordered list of atomic editor tool invocations to execute together.',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['tool', 'args'],
+        properties: {
+          tool: {
+            type: 'string',
+            description:
+              'Name of the atomic editor tool to run ' +
+              '(e.g. editor_update_props, editor_insert_node, editor_delete_node, ' +
+              'editor_set_layout, editor_update_slot).',
+          },
+          args: {
+            type: 'object',
+            description: 'Arguments object for that atomic editor tool.',
+          },
+        },
+      },
+    },
+    reason: { type: 'string' },
+  },
+);
+
 export const EDITOR_EDIT_TOOLS = [
   EDITOR_SEARCH_NODES_TOOL,
   ...EDITOR_SEMANTIC_TOOLS,
+  EDITOR_BATCH_EDIT_TOOL,
   EDITOR_CREATE_PAGE_FROM_REFERENCE_TOOL,
   EDITOR_CREATE_PAGE_TOOL,
   EDITOR_DELETE_PAGE_TOOL,
@@ -454,29 +489,8 @@ export const EDITOR_EDIT_TOOLS = [
 
 export const EDITOR_EDIT_TOOL_NAMES = new Set(EDITOR_EDIT_TOOLS.map((item) => item.name));
 
-export function selectEditorEditTools(promptText: string): AgentProviderTool[] {
-  const lower = promptText.toLowerCase().trim();
-
-  // 纯删除意图：只暴露删除/导航工具
-  if (/^(要)?(把|将|请|帮忙)?(删除|移除|去掉|删掉|清空|delete|remove)/.test(lower) &&
-      !/(添加|新增|插入|创建|新建|add|create|insert)/.test(lower)) {
-    return EDITOR_EDIT_TOOLS.filter((t) =>
-      ['editor_search_nodes', 'editor_delete_page', 'editor_delete_node',
-       'editor_sync_navigation'].includes(t.name),
-    );
-  }
-
-  // 纯页面创建意图：只暴露页面/导航工具
-  if (/(新建页面|创建页面|新增页面|新页面|new page|create page|add page)/.test(lower) &&
-      !/(修改|更新|编辑|改|edit|update|change)/.test(lower)) {
-    return EDITOR_EDIT_TOOLS.filter((t) =>
-      ['editor_search_nodes', 'editor_create_page', 'editor_create_page_from_reference',
-       'editor_create_page_from_page_kind', 'editor_submit_page_spec',
-       'editor_sync_navigation'].includes(t.name),
-    );
-  }
-
-  // 通用：返回全部工具
+export function selectEditorEditTools(_promptText?: string): AgentProviderTool[] {
+  // Keep the tool schema list stable across turns so prompt prefix caching stays intact.
   return [...EDITOR_EDIT_TOOLS];
 }
 
@@ -630,6 +644,29 @@ export function editorToolCallToOperations(
             type: args.semanticTarget === 'page_footer_nav' ? 'sync_footer_tabs' : 'sync_page_navigation',
           },
         ],
+        reason,
+      };
+    }
+    case EDITOR_BATCH_EDIT_TOOL.name: {
+      const edits = Array.isArray(args.edits) ? args.edits : [];
+      const operations: EditorOperation[] = [];
+      for (const item of edits) {
+        if (!item || typeof item !== 'object') {
+          continue;
+        }
+        const subTool = typeof (item as { tool?: unknown }).tool === 'string' ? (item as { tool: string }).tool : '';
+        const subArgs =
+          (item as { args?: unknown }).args && typeof (item as { args?: unknown }).args === 'object'
+            ? (item as { args: Record<string, unknown> }).args
+            : {};
+        if (!subTool || subTool === EDITOR_BATCH_EDIT_TOOL.name || subTool === EDITOR_SEARCH_NODES_TOOL.name) {
+          continue;
+        }
+        const converted = editorToolCallToOperations(subTool, subArgs);
+        operations.push(...converted.operations);
+      }
+      return {
+        operations,
         reason,
       };
     }

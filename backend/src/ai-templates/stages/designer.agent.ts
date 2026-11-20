@@ -8,6 +8,7 @@ import {
 import type {
   ArchetypeVariant,
   DesignerOutput,
+  ExistingTemplateSummary,
   PipelineStageRecord,
   TemplateSeed,
 } from '../orchestrator/pipeline.types';
@@ -60,6 +61,7 @@ export class DesignerAgent {
     reviseSuggestion: string | undefined,
     attempt: number,
     ownerUserId?: string,
+    existing?: ExistingTemplateSummary[],
   ): Promise<PipelineStageRecord<DesignerOutput>> {
     const start = Date.now();
     // Designer 出的 brief 是喂给 SchemaGen 的质量关键输入，**必须用 pro**：
@@ -71,7 +73,7 @@ export class DesignerAgent {
       throw new Error('AI_API_KEY 未配置 — Designer 无法运行');
     }
 
-    const userMessage = this.buildUserMessage(seed, reviseSuggestion);
+    const userMessage = this.buildUserMessage(seed, reviseSuggestion, existing);
     this.logger.debug(`designer attempt=${attempt} seed=${seed.prompt}`);
 
     const result = await runStructuredStage<DesignerOutput>({
@@ -83,6 +85,7 @@ export class DesignerAgent {
       parse: (args) => this.parseBrief(args),
       aiProvider: this.aiProvider,
       ownerUserId,
+      cacheKey: 'pipeline-designer',
     });
 
     return {
@@ -95,7 +98,11 @@ export class DesignerAgent {
     };
   }
 
-  private buildUserMessage(seed: TemplateSeed, revise: string | undefined): string {
+  private buildUserMessage(
+    seed: TemplateSeed,
+    revise: string | undefined,
+    existing?: ExistingTemplateSummary[],
+  ): string {
     const payload: Record<string, unknown> = {
       seed: {
         prompt: seed.prompt,
@@ -105,6 +112,9 @@ export class DesignerAgent {
         forceHeroMode: seed.forceHeroMode ?? null,
       },
     };
+    if (existing && existing.length > 0) {
+      payload.diversityConstraints = this.buildDiversityConstraints(seed, existing);
+    }
     if (revise) {
       payload.previousAttemptFailed = true;
       payload.reviseSuggestion = revise;
@@ -121,6 +131,65 @@ export class DesignerAgent {
     ]
       .filter(Boolean)
       .join('\n');
+  }
+
+  private buildDiversityConstraints(
+    seed: TemplateSeed,
+    existing: ExistingTemplateSummary[],
+  ): Record<string, unknown> {
+    const scoped = seed.displayCategory
+      ? existing.filter((e) => e.displayCategory === seed.displayCategory)
+      : existing;
+
+    const heroCounts: Record<string, number> = {};
+    for (const mode of VALID_HERO_MODES) {
+      heroCounts[mode] = 0;
+    }
+    for (const item of scoped) {
+      if (item.heroMode in heroCounts) {
+        heroCounts[item.heroMode] += 1;
+      }
+    }
+    const minHeroCount = Math.min(...Object.values(heroCounts));
+    const recommendedHeroModes = [...VALID_HERO_MODES].filter(
+      (mode) => heroCounts[mode] === minHeroCount,
+    );
+
+    const archCounts: Record<string, number> = {};
+    for (const arch of VALID_ARCHETYPES) {
+      archCounts[arch] = 0;
+    }
+    for (const item of scoped) {
+      if (item.archetype in archCounts) {
+        archCounts[item.archetype] += 1;
+      }
+    }
+    const minArchCount = Math.min(...Object.values(archCounts));
+    const archQuota = Math.max(2, minArchCount + 1);
+    const recommendedArchetypes = [...VALID_ARCHETYPES].filter(
+      (arch) => archCounts[arch] < archQuota,
+    );
+
+    const usedPrimaryHues = Array.from(
+      new Set(scoped.map((item) => item.primaryHue).filter(Boolean)),
+    );
+    const usedComponentAliases = Array.from(
+      new Set(existing.flatMap((item) => item.componentTemplateAliases)),
+    ).slice(0, 20);
+
+    return {
+      category: seed.displayCategory ?? 'all',
+      existingCountInCategory: scoped.length,
+      heroModeCounts: heroCounts,
+      recommendedHeroModes,
+      archetypeCounts: archCounts,
+      recommendedArchetypes,
+      usedPrimaryHues,
+      usedComponentAliases,
+      rule:
+        '优先从 recommendedHeroModes 与 recommendedArchetypes 选择，' +
+        '避开 usedPrimaryHues 与 usedComponentAliases。',
+    };
   }
 
   private parseBrief(args: Record<string, unknown>): DesignerOutput {
@@ -181,14 +250,16 @@ export class DesignerAgent {
       cssVars: Object.fromEntries(
         Object.entries(requireObject('cssVars')).map(([k, v]) => [k, String(v)]),
       ),
-      componentTemplatesDraft: requireArray('componentTemplatesDraft').map((c, i) => {
-        if (!c || typeof c !== 'object') {
-          throw new Error(`Designer brief componentTemplatesDraft[${i}] 必须是对象`);
-        }
-        const item = c as Record<string, unknown>;
-        const str = (key: string): string => (typeof item[key] === 'string' ? item[key] : '');
-        return { alias: str('alias'), role: str('role'), description: str('description') };
-      }),
+      componentTemplatesDraft: Array.isArray(args.componentTemplatesDraft)
+        ? args.componentTemplatesDraft.map((c, i) => {
+            if (!c || typeof c !== 'object') {
+              throw new Error(`Designer brief componentTemplatesDraft[${i}] 必须是对象`);
+            }
+            const item = c as Record<string, unknown>;
+            const str = (key: string): string => (typeof item[key] === 'string' ? item[key] : '');
+            return { alias: str('alias'), role: str('role'), description: str('description') };
+          })
+        : [],
       bottomTabs: requireArray('bottomTabs').map((t, i) => {
         if (!t || typeof t !== 'object') {
           throw new Error(`Designer brief bottomTabs[${i}] 必须是对象`);

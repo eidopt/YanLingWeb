@@ -5,8 +5,8 @@
   align-items: center;
   justify-content: center;
   gap: var(--app-space-2);
-  border: var(--app-unit-0-125) solid transparent;
-  border-radius: var(--app-radius-pill);
+  border: 1px solid transparent;
+  border-radius: var(--app-radius-md);
   font: inherit;
   font-size: var(--app-font-size-md);
   font-weight: var(--app-font-weight-bold);
@@ -18,81 +18,83 @@
   touch-action: manipulation;
   overflow: hidden;
   transition:
-    transform var(--app-motion-fast) var(--app-motion-smooth),
-    box-shadow var(--app-motion-fast) var(--app-motion-smooth),
+    transform var(--app-motion-fast) var(--app-motion-spring),
+    background-color var(--app-motion-fast) var(--app-motion-smooth),
     border-color var(--app-motion-fast) var(--app-motion-smooth),
-    background var(--app-motion-fast) var(--app-motion-smooth),
     color var(--app-motion-fast) var(--app-motion-smooth),
+    box-shadow var(--app-motion-fast) var(--app-motion-smooth),
     opacity var(--app-motion-fast) var(--app-motion-smooth);
 }
 
 .button:focus-visible {
-  outline: var(--app-unit-0-25) solid var(--app-focus-ring);
-  outline-offset: var(--app-unit-0-25);
-  box-shadow: 0 0 0 var(--app-unit-0-5) rgba(244, 63, 94, 0.15);
+  outline: 2px solid var(--app-focus-ring);
+  outline-offset: 2px;
 }
 
 .button:hover:not(:disabled) {
-  transform: translateY(calc(var(--app-unit-0-25) * -1));
+  transform: translateY(-1px);
 }
 
 .button:active:not(:disabled) {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.98);
 }
 
 .button:disabled {
   cursor: not-allowed;
-  opacity: 0.52;
+  opacity: 0.48;
   transform: none;
 }
 
 .button[data-size='xs'] {
-  min-height: var(--app-unit-4);
-  padding: var(--app-unit-0-75) var(--app-unit-1-5);
-  font-size: var(--app-font-size-sm);
+  min-height: 32px;
+  padding: 6px 12px;
+  font-size: var(--app-font-size-xs);
 }
 
 .button[data-size='sm'] {
-  min-height: var(--app-unit-4);
-  padding: var(--app-unit-1) var(--app-unit-1-75);
+  min-height: 34px;
+  padding: 7px 14px;
   font-size: var(--app-font-size-sm);
 }
 
 .button[data-size='md'] {
-  min-height: var(--app-unit-5);
-  padding: var(--app-unit-1-25) var(--app-unit-2);
+  min-height: 40px;
+  padding: 9px 18px;
 }
 
 .button[data-size='lg'] {
-  min-height: var(--app-unit-6);
-  padding: var(--app-unit-1-75) var(--app-unit-2-5);
+  min-height: 44px;
+  padding: 11px 22px;
   font-size: var(--app-font-size-base);
 }
 
 .button[data-size='icon-sm'] {
-  width: var(--app-unit-4);
-  height: var(--app-unit-4);
-  min-width: var(--app-unit-4);
-  min-height: var(--app-unit-4);
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
   padding: 0;
+  border-radius: var(--app-radius-md);
   line-height: 1;
 }
 
 .button[data-size='icon-md'] {
-  width: var(--app-unit-5);
-  height: var(--app-unit-5);
-  min-width: var(--app-unit-5);
-  min-height: var(--app-unit-5);
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
   padding: 0;
+  border-radius: var(--app-radius-md);
   line-height: 1;
 }
 
 .button[data-size='fab'] {
-  width: var(--app-unit-7);
-  height: var(--app-unit-7);
-  min-width: var(--app-unit-7);
-  min-height: var(--app-unit-7);
+  width: 50px;
+  height: 50px;
+  min-width: 50px;
+  min-height: 50px;
   padding: 0;
+  border-radius: var(--app-radius-pill);
   line-height: 1;
 }
 
@@ -102,41 +104,37 @@
 
 .button[data-variant='primary'] {
   background: var(--app-brand-gradient);
-  box-shadow: var(--app-shadow-brand-md);
-  color: var(--app-text-inverse);
+  color: #ffffff;
+  box-shadow: var(--app-shadow-brand-sm);
 }
 
 .button[data-variant='primary']:hover:not(:disabled) {
-  background: var(--app-brand-gradient-hover, var(--app-brand-gradient));
-  box-shadow: var(--app-shadow-brand-lg);
+  background: var(--app-brand-gradient-hover);
+  box-shadow: var(--app-shadow-brand-md);
 }
 
 .button[data-variant='secondary'] {
-  background: var(--app-surface-glass);
+  background: var(--app-surface-1);
   border-color: var(--app-border);
-  box-shadow: none;
   color: var(--app-text-primary);
-  backdrop-filter: blur(var(--app-unit-2-5)) saturate(160%);
+  box-shadow: var(--app-shadow-xs);
 }
 
 .button[data-variant='secondary']:hover:not(:disabled) {
   background: var(--app-surface-2);
   border-color: var(--app-border-strong);
-  box-shadow: var(--app-shadow-brand-sm);
 }
 
 .button[data-variant='outline'] {
   background: transparent;
   border-color: var(--app-border);
-  box-shadow: none;
-  color: var(--app-text-secondary);
+  color: var(--app-text-primary);
 }
 
 .button[data-variant='outline']:hover:not(:disabled) {
-  background: var(--app-surface-2);
+  background: var(--app-color-primary-bg);
   border-color: color-mix(in srgb, var(--app-color-primary) 42%, var(--app-border));
-  color: var(--app-text-primary);
-  box-shadow: var(--app-shadow-brand-sm);
+  color: var(--app-color-primary);
 }
 
 .button[data-variant='ghost'] {
@@ -147,122 +145,128 @@
 
 .button[data-variant='ghost']:hover:not(:disabled) {
   background: var(--app-surface-2);
-  border-color: var(--app-border-subtle);
   color: var(--app-text-primary);
 }
 
 .button[data-variant='danger'] {
   background: var(--app-color-danger);
-  box-shadow: 0 var(--app-unit-1) var(--app-unit-2-5) color-mix(in srgb, var(--app-color-danger) 24%, transparent);
-  color: var(--app-text-inverse);
+  color: #ffffff;
+}
+
+.button[data-variant='danger']:hover:not(:disabled) {
+  opacity: 0.92;
 }
 
 .button[data-variant='danger-soft'] {
   background: var(--app-color-danger-bg);
   border-color: var(--app-color-danger-border);
-  color: var(--app-color-danger);
+  color: var(--app-color-danger-strong);
 }
 
 .button[data-variant='danger-soft']:hover:not(:disabled) {
-  background: var(--app-color-danger-bg);
+  opacity: 0.88;
 }
 
 .button[data-variant='inverse-ghost'] {
-  background: var(--app-surface-1);
-  border-color: var(--app-border-subtle);
+  background: transparent;
+  border-color: transparent;
   color: var(--app-text-secondary);
 }
 
 .button[data-variant='inverse-ghost']:hover:not(:disabled) {
   background: var(--app-surface-2);
-  border-color: var(--app-border);
   color: var(--app-text-primary);
 }
 
 .button[data-variant='inverse-primary'] {
   background: var(--app-brand-gradient);
   border-color: transparent;
-  box-shadow: var(--app-shadow-brand-md);
-  color: var(--app-text-inverse);
+  color: #ffffff;
+  box-shadow: var(--app-shadow-brand-sm);
 }
 
 .button[data-variant='inverse-primary']:hover:not(:disabled) {
-  background: var(--app-brand-gradient-hover, var(--app-brand-gradient));
+  background: var(--app-brand-gradient-hover);
+  box-shadow: var(--app-shadow-brand-md);
 }
 
 .button[data-variant='neutral'] {
-  background: var(--app-surface-1);
-  border-color: color-mix(in srgb, var(--app-color-primary) 28%, var(--app-border));
-  box-shadow: none;
-  color: var(--app-color-primary);
+  background: var(--app-color-accent);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: var(--app-shadow-xs);
 }
 
 .button[data-variant='neutral']:hover:not(:disabled) {
-  background: var(--app-surface-2);
-  box-shadow: var(--app-shadow-brand-sm);
+  background: var(--app-color-accent-strong);
 }
 
 .button[data-variant='tab'],
 .button[data-variant='tab-active'] {
-  border-radius: var(--app-radius-pill);
+  border-radius: var(--app-radius-md);
   box-shadow: none;
 }
 
 .button[data-variant='tab'] {
   background: transparent;
-  border-color: var(--app-border);
+  border-color: transparent;
   color: var(--app-text-muted);
 }
 
 .button[data-variant='tab']:hover:not(:disabled) {
-  background: var(--color-hover);
-  color: var(--app-text-secondary);
+  background: var(--app-surface-2);
+  color: var(--app-text-primary);
+  transform: none;
 }
 
 .button[data-variant='tab-active'] {
-  background: color-mix(in srgb, var(--app-color-primary) 18%, var(--app-surface-1));
-  border-color: color-mix(in srgb, var(--app-color-primary) 28%, var(--app-border));
+  background: var(--app-color-primary-bg);
+  border-color: color-mix(in srgb, var(--app-color-primary) 28%, transparent);
   color: var(--app-color-primary);
-  box-shadow: var(--app-shadow-brand-sm);
 }
 
 .button[data-variant='tab-active']:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--app-color-primary) 22%, var(--app-surface-1));
+  transform: none;
 }
 
 .button[data-variant='icon'] {
-  border-radius: var(--app-radius-pill);
-  background: var(--app-surface-1);
-  border-color: var(--app-border);
+  border-radius: var(--app-radius-md);
+  background: transparent;
+  border-color: var(--app-border-subtle);
   color: var(--app-text-muted);
 }
 
 .button[data-variant='icon']:hover:not(:disabled) {
   background: var(--app-surface-2);
-  border-color: var(--app-border-strong);
+  border-color: var(--app-border);
   color: var(--app-text-primary);
+  transform: none;
 }
 
 .button[data-variant='icon-inverse'] {
-  border-radius: var(--app-radius-pill);
-  background: var(--app-surface-2);
-  border-color: var(--app-border);
-  color: var(--app-text-primary);
+  border-radius: var(--app-radius-md);
+  background: transparent;
+  border-color: transparent;
+  color: var(--app-text-muted);
 }
 
 .button[data-variant='icon-inverse']:hover:not(:disabled) {
-  background: var(--app-surface-3);
+  background: var(--app-surface-2);
+  color: var(--app-text-primary);
+  transform: none;
 }
 
 .button[data-variant='floating'] {
   border-radius: var(--app-radius-pill);
   background: var(--app-brand-gradient);
-  box-shadow: var(--app-shadow-brand-lg);
-  color: var(--app-text-inverse);
+  border-color: transparent;
+  box-shadow: var(--app-shadow-brand-md);
+  color: #ffffff;
 }
 
 .button[data-variant='floating']:hover:not(:disabled) {
-  transform: scale(1.06);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: var(--app-shadow-brand-lg);
 }
 
 .button[data-variant='link'] {
@@ -283,66 +287,43 @@
 }
 
 .button[data-variant='user'] {
-  min-height: var(--app-unit-4);
+  min-height: 36px;
   border-radius: var(--app-radius-pill);
-  padding: var(--app-unit-0-375) var(--app-unit-1-5) var(--app-unit-0-375) var(--app-unit-0-375);
+  padding: 3px 12px 3px 4px;
   background: var(--app-surface-1);
-  border-color: var(--app-border-subtle);
-  color: var(--app-text-inverse);
+  border-color: var(--app-border);
+  color: var(--app-text-primary);
 }
 
 .button[data-variant='user']:hover:not(:disabled) {
   background: var(--app-surface-2);
-  border-color: var(--app-border);
+  border-color: var(--app-border-strong);
+  transform: none;
 }
 
-/* Ghost-light: transparent buttons on dark backgrounds */
 .button[data-variant='ghost-light'] {
   background: transparent;
-  border-color: rgba(255, 255, 255, 0.1);
-  color: var(--app-text-inverse-muted);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .button[data-variant='ghost-light']:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.18);
-  color: var(--app-text-inverse);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #ffffff;
 }
 
-/* Gradient-border: animated gradient border button */
 .button[data-variant='gradient-border'] {
-  position: relative;
   background: var(--app-surface-1);
-  border-color: transparent;
+  border-color: var(--app-border);
   color: var(--app-text-primary);
-  z-index: 0;
-}
-
-.button[data-variant='gradient-border']::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: var(--app-unit-0-125);
-  background: var(--app-gradient-border);
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  z-index: -1;
-  transition: opacity var(--app-motion-base) var(--app-motion-smooth);
 }
 
 .button[data-variant='gradient-border']:hover:not(:disabled) {
   background: var(--app-surface-2);
-  box-shadow: var(--app-shadow-glow-violet);
+  border-color: var(--app-color-primary);
 }
 
-/* Loading state */
 .button[data-loading='true'] {
   position: relative;
   color: transparent !important;
@@ -353,9 +334,9 @@
 .button[data-loading='true']::after {
   content: '';
   position: absolute;
-  width: var(--app-unit-2);
-  height: var(--app-unit-2);
-  border: var(--app-unit-0-25) solid currentColor;
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
   border-right-color: transparent;
   border-radius: var(--app-radius-pill);
   animation: buttonSpinner 0.6s linear infinite;
@@ -364,37 +345,6 @@
 @keyframes buttonSpinner {
   to {
     transform: rotate(360deg);
-  }
-}
-
-/* Primary shimmer effect on hover */
-.button[data-variant='primary']::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    105deg,
-    transparent 40%,
-    rgba(255, 255, 255, 0.08) 45%,
-    rgba(255, 255, 255, 0.16) 50%,
-    rgba(255, 255, 255, 0.08) 55%,
-    transparent 60%
-  );
-  transform: translateX(-100%);
-  transition: none;
-  pointer-events: none;
-}
-
-.button[data-variant='primary']:hover:not(:disabled)::before {
-  animation: buttonShimmer 1s var(--app-motion-smooth);
-}
-
-@keyframes buttonShimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
   }
 }
 

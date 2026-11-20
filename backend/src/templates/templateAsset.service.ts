@@ -67,6 +67,27 @@ const ROLE_PLACEHOLDERS: Record<string, RolePlaceholder> = {
   },
 };
 
+const ASSET_RESOLVE_CONCURRENCY = 4;
+
+async function runWithConcurrency<T, R>(
+  items: readonly T[],
+  limit: number,
+  worker: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let nextIndex = 0;
+  const workerCount = Math.min(Math.max(1, limit), items.length);
+  const runners = Array.from({ length: workerCount }, async () => {
+    while (nextIndex < items.length) {
+      const currentIndex = nextIndex;
+      nextIndex += 1;
+      results[currentIndex] = await worker(items[currentIndex], currentIndex);
+    }
+  });
+  await Promise.all(runners);
+  return results;
+}
+
 @Injectable()
 export class TemplateAssetService {
   private readonly logger = new Logger(TemplateAssetService.name);
@@ -87,17 +108,32 @@ export class TemplateAssetService {
       return { visualAssets: [], layoutDocument, manifest: null };
     }
 
-    // 策略：显式传入优先；否则仅当全局生图开关与 materializeImages 均开启时才走 generate，
-    // 确保本地开发（AI_MATERIALIZE_IMAGES=false）不跑真实生图 API，生产环境再开启。
-    const shouldGenerate =
-      this.config.ai.imageGenerationEnabled && this.config.ai.materializeImages;
-    const strategy: TemplateImageStrategy =
-      options.strategy ?? (shouldGenerate ? 'generate' : 'placeholder');
+    // 策略：显式传入优先；未传时：
+    // - 生图总开关关闭 → placeholder
+    // - materializeImages 开启 → generate（先查缓存与素材库，未命中调 AI 生图）
+    // - 其余情况 → library（零成本优先从本地缓存与素材库复用图片，未命中再回退占位符）
+    const defaultStrategy: TemplateImageStrategy = !this.config.ai.imageGenerationEnabled
+      ? 'placeholder'
+      : this.config.ai.materializeImages
+        ? 'generate'
+        : 'library';
+    const strategy: TemplateImageStrategy = options.strategy ?? defaultStrategy;
 
-    const resolvedAssets: VisualAsset[] = [];
-    for (const asset of visualAssets) {
-      resolvedAssets.push(await this.resolveVisualAsset(templateId, asset, strategy));
-    }
+    const resolvedAssets = await runWithConcurrency(
+      visualAssets,
+      ASSET_RESOLVE_CONCURRENCY,
+      async (asset) => {
+        try {
+          return await this.resolveVisualAsset(templateId, asset, strategy);
+        } catch (error) {
+          const reason = `asset resolution failed: ${this.errorMessage(error)}`;
+          this.logger.warn(
+            `Falling back to placeholder for template asset ${templateId}/${asset.id}: ${reason}`,
+          );
+          return this.withPlaceholderFallback(asset, reason);
+        }
+      },
+    );
 
     const resolvedLayoutDocument = applyVisualAssetsToLayoutDocument(
       layoutDocument,
@@ -125,10 +161,6 @@ export class TemplateAssetService {
       };
     }
 
-    if (asset.provider === 'placeholder') {
-      return this.withPlaceholderFallback(asset, 'asset requested placeholder provider');
-    }
-
     // 纯占位符策略：跳过一切复用与生图，直接占位。
     if (strategy === 'placeholder') {
       return this.withPlaceholderFallback(asset, 'placeholder strategy');
@@ -141,12 +173,16 @@ export class TemplateAssetService {
       return { ...asset, provider: asset.provider ?? 'ai-image', status: 'generated', ...cached };
     }
 
-    // 2) 语义索引复用：按 embedding 命中一张现成的近似图（如给「橘子」复用「水果」图）。
+    // 2) 语义/词法索引复用：按素材库命中一张现成的近似图（如给「咖啡」或图标复用现成图）。
     const lookup = this.buildLookupContext(asset);
     const indexed = await this.store.findByIndex?.(lookup);
     if (indexed) {
-      this.logger.log(`按语义索引复用图片 → ${templateId}/${asset.id}（跳过 AI 生图）`);
+      this.logger.log(`按素材库索引复用图片 → ${templateId}/${asset.id}（跳过 AI 生图）`);
       return { ...asset, provider: asset.provider ?? 'ai-image', status: 'generated', ...indexed };
+    }
+
+    if (asset.provider === 'placeholder') {
+      return this.withPlaceholderFallback(asset, 'asset requested placeholder provider');
     }
 
     // library 策略：只白嫖素材库，库里没命中就占位、绝不生图。

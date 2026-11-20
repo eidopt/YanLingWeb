@@ -9,6 +9,7 @@ import type {
   ProviderRequest,
   ProviderStreamEvent,
   ProviderTool,
+  ProviderToolChoice,
 } from './types';
 
 interface UserResponseInputItem {
@@ -68,6 +69,9 @@ interface OpenAIStreamItem {
 interface OpenAIStreamUsage {
   input_tokens: number;
   output_tokens: number;
+  input_tokens_details?: {
+    cached_tokens?: number;
+  };
 }
 
 interface OpenAIStreamIncompleteDetails {
@@ -105,10 +109,23 @@ const CAPABILITIES: ProviderCapabilities = {
   supportsStructuredOutput: true,
   supportsReasoningEffort: true,
   supportsServerSideContext: false,
+  supportsForcedToolChoice: true,
   reasoningMode: 'none',
   cacheStrategy: 'response_id',
   supportsDeveloperRole: true,
 };
+
+function toResponsesToolChoice(
+  choice: ProviderToolChoice | undefined,
+): string | { type: 'function'; name: string } | undefined {
+  if (!choice) {
+    return undefined;
+  }
+  if (choice === 'auto' || choice === 'required') {
+    return choice;
+  }
+  return { type: 'function', name: choice.name };
+}
 
 function isOpenAIStreamIterable(value: unknown): value is AsyncIterable<OpenAIStreamEvent> {
   if (!value || typeof value !== 'object') {
@@ -121,7 +138,7 @@ function isOpenAIStreamIterable(value: unknown): value is AsyncIterable<OpenAISt
 export class OpenAIProvider implements AIProvider {
   readonly name: string;
   private client: OpenAI;
-  private abortController: AbortController | null = null;
+  private readonly activeControllers = new Set<AbortController>();
 
   constructor(apiKey: string, baseURL?: string, name?: string) {
     this.name = name ?? 'openai';
@@ -133,97 +150,127 @@ export class OpenAIProvider implements AIProvider {
   }
 
   async *stream(request: ProviderRequest): AsyncIterable<ProviderStreamEvent> {
-    const abortController = new AbortController();
-    this.abortController = abortController;
-
-    // Purify messages for this provider's capabilities before converting
-    const purified = purifyMessages(request.messages, CAPABILITIES);
-    const { instructions, input } = convertMessages(purified);
-    const tools = request.tools ? convertTools(request.tools) : undefined;
-
-    const requestParams: Record<string, unknown> = {
-      model: request.model,
-      instructions,
-      input,
-      stream: true,
-      // Enable server-side response storage for prompt caching
-      store: true,
-      ...(tools && { tools }),
-      ...(request.reasoningEffort &&
-        request.reasoningEffort !== 'medium' && {
-          reasoning: { effort: request.reasoningEffort },
-        }),
-      // Pass previous_response_id to enable prompt caching (OpenAI won't
-      // re-process the unchanged prefix on subsequent requests)
-      ...(request.cache?.previousResponseId && {
-        previous_response_id: request.cache.previousResponseId,
-      }),
-    };
-
-    let streamIter: AsyncIterable<OpenAIStreamEvent>;
-    try {
-      const raw = await this.client.responses.create(requestParams);
-      if (!isOpenAIStreamIterable(raw)) {
-        yield { type: 'error', message: 'OpenAI response stream is not async iterable' };
-        return;
-      }
-      streamIter = raw;
-    } catch (error) {
-      yield { type: 'error', message: error instanceof Error ? error.message : String(error) };
+    if (request.signal?.aborted) {
       return;
     }
 
+    const abortController = new AbortController();
+    this.activeControllers.add(abortController);
+    const onExternalAbort = () => {
+      abortController.abort();
+    };
+    request.signal?.addEventListener('abort', onExternalAbort, { once: true });
+
     try {
-      for await (const event of streamIter) {
-        if (abortController.signal.aborted) {
-          break;
-        }
+      // Purify messages for this provider's capabilities before converting
+      const purified = purifyMessages(request.messages, CAPABILITIES);
+      const { instructions, input } = convertMessages(purified);
+      const tools = request.tools ? convertTools(request.tools) : undefined;
+      const toolChoice = tools?.length ? toResponsesToolChoice(request.toolChoice) : undefined;
 
-        if (event.type === 'response.output_text.delta') {
-          yield { type: 'text_delta', text: event.delta ?? '' };
-        }
+      const requestParams: Record<string, unknown> = {
+        model: request.model,
+        instructions,
+        input,
+        stream: true,
+        // Enable server-side response storage for prompt caching
+        store: true,
+        ...(tools && { tools }),
+        ...(toolChoice && { tool_choice: toolChoice }),
+        ...(request.reasoningEffort &&
+          request.reasoningEffort !== 'medium' && {
+            reasoning: { effort: request.reasoningEffort },
+          }),
+        // Pass previous_response_id to enable prompt caching (OpenAI won't
+        // re-process the unchanged prefix on subsequent requests)
+        ...(request.cache?.previousResponseId && {
+          previous_response_id: request.cache.previousResponseId,
+        }),
+      };
 
-        if (event.type === 'response.output_item.done') {
-          const item = event.item;
-          if (item?.type === 'function_call') {
+      let streamIter: AsyncIterable<OpenAIStreamEvent>;
+      try {
+        const raw = await this.client.responses.create(requestParams, {
+          signal: abortController.signal,
+        });
+        if (!isOpenAIStreamIterable(raw)) {
+          yield { type: 'error', message: 'OpenAI response stream is not async iterable' };
+          return;
+        }
+        streamIter = raw;
+      } catch (error) {
+        yield { type: 'error', message: error instanceof Error ? error.message : String(error) };
+        return;
+      }
+
+      try {
+        for await (const event of streamIter) {
+          if (abortController.signal.aborted) {
+            break;
+          }
+
+          if (event.type === 'response.output_text.delta') {
+            yield { type: 'text_delta', text: event.delta ?? '' };
+          }
+
+          if (event.type === 'response.output_item.done') {
+            const item = event.item;
+            if (item?.type === 'function_call') {
+              yield {
+                type: 'tool_call',
+                id: item.call_id,
+                name: item.name,
+                arguments: item.arguments,
+              };
+            }
+          }
+
+          if (event.type === 'response.completed') {
+            const usage = event.response?.usage;
+            const cachedTokens = usage?.input_tokens_details?.cached_tokens;
+            const cacheHitTokens =
+              typeof cachedTokens === 'number' && Number.isFinite(cachedTokens)
+                ? cachedTokens
+                : undefined;
+            const cacheMissTokens =
+              usage && cacheHitTokens !== undefined
+                ? Math.max(0, usage.input_tokens - cacheHitTokens)
+                : undefined;
+            const isMaxTokens = event.response?.incomplete_details?.reason === 'max_output_tokens';
+            const responseId = event.response?.id;
+
             yield {
-              type: 'tool_call',
-              id: item.call_id,
-              name: item.name,
-              arguments: item.arguments,
+              type: 'done',
+              usage: usage
+                ? {
+                    inputTokens: usage.input_tokens,
+                    outputTokens: usage.output_tokens,
+                    ...(cacheHitTokens !== undefined ? { cacheHitTokens } : {}),
+                    ...(cacheMissTokens !== undefined ? { cacheMissTokens } : {}),
+                  }
+                : undefined,
+              stopReason: isMaxTokens ? 'max_tokens' : 'end_turn',
+              // Forward the response ID to the frontend for prompt caching
+              response_id: responseId,
             };
           }
         }
-
-        if (event.type === 'response.completed') {
-          const usage = event.response?.usage;
-          const isMaxTokens = event.response?.incomplete_details?.reason === 'max_output_tokens';
-          const responseId = event.response?.id;
-
-          yield {
-            type: 'done',
-            usage: usage
-              ? {
-                  inputTokens: usage.input_tokens,
-                  outputTokens: usage.output_tokens,
-                }
-              : undefined,
-            stopReason: isMaxTokens ? 'max_tokens' : 'end_turn',
-            // Forward the response ID to the frontend for prompt caching
-            response_id: responseId,
-          };
+      } catch (error) {
+        if (!abortController.signal.aborted) {
+          yield { type: 'error', message: error instanceof Error ? error.message : String(error) };
         }
       }
-    } catch (error) {
-      if (!abortController.signal.aborted) {
-        yield { type: 'error', message: error instanceof Error ? error.message : String(error) };
-      }
+    } finally {
+      request.signal?.removeEventListener('abort', onExternalAbort);
+      this.activeControllers.delete(abortController);
     }
   }
 
   cancel(): void {
-    this.abortController?.abort();
-    this.abortController = null;
+    for (const controller of this.activeControllers) {
+      controller.abort();
+    }
+    this.activeControllers.clear();
   }
 }
 

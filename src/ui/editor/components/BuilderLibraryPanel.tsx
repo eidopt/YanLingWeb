@@ -90,7 +90,11 @@ function LibraryCard({
           {getComponentDisplayName(descriptor.alias, descriptor.name)}
         </Text>
       </Box>
-      <Box ref={previewRef} className={styles.libraryPreview} style={activeTheme.runtime.cssVars}>
+      <Box
+        ref={previewRef}
+        className={cx(styles.libraryPreview, 'app-render-scope')}
+        style={activeTheme.runtime.cssVars}
+      >
         <RendererErrorBoundary resetKeys={[descriptor.alias, activeTheme.id]}>
           <DynamicThemeRenderer controller={rendererController} />
         </RendererErrorBoundary>
@@ -130,14 +134,7 @@ function TemplateCard({
         <Text as="strong" size="sm" weight="bold">
           {template.name}
         </Text>
-        <Box
-          as="span"
-          className={styles.templateBadge}
-          style={{
-            color: template.accent,
-            backgroundColor: `${template.accent}1a`,
-          }}
-        >
+        <Box as="span" className={styles.templateBadge}>
           {template.tagline}
         </Box>
       </Box>

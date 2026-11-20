@@ -4,85 +4,62 @@
   inset: 0;
   z-index: 1000;
   background: var(--app-modal-backdrop);
-  backdrop-filter: blur(var(--app-unit-1-5)) saturate(130%);
-  -webkit-backdrop-filter: blur(var(--app-unit-1-5)) saturate(130%);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--app-unit-2);
-  animation: authBackdropIn 0.24s ease both;
+  padding: 16px;
+  animation: authBackdropIn 0.2s ease both;
 }
 
 .backdrop[data-closing] {
-  animation: authBackdropOut 0.2s ease both;
+  animation: authBackdropOut 0.16s ease both;
 }
 
 /* ── Dialog ── */
 .dialog {
   position: relative;
   width: 100%;
-  max-width: var(--app-unit-57-5);
+  max-width: 440px;
   background: var(--app-modal-surface);
-  border: var(--app-unit-0-125) solid var(--app-modal-border);
+  border: 1px solid var(--app-modal-border);
   border-radius: var(--app-radius-2xl);
-  box-shadow:
-    0 0 0 var(--app-unit-0-125) var(--app-primary-alpha-10),
-    var(--app-shadow-lg),
-    var(--app-shadow-glow-violet);
-  backdrop-filter: blur(var(--app-unit-2-5)) saturate(160%);
-  -webkit-backdrop-filter: blur(var(--app-unit-2-5)) saturate(160%);
+  box-shadow: var(--app-shadow-lg);
   overflow: hidden;
-  transform-origin: center bottom;
-  animation: authDialogIn 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: authDialogIn 0.22s var(--app-motion-smooth) both;
 }
 
 .dialog[data-closing] {
-  animation: authDialogOut 0.2s cubic-bezier(0.4, 0, 1, 1) both;
+  animation: authDialogOut 0.16s ease both;
 }
 
 /* ── Close button ── */
 .closeBtn {
   position: absolute;
-  top: var(--app-unit-2);
-  right: var(--app-unit-2);
+  top: 16px;
+  right: 16px;
   z-index: 1;
-  width: var(--app-unit-4);
-  height: var(--app-unit-4);
-  border-radius: 50%;
-  border: none;
-  background: var(--color-hover);
-  color: var(--app-text-muted);
-  font-size: var(--app-unit-1-5);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
-.closeBtn:hover {
-  background: var(--app-ink-alpha-02);
-  color: var(--app-text-primary);
 }
 
 /* ── Brand ── */
 .brand {
   display: flex;
   align-items: center;
-  gap: var(--app-unit-1);
-  padding: var(--app-unit-3) var(--app-unit-3-5) 0;
-  font-size: var(--app-unit-2);
-  font-weight: 800;
+  gap: 10px;
+  padding: 24px 28px 0;
+  font-size: 16px;
+  font-weight: 700;
   color: var(--app-text-primary);
 }
+
 .brandLogo {
-  width: var(--app-unit-4);
-  height: var(--app-unit-4);
+  width: 30px;
+  height: 30px;
   border-radius: var(--app-radius-md);
-  background: linear-gradient(135deg, var(--app-color-primary), var(--app-color-accent));
-  color: var(--app-neutral-0);
-  font-size: var(--app-unit-2);
+  background: var(--app-brand-gradient);
+  color: #ffffff;
+  box-shadow: var(--app-shadow-brand-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -91,26 +68,28 @@
 /* ── Tabs ── */
 .tabs {
   display: flex;
-  gap: var(--app-unit-0-5);
-  padding: var(--app-unit-2) var(--app-unit-3-5) 0;
+  gap: 6px;
+  padding: 16px 28px 0;
 }
+
 /* ── Form wrap ── */
 .formWrap {
-  padding: var(--app-unit-2-5) var(--app-unit-3-5) var(--app-unit-3-5);
+  padding: 20px 28px 28px;
   display: flex;
   flex-direction: column;
-  gap: var(--app-unit-2);
+  gap: 16px;
 }
 
 /* ── Form header ── */
 .formHeader h2 {
-  font-size: var(--app-unit-2-5);
-  font-weight: 900;
+  font-size: 20px;
+  font-weight: 700;
   color: var(--app-text-primary);
-  margin-bottom: var(--app-unit-0-5);
+  margin-bottom: 4px;
 }
+
 .formHeader p {
-  font-size: var(--app-unit-1-75);
+  font-size: 13.5px;
   color: var(--app-text-muted);
 }
 
@@ -118,75 +97,84 @@
 .socialRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--app-unit-1-25);
+  gap: 10px;
 }
+
 /* ── Form fields ── */
 .form {
   display: flex;
   flex-direction: column;
-  gap: var(--app-unit-1-5);
+  gap: 12px;
 }
+
 .fieldRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--app-unit-1-25);
+  gap: 10px;
 }
+
 .field {
   display: flex;
   flex-direction: column;
-  gap: var(--app-unit-0-75);
+  gap: 6px;
 }
 
 /* ── Password row ── */
 .passwordRow {
   display: flex;
   flex-direction: column;
-  gap: var(--app-unit-0-5);
+  gap: 4px;
 }
+
 /* ── Switch row ── */
 .switchRow {
-  font-size: var(--app-unit-1-75);
+  font-size: 13.5px;
   color: var(--app-text-muted);
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--app-unit-0-75);
+  gap: 6px;
 }
+
 /* ── Error message ── */
 .errorMsg {
-  font-size: var(--app-unit-1-75);
-  color: var(--app-color-danger);
+  font-size: 13.5px;
+  color: var(--app-color-danger-strong);
   background: var(--app-color-danger-bg);
-  border: var(--app-unit-0-125) solid var(--app-color-danger-border);
+  border: 1px solid var(--app-color-danger-border);
   border-radius: var(--app-radius-md);
-  padding: var(--app-unit-1) var(--app-unit-1-75);
+  padding: 8px 12px;
   text-align: center;
 }
 
 /* ── WeChat QR ── */
 .qrBack {
-  margin-bottom: calc(var(--app-unit-0-5) * -1);
+  margin-bottom: -4px;
 }
+
 .qrBox {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: var(--app-unit-28);
+  min-height: 224px;
   position: relative;
 }
+
 .qrImage {
   border-radius: var(--app-radius-xl);
-  border: var(--app-unit-0-125) solid var(--app-border);
+  border: 1px solid var(--app-border);
   display: block;
 }
+
 .qrScanned {
   border-radius: var(--app-radius-xl);
-  border: var(--app-unit-0-125) solid var(--app-border);
+  border: 1px solid var(--app-border);
   display: block;
   opacity: 0.3;
 }
+
 .qrScannedOverlay {
   position: absolute;
   inset: 0;
@@ -194,33 +182,36 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--app-unit-0-75);
+  gap: 6px;
   color: var(--app-color-success);
   font-weight: 700;
 }
+
 .qrScannedOverlay span {
-  font-size: var(--app-unit-5);
+  font-size: 36px;
   line-height: 1;
 }
+
 .qrScannedOverlay p {
-  font-size: var(--app-unit-1-75);
+  font-size: 13.5px;
   color: var(--app-color-success);
 }
 
 .qrPlaceholder {
-  width: var(--app-unit-24);
-  height: var(--app-unit-24);
+  width: 192px;
+  height: 192px;
   border-radius: var(--app-radius-xl);
-  border: var(--app-unit-0-125) solid var(--app-border);
+  border: 1px solid var(--app-border);
   background: var(--app-surface-2);
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
 .qrSpinner {
-  width: var(--app-unit-4);
-  height: var(--app-unit-4);
-  border: var(--app-unit-0-375) solid var(--app-border);
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--app-border);
   border-top-color: var(--app-color-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -230,51 +221,54 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--app-unit-1-5);
-  color: var(--app-color-danger);
-  font-size: var(--app-unit-1-75);
+  gap: 12px;
+  color: var(--app-color-danger-strong);
+  font-size: 13.5px;
   text-align: center;
 }
+
 .qrHints {
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: var(--app-unit-0-75);
+  gap: 6px;
 }
+
 .qrHints p {
-  font-size: var(--app-unit-1-75);
+  font-size: 13.5px;
   color: var(--app-text-muted);
 }
 
 .qrOpenLink {
   display: block;
   text-align: center;
-  font-size: var(--app-unit-1-5);
-  color: var(--app-text-faint);
+  font-size: 12.5px;
+  color: var(--app-text-muted);
   text-decoration: underline;
 }
+
 .qrOpenLink:hover {
   color: var(--app-color-primary);
 }
 
 .devHelper {
   background: var(--app-color-warning-bg);
-  border: var(--app-unit-0-125) dashed var(--app-color-yellow);
+  border: 1px dashed var(--app-color-warning);
   border-radius: var(--app-radius-md);
-  padding: var(--app-unit-1-25) var(--app-unit-1-5);
-  font-size: var(--app-unit-1-5);
+  padding: 10px 12px;
+  font-size: 12.5px;
   color: var(--app-color-warning-strong);
   display: flex;
   flex-direction: column;
-  gap: var(--app-unit-0-75);
+  gap: 6px;
 }
 
-/* ── Animations ── */
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
+
 @keyframes authBackdropIn {
   from {
     opacity: 0;
@@ -283,6 +277,7 @@
     opacity: 1;
   }
 }
+
 @keyframes authBackdropOut {
   from {
     opacity: 1;
@@ -291,19 +286,18 @@
     opacity: 0;
   }
 }
+
 @keyframes authDialogIn {
-  0% {
+  from {
     opacity: 0;
-    transform: translateY(var(--app-unit-4)) scale(0.94);
+    transform: translateY(10px) scale(0.98);
   }
-  60% {
-    opacity: 1;
-  }
-  100% {
+  to {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
 }
+
 @keyframes authDialogOut {
   from {
     opacity: 1;
@@ -311,7 +305,7 @@
   }
   to {
     opacity: 0;
-    transform: translateY(var(--app-unit-2)) scale(0.97);
+    transform: translateY(6px) scale(0.98);
   }
 }
 
@@ -324,14 +318,11 @@
   }
 }
 
-/* ── Responsive ── */
 @media (--app-viewport-phone) {
   .dialog {
     border-radius: var(--app-radius-xl);
   }
-  .fieldRow {
-    grid-template-columns: 1fr;
-  }
+  .fieldRow,
   .socialRow {
     grid-template-columns: 1fr;
   }

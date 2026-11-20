@@ -4,11 +4,11 @@
   --surface: var(--color-bg, linear-gradient(180deg, var(--tpl-neutral-50) 0%, var(--tpl-surface-2) 100%));
   --surface-muted: var(--color-primary-light, color-mix(in srgb, var(--accent) 8%, var(--tpl-neutral-0)));
   --panel-bg: var(--color-card, var(--tpl-surface-1));
-  --panel-border: color-mix(in srgb, var(--accent) 16%, var(--tpl-border));
-  --panel-accent: color-mix(in srgb, var(--accent) 12%, var(--tpl-surface-1));
-  --panel-accent-border: color-mix(in srgb, var(--accent) 26%, var(--tpl-border));
-  --search-bg: var(--tpl-surface-1);
-  --note-bg: color-mix(in srgb, var(--accent) 14%, var(--tpl-surface-1));
+  --panel-border: color-mix(in srgb, var(--accent) 16%, var(--border-color, var(--tpl-border)));
+  --panel-accent: color-mix(in srgb, var(--accent) 16%, var(--panel-bg, var(--tpl-surface-1)));
+  --panel-accent-border: color-mix(in srgb, var(--accent) 32%, var(--border-color, var(--tpl-border)));
+  --search-bg: var(--input-bg, var(--surface-muted, var(--panel-bg, var(--tpl-surface-1))));
+  --note-bg: color-mix(in srgb, var(--accent) 16%, var(--panel-bg, var(--tpl-surface-1)));
   --text-base: var(--tpl-neutral-900);
   --radius-base: var(--app-unit-2);
 
@@ -32,23 +32,27 @@
   --screen-height-desktop: var(--app-unit-112);
 
   /* ── Derived: accent-tinted components ───────────────────────────── */
-  --btn-pill-bg: color-mix(in srgb, var(--accent) 10%, var(--tpl-neutral-0));
-  --btn-pill-color: color-mix(in srgb, var(--accent) 75%, var(--tpl-color-black));
-  --tag-hot-bg: color-mix(in srgb, var(--accent) 15%, var(--tpl-neutral-0));
-  --tag-hot-color: color-mix(in srgb, var(--accent) 70%, var(--tpl-color-black));
-  --tag-new-bg: color-mix(in srgb, var(--accent) 10%, var(--tpl-neutral-0));
-  --tag-new-color: color-mix(in srgb, var(--accent) 65%, var(--tpl-color-black));
-  --tag-member-bg: color-mix(in srgb, var(--accent) 8%, var(--tpl-neutral-0));
-  --tag-member-color: color-mix(in srgb, var(--accent) 55%, var(--tpl-color-black));
+  --btn-pill-bg: color-mix(in srgb, var(--accent) 16%, var(--panel-bg, var(--tpl-neutral-0)));
+  --btn-pill-color: color-mix(in srgb, var(--accent) 75%, var(--text-heading-color, var(--tpl-color-black)));
+  --tag-hot-bg: color-mix(in srgb, var(--accent) 18%, var(--panel-bg, var(--tpl-neutral-0)));
+  --tag-hot-color: color-mix(in srgb, var(--accent) 75%, var(--text-heading-color, var(--tpl-color-black)));
+  --tag-new-bg: color-mix(in srgb, var(--accent) 14%, var(--panel-bg, var(--tpl-neutral-0)));
+  --tag-new-color: color-mix(in srgb, var(--accent) 70%, var(--text-heading-color, var(--tpl-color-black)));
+  --tag-member-bg: color-mix(in srgb, var(--accent) 12%, var(--panel-bg, var(--tpl-neutral-0)));
+  --tag-member-color: color-mix(in srgb, var(--accent) 65%, var(--text-heading-color, var(--tpl-color-black)));
 
   /* ── Fixed: semantic tag colors (meaning shouldn't change) ──────── */
-  --tag-neutral-bg: var(--tpl-neutral-100);
-  --tag-neutral-color: var(--tpl-neutral-500);
-  --tag-success-bg: var(--tpl-color-success-bg);
+  --tag-neutral-bg: color-mix(
+    in srgb,
+    var(--text-muted-color, var(--tpl-neutral-500)) 16%,
+    var(--panel-bg, var(--tpl-neutral-100))
+  );
+  --tag-neutral-color: var(--text-muted-color, var(--tpl-neutral-500));
+  --tag-success-bg: color-mix(in srgb, var(--tpl-color-wechat) 16%, var(--panel-bg, var(--tpl-color-success-bg)));
   --tag-success-color: var(--tpl-color-wechat);
-  --tag-warning-bg: var(--tpl-color-warning-bg);
+  --tag-warning-bg: color-mix(in srgb, var(--tpl-color-orange) 16%, var(--panel-bg, var(--tpl-color-warning-bg)));
   --tag-warning-color: var(--tpl-color-orange);
-  --tag-info-bg: var(--tpl-color-info-bg);
+  --tag-info-bg: color-mix(in srgb, var(--tpl-color-sky) 16%, var(--panel-bg, var(--tpl-color-info-bg)));
   --tag-info-color: var(--tpl-color-sky);
   --tag-deal-bg: var(--tpl-text-primary);
   --tag-deal-color: var(--tpl-color-danger);
@@ -63,8 +67,8 @@
   background: var(--surface);
   box-shadow:
     0 var(--app-unit-2-5) var(--app-unit-7) var(--tpl-ink-alpha-02),
-    inset 0 0 0 var(--app-unit-0-125) var(--tpl-border-subtle);
-  color: var(--tpl-neutral-850);
+    inset 0 0 0 var(--app-unit-0-125) var(--border-color, var(--tpl-border-subtle));
+  color: var(--text-body-color, var(--tpl-neutral-850));
   position: relative;
   isolation: isolate;
 }
@@ -113,7 +117,7 @@
   height: var(--app-unit-2-5);
   transform: translateX(-50%);
   border-radius: var(--app-radius-pill);
-  background: color-mix(in srgb, var(--text-base) 16%, transparent);
+  background: color-mix(in srgb, var(--text-heading-color, var(--text-base)) 16%, transparent);
   box-shadow: inset 0 var(--app-unit-0-125) 0 var(--tpl-white-alpha-04);
 }
 
@@ -124,6 +128,7 @@
   padding: var(--app-unit-2) var(--app-unit-2-25) var(--app-unit-1);
   font-size: var(--app-unit-1-5);
   font-weight: 700;
+  color: var(--text-heading-color, var(--tpl-neutral-850));
   position: relative;
   z-index: 1;
 }
@@ -152,7 +157,7 @@
 .signalIcon span {
   width: var(--app-unit-0-25);
   border-radius: var(--app-radius-pill);
-  background: color-mix(in srgb, var(--text-base) 48%, transparent);
+  background: color-mix(in srgb, var(--text-heading-color, var(--text-base)) 56%, transparent);
 }
 
 .signalIcon span:nth-child(1) {
@@ -178,7 +183,7 @@
   width: var(--app-unit-2-5);
   height: var(--app-unit-1-5);
   padding: var(--app-unit-0-125);
-  border: var(--app-unit-0-125) solid color-mix(in srgb, var(--text-base) 48%, transparent);
+  border: var(--app-unit-0-125) solid color-mix(in srgb, var(--text-heading-color, var(--text-base)) 56%, transparent);
   border-radius: var(--app-unit-0-5);
   box-sizing: border-box;
 }
@@ -192,7 +197,7 @@
   height: var(--app-unit-0-5);
   transform: translateY(-50%);
   border-radius: 0 var(--app-radius-pill) var(--app-radius-pill) 0;
-  background: color-mix(in srgb, var(--text-base) 48%, transparent);
+  background: color-mix(in srgb, var(--text-heading-color, var(--text-base)) 56%, transparent);
 }
 
 .batteryLevel {
@@ -200,7 +205,7 @@
   width: 72%;
   height: 100%;
   border-radius: var(--app-unit-0-25);
-  background: color-mix(in srgb, var(--text-base) 48%, transparent);
+  background: color-mix(in srgb, var(--text-heading-color, var(--text-base)) 56%, transparent);
 }
 
 .header {
@@ -209,6 +214,7 @@
   justify-content: space-between;
   gap: var(--app-unit-1-5);
   padding: var(--app-unit-0-5) var(--app-unit-2) var(--app-unit-2);
+  color: var(--text-heading-color, var(--tpl-neutral-850));
   position: relative;
   z-index: 1;
 }
@@ -222,6 +228,7 @@
   text-align: center;
   font-size: var(--app-unit-2);
   font-weight: 700;
+  color: var(--text-heading-color, var(--tpl-neutral-850));
 }
 
 .headerGhost {
@@ -233,8 +240,8 @@
   justify-content: center;
   border: 0;
   border-radius: var(--app-radius-pill);
-  background: var(--tpl-surface-1);
-  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--tpl-border);
+  background: var(--panel-bg, var(--surface-muted, var(--tpl-surface-1)));
+  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--panel-border, var(--border-color, var(--tpl-border)));
 }
 
 .miniProgramCapsule,
@@ -246,9 +253,9 @@
   min-height: var(--app-unit-4);
   padding: 0 var(--app-unit-1-5);
   border-radius: var(--app-radius-pill);
-  background: var(--tpl-surface-1);
+  background: var(--panel-bg, var(--surface-muted, var(--tpl-surface-1)));
   box-shadow:
-    inset 0 0 0 var(--app-unit-0-125) var(--tpl-border),
+    inset 0 0 0 var(--app-unit-0-125) var(--panel-border, var(--border-color, var(--tpl-border))),
     0 var(--app-unit-0-75) var(--app-unit-1-75) var(--tpl-ink-alpha-08);
 }
 
@@ -260,13 +267,13 @@
   width: var(--app-unit-0-75);
   height: var(--app-unit-0-75);
   border-radius: var(--app-radius-pill);
-  background: color-mix(in srgb, var(--text-base) 44%, transparent);
+  background: color-mix(in srgb, var(--text-heading-color, var(--text-base)) 64%, transparent);
 }
 
 .miniProgramCapsuleLabel {
   flex: 0 0 auto;
   border: 0;
-  color: var(--tpl-neutral-850);
+  color: var(--text-heading-color, var(--tpl-neutral-850));
   font-size: var(--app-unit-1-5);
   font-weight: 700;
 }
@@ -282,8 +289,9 @@
   padding: var(--app-unit-1) var(--app-unit-1-5);
   border: 0;
   border-radius: var(--app-radius-pill);
-  background: var(--tpl-surface-1);
-  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--tpl-border);
+  background: var(--panel-bg, var(--surface-muted, var(--tpl-surface-1)));
+  color: var(--text-heading-color, var(--tpl-neutral-850));
+  box-shadow: inset 0 0 0 var(--app-unit-0-125) var(--panel-border, var(--border-color, var(--tpl-border)));
   font-size: var(--app-unit-1-5);
   font-weight: 700;
 }

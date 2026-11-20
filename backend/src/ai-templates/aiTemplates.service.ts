@@ -236,20 +236,19 @@ export class AiTemplatesService {
     options: GenerateOptions,
   ): Promise<PipelineResult['document']> {
     // 互斥优先级：placeholder > library > materializeImages（请求显式传参优先，否则回退配置项）。
+    // 即使未开启 materializeImages，只要未显式禁用图片，也默认走 library 策略优先复用本地素材库。
     const shouldMaterialize =
       options.materializeImages ?? this.config?.ai.materializeImages ?? false;
-    const strategy: TemplateImageStrategy | undefined = options.placeholderImages
+    const imageGenEnabled = this.config?.ai.imageGenerationEnabled !== false;
+    const strategy: TemplateImageStrategy = options.placeholderImages
       ? 'placeholder'
       : options.libraryImages
         ? 'library'
-        : shouldMaterialize
-          ? this.config?.ai.imageGenerationEnabled === false
-            ? 'placeholder'
-            : 'generate'
-          : undefined;
-    if (!strategy) {
-      return document;
-    }
+        : !imageGenEnabled
+          ? 'placeholder'
+          : shouldMaterialize
+            ? 'generate'
+            : 'library';
 
     const visualAssetsRaw = (document as unknown as { visualAssets?: unknown }).visualAssets;
     if (!Array.isArray(visualAssetsRaw) || visualAssetsRaw.length === 0) {

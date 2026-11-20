@@ -1,160 +1,127 @@
 .page {
-  width: min(var(--app-unit-160), 100%);
-  min-height: calc(100vh - var(--app-unit-7));
+  width: min(1240px, 100%);
+  min-height: calc(100vh - 60px);
   margin: 0 auto;
-  padding: var(--app-unit-5) var(--app-unit-3) var(--app-unit-9);
+  padding: 36px 28px 72px;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 28px;
   color: var(--app-text-primary);
 }
 
-/* ── header ── */
-
+/* ── Header ── */
 .header {
-  margin-bottom: var(--app-unit-4);
-  padding: var(--app-unit-5) var(--app-unit-5) var(--app-unit-4);
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--app-border-subtle);
+}
+
+.headerTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
 }
 
 .subtitle {
-  max-width: 56ch;
+  max-width: 54ch;
 }
-
-/* ── search + sort row ── */
 
 .searchRow {
   display: flex;
   align-items: center;
-  gap: var(--app-unit-1-5);
-  margin-top: var(--app-unit-0-75);
+  gap: 10px;
+  flex: 0 1 540px;
+  min-width: min(100%, 340px);
 }
 
 .searchInputWrap {
-  position: relative;
-  flex: 1;
-  max-width: var(--app-unit-60);
-}
-
-.searchIcon {
-  position: absolute;
-  left: var(--app-unit-1-75);
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--app-text-faint);
-  pointer-events: none;
-  display: flex;
-  align-items: center;
-  z-index: 1;
-}
-
-.searchInput {
-  padding-left: var(--app-unit-5);
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .searchClear {
-  position: absolute;
-  right: var(--app-unit-1-25);
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--app-unit-3);
-  height: var(--app-unit-3);
+  width: 22px;
+  height: 22px;
   border: none;
-  border-radius: var(--app-radius-full);
+  border-radius: var(--app-radius-pill);
   background: none;
   color: var(--app-text-muted);
   cursor: pointer;
-  transition:
-    color var(--app-motion-fast) var(--app-motion-smooth),
-    background var(--app-motion-fast) var(--app-motion-smooth);
-  z-index: 1;
+  padding: 0;
 }
 
 .searchClear:hover {
   color: var(--app-text-primary);
-  background: var(--app-surface-3);
+  background: var(--app-surface-2);
 }
-
-/* ── sort ── */
 
 .sortDropdown {
-  flex-shrink: 0;
+  flex: 0 0 auto;
 }
 
-.sortSelect {
-  padding: var(--app-unit-1) var(--app-unit-2);
-  border: var(--app-unit-0-125) solid var(--app-border);
-  border-radius: var(--app-radius-lg);
-  background: var(--app-surface-2);
-  color: var(--app-text-secondary);
-  font-size: var(--app-font-size-sm);
-  cursor: pointer;
-  transition:
-    border-color var(--app-motion-fast) var(--app-motion-smooth);
-  min-width: var(--app-unit-18);
+.filterToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
-
-.sortSelect:hover,
-.sortSelect:focus-visible {
-  border-color: var(--app-primary);
-  outline: none;
-}
-
-/* ── category tabs ── */
 
 .categoryTabs {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--app-unit-1);
+  gap: 6px;
+}
+
+.categoryCount {
+  margin-left: 4px;
+  font-size: 11px;
+  color: var(--app-text-muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .filterNote {
-  color: var(--app-color-accent);
-  font-weight: var(--app-font-weight-bold);
+  color: var(--app-color-primary);
+  font-weight: 600;
 }
 
-/* ── grid ── */
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(var(--app-unit-32), 1fr));
-  gap: var(--app-unit-2-5);
-}
-
-/* ── skeleton ── */
-
+/* ── Grid ── */
+.grid,
 .skeletonGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(var(--app-unit-32), 1fr));
-  gap: var(--app-unit-2-5);
+  grid-template-columns: repeat(auto-fill, minmax(236px, 1fr));
+  gap: 20px;
 }
 
+/* ── Skeleton ── */
 .skeletonCard {
   border-radius: var(--app-radius-2xl);
-  border: var(--app-unit-0-125) solid var(--app-border-subtle);
+  border: 1px solid var(--app-border-subtle);
   background: var(--app-surface-1);
   overflow: hidden;
 }
 
 .skeletonPreview {
-  aspect-ratio: 22 / 39;
+  aspect-ratio: 4 / 5;
+  margin: 12px;
+  border-radius: var(--app-radius-lg);
   background: var(--app-surface-2);
 }
 
 .skeletonMeta {
   display: flex;
-  align-items: flex-start;
-  gap: var(--app-unit-1-25);
-  padding: var(--app-unit-1-75) var(--app-unit-2);
-  min-height: var(--app-unit-9);
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
 }
 
 .skeletonAccent {
-  width: var(--app-unit-1);
-  height: var(--app-unit-4);
-  margin-top: var(--app-unit-0-375);
+  width: 8px;
+  height: 8px;
   border-radius: var(--app-radius-pill);
   background: var(--app-surface-3);
   flex-shrink: 0;
@@ -163,72 +130,54 @@
 .skeletonLines {
   display: flex;
   flex-direction: column;
-  gap: var(--app-unit-0-75);
+  gap: 6px;
   flex: 1;
 }
 
 .skeletonLine {
-  height: var(--app-unit-1-25);
-  border-radius: var(--app-radius-sm);
+  height: 11px;
+  border-radius: var(--app-radius-xs);
   background: var(--app-surface-2);
   width: var(--sk-width, 60%);
 }
 
-/* ── empty state ── */
-
+/* ── Empty state ── */
 .emptyState {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--app-unit-1-5);
-  padding: var(--app-unit-8) var(--app-unit-2);
-  border: var(--app-unit-0-125) solid var(--app-border-subtle);
+  gap: 10px;
+  padding: 64px 20px;
+  border: 1px solid var(--app-border-subtle);
   border-radius: var(--app-radius-2xl);
   background: var(--app-surface-1);
-  min-height: var(--app-unit-32);
+  min-height: 260px;
 }
 
 .emptyIcon {
-  color: var(--app-text-faint);
-  margin-bottom: var(--app-unit-0-5);
+  color: var(--app-text-muted);
+  margin-bottom: 4px;
 }
-
-/* ── responsive ── */
 
 @media (--app-viewport-phone) {
   .page {
-    padding-inline: var(--app-unit-1-5);
-    padding-top: var(--app-unit-3);
-  }
-
-  .header {
-    padding: var(--app-unit-3) var(--app-unit-2) var(--app-unit-2-5);
+    padding: 24px 16px 48px;
   }
 
   .searchRow {
+    width: 100%;
     flex-direction: column;
     align-items: stretch;
   }
 
-  .searchInputWrap {
-    max-width: none;
-  }
-
   .sortDropdown {
-    align-self: flex-end;
+    align-self: flex-start;
   }
 
   .grid,
   .skeletonGrid {
-    grid-template-columns: repeat(auto-fill, minmax(var(--app-unit-24), 1fr));
-    gap: var(--app-unit-1-75);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .skeletonPreview,
-  .skeletonLine {
-    animation: none;
+    grid-template-columns: repeat(auto-fill, minmax(176px, 1fr));
+    gap: 14px;
   }
 }

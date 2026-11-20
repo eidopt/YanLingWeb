@@ -69,11 +69,16 @@ export type ProviderStreamEvent =
   | StreamEventDone
   | StreamEventError;
 
+export type ProviderToolChoice = 'auto' | 'required' | { type: 'function'; name: string };
+
 export interface ProviderRequest {
   model: string;
   messages: ProviderMessage[];
   tools?: ProviderTool[];
+  toolChoice?: ProviderToolChoice;
   reasoningEffort?: 'low' | 'medium' | 'high';
+  signal?: AbortSignal;
+  cacheKey?: string;
   cache?: {
     previousResponseId?: string;
   };
@@ -86,6 +91,7 @@ export interface ProviderCapabilities {
   supportsStructuredOutput: boolean;
   supportsReasoningEffort: boolean;
   supportsServerSideContext: boolean;
+  supportsForcedToolChoice?: boolean;
 
   /**
    * How to handle reasoning_content in conversation history.

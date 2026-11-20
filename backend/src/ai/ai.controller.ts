@@ -172,7 +172,10 @@ export class AiController {
         HttpStatus.TOO_MANY_REQUESTS,
       );
     }
-    if (this.userQuota && this.aiService.hasConfiguredApiKey()) {
+    const isClarificationFollowUp = Boolean(
+      'clarificationChoice' in body && body.clarificationChoice,
+    );
+    if (this.userQuota && this.aiService.hasConfiguredApiKey() && !isClarificationFollowUp) {
       await this.userQuota.consumeFreeChatQuota(req.user.sub);
     }
 

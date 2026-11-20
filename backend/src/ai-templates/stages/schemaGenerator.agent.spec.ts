@@ -17,7 +17,7 @@ const capabilities: ProviderCapabilities = {
   supportsReasoningEffort: false,
   supportsServerSideContext: false,
   reasoningMode: 'none',
-  cacheStrategy: 'none',
+  cacheStrategy: 'cache_key',
   supportsDeveloperRole: false,
 };
 
@@ -118,7 +118,6 @@ describe('SchemaGeneratorAgent', () => {
         },
         { type: 'done', usage: { inputTokens: 100, outputTokens: 40, cacheHitTokens: 10 } },
       ],
-      [{ type: 'done', usage: { inputTokens: 10, outputTokens: 5 } }],
       // Phase B: content fill (using exact nodeIds from Phase A tree build)
       [
         {
@@ -165,7 +164,6 @@ describe('SchemaGeneratorAgent', () => {
         },
         { type: 'done', usage: { inputTokens: 200, outputTokens: 80, cacheHitTokens: 20 } },
       ],
-      [{ type: 'done', usage: { inputTokens: 15, outputTokens: 5 } }],
       // Phase C: visual assets
       [
         {
@@ -197,7 +195,6 @@ describe('SchemaGeneratorAgent', () => {
         },
         { type: 'done', usage: { inputTokens: 50, outputTokens: 30, cacheHitTokens: 5 } },
       ],
-      [{ type: 'done', usage: { inputTokens: 5, outputTokens: 5 } }],
     ]);
 
     const pipelineProvider: AiTemplatePipelineProvider = {
@@ -212,9 +209,11 @@ describe('SchemaGeneratorAgent', () => {
     const agent = new SchemaGeneratorAgent(pipelineProvider);
     const result = await agent.run(createBrief(), 1);
 
-    expect(result.inputTokens).toBe(380);
-    expect(result.outputTokens).toBe(165);
+    expect(result.inputTokens).toBe(350);
+    expect(result.outputTokens).toBe(150);
     expect(result.cacheHitTokens).toBe(35);
+    expect(provider.requests).toHaveLength(3);
+    expect(provider.requests.every((req) => req.cacheKey === 'pipeline-schema')).toBe(true);
 
     const home = result.output.document.pages[0];
     const panel1 = home.layout.children?.[1];
@@ -234,5 +233,201 @@ describe('SchemaGeneratorAgent', () => {
     });
     expect(result.output.document.cssVars?.['--accent']).toBe('#16A34A');
     expect(result.output.document.componentTemplates).toEqual({});
+  });
+
+  it('auto-fills missing required theme cssVars via ensureThemeContract', async () => {
+    const briefWithLegacyCss = createBrief();
+    briefWithLegacyCss.cssVars = { '--color-primary': '#16A34A' };
+
+    const provider = new FakeProvider([
+      [
+        {
+          type: 'tool_call',
+          id: 'call-a',
+          name: 'submit_page_skeleton',
+          arguments: JSON.stringify({
+            templateId: 'fresh-market',
+            pages: [
+              {
+                id: 'home',
+                name: '首页',
+                kind: 'home',
+                layoutTree: 'screen>navbar,panel(text,button),tabs',
+              },
+              {
+                id: 'orders',
+                name: '订单',
+                kind: 'order',
+                layoutTree: 'screen>navbar,panel(text),tabs',
+              },
+            ],
+            componentTemplateAliases: [],
+            cssVars: {},
+          }),
+        },
+        { type: 'done', usage: { inputTokens: 80, outputTokens: 30 } },
+      ],
+      [
+        {
+          type: 'tool_call',
+          id: 'call-b',
+          name: 'submit_node_content',
+          arguments: JSON.stringify({
+            pages: [
+              {
+                pageId: 'home',
+                nodes: [
+                  { nodeId: 'home-navbar-1', alias: 'core.navbar', props: { title: '鲜果优选' } },
+                  { nodeId: 'home-text-1', alias: 'core.text', props: { text: '当日鲜果' } },
+                  { nodeId: 'home-button-1', alias: 'core.button', props: { label: '立即选购' } },
+                  {
+                    nodeId: 'home-tabs-1',
+                    alias: 'core.tabs',
+                    props: { tabs: ['首页', '订单'], activeTab: '首页' },
+                  },
+                ],
+              },
+              {
+                pageId: 'orders',
+                nodes: [
+                  { nodeId: 'orders-navbar-1', alias: 'core.navbar', props: { title: '我的订单' } },
+                  { nodeId: 'orders-text-1', alias: 'core.text', props: { text: '暂无订单' } },
+                  {
+                    nodeId: 'orders-tabs-1',
+                    alias: 'core.tabs',
+                    props: { tabs: ['首页', '订单'], activeTab: '订单' },
+                  },
+                ],
+              },
+            ],
+          }),
+        },
+        { type: 'done', usage: { inputTokens: 120, outputTokens: 50 } },
+      ],
+    ]);
+
+    const pipelineProvider: AiTemplatePipelineProvider = {
+      getProviderForTemplatePipeline: () => ({
+        provider,
+        model: 'test-pro',
+        liteModel: 'test-lite',
+        apiKeyConfigured: true,
+      }),
+    };
+
+    const agent = new SchemaGeneratorAgent(pipelineProvider);
+    const result = await agent.run(briefWithLegacyCss, 1, undefined, 'missing css vars');
+
+    expect(result.output.document.cssVars?.['--accent']).toBe('#16A34A');
+    expect(result.output.document.cssVars?.['--surface']).toBeTruthy();
+    expect(result.output.document.cssVars?.['--text-heading-color']).toBeTruthy();
+    expect(provider.requests[0]?.messages[1]?.content).toContain('missing css vars');
+  });
+
+  it('recovers via 1-shot repair when assembleDocument validation fails', async () => {
+    const provider = new FakeProvider([
+      [
+        {
+          type: 'tool_call',
+          id: 'call-a',
+          name: 'submit_page_skeleton',
+          arguments: JSON.stringify({
+            templateId: 'fresh-market',
+            pages: [
+              {
+                id: 'home',
+                name: '首页',
+                kind: 'home',
+                layoutTree: 'screen>navbar,panel(text,button),tabs',
+              },
+              {
+                id: 'orders',
+                name: '订单',
+                kind: 'order',
+                layoutTree: 'screen>navbar,panel(text),tabs',
+              },
+            ],
+            componentTemplateAliases: [],
+            cssVars: { '--color-primary': '#16A34A' },
+          }),
+        },
+        { type: 'done', usage: { inputTokens: 80, outputTokens: 30 } },
+      ],
+      [
+        {
+          type: 'tool_call',
+          id: 'call-b',
+          name: 'submit_node_content',
+          arguments: JSON.stringify({
+            pages: [
+              {
+                pageId: 'home',
+                nodes: [
+                  { nodeId: 'home-navbar-1', alias: 'core.navbar', props: { title: '鲜果优选' } },
+                  { nodeId: 'home-text-1', alias: 'core.text', props: { text: '当日鲜果' } },
+                  {
+                    nodeId: 'home-button-1',
+                    alias: 'core.button',
+                    props: { label: 'Order Fresh Apples Now' },
+                  },
+                  {
+                    nodeId: 'home-tabs-1',
+                    alias: 'core.tabs',
+                    props: { tabs: ['首页', '订单'], activeTab: '首页' },
+                  },
+                ],
+              },
+              {
+                pageId: 'orders',
+                nodes: [
+                  { nodeId: 'orders-navbar-1', alias: 'core.navbar', props: { title: '我的订单' } },
+                  { nodeId: 'orders-text-1', alias: 'core.text', props: { text: '暂无订单' } },
+                  {
+                    nodeId: 'orders-tabs-1',
+                    alias: 'core.tabs',
+                    props: { tabs: ['首页', '订单'], activeTab: '订单' },
+                  },
+                ],
+              },
+            ],
+          }),
+        },
+        { type: 'done', usage: { inputTokens: 120, outputTokens: 50 } },
+      ],
+      [
+        {
+          type: 'tool_call',
+          id: 'call-repair',
+          name: 'submit_schema_repair',
+          arguments: JSON.stringify({
+            pages: [
+              {
+                pageId: 'home',
+                nodes: [{ nodeId: 'home-button-1', props: { label: '立即购买' } }],
+              },
+            ],
+          }),
+        },
+        { type: 'done', usage: { inputTokens: 40, outputTokens: 15 } },
+      ],
+    ]);
+
+    const pipelineProvider: AiTemplatePipelineProvider = {
+      getProviderForTemplatePipeline: () => ({
+        provider,
+        model: 'test-pro',
+        liteModel: 'test-lite',
+        apiKeyConfigured: true,
+      }),
+    };
+
+    const agent = new SchemaGeneratorAgent(pipelineProvider);
+    const result = await agent.run(createBrief(), 1);
+
+    expect(result.inputTokens).toBe(240);
+    expect(result.outputTokens).toBe(95);
+    const home = result.output.document.pages[0];
+    const button = home.layout.children?.[1]?.children?.[1];
+    expect(button?.props?.label).toBe('立即购买');
   });
 });

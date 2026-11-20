@@ -138,6 +138,7 @@ export class AiService {
           reasoningMode: this.config.ai.reasoningMode,
           cacheStrategy: this.config.ai.cacheStrategy,
           supportsDeveloperRole: this.config.ai.supportsDeveloperRole,
+          supportsForcedToolChoice: this.config.ai.supportsForcedToolChoice,
           extraRequestParams: this.config.ai.extraRequestParams,
         },
       );
@@ -292,6 +293,7 @@ export class AiService {
   ): Observable<StreamSseEvent> {
     return new Observable<StreamSseEvent>((subscriber) => {
       const subject = new Subject<StreamSseEvent>();
+      const abortController = new AbortController();
       const relay = subject.subscribe({
         next: (event) => subscriber.next(event),
         error: (err) => subscriber.error(err),
@@ -299,8 +301,14 @@ export class AiService {
       });
 
       const runner = isEditorAgentStreamRequest(req)
-        ? this.runStructuredEditorStream(ownerUserId, req, subject, cacheOptions)
-        : this.runEditorStream(ownerUserId, req, subject, cacheOptions);
+        ? this.runStructuredEditorStream(
+            ownerUserId,
+            req,
+            subject,
+            cacheOptions,
+            abortController.signal,
+          )
+        : this.runEditorStream(ownerUserId, req, subject, cacheOptions, abortController.signal);
       runner.catch((err) => {
         const msg = err instanceof Error ? err.message : String(err);
         this.emitEditorEvent(subject, 'error', { message: msg });
@@ -308,6 +316,7 @@ export class AiService {
       });
 
       return () => {
+        abortController.abort();
         relay.unsubscribe();
         subject.complete();
       };
@@ -408,6 +417,7 @@ export class AiService {
     req: StreamRequest,
     subject: Subject<StreamSseEvent>,
     cacheOptions?: ProviderCacheOptions,
+    signal?: AbortSignal,
   ): Promise<void> {
     if (!this.apiKeyConfigured) {
       this.emitEditorEvent(subject, 'error', {
@@ -435,6 +445,14 @@ export class AiService {
       this.provider.name,
       previousResponseId,
     );
+    const scopedRequest = withRequestScopedCache(
+      this.provider,
+      { model, messages: req.messages, tools: editorTools },
+      {
+        conversationId: cacheOptions?.conversationId,
+        previousResponseId,
+      },
+    );
     let lastUsage:
       | {
           inputTokens: number;
@@ -449,7 +467,8 @@ export class AiService {
       tools: editorTools,
       toolSpecs: editorToolSpecs(editorTools),
       maxIterations: this.config.ai.editorAgentMaxIterations,
-      isCancelled: () => subject.closed,
+      isCancelled: () => subject.closed || Boolean(signal?.aborted),
+      ...(signal ? { signal } : {}),
       onTextDelta: (text) => {
         this.emitEditorEvent(subject, 'text_delta', { text });
       },
@@ -485,11 +504,12 @@ export class AiService {
             this.tokenUsageService.logCacheUsage(ownerUserId, model, usage, 'editor');
           });
       },
-      requestCache: previousResponseId ? { previousResponseId } : undefined,
+      ...(scopedRequest.cache ? { requestCache: scopedRequest.cache } : {}),
+      ...(scopedRequest.cacheKey ? { requestCacheKey: scopedRequest.cacheKey } : {}),
       toolExecutor: (name, args) => this.executeEditorTool(subject, name, args),
     });
 
-    const result = await loop.run(req.messages);
+    const result = await loop.run(scopedRequest.messages);
     await this.editorConversations.saveEditorProviderSession(
       ownerUserId,
       cacheOptions?.conversationId,
@@ -512,6 +532,7 @@ export class AiService {
     req: EditorAgentStreamRequest,
     subject: Subject<StreamSseEvent>,
     cacheOptions?: ProviderCacheOptions,
+    signal?: AbortSignal,
   ): Promise<void> {
     if (!this.apiKeyConfigured) {
       this.emitEditorEvent(subject, 'error', {
@@ -596,6 +617,14 @@ export class AiService {
     });
 
     const editorTools = selectEditorEditTools([prompt, selectedChoiceText].join('\n'));
+    const scopedRequest = withRequestScopedCache(
+      this.provider,
+      { model, messages, tools: editorTools },
+      {
+        conversationId: cacheOptions?.conversationId,
+        previousResponseId,
+      },
+    );
     let lastUsage:
       | {
           inputTokens: number;
@@ -610,7 +639,8 @@ export class AiService {
       tools: editorTools,
       toolSpecs: editorToolSpecs(editorTools),
       maxIterations: this.config.ai.editorAgentMaxIterations,
-      isCancelled: () => subject.closed,
+      isCancelled: () => subject.closed || Boolean(signal?.aborted),
+      ...(signal ? { signal } : {}),
       onTextDelta: (text) => {
         this.emitEditorEvent(subject, 'text_delta', { text });
       },
@@ -646,7 +676,8 @@ export class AiService {
             this.tokenUsageService.logCacheUsage(ownerUserId, model, usage, 'editor');
           });
       },
-      requestCache: previousResponseId ? { previousResponseId } : undefined,
+      ...(scopedRequest.cache ? { requestCache: scopedRequest.cache } : {}),
+      ...(scopedRequest.cacheKey ? { requestCacheKey: scopedRequest.cacheKey } : {}),
       toolExecutor: (name, args) =>
         this.executeEditorTool(
           subject,
@@ -657,7 +688,7 @@ export class AiService {
         ),
     });
 
-    const result = await loop.run(messages);
+    const result = await loop.run(scopedRequest.messages);
     await this.editorConversations.saveEditorProviderLog(
       ownerUserId,
       cacheOptions?.conversationId,
