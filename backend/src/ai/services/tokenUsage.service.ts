@@ -54,13 +54,13 @@ export class TokenUsageService {
     usage: TokenUsagePayload,
     endpoint: AiTokenUsageEndpoint,
     provider: string,
-  ): Promise<void> {
+  ): Promise<number | undefined> {
     const inputTokens = this.sanitizeTokenCount(usage.inputTokens);
     const outputTokens = this.sanitizeTokenCount(usage.outputTokens);
     const totalTokens = inputTokens + outputTokens;
 
     if (totalTokens <= 0) {
-      return;
+      return undefined;
     }
 
     try {
@@ -76,7 +76,7 @@ export class TokenUsageService {
         cacheMissTokens: this.sanitizeOptionalTokenCount(usage.cacheMissTokens),
       });
 
-      await this.enqueueUserBalanceUpdate(ownerUserId, totalTokens);
+      return await this.enqueueUserBalanceUpdate(ownerUserId, totalTokens);
     } catch (err) {
       this.logger.error(
         'Failed to record AI token usage',
@@ -85,18 +85,11 @@ export class TokenUsageService {
     }
   }
 
-  private async applyUserBalanceUpdate(ownerUserId: string, totalTokens: number): Promise<void> {
-    const user = await this.users.findById(ownerUserId);
-    if (!user) {
-      return;
-    }
-    const currentUsed = BigInt(user.tokensUsed);
-    user.tokensUsed = (currentUsed + BigInt(totalTokens)).toString();
-    user.tokensBalance = Math.max(0, user.tokensBalance - totalTokens);
-    await this.users.save(user);
+  private applyUserBalanceUpdate(ownerUserId: string, totalTokens: number): Promise<number> {
+    return this.users.debitTokens(ownerUserId, totalTokens);
   }
 
-  private enqueueUserBalanceUpdate(ownerUserId: string, totalTokens: number): Promise<void> {
+  private enqueueUserBalanceUpdate(ownerUserId: string, totalTokens: number): Promise<number> {
     const previous = this.userBalanceLocks.get(ownerUserId) ?? Promise.resolve();
     const next = previous.then(() => this.applyUserBalanceUpdate(ownerUserId, totalTokens));
     const settled = next.then(

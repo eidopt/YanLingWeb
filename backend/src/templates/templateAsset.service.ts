@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import {
   applyVisualAssetsToLayoutDocument,
   buildVisualAssetManifest,
@@ -8,7 +8,9 @@ import {
   type VisualAssetManifest,
 } from '@shared/theme-layout/visualAssets';
 
+import { GenerationQueue } from '../common/generationQueue';
 import { ConfigService } from '../config/config.service';
+import { appendAssetSignature } from './assetSignature';
 import { generateImageBytes, toImageGenerationConfig } from './imageGeneration';
 import {
   type AssetLookupContext,
@@ -37,6 +39,8 @@ export interface ResolveVisualAssetsOptions {
    * 全开→`generate`，任一关闭→`placeholder`。
    */
   strategy?: TemplateImageStrategy;
+  /** Attach a short-lived signature so private generated images are not world-readable. */
+  signUrls?: boolean;
 }
 
 interface RolePlaceholder {
@@ -95,6 +99,7 @@ export class TemplateAssetService {
   constructor(
     private readonly config: ConfigService,
     @Inject(TEMPLATE_ASSET_STORE) private readonly store: TemplateAssetStore,
+    @Optional() private readonly generationQueue?: GenerationQueue,
   ) {}
 
   async resolveVisualAssetsForTemplate(
@@ -135,15 +140,15 @@ export class TemplateAssetService {
       },
     );
 
-    const resolvedLayoutDocument = applyVisualAssetsToLayoutDocument(
-      layoutDocument,
-      resolvedAssets,
-    );
+    const signedAssets = options.signUrls
+      ? resolvedAssets.map((asset) => this.signAssetUrl(asset))
+      : resolvedAssets;
+    const resolvedLayoutDocument = applyVisualAssetsToLayoutDocument(layoutDocument, signedAssets);
 
     return {
-      visualAssets: resolvedAssets,
+      visualAssets: signedAssets,
       layoutDocument: resolvedLayoutDocument,
-      manifest: buildVisualAssetManifest(templateId, resolvedAssets),
+      manifest: buildVisualAssetManifest(templateId, signedAssets),
     };
   }
 
@@ -205,10 +210,14 @@ export class TemplateAssetService {
     }
 
     try {
-      const imageBytes = await generateImageBytes(imageConfig, this.buildImagePrompt(asset), {
-        aspectRatio: asset.aspectRatio,
-        outputFormat: imageConfig.outputFormat ?? 'png',
-      });
+      const generate = () =>
+        generateImageBytes(imageConfig, this.buildImagePrompt(asset), {
+          aspectRatio: asset.aspectRatio,
+          outputFormat: imageConfig.outputFormat ?? 'png',
+        });
+      const imageBytes = this.generationQueue
+        ? await this.generationQueue.runImage(generate)
+        : await generate();
       // 存储时带上语义 context，存储层可顺便建索引供日后复用。
       const stored = await this.store.save(templateId, asset.id, imageBytes, lookup);
       return {
@@ -225,6 +234,16 @@ export class TemplateAssetService {
       );
       return this.withPlaceholderFallback(asset, reason);
     }
+  }
+
+  private signAssetUrl(asset: VisualAsset): VisualAsset {
+    if (!asset.url || !asset.storageKey || !this.config.jwt.secret) {
+      return asset;
+    }
+    return {
+      ...asset,
+      url: appendAssetSignature(asset.url, asset.storageKey, this.config.jwt.secret),
+    };
   }
 
   private buildImagePrompt(asset: VisualAsset): string {

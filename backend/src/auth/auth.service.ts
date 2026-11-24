@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Inject,
   Injectable,
   Logger,
@@ -12,7 +13,12 @@ import { randomBytes } from 'crypto';
 
 import { ConfigService } from '../config/config.service';
 import { User, type UserType } from '../users/entities/user.entity';
-import { USER_ACCOUNT_REPOSITORY, type UserAccountRepository } from '../users/repositories';
+import {
+  USER_ACCOUNT_REPOSITORY,
+  type UserAccountRepository,
+  type UserAccountUpdate,
+} from '../users/repositories';
+import { loginProof, openPasswordSeal, safeEqualHex, sealPassword } from './passwordSeal';
 
 // Type aliases matching shared/types/user.types.ts
 interface UserDto {
@@ -57,6 +63,7 @@ interface LoginDto {
   identifier: string;
   password: string;
   nonce: string;
+  legacyUpgrade?: boolean;
 }
 
 interface OAuthCallbackDto {
@@ -82,6 +89,7 @@ interface QqOpenIdResponse {
 
 const NONCE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const OAUTH_STATE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const MAX_CHALLENGE_ENTRIES = 5_000;
 
 interface NonceEntry {
   expiresAt: number;
@@ -146,6 +154,7 @@ export class AuthService {
         this.nonces.delete(nonce);
       }
     }
+    this.capMap(this.nonces);
   }
 
   // ---------------------------------------------------------------------------
@@ -173,6 +182,7 @@ export class AuthService {
       email: dto.email ?? null,
       phone: dto.phone ?? null,
       passwordHash: hashedPassword,
+      passwordSeal: sealPassword(this.config.jwt.secret, dto.password),
     });
     const saved = await this.users.save(user);
     return this.buildAuthResponse(saved);
@@ -191,51 +201,15 @@ export class AuthService {
       });
     }
 
-    // Verify password with dual-track support:
-    // - New bcrypt format: stored hash starts with "$2b$" or "$2a$"
-    // - Legacy SHA-256 format: stored hash is a hex string
-    //
-    // Protocol (both tracks):
-    //   Frontend sends: dto.password = SHA-256(rawPassword)
-    //   Nonce (dto.nonce) is consumed above for anti-replay only — it does NOT
-    //   participate in password hashing.
-    const isBcryptHash =
-      user.passwordHash.startsWith('$2b$') || user.passwordHash.startsWith('$2a$');
+    const sealPatch = await this.verifyPassword(user, dto);
+    this.assertAccountActive(user);
 
-    if (isBcryptHash) {
-      // New format: bcrypt.compare(plaintext_candidate, bcrypt_hash)
-      // dto.password = SHA-256(rawPassword) — this is the "plaintext" we stored at registration
-      const valid = await bcrypt.compare(dto.password, user.passwordHash);
-      if (!valid) {
-        throw new UnauthorizedException({
-          errorCode: 'INVALID_CREDENTIALS',
-          message: '账号或密码错误',
-        });
-      }
-    } else {
-      // Legacy format: stored hash is SHA-256(rawPassword)
-      // Direct comparison — dto.password IS SHA-256(rawPassword)
-      if (dto.password !== user.passwordHash) {
-        throw new UnauthorizedException({
-          errorCode: 'INVALID_CREDENTIALS',
-          message: '账号或密码错误',
-        });
-      }
-
-      // Silent upgrade: hash the old SHA-256 value with bcrypt for future logins
-      try {
-        const upgraded = await bcrypt.hash(user.passwordHash, 12);
-        await this.users.update(user.id, { passwordHash: upgraded });
-        this.logger.log(`Silently upgraded password hash to bcrypt for user ${user.id}`);
-      } catch (err) {
-        // Non-critical: log but don't fail the login
-        const reason = err instanceof Error ? err.message : String(err);
-        this.logger.warn(`Failed to upgrade password hash for user ${user.id}: ${reason}`);
-      }
+    await this.users.update(user.id, { lastLoginAt: new Date(), ...sealPatch });
+    if (this.isConfiguredAdmin(user.username) && !user.isAdmin) {
+      await this.users.update(user.id, { isAdmin: true });
+      user.isAdmin = true;
     }
-
-    await this.users.update(user.id, { lastLoginAt: new Date() });
-    return this.buildAuthResponse(user);
+    return this.buildAuthResponse({ ...user, lastLoginAt: new Date() });
   }
 
   // ---------------------------------------------------------------------------
@@ -272,20 +246,93 @@ export class AuthService {
     let user = await this.users.findByOAuthOpenId(dto.provider, openId);
 
     if (!user) {
-      const username = `${dto.provider}_${openId.slice(0, 8)}`;
-      user = this.users.createOAuthUser({
-        provider: dto.provider,
-        openId,
-        username,
-      });
-      user = await this.users.save(user);
+      user = await this.createUniqueOAuthUser(dto.provider, openId);
     } else if (!user.linkedLogins.includes(dto.provider)) {
       user.linkedLogins = [...user.linkedLogins, dto.provider];
       await this.users.update(user.id, { linkedLogins: user.linkedLogins });
     }
 
-    await this.users.update(user.id, { lastLoginAt: new Date() });
-    return this.buildAuthResponse(user);
+    this.assertAccountActive(user);
+    const lastLoginAt = new Date();
+    await this.users.update(user.id, { lastLoginAt });
+    return this.buildAuthResponse({ ...user, lastLoginAt });
+  }
+
+  private async verifyPassword(user: User, dto: LoginDto): Promise<UserAccountUpdate> {
+    if (user.passwordSeal) {
+      const staticHash = openPasswordSeal(this.config.jwt.secret, user.passwordSeal);
+      const expected = staticHash ? loginProof(dto.nonce, staticHash) : '';
+      if (!staticHash || !safeEqualHex(expected, dto.password)) {
+        throw new UnauthorizedException({
+          errorCode: 'INVALID_CREDENTIALS',
+          message: '账号或密码错误',
+        });
+      }
+      return {};
+    }
+
+    const staticMatches = await this.staticPasswordMatches(user, dto.password);
+    if (!staticMatches) {
+      throw new UnauthorizedException({
+        errorCode: dto.legacyUpgrade ? 'INVALID_CREDENTIALS' : 'LEGACY_PASSWORD_REQUIRED',
+        message: dto.legacyUpgrade ? '账号或密码错误' : '登录凭证需要升级，请使用当前密码重试',
+      });
+    }
+
+    try {
+      const passwordHash =
+        user.passwordHash?.startsWith('$2b$') || user.passwordHash?.startsWith('$2a$')
+          ? user.passwordHash
+          : await bcrypt.hash(dto.password, 12);
+      return {
+        passwordHash,
+        passwordSeal: sealPassword(this.config.jwt.secret, dto.password),
+      };
+    } catch (err) {
+      const reason = err instanceof Error ? err.message : String(err);
+      this.logger.warn(`Failed to upgrade password hash for user ${user.id}: ${reason}`);
+      return {};
+    }
+  }
+
+  private async staticPasswordMatches(user: User, passwordSha256: string): Promise<boolean> {
+    if (!user.passwordHash) {
+      return false;
+    }
+    if (user.passwordHash.startsWith('$2b$') || user.passwordHash.startsWith('$2a$')) {
+      return bcrypt.compare(passwordSha256, user.passwordHash);
+    }
+    return user.passwordHash === passwordSha256;
+  }
+
+  private assertAccountActive(user: User): void {
+    if (!user.isActive) {
+      throw new ForbiddenException({
+        errorCode: 'ACCOUNT_DISABLED',
+        message: '账号已停用',
+      });
+    }
+  }
+
+  private isConfiguredAdmin(username: string): boolean {
+    return this.config.adminUsernames.includes(username);
+  }
+
+  private async createUniqueOAuthUser(provider: 'wechat' | 'qq', openId: string): Promise<User> {
+    let lastError: unknown;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const username = `${provider}_${openId.slice(0, 8)}_${randomBytes(3).toString('hex')}`;
+      const created = this.users.createOAuthUser({ provider, openId, username });
+      try {
+        return await this.users.save(created);
+      } catch (err) {
+        lastError = err;
+        if (!isUniqueViolation(err)) {
+          throw err;
+        }
+      }
+    }
+    throw lastError instanceof Error ? lastError : new ConflictException('无法创建 OAuth 账号');
   }
 
   private issueOAuthState(provider: 'wechat' | 'qq'): string {
@@ -323,6 +370,17 @@ export class AuthService {
         this.oauthStates.delete(state);
       }
     }
+    this.capMap(this.oauthStates);
+  }
+
+  private capMap(map: Map<string, { expiresAt: number }>): void {
+    if (map.size <= MAX_CHALLENGE_ENTRIES) {
+      return;
+    }
+    const oldest = [...map.entries()].sort((left, right) => left[1].expiresAt - right[1].expiresAt);
+    for (const [key] of oldest.slice(0, map.size - MAX_CHALLENGE_ENTRIES)) {
+      map.delete(key);
+    }
   }
 
   /**
@@ -332,36 +390,45 @@ export class AuthService {
     const oauthConfig = this.getOAuthProviderEnv(provider);
 
     if (provider === 'wechat') {
-      const url =
-        `https://api.weixin.qq.com/sns/oauth2/access_token` +
-        `?appid=${oauthConfig.appId}&secret=${oauthConfig.appSecret}` +
-        `&code=${code}&grant_type=authorization_code`;
-      const res = await fetch(url);
-      const data = (await res.json()) as WeChatOpenIdResponse;
+      const url = new URL('https://api.weixin.qq.com/sns/oauth2/access_token');
+      url.searchParams.set('appid', oauthConfig.appId);
+      url.searchParams.set('secret', oauthConfig.appSecret);
+      url.searchParams.set('code', code);
+      url.searchParams.set('grant_type', 'authorization_code');
+      const data = await this.fetchJson<WeChatOpenIdResponse>(url);
       if (!data.openid) {
         throw new UnauthorizedException(`WeChat OAuth failed: ${data.errmsg ?? 'unknown'}`);
       }
       return data.openid;
     }
 
-    const tokenUrl =
-      `https://graph.qq.com/oauth2.0/token` +
-      `?grant_type=authorization_code&client_id=${oauthConfig.appId}` +
-      `&client_secret=${oauthConfig.appSecret}&code=${code}` +
-      `&redirect_uri=${oauthConfig.redirectUri}&fmt=json`;
-    const tokenRes = await fetch(tokenUrl);
-    const tokenData = (await tokenRes.json()) as QqTokenResponse;
+    const tokenUrl = new URL('https://graph.qq.com/oauth2.0/token');
+    tokenUrl.searchParams.set('grant_type', 'authorization_code');
+    tokenUrl.searchParams.set('client_id', oauthConfig.appId);
+    tokenUrl.searchParams.set('client_secret', oauthConfig.appSecret);
+    tokenUrl.searchParams.set('code', code);
+    tokenUrl.searchParams.set('redirect_uri', oauthConfig.redirectUri);
+    tokenUrl.searchParams.set('fmt', 'json');
+    const tokenData = await this.fetchJson<QqTokenResponse>(tokenUrl);
     if (!tokenData.access_token) {
       throw new UnauthorizedException(`QQ token exchange failed: ${tokenData.error ?? 'unknown'}`);
     }
-    const meRes = await fetch(
-      `https://graph.qq.com/oauth2.0/me?access_token=${tokenData.access_token}&fmt=json`,
-    );
-    const meData = (await meRes.json()) as QqOpenIdResponse;
+    const meUrl = new URL('https://graph.qq.com/oauth2.0/me');
+    meUrl.searchParams.set('access_token', tokenData.access_token);
+    meUrl.searchParams.set('fmt', 'json');
+    const meData = await this.fetchJson<QqOpenIdResponse>(meUrl);
     if (!meData.openid) {
       throw new UnauthorizedException(`QQ OpenID fetch failed: ${meData.error ?? 'unknown'}`);
     }
     return meData.openid;
+  }
+
+  private async fetchJson<T>(url: URL): Promise<T> {
+    const res = await fetch(url, { signal: AbortSignal.timeout(8_000) });
+    if (!res.ok) {
+      throw new UnauthorizedException('OAuth provider request failed');
+    }
+    return (await res.json()) as T;
   }
 
   private getOAuthProviderEnv(provider: 'wechat' | 'qq'): {
@@ -386,7 +453,7 @@ export class AuthService {
   // ---------------------------------------------------------------------------
 
   private buildAuthResponse(user: User): AuthResponseDto {
-    const payload = { sub: user.id, username: user.username };
+    const payload = { sub: user.id, username: user.username, ver: user.tokenVersion };
     return {
       accessToken: this.jwtService.sign(payload),
       user: this.toDto(user),
@@ -411,4 +478,9 @@ export class AuthService {
       lastLoginAt: user.lastLoginAt?.toISOString() ?? null,
     };
   }
+}
+
+function isUniqueViolation(err: unknown): boolean {
+  const message = err instanceof Error ? err.message : String(err);
+  return /unique|constraint|already exists/i.test(message);
 }

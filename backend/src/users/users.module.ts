@@ -4,12 +4,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AiTokenUsageEvent } from '../ai/entities/aiTokenUsage.entity';
 import { TOKEN_USAGE_REPOSITORY, TypeOrmTokenUsageRepository } from '../ai/repositories';
 import { AuthModule } from '../auth/auth.module';
+import { PublishedSite } from '../sites/entities/publishedSite.entity';
 import { UserQuotaService } from './services/userQuota.service';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AiTokenUsageEvent]), AuthModule],
+  imports: [TypeOrmModule.forFeature([AiTokenUsageEvent, PublishedSite]), AuthModule],
   controllers: [UsersController],
   providers: [
     UsersService,

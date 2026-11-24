@@ -73,6 +73,9 @@ export class TemplatePipelineService {
     let lastError: string | undefined;
 
     for (let attempt = 1; attempt <= MAX_PIPELINE_ATTEMPTS; attempt++) {
+      if (options?.signal?.aborted) {
+        throw new Error('template generation cancelled');
+      }
       this.logger.log(`pipeline attempt ${attempt}/${MAX_PIPELINE_ATTEMPTS} for "${seed.prompt}"`);
 
       // Stage 1: Designer

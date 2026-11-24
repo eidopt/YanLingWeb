@@ -280,13 +280,76 @@ async function postJsonWithCarefulRetry<T>(
 }
 
 async function downloadImageBuffer(url: string, timeoutMs: number): Promise<Buffer> {
-  const response = await fetch(url, {
-    signal: AbortSignal.timeout(Math.min(timeoutMs, IMAGE_DOWNLOAD_MAX_TIMEOUT_MS)),
-  });
-  if (!response.ok) {
-    throw new Error(`failed to download generated image (${response.status})`);
+  let current = url;
+  for (let hop = 0; hop < 3; hop += 1) {
+    assertSafeImageDownloadUrl(current);
+    const response = await fetch(current, {
+      redirect: 'manual',
+      signal: AbortSignal.timeout(Math.min(timeoutMs, IMAGE_DOWNLOAD_MAX_TIMEOUT_MS)),
+    });
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get('location');
+      if (!location) {
+        throw new Error('image redirect missing location');
+      }
+      current = new URL(location, current).toString();
+      continue;
+    }
+    if (!response.ok) {
+      throw new Error(`failed to download generated image (${response.status})`);
+    }
+    return Buffer.from(await response.arrayBuffer());
   }
-  return Buffer.from(await response.arrayBuffer());
+  throw new Error('image download exceeded redirect limit');
+}
+
+export function assertSafeImageDownloadUrl(url: string): void {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new Error('image url is not absolute');
+  }
+  if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+    throw new Error('image url protocol is not allowed');
+  }
+  if (isBlockedImageHost(parsed.hostname)) {
+    throw new Error('image url host is not public');
+  }
+}
+
+function isBlockedImageHost(hostname: string): boolean {
+  const host = hostname.toLowerCase().replace(/^\[|\]$/g, '');
+  if (
+    host === 'localhost' ||
+    host.endsWith('.localhost') ||
+    host.endsWith('.local') ||
+    host === '::1' ||
+    host.startsWith('fe80:') ||
+    host.startsWith('fc') ||
+    host.startsWith('fd')
+  ) {
+    return true;
+  }
+  const ipv4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(host);
+  if (!ipv4) {
+    return false;
+  }
+  const a = Number(ipv4[1]);
+  const b = Number(ipv4[2]);
+  if (a === 10 || a === 127 || a === 0 || a >= 224) {
+    return true;
+  }
+  if (a === 169 && b === 254) {
+    return true;
+  }
+  if (a === 172 && b >= 16 && b <= 31) {
+    return true;
+  }
+  if (a === 192 && b === 168) {
+    return true;
+  }
+  return a === 100 && b >= 64 && b <= 127;
 }
 
 async function extractOpenAIImageBytes(

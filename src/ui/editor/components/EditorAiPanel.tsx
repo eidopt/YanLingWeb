@@ -63,6 +63,13 @@ interface EditorAiPanelProps {
   onUndo?: () => void;
 }
 
+function usageLimitStatus(message: string, fallback: string): string {
+  if (/Token 已用完|次数已用完|无法继续生成|免费余额度已用完/.test(message)) {
+    return message;
+  }
+  return fallback;
+}
+
 export function EditorAiPanel({
   templateId,
   currentDocument,
@@ -78,7 +85,12 @@ export function EditorAiPanel({
   const { editorAiService } = useAppServices();
   // 本地兜底的 undo 状态：当父组件未注入时使用（便于单测/独立使用），正常流程下由 ThemeLayoutBuilder 注入。
   const [localUndoState] = useState(() => new EditorAiPanelState());
-  const panelStateRef = useRef<EditorAiPanelState>(undoState ?? localUndoState);
+  const resolvedUndoState = undoState ?? localUndoState;
+
+  useEffect(() => {
+    resolvedUndoState.bindTemplate(templateId ?? currentDocument.themeId);
+  }, [currentDocument.themeId, resolvedUndoState, templateId]);
+  const panelStateRef = useRef<EditorAiPanelState>(resolvedUndoState);
   const [, setUndoVersion] = useState(0);
   const conversationTemplateId = templateId ?? currentDocument.themeId;
   const templateConversationKey = buildEditorAiPanelConversationStorageKey(conversationTemplateId);
@@ -94,7 +106,6 @@ export function EditorAiPanel({
   const lastRemoteConversationRef = useRef('');
   const saveConversationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const skipNextConversationSaveRef = useRef(false);
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const mountedRef = useRef(true);
   const currentDocumentRef = useRef(currentDocument);
   const documentForAiRef = useRef(documentForAi ?? currentDocument);
@@ -362,10 +373,6 @@ export function EditorAiPanel({
     };
   }, [refreshCacheStats]);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ block: 'end' });
-  }, [messages, status]);
-
   async function runAssistant(
     trimmedPrompt: string,
     clarificationChoice?: AgentClarificationOption | null,
@@ -473,21 +480,23 @@ export function EditorAiPanel({
         case 'tool_done':
           setStatus(c.status.editApplied);
           break;
-        case 'error':
+        case 'error': {
+          const text = frame.data ?? '';
           completeStreamingMessages();
-          setStatus(c.status.failed);
+          setStatus(usageLimitStatus(text, c.status.failed));
           appendMessage({
             id: createMessageId('system'),
             role: 'system',
-            text: frame.data ?? '',
+            text,
           });
           if (frame.terminal) {
             abortController.abort();
             editorAiService.cancel();
-            endStatusRef.current = c.status.failed;
-            finishActiveRun(c.status.failed);
+            endStatusRef.current = usageLimitStatus(text, c.status.failed);
+            finishActiveRun(endStatusRef.current);
           }
           break;
+        }
         case 'done':
           finishActiveRun(receivedClarification ? c.status.awaitingChoice : c.status.ready);
           break;
@@ -549,12 +558,14 @@ export function EditorAiPanel({
     } catch (err) {
       if (!abortController.signal.aborted) {
         completeStreamingMessages();
+        const text = err instanceof Error ? err.message : String(err);
         appendMessage({
           id: createMessageId('system'),
           role: 'system',
-          text: err instanceof Error ? err.message : String(err),
+          text,
         });
-        endStatusRef.current = c.status.failed;
+        endStatusRef.current = usageLimitStatus(text, c.status.failed);
+        setStatus(endStatusRef.current);
       }
     } finally {
       const bridge = streamRef.current;
@@ -664,7 +675,6 @@ export function EditorAiPanel({
       onCancel={handleCancel}
       onClarificationSelect={handleClarificationSelect}
       onClarificationCustomSubmit={handleClarificationCustomSubmit}
-      messagesEndRef={messagesEndRef}
       renderAfterMessages={<ReasoningPanel content={buildReasoningAccumulator(messages)} label={c.reasoning.label} />}
       undoButtonLabel="撤销"
       onUndo={handleUndo}

@@ -14,6 +14,7 @@ import type {
   StreamRequest,
   StreamSseEvent,
 } from './ai.service';
+import { PendingClarificationStore } from './pendingClarification.store';
 import type { TemplateToolInput } from './tools/generateTemplate.tool';
 
 interface MockAiService {
@@ -26,10 +27,7 @@ interface MockAiService {
   >;
   checkRateLimit: jest.Mock<void, [string]>;
   hasConfiguredApiKey: jest.Mock<boolean, []>;
-  stream: jest.Mock<
-    Observable<StreamSseEvent>,
-    [string, StreamRequest, unknown, (phase: 'start' | 'end', payload: unknown) => void]
-  >;
+  stream: jest.Mock<Observable<StreamSseEvent>, [string, StreamRequest, unknown]>;
   streamEditor: jest.Mock<
     Observable<StreamSseEvent>,
     [string, StreamRequest | EditorAgentStreamRequest, unknown]
@@ -68,10 +66,7 @@ function createService(): MockAiService {
     >(),
     checkRateLimit: jest.fn<void, [string]>(),
     hasConfiguredApiKey: jest.fn<boolean, []>(() => true),
-    stream: jest.fn<
-      Observable<StreamSseEvent>,
-      [string, StreamRequest, unknown, (phase: 'start' | 'end', payload: unknown) => void]
-    >(),
+    stream: jest.fn<Observable<StreamSseEvent>, [string, StreamRequest, unknown]>(),
     streamEditor: jest.fn<
       Observable<StreamSseEvent>,
       [string, StreamRequest | EditorAgentStreamRequest, unknown]
@@ -265,15 +260,10 @@ describe('AiController', () => {
       await controller.streamProxy(body, req, asResponse(res));
 
       expect(service.checkRateLimit).toHaveBeenCalledWith('user-1');
-      expect(service.stream).toHaveBeenCalledWith(
-        'user-1',
-        body,
-        {
-          conversationId: 'conv-9',
-          previousResponseId: 'resp-9',
-        },
-        expect.any(Function),
-      );
+      expect(service.stream).toHaveBeenCalledWith('user-1', body, {
+        conversationId: 'conv-9',
+        previousResponseId: 'resp-9',
+      });
       expect(res.setHeader).toHaveBeenCalledWith(
         'content-type',
         'text/event-stream; charset=utf-8',
@@ -306,15 +296,10 @@ describe('AiController', () => {
 
       await controller.streamProxy(body, req, asResponse(res));
 
-      expect(service.stream).toHaveBeenCalledWith(
-        'user-1',
-        body,
-        {
-          conversationId: undefined,
-          previousResponseId: undefined,
-        },
-        expect.any(Function),
-      );
+      expect(service.stream).toHaveBeenCalledWith('user-1', body, {
+        conversationId: undefined,
+        previousResponseId: undefined,
+      });
       expect(res.setHeader).not.toHaveBeenCalledWith('x-conversation-id', expect.anything());
     });
 
@@ -349,49 +334,34 @@ describe('AiController', () => {
       expect(res.write).not.toHaveBeenCalled();
     });
 
-    it('forwards pipeline_stage_start/end events from the service callback (T11/T14)', async () => {
-      const { controller, service } = createHarness();
-      const subject = new Subject<StreamSseEvent>();
-      // 捕获 controller 传给 service 的 stage 回调, 主动调用
-      let stageCallback:
-        | ((
-            phase: 'start' | 'end',
-            payload: {
-              stage: 'designer' | 'critic' | 'schema' | 'verifier';
-              attempt: number;
-              durationMs?: number;
-              status?: 'ok' | 'failed';
-              error?: string;
-            },
-          ) => void)
-        | undefined;
-      service.stream.mockImplementation((_user, _req, _cache, onPipelineStageEvent) => {
-        stageCallback = onPipelineStageEvent;
-        return subject.asObservable();
-      });
-      const req = createStreamRequest();
+    it('charges chat quota for an unverified clarificationChoice', async () => {
+      const service = createService();
+      const consumeFreeChatQuota = jest.fn().mockResolvedValue(undefined);
+      const clarifications = { consume: jest.fn().mockReturnValue(false) };
+      const controller = new AiController(
+        service as unknown as AiService,
+        { consumeFreeChatQuota } as unknown as UserQuotaService,
+        undefined,
+        clarifications as unknown as PendingClarificationStore,
+      );
+      service.streamEditor.mockReturnValue(new Subject<StreamSseEvent>().asObservable());
+      const req = createStreamRequest({ 'x-conversation-id': 'conv-1' });
       const res = createResponse();
-      const body = { messages: [] } as unknown as StreamRequest;
 
-      await controller.streamProxy(body, req, asResponse(res));
+      await controller.editorStream(
+        {
+          prompt: 'hi',
+          clarificationChoice: { id: 'forged', value: 'forged' },
+        },
+        req,
+        asResponse(res),
+      );
 
-      // 主动触发 4 个 stage 事件
-      stageCallback?.('start', { stage: 'designer', attempt: 1 });
-      stageCallback?.('end', { stage: 'designer', attempt: 1, durationMs: 250, status: 'ok' });
-      stageCallback?.('start', { stage: 'critic', attempt: 1 });
-      stageCallback?.('end', { stage: 'critic', attempt: 1, durationMs: 180, status: 'ok' });
-
-      // 检查 res.write 被调用 4 次, 都是 envelope
-      const writeCalls: string[] = res.write.mock.calls.map((c: unknown[]) => String(c[0]));
-      expect(writeCalls).toHaveLength(4);
-      const [first, second, third, fourth] = writeCalls;
-      expect(first).toContain('"type":"pipeline_stage_start"');
-      expect(first).toContain('"stage":"designer"');
-      expect(second).toContain('"type":"pipeline_stage_end"');
-      expect(second).toContain('"durationMs":250');
-      expect(third).toContain('"type":"pipeline_stage_start"');
-      expect(third).toContain('"stage":"critic"');
-      expect(fourth).toContain('"type":"pipeline_stage_end"');
+      expect(clarifications.consume).toHaveBeenCalledWith('user-1', 'conv-1', {
+        id: 'forged',
+        value: 'forged',
+      });
+      expect(consumeFreeChatQuota).toHaveBeenCalledWith('user-1', { countExempt: false });
     });
   });
 

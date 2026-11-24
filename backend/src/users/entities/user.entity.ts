@@ -59,18 +59,29 @@ export class User {
   @Column({ type: 'bigint', default: 0 })
   tokensUsed: string;
 
-  /** Remaining purchased token quota */
-  @Column({ type: 'integer', default: 0 })
+  /** Remaining token quota. New accounts start with the registration gift. */
+  @Column({ type: 'integer', default: 1_000_000 })
   tokensBalance: number;
 
   /** Account balance in cents (e.g. 100 = ¥1.00) */
   @Column({ type: 'integer', default: 0 })
   balanceCents: number;
 
+  /** AES-GCM seal of SHA-256(password), so login can require a nonce-bound proof. */
+  @Column({ type: 'varchar', nullable: true })
+  passwordSeal: string | null;
+
+  @Column({ type: 'boolean', default: false })
+  isAdmin: boolean;
+
+  /** Incremented on password change and account deletion so older JWTs stop working. */
+  @Column({ type: 'integer', default: 0 })
+  tokenVersion: number;
+
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
 
-  @Column({ type: 'datetime', nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   lastLoginAt: Date | null;
 
   @CreateDateColumn()

@@ -31,39 +31,49 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Swagger / OpenAPI
-  const config = new DocumentBuilder()
-    .setTitle('AI App API')
-    .setDescription('Backend API for AI App theme designer')
-    .setVersion('1.0')
-    .addTag('themes')
-    .addTag('templates')
-    .addTag('sites')
-    .addTag('exports')
-    .build();
+  if (env.trustProxy) {
+    const server = app.getHttpAdapter().getInstance() as {
+      set: (name: string, value: number) => void;
+    };
+    server.set('trust proxy', 1);
+  }
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
-  SwaggerModule.setup('api/v1/docs', app, document);
+  if (env.enableSwagger) {
+    const config = new DocumentBuilder()
+      .setTitle('AI App API')
+      .setDescription('Backend API for AI App theme designer')
+      .setVersion('1.0')
+      .addTag('themes')
+      .addTag('templates')
+      .addTag('sites')
+      .addTag('exports')
+      .build();
 
-  // Export OpenAPI JSON for frontend type generation
-  const fs = await import('fs');
-  const path = await import('path');
-  const outputPath = path.resolve(process.cwd(), '..', 'shared', 'openapi.json');
-  try {
-    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-    fs.writeFileSync(outputPath, JSON.stringify(document, null, 2));
-    console.log('OpenAPI spec written to shared/openapi.json');
-  } catch (err) {
-    console.warn(
-      'OpenAPI spec could not be written:',
-      err instanceof Error ? err.message : String(err),
-    );
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api/docs', app, document);
+    SwaggerModule.setup('api/v1/docs', app, document);
+
+    // Export OpenAPI JSON for frontend type generation
+    const fs = await import('fs');
+    const path = await import('path');
+    const outputPath = path.resolve(process.cwd(), '..', 'shared', 'openapi.json');
+    try {
+      fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+      fs.writeFileSync(outputPath, JSON.stringify(document, null, 2));
+      console.log('OpenAPI spec written to shared/openapi.json');
+    } catch (err) {
+      console.warn(
+        'OpenAPI spec could not be written:',
+        err instanceof Error ? err.message : String(err),
+      );
+    }
   }
 
   await app.listen(env.port);
   console.log(`Backend running on port ${env.port} (${env.serverFlavor})`);
-  console.log('Swagger docs available at /api/docs and /api/v1/docs');
+  if (env.enableSwagger) {
+    console.log('Swagger docs available at /api/docs and /api/v1/docs');
+  }
 }
 
 void bootstrap();

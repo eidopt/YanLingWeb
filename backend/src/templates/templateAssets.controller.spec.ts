@@ -5,6 +5,9 @@ import * as path from 'node:path';
 import { NotFoundException } from '@nestjs/common';
 import type { Request, Response } from 'express';
 
+import type { ConfigService } from '../config/config.service';
+import { appendAssetSignature } from './assetSignature';
+import type { TemplatePersistenceRepository } from './repositories';
 import { TemplateAssetsController } from './templateAssets.controller';
 import * as assetStore from './templateAssetStore';
 import { buildTemplateAssetPublicUrl } from './templateAssetStore';
@@ -34,7 +37,19 @@ describe('TemplateAssetsController & URL builder', () => {
       await fs.writeFile(sampleFile, Buffer.from('png-payload'));
       jest.spyOn(assetStore, 'resolveTemplateAssetsRoot').mockReturnValue(tmpRoot);
 
-      const controller = new TemplateAssetsController();
+      const templates = {
+        findByTemplateId: jest.fn((templateId: string) =>
+          Promise.resolve(
+            templateId === 'market'
+              ? { templateId, isPublic: true }
+              : { templateId, isPublic: false },
+          ),
+        ),
+      };
+      const controller = new TemplateAssetsController(
+        { jwt: { secret: 'test-secret' } } as ConfigService,
+        templates as unknown as TemplatePersistenceRepository,
+      );
       const headers = new Map<string, string>();
       let sentBody: unknown;
       const res = {
@@ -47,7 +62,7 @@ describe('TemplateAssetsController & URL builder', () => {
       } as unknown as Response;
 
       await controller.getAsset(
-        { path: '/api/template-assets/generated/market/hero.png' } as Request,
+        { path: '/api/template-assets/generated/market/hero.png', query: {} } as Request,
         res,
       );
 
@@ -57,15 +72,43 @@ describe('TemplateAssetsController & URL builder', () => {
       expect((sentBody as Buffer).toString()).toBe('png-payload');
 
       await expect(
-        controller.getAsset({ path: '/api/template-assets/../../etc/passwd' } as Request, res),
+        controller.getAsset(
+          { path: '/api/template-assets/../../etc/passwd', query: {} } as Request,
+          res,
+        ),
       ).rejects.toThrow(NotFoundException);
 
       await expect(
         controller.getAsset(
-          { path: '/api/template-assets/generated/market/missing.png' } as Request,
+          { path: '/api/template-assets/generated/market/missing.png', query: {} } as Request,
           res,
         ),
       ).rejects.toThrow(NotFoundException);
+
+      const privatePath = 'generated/draft/hero.png';
+      const privateFile = path.join(tmpRoot, 'generated', 'draft', 'hero.png');
+      await fs.mkdir(path.dirname(privateFile), { recursive: true });
+      await fs.writeFile(privateFile, Buffer.from('private-png'));
+      await expect(
+        controller.getAsset(
+          { path: `/api/template-assets/${privatePath}`, query: {} } as Request,
+          res,
+        ),
+      ).rejects.toThrow(NotFoundException);
+      const signed = appendAssetSignature(
+        `/template-assets/${privatePath}`,
+        privatePath,
+        'test-secret',
+      );
+      const params = new URL(signed, 'http://localhost').searchParams;
+      await controller.getAsset(
+        {
+          path: `/api/template-assets/${privatePath}`,
+          query: { exp: params.get('exp'), sig: params.get('sig') },
+        } as unknown as Request,
+        res,
+      );
+      expect((sentBody as Buffer).toString()).toBe('private-png');
     } finally {
       await fs.rm(tmpRoot, { recursive: true, force: true });
     }

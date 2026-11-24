@@ -73,6 +73,37 @@ class InMemoryQuotaUserRepository implements UserAccountRepository {
     user.freeTemplateGenUsedCount += 1;
     return Promise.resolve(true);
   }
+
+  releaseFreeChatQuota(userId: string): Promise<void> {
+    const user = this.users.get(userId);
+    if (user?.userType === 'normal' && user.freeChatUsedCount > 0) {
+      user.freeChatUsedCount -= 1;
+    }
+    return Promise.resolve();
+  }
+
+  releaseFreeTemplateGenQuota(userId: string): Promise<void> {
+    const user = this.users.get(userId);
+    if (user?.userType === 'normal' && user.freeTemplateGenUsedCount > 0) {
+      user.freeTemplateGenUsedCount -= 1;
+    }
+    return Promise.resolve();
+  }
+
+  debitTokens(userId: string, totalTokens: number): Promise<number> {
+    const user = this.users.get(userId);
+    if (!user) {
+      return Promise.resolve(0);
+    }
+    const amount = Math.max(0, Math.floor(totalTokens));
+    user.tokensUsed = (BigInt(user.tokensUsed) + BigInt(amount)).toString();
+    user.tokensBalance = Math.max(0, user.tokensBalance - amount);
+    return Promise.resolve(user.tokensBalance);
+  }
+
+  listIds(): Promise<string[]> {
+    return Promise.resolve([...this.users.keys()]);
+  }
 }
 
 function makeUser(overrides: Partial<User> = {}): User {
@@ -90,7 +121,7 @@ function makeUser(overrides: Partial<User> = {}): User {
     freeChatUsedCount: 0,
     freeTemplateGenUsedCount: 0,
     tokensUsed: '0',
-    tokensBalance: 0,
+    tokensBalance: 1_000_000,
     balanceCents: 0,
     isActive: true,
     lastLoginAt: null,
@@ -117,7 +148,7 @@ describe('UserQuotaService', () => {
     } catch (err) {
       expect((err as ForbiddenException).getResponse()).toMatchObject({
         code: FREE_CHAT_QUOTA_EXCEEDED_CODE,
-        message: expect.stringContaining('免费余额度已用完') as string,
+        message: expect.stringContaining('无法继续生成') as string,
       });
       expect((err as ForbiddenException).getResponse()).toMatchObject({
         message: expect.stringContaining('充值') as string,
@@ -146,9 +177,12 @@ describe('UserQuotaService', () => {
     }
   });
 
-  it('does not limit non-normal (pro) users', async () => {
+  it('does not limit chat or template counts for pro users who still have tokens', async () => {
     const repo = new InMemoryQuotaUserRepository();
-    repo.users.set('user-pro', makeUser({ id: 'user-pro', userType: 'pro' }));
+    repo.users.set(
+      'user-pro',
+      makeUser({ id: 'user-pro', userType: 'pro', tokensBalance: 1_000_000 }),
+    );
     const service = new UserQuotaService(repo);
 
     for (let i = 0; i < 10; i += 1) {
@@ -189,5 +223,37 @@ describe('UserQuotaService', () => {
 
     await expect(service.consumeFreeChatQuota('missing')).rejects.toThrow(NotFoundException);
     await expect(service.consumeFreeTemplateGenQuota('missing')).rejects.toThrow(NotFoundException);
+  });
+
+  it('rejects generation when the token balance is empty, even if free counts remain', async () => {
+    const repo = new InMemoryQuotaUserRepository();
+    repo.users.set('user-1', makeUser({ tokensBalance: 0, freeChatUsedCount: 0 }));
+    const service = new UserQuotaService(repo);
+
+    await expect(service.consumeFreeChatQuota('user-1')).rejects.toThrow(ForbiddenException);
+    try {
+      await service.assertTokenBalance('user-1');
+      throw new Error('expected token balance rejection');
+    } catch (err) {
+      expect(err).toBeInstanceOf(ForbiddenException);
+      expect((err as ForbiddenException).getResponse()).toMatchObject({
+        code: 'TOKEN_BALANCE_EXHAUSTED',
+        message: expect.stringContaining('Token 已用完') as string,
+      });
+    }
+    expect(repo.users.get('user-1')?.freeChatUsedCount).toBe(0);
+  });
+
+  it('skips a verified clarification follow-up but still requires tokens', async () => {
+    const repo = new InMemoryQuotaUserRepository();
+    repo.users.set('user-1', makeUser({ freeChatUsedCount: 3, tokensBalance: 50 }));
+    const service = new UserQuotaService(repo);
+
+    await expect(
+      service.consumeFreeChatQuota('user-1', { countExempt: true }),
+    ).resolves.toBeUndefined();
+    expect(repo.users.get('user-1')?.freeChatUsedCount).toBe(3);
+
+    await expect(service.consumeFreeChatQuota('user-1')).rejects.toThrow(ForbiddenException);
   });
 });

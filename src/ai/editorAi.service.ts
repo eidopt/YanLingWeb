@@ -406,7 +406,7 @@ export class EditorAiService {
             break;
           case 'edit_request':
             this.applyBackendEditRequest(
-              getPayloadField(event, 'data'),
+              await this.resolveEditorEditPayload(event),
               onEvent,
               applyInstructions,
               applyOptions,
@@ -531,6 +531,25 @@ export class EditorAiService {
           break;
       }
     }
+  }
+
+  private async resolveEditorEditPayload(event: BackendEditorEvent): Promise<unknown> {
+    const inline = getPayloadField(event, 'data');
+    if (typeof inline === 'string' && inline.length > 0) {
+      return inline;
+    }
+    const editId = getPayloadField(event, 'editId');
+    if (typeof editId !== 'string' || editId.length === 0) {
+      return inline;
+    }
+    const { data, response } = await this.http.json<{ body?: unknown; message?: string }>(
+      `/api/proxy/ai/editor-edits/${encodeURIComponent(editId)}`,
+      { auth: true },
+    );
+    if (!response.ok || typeof data.body !== 'string') {
+      throw new Error(typeof data.message === 'string' && data.message ? data.message : `无法读取编辑 ${editId}`);
+    }
+    return data.body;
   }
 
   private applyBackendEditRequest(

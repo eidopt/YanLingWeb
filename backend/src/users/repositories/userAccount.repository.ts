@@ -9,6 +9,7 @@ export interface CreateLocalUserInput {
   email: string | null;
   phone: string | null;
   passwordHash: string;
+  passwordSeal?: string | null;
 }
 
 export interface CreateOAuthUserInput {
@@ -24,7 +25,18 @@ export interface FindRegistrationIdentityInput {
 }
 
 export type UserAccountUpdate = Partial<
-  Pick<User, 'username' | 'email' | 'phone' | 'passwordHash' | 'linkedLogins' | 'lastLoginAt'>
+  Pick<
+    User,
+    | 'username'
+    | 'email'
+    | 'phone'
+    | 'passwordHash'
+    | 'passwordSeal'
+    | 'linkedLogins'
+    | 'lastLoginAt'
+    | 'isAdmin'
+    | 'tokenVersion'
+  >
 >;
 
 export interface UserAccountRepository {
@@ -47,4 +59,9 @@ export interface UserAccountRepository {
    * `freeTemplateGenUsedCount < limit`. Returns true if incremented (quota reserved), false otherwise.
    */
   consumeFreeTemplateGenQuota(userId: string, limit: number): Promise<boolean>;
+  releaseFreeChatQuota(userId: string): Promise<void>;
+  releaseFreeTemplateGenQuota(userId: string): Promise<void>;
+  /** Atomic debit. Balance floors at 0; tokensUsed increments by the same amount. */
+  debitTokens(userId: string, totalTokens: number): Promise<number>;
+  listIds(): Promise<string[]>;
 }

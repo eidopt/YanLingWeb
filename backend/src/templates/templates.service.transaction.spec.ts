@@ -79,6 +79,8 @@ function createPersistenceStore(): StoreHarness {
   return {
     store: {
       saveTemplate,
+      findByTemplateId: jest.fn(() => Promise.resolve(null)),
+      existsByTemplateId: jest.fn(() => Promise.resolve(false)),
       findAgentConfig,
       generatedProfileExists: jest.fn(() => Promise.resolve(false)),
       upsertAgentConfig,

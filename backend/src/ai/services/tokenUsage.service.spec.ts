@@ -91,6 +91,29 @@ class FakeUserAccountRepository implements UserAccountRepository {
   consumeFreeTemplateGenQuota(): Promise<boolean> {
     return Promise.resolve(true);
   }
+
+  releaseFreeChatQuota(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  releaseFreeTemplateGenQuota(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  debitTokens(userId: string, totalTokens: number): Promise<number> {
+    const user = this.users.get(userId);
+    if (!user) {
+      return Promise.resolve(0);
+    }
+    const amount = Math.max(0, Math.floor(totalTokens));
+    user.tokensUsed = (BigInt(user.tokensUsed) + BigInt(amount)).toString();
+    user.tokensBalance = Math.max(0, user.tokensBalance - amount);
+    return Promise.resolve(user.tokensBalance);
+  }
+
+  listIds(): Promise<string[]> {
+    return Promise.resolve([...this.users.keys()]);
+  }
 }
 
 function createUser(overrides: Partial<User> = {}): User {

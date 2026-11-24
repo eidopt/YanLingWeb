@@ -1,9 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import type { EntityManager, Repository, SelectQueryBuilder } from 'typeorm';
 import { IsNull } from 'typeorm';
 
-import { User } from '../../users/entities/user.entity';
+import { likeContains, likeJsonStringElement } from '../../shared/likePattern';
+import {
+  USER_ACCOUNT_REPOSITORY,
+  type UserAccountRepository,
+} from '../../users/repositories/userAccount.repository';
 import { Template } from '../entities/template.entity';
 import { TemplateAgentPermissions } from '../entities/templateAgentPermissions.entity';
 import { TemplateAssetManifest } from '../entities/templateAssetManifest.entity';
@@ -30,6 +34,14 @@ class TypeOrmTemplatePersistenceStore implements TemplatePersistenceStore {
 
   saveTemplate(template: Template): Promise<Template> {
     return this.templateRepo.save(template);
+  }
+
+  findByTemplateId(templateId: string): Promise<Template | null> {
+    return this.templateRepo.findOne({ where: { templateId } });
+  }
+
+  existsByTemplateId(templateId: string): Promise<boolean> {
+    return this.templateRepo.exists({ where: { templateId } });
   }
 
   async findAgentConfig(templateId: string): Promise<TemplateAgentConfigRecords> {
@@ -185,8 +197,8 @@ export class TypeOrmTemplatePersistenceRepository
     agentPermissionsRepo: Repository<TemplateAgentPermissions>,
     @InjectRepository(TemplateEvaluationSpec)
     evaluationSpecRepo: Repository<TemplateEvaluationSpec>,
-    @InjectRepository(User)
-    private readonly userRepo: Repository<User>,
+    @Inject(USER_ACCOUNT_REPOSITORY)
+    private readonly users: UserAccountRepository,
   ) {
     super(
       templateRepo,
@@ -259,14 +271,6 @@ export class TypeOrmTemplatePersistenceRepository
     });
   }
 
-  findByTemplateId(templateId: string): Promise<Template | null> {
-    return this.templateRepo.findOne({ where: { templateId } });
-  }
-
-  existsByTemplateId(templateId: string): Promise<boolean> {
-    return this.templateRepo.exists({ where: { templateId } });
-  }
-
   findAllTemplates(): Promise<Template[]> {
     return this.templateRepo.find();
   }
@@ -278,9 +282,8 @@ export class TypeOrmTemplatePersistenceRepository
     return profiles.map((profile) => profile.templateId);
   }
 
-  async findAllUserIds(): Promise<string[]> {
-    const users = await this.userRepo.find({ select: { id: true } });
-    return users.map((user) => user.id);
+  findAllUserIds(): Promise<string[]> {
+    return this.users.listIds();
   }
 
   async findPublicTemplateIds(): Promise<string[]> {
@@ -328,16 +331,18 @@ export class TypeOrmTemplatePersistenceRepository
       qb.andWhere('t.primaryFunctionalCategory = :fc', { fc: filters.functionalCategory });
     }
     if (filters.platformCategory) {
-      qb.andWhere('t.platformCategories LIKE :pc', { pc: `%${filters.platformCategory}%` });
+      qb.andWhere(`t.platformCategories LIKE :pc ESCAPE '\\'`, {
+        pc: likeJsonStringElement(filters.platformCategory),
+      });
     }
     if (filters.search) {
-      const q = `%${filters.search.toLowerCase()}%`;
+      const q = likeContains(filters.search.toLowerCase());
       qb.andWhere(
         [
-          '(LOWER(t.name) LIKE :q',
-          'OR LOWER(t.tagline) LIKE :q',
-          'OR LOWER(t.description) LIKE :q',
-          'OR LOWER(t.searchText) LIKE :q)',
+          `(LOWER(t.name) LIKE :q ESCAPE '\\'`,
+          `OR LOWER(t.tagline) LIKE :q ESCAPE '\\'`,
+          `OR LOWER(t.description) LIKE :q ESCAPE '\\'`,
+          `OR LOWER(t.searchText) LIKE :q ESCAPE '\\')`,
         ].join(' '),
         { q },
       );

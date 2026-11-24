@@ -4,7 +4,8 @@ import { Throttle } from '@nestjs/throttler';
 
 import { AuthenticatedRequest } from '../auth/authenticatedRequest.interface';
 import { JwtAuthGuard } from '../auth/jwtAuth.guard';
-import { TemplatesService, type UpdateOwnedTemplateInput } from './templates.service';
+import { UpdateOwnedTemplateDto } from './dto/updateOwnedTemplate.dto';
+import { TemplatesService } from './templates.service';
 
 @ApiTags('templates')
 @Controller('templates')
@@ -70,7 +71,7 @@ export class TemplatesController {
   updateOwned(
     @Req() req: AuthenticatedRequest,
     @Param('templateId') templateId: string,
-    @Body() body: UpdateOwnedTemplateInput,
+    @Body() body: UpdateOwnedTemplateDto,
   ) {
     return this.service.updateOwned(req.user.sub, templateId, body);
   }

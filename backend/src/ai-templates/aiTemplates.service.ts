@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { computeDocumentCombinedSignature } from '@shared/agent/runtime';
 import { themeLayoutDocumentToRecord } from '@shared/theme-layout/documentBoundary';
 
+import { GenerationQueue } from '../common/generationQueue';
 import { ConfigService } from '../config/config.service';
 import {
   TEMPLATE_READ_REPOSITORY,
@@ -46,6 +47,8 @@ export interface GenerateOptions {
   onStageEvent?: PipelineStageEventCallback;
   /** 可选：触发本次生成的用户 ID，用于按用户统计从 0 生成模板各 stage 的 token 消耗 */
   ownerUserId?: string;
+  /** Aborts the pipeline when the client disconnects. */
+  signal?: AbortSignal;
 }
 
 export interface GeneratedSavedTemplateResult extends PipelineExternalResult {
@@ -120,6 +123,8 @@ export class AiTemplatesService {
     private readonly templatesService?: TemplatesService,
     @Optional()
     private readonly config?: ConfigService,
+    @Optional()
+    private readonly generationQueue?: GenerationQueue,
   ) {}
 
   /**
@@ -175,10 +180,18 @@ export class AiTemplatesService {
     this.logger.log(
       `generating template "${seed.prompt}" with ${existing.length} existing baselines`,
     );
-    const result = await this.pipeline.generate(seed, existing, {
-      onStageEvent: options.onStageEvent,
-      ownerUserId: options.ownerUserId,
-    });
+    const runPipeline = () =>
+      this.pipeline.generate(seed, existing, {
+        onStageEvent: options.onStageEvent,
+        ownerUserId: options.ownerUserId,
+        signal: options.signal,
+      });
+    const result = this.generationQueue
+      ? await this.generationQueue.runTemplate(runPipeline)
+      : await runPipeline();
+    if (options.signal?.aborted) {
+      throw new Error('template generation cancelled');
+    }
     const document = await this.maybeMaterializeImages(result.templateId, result.document, options);
     return { ...result, document };
   }

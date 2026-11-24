@@ -1,5 +1,5 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import * as fs from 'fs';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import * as fs from 'fs/promises';
 import * as os from 'os';
 import * as path from 'path';
 
@@ -11,6 +11,8 @@ import {
   type ExportRecordRepository,
 } from './repositories/exportRecord.repository';
 
+const PROJECT_NAME_PATTERN = /^[a-zA-Z0-9_-]{1,64}$/;
+
 @Injectable()
 export class ExportsService {
   constructor(
@@ -19,6 +21,7 @@ export class ExportsService {
   ) {}
 
   async create(ownerUserId: string, dto: CreateExportDto): Promise<ExportRecord> {
+    const outputDir = resolveExportDirectory(dto.projectName);
     const saved = await this.exports.createSaving({
       ownerUserId,
       projectName: dto.projectName,
@@ -26,21 +29,18 @@ export class ExportsService {
       layoutJson: dto.layoutJson ?? {},
     });
 
-    // Async: write the layout JSON to ~/Documents/ai-app-exports/<projectName>/
-    this.runExport(saved).catch((err) => {
+    this.runExport(saved, outputDir).catch((err) => {
       console.error('Export failed:', err);
     });
 
     return saved;
   }
 
-  private async runExport(record: ExportRecord): Promise<void> {
-    const outputDir = path.join(os.homedir(), 'Documents', 'ai-app-exports', record.projectName);
-
+  private async runExport(record: ExportRecord, outputDir: string): Promise<void> {
     try {
-      fs.mkdirSync(outputDir, { recursive: true });
+      await fs.mkdir(outputDir, { recursive: true });
       const jsonPath = path.join(outputDir, 'layout.json');
-      fs.writeFileSync(jsonPath, JSON.stringify(record.layoutJson, null, 2));
+      await fs.writeFile(jsonPath, JSON.stringify(record.layoutJson, null, 2));
 
       await this.exports.markDone(record.id, outputDir);
     } catch (err: unknown) {
@@ -65,4 +65,16 @@ export class ExportsService {
     const record = await this.findOne(ownerUserId, id);
     await this.exports.remove(record);
   }
+}
+
+export function resolveExportDirectory(projectName: string): string {
+  if (!PROJECT_NAME_PATTERN.test(projectName)) {
+    throw new BadRequestException('projectName 只能包含字母、数字、下划线和短横线');
+  }
+  const baseDir = path.resolve(os.homedir(), 'Documents', 'ai-app-exports');
+  const outputDir = path.resolve(baseDir, projectName);
+  if (!outputDir.startsWith(`${baseDir}${path.sep}`)) {
+    throw new BadRequestException('projectName 不合法');
+  }
+  return outputDir;
 }

@@ -66,7 +66,7 @@ describe('ApiExceptionFilter', () => {
       expect.objectContaining({
         success: false,
         statusCode: 500,
-        message: 'database failed',
+        message: '服务器内部错误',
         error: 'Internal Server Error',
         code: 'internal_server_error',
         path: '/api/templates',

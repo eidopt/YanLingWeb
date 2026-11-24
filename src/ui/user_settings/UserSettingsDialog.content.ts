@@ -13,7 +13,7 @@ export const userSettingsDialogContent = {
     freeTemplateRemaining: '从零生成模板剩余',
     unlimited: '不限',
     used: '已使用',
-    balance: '剩余额度',
+    balance: '剩余 Token',
     input: '输入 Token',
     output: '输出 Token',
     requests: 'AI 请求数',

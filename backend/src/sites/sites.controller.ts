@@ -4,7 +4,8 @@ import { Throttle } from '@nestjs/throttler';
 
 import { AuthenticatedRequest } from '../auth/authenticatedRequest.interface';
 import { JwtAuthGuard } from '../auth/jwtAuth.guard';
-import { type PublishSiteInput, type RollbackSiteInput, SitesService } from './sites.service';
+import { PublishSiteDto, RollbackSiteDto } from './dto/site.dto';
+import { SitesService } from './sites.service';
 
 @ApiTags('sites')
 @Controller()
@@ -15,7 +16,7 @@ export class SitesController {
   @UseGuards(JwtAuthGuard)
   @Throttle({ default: { limit: 12, ttl: 300000 } })
   @ApiOperation({ summary: 'Publish an owned template as a hosted runtime site' })
-  publish(@Req() req: AuthenticatedRequest, @Body() body: PublishSiteInput) {
+  publish(@Req() req: AuthenticatedRequest, @Body() body: PublishSiteDto) {
     return this.service.publish(req.user.sub, body);
   }
 
@@ -48,7 +49,7 @@ export class SitesController {
   rollback(
     @Req() req: AuthenticatedRequest,
     @Param('id') id: string,
-    @Body() body: RollbackSiteInput,
+    @Body() body: RollbackSiteDto,
   ) {
     return this.service.rollback(req.user.sub, id, body);
   }

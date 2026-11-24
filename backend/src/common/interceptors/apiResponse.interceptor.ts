@@ -82,7 +82,6 @@ export class ApiResponseInterceptor implements NestInterceptor {
 
     if (isPaginatedPayload(payload)) {
       return {
-        ...payload,
         ...base,
         data: payload.data,
         meta: {
@@ -104,7 +103,6 @@ export class ApiResponseInterceptor implements NestInterceptor {
 
     if (isRecord(payload)) {
       return {
-        ...payload,
         ...base,
         data: payload,
       };

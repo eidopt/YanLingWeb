@@ -11,20 +11,24 @@ export const MAX_PAYLOAD_BYTES = 64 * 1024; // 64KB, 远超正常事件大小
  * 把 (type, payload) 包成 envelope JSON 字符串.
  * 异常或超大 payload 降级为 error envelope (不断流).
  */
+export function fitsSseFrame<T extends SseEventType>(
+  type: T,
+  payload: SseEventPayloadByType[T],
+): boolean {
+  try {
+    return JSON.stringify(buildEnvelope(type, payload)).length <= MAX_PAYLOAD_BYTES;
+  } catch {
+    return false;
+  }
+}
+
 export function serializeSseEvent<T extends SseEventType>(
   type: T,
   payload: SseEventPayloadByType[T],
 ): string {
-  const ts = new Date().toISOString();
-  const envelope: SseEventEnvelope<T, typeof payload> = {
-    schema: SSE_EVENT_SCHEMA_VERSION,
-    type,
-    ts,
-    payload,
-  };
   let json: string;
   try {
-    json = JSON.stringify(envelope);
+    json = JSON.stringify(buildEnvelope(type, payload));
   } catch (e) {
     return JSON.stringify(
       buildErrorEnvelope(`envelope serialization failed: ${(e as Error).message}`, type, true),
@@ -36,6 +40,18 @@ export function serializeSseEvent<T extends SseEventType>(
     );
   }
   return json;
+}
+
+function buildEnvelope<T extends SseEventType>(
+  type: T,
+  payload: SseEventPayloadByType[T],
+): SseEventEnvelope<T, typeof payload> {
+  return {
+    schema: SSE_EVENT_SCHEMA_VERSION,
+    type,
+    ts: new Date().toISOString(),
+    payload,
+  };
 }
 
 /**

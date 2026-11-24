@@ -1,6 +1,11 @@
 import { SSE_EVENT_SCHEMA_VERSION, type SseEventType } from '@shared/agent/contracts/sseEvents';
 
-import { MAX_PAYLOAD_BYTES, serializeSseEvent, trySerializeSseEvent } from './sseEnvelope';
+import {
+  fitsSseFrame,
+  MAX_PAYLOAD_BYTES,
+  serializeSseEvent,
+  trySerializeSseEvent,
+} from './sseEnvelope';
 
 interface ParsedEnvelope {
   schema: string;
@@ -50,6 +55,12 @@ describe('serializeSseEvent', () => {
     expect(parsed.type).toBe('error');
     expect(parsed.payload.schema_error).toBe(true);
     expect(parsed.payload.originalType).toBe('text_delta');
+  });
+
+  it('keeps a large edit behind a reference that still fits the frame', () => {
+    const data = 'x'.repeat(MAX_PAYLOAD_BYTES);
+    expect(fitsSseFrame('edit_request', { data })).toBe(false);
+    expect(fitsSseFrame('edit_request', { editId: 'edit-1', bytes: data.length })).toBe(true);
   });
 
   it('degrades to error envelope with truncated flag when payload exceeds 64KB (T3)', () => {

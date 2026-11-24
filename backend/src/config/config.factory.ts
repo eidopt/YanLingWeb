@@ -113,6 +113,12 @@ export interface ServerConfig {
   };
   serverFlavor: ServerFlavors;
   enableAgentEvalEndpoint: boolean;
+  /** Usernames that are treated as administrators even before isAdmin is persisted. */
+  adminUsernames: string[];
+  /** When true, Express trusts one proxy hop so rate limits use the client IP. */
+  trustProxy: boolean;
+  /** Swagger and the OpenAPI file write stay off in production unless this is true. */
+  enableSwagger: boolean;
   oauth: {
     qq: BackendOAuthProviderConfig;
     wechat: BackendOAuthProviderConfig;
@@ -322,6 +328,12 @@ export class ConfigFactory {
       enableAgentEvalEndpoint:
         serverFlavor !== 'production' ||
         this.read(source, serverFlavor, 'ENABLE_AGENT_EVAL_ENDPOINT') === 'true',
+      adminUsernames: this.readList(source, serverFlavor, 'ADMIN_USERNAMES'),
+      trustProxy:
+        this.readBoolean(source, serverFlavor, 'TRUST_PROXY') ?? serverFlavor === 'production',
+      enableSwagger:
+        serverFlavor !== 'production' ||
+        this.read(source, serverFlavor, 'ENABLE_SWAGGER') === 'true',
       oauth: {
         qq: {
           appId: this.read(source, serverFlavor, 'QQ_APP_ID'),

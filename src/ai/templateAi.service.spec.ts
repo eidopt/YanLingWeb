@@ -165,4 +165,31 @@ void describe('TemplateAiService', () => {
       ['error', 'done'],
     );
   });
+
+  void it('surfaces token and count limit messages from a non-OK response', async () => {
+    const message = 'Token 已用完，无法继续生成。新注册账号赠送 100 万 token，用完后需要充值。';
+    const http: HttpClient = {
+      json: () => Promise.reject(new Error('unexpected json call')),
+      stream: () =>
+        Promise.resolve({
+          response: new Response(JSON.stringify({ message, code: 'TOKEN_BALANCE_EXHAUSTED' }), {
+            status: 403,
+            headers: { 'content-type': 'application/json' },
+          }),
+          events: (async function* empty() {
+            await Promise.resolve();
+            yield* [];
+          })(),
+        }),
+    };
+    const events: AiGenerateEvent[] = [];
+    const service = new TemplateAiService(() => 'token-123', undefined, http);
+    await service.generate({
+      prompt: '咖啡店',
+      onEvent: (event) => events.push(event),
+    });
+    assert.equal(events[0]?.type, 'error');
+    assert.equal(events[0]?.data, message);
+    assert.equal(events.at(-1)?.type, 'done');
+  });
 });

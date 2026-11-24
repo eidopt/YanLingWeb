@@ -78,6 +78,18 @@ export class ConfigService {
     return this.config.enableAgentEvalEndpoint;
   }
 
+  get adminUsernames() {
+    return this.config.adminUsernames;
+  }
+
+  get trustProxy() {
+    return this.config.trustProxy;
+  }
+
+  get enableSwagger() {
+    return this.config.enableSwagger;
+  }
+
   // ---------------------------------------------------------------------------
   // OAuth
   // ---------------------------------------------------------------------------

@@ -70,6 +70,22 @@ class FakeUserAccountRepository implements UserAccountRepository {
   consumeFreeTemplateGenQuota(): Promise<boolean> {
     return Promise.resolve(true);
   }
+
+  releaseFreeChatQuota(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  releaseFreeTemplateGenQuota(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  debitTokens(): Promise<number> {
+    return Promise.resolve(0);
+  }
+
+  listIds(): Promise<string[]> {
+    return Promise.resolve([...this.users.keys()]);
+  }
 }
 
 class FakeTokenUsageRepository implements TokenUsageRepository {

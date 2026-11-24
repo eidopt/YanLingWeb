@@ -16,6 +16,8 @@ import {
 import {
   UserTypeAndFreeQuotas1748166500000,
 } from './1748166500000-UserTypeAndFreeQuotas';
+import { AssetLibraryAndTokenGift1748166600000 } from './1748166600000-AssetLibraryAndTokenGift';
+import { TokenVersion1748166700000 } from './1748166700000-TokenVersion';
 
 const SchemaUpgradeForExistingDbs = existingDbUpgrade.SchemaUpgradeForExistingDbs1748166100000;
 
@@ -26,6 +28,8 @@ const MIGRATIONS = [
   EditorAiConversationUndoStack1748166300000,
   EditorAiConversationCacheContext1748166400000,
   UserTypeAndFreeQuotas1748166500000,
+  AssetLibraryAndTokenGift1748166600000,
+  TokenVersion1748166700000,
 ];
 
 interface SqliteNamedRow {
@@ -46,6 +50,7 @@ const APPLICATION_TABLES = [
   'template_asset_manifests',
   'template_agent_permissions',
   'template_evaluation_specs',
+  'asset_library_images',
 ];
 
 const APPLICATION_SCHEMA_CONTRACT: Record<string, readonly string[]> = {
@@ -60,6 +65,9 @@ const APPLICATION_SCHEMA_CONTRACT: Record<string, readonly string[]> = {
     'tokensBalance',
     'balanceCents',
     'isActive',
+    'isAdmin',
+    'passwordSeal',
+    'tokenVersion',
     'lastLoginAt',
     'createdAt',
     'updatedAt',
@@ -85,6 +93,8 @@ const APPLICATION_SCHEMA_CONTRACT: Record<string, readonly string[]> = {
     'primaryFunctionalCategory',
     'platformCategories',
     'functionalCategories',
+    'tags',
+    'searchText',
     'cssAnimations',
     'layoutDocument',
     'createdAt',
@@ -171,6 +181,20 @@ const APPLICATION_SCHEMA_CONTRACT: Record<string, readonly string[]> = {
   template_asset_manifests: ['id', 'templateId', 'manifest', 'createdAt', 'updatedAt'],
   template_agent_permissions: ['id', 'templateId', 'permissions', 'createdAt', 'updatedAt'],
   template_evaluation_specs: ['id', 'templateId', 'evaluation', 'createdAt', 'updatedAt'],
+  asset_library_images: [
+    'id',
+    'slug',
+    'category',
+    'keywords',
+    'role',
+    'prompt',
+    'alt',
+    'url',
+    'storageKey',
+    'embedding',
+    'createdAt',
+    'updatedAt',
+  ],
 };
 
 async function hasTable(dataSource: DataSource, tableName: string): Promise<boolean> {
@@ -242,6 +266,8 @@ describe('database migrations', () => {
       'EditorAiConversationUndoStack1748166300000',
       'EditorAiConversationCacheContext1748166400000',
       'UserTypeAndFreeQuotas1748166500000',
+      'AssetLibraryAndTokenGift1748166600000',
+      'TokenVersion1748166700000',
     ]);
 
     for (const [tableName, expectedColumns] of Object.entries(APPLICATION_SCHEMA_CONTRACT)) {

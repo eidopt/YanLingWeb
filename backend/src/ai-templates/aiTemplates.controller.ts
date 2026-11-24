@@ -18,15 +18,12 @@ import { AuthenticatedRequest } from '../auth/authenticatedRequest.interface';
 import { JwtAuthGuard } from '../auth/jwtAuth.guard';
 import { UserQuotaService } from '../users/services/userQuota.service';
 import { AiTemplatesService } from './aiTemplates.service';
+import { GenerateTemplateDto } from './dto/generateTemplate.dto';
 import type {
   PipelineExternalResult,
   PipelineFailure,
   TemplateSeed,
 } from './orchestrator/pipeline.types';
-
-interface GenerateRequestBody extends TemplateSeed {
-  materializeImages?: boolean;
-}
 
 function startSseHeartbeat(res: Response): () => void {
   const timer = setInterval(() => {
@@ -74,22 +71,25 @@ export class AiTemplatesController {
     },
   })
   async generate(
-    @Body() body: GenerateRequestBody,
+    @Body() body: GenerateTemplateDto,
     @Req() req: AuthenticatedRequest,
   ): Promise<PipelineExternalResult | Record<string, unknown>> {
     const { materializeImages, ...seed } = body;
     await this.userQuota?.consumeFreeTemplateGenQuota(req.user.sub);
     try {
-      return await this.service.generate(seed, {
+      return await this.service.generate(seed as TemplateSeed, {
         materializeImages,
         ownerUserId: req.user.sub,
       });
     } catch (err: unknown) {
+      const pipelineErr = err as PipelineFailure;
+      if (!pipelineErr.lastSchema) {
+        await this.userQuota?.releaseFreeTemplateGenQuota(req.user.sub);
+      }
       if (err instanceof HttpException) {
         throw err;
       }
       // 如果流水线全部 attempt 失败但最后一次 Schema 产生了文档，返回它
-      const pipelineErr = err as PipelineFailure;
       if (pipelineErr.lastSchema) {
         return {
           templateId: pipelineErr.lastSchema.templateId,
@@ -110,7 +110,7 @@ export class AiTemplatesController {
     summary: '流式跑 4-stage 流水线生成并落库新模板，通过 SSE 推送阶段进度与保存结果',
   })
   async generateStream(
-    @Body() body: GenerateRequestBody,
+    @Body() body: GenerateTemplateDto,
     @Req() req: AuthenticatedRequest,
     @Res() res: Response,
   ): Promise<void> {
@@ -124,9 +124,11 @@ export class AiTemplatesController {
     res.flushHeaders();
 
     let closed = false;
+    const abortController = new AbortController();
     const stopHeartbeat = startSseHeartbeat(res);
     req.on('close', () => {
       closed = true;
+      abortController.abort();
       stopHeartbeat();
     });
 
@@ -142,8 +144,9 @@ export class AiTemplatesController {
     };
 
     void this.service
-      .generateAndSave(req.user.sub, seed, {
+      .generateAndSave(req.user.sub, seed as TemplateSeed, {
         materializeImages,
+        signal: abortController.signal,
         onStageEvent: (phase, payload) => {
           if (phase === 'start') {
             writeEnvelope('pipeline_stage_start', {
@@ -169,7 +172,11 @@ export class AiTemplatesController {
         });
         writeEnvelope('done', {});
       })
-      .catch((err: unknown) => {
+      .catch(async (err: unknown) => {
+        await this.userQuota?.releaseFreeTemplateGenQuota(req.user.sub);
+        if (closed) {
+          return;
+        }
         const message = err instanceof Error ? err.message : String(err);
         writeEnvelope('error', { message });
         writeEnvelope('done', {});

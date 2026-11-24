@@ -2,7 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from '../auth/auth.module';
-import { User } from '../users/entities/user.entity';
+import { GenerationQueue } from '../common/generationQueue';
+import { UsersModule } from '../users/users.module';
 import { AssetLibraryService } from './assetLibrary.service';
 import { AssetLibraryImage } from './entities/assetLibraryImage.entity';
 import { Template } from './entities/template.entity';
@@ -41,12 +42,13 @@ import { TemplatesService } from './templates.service';
       TemplateAgentPermissions,
       TemplateEvaluationSpec,
       AssetLibraryImage,
-      User,
     ]),
     AuthModule,
+    UsersModule,
   ],
   controllers: [TemplatesController, TemplateAssetsController],
   providers: [
+    GenerationQueue,
     TemplatesService,
     TemplateAssetService,
     TemplateCategoryRegistryService,
@@ -76,6 +78,7 @@ import { TemplatesService } from './templates.service';
     },
   ],
   exports: [
+    GenerationQueue,
     TemplatesService,
     TemplateAssetService,
     TemplateCategoryRegistryService,

@@ -1,13 +1,21 @@
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
 
-import { Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+  OnModuleInit,
+  Optional,
+} from '@nestjs/common';
 import { objectToRecord, themeLayoutDocumentToRecord } from '@shared/theme-layout/documentBoundary';
 import { mergeVisualAssetsIntoManifest } from '@shared/theme-layout/visualAssets';
 
 import { ConfigService } from '../config/config.service';
 import { deriveTags } from '../shared/deriveTags';
 import { isRecord } from '../shared/typeGuards';
+import { UserQuotaService } from '../users/services/userQuota.service';
 import { Template } from './entities/template.entity';
 import {
   TEMPLATE_AGENT_KNOWLEDGE_REPOSITORY,
@@ -40,10 +48,10 @@ import { TemplateCategoryRegistryService } from './templateCategoryRegistry.serv
 import {
   deleteImportedTemplateSidecars,
   extractTemplateCategoryLabels,
+  isPersistentTemplateJsonImportPath,
   parseTemplateJsonSeed,
   readTemplateAgentConfigForImport,
   removeTemplateValidationLog,
-  isPersistentTemplateJsonImportPath,
   resolveTemplateJsonDirectories,
   validateImportedTemplateProfile,
   writeTemplateValidationLog,
@@ -72,6 +80,7 @@ export class TemplatesService implements OnModuleInit {
     private readonly config: ConfigService,
     private readonly templateAssetService: TemplateAssetService,
     private readonly categoryRegistry: TemplateCategoryRegistryService,
+    @Optional() private readonly userQuota?: UserQuotaService,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -189,11 +198,7 @@ export class TemplatesService implements OnModuleInit {
     const template = await this.findOwnedByTemplateId(ownerUserId, templateId);
     const assetResolution =
       input.visualAssets !== undefined
-        ? await this.templateAssetService.resolveVisualAssetsForTemplate(
-            template.templateId,
-            input.layoutDocument ?? template.layoutDocument,
-            input.visualAssets,
-          )
+        ? await this.resolveOwnedVisualAssets(ownerUserId, template.templateId, input, template)
         : null;
     const layoutDocumentSource =
       assetResolution?.layoutDocument ?? input.layoutDocument ?? template.layoutDocument;
@@ -243,16 +248,15 @@ export class TemplatesService implements OnModuleInit {
     });
     this.assertGeneratedTemplateCategoryKeys(input);
 
-    const existing = await this.templates.findByTemplateId(input.templateId);
-    const targetTemplateId = existing
-      ? existing.ownerUserId === ownerUserId
-        ? existing.templateId
-        : await this.createAvailableGeneratedTemplateId(input.templateId, ownerUserId)
-      : input.templateId;
+    const allocation = await this.allocateGeneratedTemplateId(ownerUserId, input.templateId);
+    const existing = allocation.existing;
+    const targetTemplateId = allocation.templateId;
+    await this.assertImageSpendAllowed(ownerUserId);
     const assetResolution = await this.templateAssetService.resolveVisualAssetsForTemplate(
       targetTemplateId,
       themeLayoutDocumentToRecord(preparedLayout),
       input.visualAssets,
+      { signUrls: true },
     );
     const layoutDocument = prepareTemplateLayoutForPersistence({
       layoutDocument: assetResolution.layoutDocument,
@@ -284,6 +288,10 @@ export class TemplatesService implements OnModuleInit {
 
     this.applyGeneratedTemplateInput(target, preparedInput);
     const saved = await this.templates.runInTransaction(async (store) => {
+      const current = await store.findByTemplateId(target.templateId);
+      if (current && current.ownerUserId !== ownerUserId) {
+        throw new ConflictException('模板 ID 已被占用，请重试');
+      }
       const savedTemplate = await store.saveTemplate(target);
       await this.saveGeneratedProfileForTemplate(savedTemplate, true, store);
       if (assetResolution.manifest) {
@@ -312,6 +320,28 @@ export class TemplatesService implements OnModuleInit {
       throw new NotFoundException(`Template "${templateId}" not found`);
     }
     return this.loadTemplateAgentConfig(template);
+  }
+
+  private async resolveOwnedVisualAssets(
+    ownerUserId: string,
+    templateId: string,
+    input: UpdateOwnedTemplateInput,
+    template: Template,
+  ) {
+    await this.assertImageSpendAllowed(ownerUserId);
+    return this.templateAssetService.resolveVisualAssetsForTemplate(
+      templateId,
+      input.layoutDocument ?? template.layoutDocument,
+      input.visualAssets,
+      { signUrls: template.isPublic !== true },
+    );
+  }
+
+  private async assertImageSpendAllowed(ownerUserId: string): Promise<void> {
+    if (!this.config.ai.imageGenerationEnabled || !this.config.ai.materializeImages) {
+      return;
+    }
+    await this.userQuota?.assertTokenBalance(ownerUserId);
   }
 
   private async attachAgentConfig<T extends Template>(
@@ -374,6 +404,24 @@ export class TemplatesService implements OnModuleInit {
 
   private createUserTemplateId(sourceTemplateId: string, ownerUserId: string) {
     return createUserTemplateId(sourceTemplateId, ownerUserId);
+  }
+
+  private async allocateGeneratedTemplateId(
+    ownerUserId: string,
+    requestedId: string,
+  ): Promise<{ templateId: string; existing: Template | null }> {
+    return this.templates.runInTransaction(async (store) => {
+      const existing = await store.findByTemplateId(requestedId);
+      if (!existing || existing.ownerUserId === ownerUserId) {
+        return { templateId: existing?.templateId ?? requestedId, existing };
+      }
+      const templateId = await createAvailableGeneratedTemplateId(
+        requestedId,
+        ownerUserId,
+        (candidate) => store.existsByTemplateId(candidate),
+      );
+      return { templateId, existing: null };
+    });
   }
 
   private async createAvailableGeneratedTemplateId(

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import { IsBoolean, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
 export class LoginDto {
   @ApiProperty({ description: 'Username, email, or phone' })
@@ -8,7 +8,11 @@ export class LoginDto {
   @MaxLength(255)
   identifier!: string;
 
-  @ApiProperty({ description: 'SHA-256(rawPassword) — 64-char lowercase hex' })
+  @ApiProperty({
+    description:
+      'Nonce-bound proof SHA256(nonce + SHA256(rawPassword)). ' +
+      'Unsealed accounts may send the static digest with legacyUpgrade=true.',
+  })
   @IsString()
   @Matches(/^[a-f0-9]{64}$/, { message: 'password must be a 64-char lowercase hex SHA-256 hash' })
   password!: string;
@@ -17,4 +21,12 @@ export class LoginDto {
   @IsString()
   @Matches(/^[a-f0-9]{64}$/, { message: 'nonce must be a 64-char lowercase hex string' })
   nonce!: string;
+
+  @ApiProperty({
+    required: false,
+    description: 'Set when retrying login for an account that has no password seal yet',
+  })
+  @IsOptional()
+  @IsBoolean()
+  legacyUpgrade?: boolean;
 }

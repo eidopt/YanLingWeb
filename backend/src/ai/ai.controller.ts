@@ -4,6 +4,7 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  NotFoundException,
   Optional,
   Param,
   Post,
@@ -25,10 +26,36 @@ import {
   type SaveEditorAiConversationInput,
   type StreamRequest,
 } from './ai.service';
-import { serializeSseEvent } from './sse/sseEnvelope';
-import type { TemplateToolInput } from './tools/generateTemplate.tool';
+import {
+  AiChatRequestDto,
+  SaveEditorConversationDto,
+  SaveGeneratedTemplateDto,
+} from './dto/aiRequest.dto';
+import { PendingClarificationStore } from './pendingClarification.store';
+import { EditorEditOutbox } from './services/editorEditOutbox.service';
 
 /** Start a 5-second SSE heartbeat. Returns a cleanup function to stop it. */
+function trackUnusedChatQuota(charged: boolean, release: () => Promise<void> | undefined) {
+  let recordedUsage = false;
+  let settled = false;
+  return {
+    note(data: string) {
+      if (data.includes('"usage_summary"')) {
+        recordedUsage = true;
+      }
+    },
+    finish() {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      if (charged && !recordedUsage) {
+        void release();
+      }
+    },
+  };
+}
+
 function startSseHeartbeat(res: Response): () => void {
   const timer = setInterval(() => {
     res.write(':heartbeat\n\n');
@@ -45,6 +72,8 @@ export class AiController {
   constructor(
     private readonly aiService: AiService,
     @Optional() private readonly userQuota?: UserQuotaService,
+    @Optional() private readonly editorEditOutbox?: EditorEditOutbox,
+    @Optional() private readonly clarifications?: PendingClarificationStore,
   ) {}
 
   @Get('config')
@@ -70,10 +99,14 @@ export class AiController {
   @ApiOperation({ summary: 'Persist editor AI conversation for one template' })
   saveEditorConversation(
     @Param('templateId') templateId: string,
-    @Body() body: SaveEditorAiConversationInput,
+    @Body() body: SaveEditorConversationDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.aiService.saveEditorConversation(req.user.sub, templateId, body);
+    return this.aiService.saveEditorConversation(
+      req.user.sub,
+      templateId,
+      body as SaveEditorAiConversationInput,
+    );
   }
 
   @Post('stream')
@@ -86,7 +119,7 @@ export class AiController {
     },
   })
   async streamProxy(
-    @Body() body: StreamRequest,
+    @Body() body: AiChatRequestDto,
     @Req() req: AuthenticatedRequest,
     @Res() res: Response,
   ): Promise<void> {
@@ -117,22 +150,22 @@ export class AiController {
     res.flushHeaders();
 
     const stopHeartbeat = startSseHeartbeat(res);
+    const quotaRefund = trackUnusedChatQuota(
+      Boolean(this.userQuota && this.aiService.hasConfiguredApiKey()),
+      () => this.userQuota?.releaseFreeChatQuota(req.user.sub),
+    );
 
     const subscription = this.aiService
-      .stream(req.user.sub, body, cacheOptions, (phase, payload) => {
-        // 注入 pipeline stage 事件, 包 envelope 后写入 SSE
-        const type = phase === 'start' ? 'pipeline_stage_start' : 'pipeline_stage_end';
-        const data = serializeSseEvent(type, payload as never);
-        res.write(`data: ${data}\n\n`);
-        this.flushResponse(res);
-      })
+      .stream(req.user.sub, body as StreamRequest, cacheOptions)
       .subscribe({
         next: (event) => {
+          quotaRefund.note(event.data);
           res.write(`data: ${event.data}\n\n`);
           this.flushResponse(res);
         },
         error: (err: unknown) => {
           stopHeartbeat();
+          quotaRefund.finish();
           const message = err instanceof Error ? err.message : String(err);
           res.write(`data: ${JSON.stringify({ type: 'error', message })}\n\n`);
           this.flushResponse(res);
@@ -140,12 +173,14 @@ export class AiController {
         },
         complete: () => {
           stopHeartbeat();
+          quotaRefund.finish();
           res.end();
         },
       });
 
     req.on('close', () => {
       stopHeartbeat();
+      quotaRefund.finish();
       subscription.unsubscribe();
     });
   }
@@ -160,7 +195,7 @@ export class AiController {
     },
   })
   async editorStream(
-    @Body() body: StreamRequest | EditorAgentStreamRequest,
+    @Body() body: AiChatRequestDto,
     @Req() req: AuthenticatedRequest,
     @Res() res: Response,
   ): Promise<void> {
@@ -172,11 +207,13 @@ export class AiController {
         HttpStatus.TOO_MANY_REQUESTS,
       );
     }
-    const isClarificationFollowUp = Boolean(
-      'clarificationChoice' in body && body.clarificationChoice,
-    );
-    if (this.userQuota && this.aiService.hasConfiguredApiKey() && !isClarificationFollowUp) {
-      await this.userQuota.consumeFreeChatQuota(req.user.sub);
+    const conversationHeader = req.headers['x-conversation-id'];
+    const conversationId = typeof conversationHeader === 'string' ? conversationHeader : undefined;
+    const clarificationChoice = body.clarificationChoice;
+    const countExempt =
+      this.clarifications?.consume(req.user.sub, conversationId, clarificationChoice) ?? false;
+    if (this.userQuota && this.aiService.hasConfiguredApiKey()) {
+      await this.userQuota.consumeFreeChatQuota(req.user.sub, { countExempt });
     }
 
     res.setHeader('content-type', 'text/event-stream; charset=utf-8');
@@ -193,35 +230,55 @@ export class AiController {
     res.flushHeaders();
 
     const stopHeartbeat = startSseHeartbeat(res);
+    const quotaRefund = trackUnusedChatQuota(
+      Boolean(this.userQuota && this.aiService.hasConfiguredApiKey() && !countExempt),
+      () => this.userQuota?.releaseFreeChatQuota(req.user.sub),
+    );
 
-    const subscription = this.aiService.streamEditor(req.user.sub, body, cacheOptions).subscribe({
-      next: (event) => {
-        res.write(`data: ${event.data}\n\n`);
-        this.flushResponse(res);
-      },
-      error: (err: unknown) => {
-        stopHeartbeat();
-        const message = err instanceof Error ? err.message : String(err);
-        res.write(`data: ${JSON.stringify({ type: 'error', data: message })}\n\n`);
-        this.flushResponse(res);
-        res.end();
-      },
-      complete: () => {
-        stopHeartbeat();
-        res.end();
-      },
-    });
+    const subscription = this.aiService
+      .streamEditor(req.user.sub, body as StreamRequest | EditorAgentStreamRequest, cacheOptions)
+      .subscribe({
+        next: (event) => {
+          quotaRefund.note(event.data);
+          res.write(`data: ${event.data}\n\n`);
+          this.flushResponse(res);
+        },
+        error: (err: unknown) => {
+          stopHeartbeat();
+          quotaRefund.finish();
+          const message = err instanceof Error ? err.message : String(err);
+          res.write(`data: ${JSON.stringify({ type: 'error', data: message })}\n\n`);
+          this.flushResponse(res);
+          res.end();
+        },
+        complete: () => {
+          stopHeartbeat();
+          quotaRefund.finish();
+          res.end();
+        },
+      });
 
     req.on('close', () => {
       stopHeartbeat();
+      quotaRefund.finish();
       subscription.unsubscribe();
     });
+  }
+
+  @Get('editor-edits/:editId')
+  @ApiOperation({ summary: 'Fetch a large editor edit that was referenced by SSE' })
+  takeEditorEdit(@Param('editId') editId: string, @Req() req: AuthenticatedRequest) {
+    const body = this.editorEditOutbox?.take(req.user.sub, editId) ?? null;
+    if (body === null) {
+      throw new NotFoundException('编辑结果不存在或已读取');
+    }
+    return { body };
   }
 
   @Post('templates')
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   @ApiOperation({ summary: 'Save a generated template to the database' })
-  async saveTemplate(@Body() body: TemplateToolInput, @Req() req: AuthenticatedRequest) {
+  async saveTemplate(@Body() body: SaveGeneratedTemplateDto, @Req() req: AuthenticatedRequest) {
     return this.aiService.saveTemplate(req.user.sub, body);
   }
 

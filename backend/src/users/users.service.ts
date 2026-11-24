@@ -1,16 +1,21 @@
 import {
   BadRequestException,
+  ConflictException,
   Inject,
   Injectable,
   NotFoundException,
+  Optional,
   UnauthorizedException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import { Repository } from 'typeorm';
 
 import {
   TOKEN_USAGE_REPOSITORY,
   type TokenUsageRepository,
 } from '../ai/repositories/tokenUsage.repository';
+import { PublishedSite } from '../sites/entities/publishedSite.entity';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { User, type UserType } from './entities/user.entity';
 import { USER_ACCOUNT_REPOSITORY, type UserAccountRepository } from './repositories';
@@ -63,6 +68,9 @@ export class UsersService {
     private readonly users: UserAccountRepository,
     @Inject(TOKEN_USAGE_REPOSITORY)
     private readonly tokenUsage: TokenUsageRepository,
+    @Optional()
+    @InjectRepository(PublishedSite)
+    private readonly publishedSites?: Repository<PublishedSite>,
   ) {}
 
   // ---------------------------------------------------------------------------
@@ -110,33 +118,46 @@ export class UsersService {
     const user = await this.findEntityById(id);
 
     if (dto.password) {
-      if (!dto.currentPassword) {
-        throw new BadRequestException('currentPassword is required to change password');
-      }
-      if (!user.passwordHash) {
-        throw new BadRequestException('Cannot set password: account has no existing password');
-      }
-
-      // Verify current password (supports both bcrypt and legacy SHA-256 formats)
-      // dto.currentPassword = SHA-256(rawPassword), same as login protocol
-      const isBcryptHash =
-        user.passwordHash.startsWith('$2b$') || user.passwordHash.startsWith('$2a$');
-      if (isBcryptHash) {
-        const valid = await bcrypt.compare(dto.currentPassword, user.passwordHash);
-        if (!valid) {
-          throw new UnauthorizedException('currentPassword is incorrect');
+      if (user.passwordHash) {
+        if (!dto.currentPassword) {
+          throw new BadRequestException('currentPassword is required to change password');
         }
-      } else {
-        // Legacy: direct comparison with stored SHA-256
-        if (user.passwordHash !== dto.currentPassword) {
+        const isBcryptHash =
+          user.passwordHash.startsWith('$2b$') || user.passwordHash.startsWith('$2a$');
+        if (isBcryptHash) {
+          const valid = await bcrypt.compare(dto.currentPassword, user.passwordHash);
+          if (!valid) {
+            throw new UnauthorizedException('currentPassword is incorrect');
+          }
+        } else if (user.passwordHash !== dto.currentPassword) {
           throw new UnauthorizedException('currentPassword is incorrect');
         }
       }
 
-      // Store new password with bcrypt
       user.passwordHash = await bcrypt.hash(dto.password, 12);
+      user.passwordSeal = null;
+      user.tokenVersion += 1;
       if (!user.linkedLogins.includes('local')) {
         user.linkedLogins = [...user.linkedLogins, 'local'];
+      }
+    }
+
+    if (dto.username !== undefined || dto.email !== undefined || dto.phone !== undefined) {
+      const conflict = await this.users.findByRegistrationIdentity({
+        username: dto.username ?? user.username,
+        ...(dto.email !== undefined
+          ? { email: dto.email }
+          : user.email
+            ? { email: user.email }
+            : {}),
+        ...(dto.phone !== undefined
+          ? { phone: dto.phone }
+          : user.phone
+            ? { phone: user.phone }
+            : {}),
+      });
+      if (conflict && conflict.id !== user.id) {
+        throw new ConflictException('用户名、邮箱或手机号已被使用');
       }
     }
 
@@ -156,6 +177,11 @@ export class UsersService {
 
   async remove(id: string): Promise<void> {
     const user = await this.findEntityById(id);
+    user.tokenVersion += 1;
+    await this.users.save(user);
+    if (this.publishedSites) {
+      await this.publishedSites.update({ ownerUserId: id }, { status: 'disabled' });
+    }
     await this.users.remove(user);
   }
 

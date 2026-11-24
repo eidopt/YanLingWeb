@@ -1,4 +1,11 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpException,
+  HttpStatus,
+  Logger,
+} from '@nestjs/common';
 import type { Request, Response } from 'express';
 
 interface ApiErrorBody {
@@ -64,8 +71,13 @@ function extractError(responseBody: unknown, fallback: string): string {
 }
 
 function extractCode(responseBody: unknown, status: number): string {
-  if (isRecord(responseBody) && typeof responseBody.code === 'string') {
-    return responseBody.code;
+  if (isRecord(responseBody)) {
+    if (typeof responseBody.code === 'string') {
+      return responseBody.code;
+    }
+    if (typeof responseBody.errorCode === 'string') {
+      return responseBody.errorCode;
+    }
   }
   return statusToCode(status);
 }
@@ -86,6 +98,8 @@ function extractDetails(responseBody: unknown): unknown {
 
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(ApiExceptionFilter.name);
+
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -95,7 +109,12 @@ export class ApiExceptionFilter implements ExceptionFilter {
     const status = isHttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
     const responseBody = isHttpException ? exception.getResponse() : undefined;
     const fallbackError = statusToError(status);
-    const fallbackMessage = exception instanceof Error ? exception.message : fallbackError;
+    const fallbackMessage =
+      !isHttpException && exception instanceof Error
+        ? '服务器内部错误'
+        : exception instanceof Error
+          ? exception.message
+          : fallbackError;
     const details = extractDetails(responseBody);
     const body: ApiErrorBody = {
       success: false,
@@ -107,6 +126,10 @@ export class ApiExceptionFilter implements ExceptionFilter {
       path: request.originalUrl || request.url,
       ...(details ? { details } : {}),
     };
+
+    if (!isHttpException && exception instanceof Error) {
+      this.logger.error(exception.message, exception.stack);
+    }
 
     response.status(status).json(body);
   }

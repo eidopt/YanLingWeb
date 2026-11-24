@@ -10,6 +10,7 @@ import { AiController } from './ai.controller';
 import { AiService } from './ai.service';
 import { AiTokenUsageEvent } from './entities/aiTokenUsage.entity';
 import { EditorAiConversation } from './entities/editorAiConversation.entity';
+import { PendingClarificationStore } from './pendingClarification.store';
 import { AI_TEMPLATE_PIPELINE_PROVIDER } from './pipelineProvider.port';
 import {
   EDITOR_CONVERSATION_REPOSITORY,
@@ -18,6 +19,7 @@ import {
   TypeOrmTokenUsageRepository,
 } from './repositories';
 import { EditorConversationService } from './services/editorConversation.service';
+import { EditorEditOutbox } from './services/editorEditOutbox.service';
 import { ProviderLogCompactionService } from './services/providerLogCompaction.service';
 import { TokenUsageService } from './services/tokenUsage.service';
 
@@ -34,6 +36,8 @@ import { TokenUsageService } from './services/tokenUsage.service';
     AgentRunnerService,
     TokenUsageService,
     EditorConversationService,
+    EditorEditOutbox,
+    PendingClarificationStore,
     ProviderLogCompactionService,
     {
       provide: EDITOR_CONVERSATION_REPOSITORY,

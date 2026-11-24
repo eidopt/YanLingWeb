@@ -84,7 +84,7 @@ export interface SseEventPayloadByType {
     action: 'created' | 'updated';
     name?: string;
   };
-  edit_request: { data: string };
+  edit_request: { data?: string; editId?: string; bytes?: number };
 }
 
 /** 老 ProviderStreamEvent 之外的新结构化事件 type 集合 (前端订阅口过滤用) */

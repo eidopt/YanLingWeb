@@ -116,8 +116,17 @@ export class LocalDiskTemplateAssetStore implements TemplateAssetStore {
     const assetsRoot = this.resolveTemplateAssetsRoot();
     const templateSegment = safePathSegment(templateId);
     const assetSegment = safePathSegment(assetId);
-    const relativeStorageKey = path.posix.join('generated', templateSegment, `${assetSegment}.png`);
-    const outputPath = path.join(assetsRoot, 'generated', templateSegment, `${assetSegment}.png`);
+    const relativeStorageKey = path.posix.join(
+      'generated',
+      templateSegment,
+      `${assetSegment}.${imageExtension(this.config?.ai.image.outputFormat)}`,
+    );
+    const outputPath = path.join(
+      assetsRoot,
+      'generated',
+      templateSegment,
+      `${assetSegment}.${imageExtension(this.config?.ai.image.outputFormat)}`,
+    );
     return {
       outputPath,
       url: buildTemplateAssetPublicUrl(relativeStorageKey, this.config?.ai.image.publicBaseUrl),
@@ -171,4 +180,14 @@ export function safePathSegment(value: string): string {
     .replace(/[^a-z0-9._-]+/g, '-')
     .replace(/^-+|-+$/g, '');
   return segment || 'asset';
+}
+
+function imageExtension(format: 'png' | 'jpeg' | 'webp' | undefined): string {
+  if (format === 'jpeg') {
+    return 'jpg';
+  }
+  if (format === 'webp') {
+    return 'webp';
+  }
+  return 'png';
 }

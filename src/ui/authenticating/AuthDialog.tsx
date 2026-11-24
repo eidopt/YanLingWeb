@@ -4,7 +4,7 @@ import { authDialogContent as c } from './AuthDialog.content';
 import styles from './AuthDialog.module.css';
 import { WechatQrView } from './WechatQrView';
 import { useAppServices } from 'hooks/useAppServices';
-import { hashPassword } from 'lib/hashPassword';
+import { hashForLogin, hashPassword } from 'lib/hashPassword';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ApiError } from 'services/UserService';
@@ -169,9 +169,21 @@ function LoginForm({
     setError(null);
     setSubmitting(true);
     try {
-      const { nonce } = await userService.requestChallenge();
       const pwdHash = await hashPassword(password);
-      const result = await userService.login(identifier, pwdHash, nonce);
+      const { nonce } = await userService.requestChallenge();
+      const proof = await hashForLogin(nonce, pwdHash);
+      let result;
+      try {
+        result = await userService.login(identifier, proof, nonce);
+      } catch (err) {
+        if (!(err instanceof ApiError) || err.errorCode !== 'LEGACY_PASSWORD_REQUIRED') {
+          throw err;
+        }
+        const nextChallenge = await userService.requestChallenge();
+        result = await userService.login(identifier, pwdHash, nextChallenge.nonce, {
+          legacyUpgrade: true,
+        });
+      }
       authService.save(result);
       onClose(successRedirect);
     } catch (err) {

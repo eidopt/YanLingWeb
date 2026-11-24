@@ -21,6 +21,7 @@ export class ApiError extends Error {
 interface ErrorResponseBody {
   message?: string | { errorCode?: string; message?: string } | null;
   errorCode?: string;
+  code?: string;
   statusCode?: number;
   error?: string;
 }
@@ -40,7 +41,10 @@ function extractError(res: Response, data: ErrorResponseBody): ApiError {
     message = `请求失败 (${res.status})`;
   }
 
-  // Top-level errorCode takes precedence (HttpException direct-object format)
+  // Top-level error code from ApiExceptionFilter, plus legacy errorCode fields.
+  if (!errorCode && typeof data.code === 'string') {
+    errorCode = data.code;
+  }
   if (!errorCode && typeof data.errorCode === 'string') {
     errorCode = data.errorCode;
   }
@@ -98,8 +102,18 @@ export class UserService {
     return this.get('/auth/challenge');
   }
 
-  login(identifier: string, password: string, nonce: string): Promise<AuthResponseDto> {
-    return this.post<AuthResponseDto>('/login', { identifier, password, nonce });
+  login(
+    identifier: string,
+    password: string,
+    nonce: string,
+    options?: { legacyUpgrade?: boolean },
+  ): Promise<AuthResponseDto> {
+    return this.post<AuthResponseDto>('/login', {
+      identifier,
+      password,
+      nonce,
+      ...(options?.legacyUpgrade ? { legacyUpgrade: true } : {}),
+    });
   }
 
   register(dto: { username: string; password: string; email?: string }): Promise<AuthResponseDto> {

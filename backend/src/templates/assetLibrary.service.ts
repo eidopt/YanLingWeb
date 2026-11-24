@@ -160,7 +160,7 @@ export class AssetLibraryService implements OnModuleInit {
   private cacheExpiresAt = 0;
   private cacheGeneration = 0;
   private indexLoadPromise: Promise<AssetLibraryImage[]> | null = null;
-  private embeddingUnavailable = false;
+  private embeddingCooldownUntil = 0;
 
   constructor(
     @InjectRepository(AssetLibraryImage)
@@ -404,11 +404,7 @@ export class AssetLibraryService implements OnModuleInit {
       }
 
       const candidateGroup = normalizeRoleGroup(img.role);
-      if (
-        wantedGroup !== 'other' &&
-        candidateGroup !== 'other' &&
-        candidateGroup !== wantedGroup
-      ) {
+      if (wantedGroup !== 'other' && candidateGroup !== 'other' && candidateGroup !== wantedGroup) {
         continue;
       }
 
@@ -602,7 +598,7 @@ export class AssetLibraryService implements OnModuleInit {
    * 用独立的 ai.embedding 配置（默认 OpenAI），与库现有向量同源，不受主 chat provider 影响。
    */
   private async computeEmbedding(text: string): Promise<number[] | null> {
-    if (this.embeddingUnavailable) {
+    if (Date.now() < this.embeddingCooldownUntil) {
       return null;
     }
     const { apiKey, model, baseUrl } = this.config.ai.embedding;
@@ -612,7 +608,7 @@ export class AssetLibraryService implements OnModuleInit {
     try {
       return await embedText({ apiKey, baseUrl, model }, text);
     } catch (error) {
-      this.embeddingUnavailable = true;
+      this.embeddingCooldownUntil = Date.now() + 60_000;
       this.logger.warn(
         `embed unavailable (switching to lexical asset matching): ${
           error instanceof Error ? error.message : String(error)

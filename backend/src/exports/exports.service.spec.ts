@@ -1,6 +1,6 @@
 /// <reference types="jest" />
 
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 import { ExportRecord } from './entities/exportRecord.entity';
 import { ExportsService } from './exports.service';
@@ -70,5 +70,19 @@ describe('ExportsService repository boundary', () => {
 
     expect(repo.findOneForOwner.mock.calls).toEqual([['owner-1', 'export-1']]);
     expect(repo.remove.mock.calls).toEqual([[record]]);
+  });
+
+  it('rejects project names that escape the export directory before writing', async () => {
+    const repo = createRepositoryMock();
+    const service = new ExportsService(repo);
+
+    await expect(
+      service.create('owner-1', {
+        projectName: '../outside',
+        themeId: 'theme-1',
+        layoutJson: {},
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(repo.createSaving.mock.calls).toEqual([]);
   });
 });

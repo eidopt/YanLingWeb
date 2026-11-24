@@ -1,10 +1,16 @@
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
 
-import { Controller, Get, NotFoundException, Req, Res } from '@nestjs/common';
+import { Controller, Get, Inject, NotFoundException, Req, Res } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 
+import { ConfigService } from '../config/config.service';
+import { assetSignatureMatches } from './assetSignature';
+import {
+  TEMPLATE_PERSISTENCE_REPOSITORY,
+  type TemplatePersistenceRepository,
+} from './repositories';
 import { resolveTemplateAssetsRoot } from './templateAssetStore';
 
 const CONTENT_TYPES_BY_EXT: Record<string, string> = {
@@ -29,6 +35,12 @@ const CONTENT_TYPES_BY_EXT: Record<string, string> = {
 @ApiTags('templates')
 @Controller('template-assets')
 export class TemplateAssetsController {
+  constructor(
+    private readonly config: ConfigService,
+    @Inject(TEMPLATE_PERSISTENCE_REPOSITORY)
+    private readonly templates: TemplatePersistenceRepository,
+  ) {}
+
   @Get('*')
   @ApiOperation({ summary: 'Serve generated or pooled template asset image files' })
   async getAsset(@Req() req: Request, @Res() res: Response): Promise<void> {
@@ -58,6 +70,9 @@ export class TemplateAssetsController {
     if (!targetPath.startsWith(`${assetsRoot}${path.sep}`)) {
       throw new NotFoundException('Asset not found');
     }
+    if (!(await this.canReadGeneratedAsset(decodedRelativePath, req))) {
+      throw new NotFoundException('Asset not found');
+    }
 
     let bytes: Buffer;
     try {
@@ -78,5 +93,22 @@ export class TemplateAssetsController {
     res.setHeader('Content-Type', contentType);
     res.setHeader('Cache-Control', 'public, max-age=3600');
     res.send(bytes);
+  }
+
+  private async canReadGeneratedAsset(relativePath: string, req: Request): Promise<boolean> {
+    const match = /^generated\/([^/]+)\//.exec(relativePath);
+    if (!match?.[1]) {
+      return true;
+    }
+    const template = await this.templates.findByTemplateId(match[1]);
+    if (template?.isPublic === true) {
+      return true;
+    }
+    return assetSignatureMatches(
+      this.config.jwt.secret,
+      relativePath,
+      req.query.exp,
+      req.query.sig,
+    );
   }
 }

@@ -28,6 +28,8 @@ export interface TemplateAgentConfigRecords {
 
 export interface TemplatePersistenceStore {
   saveTemplate(template: Template): Promise<Template>;
+  findByTemplateId(templateId: string): Promise<Template | null>;
+  existsByTemplateId(templateId: string): Promise<boolean>;
   findAgentConfig(templateId: string): Promise<TemplateAgentConfigRecords>;
   generatedProfileExists(templateId: string): Promise<boolean>;
   upsertAgentConfig(templateId: string, input: TemplateAgentConfigInput): Promise<void>;

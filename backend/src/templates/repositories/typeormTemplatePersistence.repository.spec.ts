@@ -3,7 +3,7 @@
 import type { EntityManager, Repository } from 'typeorm';
 import { IsNull } from 'typeorm';
 
-import { User } from '../../users/entities/user.entity';
+import type { UserAccountRepository } from '../../users/repositories/userAccount.repository';
 import { Template } from '../entities/template.entity';
 import { TemplateAgentPermissions } from '../entities/templateAgentPermissions.entity';
 import { TemplateAssetManifest } from '../entities/templateAssetManifest.entity';
@@ -92,7 +92,7 @@ interface Harness {
   assetManifestRepo: RepoMock;
   agentPermissionsRepo: RepoMock;
   evaluationSpecRepo: RepoMock;
-  userRepo: RepoMock;
+  userAccounts: { listIds: jest.Mock };
 }
 
 function createHarness(): Harness {
@@ -102,7 +102,7 @@ function createHarness(): Harness {
   const assetManifestRepo = makeRepoMock();
   const agentPermissionsRepo = makeRepoMock();
   const evaluationSpecRepo = makeRepoMock();
-  const userRepo = makeRepoMock();
+  const userAccounts = { listIds: jest.fn<Promise<string[]>, []>() };
 
   const repository = new TypeOrmTemplatePersistenceRepository(
     templateRepo as unknown as Repository<Template>,
@@ -111,7 +111,7 @@ function createHarness(): Harness {
     assetManifestRepo as unknown as Repository<TemplateAssetManifest>,
     agentPermissionsRepo as unknown as Repository<TemplateAgentPermissions>,
     evaluationSpecRepo as unknown as Repository<TemplateEvaluationSpec>,
-    userRepo as unknown as Repository<User>,
+    userAccounts as unknown as UserAccountRepository,
   );
 
   return {
@@ -122,7 +122,7 @@ function createHarness(): Harness {
     assetManifestRepo,
     agentPermissionsRepo,
     evaluationSpecRepo,
-    userRepo,
+    userAccounts,
   };
 }
 
@@ -348,10 +348,15 @@ describe('TypeOrmTemplatePersistenceRepository', () => {
         displayCategory: 'shop',
       });
       expect(qb.andWhere).toHaveBeenCalledWith('t.primaryFunctionalCategory = :fc', { fc: 'cart' });
-      expect(qb.andWhere).toHaveBeenCalledWith('t.platformCategories LIKE :pc', { pc: '%web%' });
-      expect(qb.andWhere).toHaveBeenCalledWith(expect.stringContaining('LOWER(t.name) LIKE :q'), {
-        q: '%coffee%',
+      expect(qb.andWhere).toHaveBeenCalledWith(`t.platformCategories LIKE :pc ESCAPE '\\'`, {
+        pc: '%"web"%',
       });
+      expect(qb.andWhere).toHaveBeenCalledWith(
+        expect.stringContaining(`LOWER(t.name) LIKE :q ESCAPE '\\'`),
+        {
+          q: '%coffee%',
+        },
+      );
       expect(qb.orderBy).toHaveBeenCalledWith('t.createdAt', 'ASC');
       expect(qb.getMany).toHaveBeenCalledTimes(1);
     });
@@ -493,10 +498,10 @@ describe('TypeOrmTemplatePersistenceRepository', () => {
   describe('findAllUserIds', () => {
     it('selects only id from the user repo and maps to a string array', async () => {
       const h = createHarness();
-      h.userRepo.find.mockResolvedValue([{ id: 'u1' }, { id: 'u2' }]);
+      h.userAccounts.listIds.mockResolvedValue(['u1', 'u2']);
 
       await expect(h.repository.findAllUserIds()).resolves.toEqual(['u1', 'u2']);
-      expect(h.userRepo.find).toHaveBeenCalledWith({ select: { id: true } });
+      expect(h.userAccounts.listIds).toHaveBeenCalledWith();
     });
   });
 

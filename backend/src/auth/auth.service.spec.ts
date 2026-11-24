@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -17,6 +18,7 @@ import type {
   UserAccountUpdate,
 } from '../users/repositories';
 import { AuthService } from './auth.service';
+import { loginProof, sealPassword } from './passwordSeal';
 
 jest.mock('bcrypt', () => ({
   compare: jest.fn(),
@@ -103,6 +105,22 @@ class FakeUserAccountRepository implements UserAccountRepository {
     }
     user.freeTemplateGenUsedCount += 1;
     return Promise.resolve(true);
+  }
+
+  releaseFreeChatQuota(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  releaseFreeTemplateGenQuota(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  debitTokens(): Promise<number> {
+    return Promise.resolve(0);
+  }
+
+  listIds(): Promise<string[]> {
+    return Promise.resolve([...this.users.keys()]);
   }
 }
 
@@ -224,6 +242,47 @@ describe('AuthService', () => {
     ).rejects.toBeInstanceOf(UnauthorizedException);
   });
 
+  it('rejects a reused static password hash after the account is sealed', async () => {
+    const { service, users } = createService();
+    const staticHash = 'ab'.repeat(32);
+    users.loginUser = createUser({
+      passwordHash: '$2b$stored-hash',
+      passwordSeal: sealPassword('jwt-test-secret', staticHash),
+    });
+    const captured = service.issueChallenge();
+
+    await expect(
+      service.login({
+        identifier: 'alice',
+        password: staticHash,
+        nonce: captured.nonce,
+      }),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
+
+    const challenge = service.issueChallenge();
+    await expect(
+      service.login({
+        identifier: 'alice',
+        password: loginProof(challenge.nonce, staticHash),
+        nonce: challenge.nonce,
+      }),
+    ).resolves.toMatchObject({ user: { id: 'user-1' } });
+  });
+
+  it('rejects inactive accounts after the password matches', async () => {
+    const { service, users } = createService();
+    users.loginUser = createUser({ isActive: false, passwordHash: '$2b$stored-hash' });
+    const challenge = service.issueChallenge();
+
+    await expect(
+      service.login({
+        identifier: 'alice',
+        password: 'sha256-password',
+        nonce: challenge.nonce,
+      }),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
   it('rejects invalid credentials after consuming the nonce', async () => {
     const { service, users } = createService();
     users.loginUser = createUser({ passwordHash: '$2b$stored-hash' });
@@ -315,10 +374,14 @@ describe('AuthService', () => {
     });
 
     expect(bcryptHash.mock.calls).toEqual([['legacy-sha256', 12]]);
-    expect(users.updates).toEqual([
-      { id: 'user-1', patch: { passwordHash: '$2b$hashed-password' } },
-      { id: 'user-1', patch: { lastLoginAt: anyDate } },
-    ]);
+    expect(users.updates).toHaveLength(1);
+    expect(users.updates[0]).toMatchObject({
+      id: 'user-1',
+      patch: {
+        passwordHash: '$2b$hashed-password',
+        lastLoginAt: anyDate,
+      },
+    });
   });
 
   it('does not fail legacy login when the best-effort bcrypt upgrade fails', async () => {
@@ -376,7 +439,7 @@ describe('AuthService', () => {
     ).resolves.toMatchObject({
       user: {
         id: 'created-wechat-user',
-        username: 'wechat_wx-openi',
+        username: expect.stringMatching(/^wechat_wx-openi_[a-f0-9]{6}$/) as string,
         linkedLogins: ['wechat'],
       },
     });

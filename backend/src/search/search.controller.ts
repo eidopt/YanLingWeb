@@ -3,11 +3,8 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { AuthenticatedRequest } from '../auth/authenticatedRequest.interface';
 import { JwtAuthGuard } from '../auth/jwtAuth.guard';
+import { SearchInputDto } from './dto/search.dto';
 import { SearchService } from './search.service';
-
-interface SearchInputBody {
-  query?: unknown;
-}
 
 @ApiTags('search')
 @Controller('search')
@@ -18,7 +15,7 @@ export class SearchController {
   @HttpCode(200)
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Route a homepage search or creation intent' })
-  submit(@Req() req: AuthenticatedRequest, @Body() body: SearchInputBody) {
-    return this.service.handleInput(req.user.sub, typeof body.query === 'string' ? body.query : '');
+  submit(@Req() req: AuthenticatedRequest, @Body() body: SearchInputDto) {
+    return this.service.handleInput(req.user.sub, body.query ?? '');
   }
 }

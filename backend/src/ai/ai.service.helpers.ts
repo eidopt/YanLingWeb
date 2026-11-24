@@ -109,6 +109,13 @@ export const RATE_LIMIT_MAX = 10;
  */
 export function checkRateLimit(rateLimitMap: Map<string, RateLimitEntry>, userId: string): void {
   const now = Date.now();
+  if (rateLimitMap.size > 256) {
+    for (const [key, value] of rateLimitMap) {
+      if (now > value.resetAt) {
+        rateLimitMap.delete(key);
+      }
+    }
+  }
   const entry = rateLimitMap.get(userId);
 
   if (!entry || now > entry.resetAt) {

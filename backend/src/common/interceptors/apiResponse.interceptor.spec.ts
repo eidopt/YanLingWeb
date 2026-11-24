@@ -27,7 +27,7 @@ function createContext(path = '/api/templates') {
 describe('ApiResponseInterceptor', () => {
   const interceptor = new ApiResponseInterceptor();
 
-  it('wraps object payloads while preserving legacy top-level fields', async () => {
+  it('wraps object payloads inside data without repeating them at the root', async () => {
     const { context } = createContext('/api/users/me');
     const result = await lastValueFrom(
       interceptor.intercept(context as never, {
@@ -38,13 +38,12 @@ describe('ApiResponseInterceptor', () => {
     expect(result).toMatchObject({
       success: true,
       path: '/api/users/me',
-      id: 'user-1',
-      username: 'demo',
       data: {
         id: 'user-1',
         username: 'demo',
       },
     });
+    expect(result).not.toHaveProperty('id');
     expect(result).toHaveProperty('timestamp', expect.any(String));
   });
 
@@ -72,7 +71,6 @@ describe('ApiResponseInterceptor', () => {
     expect(result).toMatchObject({
       success: true,
       data: [{ id: 'export-1' }],
-      total: 5,
       meta: {
         pagination: {
           total: 5,
@@ -80,6 +78,7 @@ describe('ApiResponseInterceptor', () => {
         },
       },
     });
+    expect(result).not.toHaveProperty('total');
   });
 
   it('bypasses event streams and already wrapped payloads', async () => {

@@ -16,6 +16,7 @@ import { AiService } from '../ai.service';
 import type { AIProvider, ProviderStreamEvent } from '../core/providers/types';
 import type { EditorConversationRepository } from '../repositories/editorConversation.repository';
 import { EditorConversationService } from './editorConversation.service';
+import { EditorEditOutbox } from './editorEditOutbox.service';
 import { ProviderLogCompactionService } from './providerLogCompaction.service';
 import type { TokenUsageService } from './tokenUsage.service';
 
@@ -149,6 +150,7 @@ function createService(): { service: AiService; recordSpy: jest.Mock } {
     tokenUsageService,
     editorConversations,
     providerLogCompaction,
+    new EditorEditOutbox(),
   );
 
   // The constructor builds an OpenAI/OpenAICompatible provider based on ai.provider.

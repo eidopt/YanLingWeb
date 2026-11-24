@@ -4,6 +4,7 @@ import type { ThemeLayoutDocument } from '@shared/agent/contracts/agent';
 import { migrateThemeLayoutDocument } from '@shared/theme-layout/migrations';
 import { IsNull, Repository } from 'typeorm';
 
+import { likeContains } from '../../shared/likePattern';
 import { Template } from '../entities/template.entity';
 import type {
   TemplateAccessibleIdentity,
@@ -35,11 +36,11 @@ export class TypeOrmTemplateReadRepository implements TemplateReadRepository {
 
       input.keywords.forEach((kw, i) => {
         const param = `kw${i}`;
-        params[param] = `%${kw}%`;
+        params[param] = likeContains(kw.toLowerCase());
         conditions.push(
-          `(LOWER(t.name) LIKE :${param}` +
-            ` OR LOWER(t.tagline) LIKE :${param}` +
-            ` OR LOWER(t.searchText) LIKE :${param})`,
+          `(LOWER(t.name) LIKE :${param} ESCAPE '\\'` +
+            ` OR LOWER(t.tagline) LIKE :${param} ESCAPE '\\'` +
+            ` OR LOWER(t.searchText) LIKE :${param} ESCAPE '\\')`,
         );
       });
 

@@ -196,4 +196,5 @@ export type PipelineStageEventCallback = (
 export interface PipelineGenerateOptions {
   onStageEvent?: PipelineStageEventCallback;
   ownerUserId?: string;
+  signal?: AbortSignal;
 }

@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException, Optional } from '@nestjs/common';
 import type { ThemeLayoutDocument } from '@shared/agent/contracts/agent';
 import { type SseEventType } from '@shared/agent/contracts/sseEvents';
 import {
@@ -21,6 +21,7 @@ import {
   type TemplateAgentKnowledgeServicePort,
 } from '../templates/templateAgentKnowledge.service';
 import { TemplatesService } from '../templates/templates.service';
+import { TOKEN_BALANCE_EXHAUSTED_MESSAGE } from '../users/services/userQuota.service';
 import { hashJson } from './agentRunner.helpers';
 import {
   assertEditorOperations,
@@ -31,7 +32,6 @@ import {
   editorToolSpecs,
   extractClarificationChoiceText,
   isEditorAgentStreamRequest,
-  type PipelineStagePayload,
   type ProviderCacheOptions,
   type RateLimitEntry,
   type SaveGeneratedTemplateResult,
@@ -47,15 +47,17 @@ import {
   buildEditorClarification,
   formatBoundEditorTarget,
 } from './editorClarification';
+import { PendingClarificationStore } from './pendingClarification.store';
 import { AI_SEMANTIC_TARGETS, type AiSemanticTargetConfig } from './semanticTargets.config';
 import {
   type EditorAiConversationDto,
   EditorConversationService,
   type SaveEditorAiConversationInput,
 } from './services/editorConversation.service';
+import { EditorEditOutbox } from './services/editorEditOutbox.service';
 import { ProviderLogCompactionService } from './services/providerLogCompaction.service';
 import { type AiCacheStatsDto, TokenUsageService } from './services/tokenUsage.service';
-import { serializeSseEvent } from './sse/sseEnvelope';
+import { fitsSseFrame, serializeSseEvent } from './sse/sseEnvelope';
 import {
   EDITOR_EDIT_TOOL_NAMES,
   EDITOR_EDIT_TOOLS,
@@ -109,6 +111,8 @@ export class AiService {
     private readonly tokenUsageService: TokenUsageService,
     private readonly editorConversations: EditorConversationService,
     private readonly providerLogCompaction: ProviderLogCompactionService,
+    private readonly editorEditOutbox: EditorEditOutbox,
+    @Optional() private readonly clarifications?: PendingClarificationStore,
   ) {
     const apiKey = this.config.ai.apiKey ?? '';
 
@@ -238,48 +242,32 @@ export class AiService {
     return this.tokenUsageService.getCacheStats(ownerUserId);
   }
 
-  /** 临时存储 runStream 期间的 stage 回调 — 真正的调用方是 AiController.streamProxy */
-  private readonly activeStreamStageCallbacks = new WeakMap<
-    StreamRequest,
-    ((phase: 'start' | 'end', payload: PipelineStagePayload) => void) | undefined
-  >();
-
   /** Proxy a streaming OpenAI-compatible Responses API request, forwarding events as SSE */
   stream(
     ownerUserId: string,
     req: StreamRequest,
     cacheOptions?: ProviderCacheOptions,
-    onPipelineStageEvent?: (phase: 'start' | 'end', payload: PipelineStagePayload) => void,
   ): Observable<StreamSseEvent> {
     return new Observable<StreamSseEvent>((subscriber) => {
       const subject = new Subject<StreamSseEvent>();
+      const abortController = new AbortController();
       const relay = subject.subscribe({
         next: (event) => subscriber.next(event),
         error: (err) => subscriber.error(err),
         complete: () => subscriber.complete(),
       });
 
-      // 包装回调: 调用方传 onPipelineStageEvent 时, 内部用 try/catch 防止吞掉异常
-      const safeOnStage = onPipelineStageEvent
-        ? (phase: 'start' | 'end', payload: PipelineStagePayload) => {
-            try {
-              onPipelineStageEvent(phase, payload);
-            } catch (e) {
-              this.logger.warn(`onPipelineStageEvent threw: ${(e as Error).message}`);
-            }
-          }
-        : undefined;
-      this.activeStreamStageCallbacks.set(req, safeOnStage);
-
-      void this.runStream(ownerUserId, req, subject, cacheOptions).catch((err) => {
-        const msg = err instanceof Error ? err.message : String(err);
-        this.emitStreamEvent(subject, { type: 'error', message: msg });
-        subject.complete();
-      });
+      void this.runStream(ownerUserId, req, subject, cacheOptions, abortController.signal).catch(
+        (err) => {
+          const msg = err instanceof Error ? err.message : String(err);
+          this.emitStreamEvent(subject, { type: 'error', message: msg });
+          subject.complete();
+        },
+      );
 
       return () => {
+        abortController.abort();
         relay.unsubscribe();
-        this.activeStreamStageCallbacks.delete(req);
         subject.complete();
       };
     });
@@ -328,6 +316,7 @@ export class AiService {
     req: StreamRequest,
     subject: Subject<StreamSseEvent>,
     cacheOptions?: ProviderCacheOptions,
+    signal?: AbortSignal,
   ): Promise<void> {
     if (!this.apiKeyConfigured) {
       this.emitStreamEvent(subject, {
@@ -339,9 +328,16 @@ export class AiService {
     }
 
     const model = this.resolveConfiguredModel(req.model);
-    const request = withRequestScopedCache(this.provider, { ...req, model }, cacheOptions);
+    const request = withRequestScopedCache(
+      this.provider,
+      { ...req, model, ...(signal ? { signal } : {}) },
+      cacheOptions,
+    );
 
     for await (const event of this.provider.stream(request)) {
+      if (signal?.aborted || subject.closed) {
+        break;
+      }
       if (event.type === 'done' && event.usage) {
         this.tokenUsageService.logCacheUsage(ownerUserId, model, event.usage, 'stream');
         await this.tokenUsageService.recordTokenUsage(
@@ -381,6 +377,32 @@ export class AiService {
       document,
       ...(requestedTemplateId ? { templateId: requestedTemplateId } : {}),
     });
+  }
+
+  private async recordEditorUsage(
+    ownerUserId: string,
+    model: string,
+    subject: Subject<StreamSseEvent>,
+    usage: {
+      inputTokens: number;
+      outputTokens: number;
+      cacheHitTokens?: number;
+      cacheMissTokens?: number;
+    },
+    markExhausted: () => void,
+  ): Promise<void> {
+    const remaining = await this.tokenUsageService.recordTokenUsage(
+      ownerUserId,
+      model,
+      usage,
+      'editor',
+      this.aiConfig.provider,
+    );
+    this.tokenUsageService.logCacheUsage(ownerUserId, model, usage, 'editor');
+    if (remaining === 0) {
+      markExhausted();
+      this.emitEditorEvent(subject, 'error', { message: TOKEN_BALANCE_EXHAUSTED_MESSAGE });
+    }
   }
 
   private emitStreamEvent(subject: Subject<StreamSseEvent>, event: ProviderStreamEvent): void {
@@ -453,6 +475,7 @@ export class AiService {
         previousResponseId,
       },
     );
+    let balanceExhausted = false;
     let lastUsage:
       | {
           inputTokens: number;
@@ -467,7 +490,7 @@ export class AiService {
       tools: editorTools,
       toolSpecs: editorToolSpecs(editorTools),
       maxIterations: this.config.ai.editorAgentMaxIterations,
-      isCancelled: () => subject.closed || Boolean(signal?.aborted),
+      isCancelled: () => subject.closed || Boolean(signal?.aborted) || balanceExhausted,
       ...(signal ? { signal } : {}),
       onTextDelta: (text) => {
         this.emitEditorEvent(subject, 'text_delta', { text });
@@ -498,15 +521,13 @@ export class AiService {
       },
       onUsage: (usage) => {
         lastUsage = usage;
-        return this.tokenUsageService
-          .recordTokenUsage(ownerUserId, model, usage, 'editor', this.aiConfig.provider)
-          .then(() => {
-            this.tokenUsageService.logCacheUsage(ownerUserId, model, usage, 'editor');
-          });
+        return this.recordEditorUsage(ownerUserId, model, subject, usage, () => {
+          balanceExhausted = true;
+        });
       },
       ...(scopedRequest.cache ? { requestCache: scopedRequest.cache } : {}),
       ...(scopedRequest.cacheKey ? { requestCacheKey: scopedRequest.cacheKey } : {}),
-      toolExecutor: (name, args) => this.executeEditorTool(subject, name, args),
+      toolExecutor: (name, args) => this.executeEditorTool(subject, ownerUserId, name, args),
     });
 
     const result = await loop.run(scopedRequest.messages);
@@ -553,6 +574,12 @@ export class AiService {
       clarificationChoice: req.clarificationChoice,
     });
     if (clarification) {
+      this.clarifications?.remember(
+        ownerUserId,
+        cacheOptions?.conversationId,
+        clarification.options,
+        Boolean(clarification.allowCustom),
+      );
       this.emitEditorEvent(subject, 'clarification', {
         question: clarification.question,
         options: clarification.options,
@@ -625,6 +652,7 @@ export class AiService {
         previousResponseId,
       },
     );
+    let balanceExhausted = false;
     let lastUsage:
       | {
           inputTokens: number;
@@ -639,7 +667,7 @@ export class AiService {
       tools: editorTools,
       toolSpecs: editorToolSpecs(editorTools),
       maxIterations: this.config.ai.editorAgentMaxIterations,
-      isCancelled: () => subject.closed || Boolean(signal?.aborted),
+      isCancelled: () => subject.closed || Boolean(signal?.aborted) || balanceExhausted,
       ...(signal ? { signal } : {}),
       onTextDelta: (text) => {
         this.emitEditorEvent(subject, 'text_delta', { text });
@@ -670,17 +698,16 @@ export class AiService {
       },
       onUsage: (usage) => {
         lastUsage = usage;
-        return this.tokenUsageService
-          .recordTokenUsage(ownerUserId, model, usage, 'editor', this.aiConfig.provider)
-          .then(() => {
-            this.tokenUsageService.logCacheUsage(ownerUserId, model, usage, 'editor');
-          });
+        return this.recordEditorUsage(ownerUserId, model, subject, usage, () => {
+          balanceExhausted = true;
+        });
       },
       ...(scopedRequest.cache ? { requestCache: scopedRequest.cache } : {}),
       ...(scopedRequest.cacheKey ? { requestCacheKey: scopedRequest.cacheKey } : {}),
       toolExecutor: (name, args) =>
         this.executeEditorTool(
           subject,
+          ownerUserId,
           name,
           args,
           { document: req.document },
@@ -769,6 +796,7 @@ export class AiService {
 
   private executeEditorTool(
     subject: Subject<StreamSseEvent>,
+    ownerUserId: string,
     name: string,
     args: Record<string, unknown>,
     snapshot?: { document: ThemeLayoutDocument },
@@ -790,6 +818,7 @@ export class AiService {
       const compiledEdit = compileSemanticEditorOperations(edit, snapshot?.document, profile);
       assertEditorOperations(compiledEdit);
       const operations = Array.isArray(compiledEdit.operations) ? compiledEdit.operations : [];
+      let nextDocument: ThemeLayoutDocument | undefined;
       if (snapshot?.document) {
         const missing = firstMissingExistingNode(snapshot.document, operations);
         if (missing) {
@@ -803,11 +832,19 @@ export class AiService {
             }),
           });
         }
-        snapshot.document = committed.document;
+        nextDocument = committed.document;
       }
-      this.emitEditorEvent(subject, 'edit_request', {
-        data: JSON.stringify(compiledEdit),
-      });
+      const delivered = this.deliverEditorEdit(subject, ownerUserId, compiledEdit);
+      if (!delivered) {
+        return Promise.resolve({
+          output: JSON.stringify({
+            error: 'Edit instructions were too large to deliver to the editor.',
+          }),
+        });
+      }
+      if (snapshot && nextDocument) {
+        snapshot.document = nextDocument;
+      }
       return Promise.resolve({
         output: JSON.stringify({
           success: true,
@@ -822,6 +859,27 @@ export class AiService {
         }),
       });
     }
+  }
+
+  private deliverEditorEdit(
+    subject: Subject<StreamSseEvent>,
+    ownerUserId: string,
+    compiledEdit: { operations?: unknown; warnings?: unknown; reason?: unknown },
+  ): boolean {
+    const data = JSON.stringify(compiledEdit);
+    const inline = { data };
+    if (fitsSseFrame('edit_request', inline)) {
+      this.emitEditorEvent(subject, 'edit_request', inline);
+      return true;
+    }
+
+    const editId = this.editorEditOutbox.put(ownerUserId, data);
+    const reference = { editId, bytes: data.length };
+    if (!fitsSseFrame('edit_request', reference)) {
+      return false;
+    }
+    this.emitEditorEvent(subject, 'edit_request', reference);
+    return true;
   }
 
   async saveTemplate(

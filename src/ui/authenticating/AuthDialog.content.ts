@@ -56,6 +56,7 @@ export const authDialogContent = {
       INVALID_CREDENTIALS: '账号或密码错误',
       INVALID_NONCE: '登录会话已过期，请重新登录',
       ALREADY_EXISTS: '用户名、邮箱或手机号已被使用',
+      ACCOUNT_DISABLED: '账号已停用',
       VALIDATION_ERROR: '输入格式不正确',
     } as Record<string, string>,
   },
