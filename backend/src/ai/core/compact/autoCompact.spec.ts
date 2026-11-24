@@ -59,6 +59,7 @@ describe('autoCompactIfNeeded', () => {
   });
 
   it('caps auto compaction thresholds below oversized provider windows', () => {
-    expect(getAutoCompactThreshold('deepseek-reasoner')).toBe(500_000);
+    expect(getAutoCompactThreshold('deepseek-reasoner')).toBe(128_000);
+    expect(getAutoCompactThreshold('deepseek-reasoner', 1_000_000)).toBe(500_000);
   });
 });

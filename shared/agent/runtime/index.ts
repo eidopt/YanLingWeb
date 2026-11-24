@@ -60,6 +60,7 @@ export {
   structuralSimilarity,
 } from '../validation/layoutSignature';
 export {
+  compactProviderMessages,
   type PendingToolCall,
   QueryLoop,
   type QueryLoopConfig,

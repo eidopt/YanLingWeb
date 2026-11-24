@@ -3,6 +3,7 @@ import type { ThemeLayoutDocument } from '@shared/agent/contracts/agent';
 import { type SseEventType } from '@shared/agent/contracts/sseEvents';
 import {
   type AgentTemplateKnowledgeContext,
+  buildTemplateProfile,
   commitEditorDocumentSnapshot,
   firstMissingExistingNode,
   QueryLoop,
@@ -42,6 +43,7 @@ import {
 import { OpenAIProvider } from './core/providers/openai.provider';
 import { OpenAICompatibleProvider } from './core/providers/openaiCompatible.provider';
 import type { AIProvider, ProviderMessage, ProviderStreamEvent } from './core/providers/types';
+import { getContextWindow } from './core/utils/tokens';
 import {
   bindEditorEditTarget,
   buildEditorClarification,
@@ -194,8 +196,8 @@ export class AiService {
       cacheHitTokens?: number;
       cacheMissTokens?: number;
     },
-  ): Promise<void> {
-    await this.tokenUsageService.recordTokenUsage(
+  ): Promise<number | undefined> {
+    const remaining = await this.tokenUsageService.recordTokenUsage(
       ownerUserId,
       model,
       usage,
@@ -203,6 +205,7 @@ export class AiService {
       this.aiConfig.provider,
     );
     this.tokenUsageService.logCacheUsage(ownerUserId, model, usage, 'ai-templates');
+    return remaining;
   }
 
   private resolveConfiguredModel(requestedModel?: string): string {
@@ -458,38 +461,30 @@ export class AiService {
       model,
       this.provider.name,
     );
-    const previousResponseId =
-      cacheOptions?.previousResponseId ?? persistedSession?.previousResponseId;
+    const persistedResponseId = persistedSession?.previousResponseId;
     await this.editorConversations.saveEditorProviderSession(
       ownerUserId,
       cacheOptions?.conversationId,
       model,
       this.provider.name,
-      previousResponseId,
+      persistedResponseId,
     );
     const scopedRequest = withRequestScopedCache(
       this.provider,
       { model, messages: req.messages, tools: editorTools },
       {
         conversationId: cacheOptions?.conversationId,
-        previousResponseId,
       },
     );
     let balanceExhausted = false;
-    let lastUsage:
-      | {
-          inputTokens: number;
-          outputTokens: number;
-          cacheHitTokens?: number;
-          cacheMissTokens?: number;
-        }
-      | undefined;
+    let lastUsage = emptyEditorUsage();
     const loop = new QueryLoop({
       provider: this.provider,
       model,
       tools: editorTools,
       toolSpecs: editorToolSpecs(editorTools),
       maxIterations: this.config.ai.editorAgentMaxIterations,
+      maxContextTokens: getContextWindow(model, this.aiConfig.contextWindow),
       isCancelled: () => subject.closed || Boolean(signal?.aborted) || balanceExhausted,
       ...(signal ? { signal } : {}),
       onTextDelta: (text) => {
@@ -520,7 +515,7 @@ export class AiService {
         this.emitEditorEvent(subject, 'error', { message: msg });
       },
       onUsage: (usage) => {
-        lastUsage = usage;
+        lastUsage = addEditorUsage(lastUsage, usage);
         return this.recordEditorUsage(ownerUserId, model, subject, usage, () => {
           balanceExhausted = true;
         });
@@ -536,12 +531,12 @@ export class AiService {
       cacheOptions?.conversationId,
       model,
       this.provider.name,
-      result.responseId ?? previousResponseId,
+      result.responseId ?? persistedResponseId,
     );
     if (result.stopReason === 'error') {
       this.emitEditorEvent(subject, 'error', { message: result.error ?? 'Unknown error' });
     }
-    if (lastUsage) {
+    if (lastUsage.inputTokens > 0 || lastUsage.outputTokens > 0) {
       this.emitEditorEvent(subject, 'usage_summary', { model, usage: lastUsage });
     }
     this.emitEditorEvent(subject, 'done', { stopReason: result.stopReason });
@@ -612,14 +607,13 @@ export class AiService {
           .loadLastPrefixHash(ownerUserId, resolvedTemplateId)
           .catch(() => null)
       : null;
-    const previousResponseId =
-      cacheOptions?.previousResponseId ?? persistedSession?.previousResponseId;
+    const persistedResponseId = persistedSession?.previousResponseId;
     await this.editorConversations.saveEditorProviderSession(
       ownerUserId,
       cacheOptions?.conversationId,
       model,
       this.provider.name,
-      previousResponseId,
+      persistedResponseId,
     );
     const templateKnowledge = await this.loadTemplateAgentKnowledge(
       ownerUserId,
@@ -649,24 +643,18 @@ export class AiService {
       { model, messages, tools: editorTools },
       {
         conversationId: cacheOptions?.conversationId,
-        previousResponseId,
       },
     );
     let balanceExhausted = false;
-    let lastUsage:
-      | {
-          inputTokens: number;
-          outputTokens: number;
-          cacheHitTokens?: number;
-          cacheMissTokens?: number;
-        }
-      | undefined;
+    let lastUsage = emptyEditorUsage();
+    const profileBox: { profile?: TemplateProfile } = { profile: effectiveTemplateProfile };
     const loop = new QueryLoop({
       provider: this.provider,
       model,
       tools: editorTools,
       toolSpecs: editorToolSpecs(editorTools),
       maxIterations: this.config.ai.editorAgentMaxIterations,
+      maxContextTokens: getContextWindow(model, this.aiConfig.contextWindow),
       isCancelled: () => subject.closed || Boolean(signal?.aborted) || balanceExhausted,
       ...(signal ? { signal } : {}),
       onTextDelta: (text) => {
@@ -697,7 +685,7 @@ export class AiService {
         this.emitEditorEvent(subject, 'error', { message: msg });
       },
       onUsage: (usage) => {
-        lastUsage = usage;
+        lastUsage = addEditorUsage(lastUsage, usage);
         return this.recordEditorUsage(ownerUserId, model, subject, usage, () => {
           balanceExhausted = true;
         });
@@ -711,7 +699,7 @@ export class AiService {
           name,
           args,
           { document: req.document },
-          effectiveTemplateProfile,
+          profileBox,
         ),
     });
 
@@ -726,12 +714,12 @@ export class AiService {
       cacheOptions?.conversationId,
       model,
       this.provider.name,
-      result.responseId ?? previousResponseId,
+      result.responseId ?? persistedResponseId,
     );
     if (result.stopReason === 'error') {
       this.emitEditorEvent(subject, 'error', { message: result.error ?? 'Unknown error' });
     }
-    if (lastUsage) {
+    if (lastUsage.inputTokens > 0 || lastUsage.outputTokens > 0) {
       this.emitEditorEvent(subject, 'usage_summary', { model, usage: lastUsage });
     }
     // 缓存诊断 (P0 可观测性): 每轮结束后 emit 一次, 前端可用于诊断 cache 命中率与 prefix 稳定性.
@@ -740,8 +728,8 @@ export class AiService {
     // (editor 流暂未启用 autoCompact).
     {
       const prefixHash = hashJson(prefixMessages);
-      const hit = lastUsage?.cacheHitTokens;
-      const miss = lastUsage?.cacheMissTokens;
+      const hit = lastUsage.cacheHitTokens;
+      const miss = lastUsage.cacheMissTokens;
       const cacheHitRate =
         typeof hit === 'number' && typeof miss === 'number' && hit + miss > 0
           ? hit / (hit + miss)
@@ -794,13 +782,13 @@ export class AiService {
     subject.next({ data: serializeSseEvent(type, payload as never) });
   }
 
-  private executeEditorTool(
+  private async executeEditorTool(
     subject: Subject<StreamSseEvent>,
     ownerUserId: string,
     name: string,
     args: Record<string, unknown>,
     snapshot?: { document: ThemeLayoutDocument },
-    profile?: TemplateProfile,
+    profileBox?: { profile?: TemplateProfile },
   ): Promise<ToolResult> {
     if (!EDITOR_EDIT_TOOL_NAMES.has(name)) {
       return Promise.resolve({
@@ -815,7 +803,11 @@ export class AiService {
 
     try {
       const edit = editorToolCallToOperations(name, args);
-      const compiledEdit = compileSemanticEditorOperations(edit, snapshot?.document, profile);
+      const compiledEdit = compileSemanticEditorOperations(
+        edit,
+        snapshot?.document,
+        profileBox?.profile,
+      );
       assertEditorOperations(compiledEdit);
       const operations = Array.isArray(compiledEdit.operations) ? compiledEdit.operations : [];
       let nextDocument: ThemeLayoutDocument | undefined;
@@ -834,7 +826,7 @@ export class AiService {
         }
         nextDocument = committed.document;
       }
-      const delivered = this.deliverEditorEdit(subject, ownerUserId, compiledEdit);
+      const delivered = await this.deliverEditorEdit(subject, ownerUserId, compiledEdit);
       if (!delivered) {
         return Promise.resolve({
           output: JSON.stringify({
@@ -844,6 +836,13 @@ export class AiService {
       }
       if (snapshot && nextDocument) {
         snapshot.document = nextDocument;
+        if (profileBox) {
+          try {
+            profileBox.profile = buildTemplateProfile(nextDocument);
+          } catch {
+            // Keep the previous profile when the in-progress tree cannot be summarized yet.
+          }
+        }
       }
       return Promise.resolve({
         output: JSON.stringify({
@@ -861,11 +860,11 @@ export class AiService {
     }
   }
 
-  private deliverEditorEdit(
+  private async deliverEditorEdit(
     subject: Subject<StreamSseEvent>,
     ownerUserId: string,
     compiledEdit: { operations?: unknown; warnings?: unknown; reason?: unknown },
-  ): boolean {
+  ): Promise<boolean> {
     const data = JSON.stringify(compiledEdit);
     const inline = { data };
     if (fitsSseFrame('edit_request', inline)) {
@@ -873,7 +872,7 @@ export class AiService {
       return true;
     }
 
-    const editId = this.editorEditOutbox.put(ownerUserId, data);
+    const editId = await this.editorEditOutbox.put(ownerUserId, data);
     const reference = { editId, bytes: data.length };
     if (!fitsSseFrame('edit_request', reference)) {
       return false;
@@ -890,4 +889,24 @@ export class AiService {
     this.logger.log(`Template ${result.action}: ${result.templateId}`);
     return result;
   }
+}
+
+interface EditorUsageTotals {
+  inputTokens: number;
+  outputTokens: number;
+  cacheHitTokens?: number;
+  cacheMissTokens?: number;
+}
+
+function emptyEditorUsage(): EditorUsageTotals {
+  return { inputTokens: 0, outputTokens: 0, cacheHitTokens: 0, cacheMissTokens: 0 };
+}
+
+function addEditorUsage(total: EditorUsageTotals, delta: EditorUsageTotals): EditorUsageTotals {
+  return {
+    inputTokens: total.inputTokens + delta.inputTokens,
+    outputTokens: total.outputTokens + delta.outputTokens,
+    cacheHitTokens: (total.cacheHitTokens ?? 0) + (delta.cacheHitTokens ?? 0),
+    cacheMissTokens: (total.cacheMissTokens ?? 0) + (delta.cacheMissTokens ?? 0),
+  };
 }

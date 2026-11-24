@@ -10,6 +10,7 @@ import { AiController } from './ai.controller';
 import { AiService } from './ai.service';
 import { AiTokenUsageEvent } from './entities/aiTokenUsage.entity';
 import { EditorAiConversation } from './entities/editorAiConversation.entity';
+import { EditorEditOutboxEntry } from './entities/editorEditOutbox.entity';
 import { PendingClarificationStore } from './pendingClarification.store';
 import { AI_TEMPLATE_PIPELINE_PROVIDER } from './pipelineProvider.port';
 import {
@@ -25,7 +26,7 @@ import { TokenUsageService } from './services/tokenUsage.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([EditorAiConversation, AiTokenUsageEvent]),
+    TypeOrmModule.forFeature([EditorAiConversation, AiTokenUsageEvent, EditorEditOutboxEntry]),
     AuthModule,
     TemplatesModule,
     UsersModule,

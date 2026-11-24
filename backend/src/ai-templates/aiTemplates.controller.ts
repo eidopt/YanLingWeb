@@ -173,7 +173,9 @@ export class AiTemplatesController {
         writeEnvelope('done', {});
       })
       .catch(async (err: unknown) => {
-        await this.userQuota?.releaseFreeTemplateGenQuota(req.user.sub);
+        if (!abortController.signal.aborted) {
+          await this.userQuota?.releaseFreeTemplateGenQuota(req.user.sub);
+        }
         if (closed) {
           return;
         }

@@ -2,6 +2,7 @@ import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 import { AiTokenUsageEvent } from '../ai/entities/aiTokenUsage.entity';
 import { EditorAiConversation } from '../ai/entities/editorAiConversation.entity';
+import { EditorEditOutboxEntry } from '../ai/entities/editorEditOutbox.entity';
 import type { ServerConfig } from '../config/config.factory';
 import { ExportRecord } from '../exports/entities/exportRecord.entity';
 import { PublishedSite } from '../sites/entities/publishedSite.entity';
@@ -34,6 +35,7 @@ const DATABASE_ENTITIES = [
   AssetLibraryImage,
   EditorAiConversation,
   AiTokenUsageEvent,
+  EditorEditOutboxEntry,
 ];
 
 export function createDatabaseOptions(env: ServerConfig): TypeOrmModuleOptions {

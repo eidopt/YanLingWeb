@@ -1,7 +1,6 @@
 ﻿import { resolveSemanticTargetNodeId } from '../../ui/editor/services/semanticTargets';
 import { autoCompactIfNeeded, createAutoCompactState } from '../core/compact/autoCompact';
 import type { AIProvider, ProviderMessage } from '../core/providers/types';
-import { QueryLoop } from '../core/queryLoop';
 import { formatUiIntentPlanForPrompt, planUiIntent } from '../planning/uiIntentRouter';
 import {
   EDITOR_EDIT_TOOL_NAMES,
@@ -22,6 +21,7 @@ import {
   firstMissingExistingNode,
   formatUiDesignSkillContextForPrompt,
   inferUiDesignSkillContext,
+  QueryLoop,
 } from '@shared/agent/browser';
 import type {
   AgentConversationMessage,

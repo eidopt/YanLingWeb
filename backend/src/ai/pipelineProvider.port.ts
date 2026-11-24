@@ -22,5 +22,5 @@ export interface AiTemplatePipelineProvider {
     ownerUserId: string,
     model: string,
     usage: PipelineTokenUsageInput,
-  ): Promise<void>;
+  ): Promise<number | void | undefined>;
 }

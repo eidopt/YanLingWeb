@@ -266,7 +266,7 @@ describe('OpenAICompatibleProvider WP2 fixes', () => {
     });
     expect(createMock.mock.calls[1][0].tool_choice).toBeUndefined();
 
-    // Subsequent call remembers runtime downgrade and omits forced tool_choice immediately
+    // A tool_choice rejection retries the current request only and does not disable later calls.
     for await (const _ev of provider.stream({
       model: 'm',
       messages: [{ role: 'user', content: 'hi2' }],
@@ -276,7 +276,10 @@ describe('OpenAICompatibleProvider WP2 fixes', () => {
       // drain
     }
     expect(createMock).toHaveBeenCalledTimes(3);
-    expect(createMock.mock.calls[2][0].tool_choice).toBeUndefined();
+    expect(createMock.mock.calls[2][0].tool_choice).toEqual({
+      type: 'function',
+      function: { name: 'submit_x' },
+    });
   });
 
   it('isolates per-request AbortSignal across concurrent streams', async () => {

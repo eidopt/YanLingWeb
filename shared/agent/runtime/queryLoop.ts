@@ -12,13 +12,31 @@ const MAX_OUTPUT_TOKENS_RECOVERY = 3;
 const MAX_CONTINUATION_RETRIES = 3;
 const MAX_TOOL_RETRIES = 3;
 const TOOL_RETRY_DELAY_MS = 500;
-const BYTES_PER_TOKEN = 4;
 const IMAGE_MAX_TOKEN_SIZE = 2000;
 const MICRO_KEEP_RECENT = 6;
 const LARGE_RESULT_THRESHOLD = 1000;
 
 function roughTokenCount(content: string): number {
-  return Math.round(content.length / BYTES_PER_TOKEN);
+  if (!content) {
+    return 0;
+  }
+  let ascii = 0;
+  let cjk = 0;
+  let other = 0;
+  for (let index = 0; index < content.length; index += 1) {
+    const code = content.charCodeAt(index);
+    if (code <= 0x7f) {
+      ascii += 1;
+    } else if (code >= 0x4e00 && code <= 0x9fff) {
+      cjk += 1;
+    } else if (code >= 0xd800 && code <= 0xdbff) {
+      other += 1;
+      index += 1;
+    } else {
+      other += 1;
+    }
+  }
+  return Math.round(ascii * 0.25 + cjk * 1.8 + other);
 }
 
 function tokenCountWithEstimation(messages: readonly ProviderMessage[]): number {
@@ -101,10 +119,33 @@ function microcompactMessages(messages: ProviderMessage[]): ProviderMessage[] {
   });
 }
 
+function compactTail(messages: ProviderMessage[], keep: number): ProviderMessage[] {
+  if (messages.length <= keep) {
+    return messages;
+  }
+  let start = messages.length - keep;
+  while (start > 0 && messages[start].role === 'tool_result') {
+    start -= 1;
+  }
+  while (start > 0 && messages[start].role === 'tool_call' && messages[start - 1].role === 'tool_call') {
+    start -= 1;
+  }
+  if (messages[start]?.role === 'tool_result') {
+    while (start < messages.length && messages[start].role !== 'user') {
+      start += 1;
+    }
+  }
+  return messages.slice(start);
+}
+
+export function compactProviderMessages(messages: ProviderMessage[]): ProviderMessage[] {
+  return compactConversation(messages);
+}
+
 function compactConversation(messages: ProviderMessage[]): ProviderMessage[] {
   const system = messages.filter((m) => m.role === 'system');
   const nonSystem = messages.filter((m) => m.role !== 'system');
-  const recent = nonSystem.slice(-12);
+  const recent = compactTail(nonSystem, 12);
   const old = nonSystem.slice(0, Math.max(0, nonSystem.length - recent.length));
   const summary =
     old
@@ -214,8 +255,10 @@ export class QueryLoop {
   private hasAttemptedProactiveCompact = false;
   private lastToolSig = '';
   private sameToolCount = 0;
-  private maxOutputTokensEscalated = false;
   private maxOutputTokensRecovery = 0;
+  private outputTokenCeiling: number | undefined;
+  private chainResponseId: string | undefined;
+  private chainCursor = 0;
   private consecutiveNodeNotFoundErrors = 0;
   private nodeNotFoundIds: string[] = [];
 
@@ -244,15 +287,18 @@ export class QueryLoop {
 
       current = microcompactMessages(current);
 
-      // 主动上下文压缩：在调用 API 前预判 token 是否接近上限，避免 PTL 错误
-      if (!this.hasAttemptedProactiveCompact) {
-        const maxTokens = this.cfg.maxContextTokens ?? 128_000;
-        if (tokenCountWithEstimation(current) > maxTokens * 0.7) {
-          current = compactConversation(current);
-          this.hasAttemptedProactiveCompact = true;
-          this.cfg.onContextCompacted?.();
-          continue;
-        }
+      // 主动上下文压缩：在调用 API 前预判 token 是否接近上限，避免 PTL 错误。
+      // 压缩不计入迭代，且同一轮里上下文仍超阈值时不再重复切，避免空转。
+      const maxTokens = this.cfg.maxContextTokens ?? 128_000;
+      if (tokenCountWithEstimation(current) <= maxTokens * 0.7) {
+        this.hasAttemptedProactiveCompact = false;
+      } else if (!this.hasAttemptedProactiveCompact) {
+        this.invalidateResponseChain();
+        current = compactConversation(current);
+        this.hasAttemptedProactiveCompact = true;
+        this.cfg.onContextCompacted?.();
+        this.iterations -= 1;
+        continue;
       }
 
       const pendingCalls: PendingToolCall[] = [];
@@ -262,6 +308,8 @@ export class QueryLoop {
       let isPTL = false;
       let stopReason: 'end_turn' | 'max_tokens' = 'end_turn';
       let reasoningContent: string | undefined;
+      let turnResponseId: string | undefined;
+      const sentCursor = current.length;
       const request = this.buildRequest(current);
 
       try {
@@ -291,6 +339,7 @@ export class QueryLoop {
               }
               if (event.response_id) {
                 lastResponseId = event.response_id;
+                turnResponseId = event.response_id;
               }
               if (event.reasoningContent !== undefined) {
                 reasoningContent = event.reasoningContent;
@@ -314,10 +363,9 @@ export class QueryLoop {
         stopReason === 'max_tokens' &&
         pendingCalls.length === 0 &&
         !hasText &&
-        !this.maxOutputTokensEscalated &&
         this.maxOutputTokensRecovery < MAX_OUTPUT_TOKENS_RECOVERY
       ) {
-        this.maxOutputTokensEscalated = true;
+        this.outputTokenCeiling = Math.min((this.outputTokenCeiling ?? 4096) * 2, 32_768);
         this.maxOutputTokensRecovery += 1;
         this.iterations -= 1;
         continue;
@@ -325,12 +373,15 @@ export class QueryLoop {
 
       if (isPTL && !this.hasAttemptedReactiveCompact) {
         this.hasAttemptedReactiveCompact = true;
+        this.invalidateResponseChain();
         current = compactConversation(current);
         this.cfg.onContextCompacted?.();
+        this.iterations -= 1;
         continue;
       }
 
       if (apiError) {
+        this.invalidateResponseChain();
         this.consecutiveErrors += 1;
         if (this.consecutiveErrors >= MAX_CONSECUTIVE_ERRORS || (!hasText && pendingCalls.length === 0)) {
           const err = `API错误: ${apiError}`;
@@ -346,8 +397,10 @@ export class QueryLoop {
         }
       } else {
         this.consecutiveErrors = 0;
-        this.hasAttemptedReactiveCompact = false;
-        this.hasAttemptedProactiveCompact = false;
+        if (turnResponseId && this.usesResponseChain()) {
+          this.chainResponseId = turnResponseId;
+          this.chainCursor = sentCursor;
+        }
       }
 
       const assistantText = textChunks.join('');
@@ -436,15 +489,46 @@ export class QueryLoop {
     };
   }
 
+  private usesResponseChain(): boolean {
+    return this.cfg.provider.getCapabilities().cacheStrategy === 'response_id';
+  }
+
+  private invalidateResponseChain(): void {
+    this.chainResponseId = undefined;
+    this.chainCursor = 0;
+  }
+
+  private outboundMessages(messages: ProviderMessage[]): {
+    messages: ProviderMessage[];
+    previousResponseId?: string;
+  } {
+    if (!this.usesResponseChain() || !this.chainResponseId) {
+      return { messages };
+    }
+    const delta = messages
+      .slice(this.chainCursor)
+      .filter((message) => message.role === 'user' || message.role === 'developer' || message.role === 'tool_result');
+    if (delta.length === 0) {
+      return { messages };
+    }
+    return { messages: delta, previousResponseId: this.chainResponseId };
+  }
+
   private buildRequest(messages: ProviderMessage[]): ProviderRequest {
+    const outbound = this.outboundMessages(messages);
     return {
       model: this.cfg.model,
-      messages: [...messages],
+      messages: [...outbound.messages],
       tools: this.cfg.tools,
       ...(this.cfg.toolChoice ? { toolChoice: this.cfg.toolChoice } : {}),
       ...(this.cfg.signal ? { signal: this.cfg.signal } : {}),
       ...(this.cfg.requestCacheKey ? { cacheKey: this.cfg.requestCacheKey } : {}),
-      ...(this.cfg.requestCache ? { cache: this.cfg.requestCache } : {}),
+      ...(outbound.previousResponseId
+        ? { cache: { previousResponseId: outbound.previousResponseId } }
+        : !this.usesResponseChain() && this.cfg.requestCache
+          ? { cache: this.cfg.requestCache }
+          : {}),
+      ...(this.outputTokenCeiling ? { maxTokens: this.outputTokenCeiling } : {}),
     };
   }
 
@@ -550,27 +634,38 @@ export class QueryLoop {
       if (this.cfg.isCancelled()) {
         return;
       }
+      let sawOutput = false;
+      let retryMessage: string | null = null;
       try {
         for await (const event of this.cfg.provider.stream(request)) {
+          if (
+            event.type === 'error' &&
+            !sawOutput &&
+            isRetryableProviderError(event.message) &&
+            attempt < MAX_API_RETRIES - 1
+          ) {
+            retryMessage = event.message;
+            break;
+          }
+          if (event.type === 'text_delta' || event.type === 'tool_call' || event.type === 'reasoning_delta') {
+            sawOutput = true;
+          }
           yield event;
         }
-        return;
       } catch (err) {
         lastError = err instanceof Error ? err : new Error(String(err));
-        const msg = lastError.message.toLowerCase();
-        const retryable =
-          msg.includes('429') ||
-          msg.includes('rate') ||
-          msg.includes('500') ||
-          msg.includes('503') ||
-          msg.includes('timeout') ||
-          msg.includes('network');
-
-        if (!retryable || attempt === MAX_API_RETRIES - 1) {
+        if (!isRetryableProviderError(lastError.message) || sawOutput || attempt === MAX_API_RETRIES - 1) {
           throw lastError;
         }
         await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, attempt)));
+        continue;
       }
+
+      if (!retryMessage) {
+        return;
+      }
+      lastError = new Error(retryMessage);
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS * Math.pow(2, attempt)));
     }
 
     if (lastError) {
@@ -582,4 +677,21 @@ export class QueryLoop {
 function isPTLError(msg: string): boolean {
   const lower = msg.toLowerCase();
   return ['prompt_too_long', 'context_length', 'maximum context', 'token limit'].some((p) => lower.includes(p));
+}
+
+function isRetryableProviderError(message: string): boolean {
+  const msg = message.toLowerCase();
+  return (
+    /\b429\b/.test(msg) ||
+    msg.includes('rate limit') ||
+    msg.includes('too many requests') ||
+    /\b50[0234]\b/.test(msg) ||
+    msg.includes('timeout') ||
+    msg.includes('timed out') ||
+    msg.includes('network') ||
+    msg.includes('econnreset') ||
+    msg.includes('econnrefused') ||
+    msg.includes('fetch failed') ||
+    msg.includes('socket hang up')
+  );
 }

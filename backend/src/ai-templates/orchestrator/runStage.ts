@@ -39,6 +39,8 @@ export interface StageRunOptions<T> {
   ownerUserId?: string;
   /** 可选：跨轮次 cache key（用于 Kimi 等按 conversationId 路由缓存的 provider） */
   cacheKey?: string;
+  /** 客户端断开或余额耗尽时中止本阶段尚未发出的模型请求 */
+  signal?: AbortSignal;
 }
 
 /**
@@ -60,6 +62,7 @@ export async function runStructuredStage<T>(
 ): Promise<StageRunResult<T>> {
   let captured: T | undefined;
   let parseError: Error | undefined;
+  let balanceExhausted = false;
   const usage: StageRunUsage = { inputTokens: 0, outputTokens: 0, cacheHitTokens: 0 };
 
   const toolSpecs = new Map<string, ToolSpec>();
@@ -118,14 +121,18 @@ export async function runStructuredStage<T>(
         usage.outputTokens += u.outputTokens;
         usage.cacheHitTokens += u.cacheHitTokens ?? 0;
         if (options.ownerUserId && options.aiProvider?.recordTemplatePipelineTokenUsage) {
-          await options.aiProvider.recordTemplatePipelineTokenUsage(
+          const remaining = await options.aiProvider.recordTemplatePipelineTokenUsage(
             options.ownerUserId,
             options.model,
             u,
           );
+          if (remaining === 0) {
+            balanceExhausted = true;
+          }
         }
       },
-      isCancelled: () => false,
+      isCancelled: () => Boolean(options.signal?.aborted) || balanceExhausted,
+      ...(options.signal ? { signal: options.signal } : {}),
       maxIterations,
     });
 
@@ -146,6 +153,9 @@ export async function runStructuredStage<T>(
     totalIterations += result.iterations;
   }
 
+  if (result.stopReason === 'cancelled') {
+    throw new Error('template generation cancelled');
+  }
   if (result.stopReason === 'error') {
     throw new Error(`stage QueryLoop error: ${result.error ?? 'unknown'}`);
   }

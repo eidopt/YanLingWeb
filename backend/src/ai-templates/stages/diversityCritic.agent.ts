@@ -79,6 +79,7 @@ export class DiversityCriticAgent {
     existing: ExistingTemplateSummary[],
     attempt: number,
     ownerUserId?: string,
+    signal?: AbortSignal,
   ): Promise<PipelineStageRecord<CriticVerdict>> {
     const start = Date.now();
     this.logger.debug(
@@ -146,6 +147,7 @@ export class DiversityCriticAgent {
       aiProvider: this.aiProvider,
       ownerUserId,
       cacheKey: 'pipeline-critic',
+      signal,
     });
 
     return {

@@ -137,7 +137,6 @@ export class AiController {
 
     const cacheOptions = {
       conversationId: req.headers['x-conversation-id'] as string | undefined,
-      previousResponseId: req.headers['x-previous-response-id'] as string | undefined,
     };
 
     res.setHeader('content-type', 'text/event-stream; charset=utf-8');
@@ -222,7 +221,6 @@ export class AiController {
     res.setHeader('x-accel-buffering', 'no');
     const cacheOptions = {
       conversationId: req.headers['x-conversation-id'] as string | undefined,
-      previousResponseId: req.headers['x-previous-response-id'] as string | undefined,
     };
     if (cacheOptions.conversationId) {
       res.setHeader('x-conversation-id', cacheOptions.conversationId);
@@ -267,8 +265,10 @@ export class AiController {
 
   @Get('editor-edits/:editId')
   @ApiOperation({ summary: 'Fetch a large editor edit that was referenced by SSE' })
-  takeEditorEdit(@Param('editId') editId: string, @Req() req: AuthenticatedRequest) {
-    const body = this.editorEditOutbox?.take(req.user.sub, editId) ?? null;
+  async takeEditorEdit(@Param('editId') editId: string, @Req() req: AuthenticatedRequest) {
+    const body = this.editorEditOutbox
+      ? await this.editorEditOutbox.take(req.user.sub, editId)
+      : null;
     if (body === null) {
       throw new NotFoundException('编辑结果不存在或已读取');
     }

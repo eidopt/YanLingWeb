@@ -265,6 +265,7 @@ export class SchemaGeneratorAgent {
     attempt: number,
     ownerUserId?: string,
     previousError?: string,
+    signal?: AbortSignal,
   ): Promise<PipelineStageRecord<SchemaOutput>> {
     const start = Date.now();
     const { provider, model, apiKeyConfigured } = this.aiProvider.getProviderForTemplatePipeline();
@@ -275,7 +276,14 @@ export class SchemaGeneratorAgent {
     this.logger.debug(`schema generator attempt=${attempt} brief=${brief.templateId}`);
 
     // Phase A: 生成页面骨架
-    const skeleton = await this.phaseSkeleton(provider, model, brief, ownerUserId, previousError);
+    const skeleton = await this.phaseSkeleton(
+      provider,
+      model,
+      brief,
+      ownerUserId,
+      previousError,
+      signal,
+    );
     this.logger.debug(`phaseA: ${skeleton.pages.length} pages, ${skeleton.templateId}`);
 
     // Tree Build: 在 Phase B 之前先展开树并生成全局唯一真实 nodeId
@@ -289,6 +297,7 @@ export class SchemaGeneratorAgent {
       brief,
       ownerUserId,
       previousError,
+      signal,
     );
     this.logger.debug(`phaseB: ${contentResult.pages.length} pages filled`);
 
@@ -315,6 +324,7 @@ export class SchemaGeneratorAgent {
             imageNodes,
             brief,
             ownerUserId,
+            signal,
           )
         : { assets: [], tokens: { inputTokens: 0, outputTokens: 0, cacheHitTokens: 0 } };
     const combinedAssets = [...inlineAssets, ...assets.assets];
@@ -332,6 +342,7 @@ export class SchemaGeneratorAgent {
       combinedAssets,
       brief,
       ownerUserId,
+      signal,
     );
 
     const totalTokens = sumStageUsage(
@@ -361,6 +372,7 @@ export class SchemaGeneratorAgent {
     failedLenses: readonly VerifierVerdict[],
     attempt: number,
     ownerUserId?: string,
+    signal?: AbortSignal,
   ): Promise<PipelineStageRecord<SchemaOutput> | null> {
     const start = Date.now();
     const { provider, model, apiKeyConfigured } = this.aiProvider.getProviderForTemplatePipeline();
@@ -395,6 +407,7 @@ export class SchemaGeneratorAgent {
         feedbackLines,
         instructionTitle: '**Stage 4 局部修复：只修补 Verifier 指出的具体问题**',
         ownerUserId,
+        signal,
       });
 
       const check = validateGeneratedTemplateLayout(
@@ -440,6 +453,7 @@ export class SchemaGeneratorAgent {
     feedbackLines: readonly string[];
     instructionTitle: string;
     ownerUserId?: string;
+    signal?: AbortSignal;
   }): Promise<{ document: ThemeLayoutDocument; tokens: StageRunUsage }> {
     const pagesDigest = params.document.pages.map((page) => ({
       pageId: page.id,
@@ -491,7 +505,8 @@ export class SchemaGeneratorAgent {
       maxIterations: 4,
       aiProvider: this.aiProvider,
       ownerUserId: params.ownerUserId,
-      cacheKey: 'pipeline-schema',
+      cacheKey: 'pipeline-schema-repair',
+      signal: params.signal,
     });
 
     const patched = this.applyRepairPatch(params.document, result.output);
@@ -607,13 +622,15 @@ export class SchemaGeneratorAgent {
     brief: DesignerOutput,
     ownerUserId?: string,
     previousError?: string,
+    signal?: AbortSignal,
   ): Promise<SkeletonPhaseResult> {
     const result = await runStructuredStage<Record<string, unknown>>({
       provider,
       model,
       aiProvider: this.aiProvider,
       ownerUserId,
-      cacheKey: 'pipeline-schema',
+      cacheKey: 'pipeline-schema-skeleton',
+      signal,
       systemPrompt: STAGE_SCHEMA_GENERATOR_SYSTEM_PROMPT,
       userMessage: [
         '**Phase A: 生成页面骨架（3-5 页）**',
@@ -707,6 +724,7 @@ export class SchemaGeneratorAgent {
     brief: DesignerOutput,
     ownerUserId?: string,
     previousError?: string,
+    signal?: AbortSignal,
   ): Promise<ContentPhaseResult> {
     const pagesSummary = builtPages.map((p) => ({
       pageId: p.id,
@@ -725,7 +743,8 @@ export class SchemaGeneratorAgent {
       model,
       aiProvider: this.aiProvider,
       ownerUserId,
-      cacheKey: 'pipeline-schema',
+      cacheKey: 'pipeline-schema-content',
+      signal,
       systemPrompt: STAGE_SCHEMA_GENERATOR_SYSTEM_PROMPT,
       userMessage: [
         '**Phase B: 一次性填充所有页面内容**',
@@ -829,13 +848,15 @@ export class SchemaGeneratorAgent {
     imageNodes: readonly ImageNodeSpec[],
     brief: DesignerOutput,
     ownerUserId?: string,
+    signal?: AbortSignal,
   ): Promise<AssetsPhaseResult> {
     const result = await runStructuredStage<Record<string, unknown>>({
       provider,
       model,
       aiProvider: this.aiProvider,
       ownerUserId,
-      cacheKey: 'pipeline-schema',
+      cacheKey: 'pipeline-schema-assets',
+      signal,
       systemPrompt: STAGE_SCHEMA_GENERATOR_SYSTEM_PROMPT,
       userMessage: [
         '**Phase C: 生成 Visual Assets**',
@@ -1146,6 +1167,7 @@ export class SchemaGeneratorAgent {
     rawAssets: readonly Record<string, unknown>[],
     brief: DesignerOutput,
     ownerUserId?: string,
+    signal?: AbortSignal,
   ): Promise<{ document: ThemeLayoutDocument; repairTokens: StageRunUsage }> {
     const pages = builtPages.map((page) => ({
       id: page.id,
@@ -1291,6 +1313,7 @@ export class SchemaGeneratorAgent {
           instructionTitle:
             '**组装后程序化校验局部修复：只修补 validateGeneratedTemplateLayout 指出的具体错误**',
           ownerUserId,
+          signal,
         });
         repairTokens.inputTokens += repaired.tokens.inputTokens;
         repairTokens.outputTokens += repaired.tokens.outputTokens;

@@ -666,7 +666,14 @@ describe('TemplatePipelineService', () => {
     expect(designer.runMock).toHaveBeenCalledWith(seed, undefined, 1, 'user-42', existing);
     expect(critic.runMock).toHaveBeenCalledWith(brief, existing, 1, 'user-42');
     expect(schemaGenerator.runMock).toHaveBeenCalledWith(brief, 1, 'user-42');
-    expect(repairSpy).toHaveBeenCalledWith(brief, initialSchema, expect.any(Array), 1, 'user-42');
+    expect(repairSpy).toHaveBeenCalledWith(
+      brief,
+      initialSchema,
+      expect.any(Array),
+      1,
+      'user-42',
+      undefined,
+    );
     expect(verifier.runMock).toHaveBeenNthCalledWith(
       1,
       brief,

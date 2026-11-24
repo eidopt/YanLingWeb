@@ -130,6 +130,7 @@ const dbSsl = readBooleanEnv('DB_SSL') ?? false;
 
 import { AiTokenUsageEvent } from '../ai/entities/aiTokenUsage.entity';
 import { EditorAiConversation } from '../ai/entities/editorAiConversation.entity';
+import { EditorEditOutboxEntry } from '../ai/entities/editorEditOutbox.entity';
 import { ExportRecord } from '../exports/entities/exportRecord.entity';
 import { PublishedSite } from '../sites/entities/publishedSite.entity';
 import { PublishedSiteRevision } from '../sites/entities/publishedSiteRevision.entity';
@@ -161,6 +162,7 @@ const ALL_ENTITIES = [
   AssetLibraryImage,
   EditorAiConversation,
   AiTokenUsageEvent,
+  EditorEditOutboxEntry,
 ];
 
 // ── Build DataSource ──

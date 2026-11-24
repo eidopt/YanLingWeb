@@ -261,7 +261,7 @@ export function evaluateSemanticAssertions(
   const failures = results.filter((result) => !result.passed);
   const taskScore = results.length === 0 ? 1 : (results.length - failures.length) / results.length;
   return {
-    passed: taskScore >= 0.8,
+    passed: failures.length === 0,
     taskScore,
     failures,
     results,

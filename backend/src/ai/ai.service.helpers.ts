@@ -246,12 +246,7 @@ export function buildStructuredEditorMessages(params: {
   const fallbackConversation =
     providerLog.length > 0 ? [] : buildConversationContextMessages(req.conversation);
   const templateKnowledgeContext = summarizeTemplateAgentKnowledge(templateKnowledge);
-  const stableEditorContext = [
-    buildEditorStablePrefixContext(req.document.components),
-    templateKnowledgeContext,
-  ]
-    .filter(Boolean)
-    .join('\n\n');
+  const stableEditorContext = buildEditorStablePrefixContext(req.document.components);
   const effectiveTemplateProfile = templateKnowledge.effectiveProfile
     ? (templateKnowledge.effectiveProfile as TemplateProfile)
     : undefined;
@@ -269,6 +264,7 @@ export function buildStructuredEditorMessages(params: {
         'Current turn context:',
         '',
         formatUiDesignSkillContextForPrompt(skillContext),
+        templateKnowledgeContext ? ['', templateKnowledgeContext].join('\n') : '',
         '',
         selectedChoiceText
           ? buildEditorMinimalVolatileContext(

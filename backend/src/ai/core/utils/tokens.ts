@@ -1,10 +1,29 @@
 import type { ProviderMessage } from '../providers/types';
 
-const BYTES_PER_TOKEN = 4;
 const IMAGE_MAX_TOKEN_SIZE = 2000;
+const DEFAULT_CONTEXT_WINDOW = 128_000;
 
 export function roughTokenCount(content: string): number {
-  return Math.round(content.length / BYTES_PER_TOKEN);
+  if (!content) {
+    return 0;
+  }
+  let ascii = 0;
+  let cjk = 0;
+  let other = 0;
+  for (let index = 0; index < content.length; index += 1) {
+    const code = content.charCodeAt(index);
+    if (code <= 0x7f) {
+      ascii += 1;
+    } else if (code >= 0x4e00 && code <= 0x9fff) {
+      cjk += 1;
+    } else if (code >= 0xd800 && code <= 0xdbff) {
+      other += 1;
+      index += 1;
+    } else {
+      other += 1;
+    }
+  }
+  return Math.round(ascii * 0.25 + cjk * 1.8 + other);
 }
 
 export function estimateMessageTokens(message: ProviderMessage): number {
@@ -43,11 +62,11 @@ export function tokenCountWithEstimation(messages: readonly ProviderMessage[]): 
  * Get the context window size for a model.
  * Resolution order:
  *   1. `override` parameter (from ConfigFactory -> config.ai.contextWindow)
- *   2. Default 1M context for all configured models
+ *   2. A safe 128K default. Set AI_CONTEXT_WINDOW for models with a larger window.
  */
 export function getContextWindow(_model: string, override?: number): number {
   if (override && Number.isFinite(override) && override > 0) {
     return override;
   }
-  return 1_000_000;
+  return DEFAULT_CONTEXT_WINDOW;
 }

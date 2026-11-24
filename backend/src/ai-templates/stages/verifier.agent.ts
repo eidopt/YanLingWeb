@@ -48,6 +48,7 @@ export class VerifierAgent {
     attempt: number,
     ownerUserId?: string,
     lenses: readonly VerifierLens[] = LENSES,
+    signal?: AbortSignal,
   ): Promise<PipelineStageRecord<VerifierVerdict[]>> {
     const start = Date.now();
     this.logger.debug(`verifier attempt=${attempt} schema=${schema.templateId}`);
@@ -85,6 +86,7 @@ export class VerifierAgent {
           aiProvider: this.aiProvider,
           ownerUserId,
           cacheKey: 'pipeline-verifier',
+          signal,
         });
         usageTotal.inputTokens += result.usage.inputTokens;
         usageTotal.outputTokens += result.usage.outputTokens;

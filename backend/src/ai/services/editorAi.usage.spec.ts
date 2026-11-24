@@ -150,7 +150,7 @@ function createService(): { service: AiService; recordSpy: jest.Mock } {
     tokenUsageService,
     editorConversations,
     providerLogCompaction,
-    new EditorEditOutbox(),
+    new EditorEditOutbox({} as never),
   );
 
   // The constructor builds an OpenAI/OpenAICompatible provider based on ai.provider.

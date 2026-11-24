@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import type { ChatCompletionChunk, ChatCompletionTool } from 'openai/resources/index';
 
+import { flattenSchema, nestToolArguments } from './flattenSchema';
 import { purifyMessages } from './messagePurifier';
 import {
   buildCompatibleCapabilities,
@@ -84,17 +85,13 @@ function isUnsupportedToolChoiceError(err: unknown): boolean {
   if (!err || typeof err !== 'object') {
     return false;
   }
-  const status = (err as { status?: unknown }).status;
   const rawMessage = (err as { message?: unknown }).message;
   const message =
     err instanceof Error ? err.message : typeof rawMessage === 'string' ? rawMessage : '';
   if (/context|token|length|quota|balance/i.test(message)) {
     return false;
   }
-  if (/tool_choice|thinking|not support|unsupported|invalid.*tool/i.test(message)) {
-    return true;
-  }
-  return status === 400;
+  return /tool_choice|does not support|not support|unsupported/i.test(message);
 }
 
 /**
@@ -108,7 +105,6 @@ export class OpenAICompatibleProvider implements AIProvider {
   private client: OpenAI;
   private readonly activeControllers = new Set<AbortController>();
   private readonly caps: ProviderCapabilities;
-  private forcedToolChoiceDisabledAtRuntime = false;
 
   constructor(
     apiKey: string,
@@ -146,8 +142,7 @@ export class OpenAICompatibleProvider implements AIProvider {
         this.caps.cacheStrategy === 'cache_key'
           ? (request.cacheKey ?? (request as { cacheKey?: string }).cacheKey)
           : undefined;
-      const allowForcedToolChoice =
-        this.caps.supportsForcedToolChoice !== false && !this.forcedToolChoiceDisabledAtRuntime;
+      const allowForcedToolChoice = this.caps.supportsForcedToolChoice !== false;
       const requestedWireToolChoice =
         tools?.length && request.toolChoice
           ? request.toolChoice === 'auto' || allowForcedToolChoice
@@ -163,6 +158,7 @@ export class OpenAICompatibleProvider implements AIProvider {
         ...(tools && { tools }),
         ...(wireToolChoice ? { tool_choice: wireToolChoice } : {}),
         ...(cacheKey ? { prompt_cache_key: cacheKey } : {}),
+        ...(typeof request.maxTokens === 'number' ? { max_tokens: request.maxTokens } : {}),
         ...this.caps.extraRequestParams,
       });
 
@@ -178,9 +174,6 @@ export class OpenAICompatibleProvider implements AIProvider {
           isUnsupportedToolChoiceError(error) &&
           !abortController.signal.aborted
         ) {
-          if (requestedWireToolChoice !== 'auto') {
-            this.forcedToolChoiceDisabledAtRuntime = true;
-          }
           try {
             streamIter = await this.client.chat.completions.create(buildCreateParams(undefined), {
               signal: abortController.signal,
@@ -299,7 +292,7 @@ export class OpenAICompatibleProvider implements AIProvider {
             type: 'tool_call',
             id: acc.id,
             name: acc.name,
-            arguments: acc.arguments || '{}',
+            arguments: nestToolArguments(acc.arguments || '{}'),
           };
         }
 
@@ -435,7 +428,7 @@ function convertTools(tools: ProviderTool[]): ChatCompletionTool[] {
     function: {
       name: tool.name,
       description: tool.description,
-      parameters: tool.parameters,
+      parameters: flattenSchema(tool.parameters as Parameters<typeof flattenSchema>[0]),
     },
   }));
 }

@@ -186,6 +186,7 @@ export class OpenAIProvider implements AIProvider {
         ...(request.cache?.previousResponseId && {
           previous_response_id: request.cache.previousResponseId,
         }),
+        ...(typeof request.maxTokens === 'number' ? { max_output_tokens: request.maxTokens } : {}),
       };
 
       let streamIter: AsyncIterable<OpenAIStreamEvent>;

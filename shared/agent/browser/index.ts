@@ -1,3 +1,4 @@
+export { QueryLoop } from '../runtime';
 export {
   type AgentTemplateKnowledgeContext,
   buildConversationContextMessages,

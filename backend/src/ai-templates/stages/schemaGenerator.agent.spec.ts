@@ -213,7 +213,11 @@ describe('SchemaGeneratorAgent', () => {
     expect(result.outputTokens).toBe(150);
     expect(result.cacheHitTokens).toBe(35);
     expect(provider.requests).toHaveLength(3);
-    expect(provider.requests.every((req) => req.cacheKey === 'pipeline-schema')).toBe(true);
+    expect(provider.requests.map((req) => req.cacheKey)).toEqual([
+      'pipeline-schema-skeleton',
+      'pipeline-schema-content',
+      'pipeline-schema-assets',
+    ]);
 
     const home = result.output.document.pages[0];
     const panel1 = home.layout.children?.[1];

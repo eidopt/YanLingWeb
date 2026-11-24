@@ -68,14 +68,18 @@ export class TemplatePipelineService {
       this.safeEmitStage(options?.onStageEvent, phase, payload);
     };
     const ownerUserId = options?.ownerUserId;
+    const signal = options?.signal;
+    const ensureRunning = (): void => {
+      if (signal?.aborted) {
+        throw new Error('template generation cancelled');
+      }
+    };
 
     let reviseSuggestion: string | undefined;
     let lastError: string | undefined;
 
     for (let attempt = 1; attempt <= MAX_PIPELINE_ATTEMPTS; attempt++) {
-      if (options?.signal?.aborted) {
-        throw new Error('template generation cancelled');
-      }
+      ensureRunning();
       this.logger.log(`pipeline attempt ${attempt}/${MAX_PIPELINE_ATTEMPTS} for "${seed.prompt}"`);
 
       // Stage 1: Designer
@@ -89,6 +93,7 @@ export class TemplatePipelineService {
           attempt,
           ownerUserId,
           existing,
+          signal,
         );
       } catch (err) {
         emitStage('end', {
@@ -110,11 +115,12 @@ export class TemplatePipelineService {
       const brief = designerRecord.output;
 
       // Stage 2: Diversity Critic
+      ensureRunning();
       emitStage('start', { stage: 'critic', attempt });
       let criticRecord: PipelineStageRecord<CriticVerdict>;
       const criticStart = Date.now();
       try {
-        criticRecord = await this.critic.run(brief, existing, attempt, ownerUserId);
+        criticRecord = await this.critic.run(brief, existing, attempt, ownerUserId, signal);
       } catch (err) {
         emitStage('end', {
           stage: 'critic',
@@ -162,16 +168,21 @@ export class TemplatePipelineService {
       let lastSchemaError: string | undefined;
 
       for (let schemaAttempt = 1; schemaAttempt <= MAX_SCHEMA_ATTEMPTS_PER_BRIEF; schemaAttempt++) {
+        ensureRunning();
         try {
           schemaRecord = await this.schemaGenerator.run(
             brief,
             attempt,
             ownerUserId,
             schemaAttempt > 1 ? lastSchemaError : undefined,
+            signal,
           );
           break;
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err);
+          if (signal?.aborted || msg === 'template generation cancelled') {
+            throw err instanceof Error ? err : new Error(msg);
+          }
           lastSchemaError = msg;
           const retryAction =
             schemaAttempt < MAX_SCHEMA_ATTEMPTS_PER_BRIEF
@@ -205,6 +216,7 @@ export class TemplatePipelineService {
       stages.schema.push(schemaRecord);
 
       // Stage 4: Verifier (3 lenses concurrently inside)
+      ensureRunning();
       emitStage('start', { stage: 'verifier', attempt });
       const verifierStart = Date.now();
       const schemaOutput = schemaRecord.output;
@@ -216,6 +228,8 @@ export class TemplatePipelineService {
           existing,
           attempt,
           ownerUserId,
+          undefined,
+          signal,
         );
       } catch (err) {
         emitStage('end', {
@@ -273,16 +287,19 @@ export class TemplatePipelineService {
 
       // 分级修复：如果是 spec-compliance / business-fidelity 问题，先尝试对现有 schema 做 1 次
       // 局部修补并复检，避免每次都直接杀回 Stage 1 从 Designer 重头重跑。
+      ensureRunning();
       const repairedSchemaRecord = await this.schemaGenerator.repairFromVerifierFeedback(
         brief,
         schemaOutput,
         failedLenses,
         attempt,
         ownerUserId,
+        signal,
       );
       if (repairedSchemaRecord) {
         stages.schema.push(repairedSchemaRecord);
         const lensesToReverify = failedLenses.map((v) => v.lens);
+        ensureRunning();
         const reverifyRecord = await this.verifier.run(
           brief,
           repairedSchemaRecord.output,
@@ -290,6 +307,7 @@ export class TemplatePipelineService {
           attempt,
           ownerUserId,
           lensesToReverify,
+          signal,
         );
         const reverifyByLens = new Map(reverifyRecord.output.map((v) => [v.lens, v]));
         const mergedVerdicts = verifierRecord.output.map(

@@ -223,7 +223,6 @@ export function commitEditorDocumentSnapshot(
   operations: readonly unknown[],
 ): EditorSnapshotCommit {
   const applied = applyEditorAiEditInstructions(document, operations as readonly EditorAiEditInstruction[], {
-    skipValidation: true,
     resolveSemanticTarget: resolveEditorSemanticTarget,
   });
   if (applied.errors.length > 0) {

@@ -18,6 +18,7 @@ import {
 } from './1748166500000-UserTypeAndFreeQuotas';
 import { AssetLibraryAndTokenGift1748166600000 } from './1748166600000-AssetLibraryAndTokenGift';
 import { TokenVersion1748166700000 } from './1748166700000-TokenVersion';
+import { EditorEditOutbox1748166800000 } from './1748166800000-EditorEditOutbox';
 
 const SchemaUpgradeForExistingDbs = existingDbUpgrade.SchemaUpgradeForExistingDbs1748166100000;
 
@@ -30,6 +31,7 @@ const MIGRATIONS = [
   UserTypeAndFreeQuotas1748166500000,
   AssetLibraryAndTokenGift1748166600000,
   TokenVersion1748166700000,
+  EditorEditOutbox1748166800000,
 ];
 
 interface SqliteNamedRow {
@@ -51,6 +53,7 @@ const APPLICATION_TABLES = [
   'template_agent_permissions',
   'template_evaluation_specs',
   'asset_library_images',
+  'editor_edit_outbox',
 ];
 
 const APPLICATION_SCHEMA_CONTRACT: Record<string, readonly string[]> = {
@@ -195,6 +198,7 @@ const APPLICATION_SCHEMA_CONTRACT: Record<string, readonly string[]> = {
     'createdAt',
     'updatedAt',
   ],
+  editor_edit_outbox: ['id', 'ownerUserId', 'body', 'expiresAt'],
 };
 
 async function hasTable(dataSource: DataSource, tableName: string): Promise<boolean> {
@@ -268,6 +272,7 @@ describe('database migrations', () => {
       'UserTypeAndFreeQuotas1748166500000',
       'AssetLibraryAndTokenGift1748166600000',
       'TokenVersion1748166700000',
+      'EditorEditOutbox1748166800000',
     ]);
 
     for (const [tableName, expectedColumns] of Object.entries(APPLICATION_SCHEMA_CONTRACT)) {

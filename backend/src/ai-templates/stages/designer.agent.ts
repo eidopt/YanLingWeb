@@ -62,6 +62,7 @@ export class DesignerAgent {
     attempt: number,
     ownerUserId?: string,
     existing?: ExistingTemplateSummary[],
+    signal?: AbortSignal,
   ): Promise<PipelineStageRecord<DesignerOutput>> {
     const start = Date.now();
     // Designer 出的 brief 是喂给 SchemaGen 的质量关键输入，**必须用 pro**：
@@ -86,6 +87,7 @@ export class DesignerAgent {
       aiProvider: this.aiProvider,
       ownerUserId,
       cacheKey: 'pipeline-designer',
+      signal,
     });
 
     return {

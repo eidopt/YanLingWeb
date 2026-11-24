@@ -18,19 +18,20 @@ describe('token estimation helpers', () => {
     };
 
     expect(roughTokenCount('12345678')).toBe(2);
+    expect(roughTokenCount('价格')).toBe(4);
     expect(estimateMessageTokens(message)).toBe(2007);
     expect(tokenCountWithEstimation([message])).toBe(2676);
   });
 
-  it('returns 1M default for all models', () => {
-    expect(getContextWindow('GPT-5.5-latest')).toBe(1_000_000);
-    expect(getContextWindow('deepseek-reasoner')).toBe(1_000_000);
-    expect(getContextWindow('unknown-model')).toBe(1_000_000);
+  it('returns a safe 128K default until a window is configured', () => {
+    expect(getContextWindow('GPT-5.5-latest')).toBe(128_000);
+    expect(getContextWindow('deepseek-reasoner')).toBe(128_000);
+    expect(getContextWindow('unknown-model')).toBe(128_000);
   });
 
   it('respects contextWindow override from config', () => {
     expect(getContextWindow('any-model', 200_000)).toBe(200_000);
-    expect(getContextWindow('any-model', 0)).toBe(1_000_000); // ignored (not > 0)
-    expect(getContextWindow('any-model', undefined)).toBe(1_000_000);
+    expect(getContextWindow('any-model', 0)).toBe(128_000);
+    expect(getContextWindow('any-model', undefined)).toBe(128_000);
   });
 });

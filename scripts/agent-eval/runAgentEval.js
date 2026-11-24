@@ -451,7 +451,7 @@ function evaluateSemantic(document, initialDocument, scenario) {
   });
   const failures = results.filter((result) => !result.passed);
   const taskScore = assertions.length ? (assertions.length - failures.length) / assertions.length : 1;
-  return { passed: taskScore >= 0.8, taskScore, failures, results };
+  return { passed: failures.length === 0, taskScore, failures, results };
 }
 
 function renderSmoke(document) {

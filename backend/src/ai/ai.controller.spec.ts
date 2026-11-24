@@ -262,7 +262,6 @@ describe('AiController', () => {
       expect(service.checkRateLimit).toHaveBeenCalledWith('user-1');
       expect(service.stream).toHaveBeenCalledWith('user-1', body, {
         conversationId: 'conv-9',
-        previousResponseId: 'resp-9',
       });
       expect(res.setHeader).toHaveBeenCalledWith(
         'content-type',
@@ -298,7 +297,6 @@ describe('AiController', () => {
 
       expect(service.stream).toHaveBeenCalledWith('user-1', body, {
         conversationId: undefined,
-        previousResponseId: undefined,
       });
       expect(res.setHeader).not.toHaveBeenCalledWith('x-conversation-id', expect.anything());
     });
@@ -425,7 +423,6 @@ describe('AiController', () => {
       expect(service.checkRateLimit).toHaveBeenCalledWith('user-8');
       expect(service.streamEditor).toHaveBeenCalledWith('user-8', body, {
         conversationId: 'conv-2',
-        previousResponseId: 'resp-2',
       });
       expect(res.setHeader).toHaveBeenCalledWith('x-conversation-id', 'conv-2');
       expect(res.flushHeaders).toHaveBeenCalled();

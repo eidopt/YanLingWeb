@@ -408,7 +408,7 @@ export class AiTemplatesService {
     // 控制 critic prompt 长度。
     const templates = await this.templates.findDiversitySummaries({
       displayCategory: seed.displayCategory,
-      limit: 50,
+      limit: 12,
     });
 
     return templates.map((t) => this.toSummary(t));

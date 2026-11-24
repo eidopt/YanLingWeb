@@ -79,6 +79,8 @@ export interface ProviderRequest {
   reasoningEffort?: 'low' | 'medium' | 'high';
   signal?: AbortSignal;
   cacheKey?: string;
+  /** Set only when recovering from an empty max_tokens stop. Omitted requests keep the provider default. */
+  maxTokens?: number;
   cache?: {
     previousResponseId?: string;
   };
